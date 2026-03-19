@@ -200,6 +200,10 @@ export const useBatchDetail = (batchId: string) => {
     const normalizeOldValue = field.normalize_options
       ? normalizeValue(oldData?.[fieldLabel], field.normalize_options)
       : oldData?.[fieldLabel]
+
+    if (field.type === 'hkic') {
+      field.warning = checkHKID(rawValue)
+    }
     return {
       ...field,
       currentValue: normalizedValue,
@@ -393,18 +397,7 @@ export const useBatchDetail = (batchId: string) => {
         const { detail: newDetail, setting: newSetting } = DocumentInitFunctionBackup(detail, setting)
         if(newDetail) detail = newDetail
         if (newSetting) setting = newSetting
-        // if (setting.fieldsSetting.custom_init_logic) {
-        //   try {
-        //     //formValue
 
-        //     const fn = new Function('detail','setting', setting.fieldsSetting.custom_init_logic)
-        //     const { detail: newDetail, setting: newSetting } = fn(detail, setting)
-        //     if(newDetail) detail = newDetail
-        //     if (newSetting) setting = newSetting
-        //   } catch (err) {
-        //     console.error(err)
-        //   }
-        // }
         selectedDocDetail.value = {
           setting,
           detail
@@ -843,11 +836,25 @@ export function normalizeDocumentData(detail: any, setting: any): void {
   if (detail.newResultJson) {
     Object.keys(detail.newResultJson).forEach((sectionKey) => {
       const section = detail.newResultJson[sectionKey]
-      Object.keys(section).forEach((fieldKey) => {
-        if (fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
-          detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
-        }
-      })
+
+      if (Array.isArray(section)) {
+        section.forEach((item) => {
+          Object.keys(item).forEach((fieldKey) => {
+            if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName') {
+
+              item[fieldKey] = item[fieldKey].replaceAll('(', '').replaceAll(')', '')
+            }
+          })
+        })
+      } else {
+
+        Object.keys(section).forEach((fieldKey) => {
+          if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName') {
+
+            detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
+          }
+        })
+      }
     })
   }
 
@@ -856,7 +863,7 @@ export function normalizeDocumentData(detail: any, setting: any): void {
     Object.keys(detail.oldResultJson).forEach((sectionKey) => {
       const section = detail.oldResultJson[sectionKey]
       Object.keys(section).forEach((fieldKey) => {
-        if (fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
+        if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName') {
           detail.oldResultJson[sectionKey][fieldKey] = detail.oldResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
         }
       })

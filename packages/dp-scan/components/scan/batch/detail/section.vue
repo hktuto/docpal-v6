@@ -397,12 +397,12 @@ defineExpose({
                   v-else
                   :model-value="field.currentValue"
                   size="small"
-                  class="fieldInput"
+                  :class="{fieldInput:true, warning: field.warning}"
                   :type="getInputType(field.type)"
                   :disabled="readonly"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 />
-
+                <div v-if="field.warning" class="warningText">{{ field.warning }}</div>
 
                 <!-- Original OCR value display -->
                 <div v-if="field.currentValue !== field.originalValue" class="originalValue">
@@ -419,6 +419,9 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
+.warningText{
+  color: var(--app-warning-color);
+}
 .sectionContainer {
   width: 100%;
   border: 1px solid var(--app-border-color);
@@ -526,6 +529,11 @@ defineExpose({
   &.edited{
     :deep(.el-input__wrapper), :deep(.el-select__wrapper){
       border: 1px solid var(--app-primary-color);
+    }
+  }
+  &.warning {
+    :deep(.el-input__wrapper), :deep(.el-select__wrapper){
+      border: 1px solid var(--app-warning-color);
     }
   }
 }

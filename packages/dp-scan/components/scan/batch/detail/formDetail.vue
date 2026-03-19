@@ -66,8 +66,7 @@ function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowI
 
 // Add row handler
 function handleAddRow(sectionId: string) {
-  addTableRow(sectionId)
-}
+  addTableRow(sectionId)}
 
 // Remove row handler
 function handleRemoveRow(sectionId: string, rowIndex: number) {
@@ -95,7 +94,6 @@ async function handleConfirm() {
     for (let i = 0; i < allSectionsRef.value.length; i++) {
       if (allSectionsRef.value[i].validateForm) {
         const result = await allSectionsRef.value[i].validateForm()
-
         if (!result) {
           routerProvider?.message.error('Validation failed')
           return
@@ -127,6 +125,7 @@ async function handleFileUpload(event: Event) {
   try {
     const formData = new FormData()
     formData.append('file', file)
+
     await clientApi.api.postCaptureBatchBatchidDocDocidReplaceAndRetry(
       currentBatchId.value,
       currentSelectedDoc.value.id,
