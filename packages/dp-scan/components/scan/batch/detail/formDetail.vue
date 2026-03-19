@@ -62,6 +62,9 @@ const fileInputRef = ref<HTMLInputElement>()
 // Update field value handler
 function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowIndex?: number) {
   updateFieldValue(sectionId, fieldKey, value, rowIndex)
+  nextTick(() => {
+    validateAllSection()
+  })
 }
 
 // Add row handler
@@ -87,18 +90,26 @@ async function handleSaveDraft() {
   }
 }
 
+async function validateAllSection(){
+  for (let i = 0; i < allSectionsRef.value.length; i++) {
+    if (allSectionsRef.value[i].validateForm) {
+      const result = await allSectionsRef.value[i].validateForm()
+      if (!result) {
+        return false
+      }
+    }
+  }
+  return true
+}
+
 // Confirm handler
 async function handleConfirm() {
   confirming.value = true
   try {
-    for (let i = 0; i < allSectionsRef.value.length; i++) {
-      if (allSectionsRef.value[i].validateForm) {
-        const result = await allSectionsRef.value[i].validateForm()
-        if (!result) {
-          routerProvider?.message.error('Validation failed')
-          return
-        }
-      }
+    const result = await validateAllSection()
+    if (!result) {
+      routerProvider?.message.error('Validation failed')
+      return
     }
     await confirm()
     routerProvider?.message.success('Document confirmed successfully')
