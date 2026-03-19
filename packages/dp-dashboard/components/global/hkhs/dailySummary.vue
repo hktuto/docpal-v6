@@ -19,6 +19,7 @@ const props = withDefaults(
 const { cardRef, settingRef, refresh, loading } = useDashboardCard({
   props
 })
+const emits = defineEmits(['delete'])
 
 const formData = ref({
   project: '',
@@ -60,17 +61,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
 const footerData = ref([
   {
-    datetime: 'Total',
-    batch_no: 0,
-    form_application_number: '-',
-    to_application_number: '-',
-    no: '-',
-    form_type: '-',
-    source: '-',
-    user_id: '-',
-    is_overwrite: '-',
-    status: '-',
-    remark: '-'
+    datetime: 'Summary',
+    no_of_application: ''
   }
 ])
 
@@ -85,10 +77,8 @@ function handleDownloadCommand(command: string) {
 }
 
 function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project 
-    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
-    : 'SSF2026'
-  
+  const projectName = formData.value.project ? projectList.value.find((p) => p.id === formData.value.project)?.name || 'SSF2026' : 'SSF2026'
+
   return {
     reportId: 'SCS-103',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
@@ -113,18 +103,13 @@ function formatDate(dateStr: string): string {
 }
 
 function handleDownloadExcel() {
-  exportReportToExcel(
-    getReportHeader(),
-    columnsRef.value,
-    dataList.value,
-    footerData.value
-  )
+  exportReportToExcel(getReportHeader(), columnsRef.value, dataList.value, footerData.value)
 }
 
 function handleDownloadPDF() {
   exportReportToPDF(
     getReportHeader(),
-    columnsRef.value.map(col => ({ field: col.field, title: col.title })),
+    columnsRef.value.map((col) => ({ field: col.field, title: col.title })),
     dataList.value
   )
 }
@@ -134,12 +119,12 @@ function handleDelete() {
 }
 
 function handleRefresh() {
-  query()
   reload()
   refresh()
 }
 
 const dataList = ref([])
+const tableData = ref<any[]>([])
 async function getData() {
   const rpcParams = {
     p_start_date: formData.value.date[0],
@@ -148,13 +133,24 @@ async function getData() {
     default_schema: true
   }
   const data = await newClientApi.postPostgrestRpcFunc('get_daily_export_summary', JSON.stringify(rpcParams)).then((r) => r.data)
-  const element: any = data[data.length - 1]
-  data.splice(data.length - 1, 1)
-  footerData.value[0].no_of_application = element.no_of_application
-  footerData.value[0].status = element.status
 
-  dataList.value = data
-  return data
+  const filtered = data.filter((item: any) => item.row_type !== 'empty' && item.row_type !== 'title' && item.row_type !== 'summary')
+  const summaryList = data.filter((item: any) => item.row_type == 'summary')
+
+  const tableList: any[] = []
+  summaryList.forEach((item: any) => {
+    tableList.push({
+      stage: item.remark,
+      batchesSuccess: 0,
+      batchesFail: 0,
+      applicationsSuccess: 0,
+      applicationsFail: 0
+    })
+  })
+  tableData.value = tableList
+
+  dataList.value = filtered
+  return filtered
 }
 
 const columnsRef = ref([
@@ -231,55 +227,79 @@ onMounted(async () => {
       </el-dropdown>
     </template>
 
-    <div class="pageContainer--padding">
-      <VxeGrid show-footer ref="tableRef" v-bind="tableConfig" v-on="tableEvent" :footer-data="footerData">
-        <template #toolbar_buttons>
-          <div class="toolbar-wrap">
-            <div class="toolbar-form-row">
-              <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
-                <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
-              </el-select>
-              <el-select class="toolbar-select toolbar-select--type">
-                <el-option @change="query" />
-              </el-select>
-              <el-date-picker
-                class="toolbar-date"
-                v-model="formData.date"
-                type="daterange"
-                format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
-                range-separator="~"
-                start-placeholder="Start month"
-                end-placeholder="End month"
-                unlink-panels
-                :clearable="false"
-                @change="query"
-              />
-            </div>
+    <div class="table-wrap">
+      <div class="pageContainer--padding">
+        <VxeGrid show-footer ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+          <template #toolbar_buttons>
+            <div class="toolbar-wrap">
+              <div class="toolbar-form-row">
+                <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
+                  <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
+                </el-select>
+                <el-select class="toolbar-select toolbar-select--type">
+                  <el-option @change="query" />
+                </el-select>
+                <el-date-picker
+                  class="toolbar-date"
+                  v-model="formData.date"
+                  type="daterange"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  range-separator="~"
+                  start-placeholder="Start month"
+                  end-placeholder="End month"
+                  unlink-panels
+                  :clearable="false"
+                  @change="query"
+                />
+              </div>
 
-            <div class="toolbar-sorting-wrap">
-              <el-dropdown trigger="click" @command="HandleSorting">
-                <el-button text>
-                  {{ sortingName }} &nbsp;
-                  <el-icon><ArrowDownBold /></el-icon>
-                </el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item v-for="(item, index) in columnsRef" :command="item.field">{{ item.title }}</el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-              <Icon :name="orderBy ? 'mdi:sort-descending' : 'mdi:sort-ascending'" style="background-color: #1abc9c" @click="handleOrderBy" />
+              <div class="toolbar-sorting-wrap">
+                <el-dropdown trigger="click" @command="HandleSorting">
+                  <el-button text>
+                    {{ sortingName }} &nbsp;
+                    <el-icon><ArrowDownBold /></el-icon>
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item v-for="(item, index) in columnsRef" :command="item.field">{{ item.title }}</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+                <Icon :name="orderBy ? 'mdi:sort-descending' : 'mdi:sort-ascending'" style="background-color: #1abc9c" @click="handleOrderBy" />
+              </div>
             </div>
-          </div>
-        </template>
-      </VxeGrid>
+          </template>
+        </VxeGrid>
+      </div>
+
+      <el-divider />
+
+      <div style="margin-top: 20px">
+        <el-table :data="tableData" style="width: 100%">
+          <el-table-column prop="stage" label="Stage" />
+          <el-table-column align="center" label="No.of Batches">
+            <el-table-column align="center" prop="batchesSuccess" label="Success" />
+            <el-table-column align="center" prop="batchesFail" label="Fail" />
+          </el-table-column>
+          <el-table-column align="center" label="No.of Applications">
+            <el-table-column align="center" prop="applicationsSuccess" label="Success" />
+            <el-table-column align="center" prop="applicationsFail" label="Fail" />
+          </el-table-column>
+        </el-table>
+      </div>
     </div>
-    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)"/>
+
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)" />
   </DashboardCard>
 </template>
 
 <style scoped lang="scss">
+.table-wrap {
+  height: 100%;
+  overflow-y: auto;
+}
+
 .title-suffix-name {
   font-size: var(--app-font-size-xxl);
 }
