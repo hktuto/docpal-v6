@@ -202,7 +202,8 @@ export const useBatchDetail = (batchId: string) => {
       : oldData?.[fieldLabel]
 
     if (field.type === 'hkic') {
-      field.warning = checkHKID(rawValue)
+      const isValue = checkHKID(rawValue)
+      field.warning = isValue ? isValue.message : undefined
     }
     return {
       ...field,
