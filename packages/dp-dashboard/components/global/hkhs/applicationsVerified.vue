@@ -36,32 +36,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'form_type', title: 'Form Type' },
     { field: 'before', title: 'Before' },
     { field: 'after', title: 'After' },
-
-    // {
-    //   field: 'compare',
-    //   title: 'Compare',
-    //   minWidth: 120,
-    //   type: 'html',
-    //   formatter: ({ cellValue, row }) => {
-    //     return cellValue
-    //     /*return `<table>
-    //               <thead>
-    //                 <tr>
-    //                   <th>Appin No.</th>
-    //                   <th>Form Type</th>
-    //                   <th>HKIC</th>
-    //                   <th>Payment Ref</th>
-    //                   <th>Family Class</th>
-    //                 </tr>
-    //               </thead>
-    //               <tbody>
-    //                 <tr>
-    //                   <td>${cellValue}</td>
-    //                 </tr>
-    //               </tbody>
-    //             </table>`*/
-    //   }
-    // },
     {
       field: 'modified',
       title: 'Modified',
@@ -262,6 +236,26 @@ function handleOrderBy() {
 
 const projectList = ref([])
 
+const statusMapRef = ref('')
+const statusList = ref([
+  {
+    label: 'Processing',
+    value: 'processing',
+    status: ['processing', 'uploaded', 'classification', 'page-split', 'ratio-resize', 'ocr', 'exporting', 'combine-document']
+  },
+  { label: 'Verification', value: 'verification', status: ['draft', 'processed', 'verifying', 'verified'] },
+  { label: 'Export Ready', value: 'exportReady', status: ['exportReady', 'export-ready'] },
+  { label: 'Completed', value: 'completed', status: ['completed'] },
+  { label: 'Failed', value: 'failed', status: ['failed-to-process', 'failed-to-export', 'upload-fail'] },
+  { label: 'Cancelled', value: 'cancelled', status: ['cancelled'] }
+])
+
+function handleStatusMap() {
+  const find = statusList.value.find((item: any) => item.value == statusMapRef.value)
+  const filter = dataList.value.filter((item: any) => find.status.includes(item.status))
+  tableRef.value.loadData(filter)
+}
+
 onMounted(async () => {
   projectList.value = await newClientApi.postCaptureProjPage({}).then((r) => r.data)
 })
@@ -305,8 +299,8 @@ onMounted(async () => {
               <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
                 <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
               </el-select>
-              <el-select class="toolbar-select toolbar-select--type">
-                <el-option @change="query" />
+              <el-select class="toolbar-select toolbar-select--type" v-model="statusMapRef" @change="handleStatusMap">
+                <el-option v-for="(item, index) in statusList" :label="item.label" :value="item.value" />
               </el-select>
               <el-date-picker
                 class="toolbar-date"
