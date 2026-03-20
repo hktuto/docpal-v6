@@ -20,11 +20,16 @@ const {
   selectedDocDetail,
   sectionsWithValues,
   projectId,
-  reload
+  reload,
+  isLockedByOther,
 } = useBatchDetail(props.batchId)
+
+
 
 // Get permission helpers
 const { isAdmin, isExporter, isVerifier } = useScanClient()
+const canVerify = computed(() => isVerifier(projectId.value))
+const isReadonly = computed(() => isLockedByOther.value || !canVerify.value || selectedDocDetail.value.detail.status === 'completed' )
 
 // Loading state for document selection
 const selectingDoc = ref(false)
@@ -224,12 +229,14 @@ watch(detailLoading, (isLoading) => {
       <ElSplitterPanel>
         <ScanBatchDetailFilePreview
           v-if="selectedDocDetail"
+          :isReadonly="isReadonly"
         />
       </ElSplitterPanel>
 
       <ElSplitterPanel size="400px" min="200">
         <ScanBatchDetailFormDetail
           v-if="selectedDocDetail"
+          :isReadonly="isReadonly"
         />
       </ElSplitterPanel>
     </ElSplitter>

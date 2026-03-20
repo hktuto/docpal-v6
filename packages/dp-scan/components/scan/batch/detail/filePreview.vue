@@ -5,7 +5,9 @@ const context = useBatchDetailContext()
 if (!context) {
   throw new Error('BatchDetailContext not found')
 }
-
+const props = defineProps<{
+  isReadonly:boolean
+}>()
 // Destructure for easier access (no .value needed in template)
 const {
   previewLoading,
@@ -133,7 +135,7 @@ function drawCanvas() {
   ctx.drawImage(img, 0, 0, displayWidth, displayHeight)
 
   // Draw editing highlight if in edit mode
-  if (isEditingCrop.value && editingZone.value) {
+  if (isEditingCrop.value && editingZone.value && !props.isReadonly) {
     drawEditingHighlightBox(ctx, editingZone.value, scale)
   } else {
     // Draw section highlight if on current page

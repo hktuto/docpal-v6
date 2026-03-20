@@ -2,6 +2,10 @@
 import { useBatchDetailContext, useScanClient } from '#imports'
 import { clientApi } from 'api'
 
+const props = defineProps<{
+  isReadonly:boolean
+}>()
+
 const context = useBatchDetailContext()
 if (!context) {
   throw new Error('BatchDetailContext not found')
@@ -29,9 +33,6 @@ const routerProvider = inject(MenuRouterKey)
 // Check user permissions
 const { isVerifier } = useScanClient()
 const canVerify = computed(() => isVerifier(projectId.value))
-
-// Check if form should be readonly (locked by other or no verifier permission)
-const isReadonly = computed(() => isLockedByOther.value || !canVerify.value || context?.selectedDocDetail.value.detail.status === 'completed' )
 
 // Get lock message
 const lockMessage = computed(() => {
