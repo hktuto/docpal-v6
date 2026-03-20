@@ -164,13 +164,14 @@ function handleUpdateBody(body: any) {
   updateData()
 }
 
-function handleOpenResponseDialog(){
+function handleOpenResponseDialog() {
   // outputMappingRef.value.open()
   outputMappingDialogRef.value.open()
 }
 
-function handleOutputMapping() {
-
+function handleOutputMapping(mapping: any) {
+  formData.value.output_mapping = mapping
+  updateData()
 }
 
 function openBodyEdit() {
@@ -275,8 +276,8 @@ watch(
   <LazyContextHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
   <LazyContextHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
 
-<!--  <LazyContextHttpTaskOutputMapping ref="outputMappingRef" @update="handleOutputMapping" />-->
-  <LazyContextHttpTaskOutputMappingDialog ref="outputMappingDialogRef" @update="handleOutputMapping" />
+  <!--  <LazyContextHttpTaskOutputMapping ref="outputMappingRef" @update="handleOutputMapping" />-->
+  <LazyContextHttpTaskOutputMappingDialog ref="outputMappingDialogRef" :mapping="formData.output_mapping" @update="handleOutputMapping" />
 </template>
 
 <style scoped lang="scss">

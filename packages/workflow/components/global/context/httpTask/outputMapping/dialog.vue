@@ -4,6 +4,10 @@ if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 
+const { mapping } = defineProps<{
+  mapping: any
+}>()
+
 const mappingTypeList = ref([
   { label: 'String', value: 'string' },
   { label: 'Array', value: 'array' },
@@ -15,7 +19,7 @@ const mappingTypeList = ref([
 interface OutputMappingRow {
   key: string
   value: string
-  type: string
+  // type: string
 }
 
 const tableData = ref<OutputMappingRow[]>([])
@@ -24,10 +28,10 @@ const { t } = useI18n()
 const dialogVisible = ref(false)
 const createMapping = ref<{
   key: string
-  type: string
+  // type: string
 }>({
   key: '',
-  type: 'string'
+  // type: 'string'
 })
 const { getVariablesByType } = useVariablesProvide()
 const stringFields = computed(() => {
@@ -35,20 +39,29 @@ const stringFields = computed(() => {
 })
 
 function open() {
+  tableData.value = Object.entries(mapping).map(([key, value]) => ({
+    key,
+    value,
+    // type: 'string'
+  }))
   dialogVisible.value = true
 }
 
 function handleCreate() {
-  if (!createMapping.value.key || createMapping.value.key === '') return
+  const key = createMapping.value.key.trim()
+  if (!key || key === '') return
 
-  const value = createMapping.value.key
-  const find = tableData.value.find((item: any) => item.key === `${value}_budget`)
+  const find = tableData.value.find((item: any) => item.key === `${key}_budget`)
   if (!!find) {
     routerProvider?.message.error('Key already exists')
     return
   }
 
-  tableData.value.push({ key: `${value}_budget`, value: '', type: createMapping.value.type })
+  tableData.value.push({
+    key: `${key}_budget`,
+    value: '',
+    // type: createMapping.value.type
+  })
   createMapping.value.key = ''
   createMapping.value.type = 'string'
 }
@@ -64,8 +77,12 @@ function handleSubmit() {
     return
   }
 
+  const result = tableData.value.reduce((acc, { key, value }) => {
+    acc[key] = value
+    return acc
+  }, {})
+  emits('update', result)
   dialogVisible.value = false
-  emits('update', tableData.value)
 }
 
 function handleKey(key: string) {
@@ -79,11 +96,11 @@ defineExpose({ open })
   <el-dialog v-model="dialogVisible" :title="t('Add Mapping')" append-to-body :close-on-click-modal="false">
     <div>
       <el-input v-model="createMapping.key" style="max-width: 600px" placeholder="Please input Key">
-        <template #prepend>
-          <el-select v-model="createMapping.type" style="width: 115px">
-            <el-option v-for="item in mappingTypeList" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </template>
+<!--        <template #prepend>-->
+<!--          <el-select v-model="createMapping.type" style="width: 115px">-->
+<!--            <el-option v-for="item in mappingTypeList" :key="item.value" :label="item.label" :value="item.value" />-->
+<!--          </el-select>-->
+<!--        </template>-->
         <template #append>
           <el-button @click="handleCreate" style="background-color: #1dd6c3; color: #ffffff">Add Mapping</el-button>
         </template>
@@ -95,11 +112,11 @@ defineExpose({ open })
             {{ handleKey(row.key) }}
           </template>
         </el-table-column>
-        <el-table-column :label="t('Type')" prop="type">
-          <template #default="{ row, $index }">
-            {{ row.type }}
-          </template>
-        </el-table-column>
+<!--        <el-table-column :label="t('Type')" prop="type">-->
+<!--          <template #default="{ row, $index }">-->
+<!--            {{ row.type }}-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <el-table-column :label="t('Value')" prop="value">
           <template #default="{ row, $index }">
             <el-select v-model="row.value">

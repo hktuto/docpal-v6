@@ -6,9 +6,9 @@ export enum WorkflowElementType {
   EndEvent = 'EndEvent',
   Gateway = 'Gateway',
   UserTask = 'UserTask',
-  HTTPTask = 'HTTPTask'
+  HTTPTask = 'HTTPTask',
+  ServiceTask = 'ServiceTask',
   // exclusiveGateway = 'exclusiveGateway',
-  // ServiceTask = 'serviceTask',
   // boundaryEvent = 'boundaryEvent',
   // scriptTask = 'scriptTask',
   // sequenceFlow = 'sequenceFlow'
@@ -133,7 +133,8 @@ export enum CellType {
   exclusive = 'ExclusiveGateway',
   parallel = 'ParallelGateway',
   inclusive = 'InclusiveGateway',
-  HTTPTask = 'HTTPTask'
+  HTTPTask = 'HTTPTask',
+  uniqueIdGenerator = 'UniqueIdGenerator',
 }
 
 interface portsItems {
@@ -174,6 +175,7 @@ export type CellTypeItem = {
         booleanButton?: any[]
         rules?: any
       }
+      celCondition?: string
     }
   }
 }
@@ -518,13 +520,13 @@ export const workflowElement: WorkflowElement = {
         group: '',
         order: 0
       },
-      {
-        id: CellType.signatureTask,
-        label: 'User Signature Task',
-        icon: 'lucide:user-round-pen',
-        group: '',
-        order: 0
-      }
+      // {
+      //   id: CellType.signatureTask,
+      //   label: 'User Signature Task',
+      //   icon: 'lucide:user-round-pen',
+      //   group: '',
+      //   order: 0
+      // }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
       let title = 'User Task'
@@ -569,9 +571,28 @@ export const workflowElement: WorkflowElement = {
       return 'LazyContextUserTask'
     }
   },
-  // ServiceTask: {
-  //
-  // },
+  ServiceTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.uniqueIdGenerator,
+        icon: 'mdi:numeric',
+        label: 'Unique Id Generator',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
+      return {
+        id: workflowNodeItem.id,
+        markup: [],
+      }
+    },
+    clickHandler: () => {},
+    contextMenuComponent: () => {
+      return 'LazyContextServiceTask'
+    }
+  },
   HTTPTask: {
     embed: false,
     toolbar: [
@@ -862,13 +883,46 @@ const workflowCellElementTemplate: CellTypeItem = {
         headers: {},
         body: {},
         output_mapping: {},
-        celCondition: {},
-        inputSchema: {},
-        outputSchema: {}
       },
       metadata: {
         tags: CellType.HTTPTask
-      }
+      },
+      celCondition: '',
+      inputSchema: '',
+      outputSchema: ''
+    }
+  },
+  UniqueIdGenerator: {
+    id: `New_UniqueIdGenerator_${Date.now()}`,
+    label: 'Unique Id Generator',
+    shape: 'bpmn-node',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('Unique Id Generator', 'Unique Id Generator', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New Unique Id Generator',
+      label: 'New Unique Id Generator',
+      documentation: '',
+      type: WorkflowElementType.ServiceTask,
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      metadata: {
+        tags: CellType.uniqueIdGenerator
+      },
     }
   }
 }
