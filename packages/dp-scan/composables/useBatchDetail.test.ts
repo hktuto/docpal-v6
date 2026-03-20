@@ -27,10 +27,10 @@ vi.mock('element-plus/es/components/time-picker/src/composables/use-time-picker.
 }))
 
 // Import the functions after mocking
-const { 
-  normalizeDocumentData, 
-  calculateFamilyClassification, 
-  updateDocumentValues 
+const {
+  normalizeDocumentData,
+  calculateFamilyClassification,
+  updateDocumentValues
 } = await import('./useBatchDetail')
 
 // Type definitions for test data
@@ -181,7 +181,7 @@ describe('Part 1: normalizeDocumentData', () => {
   it('should apply zoneResizeConfig to settings sections', () => {
     const detail: any = {
       zoneResizeConfig: {
-        section1: { page: 1, zone: '100,200,300,400' }
+        section1: { zone: { page: 1, zone: '100,200,300,400' } }
       }
     }
     const setting = createMockSetting()

@@ -158,7 +158,7 @@ async function handleConfirm() {
     }
     await confirm()
     routerProvider?.message.success('Document confirmed successfully')
-    // routerProvider?.reloadComponent()
+    routerProvider?.reloadComponent()
   } catch (error) {
     routerProvider?.message.error('Failed to confirm document')
   } finally {

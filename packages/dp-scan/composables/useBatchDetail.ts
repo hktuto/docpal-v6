@@ -733,7 +733,20 @@ export const useBatchDetail = (batchId: string) => {
       )
       // TODO : Select Next Document, and reload page
       // TODO:　calculate selected document index
-      await getBatchDetail()
+      // const index = batchDetail.value.documents.find((b) => b.id === currentSelectedDoc.value.id)
+      // if (index !== -1 ) {
+      //   if (index === batchDetail.value.documents.length - 1) {
+      //     // is last page
+      //     await getBatchDetail(index)
+      //   } else {
+      //     await getBatchDetail(index + 1)
+      //   }
+
+      // } else {
+      //   await getBatchDetail()
+      // }
+
+
     } catch (error) {
       console.error('Failed to confirm:', error)
       throw error
@@ -749,15 +762,17 @@ export const useBatchDetail = (batchId: string) => {
     // Find the section in the current settings
     // const sectionIndex = settings.section?.findIndex((s: any) => s.section_id === sectionId)
     if (!selectedDocDetail.value.detail.zoneResizeConfig) {
-      selectedDocDetail.value.detail.zoneResizeConfig = {}
+      selectedDocDetail.value.detail.zoneResizeConfig = { }
     }
     selectedDocDetail.value.setting.fieldsSetting.section?.forEach((section) => {
-      if (selectedDocDetail.value.detail.zoneResizeConfig[section.section_id]) {
+      if (selectedDocDetail.value.detail.zoneResizeConfig[section.section_id] && selectedDocDetail.value.detail.zoneResizeConfig[section.section_id].zone) {
 
         section.zone = newZone
       }
     })
-    selectedDocDetail.value.detail.zoneResizeConfig[sectionId] = newZone
+    selectedDocDetail.value.detail.zoneResizeConfig[sectionId] = {
+      zone: newZone
+    }
 
     const index = sectionsWithValues.value.findIndex(s => s.section_id === sectionId)
 
@@ -893,8 +908,8 @@ export function normalizeDocumentData(detail: any, setting: any): void {
   // Convert section zoneResizeConfig to settings section
   if (detail.zoneResizeConfig) {
     setting.fieldsSetting.section?.forEach((section: any) => {
-      if (detail.zoneResizeConfig[section.section_id]) {
-        section.zone = detail.zoneResizeConfig[section.section_id]
+      if (detail.zoneResizeConfig[section.section_id] && detail.zoneResizeConfig[section.section_id].zone) {
+        section.zone = detail.zoneResizeConfig[section.section_id].zone
       }
     })
   }
