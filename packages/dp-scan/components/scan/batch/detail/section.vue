@@ -49,9 +49,12 @@ function getZoneString(zoneData: any): string | null {
 
 // Handle mouse enter for section - highlight persists until another is hovered
 function handleSectionMouseEnter() {
+  if (props.section.section_type !== 'table') {
+
   selectSection(props.section)
   // Clear field highlight when selecting a new section
   selectField(null)
+  }
 }
 
 // Handle field mouse enter - highlight persists until another is hovered

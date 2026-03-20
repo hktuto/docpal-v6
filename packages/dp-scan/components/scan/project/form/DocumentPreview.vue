@@ -135,6 +135,8 @@ export interface CropInput {
 interface FabricCropItem {
   id: string | number
   rect: fabric.Rect
+  label: fabric.Text | null
+  labelBg: fabric.Rect | null
   editable: boolean
   isResizing: boolean
   resizeHandle: string | null
@@ -397,18 +399,28 @@ function applyCropDimming() {
 
   fabricCrops.value.forEach((fabricCrop, id) => {
     const rect = fabricCrop.rect
+    const label = fabricCrop.label
+    const labelBg = fabricCrop.labelBg
     if (!rect) return
 
     if (focusedCropId.value === null) {
       // No focus - reset all to normal opacity
       rect.set({ opacity: 1 })
+      label?.set({ opacity: 1 })
+      labelBg?.set({ opacity: 1 })
     } else if (id === focusedCropId.value) {
       // Focused crop - full opacity, bring to front
       rect.set({ opacity: 1 })
+      label?.set({ opacity: 1 })
+      labelBg?.set({ opacity: 1 })
       canvas?.bringToFront(rect)
+      if (labelBg) canvas?.bringToFront(labelBg)
+      if (label) canvas?.bringToFront(label)
     } else {
       // Non-focused crops - dimmed
       rect.set({ opacity: 0.3 })
+      label?.set({ opacity: 0.3 })
+      labelBg?.set({ opacity: 0.3 })
     }
   })
 
@@ -542,6 +554,54 @@ function renderCropOnCanvas(crop: CropItem) {
     data: { cropId: crop.id }
   })
 
+  // Create label text and background
+  const labelText = crop.label || crop.key || String(crop.id)
+  const padding = 8
+  const fontSize = 24
+  
+  // Create label text object first to measure width
+  const label = new fabric.Text(labelText, {
+    left: zoneCoords.x + padding,
+    top: zoneCoords.y + padding,
+    fontSize: fontSize,
+    fontFamily: 'Arial, sans-serif',
+    fill: '#ffffff',
+    selectable: false,
+    evented: false,
+    data: { cropId: crop.id, isLabel: true }
+  })
+
+  // Create label background with border matching zone stroke width
+  const labelBg = new fabric.Rect({
+    left: zoneCoords.x,
+    top: zoneCoords.y,
+    width: label.width + padding * 2,
+    height: label.height + padding * 2,
+    fill: color,
+    stroke: color,
+    strokeWidth: 4,
+    selectable: false,
+    evented: false,
+    data: { cropId: crop.id, isLabelBg: true }
+  })
+
+  // Function to update label position when rect moves/resizes
+  const updateLabelPosition = () => {
+    if (!label || !labelBg) return
+    const rectLeft = rect.left || 0
+    const rectTop = rect.top || 0
+    
+    labelBg.set({
+      left: rectLeft,
+      top: rectTop
+    })
+    
+    label.set({
+      left: rectLeft + padding,
+      top: rectTop + padding
+    })
+  }
+
   // Add event listeners for editable crops
   if (editable) {
     rect.on('modified', (e:any) => {
@@ -559,7 +619,16 @@ function renderCropOnCanvas(crop: CropItem) {
           scaleY: 1
         });
       }
+      updateLabelPosition()
       updateCropFromFabric(crop.id, rect)
+    })
+
+    rect.on('moving', () => {
+      updateLabelPosition()
+    })
+
+    rect.on('scaling', () => {
+      updateLabelPosition()
     })
 
     rect.on('selected', () => {
@@ -574,12 +643,17 @@ function renderCropOnCanvas(crop: CropItem) {
     })
   }
 
+  // Add objects to canvas: label background first, then rect, then label on top
+  canvas.add(labelBg)
   canvas.add(rect)
+  canvas.add(label)
 
   // Store fabric crop reference
   fabricCrops.value.set(crop.id, {
     id: crop.id,
     rect,
+    label,
+    labelBg,
     editable,
     isResizing: false,
     resizeHandle: null
@@ -684,12 +758,16 @@ function highlightCrop(cropId: string | number) {
 function removeCropFromCanvas(cropId: string | number) {
   const fabricCrop = fabricCrops.value.get(cropId)
   if (fabricCrop && canvas) {
-    const allObj = canvas.getObjects()
-    allObj.forEach((rec:any) => {
-      if(rec.data.cropId === cropId){
-        canvas.remove(rec)
-      }
-    })
+    // Remove label, labelBg, and rect
+    if (fabricCrop.label) {
+      canvas.remove(fabricCrop.label)
+    }
+    if (fabricCrop.labelBg) {
+      canvas.remove(fabricCrop.labelBg)
+    }
+    if (fabricCrop.rect) {
+      canvas.remove(fabricCrop.rect)
+    }
 
     fabricCrops.value.delete(cropId)
     canvas.renderAll()
