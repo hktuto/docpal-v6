@@ -9,6 +9,8 @@ const { node } = defineProps<{
 const variablesParamsRef = ref()
 const variablesHeaderRef = ref()
 const bodyDialogRef = ref()
+const outputMappingRef = ref()
+const outputMappingDialogRef = ref()
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
@@ -162,6 +164,15 @@ function handleUpdateBody(body: any) {
   updateData()
 }
 
+function handleOpenResponseDialog(){
+  // outputMappingRef.value.open()
+  outputMappingDialogRef.value.open()
+}
+
+function handleOutputMapping() {
+
+}
+
 function openBodyEdit() {
   bodyDialogRef.value.open(formData.value.body)
 }
@@ -254,11 +265,18 @@ watch(
         </div>
       </div>
     </el-form-item>
+
+    <el-form-item :label="t('Response Mapping')">
+      <el-button size="small" type="primary" style="width: 100%" @click="handleOpenResponseDialog">Add Response Mapping</el-button>
+    </el-form-item>
   </el-form>
 
   <LazyContextHttpTaskVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
   <LazyContextHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
   <LazyContextHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
+
+<!--  <LazyContextHttpTaskOutputMapping ref="outputMappingRef" @update="handleOutputMapping" />-->
+  <LazyContextHttpTaskOutputMappingDialog ref="outputMappingDialogRef" @update="handleOutputMapping" />
 </template>
 
 <style scoped lang="scss">
