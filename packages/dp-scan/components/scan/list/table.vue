@@ -231,7 +231,7 @@ onMounted(() => {
       return
     }
 
-  }, 60000)
+  }, 30000)
 })
 </script>
 
