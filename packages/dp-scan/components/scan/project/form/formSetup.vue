@@ -70,7 +70,7 @@ async function initFormConfig() {
       formConfig.value.form_name = props.formDetail.formName
     }
   }
-  console.log("formConfig.value", formConfig.value.section[1].fields[0].zone)
+
   // Setup document paths
   await setupDocumentPaths()
   initPreview()

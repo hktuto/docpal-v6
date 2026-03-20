@@ -1,9 +1,9 @@
 import { clientApi } from 'api'
 import { normalizeValue, createValidator, type NormalizeOptions, type ValidationFunction } from '../types/formOCR'
-import { useOldValue } from 'element-plus/es/components/time-picker/src/composables/use-time-picker.mjs'
+
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-
+import type {HighlightedParams, ZoneObject, FieldWithValue, SectionWithValues, BatchDetailContext} from '#imports'
 // Extend dayjs with customParseFormat for strict date parsing
 dayjs.extend(customParseFormat)
 
@@ -59,92 +59,6 @@ dayjs.extend(customParseFormat)
  * }
  */
 
-export type HighlightedParams = {
-  section_type?: string
-  page: number // start from 1
-  zone: string // 'topleft x,topleft y, bottom right x, bottom right y'
-}
-
-export type ZoneObject = {
-  page: number
-  zone: string
-}
-
-export type FieldWithValue = {
-  key: string
-  type: string
-  zone: ZoneObject
-  lable: string
-  label?: string
-  need_ocr: boolean
-  required?: boolean
-  export_label: string
-  support_chs_to_cht?: boolean
-  field_setting?: {
-    options: Record<string, string>[]
-  }
-  format?: string // e.g. 'DD/MM/YYYY' for date formatting
-  page?: number // for table type if field is from other page then section
-  // Added values from result JSON
-  currentValue: any
-  originalValue: any
-  options?: { label: string; value: string }[]
-  // Normalization and validation
-  normalize_options?: NormalizeOptions
-  validation_function?: ValidationFunction
-}
-
-export type SectionWithValues = {
-  zone: ZoneObject
-  fields: FieldWithValue[]
-  section_id: string
-  corp_to_scan: boolean
-  export_label: string
-  merge_method: string
-  section_name: string
-  section_type: 'standard' | 'table'
-  save_to_result: boolean
-  prompt_template_id: string
-
-  // Added values from result JSON
-  currentValue: any
-  originalValue: any
-  // For table type sections
-  rows?: { currentValue: any; originalValue: any; fields: FieldWithValue[] }[]
-}
-
-// Type for editable sections (save_to_result = true)
-
-export type BatchDetailContext = {
-  currentBatchId: Ref<string>
-  detailLoading: Ref<boolean>
-  documentLoading: Ref<boolean>
-  previewLoading: Ref<boolean>
-  batchDetail: Ref<any>
-  projectId: ComputedRef<string | undefined>
-  currentSelectedDoc: Ref<any>
-  selectedDocDetail: Ref<any>
-  totalPages: Ref<number | undefined>
-  currentPageNumber: Ref<number | undefined>
-  previewImgUrl: Ref<string | null>
-  highlightedSection: Ref<HighlightedParams | undefined>
-  highlightedField: Ref<HighlightedParams | undefined>
-  sectionsWithValues: Ref<SectionWithValues[]>
-  isLockedByOther: Ref<boolean>
-  lockedByUser: Ref<string | undefined>
-  selectSection: (section: any) => void
-  selectField: (field: any) => void
-  changePage: (pageNumber: number) => Promise<void>
-  updateFieldValue: (sectionId: string, fieldKey: string, value: any, rowIndex?: number) => void
-  addTableRow: (sectionId: string) => void
-  removeTableRow: (sectionId: string, rowIndex: number) => void
-  saveDraft: () => Promise<void>
-  confirm: () => Promise<void>
-  reload: () => Promise<void>
-  updateSectionZone: (sectionId: string, newZone: ZoneObject) => Promise<void>
-  buildResultJson: () => Record<string, any>
-}
-
 export const useBatchDetail = (batchId: string) => {
   // State
   const currentBatchId = ref(batchId)
@@ -156,6 +70,7 @@ export const useBatchDetail = (batchId: string) => {
   // Selected Document State
   const currentSelectedDoc = ref()
   const selectedDocDetail = ref()
+  const sectionFormRef = ref()
 
   // Document Detail State
   const totalPages = ref<number>()
@@ -178,24 +93,13 @@ export const useBatchDetail = (batchId: string) => {
   const isLockedByOther = ref(false)
   const lockedByUser = ref<string | undefined>()
 
-  // Watch for selectedDocDetail changes and rebuild sectionsWithValues
-  watch(selectedDocDetail, (newValue, oldValue) => {
-    if (selectedDocDetail.value && (!oldValue || newValue.detail.id !== oldValue.detail.id)) {
-      buildSectionsWithValues()
-      setupPreview()
-    }
-  }, { deep: true })
+  // End State
+
+
 
   function convertFieldToWithValues(field:any, newData: Record<string, any>, oldData: Record<string, any> | undefined) :FieldWithValue {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
-
-    // if (fieldLabel === "FamilyMemberMaritalStatus") {
-    //   console.log(field)
-    //   const normalizedValue = normalizeValue(rawValue, field.field_setting.options, field.normalize_options)
-    //   console.log("FamilyMemberMaritalStatus", rawValue, normalizedValue)
-
-    // }
 
     const normalizedValue = field.normalize_options
       ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options)
@@ -335,7 +239,7 @@ export const useBatchDetail = (batchId: string) => {
     return result
   }
 
-  // End State
+
 
   async function getBatchDetail(selectIndex?:number) {
     detailLoading.value = true
@@ -493,22 +397,6 @@ export const useBatchDetail = (batchId: string) => {
     }
   }
 
-  /**
-   * Parse zone string to coordinates
-   * Zone format: "x1,y1,x2,y2" (topleft x, topleft y, bottomright x, bottomright y)
-   */
-  function parseZone(zone: string): { x: number; y: number; width: number; height: number } | null {
-    if (!zone) return null
-    const parts = zone.split(',').map(p => parseFloat(p.trim()))
-    if (parts.length !== 4 || parts.some(isNaN)) return null
-    const [x1, y1, x2, y2] = parts
-    return {
-      x: Math.min(x1, x2),
-      y: Math.min(y1, y2),
-      width: Math.abs(x2 - x1),
-      height: Math.abs(y2 - y1)
-    }
-  }
 
   /**
    * Extract zone info from section/field object
@@ -699,6 +587,7 @@ export const useBatchDetail = (batchId: string) => {
         currentSelectedDoc.value.id,
         newDetail
       )
+
     } catch (error) {
       console.error('Failed to save draft:', error)
       throw error
@@ -737,7 +626,7 @@ export const useBatchDetail = (batchId: string) => {
       )
       // TODO : Select Next Document, and reload page
       // TODO:　calculate selected document index
-      const index = batchDetail.value.documents.find((b) => b.id === currentSelectedDoc.value.id)
+      const index = batchDetail.value.documents.findIndex((b) => b.id === currentSelectedDoc.value.id)
       if (index !== -1 ) {
         if (index === batchDetail.value.documents.length - 1) {
           // is last page
@@ -813,7 +702,8 @@ export const useBatchDetail = (batchId: string) => {
     confirm,
     reload: getBatchDetail,
     updateSectionZone,
-    buildResultJson
+    buildResultJson,
+
   }
 
   provide('batchDetailProvider', context)
@@ -833,6 +723,14 @@ export const useBatchDetail = (batchId: string) => {
       getDocumentDetail(currentSelectedDoc.value.id)
     }
   })
+
+  // Watch for selectedDocDetail changes and rebuild sectionsWithValues if user select another
+  watch(selectedDocDetail, (newValue, oldValue) => {
+    if (selectedDocDetail.value && (!oldValue || newValue.detail.id !== oldValue.detail.id)) {
+      buildSectionsWithValues()
+      setupPreview()
+    }
+  }, { deep: true })
 
   // Cleanup on unmount
   onUnmounted( async() => {

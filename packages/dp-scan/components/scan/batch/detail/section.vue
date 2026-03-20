@@ -14,7 +14,7 @@ const emits = defineEmits<{
   addRow: [sectionId: string]
   removeRow: [sectionId: string, rowIndex: number]
 }>()
-
+const hasError = ref(false);
 const context = useBatchDetailContext()
 if (!context) {
   throw new Error('BatchDetailContext not found')
@@ -179,7 +179,7 @@ onMounted(() => {
 function displayField(fields: FieldWithValues) {
   return fields.filter((f) => !f.hidden )
 }
-watch(() => props.section.section_fields, () => {
+watch(() => props.section.section_id, () => {
   validateForm()
 })
 
@@ -192,9 +192,9 @@ defineExpose({
 
 <template>
   <div
-    class="sectionContainer"
-    :class="{ highlighted: isHighlighted }"
+    :class="{ sectionContainer: true, highlighted: isHighlighted, error: hasError }"
     tabindex="0"
+    @focus="handleSectionMouseEnter"
     @mouseenter="handleSectionMouseEnter"
   >
     <div class="sectionHeader">
@@ -255,6 +255,7 @@ defineExpose({
 
               :disabled="readonly"
               filterable
+              @focus="handleFieldMouseEnter(field)"
               @update:model-value="(val) => handleFieldChange(field, val)"
             >
               <ElOption
@@ -274,6 +275,7 @@ defineExpose({
                 :disabled="readonly"
                 :format="field.format || 'DD/MM/YYYY'"
                 :value-format="field.format || 'DD/MM/YYYY'"
+                @focus="handleFieldMouseEnter(field)"
                 @update:model-value="(val) => handleFieldChange(field, val)"
               />
               <!-- currentValue:{{field.currentValue}} -->
@@ -287,6 +289,7 @@ defineExpose({
               :type="getInputType(field.type)"
 
               :disabled="readonly"
+              @focus="handleFieldMouseEnter(field)"
               @update:model-value="(val) => handleFieldChange(field, val)"
             />
             <div v-if="field.warning" class="warningText">{{ field.warning }}</div>
@@ -365,6 +368,7 @@ defineExpose({
                   class="fieldInput"
                   filterable
                   :disabled="readonly"
+                  @focus="handleFieldMouseEnter(field)"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 >
                   <ElOption
@@ -385,6 +389,7 @@ defineExpose({
                     :disabled="readonly"
                     :format="field.format || 'DD/MM/YYYY'"
                     :value-format="field.format || 'DD/MM/YYYY'"
+                    @focus="handleFieldMouseEnter(field)"
                     @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                   />
                   <!-- currentValue:{{field.currentValue}} -->
@@ -397,6 +402,7 @@ defineExpose({
                   :class="{fieldInput:true, warning: field.warning}"
                   :type="getInputType(field.type)"
                   :disabled="readonly"
+                  @focus="handleFieldMouseEnter(field)"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 />
                 <div v-if="field.warning" class="warningText">{{ field.warning }}</div>

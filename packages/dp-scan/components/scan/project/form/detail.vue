@@ -93,6 +93,9 @@ async function backToList() {
     }).catch(err => {
 
     })
+  }else{
+    const tab = createScanDetailPageTab(formDetail.value.projectId)
+      routerProvider?.navigateTo(tab)
   }
 
 }
@@ -111,7 +114,7 @@ onMounted(() => {
     <!-- Header with current step name -->
     <div class="formHeader">
         <div class="back" @click="backToList">
-          <Icon name="material-symbols:arrow-back-ios" />
+          <Icon @click="backToList" name="material-symbols:arrow-back-ios" />
         </div>
       <h2 class="formTitle">{{ statusTitles[formStatus] || 'Form Configuration' }}</h2>
       <div :id="'detail-' + (formDetail?.id || '')" >

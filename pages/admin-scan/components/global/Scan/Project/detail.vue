@@ -42,7 +42,7 @@ watch(
   <div class="pageContainer">
     <div class="topbar">
       <div class="back" @click="backToList">
-        <Icon name="material-symbols:arrow-back-ios" />
+        <Icon @click="backToList" name="material-symbols:arrow-back-ios" />
       </div>
       <div class="title">
         {{ projectDetail?.name }} <ElTag>{{ projectDetail?.status === 'I' ? 'Draft' : 'Prodction' }}</ElTag>
