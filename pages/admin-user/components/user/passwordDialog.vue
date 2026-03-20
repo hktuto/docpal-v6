@@ -120,7 +120,7 @@ async function handleSubmit() {
     await formRef.value.validate()
     state.loading = true
     const param = {
-      password: form.password,
+      newPassword: form.password,
       userId: props.user.userId
     }
     await userProviderDetail?.PatchUserPasswordApi(param)
