@@ -4,7 +4,7 @@
       <el-icon class="sort-icon">
         <Sort />
       </el-icon>
-      {{ sortRules.length > 0 ? `${sortRules.length} 个排序` : '排序' }}
+      {{ sortRules.length > 0 && sortRules.some((rule) => rule.field) ? `${sortRules.length} 个排序` : '排序' }}
     </el-button>
     <ToolsSortConfigPopover
       ref="popoverRef"

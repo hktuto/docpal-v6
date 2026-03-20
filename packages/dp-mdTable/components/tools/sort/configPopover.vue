@@ -38,6 +38,7 @@
                 placeholder="请选择一个选项"
                 size="small"
                 class="field-select"
+                clearable
                 @change="handleFieldChange(element)"
                 @visible-change="handleSelectVisibleChange"
                 @click.stop
@@ -75,7 +76,7 @@
               </div>
 
               <!-- 删除按钮 -->
-              <el-button
+              <el-button v-if="false"
                 type="danger"
                 :icon="Delete"
                 size="small"
