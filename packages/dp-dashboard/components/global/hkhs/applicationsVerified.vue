@@ -52,7 +52,13 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       }
     },
     { field: 'verified_by', title: 'Verified By' },
-    { field: 'completed_on', title: 'Completed on' }
+    {
+      field: 'completed_on',
+      title: 'Completed on',
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
+    }
   ],
   bodyActions: [],
   dblClickAction: ({ row, column, event }: any) => {}
@@ -82,12 +88,10 @@ function handleDownloadCommand(command: string) {
 }
 
 function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project 
-    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
-    : 'SSF2026'
-  
+  const projectName = formData.value.project ? projectList.value.find((p) => p.id === formData.value.project)?.name || 'SSF2026' : 'SSF2026'
+
   const totalCount = dataList.value.length
-  
+
   return {
     reportId: 'SCS-102',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
@@ -97,14 +101,14 @@ function getReportHeader(): ReportHeader {
     inputTo: formData.value.date || 'NULL',
     title: 'SUBSIDISED SALE FLATS PROJECTS 2026',
     subtitle: 'List of the applications verified',
-    dateRange: `From ${formatDate(formData.value.date)} to ${formatDate(formData.value.date)}`,
+    dateRange: `From ${formatDate_1(formData.value.date)} to ${formatDate_1(formData.value.date)}`,
     remark: 'Remark: Before/After data format - <appln no>&<form type>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>',
     totalLabel: 'Total number of application:',
     totalValue: totalCount
   }
 }
 
-function formatDate(dateStr: string): string {
+function formatDate_1(dateStr: string): string {
   if (!dateStr) return 'NULL'
   const parts = dateStr.split('-')
   if (parts.length === 3) {
@@ -115,19 +119,15 @@ function formatDate(dateStr: string): string {
 
 function handleDownloadExcel() {
   // Use columns directly as they no longer have HTML formatting (except modified)
-  const exportColumns = columnsRef.value.map(col => ({ field: col.field, title: col.title }))
+  const exportColumns = columnsRef.value.map((col) => ({ field: col.field, title: col.title }))
 
   // Clean modified value for export (strip HTML)
-  const exportData = dataList.value.map(row => ({
+  const exportData = dataList.value.map((row) => ({
     ...row,
     modified: getModifiedExportValue(row)
   }))
 
-  exportReportToExcel(
-    getReportHeader(),
-    exportColumns,
-    exportData
-  )
+  exportReportToExcel(getReportHeader(), exportColumns, exportData)
 }
 
 function getModifiedExportValue(row: any): string {
@@ -143,19 +143,15 @@ function getModifiedExportValue(row: any): string {
 
 function handleDownloadPDF() {
   // Use columns directly as they no longer have HTML formatting (except modified)
-  const exportColumns = columnsRef.value.map(col => ({ field: col.field, title: col.title }))
+  const exportColumns = columnsRef.value.map((col) => ({ field: col.field, title: col.title }))
 
   // Clean modified value for export (strip HTML)
-  const exportData = dataList.value.map(row => ({
+  const exportData = dataList.value.map((row) => ({
     ...row,
     modified: getModifiedExportValue(row)
   }))
 
-  exportReportToPDF(
-    getReportHeader(),
-    exportColumns,
-    exportData
-  )
+  exportReportToPDF(getReportHeader(), exportColumns, exportData)
 }
 
 function handleDelete() {
@@ -332,7 +328,7 @@ onMounted(async () => {
         </template>
       </VxeGrid>
     </div>
-    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)"/>
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)" />
   </DashboardCard>
 </template>
 
