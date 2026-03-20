@@ -8,7 +8,7 @@ const props = defineProps<{
   readonly?: boolean
   allData: SectionWithValues[]
 }>()
-
+const formSize = ref('default')
 const emits = defineEmits<{
   fieldChange: [sectionId: string, fieldKey: string, value: any, rowIndex?: number]
   addRow: [sectionId: string]
@@ -200,7 +200,7 @@ defineExpose({
     <div class="sectionHeader">
       <Icon name="lucide:layout-template" class="sectionIcon" />
       <span class="sectionName">{{ splitByCamelCase(section.section_name) }}</span>
-      <ElTag v-if="section.zone?.page" size="small" type="info">
+      <ElTag v-if="section.zone?.page" :size="formSize" type="info">
         Page {{ section.zone.page }}
       </ElTag>
 
@@ -208,7 +208,7 @@ defineExpose({
       <ElButton
         v-if="section.section_type === 'table' && !readonly"
         type="primary"
-        size="small"
+        :size="formSize"
         circle
         class="addRowBtn"
         @click.stop="handleAddRow"
@@ -224,7 +224,7 @@ defineExpose({
         :model="getAllFieldValues()"
 
         label-position="top"
-        size="small"
+        :size="formSize"
         class="section-form"
       >
         <ElFormItem
@@ -241,7 +241,7 @@ defineExpose({
           >
             <div class="fieldLabel">
               <span class="labelText">{{ field.lable || field.label }}</span>
-              <ElTag v-if="field.required" size="small" type="danger" effect="plain" class="requiredTag">
+              <ElTag v-if="field.required" :size="formSize" type="danger" effect="plain" class="requiredTag">
                 *
               </ElTag>
             </div>
@@ -250,7 +250,7 @@ defineExpose({
             <ElSelect
               v-if="field.options && field.options.length > 0"
               :model-value="field.currentValue"
-              size="small"
+              :size="formSize"
               :class="{fieldInput: true, edited: isFieldModified(field)}"
 
               :disabled="readonly"
@@ -268,7 +268,7 @@ defineExpose({
 
               <ElDatePicker
                 :modelValue="field.currentValue"
-                size="small"
+                :size="formSize"
                 :class="{fieldInput: true, edited: isFieldModified(field)}"
 
                 :disabled="readonly"
@@ -282,7 +282,7 @@ defineExpose({
             <ElInput
               v-else
               :model-value="field.currentValue"
-              size="small"
+              :size="formSize"
               :class="{fieldInput: true, edited: isFieldModified(field), warning: field.warning }"
               :type="getInputType(field.type)"
 
@@ -319,7 +319,7 @@ defineExpose({
           <ElButton
             v-if="!readonly"
             type="danger"
-            size="small"
+            :size="formSize"
             circle
             class="removeRowBtn"
             @click.stop="handleRemoveRow(rowIndex)"
@@ -336,7 +336,7 @@ defineExpose({
             }, {})"
             ref="tabelSectionRef"
             label-position="top"
-            size="small"
+            :size="formSize"
             class="row-form"
           >
             <ElFormItem
@@ -353,7 +353,7 @@ defineExpose({
               >
                 <div class="fieldLabel">
                   <span class="labelText">{{ field.lable || field.label }}</span>
-                  <ElTag v-if="field.required" size="small" type="danger" effect="plain" class="requiredTag">
+                  <ElTag v-if="field.required" :size="formSize" type="danger" effect="plain" class="requiredTag">
                     *
                   </ElTag>
                 </div>
@@ -361,7 +361,7 @@ defineExpose({
                 <ElSelect
                   v-if="field.options && field.options.length > 0"
                   :model-value="field.currentValue"
-                  size="small"
+                  :size="formSize"
                   class="fieldInput"
                   filterable
                   :disabled="readonly"
@@ -379,7 +379,7 @@ defineExpose({
 
                   <ElDatePicker
                     :modelValue="field.currentValue"
-                    size="small"
+                    :size="formSize"
                     :class="{fieldInput: true, edited: isFieldModified(field)}"
 
                     :disabled="readonly"
@@ -393,7 +393,7 @@ defineExpose({
                 <ElInput
                   v-else
                   :model-value="field.currentValue"
-                  size="small"
+                  :size="formSize"
                   :class="{fieldInput:true, warning: field.warning}"
                   :type="getInputType(field.type)"
                   :disabled="readonly"

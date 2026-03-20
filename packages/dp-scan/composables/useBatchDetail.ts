@@ -337,7 +337,7 @@ export const useBatchDetail = (batchId: string) => {
 
   // End State
 
-  async function getBatchDetail() {
+  async function getBatchDetail(selectIndex?:number) {
     detailLoading.value = true
     isLockedByOther.value = false
     lockedByUser.value = undefined
@@ -345,7 +345,7 @@ export const useBatchDetail = (batchId: string) => {
       const response = await clientApi.api.getCaptureBatchBatchidDetail(currentBatchId.value)
       batchDetail.value = response.data
       batchDetail.value.documents = batchDetail.value.documents.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename))
-      currentSelectedDoc.value = response.data.documents[0]
+      currentSelectedDoc.value = response.data.documents[selectIndex || 0]
 
       // Handle batch locking
       const userId = useUserId()
@@ -731,6 +731,9 @@ export const useBatchDetail = (batchId: string) => {
         currentSelectedDoc.value.id,
         newDetail
       )
+      // TODO : Select Next Document, and reload page
+      // TODO:　calculate selected document index
+      await getBatchDetail()
     } catch (error) {
       console.error('Failed to confirm:', error)
       throw error

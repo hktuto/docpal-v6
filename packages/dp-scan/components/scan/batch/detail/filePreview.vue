@@ -1037,16 +1037,19 @@ watch(currentSelectedDoc, () => {
       </div>
       <div class="pageNav">
           <div class="navStat">
-              Category: <span class="docClass"> {{selectedDocDetail.detail.familyCategory}} </span>
+              <span>Category: </span><span class="docClass"> {{selectedDocDetail.detail.familyCategory}} </span>
           </div>
           <div class="navStat">
-              Class: <span class="docClass">{{selectedDocDetail.detail.familyClass}}</span>
+             <span> Class: </span><span class="docClass">{{selectedDocDetail.detail.familyClass}}</span>
           </div>
           <div class="navStat">
-              Person: <span class="docClass">{{selectedDocDetail.detail.statePerson}}</span>
+              <span>Person: </span><span class="docClass">{{selectedDocDetail.detail.statePerson}}</span>
           </div>
           <div class="navStat">
-              Source:<span class="docClass"> {{selectedDocDetail.detail.formSource}}</span>
+              <span>Source:</span><span class="docClass"> {{selectedDocDetail.detail.formSource}}</span>
+          </div>
+          <div class="navStat">
+              <span>Import Type:</span><span class="docClass"> {{selectedDocDetail.detail.importType}}</span>
           </div>
       </div>
 
@@ -1111,11 +1114,10 @@ watch(currentSelectedDoc, () => {
 
 <style lang="scss" scoped>
 .docClass{
-    padding: 0 var(--app-space-xs);
+    padding:var(--app-space-xxs) var(--app-space-xs);
     background: var(--app-primary-color);
     border-radius: var(--app-border-radius-s);
     color: #fff;
-    margin-inline: var(--app-space-xs);
     white-space: nowrap;
 }
 .previewContainer {
@@ -1139,6 +1141,16 @@ watch(currentSelectedDoc, () => {
         object-fit: contain;
         margin: 0 auto;
         overflow: hidden;
+    }
+}
+.navStat{
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap:0;
+    > * {
+        white-space: nowrap;
     }
 }
 .previewHeader {
@@ -1181,6 +1193,7 @@ watch(currentSelectedDoc, () => {
   align-items: center;
   justify-content: flex-start;
   gap: var(--app-space-xs);
+  overflow: auto;
 }
 
 .pageNumbers {
