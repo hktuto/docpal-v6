@@ -1049,7 +1049,7 @@ watch(currentSelectedDoc, () => {
               <span>Source:</span><span class="docClass"> {{selectedDocDetail.detail.formSource}}</span>
           </div>
           <div class="navStat">
-              <span>Import Type:</span><span class="docClass"> {{selectedDocDetail.detail.importType}}</span>
+              <span>Import Type:</span><span class="docClass"> {{selectedDocDetail.detail.importType === 'I' ? "I – Insert" : "R – Replace"}}</span>
           </div>
       </div>
 

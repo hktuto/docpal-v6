@@ -636,8 +636,8 @@ onMounted(() => {
           <div class="infoRow">
             <label>Is Overwrite</label>
             <ElSelect v-model="formData.isOverwrite" class="fullWidth">
-              <ElOption label="I" value="I" />
-              <ElOption label="R" value="R" />
+              <ElOption label="I – Insert" value="I" />
+              <ElOption label="R – Replace" value="R" />
             </ElSelect>
           </div>
 
