@@ -89,12 +89,15 @@ export const useScanClient = () => {
     const allProjects = new Map()
     Object.keys(data).forEach((key) => {
       data[key].forEach((project: any) => {
-        allProjects.set(project.id, project)
+        if (project && project.id) {
+
+          allProjects.set(project.id, project)
+        }
       })
     })
     projects.value = Array.from(allProjects.values()) as any[]
     console.log("filter.value.projectId", filter.value.projectId)
-    if (!filter.value.projectId ||　!filter.value.projectId.length) {
+    if (!filter.value.projectId ||　!filter.value.projectId.length && projects.value.length) {
       filter.value.projectId = projects.value[0].id
     }
 
