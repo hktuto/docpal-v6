@@ -1,6 +1,6 @@
 import type { ViewConfig, ViewColumn, SortInfo, GroupInfo, FilterInfo } from '../db/schema/tableView'
 
-const DEFAULT_SORT_INFO: SortInfo = { desc: false, fieldId: '' }
+const DEFAULT_SORT_INFO: SortInfo[] = [{ desc: false, fieldId: '' }]
 const DEFAULT_FILTER_INFO: FilterInfo = { conditions: [], conjunction: 'and' }
 
 /**
@@ -34,7 +34,7 @@ export function applyViewUpdates(view: ViewConfig, updates: Partial<ViewConfig>)
     ...view,
     ...updates,
     columns: updates.columns !== undefined ? [...updates.columns] : view.columns,
-    sortInfo: updates.sortInfo !== undefined ? { ...updates.sortInfo } : view.sortInfo,
+    sortInfo: updates.sortInfo !== undefined ? [...updates.sortInfo] : view.sortInfo,
     groupInfo: updates.groupInfo !== undefined ? [...updates.groupInfo] : view.groupInfo,
     filterInfo:
       updates.filterInfo !== undefined
@@ -51,27 +51,6 @@ export function applyViewUpdates(view: ViewConfig, updates: Partial<ViewConfig>)
 export function updateViewColumns(view: ViewConfig, columns: ViewColumn[]): ViewConfig {
   return applyViewUpdates(view, { columns: [...columns] })
 }
-
-/** 仅更新排序 */
-export function updateViewSortInfo(view: ViewConfig, sortInfo: SortInfo): ViewConfig {
-  return applyViewUpdates(view, { sortInfo: { ...sortInfo } })
-}
-
-/** 仅更新分组 */
-export function updateViewGroupInfo(view: ViewConfig, groupInfo: GroupInfo[]): ViewConfig {
-  return applyViewUpdates(view, { groupInfo: [...groupInfo] })
-}
-
-/** 仅更新过滤 */
-export function updateViewFilterInfo(view: ViewConfig, filterInfo: FilterInfo): ViewConfig {
-  return applyViewUpdates(view, {
-    filterInfo: {
-      ...filterInfo,
-      conditions: filterInfo.conditions.map((c) => ({ ...c }))
-    }
-  })
-}
-
 /** 仅更新名称 */
 export function updateViewName(view: ViewConfig, name: string): ViewConfig {
   return applyViewUpdates(view, { name })
@@ -95,7 +74,7 @@ export function addView(views: ViewConfig[], newView: Partial<ViewConfig> & { id
     name: finalName,
     type: newView.type ?? 0,
     columns: newView.columns ?? [],
-    sortInfo: newView.sortInfo ?? { ...DEFAULT_SORT_INFO },
+    sortInfo: newView.sortInfo ?? [...DEFAULT_SORT_INFO],
     groupInfo: newView.groupInfo ?? [],
     filterInfo: newView.filterInfo ?? { ...DEFAULT_FILTER_INFO },
     rowHeightLevel: newView.rowHeightLevel ?? 0

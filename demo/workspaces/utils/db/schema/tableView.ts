@@ -6,7 +6,7 @@ export interface ViewConfig {
   name: string;
   type: number;
   columns: ViewColumn[];
-  sortInfo: SortInfo;
+  sortInfo: SortInfo[];
   groupInfo: GroupInfo[];
   filterInfo: FilterInfo;
   rowHeightLevel: number; // 行高

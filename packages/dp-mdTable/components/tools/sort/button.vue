@@ -9,7 +9,6 @@
     <ToolsSortConfigPopover
       ref="popoverRef"
       :available-columns="availableColumns"
-      v-model:sort-rules="sortRules"
       width="600"
       placement="bottom-start"
       @change="handleSortChange"
@@ -39,6 +38,7 @@ const { columnSortRules: sortRules } = useMDTableInject()
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
   if (props.availableColumns) {
+    const availableColumns = props.availableColumns.filter((column) => sortRules.value.some((sort) => sort.field === column.field))
     return props.availableColumns
   }
   return []
@@ -52,18 +52,11 @@ const handleButtonClick = () => {
 }
 
 // 处理排序配置变化
-const handleSortChange = (rules: SortRule[]) => {
-  sortRules.value = rules
-  console.log('handleSortChange', rules)
-  emits('sort-change', rules)
+const handleSortChange = () => {
+  console.log('handleSortChange', sortRules.value)
+  emits('sort-change', sortRules.value)
 }
 
-// 暴露方法
-defineExpose({
-  sortRules,
-  show: () => popoverRef.value?.show(),
-  hide: () => popoverRef.value?.hide()
-})
 </script>
 
 <style scoped lang="scss">

@@ -93,7 +93,7 @@ export function useTableViews(options: UseTableViewsOptions) {
         conditions: [],
         conjunction: 'and'
       }
-      columnSortRules.value = currentView.value.sortInfo ? [currentView.value.sortInfo] : []
+      columnSortRules.value = currentView.value.sortInfo ? currentView.value.sortInfo : []
       columnGroupRules.value = currentView.value.groupInfo ?? []
     }
   }

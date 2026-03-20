@@ -13,16 +13,15 @@
           视图配置处于自动保存中，你的操作会实时保存并同步给其他成员
         </div>
       </div>
-
       <!-- 排序规则列表 -->
       <div class="sort-rules">
         <draggable
-          v-model="sortRules"
+          v-model="columnSortRules"
           item-key="id"
           handle=".drag-handle"
           :animation="200"
           ghost-class="ghost-item"
-          @change="handleRulesChange"
+          @change="handleRuleOrderChange"
         >
           <template #item="{ element, index }">
             <div class="sort-rule-item">
@@ -91,7 +90,7 @@
 
       <!-- 添加新规则 -->
       <div class="add-rule-section">
-        <el-button
+        <el-button v-if="columnSortRules.length === 0"
           type="primary"
           :icon="Plus"
           size="small"
@@ -106,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, nextTick, type Ref } from 'vue'
 import { Delete, Plus, Rank } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import type { ColumnConfig } from '../../types/column-context'
@@ -119,25 +118,22 @@ export interface SortRule {
 
 interface Props {
   availableColumns?: ColumnConfig[]
-  sortRules?: SortRule[]
   width?: number | string
   placement?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const { availableColumns, width, placement } = withDefaults(defineProps<Props>(), {
   availableColumns: () => [],
-  sortRules: () => [],
   width: 600,
   placement: 'bottom-start'
 })
 
 const emit = defineEmits<{
-  'update:sortRules': [rules: SortRule[]]
   change: [rules: SortRule[]]
 }>()
 
 const popoverRef = ref()
-const sortRules = ref<SortRule[]>([...props.sortRules])
+const { columnSortRules } = useMDTableInject() as { columnSortRules: Ref<SortRule[]> }
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 
@@ -159,21 +155,9 @@ const handleSelectVisibleChange = (visible: boolean) => {
   }
 }
 
-// 监听外部传入的规则变化
-watch(
-  () => props.sortRules,
-  (newRules) => {
-    if (JSON.stringify(newRules) !== JSON.stringify(sortRules.value)) {
-      sortRules.value = [...newRules]
-    }
-  },
-  { deep: true }
-)
-
 // 处理规则变化
 const handleRuleChange = () => {
-  emit('update:sortRules', [...sortRules.value])
-  emit('change', [...sortRules.value])
+  emit('change')
 }
 
 // 处理字段变化
@@ -195,13 +179,14 @@ const handleOrderChange = (rule: SortRule, order: 'asc' | 'desc') => {
 }
 
 // 处理拖拽变化
-const handleRulesChange = () => {
+const handleRuleOrderChange = () => {
+  console.log('handleRuleOrderChange', columnSortRules.value)
   handleRuleChange()
 }
 
 // 处理删除规则
 const handleDeleteRule = (index: number) => {
-  sortRules.value.splice(index, 1)
+  columnSortRules.value.splice(index, 1)
   handleRuleChange()
 }
 
@@ -212,9 +197,8 @@ const handleAddRule = () => {
     field: '',
     order: 'asc'
   }
-
-  sortRules.value.push(newRule)
-  handleRuleChange()
+  columnSortRules.value.push(newRule)
+  console.log('handleAddRule', columnSortRules.value)
 }
 
 // 显示 popover
