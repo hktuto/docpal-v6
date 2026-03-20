@@ -347,8 +347,9 @@ watch(hasError,(bool)=>{
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: flex-start;
-  gap: var(--app-space-s);
+  gap: 0;
   padding: var(--app-space-s);
+  scroll-snap-type: y mandatory;
 }
 
 .actionButtons {

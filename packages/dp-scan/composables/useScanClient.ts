@@ -115,7 +115,7 @@ export const useScanClient = () => {
    * @param projectId - The project ID to check
    */
   const isCreator = (projectId: string | undefined | null): boolean => {
-    return hasProjectPermission(projectsPermissions, projectId, 'creator')
+    return hasProjectPermission(projectsPermissions, projectId, 'creator') || hasProjectPermission(projectsPermissions, projectId, 'admin')
   }
 
   /**
@@ -123,7 +123,8 @@ export const useScanClient = () => {
    * @param projectId - The project ID to check
    */
   const isVerifier = (projectId: string | undefined | null): boolean => {
-    return hasProjectPermission(projectsPermissions, projectId, 'verifier')
+
+    return hasProjectPermission(projectsPermissions, projectId, 'verifier') || hasProjectPermission(projectsPermissions, projectId, 'admin')
   }
 
   /**

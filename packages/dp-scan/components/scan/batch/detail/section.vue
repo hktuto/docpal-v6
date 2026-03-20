@@ -191,31 +191,32 @@ defineExpose({
 </script>
 
 <template>
+<div :class="{sectionHeader:true, highlighted: isHighlighted, error: hasError}">
+  <Icon name="lucide:layout-template" class="sectionIcon" />
+  <span class="sectionName">{{ splitByCamelCase(section.section_name) }}</span>
+  <ElTag v-if="section.zone?.page" :size="formSize" type="info">
+    Page {{ section.zone.page }}
+  </ElTag>
+
+  <!-- Add row button for table sections - only show when not readonly -->
+  <ElButton
+    v-if="section.section_type === 'table' && !readonly"
+    type="primary"
+    :size="formSize"
+    circle
+    class="addRowBtn"
+    @click.stop="handleAddRow"
+  >
+    <Icon name="lucide:plus" />
+  </ElButton>
+</div>
   <div
     :class="{ sectionContainer: true, highlighted: isHighlighted, error: hasError }"
     tabindex="0"
     @focus="handleSectionMouseEnter"
     @mouseenter="handleSectionMouseEnter"
   >
-    <div class="sectionHeader">
-      <Icon name="lucide:layout-template" class="sectionIcon" />
-      <span class="sectionName">{{ splitByCamelCase(section.section_name) }}</span>
-      <ElTag v-if="section.zone?.page" :size="formSize" type="info">
-        Page {{ section.zone.page }}
-      </ElTag>
 
-      <!-- Add row button for table sections - only show when not readonly -->
-      <ElButton
-        v-if="section.section_type === 'table' && !readonly"
-        type="primary"
-        :size="formSize"
-        circle
-        class="addRowBtn"
-        @click.stop="handleAddRow"
-      >
-        <Icon name="lucide:plus" />
-      </ElButton>
-    </div>
 
     <!-- Standard Section -->
     <div v-if="section.section_type !== 'table'" class="fieldsList">
@@ -426,13 +427,16 @@ defineExpose({
   color: var(--app-warning-color);
 }
 .sectionContainer {
+
   width: 100%;
+  min-height: 100px;
   border: 1px solid var(--app-border-color);
   border-radius: var(--app-radius-m);
   overflow: hidden;
   background-color: var(--app-bg-color);
   transition: all 0.2s ease;
   flex-shrink: 0;
+  margin-bottom: var(--app-space-s);
   :deep(.el-input){
       width: 100%;
   }
@@ -442,26 +446,36 @@ defineExpose({
     box-shadow: 0 0 0 1px var(--app-primary-color-light);
   }
 
-  &:focus-within {
-    outline: 2px solid var(--app-primary-color);
-    outline-offset: 2px;
-  }
 }
 
 .sectionHeader {
+    position: sticky;
+
+    top: 0;
+    width:100%;
+    background: #fff;
   display: flex;
   align-items: center;
   gap: var(--app-space-xs);
   padding: var(--app-space-s) var(--app-space-m);
-  background-color: var(--app-bg-color-secondary);
-  border-bottom: 1px solid var(--app-border-color);
   font-weight: 600;
   font-size: var(--app-font-size-m);
+  z-index:2;
 
-  .sectionContainer:hover &,
-  .sectionContainer.highlighted & {
-    background-color: var(--app-primary-color-light);
-    color: var(--app-primary-color);
+  &.highlighted {
+
+      border: 1px solid var(--app-primary-color);
+  }
+  &:after{
+      content: "";
+      position: absolute;
+      left:0;
+      right: 0;
+      width:100%;
+      height: 40px;
+      top: -41px;
+      z-index: -1;
+      background: linear-gradient( to top, var(--app-grey-950), rgba(255,255,255,0));
   }
 }
 

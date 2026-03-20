@@ -1116,6 +1116,7 @@ watch(currentSelectedDoc, () => {
 .docClass{
     padding:var(--app-space-xxs) var(--app-space-xs);
     background: var(--app-primary-color);
+    min-height: 21px;
     border-radius: var(--app-border-radius-s);
     color: #fff;
     white-space: nowrap;
@@ -1213,7 +1214,6 @@ watch(currentSelectedDoc, () => {
   border-radius: var(--app-radius-s);
   font-size: var(--app-font-size-s);
   padding: 0 4px;
-
   &:hover {
     background-color: var(--app-bg-color-hover);
   }
@@ -1226,15 +1226,16 @@ watch(currentSelectedDoc, () => {
 }
 
 .pageInput {
-
+    apperenance: none;
+    width: 40px;
   text-align: center;
-  border-radius: var(--app-radius-s);
-  background-color: var(--app-primary-color);
-  color: white;
+  border-radius: var(--app-border-radius-s);
+  background-color: #fff;
+  color: var(--app-grey-300);
   /* font-size: var(--app-font-size-s); */
   font-weight: 500;
   padding: var(--app-space-xs) var(--app-space-xs);
-  border: none;
+  border: 1px solid var(--app-primary-color);
   outline: none;
   -moz-appearance: textfield;
 

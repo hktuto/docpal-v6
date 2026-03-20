@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 
-const { projects, projectsPermissions, isCreator } = useScanClient()
+const { projects, isAdmin, isCreator } = useScanClient()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey not found')
@@ -11,7 +11,7 @@ const loading = ref(false)
 
 // Filter projects to only show those where user has creator permission
 const creatableProjects = computed(() => {
-  return projects.value.filter((project) => isCreator(project.id))
+  return projects.value.filter((project) => isCreator(project.id) || isAdmin(project.id))
 })
 
 const isDisable = computed(() => {
@@ -20,12 +20,12 @@ const isDisable = computed(() => {
 
 async function handleCommand(projectId: string) {
   if (!projectId) return
-  
+
   loading.value = true
   try {
     // Create draft batch via API
     const response = await clientApi.api.postCaptureBatchDraft({ projectId })
-    
+
     if (response.result && response.data) {
       const draftBatch = response.data
       // Navigate to new batch page with draft batch data

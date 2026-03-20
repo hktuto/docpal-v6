@@ -397,6 +397,7 @@ function handleJsonSave(newJson:any){
       <Teleport :to="`#detail-${formDetail.id}`" defer>
            <!-- <ElButton type="primary" @click="testForm">Test Form</ElButton> -->
           <ElButton type="primary" @click="$emit('back', 'classificationUpload')">Repalce Sample</ElButton>
+          <ElButton type="primary" @click="$emit('back', 'classificationCrop')">Classicafication</ElButton>
           <ElButton type="primary" @click="$emit('back', 'split')">Split Page</ElButton>
           <ElButton type="info" @click="openJsonEditor">Edit In Json</ElButton>
       </Teleport>
