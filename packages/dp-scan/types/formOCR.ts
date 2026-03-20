@@ -488,25 +488,39 @@ export function normalizeValue(
   normalizeOptions?: NormalizeOptions,
 
 ): string {
-  if (!normalizeOptions ) return value
-  if (!value) {
-    // if no value find default value
-    const defaultPattern = Object.entries(normalizeOptions).find(([targetValue, patterns]) => patterns.includes('****'))
-    if (!defaultPattern) {
-      return " ";
-    }
-    return defaultPattern[0] || ""
-  }
-  // check if option can value
-  const testValue = value.toLowerCase()
-  let v:any;
-  options.forEach((op) => {
-    for (let [key, val] of Object.entries(op)) {
-      if (testValue === key.toLowerCase() ||val &&　testValue === val.toLowerCase() ) v = key
-    }
-  })
 
-  if(v) return v
+
+  if (!value) {
+    if (!normalizeOptions) {
+      console.log("return value", value )
+      return value
+    } else {
+
+      // if no value find default value
+      const defaultPattern = Object.entries(normalizeOptions).find(([targetValue, patterns]) => patterns.includes('****'))
+      if (!defaultPattern) {
+        console.log("no default found",)
+        return " ";
+      }
+      console.log("return defaultPattern[0]", defaultPattern[0] )
+      return defaultPattern[0] || ""
+    }
+  } else {
+
+    // check if option can value
+    const testValue = value.toLowerCase()
+    let v:any;
+    options.forEach((op) => {
+      for (let [key, val] of Object.entries(op)) {
+        if (testValue === key.toLowerCase() ||val &&　testValue === val.toLowerCase() ) v = key
+      }
+    })
+
+    if (v) {
+      console.log("get value from default option", value, v)
+      return v
+    }
+  }
 
 
   const input = String(value).trim()
@@ -515,7 +529,7 @@ export function normalizeValue(
 
     const fullOptions = patterns.join(',').replace(' ','')
     if (fullOptions.toLowerCase().includes(input.toLowerCase().replace(' ', ''))) {
-
+      console.log("return target value",value ,targetValue )
       return targetValue
     }
     for (const pattern of patterns) {
@@ -530,12 +544,14 @@ export function normalizeValue(
           const regex = new RegExp(pattern, 'i') // case-insensitive
 
           if (regex.test(input)) {
+            console.log("return from regex",value ,targetValue)
             return targetValue
           }
         } catch (e) {
 
           // Invalid regex, treat as literal string
           if (input.toLowerCase() === pattern.toLowerCase()) {
+             console.log("return from string compare",value ,targetValue)
             return targetValue
           }
         }
@@ -543,6 +559,7 @@ export function normalizeValue(
 
         // Plain string comparison (case-insensitive)
         if (input.toLowerCase() === pattern.toLowerCase()) {
+          console.log("return from string compare", value ,targetValue)
           return targetValue
         }
       }
@@ -554,6 +571,7 @@ export function normalizeValue(
   }
 
   // No match found, return original value
+  console.log("no match", value,options, normalizeOptions, )
   return value
 }
 
