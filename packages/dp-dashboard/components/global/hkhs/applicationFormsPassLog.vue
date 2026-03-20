@@ -41,7 +41,7 @@ const tableComponent = ref([
 ])
 
 const formData = ref({
-  project: props.setting.project.length ? props.setting.project[0] : "",
+  project: '',
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]
 })
 const name = ref('SCS-101 - Activity Log of Application Forms Processed')
@@ -101,17 +101,17 @@ async function fetchStageData(stage: string) {
     tablesData.value[stage] = []
   }
 }
-function getProjectDetail(id:string) {
-  return projectList.value.find((p) => p.id === id)
-}
-function getReportHeader(): ReportHeader {
 
-  const projectDetail = getProjectDetail(formData.value.project)
+function getReportHeader(): ReportHeader {
+  const projectName = formData.value.project 
+    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
+    : 'SSF2026'
+  
   return {
     reportId: 'SCS-101',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
-    project: projectDetail.name,
-    inputProject: projectDetail.name,
+    project: projectName,
+    inputProject: projectName,
     inputFrom: formData.value.date[0] || 'NULL',
     inputTo: formData.value.date[1] || 'NULL',
     title: 'SUBSIDISED SALE FLATS PROJECTS 2026',

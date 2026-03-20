@@ -3,8 +3,8 @@ import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { statusToGroupStatus } from '#imports'
-import { exportSCS103ToExcel } from '~/utils/excelHelper'
-import { exportSCS103ToPDF, type ReportHeader } from '~/utils/pdfHelper'
+import { exportReportToExcel } from '~/utils/excelHelper'
+import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -22,7 +22,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 const emits = defineEmits(['refreshSetting', 'delete'])
 
 const formData = ref({
-  project: props.setting.project.length ? props.setting.project[0] : "",
+  project: '',
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
   includeDuplicate: 2
 })
@@ -75,22 +75,18 @@ function handleDownloadCommand(command: string) {
     handleDownloadPDF()
   }
 }
-function getProjectDetail(id:string) {
-  return projectList.value.find((p) => p.id === id)
-}
-async function getReportHeader(): ReportHeader {
+
+function getReportHeader(): ReportHeader {
   const projectName = formData.value.project ? projectList.value.find((p) => p.id === formData.value.project)?.name || 'SSF2026' : 'SSF2026'
-  const projectDetail = getProjectDetail(formData.value.project)
-  if(!projectDetail) throw new Error('no project detail')
-  console.log("formData.value", formData.value, getProjectDetail(formData.value.project))
+
   return {
     reportId: 'SCS-103',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
-    project: projectDetail.name,
+    project: projectName,
     inputProject: projectName,
     inputFrom: formData.value.date[0] || 'NULL',
     inputTo: formData.value.date[1] || 'NULL',
-    stage: '--',
+    stage: '(5) Verified (6) Failed to Export (7) Export-Ready (8) Completed',
     title: 'SUBSIDISED SALE FLATS PROJECTS 2026',
     subtitle: 'Daily Summary of the applications from Verified to Completed',
     dateRange: `From ${formatDate(formData.value.date[0])} to ${formatDate(formData.value.date[1])}`
@@ -106,45 +102,15 @@ function formatDate(dateStr: string): string {
   return dateStr
 }
 
-async function handleDownloadExcel() {
-  const header = await getReportHeader()
-  
-  // Define summary table columns
-  const summaryColumns = [
-    { field: 'stage', title: 'Stage' },
-    { field: 'batchSuc', title: 'No.of Batches - Success' },
-    { field: 'batchFail', title: 'No.of Batches - Fail' },
-    { field: 'appSuc', title: 'No.of Applications - Success' },
-    { field: 'appFail', title: 'No.of Applications - Fail' }
-  ]
-  
-  exportSCS103ToExcel(
-    header,
-    columnsRef.value,
-    dataList.value,
-    summaryColumns,
-    tableData.value
-  )
+function handleDownloadExcel() {
+  exportReportToExcel(getReportHeader(), columnsRef.value, dataList.value, footerData.value)
 }
 
-async function handleDownloadPDF() {
-  const header = await getReportHeader()
-
-  // Define summary table columns
-  const summaryColumns = [
-    { field: 'stage', title: 'Stage' },
-    { field: 'batchSuc', title: 'No.of Batches - Success' },
-    { field: 'batchFail', title: 'No.of Batches - Fail' },
-    { field: 'appSuc', title: 'No.of Applications - Success' },
-    { field: 'appFail', title: 'No.of Applications - Fail' }
-  ]
-
-  exportSCS103ToPDF(
-    header,
+function handleDownloadPDF() {
+  exportReportToPDF(
+    getReportHeader(),
     columnsRef.value.map((col) => ({ field: col.field, title: col.title })),
-    dataList.value,
-    summaryColumns,
-    tableData.value
+    dataList.value
   )
 }
 
