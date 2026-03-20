@@ -648,6 +648,7 @@ async function saveCropEdit() {
     })
 
     // Update local highlight to match new zone
+    console.log("highlightedSection.value",highlightedSection.value)
     if (highlightedSection.value) {
       highlightedSection.value.zone = zoneString
     }
@@ -966,37 +967,6 @@ function handlePageInputChange() {
 function handlePageInputBlur() {
   pageInputValue.value = currentPageNumber.value?.toString() || '1'
 }
-
-// Computed pagination items based on current page
-const paginationItems = computed(() => {
-  const total = totalPages.value || 1
-  const current = currentPageNumber.value || 1
-
-  // If 7 or fewer pages, show all without ellipsis
-  if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => i + 1)
-  }
-
-  // For more than 7 pages, use compact format with ellipsis
-  const items: (number | string)[] = []
-
-  if (current <= 3) {
-    // Near start: < [1] 2 3 ... > or < 1 [2] 3 ... > or < 1 2 [3] ... >
-    items.push(1, 2, 3)
-    items.push('...')
-  } else if (current >= total - 2) {
-    // Near end: < ... 5 6 [7] >
-    items.push('...')
-    items.push(total - 2, total - 1, total)
-  } else {
-    // Middle: < ... 2 3 [4] 5 6 ... >
-    items.push('...')
-    items.push(current - 1, current, current + 1)
-    items.push('...')
-  }
-
-  return items
-})
 
 
 const previewErrorFile = ref()

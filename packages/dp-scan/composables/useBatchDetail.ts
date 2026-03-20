@@ -538,7 +538,6 @@ export const useBatchDetail = (batchId: string) => {
       highlightedSection.value = undefined
       return
     }
-
     const zoneInfo = getZoneFromObject(section)
     if (zoneInfo) {
       highlightedSection.value = {
@@ -758,6 +757,13 @@ export const useBatchDetail = (batchId: string) => {
       }
     })
     selectedDocDetail.value.detail.zoneResizeConfig[sectionId] = newZone
+
+    const index = sectionsWithValues.value.findIndex(s => s.section_id === sectionId)
+
+    if (index !== -1) {
+      sectionsWithValues.value[index].zone = newZone
+    }
+
   }
 
   const context: BatchDetailContext = {
