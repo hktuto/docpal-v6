@@ -586,9 +586,7 @@ watch(() => highlightedSection.value, (newVal) => {
   )
   if (section?.save_to_result === true && canEdit.value) {
     // Auto-enter edit mode for this section
-    nextTick(() => {
-      startCropEditForSection(section)
-    })
+    startCropEditForSection(section)
   } else {
     // Exit edit mode if current section not editable
     cancelCropEdit()
@@ -648,7 +646,7 @@ async function saveCropEdit() {
     })
 
     // Update local highlight to match new zone
-    console.log("highlightedSection.value",highlightedSection.value)
+
     if (highlightedSection.value) {
       highlightedSection.value.zone = zoneString
     }
@@ -881,7 +879,7 @@ function handleMouseDown(event: MouseEvent) {
   dragStart.value = { x: event.clientX, y: event.clientY }
   scrollStart.value = { x: container.scrollLeft, y: container.scrollTop }
 
-  container.style.cursor = 'grabbing'
+  // container.style.cursor = 'grabbing'
 }
 
 function handleMouseMove(event: MouseEvent) {
