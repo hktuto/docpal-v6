@@ -153,7 +153,7 @@ onMounted(async () => {
   if (passwordPolicy.value.containSpecialCharacters) {
     rules.value.newPassword.push({
       validator: (rule: any, value: string) => {
-        return /^(?=.*[!@#$%&*]).+$/.test(value)
+        return /^(?=.*[!@#$%^&*()\-+=\[\]{}:;'",.<>/\\|]).+$/.test(value)
       },
       message: t('passwordPolicy.containSpecialCharacters'),
       trigger: 'blur'
@@ -161,7 +161,7 @@ onMounted(async () => {
   }
   ready.value = true
   // formRef.value.resetFields()
-  if(!!route.query.token){
+  if (!!route.query.token) {
     tokenRef.value = route.query.token
   }
 })
@@ -180,7 +180,7 @@ onMounted(async () => {
 }
 .tip {
   font-size: 1rem;
-  color: var(--app-grey-950);
+  color: #d58512;
   margin-bottom: 12px;
 }
 .reset-password-form {

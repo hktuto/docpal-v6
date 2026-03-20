@@ -52,7 +52,7 @@ provide(userProviderDetailKey, {
     return newAdminApi.postUcenterUsersBatchDelete(params)
   },
   PatchUserPasswordApi: (params: any) => {
-    return newAdminApi.patchUcenterUserPassword(params)
+    return newAdminApi.patchUcenterPasswordUpdatePassword(params)
   },
   MemberGroupGetApi: (params: any) => {
     return newAdminApi.postUcenterMemberGroup(params)
