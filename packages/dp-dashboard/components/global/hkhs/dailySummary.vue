@@ -136,21 +136,35 @@ async function getData() {
 
   const filtered = data.filter((item: any) => item.row_type !== 'empty' && item.row_type !== 'title' && item.row_type !== 'summary')
   const summaryList = data.filter((item: any) => item.row_type == 'summary')
-
-  const tableList: any[] = []
-  summaryList.forEach((item: any) => {
-    tableList.push({
-      stage: item.remark,
-      batchesSuccess: 0,
-      batchesFail: 0,
-      applicationsSuccess: 0,
-      applicationsFail: 0
-    })
-  })
-  tableData.value = tableList
-
+  tableData.value = transformSummariesTakeLast(summaryList)
   dataList.value = filtered
   return filtered
+}
+
+function transformSummariesTakeLast(arr: any) {
+  const map = new Map()
+  for (const item of arr) {
+    const stage = item.remark || ''
+    const key = item.summary_key
+    const val = Number(item.summary_value) || 0
+
+    if (!map.has(stage)) {
+      map.set(stage, {
+        stage,
+        batch_suc: 0,
+        batch_fail: 0,
+        app_suc: 0,
+        app_fail: 0
+      })
+    }
+
+    const obj = map.get(stage)
+    if (key === 'batch_suc') obj.batchSuc = val
+    if (key === 'batch_fail') obj.batchFail = val
+    if (key === 'app_suc') obj.appSuc = val
+    if (key === 'app_fail') obj.appFail = val
+  }
+  return Array.from(map.values())
 }
 
 const columnsRef = ref([
@@ -299,12 +313,12 @@ onMounted(async () => {
         <el-table :data="tableData" style="width: 100%">
           <el-table-column prop="stage" label="Stage" />
           <el-table-column align="center" label="No.of Batches">
-            <el-table-column align="center" prop="batchesSuccess" label="Success" />
-            <el-table-column align="center" prop="batchesFail" label="Fail" />
+            <el-table-column align="center" prop="batchSuc" label="Success" />
+            <el-table-column align="center" prop="batchFail" label="Fail" />
           </el-table-column>
           <el-table-column align="center" label="No.of Applications">
-            <el-table-column align="center" prop="applicationsSuccess" label="Success" />
-            <el-table-column align="center" prop="applicationsFail" label="Fail" />
+            <el-table-column align="center" prop="appSuc" label="Success" />
+            <el-table-column align="center" prop="appFail" label="Fail" />
           </el-table-column>
         </el-table>
       </div>
