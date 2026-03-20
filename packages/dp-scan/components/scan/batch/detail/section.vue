@@ -14,7 +14,7 @@ const emits = defineEmits<{
   addRow: [sectionId: string]
   removeRow: [sectionId: string, rowIndex: number]
 }>()
-const hasError = ref(false);
+const noError = ref(true);
 const context = useBatchDetailContext()
 if (!context) {
   throw new Error('BatchDetailContext not found')
@@ -140,23 +140,24 @@ function getAllFieldValues(): Record<string, any> {
 const sectionFormEl = ref()
 const tabelSectionRef = ref()
 async function validateForm() {
+
   try {
     if (sectionFormEl.value) {
-
-      return sectionFormEl.value.validate((valid) => valid)
+        noError.value = await  sectionFormEl.value.validate((valid) => valid)
     }
     if (tabelSectionRef.value) {
 
       let result =  await Promise.all(tabelSectionRef.value.map(async (row) => {
         return await row.validate((valid) => valid)
       }))
-      return result.every(Boolean)
+      noError.value = result.every(Boolean)
     }
-    return Promise.resolve(true)
+    return noError.value
   } catch (error) {
     console.error(error)
     return Promise.resolve(false)
   }
+
 }
 
 // Get input type for field
@@ -179,9 +180,17 @@ onMounted(() => {
 function displayField(fields: FieldWithValues) {
   return fields.filter((f) => !f.hidden )
 }
-watch(() => props.section.section_id, () => {
-  validateForm()
+watch(() => props.section,()=>{
+
+  nextTick(() => {
+    console.log("currentSelectedDoc change")
+    validateForm()
+  })
+},{
+  deep:true
 })
+
+
 
 defineExpose({
   validateForm
@@ -191,9 +200,10 @@ defineExpose({
 </script>
 
 <template>
-<div :class="{sectionHeader:true, highlighted: isHighlighted, error: hasError}">
+<div :class="{sectionHeader:true, highlighted: isHighlighted, error: !noError}">
   <Icon name="lucide:layout-template" class="sectionIcon" />
   <span class="sectionName">{{ splitByCamelCase(section.section_name) }}</span>
+
   <ElTag v-if="section.zone?.page" :size="formSize" type="info">
     Page {{ section.zone.page }}
   </ElTag>
@@ -211,7 +221,7 @@ defineExpose({
   </ElButton>
 </div>
   <div
-    :class="{ sectionContainer: true, highlighted: isHighlighted, error: hasError }"
+    :class="{ sectionContainer: true, highlighted: isHighlighted, error: !noError }"
     tabindex="0"
     @focus="handleSectionMouseEnter"
     @mouseenter="handleSectionMouseEnter"
@@ -431,12 +441,15 @@ defineExpose({
   width: 100%;
   min-height: 100px;
   border: 1px solid var(--app-border-color);
+  border-top: none;
   border-radius: var(--app-radius-m);
   overflow: hidden;
   background-color: var(--app-bg-color);
   transition: all 0.2s ease;
   flex-shrink: 0;
   margin-bottom: var(--app-space-s);
+  border-bottom-left-radius: var(--app-border-radius-s);
+  border-bottom-right-radius: var(--app-border-radius-s);
   :deep(.el-input){
       width: 100%;
   }
@@ -444,6 +457,9 @@ defineExpose({
   &.highlighted {
     border-color: var(--app-primary-color);
     box-shadow: 0 0 0 1px var(--app-primary-color-light);
+  }
+  &.error{
+      border-color: var(--app-error-color) !important;
   }
 
 }
@@ -454,6 +470,8 @@ defineExpose({
     top: 0;
     width:100%;
     background: #fff;
+    border: 1px solid var(--app-border-color);
+    border-bottom: none;
   display: flex;
   align-items: center;
   gap: var(--app-space-xs);
@@ -461,17 +479,21 @@ defineExpose({
   font-weight: 600;
   font-size: var(--app-font-size-m);
   z-index:2;
-
+  border-top-left-radius: var(--app-border-radius-s);
+  border-top-right-radius: var(--app-border-radius-s);
   &.highlighted {
 
       border: 1px solid var(--app-primary-color);
   }
+  &.error{
+      color: var(--app-error-color) !important;
+      border-color: var(--app-error-color) !important;
+  }
   &:after{
       content: "";
       position: absolute;
-      left:0;
-      right: 0;
-      width:100%;
+      left: -10%;
+      width:120%;
       height: 40px;
       top: -41px;
       z-index: -1;
