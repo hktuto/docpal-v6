@@ -20,7 +20,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 })
 
 const formData = ref({
-  project: '',
+  project: props.setting.project.length ? props.setting.project[0] : "",
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
   includeDuplicate: 2
 })
@@ -113,19 +113,19 @@ function handleDownloadCommand(command: string) {
     handleDownloadPDF()
   }
 }
-
+function getProjectDetail(id:string) {
+  return projectList.value.find((p) => p.id === id)
+}
 function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project 
-    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
-    : 'SSF2026'
-  
+
+  const projectDetail = getProjectDetail(formData.value.project)
   const includeDup = formData.value.includeDuplicate === 2 ? 'Yes' : 'No'
-  
+
   return {
     reportId: 'SCS-100',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
-    project: projectName,
-    inputProject: projectName,
+    project: projectDetail.name,
+    inputProject: projectDetail.name,
     inputFrom: formData.value.date[0] || 'NULL',
     inputTo: formData.value.date[1] || 'NULL',
     inputIncluded: includeDup,

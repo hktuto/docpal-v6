@@ -22,7 +22,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 })
 
 const formData = ref({
-  project: '',
+  project: props.setting.project.length ? props.setting.project[0] : "",
   date: dayjs().format('YYYY-MM-DD')
 })
 
@@ -87,16 +87,19 @@ function handleDownloadCommand(command: string) {
   }
 }
 
-function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project ? projectList.value.find((p) => p.id === formData.value.project)?.name || 'SSF2026' : 'SSF2026'
+function getProjectDetail(id:string) {
+  return projectList.value.find((p) => p.id === id)
+}
 
+function getReportHeader(): ReportHeader {
+  const projectDetail = getProjectDetail(formData.value.project)
   const totalCount = dataList.value.length
 
   return {
     reportId: 'SCS-102',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
-    project: projectName,
-    inputProject: projectName,
+    project: projectDetail.name,
+    inputProject: projectDetail.name,
     inputFrom: formData.value.date || 'NULL',
     inputTo: formData.value.date || 'NULL',
     title: 'SUBSIDISED SALE FLATS PROJECTS 2026',

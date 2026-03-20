@@ -90,6 +90,108 @@ export function exportToExcel(options: ExcelExportOptions): void {
 }
 
 /**
+ * Export SCS-103 report with headers and 2 tables
+ */
+export function exportSCS103ToExcel(
+  header: ReportHeader,
+  mainColumns: { field: string; title: string }[],
+  mainData: any[],
+  summaryColumns: { field: string; title: string }[],
+  summaryData: any[]
+): void {
+  const workbook = XLSX.utils.book_new()
+  const timestamp = new Date().toISOString().split('T')[0]
+  const pageDate = formatDateForReport(new Date())
+
+  // Build header rows (shared for both sheets)
+  const headerRows: any[][] = [
+    [`REPORT ID: ${header.reportId}`, '', '', '', '', '', '', '', '', '', '', `PAGE: 1`],
+    [`COMPILED BY: ${header.compiledBy}`, '', '', '', '', '', '', '', '', '', '', `DATE: ${pageDate}`],
+    [`PROJECT: ${header.project}`, '', '', '', '', '', '', '', '', '', '', ''],
+    [''],
+  ]
+
+  // Add input filters
+  if (header.inputProject !== undefined) {
+    headerRows.push([`Input Project: ${header.inputProject || 'NULL'}`])
+  }
+  if (header.inputFrom !== undefined) {
+    headerRows.push([`Input From: ${header.inputFrom || 'NULL'}`])
+  }
+  if (header.inputTo !== undefined) {
+    headerRows.push([`Input To: ${header.inputTo || 'NULL'}`])
+  }
+  if (header.stage !== undefined) {
+    headerRows.push([`Stage: ${header.stage}`])
+  }
+
+  // Add blank row before title
+  headerRows.push([''])
+
+  // Add title section
+  const titleRow = ['', '', '', '', header.title]
+  headerRows.push(titleRow)
+  headerRows.push(['', '', '', '', header.subtitle])
+  headerRows.push(['', '', '', '', header.dateRange])
+  headerRows.push([''])
+
+  // ===== Sheet 1: Main Data =====
+  const mainColHeaders = mainColumns.map((col) => col.title)
+  const mainDataRows = mainData.map((row) => {
+    return mainColumns.map((col) => {
+      const value = row[col.field]
+      if (typeof value === 'string' && value.includes('<')) {
+        return stripHtml(value)
+      }
+      return value ?? ''
+    })
+  })
+
+  // Add end of report marker
+  mainDataRows.push([''])
+  mainDataRows.push(['', '', '', '', '', '*** END OF REPORT ***'])
+
+  const mainWorksheetData = [...headerRows, mainColHeaders, ...mainDataRows]
+  const mainWorksheet = XLSX.utils.aoa_to_sheet(mainWorksheetData)
+
+  // Set column widths for main sheet
+  const mainColWidths = mainColumns.map((col) => ({
+    wch: Math.max(col.title.length + 2, 15)
+  }))
+  if (mainColWidths.length > 0) {
+    mainColWidths[0].wch = 30
+  }
+  mainWorksheet['!cols'] = mainColWidths
+
+  XLSX.utils.book_append_sheet(workbook, mainWorksheet, 'Details')
+
+  // ===== Sheet 2: Summary Data =====
+  const summaryColHeaders = summaryColumns.map((col) => col.title)
+  const summaryDataRows = summaryData.map((row) => {
+    return summaryColumns.map((col) => row[col.field] ?? '')
+  })
+
+  // Add end of report marker
+  summaryDataRows.push([''])
+  summaryDataRows.push(['', '', '', '', '*** END OF REPORT ***'])
+
+  const summaryWorksheetData = [...headerRows, summaryColHeaders, ...summaryDataRows]
+  const summaryWorksheet = XLSX.utils.aoa_to_sheet(summaryWorksheetData)
+
+  // Set column widths for summary sheet
+  const summaryColWidths = summaryColumns.map((col) => ({
+    wch: Math.max(col.title.length + 2, 20)
+  }))
+  summaryWorksheet['!cols'] = summaryColWidths
+
+  XLSX.utils.book_append_sheet(workbook, summaryWorksheet, 'Summary')
+
+  // Write file
+  const fullFileName = `${header.reportId}_${timestamp}.xlsx`
+  XLSX.writeFile(workbook, fullFileName)
+}
+
+/**
  * Export SCS-101 report with headers and multiple sheets
  */
 export function exportSCS101ToExcel(
