@@ -61,7 +61,7 @@ const canCancel = computed(() => {
  */
 const canDownload = computed(() => {
   const hasExportPermission = isExporter(projectId.value)
-  const hasExportableStatus = batchDetail.value?.status === 'completed'
+  const hasExportableStatus = batchDetail.value?.status === 'completed' || batchDetail.value?.status.includes('export')
   return hasExportPermission && hasExportableStatus
 })
 

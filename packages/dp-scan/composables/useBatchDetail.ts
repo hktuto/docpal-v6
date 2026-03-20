@@ -345,6 +345,10 @@ export const useBatchDetail = (batchId: string) => {
       const response = await clientApi.api.getCaptureBatchBatchidDetail(currentBatchId.value)
       batchDetail.value = response.data
       batchDetail.value.documents = batchDetail.value.documents.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename))
+      if (selectIndex) {
+
+        console.log("selectIndex", selectIndex, response.data.documents[selectIndex])
+      }
       currentSelectedDoc.value = response.data.documents[selectIndex || 0]
 
       // Handle batch locking
@@ -733,18 +737,18 @@ export const useBatchDetail = (batchId: string) => {
       )
       // TODO : Select Next Document, and reload page
       // TODO:　calculate selected document index
-      // const index = batchDetail.value.documents.find((b) => b.id === currentSelectedDoc.value.id)
-      // if (index !== -1 ) {
-      //   if (index === batchDetail.value.documents.length - 1) {
-      //     // is last page
-      //     await getBatchDetail(index)
-      //   } else {
-      //     await getBatchDetail(index + 1)
-      //   }
+      const index = batchDetail.value.documents.find((b) => b.id === currentSelectedDoc.value.id)
+      if (index !== -1 ) {
+        if (index === batchDetail.value.documents.length - 1) {
+          // is last page
+          await getBatchDetail(index)
+        } else {
+          await getBatchDetail(index + 1)
+        }
 
-      // } else {
-      //   await getBatchDetail()
-      // }
+      } else {
+        await getBatchDetail()
+      }
 
 
     } catch (error) {
@@ -928,7 +932,7 @@ export function calculateFamilyClassification(detail: any): {
   statePerson: string
 } {
   const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
-    'N', YouthSchema = 'N' } = detail.newResultJson?.PriorityScheme || {}
+    'N', YouthScheme = 'N' } = detail.newResultJson?.PriorityScheme || {}
   const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat } = detail.newResultJson?.SpecificField || {}
   const pplCount: number = (detail.newResultJson?.ApplicantFamilyMemberList?.length || 0) + 1;
   const hasFamilyMember = detail.newResultJson?.ApplicantFamilyMemberList?.length > 0;
@@ -949,7 +953,7 @@ export function calculateFamilyClassification(detail: any): {
     hasFamilyMember,
     PrioritySchemeForElderly,
     PrioritySchemeForNewborns,
-    YouthSchema,
+    YouthScheme,
     babyCount,
     CleareesCat,
     HKHS,
@@ -978,7 +982,7 @@ export function calculateFamilyClassification(detail: any): {
 
   const elderly = PrioritySchemeForElderly === 'Y';
   const newborn = PrioritySchemeForNewborns === 'Y';
-  const youth = YouthSchema === 'Y';
+  const youth = YouthScheme === 'Y';
 
   if (detail.formTypeCode === 'G') {
     // Green Form logic

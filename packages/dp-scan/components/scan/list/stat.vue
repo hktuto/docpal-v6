@@ -23,6 +23,14 @@ function foundStat(item: any) {
   const result = possibleStat ? stat.value[possibleStat] : 0
   return result
 }
+
+function editFilter(type:string){
+  if(type === 'total'){
+    filter.value.status = []
+  }
+
+
+}
 watch(
   filter,
   () => {
@@ -43,11 +51,11 @@ defineExpose({
   <div v-loading="loading" class="StatusSection">
     <div class="sectionTitle">Batch Status</div>
     <div class="statusContainer">
-      <div class="statItem" style="background-color: var(--app-info-color)">
+      <div class="statItem" :style="{backgroundColor: 'var(--app-info-color)', '--state-color':'var(--app-info-color)' }" @click="editFilter('total')">
         <div class="statKey">Total</div>
         <div class="statValue">{{ stat?.total || 0 }}</div>
       </div>
-      <div v-for="(item, key) in StatusMap" :key="key" class="statItem" :style="{ backgroundColor: item.color }">
+      <div v-for="(item, key) in StatusMap" :key="key" class="statItem" :style="{ backgroundColor: item.color, '--state-color':item.color }">
         <div class="statKey">{{ item.label }}</div>
         <div class="statValue">{{ foundStat(item) || 0 }}</div>
       </div>
@@ -70,6 +78,11 @@ defineExpose({
   padding: var(--app-space-s);
   border-radius: var(--app-border-radius-m);
   color: #fff;
+  cursor: pointer;
+  background-color:var(--state-color);
+  &:hover {
+      outline: 1px solid var(--state-color);
+  }
 }
 .statKey {
   font-size: var(--app-font-size-s);
