@@ -1,6 +1,6 @@
 <template>
   <MdFormItem v-bind="props" :rules="rules">
-    <ElInput v-if="formData && column[fieldName]" v-model="formData[column[fieldName]]" type="textarea" :rows="3" :placeholder="column.placeholder" clearable />
+    <ElInput v-if="formData && column[fieldName]" v-model="formData[column[fieldName]]" type="textarea" :rows="1" autosize :placeholder="column.placeholder" clearable />
   </MdFormItem>
 </template>
 
