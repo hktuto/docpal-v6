@@ -25,7 +25,8 @@ async function getAudit() {
 }
 const audit_translate = {
   "form_type_updated":"Update Form",
-  "permission_revoked":"Update Premission"
+  "permission_revoked": "Update Premission",
+  "permission_assigned":"Add Permission"
 }
 function translateEventType(eventType: string) {
   return audit_translate[eventType] || eventType
