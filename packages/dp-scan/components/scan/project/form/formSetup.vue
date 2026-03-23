@@ -319,6 +319,7 @@ async function saveConfig() {
   try {
     const updateData = {
       ...props.formDetail,
+      name: formConfig.value.form_name,
       fieldsSetting: {
         ...formConfig.value
       }

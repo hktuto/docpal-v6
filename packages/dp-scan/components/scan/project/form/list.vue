@@ -11,11 +11,26 @@ const newButtonEl = ref()
 const forms = ref<any[]>([])
 const loading = ref(false)
 
+const orderMap = {
+  'section': 0,
+  'field': 1,
+  'qrcode': 2
+}
+
 async function getForms() {
   loading.value = true
   try {
     const response = await clientApi.api.postCaptureProjformsettingPage({ projectId: props.projectId })
-    forms.value = response.data
+
+    const orderMap = {
+      'A': 0,
+      'I': 1,
+    }
+    forms.value = response.data.sort((a,b) => {
+        const indexA = orderMap[a.status] ?? Number.MAX_SAFE_INTEGER; // Items not in order go last
+        const indexB = orderMap[b.status] ?? Number.MAX_SAFE_INTEGER;
+        return (indexA - indexB) || a.name.localeCompare(b.name);
+    })
   } catch (err) {
     console.error(err)
   } finally {
@@ -31,10 +46,44 @@ function editForm(form: any) {
   // TODO: Open edit dialog or navigate to edit page
   console.log('Edit form:', form)
 }
-
-function deleteForm(form: any) {
+function normalizeObj(val: any) {
+  if (!val) return null
+  try {
+    const jVal = JSON.parse(val)
+    if(Array.isArray(jVal)) return jVal.length ? jVal : null
+    return Object.keys(jVal).length ? jVal : null
+  } catch {
+    return null
+  }
+}
+function normalizeForm(form:any){
+  const normalizeFormData = {
+    ...form,
+    docSeparationConfig: normalizeObj(form.docSeparationConfig),
+    fieldsSetting: normalizeObj(form.fieldsSetting),
+    formClassificationConfig: normalizeObj(form.formClassificationConfig),
+    otherMetadataSetting: normalizeObj(form.otherMetadataSetting),
+    pageSplitConfig: normalizeObj(form.pageSplitConfig),
+    pagePathList: form.pagePathList ? form.pagePathList.sort((a, b) => a.length !== b.length ? a.length - b.length : a.localeCompare(b)) : []
+  }
+  delete normalizeFormData.updatedBy
+  delete normalizeFormData.updatedAt
+  delete normalizeFormData.createdAt
+  delete normalizeFormData.createdBy
+  return normalizeFormData
+}
+async function activeForm(form: any) {
+  const newData = normalizeForm(form)
+  newData.status = 'A'
+  await clientApi.api.putCaptureProjformsetting(newData)
+  getForms()
+}
+async function deleteForm(form: any) {
   // TODO: Show confirmation dialog and delete
-  console.log('Delete form:', form)
+  const newData = normalizeForm(form)
+  newData.status = 'I'
+  await clientApi.api.putCaptureProjformsetting(newData)
+  getForms()
 }
 
 function configureForm(form: any) {
@@ -83,6 +132,7 @@ watch(
           :key="form.id"
           :form="form"
           @edit="editForm"
+          @active="activeForm"
           @delete="deleteForm"
           @configure="configureForm"
           @duplicate="duplicateForm"

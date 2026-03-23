@@ -64,7 +64,9 @@ async function getPreview() {
     loadingPreview.value = false
   }
 }
-
+function handleActive() {
+  emits('active', props.form)
+}
 function handleEdit() {
   // Navigate to form detail page
   const tab = createScanFormDetailPageTab(props.form.id)
@@ -95,7 +97,9 @@ onUnmounted(() => {
 <template>
   <ElCard class="formCard" shadow="hover" @dblclick="handleEdit">
     <div class="cardHeader">
-      <div class="formName">{{ form.name }}</div>
+      <div class="formName">{{ form.name }}
+          <ElTag size="small" :type="form.status === 'A' ? 'prima' : 'danger'">{{ form.status === 'A' ? 'Active' : 'Inactive' }}</ElTag>
+      </div>
       <ElDropdown trigger="click">
         <ElButton link>
           <Icon name="lucide:more-vertical" />
@@ -110,10 +114,14 @@ onUnmounted(() => {
               <Icon name="lucide:copy" />
               Duplicate
             </ElDropdownItem>
-            <!-- <ElDropdownItem @click="handleDelete">
+             <ElDropdownItem v-if="form.status === 'A'" @click="handleDelete">
               <Icon name="lucide:trash-2" class="text-danger" />
-              <span class="text-danger">Delete</span>
-            </ElDropdownItem> -->
+              <span class="text-danger">Inactive</span>
+            </ElDropdownItem>
+            <ElDropdownItem v-if="form.status === 'I'" @click="handleActive">
+             <Icon name="lucide:trash-2" class="text-danger" />
+             <span class="text-danger">Active</span>
+           </ElDropdownItem>
           </ElDropdownMenu>
         </template>
       </ElDropdown>

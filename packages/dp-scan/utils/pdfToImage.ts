@@ -40,7 +40,7 @@ export async function loadPDF(source: File | ArrayBuffer): Promise<PDFWrapper> {
 
   // Dynamic import of pdfjs-dist legacy build
   const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/legacy/build/pdf.mjs')
-  console.log('pdfjsLib', pdfjsLib)
+
   pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
   const data = await file.arrayBuffer()
