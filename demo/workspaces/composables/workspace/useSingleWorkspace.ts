@@ -112,13 +112,10 @@ export function useSingleWorkspace() {
     if (!newWorkspaceData && !workspace.value) return
     newWorkspaceData ||= workspace.value as CaseTypeRecord
     const { name, description, icon, id } = newWorkspaceData
-    const dto: any = {
-      name,
-      description,
-      metadata: {
-        icon
-      }
-    }
+    const dto: any = {}
+    if (name) dto.name = name
+    if (description) dto.description = description
+    if (icon) dto.metadata = { icon }
 
     const { data }: any = await newClientApi.putDynamicDbCaseTypesId(id, dto)
     workspace.value = data as CaseTypeRecord

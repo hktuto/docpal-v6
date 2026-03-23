@@ -145,8 +145,7 @@ onMounted(() => {
                 <div
                   v-for="item in section.items"
                   :key="item.id"
-                  class="nav-item"
-                  :class="{ active: activeSection === item.id }"
+                  :class="{ 'nav-item': true, active: activeSection === item.id }"
                   @click="switchSection(item.id)"
                 >
                   <Icon :name="item.icon" />

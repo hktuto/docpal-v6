@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { InfoFilled } from '@element-plus/icons-vue'
 import type { WorkspaceRouteParams, TreeItem } from '../../../composables/workspace/useSingleWorkspace'
 import type { CaseTableRecord } from '../../../utils/db/schema/newTableSchema'
 import type { MenuDTO } from 'api'
@@ -23,11 +24,20 @@ type BreadcrumbItem = {
   itemId?: string | null // Original item ID for finding children
 }
 
+type InfoDialogItem = {
+  id: string
+  descriptioin: string
+}
+
 // Record title for breadcrumb when viewing a record
 const recordTitle = ref<string>('')
 
 const breadcrumbList = ref<BreadcrumbItem[]>([])
-
+const infoDialogVisible = ref(false)
+const infoDialogItem = ref<InfoDialogItem>({
+  id: '',
+  descriptioin: ''
+})
 
 async function createBreadcrumb() {
   const rootItem: BreadcrumbItem = {
@@ -70,14 +80,12 @@ async function createBreadcrumb() {
  * 在树形菜单中根据节点 id 或 item_id 查找节点
  */
 function findMenuNodeByIdOrItemId(nodes: MenuDTO[], idOrItemId: string): MenuDTO | undefined {
-    for (const node of nodes) {
-        if (node.id === idOrItemId || node.item_id === idOrItemId) return node;
-        const found = node.children?.length
-            ? findMenuNodeByIdOrItemId(node.children, idOrItemId)
-            : undefined;
-        if (found) return found;
-    }
-    return undefined;
+  for (const node of nodes) {
+    if (node.id === idOrItemId || node.item_id === idOrItemId) return node
+    const found = node.children?.length ? findMenuNodeByIdOrItemId(node.children, idOrItemId) : undefined
+    if (found) return found
+  }
+  return undefined
 }
 
 /**
@@ -87,63 +95,48 @@ function findMenuNodeByIdOrItemId(nodes: MenuDTO[], idOrItemId: string): MenuDTO
  * @returns 从根到目标节点（含）的 BreadcrumbItem 数组
  */
 function getFullPathFromMenuItems(items: MenuDTO[], itemId: string | null): BreadcrumbItem[] {
-    if (!itemId) return [];
+  if (!itemId) return []
 
-    const path: MenuDTO[] = [];
+  const path: MenuDTO[] = []
 
-    function findPath(nodes: MenuDTO[], targetId: string): boolean {
-        for (const node of nodes) {
-            path.push(node);
-            if (node.id === targetId) return true;
-            if (node.children?.length && findPath(node.children, targetId)) return true;
-            path.pop();
-        }
-        return false;
+  function findPath(nodes: MenuDTO[], targetId: string): boolean {
+    for (const node of nodes) {
+      path.push(node)
+      if (node.id === targetId) return true
+      if (node.children?.length && findPath(node.children, targetId)) return true
+      path.pop()
     }
+    return false
+  }
 
-    if (!findPath(items, itemId)) return [];
+  if (!findPath(items, itemId)) return []
 
-    return path.map((node) => menuNodeToBreadcrumbItem(node));
+  return path.map((node) => menuNodeToBreadcrumbItem(node))
 }
 
 /** 将 MenuDTO 转为 BreadcrumbItem，用于面包屑与下拉 */
 function menuNodeToBreadcrumbItem(node: MenuDTO): BreadcrumbItem {
-    const detailType = mapItemTypeToDetailType(node.item_type);
-    const label = node.name ?? node.id ?? '';
-    return {
-        label,
-        name: label,
-        params: {
-            detailId: node.id ?? null,
-            detailType,
-            pageType: 'detail'
-        },
-        isFolder: node.item_type === 'folder',
-        isRecord: false,
-        children: node.children as TreeItem[] | undefined,
-        itemId: node.item_id ?? null
-    };
+  const label = node.name ?? node.id ?? ''
+  return {
+    label,
+    name: label,
+    params: {
+      detailId: node.id ?? null,
+      detailType: node.item_type,
+      pageType: 'detail',
+      description: node.description ?? ''
+    },
+    isFolder: node.item_type === 'folder',
+    isRecord: false,
+    children: node.children as TreeItem[] | undefined,
+    itemId: node.item_id ?? null
+  }
 }
 
-/** API item_type 映射为 WorkspaceRouteParams.detailType */
-function mapItemTypeToDetailType(item_type?: string): WorkspaceRouteParams['detailType'] {
-    switch (item_type) {
-        case 'folder':
-            return 'folder';
-        case 'master_table':
-            return 'table';
-        case 'view':
-            return 'view';
-        case 'dashboard':
-            return 'dashboard';
-        default:
-            return 'folder';
-    }
-}
 function handleBreadcrumbClick(item: BreadcrumbItem) {
   // Clear record title when navigating away
   recordTitle.value = ''
-  
+
   if (item.params.detailType === 'root') {
     // If currently viewing a record, use goBackFromRecord
     if (workspaceRouteParams.value.detailType === 'record') {
@@ -158,7 +151,7 @@ function handleBreadcrumbClick(item: BreadcrumbItem) {
     if (workspaceRouteParams.value.detailType === 'record') {
       goBackFromRecord()
     }
-    
+
     const menuItem = findItemById(menuState.value.items, item.params.detailId)
     if (menuItem) {
       navigateToItem(menuItem)
@@ -174,7 +167,24 @@ function handleDropdownItemClick(item: TreeItem) {
   }
   navigateToItem(item)
 }
+function handleInfoClick(item: BreadcrumbItem) {
+  infoDialogItem.value = {
+    id: item.params.detailId ?? '',
+    descriptioin: item.params.description ?? ''
+  }
+  infoDialogVisible.value = true
+}
 
+function handleInfoInput(description: string) {
+  const currentItem = breadcrumbList.value[breadcrumbList.value.length - 1]
+  if (!currentItem) return
+  if (currentItem.params.detailId !== infoDialogItem.value.id) return
+  currentItem.params.description = description
+  const menuItem = findItemById(menuState.value.items, currentItem.params.detailId)
+  if (menuItem) {
+    menuItem.description = description
+  }
+}
 watch(
   menuState,
   () => {
@@ -279,6 +289,17 @@ watch(
             <el-icon v-if="item.isRecord" class="record-icon"><Document /></el-icon>
             {{ item.name }}
           </span>
+          <el-tooltip :content="item.params.description" placement="bottom">
+            <el-icon
+              v-if="index === breadcrumbList.length - 1 && item.params.detailType === 'master_table'"
+              raw-content
+              :content="item.params.description"
+              class="el-icon--right cursor-pointer"
+              @click="handleInfoClick(item)"
+            >
+              <InfoFilled />
+            </el-icon>
+          </el-tooltip>
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -288,6 +309,7 @@ watch(
       <slot />
     </div>
   </div>
+  <WorkspacesDetailInfoPopover v-model="infoDialogVisible" :item="infoDialogItem" @input="handleInfoInput" />
 </template>
 
 <style lang="scss" scoped>
