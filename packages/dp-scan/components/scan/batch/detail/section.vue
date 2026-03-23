@@ -91,6 +91,7 @@ async function handleRemoveRow(rowIndex: number) {
 
 // Determine if field has been modified
 function isFieldModified(field: FieldWithValue): boolean {
+  if(!field.originalValue && !field.currentValue) return false
   return field.currentValue !== field.originalValue
 }
 function splitByCamelCase(str: string): string {
