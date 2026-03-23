@@ -420,7 +420,7 @@ defineExpose({
                 <div v-if="field.warning" class="warningText">{{ field.warning }}</div>
 
                 <!-- Original OCR value display -->
-                <div v-if="field.currentValue !== field.originalValue" class="originalValue">
+                <div v-if="isFieldModified(field)" class="originalValue">
                   <Icon name="lucide:history" class="originalIcon" />
                   <span class="originalText">{{ field.originalValue || '(empty)' }}</span>
                 </div>
