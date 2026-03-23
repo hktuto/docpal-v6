@@ -627,6 +627,7 @@ export const useBatchDetail = (batchId: string) => {
       // TODO : Select Next Document, and reload page
       // TODO:　calculate selected document index
       const index = batchDetail.value.documents.findIndex((b) => b.id === currentSelectedDoc.value.id)
+      cosnole.log("try to get next index", index, currentSelectedDoc.value)
       if (index !== -1 ) {
         if (index === batchDetail.value.documents.length - 1) {
           // is last page
