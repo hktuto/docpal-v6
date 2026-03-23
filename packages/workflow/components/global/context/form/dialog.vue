@@ -9,7 +9,14 @@ const props = defineProps<{
 }>()
 const emits = defineEmits(['submit'])
 const FormDesignRef = ref()
-const variables = ref([])
+const variables = computed(()=>{
+  const variableList = getVariablesByType()
+  return {
+    labelKey: 'name',
+    nameKey: 'id',
+    data: variableList
+  }
+})
 const formDialogVisible = ref(false)
 
 async function openDialog(json: any) {
@@ -36,15 +43,6 @@ async function handleFormSubmit() {
   emits('submit', data.id)
   formDialogVisible.value = false
 }
-
-onMounted(() => {
-  const variableList = getVariablesByType()
-  variables.value = {
-    labelKey: 'name',
-    nameKey: 'id',
-    data: variableList
-  }
-})
 
 defineExpose({ openDialog })
 </script>

@@ -58,8 +58,11 @@ export default defineAppConfig({
     //     name: "client-smartFolder"
     // },
 
+    // {
+    //   name: 'client-workflow'
+    // },
     {
-      name: 'client-workflow'
+      name: 'client-new-workflow'
     },
     {
       label: 'client_retention_item',

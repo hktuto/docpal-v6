@@ -1,6 +1,5 @@
 <template>
-  <el-dropdown id="Workflow__NewWorkflow" popper-class="popover-auto" trigger="click"
-               @command="workflowClickHandler">
+  <el-dropdown id="Workflow__NewWorkflow" popper-class="popover-auto" trigger="click" @command="workflowClickHandler">
     <el-button type="primary" :loading="state.loading">
       {{ $t('workflow_newWorkflow') }}
       <el-icon class="el-icon--right">
@@ -15,12 +14,16 @@
       </el-dropdown-menu>
     </template>
   </el-dropdown>
-  <el-dialog v-model="state.formDialogVisible" :title="state.selectedWorkflow.name"
-             destroy-on-close append-to-body width="60%"
-             :close-on-click-modal="false"
-             :fullscreen="isFullScreen"
-             @close="isFullScreen = false"
-             class="scroll-dialog big"
+  <el-dialog
+    v-model="state.formDialogVisible"
+    :title="state.selectedWorkflow.name"
+    destroy-on-close
+    append-to-body
+    width="60%"
+    :close-on-click-modal="false"
+    :fullscreen="isFullScreen"
+    @close="isFullScreen = false"
+    class="scroll-dialog big"
   >
     <template #header>
       <div class="dialog-title">
@@ -30,20 +33,22 @@
         </div>
       </div>
     </template>
-    <ElTabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading"
-            @tab-change="tabChangeHandler">
+    <ElTabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading" @tab-change="tabChangeHandler">
       <ElTabPane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
         <WorkflowDetailFormRender ref="vFormRef" />
       </ElTabPane>
       <ElTabPane :label="$t('workflow_graph')" name="Graph">
-        <BpmnViewer v-if="activeName === 'Graph'" ref="graphEl" class="graphContent" step="start"
-                    @graphReady="graphReady" />
+        <BpmnViewer v-if="activeName === 'Graph'" ref="graphEl" class="graphContent" step="start" @graphReady="graphReady" />
       </ElTabPane>
     </ElTabs>
     <template #footer>
-      <el-button v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
-                 id="Workflow__NewWorkflow__StartWorkflow" type="primary" :disabled="state.loading"
-                 @click="checkAndSubmit">
+      <el-button
+        v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
+        id="Workflow__NewWorkflow__StartWorkflow"
+        type="primary"
+        :disabled="state.loading"
+        @click="checkAndSubmit"
+      >
         <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
           {{ pageButtonSetting.submitButtonLabel }}
         </template>
@@ -90,7 +95,8 @@ function tabChangeHandler() {
 }
 
 async function getAvailableWorkflow() {
-  state.availableWorkflow = await newClientApi.postDocpalWorkflowProcessList().then(res => res.data) as any || []
+  const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions`).then((r) => r.data)
+  state.availableWorkflow = data.items.filter((item: any) => item.status == 'A') || []
 }
 
 async function workflowClickHandler(item: any) {
@@ -146,7 +152,6 @@ async function checkAndSubmit() {
   state.loading = true
   const data = await vFormRef.value.getFormData()
   if (data) {
-
     const form = {
       processKey: state.selectedWorkflow.key,
       businessKey: data.businessKey || '',
@@ -157,13 +162,11 @@ async function checkAndSubmit() {
     }
 
     try {
-      await newClientApi.postDocpalWorkflowProcessStart(form).then(res => res.data)
+      await newClientApi.postDocpalWorkflowProcessStart(form).then((res) => res.data)
       state.formDialogVisible = false
       ElMessage.success('Workflow created')
       emits('created')
-    } catch (error) {
-
-    }
+    } catch (error) {}
   }
   state.loading = false
 }
@@ -176,12 +179,7 @@ const additionalButton = ref<AdditionalButton[]>([])
 const pageButtonSetting = ref<any>(null)
 
 async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any) {
-  const {
-    buttons,
-    components,
-    signatureSetting,
-    buttonSetting
-  } = await getBpmnAdditionalElement(xml, 'Start', taskDetail, formData)
+  const { buttons, components, signatureSetting, buttonSetting } = await getBpmnAdditionalElement(xml, 'Start', taskDetail, formData)
   additionalButton.value = buttons
   if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
@@ -189,15 +187,18 @@ async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any)
 }
 
 async function initForm(processKey: string, versionId: string) {
-  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then(res => res.data)
+  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then((res) => res.data)
   const formData = formDataGet(props)
   const formJson = await formJsonGet('start', processKey, versionId)
   setTimeout(() => {
     vFormRef.value.setForm(formJson, formData, props)
   })
-  const blob: any = await newClientApi.postDocpalWorkflowProcessModel({ processKey }, {
-    format: 'blob'
-  })
+  const blob: any = await newClientApi.postDocpalWorkflowProcessModel(
+    { processKey },
+    {
+      format: 'blob'
+    }
+  )
   const text = await blob.text()
   state.bpmnXml = text
   await handleAdditionalSetting(text, processKey, {}, {})
@@ -215,13 +216,14 @@ function formDataGet(propList = []) {
 }
 
 async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  const response: any = await newClientApi.getDmsFormPropertiesQuery({
-    userTaskId,
-    processKey,
-    versionId
-  }).then(res => res.data)
-  if (!response[0] ||
-    response[0] && !response[0].jsonValue) return {}
+  const response: any = await newClientApi
+    .getDmsFormPropertiesQuery({
+      userTaskId,
+      processKey,
+      versionId
+    })
+    .then((res) => res.data)
+  if (!response[0] || (response[0] && !response[0].jsonValue)) return {}
   return JSON.parse(response[0].jsonValue)
 }
 
@@ -245,7 +247,6 @@ defineExpose({ workflowClickHandler })
 .graphContent {
   height: 500px;
 }
-
 </style>
 <style lang="scss">
 .popover-auto {

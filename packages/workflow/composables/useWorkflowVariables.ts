@@ -1,3 +1,5 @@
+import { createError } from '#build/imports'
+
 /**
  * 動態變量的數據類型
  */
@@ -29,6 +31,11 @@ export type WorkflowVariablesProvideContext = {
   deleteVariableItem: (node: any, variableItemId: string) => void
   getVariablesByType: (type?: VariableItemType) => VariableSelectItem[]
 }
+
+// const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+// if (!graphProvider) {
+//   throw createError('graph provider not found')
+// }
 
 export const useVariablesProvide = () => {
   const ctx = inject<WorkflowVariablesProvideContext>('WorkflowVariablesProvide')
@@ -111,13 +118,17 @@ export const useVariables = () => {
   }
 
   function updateNode(node: any, variables: WorkflowVariablesObj) {
+    // graphProvider?.graph.value?.startBatch('update-variables')
     const data = node.getData()
     const newData = {
       ...data,
       variables,
       version: (data.version || 0) + 1
     }
+    console.log(2222,newData)
     node.setData(newData, { overwrite: true, deep: true, silent: false })
+    console.log(333,node)
+    // graphProvider?.graph.value?.stopBatch('update-variables')
   }
 
   provide('WorkflowVariablesProvide', {
