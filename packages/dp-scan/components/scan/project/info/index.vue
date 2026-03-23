@@ -141,7 +141,7 @@ function addProjectField() {}
 <style lang="scss" scoped>
 .infoContainer {
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 109px);
   overflow: hidden;
   padding: var(--app-space-s);
   position: relative;
@@ -152,8 +152,8 @@ function addProjectField() {}
   gap: var(--app-space-s);
 }
 .formFields {
-  flex: 1 0 auto;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .footer {
   width: 100%;
