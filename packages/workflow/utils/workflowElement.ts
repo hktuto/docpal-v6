@@ -8,6 +8,7 @@ export enum WorkflowElementType {
   UserTask = 'UserTask',
   HTTPTask = 'HTTPTask',
   ServiceTask = 'ServiceTask',
+  HTTPRequestTask = 'HTTPRequestTask'
   // exclusiveGateway = 'exclusiveGateway',
   // boundaryEvent = 'boundaryEvent',
   // scriptTask = 'scriptTask',
@@ -134,7 +135,7 @@ export enum CellType {
   parallel = 'ParallelGateway',
   inclusive = 'InclusiveGateway',
   HTTPTask = 'HTTPTask',
-  uniqueIdGenerator = 'UniqueIdGenerator',
+  uniqueIdGenerator = 'UniqueIdGenerator'
 }
 
 interface portsItems {
@@ -519,7 +520,7 @@ export const workflowElement: WorkflowElement = {
         label: 'User Form',
         group: '',
         order: 0
-      },
+      }
       // {
       //   id: CellType.signatureTask,
       //   label: 'User Signature Task',
@@ -571,7 +572,10 @@ export const workflowElement: WorkflowElement = {
       return 'LazyContextUserTask'
     }
   },
-  ServiceTask: {
+  // ServiceTask: {
+  //
+  // },
+  HTTPRequestTask: {
     embed: false,
     toolbar: [
       {
@@ -583,14 +587,43 @@ export const workflowElement: WorkflowElement = {
       }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      return {
+      const graph: GraphItem = {
         id: workflowNodeItem.id,
-        markup: [],
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'image', selector: 'image' },
+          { tagName: 'text', selector: 'title' },
+          { tagName: 'text', selector: 'text' }
+        ],
+        attrs: GenAttrs('Unique Id Generator', workflowNodeItem.name, workflowNodeItem.metadata.icon),
+        shape: 'bpmn-node',
+        zIndex: 1,
+        visible: true,
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          ...workflowNodeItem
+        },
+        ports: GenDefPorts(),
+        _order: 0
       }
+      return graph
     },
     clickHandler: () => {},
-    contextMenuComponent: () => {
-      return 'LazyContextServiceTask'
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      const tags = workflowNodeItem.metadata.tags
+      switch (tags) {
+        case CellType.uniqueIdGenerator:
+          return 'ContextUniqueIdGenerator'
+        default:
+          return
+      }
     }
   },
   HTTPTask: {
@@ -882,7 +915,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         url: '',
         headers: {},
         body: {},
-        output_mapping: {},
+        output_mapping: {}
       },
       metadata: {
         tags: CellType.HTTPTask
@@ -918,11 +951,23 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Unique Id Generator',
       label: 'New Unique Id Generator',
       documentation: '',
-      type: WorkflowElementType.ServiceTask,
+      type: WorkflowElementType.HTTPRequestTask,
       execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
         tags: CellType.uniqueIdGenerator
       },
+      config: {
+        method: 'POST',
+        url:  process.env.CLIENTURL + '/api/dms/facade/id-template/generate',
+        headers: generatorHTTPRequestTaskHeaders(),
+        body: {
+          templateId: '',
+          variables: {}
+        },
+        output_mapping: {
+          data: ''
+        }
+      }
     }
   }
 }
@@ -946,3 +991,13 @@ export const workflowCellElement = {
   }
 }
 // #endregion
+
+// TODO get config setting
+function generatorHTTPRequestTaskHeaders() {
+  return {
+    ServerName: 'docpal-api',
+    ServerKey: '14ecdf56081AGSDghw',
+    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
+    'Content-Type': 'application/json'
+  }
+}
