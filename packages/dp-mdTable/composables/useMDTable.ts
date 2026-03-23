@@ -4,6 +4,7 @@ import type { VxeGridInstance } from 'vxe-table'
 import { useUpdateStatus } from './useUpdateStatus'
 import { clientApi } from 'api'
 import { newClientApi } from 'api'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 export interface mdTable {
   columns: any
   deleteColumn: (column: any) => void
@@ -23,7 +24,7 @@ export interface mdTable {
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
-  console.log('useMDTable', props)
+  const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
   const editable = ref(props.editable)
   const gridRef = ref<any>()
   const addColumnPopoverRef = ref()
@@ -123,7 +124,8 @@ export function useMDTable(props: any) {
     userList,
     updateRow,
     addRow,
-    addColumnPopoverRef
+    addColumnPopoverRef,
+    systemFieldsTypes
   })
 
   return {

@@ -17,8 +17,7 @@ const props = defineProps<{
   formData: any
   mode: 'default' | 'edit'
 }>()
-const { columns } = useMDTableInject()
-const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
+const { columns, systemFieldsTypes } = useMDTableInject()
 const originalShow = ref(false)
 const componentMap = {
   Text: resolveComponent('LazyMdFormFieldText'),
@@ -46,7 +45,6 @@ const componentMap = {
 }
 const getComponent = (type: string) => {
   const s_type = reverseColumnFieldType[type]
-  console.log('s_type', s_type)
   return componentMap[s_type] || resolveComponent('LazyMdFormFieldDisabled')
 }
 
@@ -58,7 +56,12 @@ const getFormData = async () => {
       console.error('formData is not valid')
       return false
     }
-    return props.formData
+
+    const newFormData = columns.value.filter((column: any) => !systemFieldsTypes.includes(column.business_type)).reduce((acc: any, column: any) => {
+      acc[column.field_name] = props.formData[column.field_name]
+      return acc
+    }, {})
+    return newFormData
   } catch (error) {
     console.error('formData is not valid', error)
     return false

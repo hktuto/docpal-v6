@@ -133,8 +133,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     // }
     if (tableId) {
       const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, { ...params })
+      tableData.value = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
       return {
-        entryList: data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? [],
+        entryList: tableData.value,
         totalSize: data?.totalSize ?? 0
       }
     }

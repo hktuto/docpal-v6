@@ -45,24 +45,20 @@ function handleCancel() {
 }
 const formRef = ref()
 async function handleSubmit() {
-  const formData = await formRef.value.getFormData()
-  if (!formData) return
+  const _formData = await formRef.value.getFormData()
+  if (!_formData) return
   visible.value = false
-  console.log('formData', formData)
-  emits('submit', formData)
+  emits('submit', _formData)
 }
 const open = (row: any, _mode: 'default' | 'edit' = 'default') => {
-  formData.value = row
+  formData.value = { ...row }
   mode.value = _mode
   visible.value = true
   if (props.showMoveButtons) setCurrentRow(row)
 }
 function handleMove(direction: 'up' | 'down') {
-  console.log('handleMove', direction)
-  console.log('result', formData)
   moveCurrentRow(direction)
   formData.value = { ...currentRow.value }
-  console.log('formData', formData.value)
   // const result = props.onMove?.(direction)
   // if (result?.formData != null) {
   //   formData.value = result.formData
