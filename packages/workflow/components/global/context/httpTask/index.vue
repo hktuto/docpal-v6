@@ -19,7 +19,7 @@ if (!graphProvider) {
 
 const { getVariablesByType } = useVariablesProvide()
 const stringFields = computed(() => {
-  return getVariablesByType('string')
+  return getVariablesByType(['string'])
 })
 
 const state = reactive({

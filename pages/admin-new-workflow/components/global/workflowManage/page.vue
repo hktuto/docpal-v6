@@ -189,7 +189,7 @@ function openCreateDialog() {
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <el-button @click="openCreateDialog">Create Workflow</el-button>
+        <el-button id="Workflow__CreateWorkflow" @click="openCreateDialog">Create Workflow</el-button>
       </template>
       <template #status="{ row }">
         <el-tag v-if="row.status === 'A'" type="success">{{ $t('actions.activated') }}</el-tag>

@@ -34,7 +34,7 @@ function assigneeChanged(newVal: string) {
 }
 
 const allFields = computed(() => {
-  return getVariablesByType('string')
+  return getVariablesByType(['string'])
 })
 
 onMounted(async () => {

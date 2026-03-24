@@ -19,9 +19,14 @@ const formData = ref({
 
 const { getVariablesByType } = useVariablesProvide()
 const stringFields = computed(() => {
-  console.log(123,getVariablesByType())
-  const fields = getVariablesByType('string')
-  console.log(123,fields)
+  const fields = getVariablesByType(['string'])
+  return fields.map((item: any) => ({
+    id: '${' + item.id + '}',
+    name: item.name
+  }))
+})
+const stringAndNumberFields = computed(() => {
+  const fields = getVariablesByType(['string','number'])
   return fields.map((item: any) => ({
     id: '${' + item.id + '}',
     name: item.name
@@ -135,7 +140,7 @@ onMounted(async () => {
       <el-divider content-position="left">{{ $t('caseManagement.idTemplateVariables') }}</el-divider>
       <el-form-item v-for="item in formData.variables" :key="item.label" :label="item.label">
         <el-select v-model="item.value" :placeholder="$t('common_selectedIsRequiredMsg')" filterable @change="updateData">
-          <el-option v-for="item in stringFields" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in stringAndNumberFields" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
     </template>

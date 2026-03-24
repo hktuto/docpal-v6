@@ -72,7 +72,7 @@ export type WorkflowVariablesProvideContext = {
   addVariableItem: (node: any, variableItem: VariableItem) => void
   updateVariableItem: (node: any, variableItem: VariableItem) => void
   deleteVariableItem: (node: any, variableItemId: string) => void
-  getVariablesByType: (type?: VariableItemType) => VariableSelectItem[]
+  getVariablesByType: (typeList?: VariableItemType[]) => VariableSelectItem[]
 }
 
 export const useVariablesProvide = () => {
@@ -144,10 +144,16 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
 
   /**
    * 根據數據類型返回對應的數據類型
-   * @param type 變量的數據類型
+   * @param typeList 變量的數據類型
    */
-  function getVariablesByType(type?: VariableItemType): VariableSelectItem[] {
-    const list = type ? variables.value.filter((item: VariableItem) => item.type === type) : variables.value
+  function getVariablesByType(typeList?: VariableItemType[]): VariableSelectItem[] {
+    let list
+    if (!typeList) {
+      list = variables.value
+    } else if (typeList.length > 0) {
+      list = variables.value.filter((item: VariableItem) => typeList.includes(item.type))
+    }
+
     return list.map((item: VariableItem) => ({
       id: item.id,
       name: item.name,

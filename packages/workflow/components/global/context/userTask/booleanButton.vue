@@ -21,7 +21,7 @@ const buttonSetting = ref({
 })
 
 const allBooleanInfo = computed(() => {
-  return getVariablesByType('boolean')
+  return getVariablesByType(['boolean'])
 })
 
 function getButtonSetting() {
