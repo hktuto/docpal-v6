@@ -64,7 +64,7 @@
 import { ElMessage } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 // @ts-ignore
-import { newClientApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 
 const { formStartHandle } = useWorkflow()
 const isFullScreen = ref(false)
@@ -99,9 +99,33 @@ async function getAvailableWorkflow() {
 }
 
 async function workflowClickHandler(item: any) {
-  let step = 'Start'
   state.loading = true
+  const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${item.id}`).then((r) => r.data)
+  if (!data) return
 
+  // Workflow未發佈
+  if (Object.keys(row.content).length === 0) {
+    routerProvider?.message.error('Workflow has not been released.')
+    return
+  }
+
+  const startTask = data.content.nodes.find((item: any) => item.id === 'system_start_event')
+  if (!startTask) {
+    routerProvider?.message.error('缺少Start Task')
+    return
+  }
+
+  const formKey = startTask.metadata?.formKey
+  if (!!formKey) {
+    const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
+    if (!formJson) return {}
+
+    console.log(33, formJson.jsonValue)
+  } else {
+
+  }
+
+  return
   //TODO : get xml and check if need to open new page
   const xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(item.versionId)
   const { flatObj } = bpmnStringToJson(xml)

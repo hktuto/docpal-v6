@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { newAdminApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 import { useWorkflowAdditionalContext } from '#imports'
 
@@ -75,21 +75,11 @@ async function previewForm() {
 }
 
 async function getFormJson() {
-  const id = node.data.id
-  const data = await newAdminApi.getDmsFormPropertiesQuery({ userTaskId: id }).then((r) => r.data)
-  if (!data) {
-    throw createError('Server Error')
-  }
-
-  if (data.length == 0 || !data[0].jsonValue) {
-    ElMessage.warning('Empty Form')
-    return {}
-  }
-
   if (formKey.value != 0) {
-    const find = data.find((item: any) => item.id === formKey.value)
-    if (!find) return {}
-    return find.jsonValue
+    const data = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
+    if (!data) return {}
+
+    return data.jsonValue
   } else {
     return {}
   }
