@@ -184,7 +184,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       columns: processedColumns.value as any,
       editRules: processedEditRules.value,
       columnConfig: {
-        drag: true
+        drag: true,
+        minWidth: 150
       },
       columnDragConfig: {
         disabledMethod({ column }: any) {
@@ -205,8 +206,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         enabled: true,
         gt: 0
       },
-      scrollX: {
-        enabled: true
+      'virtual-x-config': {
+        enabled: true,
+        gt: 0
       },
       // 工具栏配置
       toolbarConfig: {
