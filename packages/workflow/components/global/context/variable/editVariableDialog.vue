@@ -2,6 +2,10 @@
 import type { Node } from '@antv/x6'
 import { VariableTypeOptions, type VariableItem, type VariableSelectItem } from '#imports'
 
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
+  throw createError('graph provider not found')
+}
 const { addVariableItem, updateVariableItem, getVariablesByType } = useVariablesProvide()
 const { node } = defineProps<{
   node: Node
@@ -114,6 +118,7 @@ function newNameChanged(rule: any, value: any, callback: any) {
 }
 
 async function confirmHandler() {
+  graphProvider?.graph.value?.startBatch('update-variables')
   try {
     await FormRef.value.validate()
     if (isEdit.value) {
@@ -126,6 +131,7 @@ async function confirmHandler() {
   } catch (error) {
     console.error(error)
   }
+  graphProvider?.graph.value?.stopBatch('update-variables')
 }
 
 defineExpose({

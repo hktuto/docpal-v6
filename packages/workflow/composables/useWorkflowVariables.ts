@@ -1,6 +1,4 @@
 import type { Graph } from '@antv/x6'
-import { createError } from '#build/imports'
-import { WORKFLOW_EDITOR_PROVIDER } from '../utils/workflowType'
 
 /**
  * 動態變量的數據類型
@@ -93,13 +91,7 @@ export const useVariablesProvide = () => {
 }
 
 export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
-  const editorGraphProvider = inject(WORKFLOW_EDITOR_PROVIDER, null)
-
   const variables = ref<VariableItem[]>([])
-
-  function resolveGraph(): Graph | undefined {
-    return graphRef?.value ?? editorGraphProvider?.graph.value
-  }
 
   /**
    * 把workflow Json 中 variables 轉成數組
@@ -164,12 +156,6 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
   }
 
   function updateNode(node: any, variables: WorkflowVariablesObj) {
-    const graph = resolveGraph()
-    if (!graph) {
-      throw createError('workflow graph not found')
-    }
-
-    graph.startBatch('update-variables')
     const data = node.getData()
     const newData = {
       ...data,
@@ -177,7 +163,6 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
       version: (data.version || 0) + 1
     }
     node.setData(newData, { overwrite: true, deep: true, silent: false })
-    graph.stopBatch('update-variables')
   }
 
   provide('WorkflowVariablesProvide', {

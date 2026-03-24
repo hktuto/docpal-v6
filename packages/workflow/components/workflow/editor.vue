@@ -273,11 +273,13 @@ async function getFormByNode(node: Node) {
 
 const copyKey = useState('copy-key', () => '')
 const copyObj = useState('copy-obj')
+
 async function copyForm(node: Node, obj: any) {
   copyKey.value = node.data.id
   copyObj.value = obj
   routerProvider?.message.success(`${node.data.name || node.data.id} form has copied`)
 }
+
 function pasteForm() {}
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
