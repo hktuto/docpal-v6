@@ -486,7 +486,7 @@ export function normalizeValue(
   value: string,
   options: any[],
   normalizeOptions?: NormalizeOptions,
-
+  allowNull:boolean = false
 ): string {
 
 
@@ -508,11 +508,13 @@ export function normalizeValue(
   } else {
 
     // check if option can value
-    const testValue = value.toLowerCase()
-    let v:any;
+    const testValue = value.toLowerCase().replaceAll(' ','')
+    let v: any;
+
     options.forEach((op) => {
       for (let [key, val] of Object.entries(op)) {
-        if (testValue === key.toLowerCase() ||val &&　testValue === val.toLowerCase() ) v = key
+
+        if (testValue === key.toLowerCase().replaceAll(' ','') || val &&　testValue === val.toLowerCase().replaceAll(' ','') ) v = key
       }
     })
 
@@ -524,55 +526,55 @@ export function normalizeValue(
 
 
   const input = String(value).trim()
+  if (normalizeOptions) {
+    for (const [targetValue, patterns] of Object.entries(normalizeOptions)) {
 
-  for (const [targetValue, patterns] of Object.entries(normalizeOptions)) {
+      const fullOptions = patterns.join(',').replace(' ', '')
+      if (fullOptions.toLowerCase().includes(input.toLowerCase().replace(' ', ''))) {
+        console.log("return target value", value, targetValue)
+        return targetValue
+      }
+      for (const pattern of patterns) {
+        // Check if pattern looks like a regex (starts with ^ or ends with $ or contains regex chars)
+        const isRegex = pattern.startsWith('^') ||
+          pattern.endsWith('$') ||
+          /[.*+?()[\]{}|]/.test(pattern)
+        // Remark **** is the keyword to for default value, so the
 
-    const fullOptions = patterns.join(',').replace(' ','')
-    if (fullOptions.toLowerCase().includes(input.toLowerCase().replace(' ', ''))) {
-      console.log("return target value",value ,targetValue )
-      return targetValue
-    }
-    for (const pattern of patterns) {
-      // Check if pattern looks like a regex (starts with ^ or ends with $ or contains regex chars)
-      const isRegex = pattern.startsWith('^') ||
-                      pattern.endsWith('$') ||
-                      /[.*+?()[\]{}|]/.test(pattern)
-      // Remark **** is the keyword to for default value, so the
+        if (isRegex) {
+          try {
+            const regex = new RegExp(pattern, 'i') // case-insensitive
 
-      if (isRegex) {
-        try {
-          const regex = new RegExp(pattern, 'i') // case-insensitive
+            if (regex.test(input)) {
+              console.log("return from regex", value, targetValue)
+              return targetValue
+            }
+          } catch (e) {
 
-          if (regex.test(input)) {
-            console.log("return from regex",value ,targetValue)
-            return targetValue
+            // Invalid regex, treat as literal string
+            if (input.toLowerCase() === pattern.toLowerCase()) {
+              console.log("return from string compare", value, targetValue)
+              return targetValue
+            }
           }
-        } catch (e) {
+        } else {
 
-          // Invalid regex, treat as literal string
+          // Plain string comparison (case-insensitive)
           if (input.toLowerCase() === pattern.toLowerCase()) {
-             console.log("return from string compare",value ,targetValue)
+            console.log("return from string compare", value, targetValue)
             return targetValue
           }
         }
-      } else {
-
-        // Plain string comparison (case-insensitive)
-        if (input.toLowerCase() === pattern.toLowerCase()) {
-          console.log("return from string compare", value ,targetValue)
+        if (pattern === '****') {
+          console.log("found detail value", targetValue, input)
           return targetValue
         }
       }
-      if (pattern === '****') {
-        console.log("found detail value", targetValue, input)
-        return targetValue
-      }
     }
   }
-
   // No match found, return original value
-  console.log("no match", value,options, normalizeOptions, )
-  return value
+  console.log("no match", value,options, normalizeOptions )
+  return allowNull ? null : value
 }
 
 /**
