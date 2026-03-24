@@ -95,8 +95,7 @@ function tabChangeHandler() {
 }
 
 async function getAvailableWorkflow() {
-  const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions?published=true`).then((r) => r.data)
-  state.availableWorkflow = data.items.filter((item: any) => item.status == 'A') || []
+  state.availableWorkflow = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions?published=true`).then((r) => r.data)
 }
 
 async function workflowClickHandler(item: any) {

@@ -56,24 +56,14 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
         code: 'activate',
         name: t('actions.active'),
         action: async ({ row }: { row: any }) => {
-          try {
-            await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}/activate`).then((r) => r.data)
-            reload()
-          } catch (error) {
-            console.error('Failed to activate user group:', error)
-          }
+          await handleActiveAndInactive(row, true)
         }
       },
       {
         code: 'deactivate',
         name: t('actions.inactive'),
         action: async ({ row }: { row: any }) => {
-          try {
-            await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}/deactivate`).then((r) => r.data)
-            reload()
-          } catch (error) {
-            console.error('Failed to deactivate user group:', error)
-          }
+          await handleActiveAndInactive(row, false)
         }
       },
       {
@@ -95,7 +85,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     // Show edit action for all user groups
     if (code === 'edit_info') {
       return {
-        visible: row.status === 'D',
+        visible: Object.keys(row.content).length === 0,
         disabled: false
       }
     }
@@ -110,7 +100,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     // Show activate action only for inactive user groups
     if (code === 'activate') {
       return {
-        visible: row.status === 'D',
+        visible: Object.keys(row.content).length === 0,
         disabled: false
       }
     }
@@ -118,14 +108,14 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     // Show deactivate action only for active user groups
     if (code === 'deactivate') {
       return {
-        visible: row.status === 'A',
+        visible: Object.keys(row.content).length !== 0,
         disabled: false
       }
     }
 
     if (code === 'remove') {
       return {
-        visible: row.status === 'D',
+        visible: Object.keys(row.content).length === 0,
         disabled: false
       }
     }
@@ -164,14 +154,30 @@ function handleDbClick(row: any) {
 
 function handleEditInfo(row: any) {
   workflowManageDialogRef.value.edit(row)
+  reload()
 }
 
 function handleDuplicate(row: any) {
   workflowManageDuplicateRef.value.open(row)
+  reload()
+}
+
+async function handleActiveAndInactive(row: any, status: boolean) {
+  try {
+    if (status) {
+      const userId = useUserId()
+      await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}/activate`, { user_id: userId.value }).then((r) => r.data)
+    } else {
+      await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}/deactivate`).then((r) => r.data)
+    }
+    reload()
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 async function handleRemove(row: any) {
-  if (row.status === 'A') return
+  if (Object.keys(row.content).length !== 0) return
   try {
     await $api.delete(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
     reload()
