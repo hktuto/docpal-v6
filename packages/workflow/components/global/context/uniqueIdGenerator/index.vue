@@ -14,12 +14,15 @@ const generateIdTemplateList = ref<any[]>([])
 const formData = ref({
   templateId: '',
   responseId: '',
-  variables: {}
+  variables: []
 })
 
 const { getVariablesByType } = useVariablesProvide()
 const stringFields = computed(() => {
-  return getVariablesByType('string').map((item: any) => ({
+  console.log(123,getVariablesByType())
+  const fields = getVariablesByType('string')
+  console.log(123,fields)
+  return fields.map((item: any) => ({
     id: '${' + item.id + '}',
     name: item.name
   }))

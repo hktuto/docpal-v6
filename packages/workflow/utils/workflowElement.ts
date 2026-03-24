@@ -673,7 +673,7 @@ export const workflowElement: WorkflowElement = {
   }
 }
 
-// #region toolbar
+// #region node style
 /**
  * Default graph element template.
  */

@@ -1,44 +1,29 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { METADATA_OPTIONS, type VariableItem, type VariableSelectItem } from '#imports'
+import { VariableTypeOptions, type VariableItem, type VariableSelectItem } from '#imports'
 
 const { addVariableItem, updateVariableItem, getVariablesByType } = useVariablesProvide()
 const { node } = defineProps<{
   node: Node
 }>()
+const comRef = ref()
 const opened = ref(false)
 const emits = defineEmits(['reload'])
-
-let exitRules = []
-const idFieldRef = ref()
-function handleOpen(variable: VariableSelectItem) {
-  if (!!variable) {
-    formData.value = { ...variable }
-    isEdit.value = true
-  } else {
-    formData.value = { ...initData, ...variable }
-    isEdit.value = false
-  }
-  exitRules = isEdit.value ? getVariablesByType().filter((item: any) => item.id !== variable.id) : getVariablesByType()
-  opened.value = true
-  setTimeout(() => {
-    if (idFieldRef.value) {
-      idFieldRef.value?.focus()
-    }
-  }, 100)
-}
-
-const FormRef = ref()
-const isEdit = ref(false)
 const initData = {
   id: '',
   name: '',
-  type: 'text',
+  type: 'string',
+  required: false,
   maxLength: 200
 }
 const formData = ref<VariableItem>({
   ...initData
 })
+const editComponent = ref()
+const exitRules = ref<VariableSelectItem[]>([])
+const idFieldRef = ref()
+const FormRef = ref()
+const isEdit = ref(false)
 const newFieldRules = reactive({
   id: [
     {
@@ -56,13 +41,32 @@ const newFieldRules = reactive({
   ]
 })
 
+function handleOpen(variable?: VariableSelectItem) {
+  opened.value = true
+  if (!!variable) {
+    formData.value = { ...initData, ...variable }
+    isEdit.value = true
+  } else {
+    formData.value = { ...initData }
+    isEdit.value = false
+  }
+
+  exitRules.value = isEdit.value ? getVariablesByType().filter((item: any) => item.id !== variable?.id) : getVariablesByType()
+  typeChanged(formData.value.type)
+  setTimeout(() => {
+    if (idFieldRef.value) {
+      idFieldRef.value?.focus()
+    }
+  }, 100)
+}
+
 function idChanged(rule: any, value: any, callback: any) {
   if (!value) {
     return callback(new Error('Please input id'))
   }
 
   if (value.startsWith('__system__')) {
-    return callback(new Error('Id cannot start with __system__'))
+    return callback(new Error('ID cannot start with \'__system__\''))
   }
 
   // check if id has space and other special characters
@@ -70,34 +74,39 @@ function idChanged(rule: any, value: any, callback: any) {
     return callback(new Error('Id can only contain letters, numbers and underscores'))
   }
 
-  const isDuplicatedItem = getVariablesByType().find((item: any) => item.id === value)
-
-  if (isDuplicatedItem) {
-    return callback(new Error('Id is duplicated'))
+  if (!isEdit.value){
+    const isDuplicatedItem = getVariablesByType().find((item: any) => item.id === value)
+    if (isDuplicatedItem) {
+      return callback(new Error('Id is duplicated'))
+    }
   }
+
   callback()
 }
 
-function typeChanged(value: any) {
-  const options = METADATA_OPTIONS.reduce((acc: any, item: any) => {
+function typeChanged(type: any) {
+  const options = VariableTypeOptions.reduce((acc: any, item: any) => {
     acc.push(...item.options)
     return acc
   }, [])
-  const type = options.find((item: any) => item.validation.validationRuleName === value)
-  if (type) {
+  const typeObject = options.find((item: any) => item.type === type)
+  if (!!typeObject) {
     formData.value = {
-      ...formData.value,
-      ...type.validation
+      id: formData.value.id,
+      name: formData.value.name,
+      type: type,
+      required: false,
+      ...typeObject.validation
     }
-    delete formData.value.validationRuleName
-    if (formData.value.type !== 'text') delete formData.value.maxLength
+    editComponent.value = resolveComponent(typeObject.component)
   }
 }
+
 function newNameChanged(rule: any, value: any, callback: any) {
   if (!value) {
     return callback(new Error('Please input Name'))
   }
-  const isDuplicatedItem = exitRules.some((item: any) => item.name === value)
+  const isDuplicatedItem = exitRules.value.some((item: any) => item.name === value)
   if (isDuplicatedItem) {
     return callback(new Error('Name is duplicated'))
   }
@@ -125,42 +134,31 @@ defineExpose({
 </script>
 
 <template>
-  <ElDialog
-    v-model="opened"
-    width="75%"
-    append-to-body
-    destroy-on-close
-    :title="isEdit ? $t('bpmn.updateRule') : mode === 'global' ? $t('bpmn.addGlobalRule') : $t('bpmn.addRule')"
-  >
-    <ElForm ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top" status-icon @submit.stop>
-      <ElFormItem label="ID" prop="id">
-        <ElInput ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />
-      </ElFormItem>
-      <ElFormItem label="Name" prop="name">
-        <ElInput v-model="formData.name" placeholder="Name" />
-      </ElFormItem>
-      <ElFormItem label="Type" prop="type">
+  <el-dialog v-model="opened" width="75%" append-to-body destroy-on-close :title="isEdit ? $t('bpmn.updateRule') : $t('bpmn.addGlobalRule')">
+    <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top" status-icon @submit.stop>
+      <el-form-item label="ID" prop="id">
+        <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />
+      </el-form-item>
+      <el-form-item label="Name" prop="name">
+        <el-input v-model="formData.name" placeholder="Name" />
+      </el-form-item>
+      <el-form-item label="Type" prop="type">
         <el-select v-model="formData.type" placeholder="Select" @change="typeChanged">
-          <el-option-group v-for="group in METADATA_OPTIONS" :key="group.group" :label="$t(group.group)">
-            <el-option v-for="option in group.options" :key="option.name" :label="$t(option.name)" :value="option.validation.validationRuleName" />
+          <el-option-group v-for="group in VariableTypeOptions" :key="group.group" :label="$t(group.group)">
+            <el-option v-for="option in group.options" :key="option.type" :label="$t(option.label)" :value="option.type" />
           </el-option-group>
         </el-select>
-      </ElFormItem>
-      <DataTypeText v-if="formData.type === 'string'" :form="formData" />
+      </el-form-item>
+
+      <component ref="comRef" :is="editComponent" :form="formData" />
+      <DataTypeText v-if="formData.type === 'string'" :form="formData"></DataTypeText>
       <DataTypeNumber v-else-if="formData.type === 'number'" :form="formData" />
       <DataTypeBoolean v-else-if="formData.type === 'boolean'" :form="formData" />
-      <DataTypeSelect v-else-if="formData.type === 'select'" :form="formData" />
       <DataTypeDate v-else-if="formData.type === 'date'" :form="formData" />
-      <DataTypeDocument v-else-if="formData.type === 'document'" :form="formData" />
-      <DataTypeCase v-else-if="formData.type === 'case'" :form="formData" />
-      <DataTypeWorkflow v-else-if="formData.type === 'workflow'" :form="formData" />
-      <DataTypeMasterTable v-else-if="formData.type === 'mastertable'" :form="formData" />
-      <DataTypeUser v-else-if="formData.type === 'user'" :form="formData" />
-      <DataTypeUserRoleUserGroup v-else-if="formData.type === 'user_role_user_group'" :form="formData" />
-      <!-- 根据type显示不同的表单项 -->
-      <ElFormItem>
+
+      <el-form-item>
         <ElButton id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">{{ $t('dpButtom_confirm') }}</ElButton>
-      </ElFormItem>
-    </ElForm>
-  </ElDialog>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
 </template>

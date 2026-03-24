@@ -1,5 +1,6 @@
 import { Graph } from '@antv/x6'
 import { workflowElement, WorkflowElementType } from './workflowElement'
+
 interface Flow {
   incoming: string[]
   outgoing: string[]

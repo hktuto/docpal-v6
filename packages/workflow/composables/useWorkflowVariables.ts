@@ -1,15 +1,60 @@
+import type { Graph } from '@antv/x6'
 import { createError } from '#build/imports'
+import { WORKFLOW_EDITOR_PROVIDER } from '../utils/workflowType'
 
 /**
  * 動態變量的數據類型
  */
-export type VariableItemType = 'string' | 'number' | 'boolean' | 'date' | 'select'
+export type VariableItemType = 'string' | 'number' | 'boolean' | 'date'
+
+export const VariableTypeOptions = [
+  {
+    group: 'DATA',
+    options: [
+      {
+        label: 'Text',
+        type: 'string',
+        validation: {
+          maxLength: 255
+        },
+        component: 'DataTypeText'
+      },
+      {
+        label: 'Number',
+        type: 'number',
+        validation: {
+          minimum: -999999,
+          maximum: 999999,
+          multipleOf: 0
+        },
+        component: 'DataTypeNumber'
+      },
+      {
+        label: 'Boolean',
+        type: 'boolean',
+        validation: {},
+        component: 'DataTypeBoolean'
+      },
+      {
+        label: 'Date',
+        type: 'date',
+        validation: {
+          dateOrDateTime: 'date',
+          format: 'YYYY-MM-DD',
+          isMultiple: false
+        },
+        component: 'DataTypeDate'
+      }
+    ]
+  }
+]
 
 export type VariableItem = {
   id: string
   name: string
   type: string
   required: boolean
+  maxLength?: number
   pattern?: string
   format?: string
   minimum?: number
@@ -32,11 +77,6 @@ export type WorkflowVariablesProvideContext = {
   getVariablesByType: (type?: VariableItemType) => VariableSelectItem[]
 }
 
-// const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-// if (!graphProvider) {
-//   throw createError('graph provider not found')
-// }
-
 export const useVariablesProvide = () => {
   const ctx = inject<WorkflowVariablesProvideContext>('WorkflowVariablesProvide')
   if (!ctx) {
@@ -52,8 +92,14 @@ export const useVariablesProvide = () => {
   }
 }
 
-export const useVariables = () => {
+export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
+  const editorGraphProvider = inject(WORKFLOW_EDITOR_PROVIDER, null)
+
   const variables = ref<VariableItem[]>([])
+
+  function resolveGraph(): Graph | undefined {
+    return graphRef?.value ?? editorGraphProvider?.graph.value
+  }
 
   /**
    * 把workflow Json 中 variables 轉成數組
@@ -118,17 +164,20 @@ export const useVariables = () => {
   }
 
   function updateNode(node: any, variables: WorkflowVariablesObj) {
-    // graphProvider?.graph.value?.startBatch('update-variables')
+    const graph = resolveGraph()
+    if (!graph) {
+      throw createError('workflow graph not found')
+    }
+
+    graph.startBatch('update-variables')
     const data = node.getData()
     const newData = {
       ...data,
       variables,
       version: (data.version || 0) + 1
     }
-    console.log(2222,newData)
     node.setData(newData, { overwrite: true, deep: true, silent: false })
-    console.log(333,node)
-    // graphProvider?.graph.value?.stopBatch('update-variables')
+    graph.stopBatch('update-variables')
   }
 
   provide('WorkflowVariablesProvide', {

@@ -56,6 +56,19 @@ function handleRemove(item: any) {
   deleteVariableItem(node, item.id)
 }
 
+watch(
+  () => node,
+  async () => {
+    if (node) {
+      refreshData()
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
+
 onMounted(() => {
   useWorkflowAdditionalContext(refreshData)
 })
@@ -76,7 +89,7 @@ onMounted(() => {
       <div class="label" @click="handleEdit(item)">
         {{ item.name }}
       </div>
-      <div v-if="!checkIsSystemDefVariable(item)" style="width: 84px;">
+      <div v-if="!checkIsSystemDefVariable(item)" style="width: 84px">
         <span style="color: #ff0000">System Field</span>
       </div>
       <div v-if="checkIsSystemDefVariable(item)" class="actions">
