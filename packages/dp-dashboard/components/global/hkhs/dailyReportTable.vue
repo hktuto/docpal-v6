@@ -30,14 +30,14 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   api: () => getData(),
   virtualScroll: true,
   columns: [
-    // {
-    //   field: 'transaction_date',
-    //   title: 'Transaction Date',
-    //   fixed: 'left',
-    //   formatter({ cellValue }: any) {
-    //     return dayjs(cellValue).format('DD/MM/YYYY')
-    //   }
-    // },
+    {
+      field: 'transaction_date',
+      title: 'Transaction Date',
+      fixed: 'left',
+      formatter({ cellValue }: any) {
+        return dayjs(cellValue).format('DD/MM/YYYY')
+      }
+    },
     { field: 'uploaded', title: '(1)Uploaded' },
     { field: 'failed_to_process', title: '(2)Failed to Process' },
     { field: 'processed', title: '(3)Processed' },
@@ -178,14 +178,22 @@ async function getData() {
     default_schema: true //默认值必须传
   }
   let data = await newClientApi.postPostgrestRpcFunc('get_doc_processing_daily_report', JSON.stringify(rpcParams)).then((r) => r.data)
-  handleTotal(data)
 
-  dataList.value = data
-  return data
+  // 篩除所有數據為0的item
+  const filteredList = data.filter((item: any) => {
+    return columnsRef.value.some((col: any) => {
+      const num = Number(item?.[col.field] ?? 0)
+      return !Number.isNaN(num) && num !== 0
+    })
+  })
+  handleTotal(filteredList)
+
+  dataList.value = filteredList
+  return filteredList
 }
 
 const columnsRef = ref([
-  // { field: 'transaction_date', title: 'Transaction Date' },
+  { field: 'transaction_date', title: 'Transaction Date' },
   { field: 'uploaded', title: '(1)Uploaded' },
   { field: 'failed_to_process', title: '(2)Failed to Process' },
   { field: 'processed', title: '(3)Processed' },
