@@ -30,14 +30,14 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   api: () => getData(),
   virtualScroll: true,
   columns: [
-    {
-      field: 'transaction_date',
-      title: 'Transaction Date',
-      fixed: 'left',
-      formatter({ cellValue }: any) {
-        return dayjs(cellValue).format('DD/MM/YYYY')
-      }
-    },
+    // {
+    //   field: 'transaction_date',
+    //   title: 'Transaction Date',
+    //   fixed: 'left',
+    //   formatter({ cellValue }: any) {
+    //     return dayjs(cellValue).format('DD/MM/YYYY')
+    //   }
+    // },
     { field: 'uploaded', title: '(1)Uploaded' },
     { field: 'failed_to_process', title: '(2)Failed to Process' },
     { field: 'processed', title: '(3)Processed' },
@@ -185,7 +185,7 @@ async function getData() {
 }
 
 const columnsRef = ref([
-  { field: 'transaction_date', title: 'Transaction Date' },
+  // { field: 'transaction_date', title: 'Transaction Date' },
   { field: 'uploaded', title: '(1)Uploaded' },
   { field: 'failed_to_process', title: '(2)Failed to Process' },
   { field: 'processed', title: '(3)Processed' },
