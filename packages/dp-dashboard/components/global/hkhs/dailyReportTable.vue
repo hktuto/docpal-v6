@@ -44,7 +44,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'verified', title: '(4)Verified' },
     { field: 'failed_to_export', title: '(5)Failed to Export' },
     { field: 'exported', title: '(6)Exported' },
-    { field: 'complete', title: '(7)Complete' },
+    { field: 'downloaded', title: '(7)Complete' },
     { field: 'cancelled', title: '(8)Cancelled' }
   ],
   bodyActions: [],
@@ -115,12 +115,10 @@ function handleDownloadCommand(command: string) {
 }
 
 function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project 
-    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
-    : 'SSF2026'
-  
+  const projectName = formData.value.project ? projectList.value.find((p) => p.id === formData.value.project)?.name || 'SSF2026' : 'SSF2026'
+
   const includeDup = formData.value.includeDuplicate === 2 ? 'Yes' : 'No'
-  
+
   return {
     reportId: 'SCS-100',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
@@ -146,27 +144,22 @@ function formatDate(dateStr: string): string {
 
 function handleDownloadExcel() {
   // Format data with proper date formatting
-  const formattedData = dataList.value.map(row => ({
+  const formattedData = dataList.value.map((row) => ({
     ...row,
     transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
   }))
-  exportReportToExcel(
-    getReportHeader(),
-    columnsRef.value,
-    formattedData,
-    footerData.value
-  )
+  exportReportToExcel(getReportHeader(), columnsRef.value, formattedData, footerData.value)
 }
 
 function handleDownloadPDF() {
   // Format data with proper date formatting for PDF
-  const formattedData = dataList.value.map(row => ({
+  const formattedData = dataList.value.map((row) => ({
     ...row,
     transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
   }))
   exportReportToPDF(
     getReportHeader(),
-    columnsRef.value.map(col => ({ field: col.field, title: col.title })),
+    columnsRef.value.map((col) => ({ field: col.field, title: col.title })),
     formattedData
   )
 }
@@ -199,7 +192,7 @@ const columnsRef = ref([
   { field: 'verified', title: '(4)Verified' },
   { field: 'failed_to_export', title: '(5)Failed to Export' },
   { field: 'exported', title: '(6)Exported' },
-  { field: 'complete', title: '(7)Complete' },
+  { field: 'downloaded', title: '(7)Complete' },
   { field: 'cancelled', title: '(8)Cancelled' }
 ])
 const orderBy = ref(true)
@@ -213,9 +206,9 @@ function HandleSorting(command: string) {
   sortingField.value = command
   const sort = dataList.value.sort((a, b) => {
     if (orderBy.value) {
-      return b[sortingField.value].localeCompare(a[sortingField.value], undefined, { sensitivity: 'base' })
+      return String(b[sortingField.value]).localeCompare(String(a[sortingField.value]), undefined, { sensitivity: 'base' })
     } else {
-      return a[sortingField.value].localeCompare(b[sortingField.value], undefined, { sensitivity: 'base' })
+      return String(a[sortingField.value]).localeCompare(String(b[sortingField.value]), undefined, { sensitivity: 'base' })
     }
   })
   tableRef.value.loadData(sort)
@@ -308,7 +301,7 @@ onMounted(async () => {
         </template>
       </VxeGrid>
     </div>
-    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)"/>
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)" />
   </DashboardCard>
 </template>
 

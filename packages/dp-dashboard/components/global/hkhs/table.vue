@@ -19,14 +19,56 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   api: () => getData(),
   columns: [
     { field: 'datetime', title: 'Date Time', fixed: 'left' },
-    { field: 'batch_no', title: 'Batch No.' },
-    { field: 'from_application_number', title: 'Form' },
-    { field: 'to_application_number', title: 'To' },
-    { field: 'no_of_application', title: 'No of Applications' },
-    { field: 'form_type', title: 'Form Type' },
+    {
+      field: 'batch_no',
+      title: 'Batch No.',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'from_application_number',
+      title: 'Form',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'to_application_number',
+      title: 'To',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'no_of_application',
+      title: 'No of Applications',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'form_type',
+      title: 'Form Type',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
     { field: 'user_id', title: 'User ID' },
-    { field: 'is_overwrite', title: 'Insert/Replace' },
-    { field: 'remark', title: 'Remark' }
+    {
+      field: 'insert_replace',
+      title: 'Insert/Replace',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'remark',
+      title: 'Remark',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    }
   ],
   bodyActions: [],
   dblClickAction: ({ row, column, event }: any) => {}
@@ -57,7 +99,7 @@ function HandleSorting() {
   const sorted = [...dataList.value].sort((a, b) => {
     const va = getVal(a)
     const vb = getVal(b)
-    const cmp = va.localeCompare(vb, undefined, { sensitivity: 'base' })
+    const cmp = String(va).localeCompare(String(vb), undefined, { sensitivity: 'base' })
     return props.orderBy ? cmp : -cmp
   })
   tableRef.value?.loadData(sorted)

@@ -34,13 +34,55 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   columns: [
     { field: 'datetime', title: 'Date Time', fixed: 'left' },
     { field: 'batch_no', title: 'Batch No.' },
-    { field: 'form_application_number', title: 'From' },
-    { field: 'to_application_number', title: 'To' },
-    { field: 'no_of_application', title: 'No. of Application' },
-    { field: 'form_type', title: 'Form Type' },
-    { field: 'source', title: 'Source' },
-    { field: 'user_id', title: 'User ID' },
-    { field: 'is_overwrite', title: 'Insert/Replace' },
+    {
+      field: 'form_application_number',
+      title: 'From',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'to_application_number',
+      title: 'To',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'no_of_application',
+      title: 'No. of Application',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'form_type',
+      title: 'Form Type',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'source',
+      title: 'Source',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'user_id',
+      title: 'User ID',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'is_overwrite',
+      title: 'Insert/Replace',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
     {
       field: 'status',
       title: 'Status',
@@ -53,7 +95,13 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
         return `<div class="table-status" style="--status-color: ${groupStatus.color}"><div class="status-dot"></div>${cellValue}</div>`
       }
     },
-    { field: 'remark', title: 'Remark' }
+    {
+      field: 'remark',
+      title: 'Remark',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    }
   ],
   bodyActions: [],
   dblClickAction: ({ row, column, event }: any) => {}
@@ -191,9 +239,9 @@ function HandleSorting(command: string) {
   sortingField.value = command
   const sort = dataList.value.sort((a, b) => {
     if (orderBy.value) {
-      return b[sortingField.value].localeCompare(a[sortingField.value], undefined, { sensitivity: 'base' })
+      return String(b[sortingField.value]).localeCompare(String(a[sortingField.value]), undefined, { sensitivity: 'base' })
     } else {
-      return a[sortingField.value].localeCompare(b[sortingField.value], undefined, { sensitivity: 'base' })
+      return String(a[sortingField.value]).localeCompare(String(b[sortingField.value]), undefined, { sensitivity: 'base' })
     }
   })
   tableRef.value.loadData(sort)

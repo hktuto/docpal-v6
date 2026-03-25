@@ -33,9 +33,27 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   columns: [
     { field: 'batch_no', title: 'Batch No.', fixed: 'left' },
     { field: 'application_no', title: 'Application No.' },
-    { field: 'form_type', title: 'Form Type' },
-    { field: 'before', title: 'Before' },
-    { field: 'after', title: 'After' },
+    {
+      field: 'form_type',
+      title: 'Form Type',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'before',
+      title: 'Before',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
+    {
+      field: 'after',
+      title: 'After',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
     {
       field: 'modified',
       title: 'Modified',
@@ -51,7 +69,13 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
         return cellValue
       }
     },
-    { field: 'verified_by', title: 'Verified By' },
+    {
+      field: 'verified_by',
+      title: 'Verified By',
+      formatter: ({ cellValue, row }: any) => {
+        return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+      }
+    },
     {
       field: 'completed_on',
       title: 'Completed on',
@@ -198,13 +222,55 @@ function handleCompare(oldStr: string, newStr: string): string[] {
 
 const columnsRef = ref([
   { field: 'batch_no', title: 'Batch No.' },
-  { field: 'application_no', title: 'Application No.' },
-  { field: 'form_type', title: 'Form Type' },
-  { field: 'before', title: 'Before' },
-  { field: 'after', title: 'After' },
-  { field: 'modified', title: 'Modified' },
-  { field: 'verified_by', title: 'Verified By' },
-  { field: 'completed_on', title: 'Completed on' }
+  {
+    field: 'application_no',
+    title: 'Application No.',
+    formatter: ({ cellValue, row }: any) => {
+      return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+    }
+  },
+  {
+    field: 'form_type',
+    title: 'Form Type',
+    formatter: ({ cellValue, row }: any) => {
+      return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+    }
+  },
+  {
+    field: 'before',
+    title: 'Before',
+    formatter: ({ cellValue, row }: any) => {
+      return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+    }
+  },
+  {
+    field: 'after',
+    title: 'After',
+    formatter: ({ cellValue, row }: any) => {
+      return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+    }
+  },
+  {
+    field: 'modified',
+    title: 'Modified',
+    formatter: ({ cellValue, row }: any) => {
+      return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+    }
+  },
+  {
+    field: 'verified_by',
+    title: 'Verified By',
+    formatter: ({ cellValue, row }: any) => {
+      return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+    }
+  },
+  {
+    field: 'completed_on',
+    title: 'Completed on',
+    formatter: ({ cellValue, row }: any) => {
+      return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
+    }
+  }
 ])
 const orderBy = ref(true)
 const sortingField = ref(columnsRef.value[0].field)
@@ -217,9 +283,9 @@ function HandleSorting(command: string) {
   sortingField.value = command
   const sort = dataList.value.sort((a, b) => {
     if (orderBy.value) {
-      return b[sortingField.value].localeCompare(a[sortingField.value], undefined, { sensitivity: 'base' })
+      return String(b[sortingField.value]).localeCompare(String(a[sortingField.value]), undefined, { sensitivity: 'base' })
     } else {
-      return a[sortingField.value].localeCompare(b[sortingField.value], undefined, { sensitivity: 'base' })
+      return String(a[sortingField.value]).localeCompare(String(b[sortingField.value]), undefined, { sensitivity: 'base' })
     }
   })
   tableRef.value.loadData(sort)
