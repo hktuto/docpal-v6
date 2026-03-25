@@ -212,14 +212,23 @@ const sortingName = computed(() => {
 
 function HandleSorting(command: string) {
   sortingField.value = command
-  const sort = dataList.value.sort((a, b) => {
-    if (orderBy.value) {
-      return String(b[sortingField.value]).localeCompare(String(a[sortingField.value]), undefined, { sensitivity: 'base' })
+  const compareString = (a: string, b: string) => {
+    return String(a).localeCompare(String(b), undefined, { sensitivity: 'base' })
+  }
+  const compareNumber = (a: number, b: number) => {
+    return a - b
+  }
+  const factor = orderBy.value ? -1 : 1
+  const comparator = (a, b) => {
+    const na = a[sortingField.value]
+    const nb = b[sortingField.value]
+    if (command === 'transaction_date') {
+      return compareString(na, nb) * factor
     } else {
-      return String(a[sortingField.value]).localeCompare(String(b[sortingField.value]), undefined, { sensitivity: 'base' })
+      return compareNumber(na, nb) * factor
     }
-  })
-  tableRef.value.loadData(sort)
+  }
+  tableRef.value.loadData(dataList.value.sort(comparator))
 }
 
 function handleOrderBy() {
