@@ -101,10 +101,13 @@ export const useBatchDetail = (batchId: string) => {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
 
-    const normalizedValue = field.normalize_options
-      ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options)
+    const normalizedValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
+      ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options, true)
       : rawValue
-    const normalizeOldValue = field.normalize_options
+    if (fieldLabel === "FamilyMemberMaritalStatus") {
+      console.log("normalizedValue", normalizedValue, rawValue)
+    }
+    const normalizeOldValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
       ? normalizeValue(oldData?.[fieldLabel], field.field_setting.options, field.normalize_options)
       : oldData?.[fieldLabel]
 
@@ -112,7 +115,7 @@ export const useBatchDetail = (batchId: string) => {
       const isValue = checkHKID(rawValue)
       field.warning = isValue ? isValue.message : undefined
     }
-    return {
+    const result = {
       ...field,
       currentValue: normalizedValue,
       originalValue: normalizeOldValue,
@@ -123,6 +126,8 @@ export const useBatchDetail = (batchId: string) => {
       normalize_options: field.normalize_options,
       validation_function: field.validation_function
     }
+
+    return result
   }
 
   function buildSectionsWithValues() {
@@ -156,9 +161,12 @@ export const useBatchDetail = (batchId: string) => {
             currentValue: rowData,
             originalValue: oldRowData,
             fields: section.fields?.map((field: any): FieldWithValue => {
-              return convertFieldToWithValues(field, rowData, oldRowData)
+              const newField = convertFieldToWithValues(field, rowData, oldRowData)
+
+              return newField
             })
           }
+
           // check if rowData has page , if so need to overide fields
           const page = rowData.page
           if (page) {
@@ -217,6 +225,9 @@ export const useBatchDetail = (batchId: string) => {
           const rowData: Record<string, any> = {}
           row.fields.forEach(field => {
             const fieldLabel = field.lable || field.label
+            // if (fieldLabel === "FamilyMemberMaritalStatus") {
+            //   console.log("FamilyMemberMaritalStatus", field)
+            // }
             rowData[fieldLabel] = field.currentValue
           })
           // add back the page number to row data
@@ -249,10 +260,7 @@ export const useBatchDetail = (batchId: string) => {
       const response = await clientApi.api.getCaptureBatchBatchidDetail(currentBatchId.value)
       batchDetail.value = response.data
       batchDetail.value.documents = batchDetail.value.documents.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename))
-      if (selectIndex) {
 
-        console.log("selectIndex", selectIndex, response.data.documents[selectIndex])
-      }
       currentSelectedDoc.value = response.data.documents[selectIndex || 0]
 
       // Handle batch locking
@@ -492,7 +500,6 @@ export const useBatchDetail = (batchId: string) => {
         if (field) {
           if (field?.type === 'hkic') {
             const isValid = checkHKID(value)
-            console.log('isValid', isValid)
             if (!isValid.result) {
               field.warning = isValid.message
             } else {
@@ -508,7 +515,6 @@ export const useBatchDetail = (batchId: string) => {
       if (field) {
         if (field?.type === 'hkic') {
           const isValid = checkHKID(value)
-          console.log('isValid', isValid)
           if (!isValid.result) {
             field.warning = isValid.message
           } else {
