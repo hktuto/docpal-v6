@@ -44,7 +44,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'verified', title: '(4)Verified' },
     { field: 'failed_to_export', title: '(5)Failed to Export' },
     { field: 'exported', title: '(6)Exported' },
-    { field: 'complete', title: '(7)Complete' },
+    { field: 'downloaded', title: '(7)Complete' },
     { field: 'cancelled', title: '(8)Cancelled' }
   ],
   bodyActions: [],
@@ -146,7 +146,7 @@ function formatDate(dateStr: string): string {
 
 async function handleDownloadExcel() {
   // Format data with proper date formatting
-  const formattedData = dataList.value.map(row => ({
+  const formattedData = dataList.value.map((row) => ({
     ...row,
     transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
   }))
@@ -160,13 +160,13 @@ async function handleDownloadExcel() {
 
 function handleDownloadPDF() {
   // Format data with proper date formatting for PDF
-  const formattedData = dataList.value.map(row => ({
+  const formattedData = dataList.value.map((row) => ({
     ...row,
     transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
   }))
   exportReportToPDF(
     getReportHeader(),
-    columnsRef.value.map(col => ({ field: col.field, title: col.title })),
+    columnsRef.value.map((col) => ({ field: col.field, title: col.title })),
     formattedData
   )
 }
@@ -185,10 +185,18 @@ async function getData() {
     default_schema: true //默认值必须传
   }
   let data = await newClientApi.postPostgrestRpcFunc('get_doc_processing_daily_report', JSON.stringify(rpcParams)).then((r) => r.data)
-  handleTotal(data)
 
-  dataList.value = data
-  return data
+  // 篩除所有數據為0的item
+  const filteredList = data.filter((item: any) => {
+    return columnsRef.value.some((col: any) => {
+      const num = Number(item?.[col.field] ?? 0)
+      return !Number.isNaN(num) && num !== 0
+    })
+  })
+  handleTotal(filteredList)
+
+  dataList.value = filteredList
+  return filteredList
 }
 
 const columnsRef = ref([
@@ -199,7 +207,7 @@ const columnsRef = ref([
   { field: 'verified', title: '(4)Verified' },
   { field: 'failed_to_export', title: '(5)Failed to Export' },
   { field: 'exported', title: '(6)Exported' },
-  { field: 'complete', title: '(7)Complete' },
+  { field: 'downloaded', title: '(7)Complete' },
   { field: 'cancelled', title: '(8)Cancelled' }
 ])
 const orderBy = ref(true)
@@ -211,14 +219,23 @@ const sortingName = computed(() => {
 
 function HandleSorting(command: string) {
   sortingField.value = command
-  const sort = dataList.value.sort((a, b) => {
-    if (orderBy.value) {
-      return b[sortingField.value].localeCompare(a[sortingField.value], undefined, { sensitivity: 'base' })
+  const compareString = (a: string, b: string) => {
+    return String(a).localeCompare(String(b), undefined, { sensitivity: 'base' })
+  }
+  const compareNumber = (a: number, b: number) => {
+    return a - b
+  }
+  const factor = orderBy.value ? -1 : 1
+  const comparator = (a, b) => {
+    const na = a[sortingField.value]
+    const nb = b[sortingField.value]
+    if (command === 'transaction_date') {
+      return compareString(na, nb) * factor
     } else {
-      return a[sortingField.value].localeCompare(b[sortingField.value], undefined, { sensitivity: 'base' })
+      return compareNumber(na, nb) * factor
     }
-  })
-  tableRef.value.loadData(sort)
+  }
+  tableRef.value.loadData(dataList.value.sort(comparator))
 }
 
 function handleOrderBy() {
@@ -310,7 +327,7 @@ onMounted(async () => {
         </template>
       </VxeGrid>
     </div>
-    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)"/>
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)" />
   </DashboardCard>
 </template>
 

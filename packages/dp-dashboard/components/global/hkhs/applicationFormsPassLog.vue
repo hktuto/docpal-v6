@@ -54,7 +54,7 @@ const columnsRef = ref([
   { field: 'no_of_application', title: 'No of Applications' },
   { field: 'form_type', title: 'Form Type' },
   { field: 'user_id', title: 'User ID' },
-  { field: 'is_overwrite', title: 'Insert/Replace' },
+  { field: 'insert_replace', title: 'Insert/Replace' },
   { field: 'remark', title: 'Remark' }
 ])
 const sortingField = ref(columnsRef.value[0].field)
