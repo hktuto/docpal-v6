@@ -5,6 +5,7 @@ import { createError } from '#imports'
 const { node } = defineProps<{
   node: Node
 }>()
+const emits = defineEmits(['update'])
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
@@ -19,30 +20,50 @@ const buttonSetting = ref({
   showSaveDraft: true,
   saveDraftLabel: 'Save Draft'
 })
+const form = ref()
 
 const allBooleanInfo = computed(() => {
   return getVariablesByType(['boolean'])
 })
 
-function getButtonSetting() {
+function init() {
   const nodeData = node.getData()
+  if (!!nodeData.metadata.buttonSetting) {
+    buttonSetting.value = nodeData.metadata.buttonSetting
+  }
 }
 
 function setForm() {
+  graphProvider?.graph.value?.startBatch('update-startTask-data')
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
-    version: nodeData.version + 1 || 0,
     metadata: {
       ...nodeData.metadata,
-    }
+      buttonSetting: {
+        ...buttonSetting.value
+      }
+    },
+    version: nodeData.version + 1 || 0
   }
-  node.setData(newData, { deep: true, overwrite: true })
+  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  graphProvider?.graph.value?.stopBatch('update-startTask-data')
 }
 
-function init() {
-  getButtonSetting()
-}
+function addButton() {}
+
+watch(
+  () => node,
+  async () => {
+    if (node) {
+      init()
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
 
 onMounted(() => {
   useWorkflowAdditionalContext(init)
@@ -56,22 +77,23 @@ onMounted(() => {
       <span>Button Setting</span>
       <el-form label-position="top">
         <el-form-item label="Show Submit Button">
-          <el-switch v-model="buttonSetting.showSumBitButton" />
+          <el-switch v-model="buttonSetting.showSumBitButton" @change="setForm"/>
         </el-form-item>
         <el-form-item label="Submit Button Label">
-          <el-input v-model="buttonSetting.submitButtonLabel" />
+          <el-input v-model="buttonSetting.submitButtonLabel" @change="setForm"/>
         </el-form-item>
         <template v-if="node.data.type !== 'startEvent'">
           <el-form-item label="Show Save Draft Button">
-            <el-switch v-model="buttonSetting.showSaveDraft" />
+            <el-switch v-model="buttonSetting.showSaveDraft" @change="setForm"/>
           </el-form-item>
           <el-form-item label="Save Draft Button Label">
-            <el-input v-model="buttonSetting.saveDraftLabel" />
+            <el-input v-model="buttonSetting.saveDraftLabel" @change="setForm"/>
           </el-form-item>
         </template>
       </el-form>
     </div>
-    <!--    <template v-if="allBooleanInfo.length === 0">No Boolean Field to set</template>
+
+    <template v-if="allBooleanInfo.length === 0">No Boolean Field to set</template>
     <div v-else class="listContainer">
       <template v-for="(item, index) in form">
         <el-form :model="item" label-position="top" class="listItem">
@@ -103,7 +125,7 @@ onMounted(() => {
       <div class="actions">
         <el-button text @click="addButton">Add</el-button>
       </div>
-    </div>-->
+    </div>
   </div>
 </template>
 

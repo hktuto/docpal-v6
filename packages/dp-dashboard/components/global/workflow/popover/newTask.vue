@@ -14,12 +14,12 @@
       </el-dropdown-menu>
     </template>
   </el-dropdown>
+
   <el-dialog
     v-model="state.formDialogVisible"
     :title="state.selectedWorkflow.name"
     destroy-on-close
     append-to-body
-    width="60%"
     :close-on-click-modal="false"
     :fullscreen="isFullScreen"
     @close="isFullScreen = false"
@@ -38,7 +38,9 @@
         <WorkflowDetailFormRender ref="vFormRef" />
       </ElTabPane>
       <ElTabPane :label="$t('workflow_graph')" name="Graph">
-        <BpmnViewer v-if="activeName === 'Graph'" ref="graphEl" class="graphContent" step="start" @graphReady="graphReady" />
+        <div v-if="openWorkflowEdit" class="pageContainer">
+          <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :show-actions="true" />
+        </div>
       </ElTabPane>
     </ElTabs>
     <template #footer>
@@ -63,17 +65,15 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
-// @ts-ignore
-import { newAdminApi, newClientApi } from 'api'
+import { newClientApi } from 'api'
 
-const { formStartHandle } = useWorkflow()
+const vFormRef = ref()
+const workflowEditorRef = ref()
+const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
-// @ts-ignore
 const graphEl = ref()
 const emits = defineEmits(['created'])
-// @ts-ignore
 const activeName = ref('Form')
-// @ts-ignore
 const state = reactive({
   availableWorkflow: [],
   formDialogVisible: false,
@@ -81,8 +81,13 @@ const state = reactive({
   bpmnXml: null,
   loading: false
 })
-
-const routerProvider = inject(MenuRouterKey)
+type AdditionalButton = {
+  props: any
+  component: string
+}
+const additionalButton = ref<AdditionalButton[]>([])
+const pageButtonSetting = ref<any>(null)
+const openWorkflowEdit = ref(false)
 
 function tabChangeHandler() {
   if (activeName.value === 'Graph') {
@@ -100,164 +105,100 @@ async function getAvailableWorkflow() {
 
 async function workflowClickHandler(item: any) {
   state.loading = true
+  openWorkflowEdit.value = false
   const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${item.id}`).then((r) => r.data)
   if (!data) return
+  if (data.status === 'D') {
+    state.loading = false
+    routerProvider?.message.error('Workflow has not been released.')
+    return
+  }
 
+  openWorkflowEdit.value = true
+  console.log(123, data.content)
   // Workflow未發佈
-  if (Object.keys(row.content).length === 0) {
+  if (Object.keys(data.content).length === 0) {
+    state.loading = false
     routerProvider?.message.error('Workflow has not been released.')
     return
   }
 
   const startTask = data.content.nodes.find((item: any) => item.id === 'system_start_event')
   if (!startTask) {
+    state.loading = false
     routerProvider?.message.error('缺少Start Task')
     return
   }
 
-  const formKey = startTask.metadata?.formKey
-  if (!!formKey) {
-    const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
-    if (!formJson) return {}
-
-    console.log(33, formJson.jsonValue)
-  } else {
-
-  }
-
-  return
-  //TODO : get xml and check if need to open new page
-  const xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(item.versionId)
-  const { flatObj } = bpmnStringToJson(xml)
-  const startEvent = flatObj.Start
+  state.selectedWorkflow = deepCopy(data)
   state.formDialogVisible = true
-  // check start event additional setting
-  if (startEvent?.extensionElements && startEvent?.extensionElements['docpal:additionaSetting']) {
-    const openInNewPage = startEvent.extensionElements['docpal:additionaSetting'].attr_openInNewPage
-    if (openInNewPage) {
-      state.formDialogVisible = false
-      state.loading = false
-      const link = newWorkflowStartPage(item.name, step, item.key, item.versionId)
-      routerProvider?.navigateTo(link)
-      return
-    }
-  }
-  // get bpmn
-  if (formStartHandle.value[item.key]) {
-    const result = formStartHandle.value[item.key].cb(item.key)
-    if (result && result.step) {
-      step = result.step
-    }
-    if (!formStartHandle.value[item.key].isContinue) {
-      return
-    }
+  await initForm(startTask)
+}
+
+async function initForm(startTask: any) {
+  const formKey = startTask.metadata?.formKey
+  if (!formKey) {
+    state.loading = false
+    state.formDialogVisible = false
+    return
   }
 
+  const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
+  if (!formJson || !formJson.jsonValue) return {}
+  state.loading = false
+  await handleAdditionalSetting(startTask.metadata)
   // @ts-ignore
-  state.selectedWorkflow = deepCopy(item)
-  await initForm(item.key, item.versionId)
-  state.loading = false
-  // createWorkflowForm.value = await workflowStore.getFromProperties(item.key)
-
-  // opened.value = true
-
-  // // vform
-  // const formData = await formInit(createWorkflowForm.value)
-  // const formJson = await handleTaskFormJsonGet(selectedWorkflow.value)
-  // VformRenderRef.value.setFormDataAndJson(formJson, formData, createWorkflowForm.value)
+  nextTick(() => {
+    vFormRef.value.setForm(formJson.jsonValue)
+  })
 }
 
-// #region module: vform
-// @ts-ignore
-const vFormRef = ref()
-
-async function checkAndSubmit() {
-  state.loading = true
-  const data = await vFormRef.value.getFormData()
-  if (data) {
-    const form = {
-      processKey: state.selectedWorkflow.key,
-      businessKey: data.businessKey || '',
-      properties: Object.entries(data).reduce((newObj, [key, val]) => {
-        if (val || val === false || val == '0') newObj[key] = val
-        return newObj
-      }, {})
-    }
-
-    try {
-      await newClientApi.postDocpalWorkflowProcessStart(form).then((res) => res.data)
-      state.formDialogVisible = false
-      ElMessage.success('Workflow created')
-      emits('created')
-    } catch (error) {}
-  }
-  state.loading = false
-}
-
-type AdditionalButton = {
-  props: any
-  component: string
-}
-const additionalButton = ref<AdditionalButton[]>([])
-const pageButtonSetting = ref<any>(null)
-
-async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any) {
-  const { buttons, components, signatureSetting, buttonSetting } = await getBpmnAdditionalElement(xml, 'Start', taskDetail, formData)
+async function handleAdditionalSetting(metadata: any) {
+  const { buttons, components, signatureSetting, buttonSetting } = await getBpmnAdditionalElement(metadata)
   additionalButton.value = buttons
   if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
   }
 }
 
-async function initForm(processKey: string, versionId: string) {
-  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then((res) => res.data)
-  const formData = formDataGet(props)
-  const formJson = await formJsonGet('start', processKey, versionId)
-  setTimeout(() => {
-    vFormRef.value.setForm(formJson, formData, props)
-  })
-  const blob: any = await newClientApi.postDocpalWorkflowProcessModel(
-    { processKey },
-    {
-      format: 'blob'
+async function checkAndSubmit() {
+  state.loading = true
+  const formData = await vFormRef.value.getFormData()
+  const userId = useUserId()
+
+  console.log(222, formData)
+  if (!!formData) {
+    const formParams = {
+      start_user_id: userId.value,
+      definition_id: state.selectedWorkflow.id,
+      variables: {
+        ...formData
+      }
     }
-  )
-  const text = await blob.text()
-  state.bpmnXml = text
-  await handleAdditionalSetting(text, processKey, {}, {})
+
+    try {
+      const data = await $api.post('http://192.168.5.147:8080/api/v1/processes', formParams).then((r) => r.data)
+      console.log(333, data)
+      state.formDialogVisible = false
+      ElMessage.success('Workflow created')
+      emits('created')
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  state.loading = false
 }
 
-function graphReady() {
-  graphEl.value.autoLayout(state.bpmnXml)
-}
-
-function formDataGet(propList = []) {
-  return propList.reduce((prev, item) => {
-    prev[item.id] = item.value
-    return prev
-  }, {})
-}
-
-async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  const response: any = await newClientApi
-    .getDmsFormPropertiesQuery({
-      userTaskId,
-      processKey,
-      versionId
-    })
-    .then((res) => res.data)
-  if (!response[0] || (response[0] && !response[0].jsonValue)) return {}
-  return JSON.parse(response[0].jsonValue)
-}
-
-// #endregion
-// @ts-ignore
 onMounted(() => {
   getAvailableWorkflow()
 })
 defineExpose({ workflowClickHandler })
 </script>
 <style lang="scss" scoped>
+.pageContainer {
+  width: 100%;
+  height: 100%;
+}
 .dialog-title {
   display: flex;
   justify-content: space-between;

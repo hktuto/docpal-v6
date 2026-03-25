@@ -28,7 +28,14 @@
         "y": -150,
         "width": 140,
         "height": 64,
-        "icon": "/icons/form.svg"
+        "icon": "/icons/form.svg",
+        "formKey": 0,
+        "buttonSetting": {
+          "showSumBitButton": true,
+          "submitButtonLabel": "Submit",
+          "showSaveDraft": false,
+          "saveDraftLabel": "Save Draft"
+        }
       }
     },
     {
@@ -62,7 +69,7 @@
     "__system__user_creator_id": {
       "name": "Creator",
       "type": "string",
-      "required": true
+      "required": false
     }
   },
   "metadata": {

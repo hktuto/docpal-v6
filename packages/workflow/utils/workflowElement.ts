@@ -7,7 +7,7 @@ export enum WorkflowElementType {
   Gateway = 'Gateway',
   UserTask = 'UserTask',
   HTTPTask = 'HTTPTask',
-  ServiceTask = 'ServiceTask',
+  // ServiceTask = 'ServiceTask',
   HTTPRequestTask = 'HTTPRequestTask'
   // exclusiveGateway = 'exclusiveGateway',
   // boundaryEvent = 'boundaryEvent',
@@ -720,7 +720,12 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         tags: CellType.userTask,
         formKey: '',
-        buttonSetting: {},
+        buttonSetting: {
+          showSumBitButton: true,
+          submitButtonLabel: 'Submit',
+          showSaveDraft: true,
+          saveDraftLabel: 'Save Draft'
+        },
         booleanButton: []
       }
     }
@@ -958,7 +963,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       config: {
         method: 'POST',
-        url:  process.env.CLIENTURL + '/api/dms/facade/id-template/generate',
+        url: `${process.env.CLIENTURL}/api/dms/facade/id-template/generate`,
         headers: generatorHTTPRequestTaskHeaders(),
         body: {
           templateId: '',

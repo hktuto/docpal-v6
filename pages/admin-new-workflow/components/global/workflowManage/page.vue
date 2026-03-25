@@ -85,7 +85,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     // Show edit action for all user groups
     if (code === 'edit_info') {
       return {
-        visible: Object.keys(row.content).length === 0,
+        visible: row.status === 'D',
         disabled: false
       }
     }
@@ -100,7 +100,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     // Show activate action only for inactive user groups
     if (code === 'activate') {
       return {
-        visible: Object.keys(row.content).length === 0,
+        visible: row.status === 'D',
         disabled: false
       }
     }
@@ -108,14 +108,14 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     // Show deactivate action only for active user groups
     if (code === 'deactivate') {
       return {
-        visible: Object.keys(row.content).length !== 0,
+        visible:  row.status === 'A',
         disabled: false
       }
     }
 
     if (code === 'remove') {
       return {
-        visible: Object.keys(row.content).length === 0,
+        visible: row.status === 'D',
         disabled: false
       }
     }

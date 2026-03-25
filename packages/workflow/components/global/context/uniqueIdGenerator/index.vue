@@ -26,7 +26,7 @@ const stringFields = computed(() => {
   }))
 })
 const stringAndNumberFields = computed(() => {
-  const fields = getVariablesByType(['string','number'])
+  const fields = getVariablesByType(['string', 'number'])
   return fields.map((item: any) => ({
     id: '${' + item.id + '}',
     name: item.name
@@ -118,7 +118,7 @@ watch(
 
 onMounted(async () => {
   await getGenerateIdTemplateList()
-  nextTick(() => useWorkflowAdditionalContext(init))
+  // useWorkflowAdditionalContext(init)
 })
 </script>
 
