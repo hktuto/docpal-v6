@@ -129,14 +129,14 @@ function formatDate(dateStr: string): string {
   return dateStr
 }
 
-function handleDownloadExcel() {
+async function handleDownloadExcel() {
   const tables = tableComponent.value.map((item) => ({
     name: item.title,
     columns: columnsRef.value.map((col) => ({ field: col.field, title: col.title })),
     data: tablesData.value[item.field] || []
   }))
 
-  exportSCS101ToExcel(getReportHeader(), tables)
+  await exportSCS101ToExcel(getReportHeader(), tables)
 }
 
 function handleDownloadPDF() {

@@ -17,7 +17,6 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - '@vue-office/excel'
-  - canvas
   - electron
   - electron-winstaller
   - puppeteer

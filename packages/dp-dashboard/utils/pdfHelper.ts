@@ -75,6 +75,95 @@ export interface ReportHeader {
 }
 
 /**
+ * Draw header on each page - sync with Excel style
+ */
+function drawPageHeader(
+  pdf: jsPDF,
+  header: ReportHeader,
+  pageNumber: number,
+  pageDate: string
+): number {
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const margin = 14
+  const titleBoxLeft = 50   // Column C equivalent
+  const titleBoxRight = pageWidth - 50  // Column I equivalent
+  const titleBoxWidth = titleBoxRight - titleBoxLeft
+
+  let yPos = 10
+
+  // Row 1: REPORT ID (left) + PAGE (right, dynamic)
+  pdf.setFontSize(9)
+  pdf.setFont('helvetica', 'normal')
+  pdf.text(`REPORT ID: ${header.reportId}`, margin, yPos)
+  pdf.text(`PAGE: ${pageNumber}`, pageWidth - margin - 30, yPos)
+  yPos += 5
+
+  // Row 2: COMPILED BY (left) + DATE (right)
+  pdf.text(`COMPILED BY: ${header.compiledBy}`, margin, yPos)
+  pdf.text(`DATE: ${pageDate}`, pageWidth - margin - 30, yPos)
+  yPos += 5
+
+  // Title box: fixed 3 rows height (15mm)
+  const titleBoxTop = yPos
+  const titleBoxHeight = 15  // 3 rows * 5mm each
+  const titleBoxBottom = titleBoxTop + titleBoxHeight
+
+  // Row 3: PROJECT (left)
+  pdf.text(`PROJECT: ${header.project}`, margin, yPos + 3)
+
+  // Title text - centered in box, vertically centered (no border)
+  pdf.setFontSize(12)
+  pdf.setFont('helvetica', 'bold')
+  const titleText = `${header.title}\n${header.subtitle}\n${header.dateRange}`
+  const titleLines = titleText.split('\n')
+  const lineHeight = 5
+  const totalTextHeight = titleLines.length * lineHeight
+  // Calculate vertical middle of the 3-row box
+  const textStartY = titleBoxTop + (titleBoxHeight - totalTextHeight) / 2 + 4
+
+  titleLines.forEach((line, index) => {
+    pdf.text(line, pageWidth / 2, textStartY + (index * lineHeight), { align: 'center' })
+  })
+
+  pdf.setFont('helvetica', 'normal')
+  pdf.setFontSize(8)
+
+  // Input filters on left side (below title box)
+  let filterY = titleBoxBottom + 3
+  if (header.inputProject !== undefined) {
+    pdf.text(`Input Project: ${header.inputProject || 'NULL'}`, margin, filterY)
+    filterY += 4
+  }
+  if (header.inputFrom !== undefined) {
+    pdf.text(`Input From: ${header.inputFrom || 'NULL'}`, margin, filterY)
+    filterY += 4
+  }
+  if (header.inputTo !== undefined) {
+    pdf.text(`Input To: ${header.inputTo || 'NULL'}`, margin, filterY)
+    filterY += 4
+  }
+  if (header.inputIncluded !== undefined) {
+    pdf.text(`Input Included: ${header.inputIncluded || '-'}`, margin, filterY)
+    filterY += 4
+  }
+  if (header.stage !== undefined) {
+    pdf.text(`Stage: ${header.stage}`, margin, filterY)
+    filterY += 4
+  }
+
+  // Remark (for SCS-102) - below title box
+  let finalY = titleBoxBottom + 5
+  if (header.remark) {
+    pdf.setTextColor(255, 0, 0)
+    pdf.text(header.remark, margin, finalY)
+    pdf.setTextColor(0, 0, 0)
+    finalY += 6
+  }
+
+  return finalY
+}
+
+/**
  * Export report with headers to PDF
  */
 export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], data: any[]): void {
@@ -83,67 +172,6 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
   const margin = 14
   const timestamp = new Date().toISOString().split('T')[0]
   const pageDate = formatDateForReport(new Date())
-
-  let yPos = 10
-
-  // Report header section (left side)
-  pdf.setFontSize(9)
-  pdf.setFont('helvetica', 'normal')
-  pdf.text(`REPORT ID: ${header.reportId}`, margin, yPos)
-  pdf.text(`PAGE: 1`, pageWidth - margin - 30, yPos, { align: 'left' })
-  yPos += 5
-
-  pdf.text(`COMPILED BY: ${header.compiledBy}`, margin, yPos)
-  pdf.text(`DATE: ${pageDate}`, pageWidth - margin - 30, yPos, { align: 'left' })
-  yPos += 5
-
-  pdf.text(`PROJECT: ${header.project}`, margin, yPos)
-  yPos += 8
-
-  // Input filters
-  pdf.setFontSize(8)
-  if (header.inputProject !== undefined) {
-    pdf.text(`Input Project: ${header.inputProject || 'NULL'}`, margin, yPos)
-    yPos += 4
-  }
-  if (header.inputFrom !== undefined) {
-    pdf.text(`Input From: ${header.inputFrom || 'NULL'}`, margin, yPos)
-    yPos += 4
-  }
-  if (header.inputTo !== undefined) {
-    pdf.text(`Input To: ${header.inputTo || 'NULL'}`, margin, yPos)
-    yPos += 4
-  }
-  if (header.inputIncluded !== undefined) {
-    pdf.text(`Input Included: ${header.inputIncluded || '-'}`, margin, yPos)
-    yPos += 4
-  }
-  if (header.stage !== undefined) {
-    pdf.text(`Stage: ${header.stage}`, margin, yPos)
-    yPos += 4
-  }
-
-  // Title section (centered)
-  yPos += 5
-  pdf.setFontSize(11)
-  pdf.setFont('helvetica', 'bold')
-  const titleX = pageWidth / 2
-  pdf.text(header.title, titleX, yPos, { align: 'center' })
-  yPos += 6
-  pdf.text(header.subtitle, titleX, yPos, { align: 'center' })
-  yPos += 6
-  pdf.setFont('helvetica', 'normal')
-  pdf.text(header.dateRange, titleX, yPos, { align: 'center' })
-  yPos += 8
-
-  // Remark (for SCS-102)
-  if (header.remark) {
-    pdf.setFontSize(8)
-    pdf.setTextColor(255, 0, 0) // Red color for remark
-    pdf.text(header.remark, margin, yPos)
-    pdf.setTextColor(0, 0, 0) // Reset to black
-    yPos += 6
-  }
 
   // Prepare table data
   const headers = columns.map((col) => col.title)
@@ -157,12 +185,25 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
     })
   })
 
+  // Fixed header height: 2 rows (10mm) + title box (15mm) + input filters
+  let inputFilterRows = 0
+  if (header.inputProject !== undefined) inputFilterRows++
+  if (header.inputFrom !== undefined) inputFilterRows++
+  if (header.inputTo !== undefined) inputFilterRows++
+  if (header.inputIncluded !== undefined) inputFilterRows++
+  if (header.stage !== undefined) inputFilterRows++
+  // Row 1-2: 10mm, Title box (3 rows): 15mm, spacing: 5mm, input filters: 4mm each
+  const headerHeight = 30 + (inputFilterRows * 4)
+  const startY = headerHeight + 5
+
+  let isFirstPage = true
+
   // Generate table
   autoTable(pdf, {
     head: [headers],
     body: dataRows,
-    startY: yPos,
-    margin: { left: margin, right: margin },
+    startY: startY,
+    margin: { left: margin, right: margin, top: headerHeight + 15, bottom: 10 },
     styles: {
       fontSize: 8,
       cellPadding: 2,
@@ -177,32 +218,19 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
       fillColor: [245, 245, 245]
     },
     didDrawPage: (data) => {
-      // Add page number at bottom
-      let finalY = pdf.internal.pageSize.getHeight() - 10
-      pdf.setFontSize(8)
-      pdf.text(`Page ${data.pageNumber}`, pageWidth - margin, pdf.internal.pageSize.getHeight() - 10, {
-        align: 'right'
-      })
-      // Add total row if specified (for SCS-102)
-      if (header.totalLabel && header.totalValue !== undefined) {
-        pdf.setFontSize(9)
-        pdf.setFont('helvetica', 'bold')
-        pdf.text(`${header.totalLabel} ${header.totalValue}`, margin, finalY)
-        pdf.setFont('helvetica', 'normal')
-        finalY += 8
+      const pageNumber = data.pageNumber
+      // Draw header on each page
+      drawPageHeader(pdf, header, pageNumber, pageDate)
+
+      // On subsequent pages, cursor.y should be below header
+      if (!isFirstPage) {
+        data.cursor.y = headerHeight + 10
       }
-
-      // End of report marker
-      pdf.setFontSize(9)
-      pdf.text('*** END OF REPORT ***', pageWidth / 2, finalY + 5, { align: 'center' })
-
-      // Save PDF
-
+      isFirstPage = false
     }
   })
+
   pdf.save(`${header.reportId}_${timestamp}.pdf`)
-
-
 }
 
 /**
@@ -304,77 +332,6 @@ export function exportTableToPDF(options: PDFTableOptions): void {
 /**
  * Export multiple tables to a single PDF (for SCS-101)
  */
-export function exportMultipleTablesToPDF(
-  tables: { title: string; columns: PDFColumn[]; data: any[] }[],
-  mainTitle: string,
-  fileName: string
-): void {
-  const pdf = new jsPDF('landscape', 'mm', 'a4')
-
-  // Add main title
-  pdf.setFontSize(16)
-  pdf.text(mainTitle, 14, 15)
-
-  let startY = 25
-
-  tables.forEach((table, index) => {
-    // Add table title
-    pdf.setFontSize(12)
-    pdf.text(table.title, 14, startY)
-    startY += 6
-
-    // Prepare headers and data
-    const headers = table.columns.map((col) => col.title)
-    const dataRows = table.data.map((row) => {
-      return table.columns.map((col) => {
-        const value = row[col.field]
-        if (typeof value === 'string' && value.includes('<')) {
-          return stripHtml(value)
-        }
-      return value != null ? String(value) : ''
-      })
-    })
-
-    // Check if we need a new page
-    const estimatedHeight = dataRows.length * 5 + 20
-    const pageHeight = pdf.internal.pageSize.getHeight()
-    if (startY + estimatedHeight > pageHeight - 20) {
-      pdf.addPage()
-      startY = 20
-    }
-
-    // Generate table using autoTable
-    autoTable(pdf, {
-      head: [headers],
-      body: dataRows,
-      startY: startY,
-      margin: { left: 14, right: 14 },
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-        overflow: 'linebreak'
-      },
-      headStyles: {
-        fillColor: [26, 188, 156],
-        textColor: 255,
-        fontStyle: 'bold'
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245]
-      },
-
-    })
-
-  })
-
-  // Save PDF
-  const timestamp = new Date().toISOString().split('T')[0]
-  pdf.save(`${fileName}_${timestamp}.pdf`)
-}
-
-/**
- * Export SCS-101 report with headers and multiple tables
- */
 export function exportSCS101ToPDF(
   header: ReportHeader,
   tables: { title: string; columns: PDFColumn[]; data: any[] }[]
@@ -385,64 +342,17 @@ export function exportSCS101ToPDF(
   const timestamp = new Date().toISOString().split('T')[0]
   const pageDate = formatDateForReport(new Date())
 
-  let yPos = 10
+  let isFirstPage = true
+  let currentTableIndex = 0
 
-  // Report header section (left side)
-  pdf.setFontSize(9)
-  pdf.setFont('helvetica', 'normal')
-  pdf.text(`REPORT ID: ${header.reportId}`, margin, yPos)
-  pdf.text(`PAGE: 1`, pageWidth - margin - 30, yPos, { align: 'left' })
-  yPos += 5
-
-  pdf.text(`COMPILED BY: ${header.compiledBy}`, margin, yPos)
-  pdf.text(`DATE: ${pageDate}`, pageWidth - margin - 30, yPos, { align: 'left' })
-  yPos += 5
-
-  pdf.text(`PROJECT: ${header.project}`, margin, yPos)
-  yPos += 8
-
-  // Input filters
-  pdf.setFontSize(8)
-  if (header.inputProject !== undefined) {
-    pdf.text(`Input Project: ${header.inputProject || 'NULL'}`, margin, yPos)
-    yPos += 4
-  }
-  if (header.inputFrom !== undefined) {
-    pdf.text(`Input From: ${header.inputFrom || 'NULL'}`, margin, yPos)
-    yPos += 4
-  }
-  if (header.inputTo !== undefined) {
-    pdf.text(`Input To: ${header.inputTo || 'NULL'}`, margin, yPos)
-    yPos += 4
-  }
-
-  // Title section (centered)
-  yPos += 5
-  pdf.setFontSize(11)
-  pdf.setFont('helvetica', 'bold')
-  const titleX = pageWidth / 2
-  pdf.text(header.title, titleX, yPos, { align: 'center' })
-  yPos += 6
-  pdf.text(header.subtitle, titleX, yPos, { align: 'center' })
-  yPos += 6
-  pdf.setFont('helvetica', 'normal')
-  pdf.text(header.dateRange, titleX, yPos, { align: 'center' })
-  yPos += 10
-
-  // Process each table
   tables.forEach((table, index) => {
-    // Check if we need a new page
-    if (yPos > pdf.internal.pageSize.getHeight() - 40) {
+    // Add new page for subsequent tables
+    if (index > 0) {
       pdf.addPage()
-      yPos = 20
+      isFirstPage = true
     }
 
-    // Add table title
-    pdf.setFontSize(10)
-    pdf.setFont('helvetica', 'bold')
-    pdf.text(table.title, margin, yPos)
-    yPos += 5
-    pdf.setFont('helvetica', 'normal')
+    currentTableIndex = index
 
     // Prepare headers and data
     const headers = table.columns.map((col) => col.title)
@@ -456,12 +366,15 @@ export function exportSCS101ToPDF(
       })
     })
 
+    // Add table title to header for this table
+    const tableHeader = { ...header }
+
     // Generate table using autoTable
-    const result = autoTable(pdf, {
+    autoTable(pdf, {
       head: [headers],
       body: dataRows,
-      startY: yPos,
-      margin: { left: margin, right: margin },
+      startY: 0,
+      margin: { left: margin, right: margin, top: 50, bottom: 10 },
       styles: {
         fontSize: 7,
         cellPadding: 1.5,
@@ -474,16 +387,154 @@ export function exportSCS101ToPDF(
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245]
+      },
+      didDrawPage: (data) => {
+        const pageNumber = data.pageNumber
+        // Draw header on each page
+        const startY = drawPageHeader(pdf, tableHeader, pageNumber, pageDate)
+
+        // Add table title below header
+        if (isFirstPage) {
+          pdf.setFontSize(10)
+          pdf.setFont('helvetica', 'bold')
+          pdf.text(table.title, margin, startY - 2)
+          pdf.setFont('helvetica', 'normal')
+          data.cursor.y = startY + 3
+          isFirstPage = false
+        }
       }
     })
-
   })
 
-  // End of report marker
-  pdf.setFontSize(9)
-  pdf.text('*** END OF REPORT ***', pageWidth / 2, yPos + 5, { align: 'center' })
+  pdf.save(`${header.reportId}_${timestamp}.pdf`)
+}
 
-  // Save PDF
+/**
+ * Export SCS-103 report with main table and summary table to PDF
+ */
+export function exportSCS103ToPDF(
+  header: ReportHeader,
+  mainColumns: PDFColumn[],
+  mainData: any[],
+  summaryColumns: PDFColumn[],
+  summaryData: any[]
+): void {
+  const pdf = new jsPDF('landscape', 'mm', 'a4')
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const margin = 14
+  const timestamp = new Date().toISOString().split('T')[0]
+  const pageDate = formatDateForReport(new Date())
+
+  // Fixed header height: 2 rows (10mm) + title box (15mm) + input filters
+  let inputFilterRows = 0
+  if (header.inputProject !== undefined) inputFilterRows++
+  if (header.inputFrom !== undefined) inputFilterRows++
+  if (header.inputTo !== undefined) inputFilterRows++
+  if (header.stage !== undefined) inputFilterRows++
+  // Row 1-2: 10mm, Title box (3 rows): 15mm, spacing: 5mm, input filters: 4mm each
+  const headerHeight = 30 + (inputFilterRows * 4)
+
+  let isFirstPage = true
+  let mainTableFinished = false
+
+  // Prepare main table data
+  const mainHeaders = mainColumns.map((col) => col.title)
+  const mainDataRows = mainData.map((row) => {
+    return mainColumns.map((col) => {
+      const value = row[col.field]
+      if (typeof value === 'string' && value.includes('<')) {
+        return stripHtml(value)
+      }
+      return value != null ? String(value) : ''
+    })
+  })
+
+  // Generate main table
+  autoTable(pdf, {
+    head: [mainHeaders],
+    body: mainDataRows,
+    startY: headerHeight + 10,
+    margin: { left: margin, right: margin, top: headerHeight + 15, bottom: 10 },
+    styles: {
+      fontSize: 7,
+      cellPadding: 1.5,
+      overflow: 'linebreak'
+    },
+    headStyles: {
+      fillColor: [200, 200, 200],
+      textColor: 0,
+      fontStyle: 'bold'
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245]
+    },
+    didDrawPage: (data) => {
+      const pageNumber = data.pageNumber
+      drawPageHeader(pdf, header, pageNumber, pageDate)
+
+      if (!isFirstPage && !mainTableFinished) {
+        data.cursor.y = headerHeight + 10
+      }
+    },
+    didDrawCell: () => {
+      mainTableFinished = true
+    }
+  })
+
+  // Add summary table on new page
+  pdf.addPage()
+  isFirstPage = true
+  drawPageHeader(pdf, header, 1, pageDate)
+
+  // Add summary title
+  const summaryTitleY = headerHeight + 15
+  pdf.setFontSize(12)
+  pdf.setFont('helvetica', 'bold')
+  pdf.text('Summary', margin, summaryTitleY)
+  pdf.setFont('helvetica', 'normal')
+
+  // Prepare summary table data
+  const summaryHeaders = summaryColumns.map((col) => col.title)
+  const summaryDataRows = summaryData.map((row) => {
+    return summaryColumns.map((col) => {
+      const value = row[col.field]
+      if (typeof value === 'string' && value.includes('<')) {
+        return stripHtml(value)
+      }
+      return value != null ? String(value) : ''
+    })
+  })
+
+  // Generate summary table
+  autoTable(pdf, {
+    head: [summaryHeaders],
+    body: summaryDataRows,
+    startY: summaryTitleY + 5,
+    margin: { left: margin, right: margin, top: headerHeight + 15, bottom: 10 },
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      overflow: 'linebreak'
+    },
+    headStyles: {
+      fillColor: [200, 200, 200],
+      textColor: 0,
+      fontStyle: 'bold'
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245]
+    },
+    didDrawPage: (data) => {
+      const pageNumber = data.pageNumber
+      drawPageHeader(pdf, header, pageNumber, pageDate)
+
+      if (!isFirstPage) {
+        data.cursor.y = headerHeight + 10
+      }
+      isFirstPage = false
+    }
+  })
+
   pdf.save(`${header.reportId}_${timestamp}.pdf`)
 }
 

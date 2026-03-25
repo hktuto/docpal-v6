@@ -3,8 +3,8 @@ import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { statusToGroupStatus } from '#imports'
-import { exportReportToExcel } from '~/utils/excelHelper'
-import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
+import { exportSCS103ToExcel } from '~/utils/excelHelper'
+import { exportSCS103ToPDF, type ReportHeader } from '~/utils/pdfHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -102,15 +102,39 @@ function formatDate(dateStr: string): string {
   return dateStr
 }
 
-function handleDownloadExcel() {
-  exportReportToExcel(getReportHeader(), columnsRef.value, dataList.value, footerData.value)
+async function handleDownloadExcel() {
+  // Summary table columns
+  const summaryColumns = [
+    { field: 'stage', title: 'Stage' },
+    { field: 'batchSuc', title: 'Batch Success' },
+    { field: 'batchFail', title: 'Batch Fail' },
+    { field: 'appSuc', title: 'App Success' },
+    { field: 'appFail', title: 'App Fail' }
+  ]
+  await exportSCS103ToExcel(
+    getReportHeader(),
+    columnsRef.value,
+    dataList.value,
+    summaryColumns,
+    tableData.value
+  )
 }
 
 function handleDownloadPDF() {
-  exportReportToPDF(
+  // Summary table columns
+  const summaryColumns = [
+    { field: 'stage', title: 'Stage' },
+    { field: 'batchSuc', title: 'Batch Success' },
+    { field: 'batchFail', title: 'Batch Fail' },
+    { field: 'appSuc', title: 'App Success' },
+    { field: 'appFail', title: 'App Fail' }
+  ]
+  exportSCS103ToPDF(
     getReportHeader(),
     columnsRef.value.map((col) => ({ field: col.field, title: col.title })),
-    dataList.value
+    dataList.value,
+    summaryColumns,
+    tableData.value
   )
 }
 

@@ -115,12 +115,12 @@ function handleDownloadCommand(command: string) {
 }
 
 function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project 
+  const projectName = formData.value.project
     ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
     : 'SSF2026'
-  
+
   const includeDup = formData.value.includeDuplicate === 2 ? 'Yes' : 'No'
-  
+
   return {
     reportId: 'SCS-100',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
@@ -144,13 +144,13 @@ function formatDate(dateStr: string): string {
   return dateStr
 }
 
-function handleDownloadExcel() {
+async function handleDownloadExcel() {
   // Format data with proper date formatting
   const formattedData = dataList.value.map(row => ({
     ...row,
     transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
   }))
-  exportReportToExcel(
+  await exportReportToExcel(
     getReportHeader(),
     columnsRef.value,
     formattedData,
@@ -227,6 +227,8 @@ function handleOrderBy() {
 }
 
 const projectList = ref([])
+
+
 
 onMounted(async () => {
   projectList.value = await newClientApi.postCaptureProjPage({}).then((r) => r.data)

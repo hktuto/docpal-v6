@@ -117,7 +117,7 @@ function formatDate_1(dateStr: string): string {
   return dateStr
 }
 
-function handleDownloadExcel() {
+async function handleDownloadExcel() {
   // Use columns directly as they no longer have HTML formatting (except modified)
   const exportColumns = columnsRef.value.map((col) => ({ field: col.field, title: col.title }))
 
@@ -127,7 +127,7 @@ function handleDownloadExcel() {
     modified: getModifiedExportValue(row)
   }))
 
-  exportReportToExcel(getReportHeader(), exportColumns, exportData)
+  await exportReportToExcel(getReportHeader(), exportColumns, exportData)
 }
 
 function getModifiedExportValue(row: any): string {
