@@ -121,7 +121,7 @@ export async function exportSCS101ToExcel(
     const titleStartCol = 3  // Column C
     const titleEndCol = 9    // Column I
     const titleStartRow = 3  // Row 3
-    const titleEndRow = 5    // Row 5 (3 rows total)
+    const titleEndRow = 6    // Row 6 (4 rows total)
 
     // Row 1: REPORT ID and PAGE
     worksheet.addRow([`REPORT ID: ${header.reportId}`, '', '', '', '', '', '', '', '', '', '', `PAGE: 1`])
@@ -131,33 +131,14 @@ export async function exportSCS101ToExcel(
     worksheet.addRow([`COMPILED BY: ${header.compiledBy}`, '', '', '', '', '', '', '', '', '', '', `DATE: ${pageDate}`])
     currentRow++
 
-    // Row 3-5: Create merged cell for title section (C3:I5)
-    worksheet.mergeCells(titleStartRow, titleStartCol, titleEndRow, titleEndCol)
-    const titleCell = worksheet.getCell(titleStartRow, titleStartCol)
-
-    // Build text with line breaks for title section
-    const titleText = `${header.title}\n${header.subtitle}\n${header.dateRange}`
-    titleCell.value = titleText
-    titleCell.font = { bold: true, size: 14 }
-    // Use 'middle' for vertical alignment in merged cell
-    titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
-
-    // Remove borders from the merged title cell
-    titleCell.border = {
-      top: { style: 'none' },
-      left: { style: 'none' },
-      bottom: { style: 'none' },
-      right: { style: 'none' }
-    }
-
     // Row 3: PROJECT (left side)
     const row3 = worksheet.getRow(3)
     row3.getCell(1).value = `PROJECT: ${header.project}`
-    currentRow = 3
+    currentRow++
 
     // Row 4: blank (left side), input filters continue below
     worksheet.addRow([''])
-    currentRow = 5
+    currentRow++
 
     // Row 6+: Input filters on the left side
     if (header.inputProject !== undefined) {
@@ -173,18 +154,42 @@ export async function exportSCS101ToExcel(
       currentRow++
     }
 
+    worksheet.addRow([''])
+    worksheet.addRow([''])
+
     // Add column headers
     const colHeaders = table.columns.map((col) => col.title)
     worksheet.addRow(colHeaders)
     const headerRowNumber = currentRow
     const headerRow = worksheet.getRow(headerRowNumber)
     headerRow.font = { bold: true }
-    headerRow.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFE0E0E0' }
+    worksheet.getRows(1, headerRowNumber).forEach((row) => {
+      row.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFFFFFFF' }
+      }
+    })
+
+    // add headear Title
+    // Row 3-5: Create merged cell for title section (C3:I5)
+    worksheet.mergeCells(titleStartRow, titleStartCol, titleEndRow, titleEndCol)
+    const titleCell = worksheet.getCell(titleStartRow, titleStartCol)
+
+    // Build text with line breaks for title section (no extra lines)
+    const titleText = `${header.title}\n${header.subtitle}\n${header.dateRange}`
+    titleCell.value = titleText
+    titleCell.font = { bold: true, size: 14 }
+    // Use 'middle' for vertical alignment in merged cell
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
+
+    // Remove borders from the merged title cell
+    titleCell.border = {
+      top: { style: 'none' },
+      left: { style: 'none' },
+      bottom: { style: 'none' },
+      right: { style: 'none' }
     }
-    currentRow++
 
     // Add data rows
     table.data.forEach((row) => {
@@ -242,7 +247,7 @@ export async function exportReportToExcel(
   const titleStartCol = 3  // Column C
   const titleEndCol = 9    // Column I
   const titleStartRow = 3  // Row 3
-  const titleEndRow = 5    // Row 5 (3 rows total)
+  const titleEndRow = 6    // Row 6 (4 rows total)
 
   // Row 1: REPORT ID and PAGE
   worksheet.addRow([`REPORT ID: ${header.reportId}`, '', '', '', '', '', '', '', '', '', '', `PAGE: 1`])
@@ -252,34 +257,15 @@ export async function exportReportToExcel(
   worksheet.addRow([`COMPILED BY: ${header.compiledBy}`, '', '', '', '', '', '', '', '', '', '', `DATE: ${pageDate}`])
   currentRow++
 
-  // Row 3-5: Create merged cell for title section (C3:I5)
-  worksheet.mergeCells(titleStartRow, titleStartCol, titleEndRow, titleEndCol)
-  const titleCell = worksheet.getCell(titleStartRow, titleStartCol)
-
-  // Build text with line breaks for title section (no extra lines)
-  const titleText = `${header.title}\n${header.subtitle}\n${header.dateRange}`
-  titleCell.value = titleText
-  titleCell.font = { bold: true, size: 14 }
-  // Use 'middle' for vertical alignment in merged cell
-  titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
-
-  // Remove borders from the merged title cell
-  titleCell.border = {
-    top: { style: 'none' },
-    left: { style: 'none' },
-    bottom: { style: 'none' },
-    right: { style: 'none' }
-  }
-
   // Row 3: PROJECT (left side)
   const row3 = worksheet.getRow(3)
   row3.getCell(1).value = `PROJECT: ${header.project}`
-  currentRow = 3
+  currentRow++
 
   // Row 4-5: blank (left side), input filters continue below
   worksheet.addRow([''])
-  worksheet.addRow([''])
-  currentRow = 5
+  // worksheet.addRow([''])
+  currentRow++
 
   // Row 6+: Input filters on the left side
   if (header.inputProject !== undefined) {
@@ -310,18 +296,43 @@ export async function exportReportToExcel(
     currentRow += 2
   }
 
+  worksheet.addRow([''])
+  worksheet.addRow([''])
   // Add column headers
   const colHeaders = columns.map((col) => col.title)
   worksheet.addRow(colHeaders)
+
   const headerRowNumber = currentRow
   const headerRow = worksheet.getRow(headerRowNumber)
   headerRow.font = { bold: true }
-  headerRow.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFE0E0E0' }
+  worksheet.getRows(1, headerRowNumber).forEach((row) => {
+    row.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFFFFF' }
+    }
+  })
+
+
+  // add headear Title
+  // Row 3-5: Create merged cell for title section (C3:I5)
+  worksheet.mergeCells(titleStartRow, titleStartCol, titleEndRow, titleEndCol)
+  const titleCell = worksheet.getCell(titleStartRow, titleStartCol)
+
+  // Build text with line breaks for title section (no extra lines)
+  const titleText = `${header.title}\n${header.subtitle}\n${header.dateRange}`
+  titleCell.value = titleText
+  titleCell.font = { bold: true, size: 14 }
+  // Use 'middle' for vertical alignment in merged cell
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
+
+  // Remove borders from the merged title cell
+  titleCell.border = {
+    top: { style: 'none' },
+    left: { style: 'none' },
+    bottom: { style: 'none' },
+    right: { style: 'none' }
   }
-  currentRow++
 
   // Add data rows
   data.forEach((row) => {
@@ -482,10 +493,10 @@ export async function exportSCS103ToExcel(
   let currentRow = 1
 
   // Title section: fixed 3 rows (rows 3-5)
-  const titleStartCol = 3
-  const titleEndCol = 9
-  const titleStartRow = 3
-  const titleEndRow = 5
+  const titleStartCol = 3  // Column C
+  const titleEndCol = 9    // Column I
+  const titleStartRow = 3  // Row 3
+  const titleEndRow = 6    // Row 6 (4 rows total)
 
   // Row 1: REPORT ID and PAGE
   worksheet.addRow([`REPORT ID: ${header.reportId}`, '', '', '', '', '', '', '', '', '', '', `PAGE: 1`])
@@ -495,31 +506,14 @@ export async function exportSCS103ToExcel(
   worksheet.addRow([`COMPILED BY: ${header.compiledBy}`, '', '', '', '', '', '', '', '', '', '', `DATE: ${pageDate}`])
   currentRow++
 
-  // Row 3-5: Create merged cell for title section (C3:I5)
-  worksheet.mergeCells(titleStartRow, titleStartCol, titleEndRow, titleEndCol)
-  const titleCell = worksheet.getCell(titleStartRow, titleStartCol)
-
-  const titleText = `${header.title}\n${header.subtitle}\n${header.dateRange}`
-  titleCell.value = titleText
-  titleCell.font = { bold: true, size: 14 }
-  // Use 'middle' for vertical alignment in merged cell
-  titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
-  titleCell.border = {
-    top: { style: 'none' },
-    left: { style: 'none' },
-    bottom: { style: 'none' },
-    right: { style: 'none' }
-  }
-
   // Row 3: PROJECT (left side)
   const row3 = worksheet.getRow(3)
   row3.getCell(1).value = `PROJECT: ${header.project}`
-  currentRow = 3
+  currentRow++
 
   // Row 4-5: blank (left side), input filters continue below
   worksheet.addRow([''])
-  worksheet.addRow([''])
-  currentRow = 5
+  currentRow++
 
   // Row 6+: Input filters on the left side
   if (header.inputProject !== undefined) {
@@ -541,20 +535,42 @@ export async function exportSCS103ToExcel(
 
   // Add spacing before main table
   worksheet.addRow([''])
-  currentRow++
+  worksheet.addRow([''])
+
+  // add headear Title
+  // Row 3-5: Create merged cell for title section (C3:I5)
+  worksheet.mergeCells(titleStartRow, titleStartCol, titleEndRow, titleEndCol)
+  const titleCell = worksheet.getCell(titleStartRow, titleStartCol)
+
+  // Build text with line breaks for title section (no extra lines)
+  const titleText = `${header.title}\n${header.subtitle}\n${header.dateRange}`
+  titleCell.value = titleText
+  titleCell.font = { bold: true, size: 14 }
+  // Use 'middle' for vertical alignment in merged cell
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
+
+  // Remove borders from the merged title cell
+  titleCell.border = {
+    top: { style: 'none' },
+    left: { style: 'none' },
+    bottom: { style: 'none' },
+    right: { style: 'none' }
+  }
 
   // Add main table
   const mainColHeaders = mainColumns.map((col) => col.title)
   worksheet.addRow(mainColHeaders)
+
   const mainHeaderRowNumber = currentRow
-  const mainHeaderRow = worksheet.getRow(mainHeaderRowNumber)
-  mainHeaderRow.font = { bold: true }
-  mainHeaderRow.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFE0E0E0' }
-  }
-  currentRow++
+  const headerRow = worksheet.getRow(mainHeaderRowNumber)
+  headerRow.font = { bold: true }
+  worksheet.getRows(1, mainHeaderRowNumber).forEach((row) => {
+    row.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFFFFF' }
+    }
+  })
 
   // Add main table data
   mainData.forEach((row) => {
@@ -585,11 +601,7 @@ export async function exportSCS103ToExcel(
   const summaryHeaderRowNumber = currentRow
   const summaryHeaderRow = worksheet.getRow(summaryHeaderRowNumber)
   summaryHeaderRow.font = { bold: true }
-  summaryHeaderRow.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFE0E0E0' }
-  }
+
   currentRow++
 
   // Add summary table data

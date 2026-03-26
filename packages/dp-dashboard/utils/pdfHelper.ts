@@ -105,11 +105,11 @@ function drawPageHeader(
 
   // Title box: fixed 3 rows height (15mm)
   const titleBoxTop = yPos
-  const titleBoxHeight = 15  // 3 rows * 5mm each
+  const titleBoxHeight = 5  // 3 rows * 5mm each
   const titleBoxBottom = titleBoxTop + titleBoxHeight
 
   // Row 3: PROJECT (left)
-  pdf.text(`PROJECT: ${header.project}`, margin, yPos + 3)
+  pdf.text(`PROJECT: ${header.project}`, margin, yPos)
 
   // Title text - centered in box, vertically centered (no border)
   pdf.setFontSize(12)
@@ -152,7 +152,7 @@ function drawPageHeader(
   }
 
   // Remark (for SCS-102) - below title box
-  let finalY = titleBoxBottom + 5
+  let finalY = filterY + 5
   if (header.remark) {
     pdf.setTextColor(255, 0, 0)
     pdf.text(header.remark, margin, finalY)
@@ -344,7 +344,7 @@ export function exportSCS101ToPDF(
 
   let isFirstPage = true
   let currentTableIndex = 0
-
+  let currentPageNumber = 1
   tables.forEach((table, index) => {
     // Add new page for subsequent tables
     if (index > 0) {
@@ -368,12 +368,12 @@ export function exportSCS101ToPDF(
 
     // Add table title to header for this table
     const tableHeader = { ...header }
-
+    const startY = drawPageHeader(pdf, tableHeader, currentPageNumber, pageDate)
     // Generate table using autoTable
     autoTable(pdf, {
       head: [headers],
       body: dataRows,
-      startY: 0,
+      startY: startY,
       margin: { left: margin, right: margin, top: 50, bottom: 10 },
       styles: {
         fontSize: 7,
@@ -391,15 +391,18 @@ export function exportSCS101ToPDF(
       didDrawPage: (data) => {
         const pageNumber = data.pageNumber
         // Draw header on each page
-        const startY = drawPageHeader(pdf, tableHeader, pageNumber, pageDate)
+        // const startY = drawPageHeader(pdf, tableHeader, pageNumber, pageDate)
 
+        if (!isFirstPage) {
+          const startY = drawPageHeader(pdf, tableHeader, currentPageNumber, pageDate)
+        }
+        currentPageNumber ++
         // Add table title below header
         if (isFirstPage) {
           pdf.setFontSize(10)
           pdf.setFont('helvetica', 'bold')
           pdf.text(table.title, margin, startY - 2)
           pdf.setFont('helvetica', 'normal')
-          data.cursor.y = startY + 3
           isFirstPage = false
         }
       }
@@ -436,7 +439,7 @@ export function exportSCS103ToPDF(
 
   let isFirstPage = true
   let mainTableFinished = false
-
+  let currentPage = 1
   // Prepare main table data
   const mainHeaders = mainColumns.map((col) => col.title)
   const mainDataRows = mainData.map((row) => {
@@ -470,8 +473,8 @@ export function exportSCS103ToPDF(
     },
     didDrawPage: (data) => {
       const pageNumber = data.pageNumber
-      drawPageHeader(pdf, header, pageNumber, pageDate)
-
+      drawPageHeader(pdf, header, currentPage, pageDate)
+      currentPage ++
       if (!isFirstPage && !mainTableFinished) {
         data.cursor.y = headerHeight + 10
       }
@@ -526,7 +529,8 @@ export function exportSCS103ToPDF(
     },
     didDrawPage: (data) => {
       const pageNumber = data.pageNumber
-      drawPageHeader(pdf, header, pageNumber, pageDate)
+      currentPage++
+      drawPageHeader(pdf, header, currentPage, pageDate)
 
       if (!isFirstPage) {
         data.cursor.y = headerHeight + 10
