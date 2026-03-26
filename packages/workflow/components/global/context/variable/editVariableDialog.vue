@@ -70,7 +70,7 @@ function idChanged(rule: any, value: any, callback: any) {
   }
 
   if (value.startsWith('__system__')) {
-    return callback(new Error('ID cannot start with \'__system__\''))
+    return callback(new Error("ID cannot start with '__system__'"))
   }
 
   // check if id has space and other special characters
@@ -78,7 +78,7 @@ function idChanged(rule: any, value: any, callback: any) {
     return callback(new Error('Id can only contain letters, numbers and underscores'))
   }
 
-  if (!isEdit.value){
+  if (!isEdit.value) {
     const isDuplicatedItem = getVariablesByType().find((item: any) => item.id === value)
     if (isDuplicatedItem) {
       return callback(new Error('Id is duplicated'))
@@ -120,11 +120,12 @@ function newNameChanged(rule: any, value: any, callback: any) {
 async function confirmHandler() {
   graphProvider?.graph.value?.startBatch('update-variables')
   try {
+    const vNode = graphProvider?.graph.value?.getCellById(graphProvider?.workflowId.value)
     await FormRef.value.validate()
     if (isEdit.value) {
-      updateVariableItem(node, formData.value)
+      updateVariableItem(vNode, formData.value)
     } else {
-      addVariableItem(node, formData.value)
+      addVariableItem(vNode, formData.value)
     }
     emits('reload')
     opened.value = false

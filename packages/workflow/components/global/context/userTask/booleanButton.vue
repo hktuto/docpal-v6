@@ -77,17 +77,17 @@ onMounted(() => {
       <span>Button Setting</span>
       <el-form label-position="top">
         <el-form-item label="Show Submit Button">
-          <el-switch v-model="buttonSetting.showSumBitButton" @change="setForm"/>
+          <el-switch v-model="buttonSetting.showSumBitButton" @change="setForm" />
         </el-form-item>
         <el-form-item label="Submit Button Label">
-          <el-input v-model="buttonSetting.submitButtonLabel" @change="setForm"/>
+          <el-input v-model="buttonSetting.submitButtonLabel" @change="setForm" />
         </el-form-item>
-        <template v-if="node.data.type !== 'startEvent'">
+        <template v-if="node.data.type !== 'StartEvent'">
           <el-form-item label="Show Save Draft Button">
-            <el-switch v-model="buttonSetting.showSaveDraft" @change="setForm"/>
+            <el-switch v-model="buttonSetting.showSaveDraft" @change="setForm" />
           </el-form-item>
           <el-form-item label="Save Draft Button Label">
-            <el-input v-model="buttonSetting.saveDraftLabel" @change="setForm"/>
+            <el-input v-model="buttonSetting.saveDraftLabel" @change="setForm" />
           </el-form-item>
         </template>
       </el-form>

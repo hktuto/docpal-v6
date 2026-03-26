@@ -13,6 +13,7 @@ export interface WorkflowProvider {
 
 export const WORKFLOW_EDITOR_PROVIDER: InjectionKey<WorkflowEditorProvider> = Symbol('Workflow_EDITOR_PROVIDER_KEY')
 export interface WorkflowEditorProvider {
+  workflowId: Ref<string | ''>
   workflowKey: Ref<string | ''>
   graph: Ref<Graph | undefined>
   workflowJson: Ref<any | {}>

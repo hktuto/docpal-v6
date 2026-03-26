@@ -147,7 +147,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
    * @param typeList 變量的數據類型
    */
   function getVariablesByType(typeList?: VariableItemType[]): VariableSelectItem[] {
-    let list
+    let list: any = []
     if (!typeList) {
       list = variables.value
     } else if (typeList.length > 0) {

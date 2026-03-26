@@ -283,6 +283,7 @@ async function copyForm(node: Node, obj: any) {
 function pasteForm() {}
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
+  workflowId,
   workflowKey,
   workflowJson,
   graph,

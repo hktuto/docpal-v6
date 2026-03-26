@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { newAdminApi, newClientApi } from 'api'
-import { ElMessage } from 'element-plus'
+import { newClientApi } from 'api'
 import { useWorkflowAdditionalContext } from '#imports'
 
 const { node } = defineProps<{
@@ -75,7 +74,7 @@ async function previewForm() {
 }
 
 async function getFormJson() {
-  if (formKey.value != 0) {
+  if (formKey.value !== 0) {
     const data = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
     if (!data) return {}
 

@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 const emits = defineEmits(['submit'])
 const FormDesignRef = ref()
-const variables = computed(()=>{
+const variables = computed(() => {
   const variableList = getVariablesByType()
   return {
     labelKey: 'name',
@@ -35,7 +35,7 @@ async function handleFormSubmit() {
     jsonValue: JSON.stringify(json),
     versionId: '0'
   }
-  if (props.node.data.metadata.formKey !== '') {
+  if (props.node.data.metadata.formKey !== '' && props.node.data.metadata.formKey !== 0) {
     params.id = props.node.data.metadata.formKey
   }
 
