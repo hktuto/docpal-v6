@@ -32,7 +32,7 @@ export default defineNuxtConfig({
     '../../pages/admin-user',
     // '../../pages/admin-acl',
     '../../pages/admin-setting',
-    // '../../pages/admin-audit',
+    '../../pages/admin-audit',
     // '../../pages/admin-azure',
     // '../../pages/admin-masterTable',
     // '../../pages/admin-easy-form',
