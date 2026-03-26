@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Rank } from '@element-plus/icons-vue'
 interface Props {
   row: Record<string, any>
   fields: any[]
@@ -11,6 +12,7 @@ interface Props {
     compact?: boolean
     shadow?: 'none' | 'small' | 'hover'
   }
+  draggable?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -24,7 +26,8 @@ const props = withDefaults(defineProps<Props>(), {
     bordered: true,
     compact: false,
     shadow: 'small'
-  })
+  }),
+  draggable: false
 })
 
 const emit = defineEmits<{
@@ -95,6 +98,20 @@ function handleOpenRecord() {
     @click="handleOpenRecord"
     @keydown.enter="handleOpenRecord"
   >
+    <!-- <div
+      v-if="draggable"
+      class="card-drag-handle drag-handle"
+      tabindex="0"
+      aria-label="拖拽调整顺序"
+      @mousedown.stop
+      @click.stop
+      @keydown.enter.stop
+    >
+      <el-icon :size="16">
+        <Rank />
+      </el-icon>
+    </div> -->
+
     <div v-if="!!styleConfig.coverField && styleConfig.showCover !== false" class="card-cover" :class="{ stretch: !!styleConfig.stretchCover }">
       <img v-if="coverUrl" :src="coverUrl" alt="cover" />
       <div v-else class="cover-placeholder">No Cover</div>
@@ -117,6 +134,7 @@ function handleOpenRecord() {
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
+  position: relative;
 
   &.is-bordered {
     border: 1px solid #ebeef5;
@@ -147,6 +165,31 @@ function handleOpenRecord() {
     .card-row {
       margin-bottom: 2px;
     }
+  }
+}
+
+.md-card-widget.md-card-ghost {
+  opacity: 0.6;
+}
+
+.card-drag-handle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(235, 238, 245, 0.95);
+  color: var(--app-text-color-secondary);
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
   }
 }
 

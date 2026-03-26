@@ -1,5 +1,5 @@
 // composables/useTableData.ts
-import { ref, computed, watch, provide, inject, type Ref, type InjectionKey } from 'vue'
+import { ref, computed, provide, inject, type Ref, type InjectionKey, type ComputedRef } from 'vue'
 import { newClientApi } from 'api'
 // import { createGroupTree } from '../utils/treeDataHelper'
 export interface UseTableDataOptions {
@@ -55,8 +55,12 @@ function createMockAggChildData(page: any, tableId: string) {
 export interface TableDataContext {
   tableData: Ref<any[]>
   loading: Ref<boolean>
+  loadingMore: Ref<boolean>
+  totalSize: Ref<number>
+  hasMore: ComputedRef<boolean>
   // 方法
   getTableData: (params?: any) => Promise<{ entryList: any[]; totalSize: number } | undefined>
+  loadMore: () => Promise<void>
   refresh: () => Promise<void>
   addRow: (row: any) => void
   updateRow: (rowId: string, data: any) => Promise<boolean>
@@ -104,6 +108,18 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const tableData = ref<any[]>([])
   const rawData = ref<any[]>([]) // 原始数据，用于行数据管理
   const loading = ref(false)
+  const loadingMore = ref(false)
+  const totalSize = ref(0)
+  const currentPage = ref(1)
+  /** 翻页时复用的查询条件（不含 pageNum） */
+  const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
+
+  const hasMore = computed(() => {
+    if (!totalSize.value) {
+      return false
+    }
+    return tableData.value.length < totalSize.value
+  })
 
   /**
    * 获取表格数据
@@ -123,19 +139,32 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     try {
       loading.value = true
       if (tableId) {
-        const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, { ...params })
-        tableData.value = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
+        const pageSizeVal = params.pageSize ?? tableQueryBase.value.pageSize ?? 100
+        const pageNumVal = params.pageNum ?? 1
+        const { pageNum: _p, pageSize: _s, ...restPersist } = params
+        tableQueryBase.value = {
+          ...tableQueryBase.value,
+          ...restPersist,
+          pageSize: pageSizeVal
+        }
+        const requestBody = { ...tableQueryBase.value, pageNum: pageNumVal, pageSize: pageSizeVal }
+        currentPage.value = pageNumVal
+
+        const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, requestBody)
+        const mapped = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
+        tableData.value = transform ? transform(mapped) : mapped
+        totalSize.value = data?.totalSize ?? 0
         return {
           entryList: tableData.value,
-          totalSize: data?.totalSize ?? 0
+          totalSize: totalSize.value
         }
       }
-      if (!!tableId) {
-        console.warn('tableId 不能为空')
-        return {
-          entryList: [],
-          totalSize: 0
-        }
+      console.warn('tableId 不能为空')
+      totalSize.value = 0
+      tableData.value = []
+      return {
+        entryList: [],
+        totalSize: 0
       }
     } catch (error) {
       console.error('getTableData error', error)
@@ -147,6 +176,35 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       loading.value = false
     }
   }
+
+  const loadMore = async () => {
+    if (!tableId || loading.value || loadingMore.value || !hasMore.value) {
+      return
+    }
+    loadingMore.value = true
+    try {
+      const pageSizeVal = tableQueryBase.value.pageSize ?? 100
+      const nextPage = currentPage.value + 1
+      const requestBody = { ...tableQueryBase.value, pageNum: nextPage, pageSize: pageSizeVal }
+      const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, requestBody)
+      const mapped = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
+      const newRows = transform ? transform(mapped) : mapped
+      if (newRows.length === 0) {
+        totalSize.value = tableData.value.length
+        return
+      }
+      tableData.value = [...tableData.value, ...newRows]
+      currentPage.value = nextPage
+      if (data?.totalSize != null) {
+        totalSize.value = data.totalSize
+      }
+    } catch (error) {
+      console.error('loadMore error', error)
+    } finally {
+      loadingMore.value = false
+    }
+  }
+
   function getAggregateData(params?: any) {
     return createMockAggregateData(params, tableId)
   }
@@ -206,9 +264,13 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     // 数据
     tableData,
     loading,
+    loadingMore,
+    totalSize,
+    hasMore,
 
     // 方法
     getTableData,
+    loadMore,
     queryRecordById,
     getAggChildData,
     refresh,
@@ -222,10 +284,14 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     tableData,
     rawData,
     loading,
+    loadingMore,
+    totalSize,
+    hasMore,
     getAggChildData,
     // 方法
     queryRecordById,
     getTableData,
+    loadMore,
     refresh,
     addRow,
     updateRow,

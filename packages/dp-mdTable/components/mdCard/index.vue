@@ -5,29 +5,6 @@ import MdCardSettingLayout from './setting/layout.vue'
 import MdCardSettingStyle from './setting/style.vue'
 import type { MDCardProps } from '../../composables/mdCard/useMDCard'
 
-interface CardWidgetStyle {
-  showCover: boolean
-  coverField?: string
-  stretchCover: boolean
-  showFieldName: boolean
-  bordered: boolean
-  compact: boolean
-  shadow: 'none' | 'small' | 'hover'
-}
-
-function mapViewStyleToWidget(config: Record<string, any> | undefined): CardWidgetStyle {
-  const c = config || {}
-  return {
-    showCover: c.showCover ?? !!c.coverFieldId,
-    coverField: c.coverFieldId || '',
-    stretchCover: c.isCoverFit !== false,
-    showFieldName: c.isColNameVisible !== false,
-    bordered: c.isBordered !== false,
-    compact: !!c.isCompact,
-    shadow: c.cardShadow ?? 'small'
-  }
-}
-
 const props = withDefaults(defineProps<MDCardProps>(), {
   tableId: '',
   editable: false,
@@ -52,11 +29,10 @@ const emit = defineEmits<{
   'open-record': [params: { row: any; recordId: string }]
 }>()
 
-const { tableData, cardRef } = useMDCard(props)
-
+const { tableData, cardRef, getTableData, loadMore, hasMore, loadingMore } = useMDCard(props)
 
 async function handleRefresh() {
-  await refresh()
+  await getTableData({ pageNum: 1 })
   emit('refresh')
 }
 
@@ -73,6 +49,14 @@ function handleOpenRecord(row: any) {
     row,
     recordId: row?.id || ''
   })
+}
+
+function handleLoadMore() {
+  loadMore()
+}
+
+function handleCardsReorder(nextRows: any[]) {
+  tableData.value = nextRows
 }
 
 </script>
@@ -116,8 +100,12 @@ function handleOpenRecord(row: any) {
 
     <MdCardList
       :rows="tableData"
-      :fields="columns"
+      :has-more="hasMore"
+      :loading-more="loadingMore"
+      :draggable="props.editable"
       @open-record="handleOpenRecord"
+      @load-more="handleLoadMore"
+      @reorder="handleCardsReorder"
     />
   </div>
 </template>

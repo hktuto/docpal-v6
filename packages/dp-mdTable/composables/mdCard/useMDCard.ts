@@ -29,12 +29,15 @@ export function useMDCard(props: MDCardProps) {
   const cardRef = ref<any>()
   const {
     loading,
+    loadingMore,
     tableData,
+    hasMore,
     refresh: refreshTableData,
     addRow,
     updateRow,
     deleteRow,
     getTableData,
+    loadMore,
     getAggChildData
   } = useTableData(props.tableId, cardRef)
 
@@ -53,7 +56,11 @@ export function useMDCard(props: MDCardProps) {
   return {
     coverField,
     tableData,
-    cardRef
+    cardRef,
+    getTableData,
+    loadMore,
+    hasMore,
+    loadingMore
   }
 }
 export const useMDCardInject = () => {

@@ -1,6 +1,11 @@
 <template>
   <div style="height: 100%" v-if="tableId">
-    <MdCard v-if="currentView?.type === 'card'" :table-id="tableId" :extra-column-config="extraColumnConfig" />
+    <MdCard
+      v-if="currentView?.type === 'card'"
+      :table-id="tableId"
+      :extra-column-config="extraColumnConfig"
+      :editable="true"
+    />
     <MdTable v-else :table-id="tableId" :extra-column-config="extraColumnConfig" />
   </div>
 </template>
