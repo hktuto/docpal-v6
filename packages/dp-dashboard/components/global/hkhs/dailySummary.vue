@@ -159,13 +159,7 @@ async function handleDownloadExcel() {
     { field: 'appSuc', title: 'App Success' },
     { field: 'appFail', title: 'App Fail' }
   ]
-  await exportSCS103ToExcel(
-    getReportHeader(),
-    columnsRef.value,
-    dataList.value,
-    summaryColumns,
-    tableData.value
-  )
+  await exportSCS103ToExcel(getReportHeader(), columnsRef.value, dataList.value, summaryColumns, tableData.value)
 }
 
 function handleDownloadPDF() {
@@ -280,16 +274,14 @@ const projectList = ref([])
 
 const statusMapRef = ref('')
 const statusList = ref([
+  { label: 'Failed to Export', value: 'failedToExport', status: ['Failed to Export'] },
   {
-    label: 'Processing',
-    value: 'processing',
-    status: ['processing', 'uploaded', 'classification', 'page-split', 'ratio-resize', 'ocr', 'exporting', 'combine-document']
+    label: 'Verification',
+    value: 'verification',
+    status: ['verified']
   },
-  { label: 'Verification', value: 'verification', status: ['draft', 'processed', 'verifying', 'verified'] },
   { label: 'Export Ready', value: 'exportReady', status: ['exportReady', 'export-ready'] },
-  { label: 'Completed', value: 'completed', status: ['completed'] },
-  { label: 'Failed', value: 'failed', status: ['failed-to-process', 'failed-to-export', 'upload-fail'] },
-  { label: 'Cancelled', value: 'cancelled', status: ['cancelled'] }
+  { label: 'Completed', value: 'completed', status: ['completed'] }
 ])
 
 function handleStatusMap() {
