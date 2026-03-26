@@ -45,8 +45,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
     const params = {
       ...extraParams.value,
-      groups: groupsList,
-      roles: [userState.value.aclUserDetail.roleId],
+      // groups: groupsList,
+      // roles: [userState.value.aclUserDetail.roleId],
       assignee: userId,
       page_num: pageParams.pageNum + 1,
       page_size: pageParams.pageSize

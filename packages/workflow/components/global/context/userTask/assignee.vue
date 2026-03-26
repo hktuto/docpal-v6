@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
+import { getUserSelectOption } from '#imports'
 
 const { node } = defineProps<{
   node: Node
@@ -37,8 +38,12 @@ const allFields = computed(() => {
   return getVariablesByType(['string'])
 })
 
+const userList = ref([])
 onMounted(async () => {
-  useWorkflowAdditionalContext(refreshData)
+  if (userList.value.length == 0) {
+    userList.value = await getUserSelectOption()
+  }
+  // useWorkflowAdditionalContext(refreshData)
 })
 
 watch(
@@ -59,7 +64,7 @@ watch(
   <ElForm label-position="top" label-width="100px" size="small">
     <ElFormItem label="Auto Assignee">
       <ElSelect v-model="autoAssignField" placeholder="Select Field" filterable clearable :disabled="graphProvider.readonly.value" @change="assigneeChanged">
-        <ElOption v-for="option in allFields" :key="option.id" :label="option.name" :value="option.id" />
+        <ElOption v-for="item in userList" :key="item.value" :label="item.label" :value="item.value" />
       </ElSelect>
     </ElFormItem>
   </ElForm>
