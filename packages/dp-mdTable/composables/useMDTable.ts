@@ -42,7 +42,6 @@ export function useMDTable(props: any) {
   }
   const {
     loading,
-    queryParams,
     tableData,
     refresh: refreshTableData,
     addRow,

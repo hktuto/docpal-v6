@@ -28,6 +28,7 @@ export interface ViewContext {
   columnFilterRules: Ref<any[]>
   columnSortRules: Ref<any[]>
   columnGroupRules: Ref<any[]>
+  viewStyleConfig: Ref<any>
   getViews: () => Promise<void>
   createView: (view: Partial<ViewConfig>) => Promise<ViewConfig>
   updateView: (viewId: string, updates: Partial<ViewConfig>) => Promise<void>
@@ -37,7 +38,7 @@ export interface ViewContext {
   deleteField: (fieldId: string) => Promise<void>
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
   updatedViewConfigs: (updates: Array<{ id: string; display: boolean }>) => Promise<void>
-  updateViewFilterSortGroup: (fieldName: 'filterInfo' | 'sortInfo' | 'groupInfo', value: any) => Promise<void>
+  updateViewFilterSortGroup: (fieldName: 'filterInfo' | 'sortInfo' | 'groupInfo' | 'style', value: any) => Promise<void>
   saveColumnOrder: (columnId: string, targetFieldId: string, dragPos: 'left' | 'right') => Promise<void>
 }
 
@@ -61,6 +62,12 @@ export function useTableViews(options: UseTableViewsOptions) {
   const columnSortRules = ref<any[]>([])
   const columnGroupRules = ref<any[]>([])
 
+  const viewStyleConfig = ref<any>({
+    cardCount: 5,
+    coverFieldId: '',
+    isColNameVisible: true,
+    isCoverFit: true
+  })
   async function getViews() {
     const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
       tableId: tableId.value
@@ -77,7 +84,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     tableFields.value = data.data?.tableFields ?? []
     tableViews.value = views
-    setCurrentView(views[0])
+    setCurrentView(views[0].id)
   }
   function setCurrentView(view: ViewConfig | string) {
     if (typeof view === 'string') {
@@ -89,12 +96,21 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     if (currentView.value) {
       currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
-      columnFilterRules.value = currentView.value.filterInfo as FilterInfo ?? {
+      columnFilterRules.value = (currentView.value.filterInfo as FilterInfo) ?? {
         conditions: [],
         conjunction: 'and'
       }
       columnSortRules.value = currentView.value.sortInfo ? currentView.value.sortInfo : []
       columnGroupRules.value = currentView.value.groupInfo ?? []
+      if (currentView.value.type !== 'table') {
+        viewStyleConfig.value = currentView.value.style ?? {
+          cardCount: 5,
+          coverFieldId: '',
+          isColNameVisible: true,
+          isCoverFit: true
+        }
+      }
+      console.log(currentView, viewStyleConfig)
     }
   }
   async function saveViews(views: ViewConfig[]) {
@@ -122,6 +138,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     tableViews.value = replaceViewInList(tableViews.value, viewId, updated)
     if (currentView.value?.id === viewId) currentView.value = updated
     await saveViews(tableViews.value)
+    setCurrentView(viewId)
   }
 
   async function deleteView(viewId: string) {
@@ -189,11 +206,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     const positionNum = dragPos === 'left' ? 0 : 1
     updatedColumns = updateViewColumnOrder(updatedColumns, columnId, targetFieldIndex + positionNum)
     await updateView(view.id, { columns: updatedColumns })
-    if (currentView.value) {
-      currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
-    }
   }
-  async function updateViewFilterSortGroup(fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo', value: any) {
+  async function updateViewFilterSortGroup(fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style', value: any) {
     const view = currentView.value
     if (!view) return
     // @ts-ignore
@@ -217,7 +231,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     updateField,
     updatedViewConfigs,
     saveColumnOrder,
-    updateViewFilterSortGroup
+    updateViewFilterSortGroup,
+    viewStyleConfig
   })
 
   return {

@@ -1,6 +1,7 @@
 <template>
-  <div style="height: 100%">
-    <MdTable v-if="tableId" :table-id="tableId" :extra-column-config="extraColumnConfig" />
+  <div style="height: 100%" v-if="tableId">
+    <MdCard v-if="currentView?.type === 'card'" :table-id="tableId" :extra-column-config="extraColumnConfig" />
+    <MdTable v-else :table-id="tableId" :extra-column-config="extraColumnConfig" />
   </div>
 </template>
 
@@ -20,7 +21,8 @@ const {
   columnFilterRules,
   columnSortRules,
   columnGroupRules,
-  updateViewFilterSortGroup
+  updateViewFilterSortGroup,
+  viewStyleConfig
 } = useTableViewsInject()
 const columns = computed(() => currentView.value?.displayColumns)
 
@@ -37,7 +39,8 @@ const extraColumnConfig = computed(() => {
     columnFilterRules,
     columnSortRules,
     columnGroupRules,
-    updateViewFilterSortGroup
+    updateViewFilterSortGroup,
+    viewStyleConfig
   }
   return data
 })

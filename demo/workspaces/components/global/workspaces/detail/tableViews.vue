@@ -23,11 +23,23 @@
           </div>
         </template>
       </draggable>
-      <button class="workspace-table-views__add-btn el-icon--right" type="button" @click.stop="handleAddView">
-        <el-icon :size="16">
-          <Plus />
-        </el-icon>
-      </button>
+      <el-dropdown trigger="click" @command="handleAddView">
+        <button class="workspace-table-views__add-btn el-icon--right" type="button">
+          <el-icon :size="16">
+            <Plus />
+          </el-icon>
+        </button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="table">
+              表格类型
+            </el-dropdown-item>
+            <el-dropdown-item command="card">
+              卡片类型
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
     <div class="workspace-table-views__content">
       <WorkspacesTableView
@@ -66,10 +78,11 @@ watch(
 
 const activeViewId = computed(() => currentView.value?.id ?? '')
 
-async function handleAddView() {
-  const baseName = currentView.value?.name || '新视图'
+async function handleAddView(command: string) {
+  const baseName = command === 'card' ? '卡片视图' : '表格视图'
   const created = await createView({
-    name: `${baseName}`
+    name: `${baseName}`,
+    type: command
   })
   if (created?.id) {
     setCurrentView(created)

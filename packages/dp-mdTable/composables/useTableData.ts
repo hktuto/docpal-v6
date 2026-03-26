@@ -3,8 +3,6 @@ import { ref, computed, watch, provide, inject, type Ref, type InjectionKey } fr
 import { newClientApi } from 'api'
 // import { createGroupTree } from '../utils/treeDataHelper'
 export interface UseTableDataOptions {
-  /** 查询参数（SQL字符串或对象） */
-  queryParams?: string | Record<string, any>
   /** 是否自动加载数据 */
   autoLoad?: boolean
   /** 数据转换函数 */
@@ -57,8 +55,6 @@ function createMockAggChildData(page: any, tableId: string) {
 export interface TableDataContext {
   tableData: Ref<any[]>
   loading: Ref<boolean>
-  error: Ref<Error | null>
-  queryParams: Ref<any>
   // 方法
   getTableData: (params?: any) => Promise<{ entryList: any[]; totalSize: number } | undefined>
   refresh: () => Promise<void>
@@ -105,16 +101,9 @@ export const TableDataContextKey: InjectionKey<TableDataContext> = Symbol('Table
  */
 export function useTableData(tableId: string, gridRef: any, options: UseTableDataOptions = {}) {
   const { autoLoad = true, transform } = options
-
   const tableData = ref<any[]>([])
   const rawData = ref<any[]>([]) // 原始数据，用于行数据管理
   const loading = ref(false)
-  const error = ref<Error | null>(null)
-  const queryParams = ref<any>({})
-  const groupOptions = ref<any[]>([
-    { key: 'gender', asc: true },
-    { key: 'age', asc: true }
-  ])
 
   /**
    * 获取表格数据
@@ -131,24 +120,32 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     //     totalSize: tableData.value.length
     //   }
     // }
-    if (tableId) {
-      const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, { ...params })
-      tableData.value = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
-      return {
-        entryList: tableData.value,
-        totalSize: data?.totalSize ?? 0
+    try {
+      loading.value = true
+      if (tableId) {
+        const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, { ...params })
+        tableData.value = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
+        return {
+          entryList: tableData.value,
+          totalSize: data?.totalSize ?? 0
+        }
       }
-    }
-    if (!!tableId) {
-      console.warn('tableId 不能为空')
+      if (!!tableId) {
+        console.warn('tableId 不能为空')
+        return {
+          entryList: [],
+          totalSize: 0
+        }
+      }
+    } catch (error) {
+      console.error('getTableData error', error)
       return {
         entryList: [],
         totalSize: 0
       }
+    } finally {
+      loading.value = false
     }
-
-    loading.value = true
-    error.value = null
   }
   function getAggregateData(params?: any) {
     return createMockAggregateData(params, tableId)
@@ -209,8 +206,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     // 数据
     tableData,
     loading,
-    error,
-    queryParams,
 
     // 方法
     getTableData,
@@ -219,7 +214,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     refresh,
     addRow,
     updateRow,
-    deleteRow,
+    deleteRow
   })
 
   return {
@@ -227,8 +222,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     tableData,
     rawData,
     loading,
-    error,
-    queryParams,
     getAggChildData,
     // 方法
     queryRecordById,
