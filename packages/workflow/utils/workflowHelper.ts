@@ -1,9 +1,5 @@
 import { CellType } from '#imports'
 
-const generateDocumentComponent = 'LazyBpmnButtonGenerateDocument'
-const booleanButtonComponent = 'LazyBpmnButtonBoolean'
-import { generateData, replaceVariables } from 'docpal-document-editor/src/utils'
-
 export async function getBpmnAdditionalElement(metadata: any) {
   let signatureSetting: any = {}
   let buttonSetting: any
@@ -27,6 +23,18 @@ export async function getBpmnAdditionalElement(metadata: any) {
     buttons,
     components,
     signatureSetting
+  }
+}
+
+export async function getWorkflowList() {
+  let workflowList: any[] = []
+  try {
+    workflowList = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions?published=true`).then((r) => r.data)
+  } catch (e) {
+    console.log(e)
+  }
+  return {
+    workflowList
   }
 }
 

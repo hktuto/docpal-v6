@@ -5,6 +5,7 @@ const state = reactive<any>({
 })
 const WorkflowRef = ref()
 </script>
+
 <template>
   <div class="pageContainer--padding workflow-page">
     <div class="buttons--absolute">
@@ -30,6 +31,7 @@ const WorkflowRef = ref()
     </el-tabs>
   </div>
 </template>
+
 <style lang="scss" scoped>
 .pageContainer--padding.workflow-page {
   display: grid;

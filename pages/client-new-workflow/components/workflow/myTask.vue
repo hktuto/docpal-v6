@@ -16,7 +16,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import formJson from './uncomplete.vform.json'
 import { newClientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
 

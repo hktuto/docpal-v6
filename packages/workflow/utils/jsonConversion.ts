@@ -195,33 +195,37 @@ function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
 }
 
 function AddFlowForChildNodes(x6Nodes: any[], edges: any[]) {
-  const flowMap = edges.reduce(
-    (acc, item) => {
-      if (!acc[item.target_node_id]) {
-        acc[item.target_node_id] = { incoming: [], outgoing: [] }
+  try {
+    const flowMap = edges.reduce(
+      (acc, item) => {
+        if (!acc[item.target_node_id]) {
+          acc[item.target_node_id] = { incoming: [], outgoing: [] }
+        }
+        acc[item.target_node_id].incoming.push(item.source_node_id)
+
+        if (!acc[item.source_node_id]) {
+          acc[item.source_node_id] = { outgoing: [] }
+        }
+        acc[item.source_node_id].outgoing.push(item.target_node_id)
+
+        return acc
+      },
+      {} as Record<string, { incoming: string[]; outgoing: string[] }>
+    )
+
+    // 遍历节点并根据 flowMap 设置 flow 属性
+    x6Nodes.forEach((x6Node: any) => {
+      if (x6Node.data.type === 'process') return
+      const { incoming = [], outgoing = [] } = flowMap[x6Node.id] || {}
+      x6Node.data.flow = {
+        incoming,
+        outgoing,
+        join_type: 'XOR',
+        split_type: 'XOR'
       }
-      acc[item.target_node_id].incoming.push(item.source_node_id)
-
-      if (!acc[item.source_node_id]) {
-        acc[item.source_node_id] = { outgoing: [] }
-      }
-      acc[item.source_node_id].outgoing.push(item.target_node_id)
-
-      return acc
-    },
-    {} as Record<string, { incoming: string[]; outgoing: string[] }>
-  )
-
-  // 遍历节点并根据 flowMap 设置 flow 属性
-  x6Nodes.forEach((x6Node: any) => {
-    if (x6Node.data.type === 'process') return
-    const { incoming = [], outgoing = [] } = flowMap[x6Node.id] || {}
-    x6Node.data.flow = {
-      incoming,
-      outgoing,
-      join_type: 'XOR',
-      split_type: 'XOR'
-    }
-  })
-  return x6Nodes
+    })
+    return x6Nodes
+  } catch (e) {
+    console.log(e)
+  }
 }

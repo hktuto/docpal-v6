@@ -55,7 +55,12 @@ function getVariables(variableList: any) {
 function init() {
   const data = node.getData()
   formData.value.templateId = data.config?.body?.templateId || ''
-  formData.value.responseId = data.config?.output_mapping?.data || ''
+  const om: any = Object.keys(data.config.output_mapping)
+  if (om.length > 0) {
+    formData.value.responseId = om[0]
+  }else{
+    formData.value.responseId = ''
+  }
 
   if (!!data.config?.body?.variables) {
     formData.value.variables = Object.entries(data.config?.body?.variables).map(([label, value]) => ({
@@ -85,6 +90,10 @@ function updateData() {
 
   graphProvider?.graph.value?.startBatch('update-http-field-data')
 
+  const outputMapping = {
+    [formData.value.responseId]: '${data}'
+  }
+
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
@@ -94,9 +103,7 @@ function updateData() {
         templateId: formData.value.templateId,
         variables: jsonObject
       },
-      output_mapping: {
-        data: formData.value.responseId
-      }
+      output_mapping: outputMapping
     },
     version: (nodeData.version || 0) + 1
   }

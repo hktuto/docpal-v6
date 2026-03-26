@@ -2,83 +2,72 @@
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="ResponsiveFilterRef"
-          @form-change="handleFilterFormChange"
-        />
-        <FormRenderer :form-json="formJson" @formChange="handleFormChange" />
+        <div class="el-col el-col-10 is-guttered grid-cell">
+          <el-form-item :label="t('workflow_workflowName')" label-position="top">
+            <el-select clearable v-model="extraParams.definition_id" placeholder="All" @change="reload">
+              <el-option v-for="item in workflowList" :key="item.id" :label="item.name" :value="item.id" />
+            </el-select>
+          </el-form-item>
+        </div>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button :id="`Workflow__AvaliableTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small"
-                   round @click="claimTask(row)">
+        <el-button :id="`Workflow__AvaliableTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small" round @click="claimTask(row)">
           {{ $t('workflow_claim') }}
         </el-button>
       </template>
       <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
+        <el-tag v-if="row.status === 'created'" type="success">{{ $t('actions.activated') }}</el-tag>
         <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
       </template>
     </VxeGrid>
   </div>
 </template>
+
 <script lang="ts" setup>
-import formJson from './uncomplete.vform.json'
 import { newClientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
+import { getWorkflowList } from '#imports'
 
+const { workflowList } = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 const { t } = useI18n()
-// @ts-ignore
 const userId: string = useUserId().value
-let extraParams: any = {}
-const {
-  tableConfig,
-  tableEvent,
-  tableRef,
-  query,
-  reload,
-  cleanSelectedRows
-} = useVxeTable({
+const extraParams = ref({})
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
-  api: (pageParams: any) => newClientApi.postDocpalWorkflowTasksUser({
-    ...pageParams, ...extraParams,
-    candidateOrAssigned: userId
-  }),
+  api: async (pageParams: any) => {
+    const userState = useUserState()
+    const groupsList = userState.value.aclUserDetail.groups.map((item: any) => item.groupId)
+
+    const params = {
+      ...extraParams.value,
+      groups: groupsList,
+      roles: [userState.value.aclUserDetail.roleId],
+      assignee: userId,
+      page_num: pageParams.pageNum + 1,
+      page_size: pageParams.pageSize
+    }
+    return await $api.post('http://192.168.5.147:8080/api/v1/tasks/page', params)
+  },
   columns: [
-    { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },
-    { field: 'taskInstance.processDefinitionName', title: 'workflow_workflowName' },
+    { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
+    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    { field: 'status', title: 'dpTable_status', slots: { default: 'assignee' } },
     {
-      field: 'name',
-      title: 'workflow_taskName'
-      //   slots: {
-      //     default: "status",
-      //   },
-    },
-    {
-      field: 'assignee',
-      title: 'workflow_assignee',
-      slots: {
-        default: 'assignee'
-      }
-    },
-    { field: 'taskInstance.startUserId', title: 'workflow_startUser' },
-    {
-      field: 'createDate',
+      field: 'created_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
-        // @ts-ignore
         return formatDate(cellValue)
       }
     },
     {
-      field: 'dueDate',
+      field: 'updated_at',
       title: 'workflow_dueDate',
       formatter({ cellValue }: any) {
-        // @ts-ignore
         return formatDate(cellValue)
       }
     }
@@ -89,12 +78,14 @@ const {
 })
 
 function handleDblclick(row: any) {
-  // router.push(`/easyFormManage/${row.id}`);
-  routerProvider?.navigateTo(routeWorkflowDetail({
-    ...row,
-    name: row.taskInstance.businessKey,
-    workflowType: 'allTask'
-  }), false)
+  routerProvider?.navigateTo(
+    routeWorkflowDetail({
+      ...row,
+      name: row.taskInstance.businessKey,
+      workflowType: 'allTask'
+    }),
+    false
+  )
 }
 
 async function claimTask(row: any) {
@@ -104,68 +95,6 @@ async function claimTask(row: any) {
   })
   query({})
 }
-
-function handleFormChange(data: any) {
-  extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
-    if (data.formModel[key] && data.formModel[key].length > 0)
-      prev[key] = data.formModel[key]
-    return prev
-  }, {})
-  reload()
-}
-
-function getDownloadParams() {
-  return {
-    candidateOrAssigned: userId,
-    ...deepCopy(extraParams)
-  }
-}
-
-const ResponsiveFilterRef = ref()
-
-function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-  extraParams = formModel
-  reload()
-}
-
-function getFilter() {
-  const data = [
-    {
-      key: 'orderBy',
-      label: 'tableHeader.sortBy',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'workflow_jobName', value: 'taskInstance.businessKey' },
-        { label: 'workflow_assignee', value: 'assignee' },
-        { label: 'workflow_dueDate', value: 'dueDate' },
-        { label: 'workflow_createDate', value: 'createDate' },
-        { label: 'workflow_taskName', value: 'name' },
-        { label: 'workflow_startUser', value: 'taskInstance.startUserId' },
-        { label: 'workflow_workflowName', value: 'taskInstance.processDefinitionName' }
-      ]
-    },
-    {
-      key: 'isDesc',
-      label: 'tableHeader.sortOrder',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'tableHeader.asc', value: false },
-        { label: 'tableHeader.desc', value: true }
-      ]
-    }
-  ]
-  ResponsiveFilterRef.value.init(data)
-}
-
-onMounted(() => {
-  // getFilter()
-})
-
-defineExpose({ getDownloadParams })
 </script>
 <style lang="scss" scoped>
 :deep(.el-input) {
