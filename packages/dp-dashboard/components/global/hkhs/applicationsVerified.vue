@@ -23,7 +23,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 
 const formData = ref({
   project: '',
-  date: dayjs().format('YYYY-MM-DD')
+  date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]
 })
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
@@ -121,11 +121,11 @@ function getReportHeader(): ReportHeader {
     compiledBy: 'HONG KONG HOUSING SOCIETY',
     project: projectName,
     inputProject: projectName,
-    inputFrom: formData.value.date || 'NULL',
-    inputTo: formData.value.date || 'NULL',
+    inputFrom: formData.value.date[0] || 'NULL',
+    inputTo: formData.value.date[1] || 'NULL',
     title: 'SUBSIDISED SALE FLATS PROJECTS 2026',
     subtitle: 'List of the applications verified',
-    dateRange: `From ${formatDate_1(formData.value.date)} to ${formatDate_1(formData.value.date)}`,
+    dateRange: `From ${formatDate_1(formData.value.date[0])} to ${formatDate_1(formData.value.date[1])}`,
     remark: 'Remark: Before/After data format - <appln no>&<form type>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>',
     totalLabel: 'Total number of application:',
     totalValue: totalCount
@@ -192,8 +192,8 @@ const dataList = ref([])
 
 async function getData() {
   const rpcParams = {
-    p_start_date: formData.value.date,
-    p_end_date: formData.value.date,
+    p_start_date: formData.value.date[0],
+    p_end_date: formData.value.date[1],
     p_distinct_flag: 2,
     default_schema: true
   }
@@ -367,10 +367,13 @@ onMounted(async () => {
               <el-date-picker
                 class="toolbar-date"
                 v-model="formData.date"
-                type="date"
+                type="daterange"
                 format="YYYY-MM-DD"
                 value-format="YYYY-MM-DD"
-                placeholder="Pick a day"
+                range-separator="~"
+                start-placeholder="Start month"
+                end-placeholder="End month"
+                unlink-panels
                 :clearable="false"
                 @change="query"
               />
