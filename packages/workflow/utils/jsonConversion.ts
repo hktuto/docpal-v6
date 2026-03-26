@@ -131,7 +131,7 @@ export const x6NodeToWorkflowJson = function (graphProvider: any) {
     // Update variables
     workflowJson.variables = workflowConfig.data.variables
     // Update Nodes
-    const nodes = AddFlowForChildNodes(x6Nodes, workflowJson.edges)
+    const nodes: any[] = AddFlowForChildNodes(x6Nodes, workflowJson.edges)
     workflowJson.nodes = x6NodesToWorkflowJsonNodes(nodes)
 
     console.log('---- workflowJson', workflowJson)
@@ -204,7 +204,7 @@ function AddFlowForChildNodes(x6Nodes: any[], edges: any[]) {
         acc[item.target_node_id].incoming.push(item.source_node_id)
 
         if (!acc[item.source_node_id]) {
-          acc[item.source_node_id] = { outgoing: [] }
+          acc[item.source_node_id] = { incoming: [], outgoing: [] }
         }
         acc[item.source_node_id].outgoing.push(item.target_node_id)
 

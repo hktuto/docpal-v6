@@ -971,7 +971,6 @@ const workflowCellElementTemplate: CellTypeItem = {
           variables: {}
         },
         output_mapping: {
-          data: ''
         }
       }
     }

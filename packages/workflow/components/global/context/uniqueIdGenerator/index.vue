@@ -19,11 +19,7 @@ const formData = ref({
 
 const { getVariablesByType } = useVariablesProvide()
 const stringFields = computed(() => {
-  const fields = getVariablesByType(['string'])
-  return fields.map((item: any) => ({
-    id: '${' + item.id + '}',
-    name: item.name
-  }))
+  return getVariablesByType(['string'])
 })
 const stringAndNumberFields = computed(() => {
   const fields = getVariablesByType(['string', 'number'])
@@ -58,7 +54,7 @@ function init() {
   const om: any = Object.keys(data.config.output_mapping)
   if (om.length > 0) {
     formData.value.responseId = om[0]
-  }else{
+  } else {
     formData.value.responseId = ''
   }
 
@@ -83,12 +79,11 @@ function handleIdTemplateChange(templateId: string) {
 }
 
 function updateData() {
+  graphProvider?.graph.value?.startBatch('update-http-field-data')
   const jsonObject = formData.value.variables.reduce((acc, { label, value }) => {
     acc[label] = value
     return acc
   }, {})
-
-  graphProvider?.graph.value?.startBatch('update-http-field-data')
 
   const outputMapping = {
     [formData.value.responseId]: '${data}'
@@ -107,7 +102,6 @@ function updateData() {
     },
     version: (nodeData.version || 0) + 1
   }
-
   node.setData(newData, { overwrite: true, deep: true, silent: false })
   graphProvider?.graph.value?.stopBatch('update-http-field-data')
 }
@@ -138,7 +132,7 @@ onMounted(async () => {
       </el-select>
     </el-form-item>
     <el-form-item label="Response Unique Id">
-      <el-select v-model="formData.responseId" placeholder="Response Unique Id" filterable @change="(val: any) => updateData">
+      <el-select v-model="formData.responseId" placeholder="Response Unique Id" filterable @change="updateData">
         <el-option v-for="item in stringFields" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
