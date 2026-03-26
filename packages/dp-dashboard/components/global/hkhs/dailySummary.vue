@@ -285,6 +285,11 @@ const statusList = ref([
 ])
 
 function handleStatusMap() {
+  if (!statusMapRef.value) {
+    tableRef.value.loadData(dataList.value)
+    return
+  }
+
   const find = statusList.value.find((item: any) => item.value == statusMapRef.value)
   const filter = dataList.value.filter((item: any) => find.status.includes(item.status))
   tableRef.value.loadData(filter)
@@ -334,7 +339,7 @@ onMounted(async () => {
                 <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
                   <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
                 </el-select>
-                <el-select class="toolbar-select toolbar-select--type" v-model="statusMapRef" @change="handleStatusMap">
+                <el-select class="toolbar-select toolbar-select--type" v-model="statusMapRef" clearable @change="handleStatusMap">
                   <el-option v-for="(item, index) in statusList" :label="item.label" :value="item.value" />
                 </el-select>
                 <el-date-picker
