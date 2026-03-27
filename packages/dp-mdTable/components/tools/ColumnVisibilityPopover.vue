@@ -37,7 +37,7 @@ export interface ColumnVisibilityItem {
   title: string
   display: boolean
 }
-const { columns, updatedViewConfigs, tableFields } = useMDTableInject()
+const { columns, updatedViewColumnsConfig, tableFields } = useMDTableInject()
 const popoverRef = ref()
 const searchKeyword = ref('')
 const columnsWithDisplay = ref([])
@@ -53,18 +53,18 @@ function handleOpen() {
 
 async function handleSwitch(id: string, display: boolean, col: ColumnVisibilityItem) {
   col.loading = true
-  await updatedViewConfigs([{ id: col.id, display: col.display }])
+  await updatedViewColumnsConfig([{ id: col.id, display: col.display }])
   setTimeout(() => {
     col.loading = false
   }, 1000)
 }
 
 async function handleHideAll() {
-  updatedViewConfigs(tableFields.value.map((c) => ({ id: c.id, display: false })))
+  updatedViewColumnsConfig(tableFields.value.map((c) => ({ id: c.id, display: false })))
 }
 
 function handleShowAll() {
-  updatedViewConfigs(tableFields.value.map((c) => ({ id: c.id, display: true })))
+  updatedViewColumnsConfig(tableFields.value.map((c) => ({ id: c.id, display: true })))
 }
 
 defineExpose({

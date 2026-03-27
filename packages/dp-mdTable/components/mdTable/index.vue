@@ -91,7 +91,7 @@ interface Props {
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
     tableFields: Ref<any[]>
-    updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
     saveColumnOrder: (columnId: string, position: number) => void
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
@@ -108,7 +108,7 @@ const props = withDefaults(defineProps<Props>(), {
     updateColumn: () => {},
     addColumn: () => {},
     tableFields: [],
-    updatedViewConfigs: () => {},
+    updatedViewColumnsConfig: () => {},
     saveColumnOrder: () => {},
     columnFilterRules: [],
     columnGroupRules: [],

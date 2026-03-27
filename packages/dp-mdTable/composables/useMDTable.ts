@@ -10,7 +10,7 @@ export interface mdTable {
   deleteColumn: (column: any) => void
   updateColumn: (column: any) => void
   addColumn: (column: any) => void
-  updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => void
+  updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
   tableFields: any[]
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]

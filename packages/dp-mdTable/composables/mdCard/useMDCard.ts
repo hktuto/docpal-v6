@@ -10,7 +10,7 @@ export interface MDCardProps {
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
     tableFields: Ref<any[]>
-    updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
     saveColumnOrder: (columnId: string, position: number) => void
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>

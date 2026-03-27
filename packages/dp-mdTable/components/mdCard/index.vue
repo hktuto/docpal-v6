@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<MDCardProps>(), {
     updateColumn: () => {},
     addColumn: () => {},
     tableFields: [],
-    updatedViewConfigs: () => {},
+    updatedViewColumnsConfig: () => {},
     saveColumnOrder: () => {},
     columnFilterRules: [],
     columnGroupRules: [],
