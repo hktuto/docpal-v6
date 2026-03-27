@@ -8,7 +8,10 @@ import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
 // SCS-100 - Summary of Application Forms Processed
 const props = withDefaults(
   defineProps<{
-    setting?: any
+    setting?: {
+      name: string,
+      project: string
+    }
     hideSetting?: boolean
   }>(),
   {
@@ -20,7 +23,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
   props
 })
 const formData = ref({
-  project: null,
+  project: props.setting.project || null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
   includeDuplicate: 2
 })

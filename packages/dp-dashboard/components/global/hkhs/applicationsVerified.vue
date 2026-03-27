@@ -9,7 +9,10 @@ import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
 const emits = defineEmits(['delete', 'refreshSetting'])
 const props = withDefaults(
   defineProps<{
-    setting?: any
+    setting?: {
+      name: string,
+      project: string
+    }
     hideSetting?: boolean
   }>(),
   {
@@ -23,7 +26,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 })
 
 const formData = ref({
-  project: null,
+  project: props.setting.project || null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]
 })
 

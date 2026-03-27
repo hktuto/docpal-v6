@@ -8,7 +8,10 @@ import { exportSCS101ToPDF, type PDFColumn } from '~/utils/pdfHelper'
 // SCS-101 - Activity Log of Application Forms Processed
 const props = withDefaults(
   defineProps<{
-    setting?: any
+    setting?: {
+      name: string,
+      project: string
+    }
     hideSetting?: boolean
   }>(),
   {
@@ -42,7 +45,7 @@ const tableComponent = ref([
 ])
 
 const formData = ref({
-  project: '',
+  project: props.setting.project || null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]
 })
 const hkhsTableRef = ref()

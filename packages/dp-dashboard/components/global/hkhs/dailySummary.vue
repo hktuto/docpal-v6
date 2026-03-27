@@ -9,7 +9,10 @@ import { exportSCS103ToPDF, type ReportHeader } from '~/utils/pdfHelper'
 // SCS-103 - Daily Summary of the applications from Verified to Completed
 const props = withDefaults(
   defineProps<{
-    setting?: any
+    setting?: {
+      name: string,
+      project: string
+    }
     hideSetting?: boolean
   }>(),
   {
@@ -23,7 +26,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 const emits = defineEmits(['refreshSetting', 'delete'])
 
 const formData = ref({
-  project: null,
+  project: props.setting.project || null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
   includeDuplicate: 2
 })
