@@ -1178,7 +1178,8 @@ export function calculateFamilyClassification(detail: any): {
 export function updateDocumentValues(detail: any): void {
   // Update oldValue - replace [formClass] placeholder if present
   if (detail.oldValue?.includes('[formClass]')) {
-    detail.oldValue = detail.oldValue.replace('[formClass]', detail.familyClass);
+    const displayFamilyClass = detail.familyClass ? detail.familyClass.split('-')[0].trim() : ''
+    detail.oldValue = detail.oldValue.replace('[formClass]', displayFamilyClass);
   }
 
   // Build newValue: <appln no>&<family type>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>
@@ -1186,7 +1187,8 @@ export function updateDocumentValues(detail: any): void {
   const ahkid = detail.newResultJson?.['Applicant Info']?.ApplicantHKID
   const hkics = detail.newResultJson?.ApplicantFamilyMemberList?.map((cur: any) => cur.FamilyMemberHKID || '') || []
   const PaymentReference = detail.newResultJson?.Payment?.PaymentReference
-  detail.newValue = `${appl_no}&${detail.formTypeCode}&${ahkid}&${hkics.join('&')}&${PaymentReference}&${detail.familyClass}`;
+  const displayFamilyClass = detail.familyClass ? detail.familyClass.split('-')[0].trim() : ''
+  detail.newValue = `${appl_no}&${detail.formTypeCode}&${ahkid}&${hkics.join('&')}&${PaymentReference}&${displayFamilyClass}`;
 }
 
 /**
