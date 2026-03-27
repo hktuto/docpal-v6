@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import { exportReportToExcel } from '~/utils/excelHelper'
 import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
 
+// SCS-100 - Summary of Application Forms Processed
 const props = withDefaults(
   defineProps<{
     setting?: any
@@ -18,13 +19,12 @@ const props = withDefaults(
 const { cardRef, settingRef, refresh, loading } = useDashboardCard({
   props
 })
-
 const formData = ref({
   project: null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
   includeDuplicate: 2
 })
-
+const projectList = ref([])
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-DailyReportTable',
   api: () => getData(),
@@ -93,8 +93,6 @@ function handleTotal(list: any[]) {
 }
 
 const emits = defineEmits(['delete', 'refreshSetting'])
-const setting = ref()
-const name = ref('SCS-100 - Summary of Application Forms Processed')
 
 function handleDelete() {
   emits('delete')
@@ -237,10 +235,14 @@ function handleOrderBy() {
   HandleSorting(sortingField.value)
 }
 
-const projectList = ref([])
 
+function refreshSetting(setting: any) {
+  emits('refreshSetting', setting)
+  formData.value.project = setting.project
+}
 onMounted(async () => {
   projectList.value = await newClientApi.postCaptureProjPage({}).then((r) => r.data)
+  formData.value.project = props.setting?.project ? props.setting?.project : projectList.value[0].id || ''
 })
 </script>
 
@@ -258,7 +260,7 @@ onMounted(async () => {
     @refresh="handleRefresh"
   >
     <template #title_suffix>
-      <span class="title-suffix-name">{{ name }}</span>
+      <span class="title-suffix-name">{{ setting.name }}</span>
     </template>
     <template #action_prefix>
       <el-dropdown trigger="click" @command="handleDownloadCommand">
@@ -279,7 +281,7 @@ onMounted(async () => {
         <template #toolbar_buttons>
           <div class="toolbar-wrap">
             <div class="toolbar-form-row">
-              <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" clearable @change="query">
+              <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
                 <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
               </el-select>
               <el-date-picker
@@ -319,7 +321,7 @@ onMounted(async () => {
         </template>
       </VxeGrid>
     </div>
-    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)" />
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="refreshSetting" />
   </DashboardCard>
 </template>
 

@@ -6,6 +6,7 @@ import { statusToGroupStatus } from '#imports'
 import { exportSCS103ToExcel } from '~/utils/excelHelper'
 import { exportSCS103ToPDF, type ReportHeader } from '~/utils/pdfHelper'
 
+// SCS-103 - Daily Summary of the applications from Verified to Completed
 const props = withDefaults(
   defineProps<{
     setting?: any
@@ -113,8 +114,6 @@ const footerData = ref([
     no_of_application: ''
   }
 ])
-
-const name = ref('SCS-103 - Daily Summary of the applications from Verified to Completed')
 
 function handleDownloadCommand(command: string) {
   if (command === 'excel') {
@@ -296,8 +295,14 @@ function handleStatusMap() {
   tableRef.value.loadData(filter)
 }
 
+function refreshSetting(setting: any) {
+  emits('refreshSetting', setting)
+  formData.value.project = setting.project
+}
+
 onMounted(async () => {
   projectList.value = await newClientApi.postCaptureProjPage({}).then((r) => r.data)
+  formData.value.project = props.setting?.project ? props.setting?.project : projectList.value[0].id || ''
 })
 </script>
 
@@ -315,7 +320,7 @@ onMounted(async () => {
     @refresh="handleRefresh"
   >
     <template #title_suffix>
-      <span class="title-suffix-name">{{ name }}</span>
+      <span class="title-suffix-name">{{ setting.name }}</span>
     </template>
     <template #action_prefix>
       <el-dropdown trigger="click" @command="handleDownloadCommand">
@@ -394,7 +399,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)" />
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="refreshSetting" />
   </DashboardCard>
 </template>
 

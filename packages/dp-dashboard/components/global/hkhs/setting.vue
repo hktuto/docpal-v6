@@ -10,19 +10,21 @@ const opened = ref(false)
 
 const form = ref({
   name: '',
-  project: []
+  project: ''
 })
 const FormRef = ref()
 const projectList = ref<any[]>([])
 
 async function handleOpen() {
-  projectList.value = (await newClientApi.postCaptureProjPage({}).then((r) => r.data)) as any[]
-  opened.value = true
+  if (projectList.value.length === 0){
+    projectList.value = (await newClientApi.postCaptureProjPage({}).then((r) => r.data)) as any[]
+  }
   Object.keys(setting).forEach((key) => {
     if (setting[key]) {
       form.value[key] = setting[key]
     }
   })
+  opened.value = true
 }
 
 function submit() {
@@ -42,7 +44,7 @@ defineExpose({
         <el-input v-model="form.name" />
       </el-form-item>
       <el-form-item label="Available Project">
-        <el-select v-model="form.project" multiple collapse-tags collapse-tags-tooltip :placeholder="t('common_selectedIsMultiSelectRequiredMsg')">
+        <el-select v-model="form.project" collapse-tags collapse-tags-tooltip :placeholder="t('common_selectedIsMultiSelectRequiredMsg')">
           <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>

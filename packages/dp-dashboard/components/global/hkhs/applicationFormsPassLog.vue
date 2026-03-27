@@ -5,6 +5,7 @@ import { newClientApi } from 'api'
 import { exportSCS101ToExcel, type ReportHeader } from '~/utils/excelHelper'
 import { exportSCS101ToPDF, type PDFColumn } from '~/utils/pdfHelper'
 
+// SCS-101 - Activity Log of Application Forms Processed
 const props = withDefaults(
   defineProps<{
     setting?: any
@@ -44,7 +45,6 @@ const formData = ref({
   project: null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]
 })
-const name = ref('SCS-101 - Activity Log of Application Forms Processed')
 const hkhsTableRef = ref()
 const columnsRef = ref([
   { field: 'datetime', title: 'Date Time', fixed: 'left' },
@@ -171,8 +171,14 @@ function handleOrderBy() {
   HandleSorting(sortingField.value)
 }
 
+function refreshSetting(setting: any) {
+  emits('refreshSetting', setting)
+  formData.value.project = setting.project
+}
+
 onMounted(async () => {
   projectList.value = (await newClientApi.postCaptureProjPage({}).then((r) => r.data)) as any[]
+  formData.value.project = props.setting?.project ? props.setting?.project : projectList.value[0].id || ''
   // Fetch data for export after a short delay to allow child components to load
   setTimeout(fetchAllData, 1000)
 })
@@ -192,7 +198,7 @@ onMounted(async () => {
     @refresh="handleRefresh"
   >
     <template #title_suffix>
-      <span class="title-suffix-name">{{ name }}</span>
+      <span class="title-suffix-name">{{ setting.name }}</span>
     </template>
     <template #action_prefix>
       <el-dropdown trigger="click" @command="handleDownloadCommand">
@@ -209,7 +215,7 @@ onMounted(async () => {
     </template>
     <div class="toolbar-wrap">
       <div class="toolbar-form-row">
-        <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" clearable @change="query">
+        <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
           <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
         </el-select>
         <el-date-picker
@@ -261,7 +267,7 @@ onMounted(async () => {
         </div>
       </template>
     </div>
-    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)" />
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="refreshSetting" />
   </DashboardCard>
 </template>
 
