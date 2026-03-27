@@ -2,6 +2,7 @@
 import { newClientApi } from 'api'
 
 const props = defineProps<{
+  project: string
   name: string
   startDate: string
   endDate: string
@@ -76,6 +77,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
 async function getData() {
   const rpcParams = {
+    p_project_id: props.project,
     p_start_date: props.startDate,
     p_end_date: props.endDate,
     p_stage: props.stage,
