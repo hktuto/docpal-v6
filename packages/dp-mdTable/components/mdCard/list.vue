@@ -19,7 +19,7 @@ const LOAD_MORE_MIN_INTERVAL_MS = 400
 let lastLoadMoreEmitAt = 0
 
 function tryEmitLoadMore() {
-  if (!props.hasMore || props.loadingMore) {
+  if (!hasMore.value || loadingMore.value) {
     return
   }
   const now = Date.now()
@@ -31,7 +31,7 @@ function tryEmitLoadMore() {
 }
 
 function tryLoadMoreIfDragContentNotScrollable() {
-  if (!props.hasMore || props.loadingMore || props.rows.length === 0) return
+  if (!hasMore.value || loadingMore.value || !tableData?.value?.length) return
   const el = dragContainerRef.value
   if (!el) return
 
@@ -41,26 +41,13 @@ function tryLoadMoreIfDragContentNotScrollable() {
   tryEmitLoadMore()
 }
 
-interface Props {
-  rows: any[]
-  /** 是否还有下一页（由表格数据层根据 totalSize 计算） */
-  hasMore: boolean
-  /** 正在加载下一页，用于防抖与避免重复请求 */
-  loadingMore: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  rows: () => [],
-  hasMore: false,
-  loadingMore: false
-})
+defineProps<{ draggable?: boolean }>()
 
 const emit = defineEmits<{
   'open-record': [row: any]
   'load-more': []
-  reorder: [rows: any[]]
 }>()
-const { columns, viewStyleConfig } = useMDCardInject()
+const { columns, viewStyleConfig, tableData, hasMore, loadingMore } = useMDCardInject()
 const cardWidgetStyle = computed(() => mapViewStyleToWidget(viewStyleConfig.value))
 function mapViewStyleToWidget(config: Record<string, any> | undefined): CardWidgetStyle {
   const c = config || {}
@@ -92,7 +79,7 @@ const localRows = ref<any[]>([])
 const isDragging = ref(false)
 
 watch(
-  () => props.rows,
+  () => tableData.value,
   (newRows) => {
     if (isDragging.value) return
     localRows.value = [...(newRows || [])]
@@ -106,7 +93,10 @@ function handleDragStart() {
 
 function handleDragEnd() {
   isDragging.value = false
-  emit('reorder', localRows.value)
+  if (!tableData) {
+    return
+  }
+  tableData.value = [...localRows.value]
 }
 
 const dragContainerRef = ref<HTMLElement | null>(null)
@@ -121,18 +111,23 @@ function handleDragScroll(e: Event) {
   }
   tryEmitLoadMore()
 }
-
+function commitProxy(type: string = 'reload') {
+  console.log('commitProxy', type)
+}
 watch(
-  () => [props.rows.length, props.hasMore, props.loadingMore],
+  () => [tableData?.value?.length ?? 0, hasMore.value, loadingMore.value],
   () => {
     nextTick(() => tryLoadMoreIfDragContentNotScrollable())
   }
 )
+defineExpose({
+  commitProxy
+})
 </script>
 
 <template>
   <div class="md-card-list">
-    <div v-if="rows.length > 0">
+    <div v-if="tableData?.length > 0">
       <div
         ref="dragContainerRef"
         class="md-card-list-scroll"

@@ -29,7 +29,7 @@ const emit = defineEmits<{
   'open-record': [params: { row: any; recordId: string }]
 }>()
 
-const { tableData, cardRef, getTableData, loadMore, hasMore, loadingMore } = useMDCard(props)
+const { columns, cardRef, getTableData, loadMore, addRow, systemFieldsTypes } = useMDCard(props)
 
 async function handleRefresh() {
   await getTableData({ pageNum: 1 })
@@ -39,11 +39,15 @@ async function handleRefresh() {
 function handleSearch(value: string) {
   emit('search', value)
 }
-
+const MdFormPopoverRef = ref()
 function handleAddRow() {
-  emit('add-row')
+  MdFormPopoverRef.value.open({})
 }
-
+async function handleAddRowSubmit(data: any) {
+  console.log('handleAddRowSubmit', data)
+  await addRow(data)
+  handleRefresh()
+}
 function handleOpenRecord(row: any) {
   emit('open-record', {
     row,
@@ -53,10 +57,6 @@ function handleOpenRecord(row: any) {
 
 function handleLoadMore() {
   loadMore()
-}
-
-function handleCardsReorder(nextRows: any[]) {
-  tableData.value = nextRows
 }
 
 </script>
@@ -72,7 +72,7 @@ function handleCardsReorder(nextRows: any[]) {
               布局
             </el-button>
           </template>
-          <MdCardSettingLayout  />
+          <MdCardSettingLayout />
         </el-popover>
 
         <el-popover placement="bottom-start" :width="320" trigger="click">
@@ -99,13 +99,17 @@ function handleCardsReorder(nextRows: any[]) {
     </div>
 
     <MdCardList
-      :rows="tableData"
-      :has-more="hasMore"
-      :loading-more="loadingMore"
+      :ref="cardRef"
       :draggable="props.editable"
       @open-record="handleOpenRecord"
       @load-more="handleLoadMore"
-      @reorder="handleCardsReorder"
+    />
+    <MdFormPopover
+      ref="MdFormPopoverRef"
+      :columns="columns"
+      :systemFieldsTypes="systemFieldsTypes"
+      showMoveButtons
+      @submit="handleAddRowSubmit"
     />
   </div>
 </template>

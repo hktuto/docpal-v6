@@ -1,28 +1,13 @@
 <template>
-  <UiPopoverDialog
-    ref="popoverRef"
-    :width="width"
-    :placement="placement"
-    title="设置排序"
-    :close-on-click-outside="closeOnClickOutside"
-  >
+  <UiPopoverDialog ref="popoverRef" :width="width" :placement="placement" title="设置排序" :close-on-click-outside="closeOnClickOutside">
     <div class="sort-config-popover">
       <!-- 标题和提示信息 -->
       <div class="popover-header">
-        <div class="auto-save-tip">
-          视图配置处于自动保存中，你的操作会实时保存并同步给其他成员
-        </div>
+        <div class="auto-save-tip">视图配置处于自动保存中，你的操作会实时保存并同步给其他成员</div>
       </div>
       <!-- 排序规则列表 -->
       <div class="sort-rules">
-        <draggable
-          v-model="columnSortRules"
-          item-key="id"
-          handle=".drag-handle"
-          :animation="200"
-          ghost-class="ghost-item"
-          @change="handleRuleOrderChange"
-        >
+        <draggable v-model="columnSortRules" item-key="id" handle=".drag-handle" :animation="200" ghost-class="ghost-item" @change="handleRuleOrderChange">
           <template #item="{ element, index }">
             <div class="sort-rule-item">
               <!-- 拖拽手柄 -->
@@ -43,12 +28,7 @@
                 @visible-change="handleSelectVisibleChange"
                 @click.stop
               >
-                <el-option
-                  v-for="col in availableColumns"
-                  :key="col.field"
-                  :label="col.title"
-                  :value="col.field"
-                >
+                <el-option v-for="col in availableColumns" :key="col.field" :label="col.title" :value="col.field">
                   <div class="field-option">
                     <span>{{ col.title }}</span>
                   </div>
@@ -57,33 +37,16 @@
 
               <!-- 排序方向按钮 -->
               <div class="sort-order-buttons">
-                <el-button
-                  :type="element.order === 'asc' ? 'primary' : ''"
-                  size="small"
-                  class="order-btn"
-                  @click="handleOrderChange(element, 'asc')"
-                >
+                <el-button :type="element.order === 'asc' ? 'primary' : ''" size="small" class="order-btn" @click="handleOrderChange(element, 'asc')">
                   A → Z
                 </el-button>
-                <el-button
-                  :type="element.order === 'desc' ? 'primary' : ''"
-                  size="small"
-                  class="order-btn"
-                  @click="handleOrderChange(element, 'desc')"
-                >
+                <el-button :type="element.order === 'desc' ? 'primary' : ''" size="small" class="order-btn" @click="handleOrderChange(element, 'desc')">
                   Z → A
                 </el-button>
               </div>
 
               <!-- 删除按钮 -->
-              <el-button v-if="false"
-                type="danger"
-                :icon="Delete"
-                size="small"
-                text
-                class="delete-btn"
-                @click="handleDeleteRule(index)"
-              />
+              <el-button v-if="false" type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteRule(index)" />
             </div>
           </template>
         </draggable>
@@ -91,15 +54,7 @@
 
       <!-- 添加新规则 -->
       <div class="add-rule-section">
-        <el-button v-if="columnSortRules.length === 0"
-          type="primary"
-          :icon="Plus"
-          size="small"
-          text
-          @click="handleAddRule"
-        >
-          添加排序条件
-        </el-button>
+        <el-button v-if="columnSortRules.length === 0" type="primary" :icon="Plus" size="small" text @click="handleAddRule"> 添加排序条件 </el-button>
       </div>
     </div>
   </UiPopoverDialog>
@@ -123,11 +78,7 @@ interface Props {
   placement?: string
 }
 
-const { availableColumns, width, placement } = withDefaults(defineProps<Props>(), {
-  availableColumns: () => [],
-  width: 600,
-  placement: 'bottom-start'
-})
+const { availableColumns = [], width = 600, placement = 'bottom-start' } = defineProps<Props>()
 
 const emit = defineEmits<{
   change: [rules: SortRule[]]
@@ -300,4 +251,3 @@ defineExpose({
   }
 }
 </style>
-

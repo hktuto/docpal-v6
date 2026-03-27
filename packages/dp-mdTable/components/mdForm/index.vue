@@ -1,13 +1,16 @@
 <template>
   <ElForm ref="formRef" :model="formData" label-position="top">
-    <div v-for="column in columns" :key="column.field_name">
-      <component v-if="mode === 'edit' || !systemFieldsTypes.includes(column.business_type)" :is="getComponent(column.business_type)" :form-data="formData" :column="column" 
-        fieldName="field_name"
-        @original-click="handleOriginalClick"
-      />
-    </div>
-    <MdFormPopover v-if="originalShow" ref="MdFormPopoverRef" showSourceButtons @submit="handleAddRowSubmit" />
+    <component
+      :is="getComponent(column.business_type)"
+      v-for="column in normalizedColumns"
+      :key="column.id || column.field_name"
+      :form-data="formData"
+      :column="column"
+      :disabled="mode === 'edit' && systemFieldsTypes.includes(column.business_type)"
+      field-name="field_name"
+    />
   </ElForm>
+  <MdFormPopover v-if="originalShow" ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showSourceButtons @submit="handleOriginalSubmit" />
 </template>
 
 <script setup lang="ts">
@@ -16,8 +19,9 @@ import { ColumnFieldType, reverseColumnFieldType } from '@packages/dp-mdTable/ty
 const props = defineProps<{
   formData: any
   mode: 'default' | 'edit'
+  columns: any[]
+  systemFieldsTypes: any[]
 }>()
-const { columns, systemFieldsTypes } = useMDTableInject()
 const originalShow = ref(false)
 const componentMap = {
   Text: resolveComponent('LazyMdFormFieldText'),
@@ -47,6 +51,19 @@ const getComponent = (type: string) => {
   const s_type = reverseColumnFieldType[type]
   return componentMap[s_type] || resolveComponent('LazyMdFormFieldDisabled')
 }
+const normalizedColumns = computed(() => {
+  console.log('props.columns', props.columns)
+  if (!props.columns) return []
+  console.log('props.columns', props.columns)
+  return props.columns
+    .map((column: any) => {
+      return {
+        ...column,
+        field: column.field ?? column.field_name,
+        title: column.title ?? column.field_name_alias ?? column.field_name
+      }
+    })
+})
 
 const formRef = ref()
 const getFormData = async () => {
@@ -57,10 +74,12 @@ const getFormData = async () => {
       return false
     }
 
-    const newFormData = columns.value.filter((column: any) => !systemFieldsTypes.includes(column.business_type)).reduce((acc: any, column: any) => {
-      acc[column.field_name] = props.formData[column.field_name]
-      return acc
-    }, {})
+    const newFormData = props.columns
+      .filter((column: any) => !props.systemFieldsTypes.includes(column.business_type))
+      .reduce((acc: any, column: any) => {
+        acc[column.field_name] = props.formData[column.field_name]
+        return acc
+      }, {})
     return newFormData
   } catch (error) {
     console.error('formData is not valid', error)
@@ -73,6 +92,9 @@ function handleOriginalClick(id: any) {
   // setTimeout(() => {
   //   MdFormPopoverRef.value.open(id)
   // }, 1000)
+}
+function handleOriginalSubmit(data: any) {
+  console.log('handleOriginalSubmit', data)
 }
 defineExpose({
   getFormData

@@ -53,6 +53,7 @@ function createMockAggChildData(page: any, tableId: string) {
   return createMockData(page, tableId)
 }
 export interface TableDataContext {
+  gridRef: Ref<any>
   tableData: Ref<any[]>
   loading: Ref<boolean>
   loadingMore: Ref<boolean>
@@ -261,6 +262,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   }
 
   provide(TableDataContextKey, {
+    gridRef,
     // 数据
     tableData,
     loading,

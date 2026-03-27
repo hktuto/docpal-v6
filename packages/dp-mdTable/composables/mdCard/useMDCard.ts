@@ -26,6 +26,7 @@ export interface MDCardProps {
 export const MDCardContextKey = Symbol('MDCardContextKey')
 
 export function useMDCard(props: MDCardProps) {
+  const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
   const cardRef = ref<any>()
   const {
     loading,
@@ -48,19 +49,28 @@ export function useMDCard(props: MDCardProps) {
   })
   provide(MDCardContextKey, {
     coverField,
+    tableData,
+    hasMore,
+    loadingMore,
     ...props.extraColumnConfig
   })
-  onMounted(() => {
-    getTableData()
+  onMounted(async () => {
+    await getTableData()
+    console.log('tableData', tableData)
   })
   return {
+    columns: props.extraColumnConfig?.columns,
+    systemFieldsTypes,
     coverField,
     tableData,
     cardRef,
     getTableData,
     loadMore,
     hasMore,
-    loadingMore
+    loadingMore,
+    addRow,
+    updateRow,
+    deleteRow,
   }
 }
 export const useMDCardInject = () => {

@@ -16,7 +16,7 @@
         </div>
       </div>
     </template>
-    <MdForm ref="formRef" :form-data="formData" :mode="mode" />
+    <MdForm ref="formRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" :form-data="formData" :mode="mode" />
     <template #footer>
       <div class="form-actions">
         <el-button @click="handleCancel">{{ $t('cancelText') }}</el-button>
@@ -34,6 +34,8 @@ const mode = ref('edit')
 const props = defineProps<{
   showMoveButtons: boolean
   showSourceButtons: boolean
+  columns: any[]
+  systemFieldsTypes: any[]
 }>()
 const emits = defineEmits(['submit'])
 const { currentRow, setCurrentRow, moveCurrentRow, disabledUp, disabledDown } = useCurrentRow()

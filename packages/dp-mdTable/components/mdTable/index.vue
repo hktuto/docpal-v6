@@ -52,7 +52,7 @@
         </div>
       </div>
       <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" />
-      <MdFormPopover ref="MdFormPopoverRef" showMoveButtons @submit="handleAddRowSubmit" />
+      <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
       <RecordCardDialog ref="recordCardDialogRef" />
@@ -135,7 +135,7 @@ const emit = defineEmits<{
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow } = useMDTable(props)
+const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow, systemFieldsTypes } = useMDTable(props)
 
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
