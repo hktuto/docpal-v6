@@ -101,6 +101,24 @@ async function cancelBatchs(ids: string[]) {
     emits('updated')
 }
 
+async function handleCanelBatch(ids: string[]) {
+  ElMessageBox.alert('Are you sure you want to cancel this batch?', '', {
+    confirmButtonText: 'Yes',
+    cancelButtonText: 'No',
+    type: 'warning',
+    callback: async (action: string) => {
+      if (action === 'cancel') return
+      try {
+        await cancelBatchs(ids)
+      } catch (error) {
+        routerProvider.message.error('Failed to cancel batch')
+      } finally {
+        reload()
+      }
+    }
+  })
+}
+
 const userId = useUserId()
 function openDetail(row: any) {
   if(row.lockBy && row.lockBy !== userId.value) return
@@ -243,7 +261,7 @@ onMounted(() => {
           <ScanListFilter />
         </template>
         <template v-else>
-          <ScanListMultipleSelect v-loading="exportLoading" :selectedRow="selectedRow" @cancel="cleanSelected" @batchCancel="cancelBatchs" @batchExport="batchExport" />
+          <ScanListMultipleSelect v-loading="exportLoading" :selectedRow="selectedRow" @cancel="cleanSelected" @batchCancel="handleCanelBatch" @batchExport="batchExport" />
         </template>
       </template>
     </vxe-grid>
