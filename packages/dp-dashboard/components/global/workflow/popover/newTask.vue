@@ -9,7 +9,7 @@ const workflowEditorRef = ref()
 const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
 const graphEl = ref()
-const emits = defineEmits(['created'])
+const emits = defineEmits(['submit'])
 const activeName = ref('Form')
 const state = reactive({
   availableWorkflow: [],
@@ -50,7 +50,6 @@ async function workflowClickHandler(item: any) {
     return
   }
 
-  console.log(123, data.content)
   // Workflow未發佈
   if (Object.keys(data.content).length === 0) {
     state.loading = false
@@ -101,7 +100,6 @@ async function checkAndSubmit() {
   const formData = await vFormRef.value.getFormData()
   const userId = useUserId()
 
-  console.log(111, formData)
   if (!!formData) {
     const formParams = {
       start_user_id: userId.value,
@@ -113,16 +111,13 @@ async function checkAndSubmit() {
 
     try {
       const data = await $api.post('http://192.168.5.147:8080/api/v1/processes', formParams).then((r) => r.data)
-      console.log(222, data)
+      state.formDialogVisible = false
 
       setTimeout(async () => {
         const newVar = await $api.get(`http://192.168.5.147:8080/api/v1/processes/instance/${data.id}`).then((r) => r.data)
-        console.log(333, newVar)
+        ElMessage.success('Workflow created')
       }, 100)
-
-      state.formDialogVisible = false
-      ElMessage.success('Workflow created')
-      emits('created')
+      emits('submit')
     } catch (e) {
       console.log(e)
     }

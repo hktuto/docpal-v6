@@ -9,7 +9,7 @@
       @formChange="$emit('formChange')"
     >
       <template v-slot:previewFile="{ data }">
-        <WorkflowDetailReader class="WorkflowDetailReader" ref="WorkflowReaderRef"> </WorkflowDetailReader>
+        <LazyContextFormReaderDocument class="WorkflowDetailReader" ref="WorkflowReaderDocumentRef"/>
       </template>
       <template v-for="item in formRenderSlots" :key="item.name" v-slot:[item.name]="{ data }">
         <component
@@ -79,7 +79,7 @@ const defaultFormJson = {
 
 const FormRendererRef = ref()
 // #region module: set
-async function setForm(json: string | object, data?: object, properties: any[] = [], xml?: string) {
+async function setForm(json: string | object, data?: object, properties: any[] = []) {
   if (JSON.stringify(json) === '{}') {
     FormRendererRef.value.setFormJson(defaultFormJson)
     return
@@ -100,6 +100,7 @@ async function setForm(json: string | object, data?: object, properties: any[] =
     state.formData = { ...data }
   }
 }
+
 async function handleData(data: any) {
   // 处理sub-form
   const arrWidgetKeys = getWidgetNames(WidgetNames.arr)
@@ -125,6 +126,7 @@ async function handleData(data: any) {
     else if (value !== null) result[key] = value
   }
 }
+
 async function revertUploadFile(ids: any, mode: 'workflow' | 'nuxeo' = 'workflow') {
   const pList: any = []
   const result: any = []
@@ -146,15 +148,16 @@ async function revertUploadFile(ids: any, mode: 'workflow' | 'nuxeo' = 'workflow
   })
   return result
 }
+
 function handleTypeIds(properties: any) {
   state.writableIds = []
   properties.forEach((item: any) => {
     if (item.writable) state.writableIds.push(item.id)
   })
 }
-// #endregion
-// #region module: get
+
 const formRenderSlotsRef = ref<any>({})
+
 async function getFormData(needValidation = true, onlyWritable = false) {
   try {
     let formData = {}
@@ -182,6 +185,7 @@ async function getFormData(needValidation = true, onlyWritable = false) {
     console.error(error)
   }
 }
+
 async function getSlotData(refList: any, needValidation: boolean) {
   let pList: any = []
   Object.keys(refList).forEach((key) => {
@@ -203,9 +207,9 @@ function writableDataDeArray(formDatas: any) {
   })
   return dataDeArray(data)
 }
+
 function dataDeArray(formDatas: any) {
   const arrWidgetKeys = getWidgetNames(WidgetNames.arr)
-  // TODO : remove later
   const data = Object.keys(formDatas).reduce((prev: any, key: string) => {
     if (formDatas[key] == '0' || formDatas[key] == 'false' || !!formDatas[key]) {
       prev[key] = formDatas[key]
@@ -241,6 +245,7 @@ function dataDeArray(formDatas: any) {
   })
   return data
 }
+
 function getWidgetNames(widgetNames: string[], checkMultiple: boolean = false, checkNuxeo: boolean = false) {
   const containerWidgets = FormRendererRef.value.vFormRenderRef.getContainerWidgets()
   const fieldWidgets = FormRendererRef.value.vFormRenderRef.getFieldWidgets()
@@ -260,32 +265,31 @@ function getWidgetNames(widgetNames: string[], checkMultiple: boolean = false, c
     return prev
   }, [])
 }
-// #endregion
-// #region module:
+
 function enableForm() {
   state.readonly = false
   FormRendererRef.value.vFormRenderRef.enableForm()
 }
+
 function disableForm() {
   state.readonly = true
   FormRendererRef.value.vFormRenderRef.disableForm()
 }
-// #endregion
-// #region module: WorkflowReader
-const WorkflowReaderRef = ref()
+
+const WorkflowReaderDocumentRef = ref()
 function handlePreviewFileInit(fileId: string) {
-  if (WorkflowReaderRef.value && fileId) WorkflowReaderRef.value.init(fileId)
+  if (WorkflowReaderDocumentRef.value && fileId) WorkflowReaderDocumentRef.value.init(fileId)
 }
-// #endregion
-onMounted(() => {})
-const { formData, formJson } = toRefs(state)
-defineExpose({ setForm, getFormData, disableForm, enableForm })
 
 async function updateData(newData: any) {
   const _data = await handleData(newData)
   state.formData = { ..._data }
   FormRendererRef.value.setFormData(_data)
 }
+
+onMounted(() => {})
+const { formData, formJson } = toRefs(state)
+defineExpose({ setForm, getFormData, disableForm, enableForm })
 
 provide('workflowFormRender', {
   updateData,

@@ -7,8 +7,16 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
-const { id, workflowType, backItem } = defineProps<{
-  id: string
+const { detail, workflowType, backItem } = defineProps<{
+  detail: {
+    id: string
+    process_instance_id: string
+    definition_id: string
+    node_id: string
+    node_name: string
+    assignee: string
+    variables: any
+  }
   workflowType: string
   backItem?: any
 }>()
@@ -24,10 +32,14 @@ const state = reactive<any>({
   activeTab: 'form',
   taskDetail: {},
   activityList: [],
-  loading: false,
+  loading: true,
   submitShow: false,
   error: null
 })
+const fromRenderRef = ref()
+const taskDetail = ref({})
+const workflowJson = ref({})
+const workflowFormJson = ref()
 
 async function getDetail() {
   try {
@@ -35,49 +47,79 @@ async function getDetail() {
     state.error = null
     switch (workflowType) {
       case state.processState.completeTask:
-        const historyList: any = await newClientApi.postDocpalWorkflowHistoryProcess({
-          processInstanceId: id,
-          completed: true
-        }).then((res) => res?.data?.entryList)
+        const historyList: any = await newClientApi
+          .postDocpalWorkflowHistoryProcess({
+            processInstanceId: id,
+            completed: true
+          })
+          .then((res) => res?.data?.entryList)
         if (!!historyList && historyList.length > 0) {
           state.taskDetail = historyList[0]
         }
         break
       default:
-        state.taskDetail = await newClientApi.postDocpalWorkflowTask({ taskId: id }).then((res) => res.data)
-        if (!state.taskDetail) {
-          // handle if workflow task is already complete ,and should use history api
-          state.taskDetail = await newClientApi.postDocpalWorkflowHistoryProcess({
-            processInstanceId: id,
-            completed: true
-          }).then((res) => res.data)
-          state.isCompleted = true
+        const workflowTaskInstance = await $api
+          .get(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${detail.definition_id}`)
+          .then((r) => r.data)
+        workflowJson.value = workflowTaskInstance.content
+
+        const data = await $api.get(`http://192.168.5.147:8080/api/v1/processes/instance/${detail.process_instance_id}`).then((r) => r.data)
+
+        const findNode = data.nodes.find((node: any) => node.id == detail.node_id)
+        if (!!findNode) {
+          taskDetail.value = findNode
+          const formKey = findNode.metadata.formKey
+          // Get Form Json
+          const formJsonData = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
+          if (!formJsonData || !formJsonData.jsonValue) {
+            routerProvider?.message.error('The form does not exist!')
+            return
+          }
+          fromRenderRef.value.setForm(formJsonData.jsonValue)
+
+          findNode.metadata.buttonSetting
+
+
         }
+
+      // state.taskDetail = await newClientApi.postDocpalWorkflowTask({ taskId: id }).then((res) => res.data)
+      // if (!state.taskDetail) {
+      //   // handle if workflow task is already complete ,and should use history api
+      //   state.taskDetail = await newClientApi
+      //     .postDocpalWorkflowHistoryProcess({
+      //       processInstanceId: id,
+      //       completed: true
+      //     })
+      //     .then((res) => res.data)
+      //   state.isCompleted = true
+      // }
     }
-    handleGetActivity()
+    // handleGetActivity()
   } catch (error) {
     state.error = error
   }
-  setTimeout(async () => {
-    try {
-      await handleFormDataGet()
-      handleDisabledForm()
-    } catch (error) {
-      console.log(error)
-    }
-    state.loading = false
-  }, 100)
+  // setTimeout(async () => {
+  //   try {
+  //     await handleFormDataGet()
+  //     handleDisabledForm()
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  //   state.loading = false
+  // }, 100)
+  state.loading = true
 }
 
 async function handleGetActivity() {
   const processInstanceId = state.taskDetail.instanceId || state.taskDetail.processInstanceId
-  state.activityList = await newClientApi.postDocpalWorkflowHistoryActivity({
-    processInstanceId
-  }).then((res: any) => res.data?.list.filter((i) => i.activityName).reverse())
+  state.activityList = await newClientApi
+    .postDocpalWorkflowHistoryActivity({
+      processInstanceId
+    })
+    .then((res: any) => res.data?.list.filter((i) => i.activityName).reverse())
 }
 
 // #region module: form
-const vFormRef = ref()
 const displayMode = ref<'form' | 'signature'>()
 
 const showForm = ref(true)
@@ -88,18 +130,22 @@ const workflowFormContainerRef = ref<any>(null)
 const isFullScreenForm = ref(false)
 
 function fullscreenEventListen() {
-  isFullScreenForm.value = !!document.fullscreenElement;
+  isFullScreenForm.value = !!document.fullscreenElement
 }
 
-watch(isFullScreenForm, (newVal) => {
-  if (newVal) {
-    document.addEventListener('fullscreenchange', fullscreenEventListen)
-  } else {
-    document.removeEventListener('fullscreenchange', fullscreenEventListen)
+watch(
+  isFullScreenForm,
+  (newVal) => {
+    if (newVal) {
+      document.addEventListener('fullscreenchange', fullscreenEventListen)
+    } else {
+      document.removeEventListener('fullscreenchange', fullscreenEventListen)
+    }
+  },
+  {
+    immediate: true
   }
-}, {
-  immediate: true
-})
+)
 
 function toggleFullScreenForm() {
   isFullScreenForm.value = !isFullScreenForm.value
@@ -114,41 +160,13 @@ function toggleFullScreenForm() {
 }
 
 async function handleFormDataGet() {
-  let formJson
-  let formData
-  let xml
-  switch (workflowType) {
-    case state.processState.completeTask:
-      formData = state.taskDetail.processVariables
-      formJson = await formJsonGet('end', state.taskDetail.processDefinitionKey, state.taskDetail.processDefinitionVersionId)
-      if (!formJson.formConfig) {
-        formJson = await formJsonGet('complete', state.taskDetail.processDefinitionKey, state.taskDetail.processDefinitionVersionId)
-        if (!formJson.formConfig) {
-          if (!state.activityList || state.activityList.length === 0) await handleGetActivity()
-          const lastActivity = state.activityList[0]
-          formJson = await formJsonGet(lastActivity.activityId, state.taskDetail.processDefinitionKey, state.taskDetail.processDefinitionVersionId)
-        }
-      }
-      xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(state.taskDetail.processDefinitionVersionId)
-      vFormRef.value.setForm(formJson, formData, [], xml)
-      await handleAdditionalSetting(xml, state.taskDetail, formData)
-      formDataValue.value = formData
-      break
-    default:
-      const properties = await newClientApi.postDocpalWorkflowProperties({ taskId: id }).then((res) => res.data)
+  // Get Form Data
+  await $api.get(`http://192.168.5.147:8080/api/v1/processes/variable/${id}/variables`).then((r) => r.data)
 
-      formData = formDataGetFromProps(properties)
-      formJson = await formJsonGet(
-        state.taskDetail.taskDefinitionKey,
-        state.taskDetail.taskInstance.processDefinitionKey,
-        state.taskDetail.processDefinitionVersionId
-      )
-      xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(state.taskDetail.processDefinitionVersionId)
-      vFormRef.value.setForm(formJson, formData, [], xml)
-      formDataValue.value = formData
-      await handleAdditionalSetting(xml, state.taskDetail, formData)
-      break
+  if (!formJsonData) {
+    throw Error('Get form JSON Error')
   }
+  formJsonData.jsonValue
 }
 
 function toggleShowForm() {
@@ -176,27 +194,15 @@ function formDataGetFromProps(list: any) {
   }, {})
 }
 
-async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  // @ts-ignore
-  const response: any = await newClientApi.getDmsFormPropertiesQuery({
-    userTaskId,
-    processKey,
-    versionId
-  })
-    .then((res) => res.data)
-  if (!response || !response[0] || (response[0] && !response[0].jsonValue)) return {}
-  return JSON.parse(response[0].jsonValue)
-}
-
 function handleDisabledForm() {
   if (!isAssigneeUser.value || workflowType === 'completeTask') {
-    vFormRef.value.disableForm()
+    fromRenderRef.value.disableForm()
   }
 }
 
 async function handleSave() {
   try {
-    const data = await vFormRef.value.getFormData(false, false)
+    const data = await fromRenderRef.value.getFormData(false, false)
     state.loading = true
     const param = {
       taskId: id,
@@ -208,7 +214,7 @@ async function handleSave() {
     console.log(error)
     // routerProvider?.message.error(error)
   } finally {
-    state.loading = false
+    // state.loading = false
   }
 }
 
@@ -220,8 +226,7 @@ function openSignatureSettingDialog() {
 }
 
 async function handleCancel() {
-
-  let data = await vFormRef.value.getFormData(false, false)
+  let data = await fromRenderRef.value.getFormData(false, false)
   data[signatureDetail.value.workflowKeyToStoreSignature] = null
   const allFormData = {
     ...formDataValue.value,
@@ -231,7 +236,8 @@ async function handleCancel() {
 
   // check if current step need to sign
   if (signatureDetail.value.signatureVariableSetting) {
-    templateVariables[signatureDetail.value.signatureVariableSetting.id] = signatureDetail.value.templateVariables[signatureDetail.value.signatureVariableSetting.id]
+    templateVariables[signatureDetail.value.signatureVariableSetting.id] =
+      signatureDetail.value.templateVariables[signatureDetail.value.signatureVariableSetting.id]
   }
   const newVariables = generateData(templateVariables, JSON.parse(JSON.stringify(signatureDetail.value.templateDetail)))
   const content = signatureDetail.value.templateDetail.json.content.content
@@ -252,12 +258,11 @@ async function handleSubmit() {
   }
   state.loading = true
   try {
-    // FIXME : auto assign workflow to user if assigee is not user, API should auto do this step, if so remove this step
     if (state.taskDetail?.assignee !== userId) {
       await newClientApi.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
     }
     // get form data
-    let data = await vFormRef.value.getFormData(true, false)
+    let data = await fromRenderRef.value.getFormData(true, false)
     if (signSubmitStage.value === 'afterSubmit') {
       data[signatureDetail.value.workflowKeyToStoreSignature] = temSignatureData.value
     }
@@ -299,7 +304,7 @@ async function handleSubmit() {
     console.log('error', error)
     routerProvider?.message.error(error.message)
   } finally {
-    state.loading = false
+    // state.loading = false
   }
 }
 
@@ -319,7 +324,7 @@ const temSignatureData = ref<any>(null)
 async function handleApplySignature(newSignature: any) {
   // temp add signature to form data and update signature setting variable
   // get form data
-  let data = await vFormRef.value.getFormData(true, false)
+  let data = await fromRenderRef.value.getFormData(true, false)
 
   data[signatureDetail.value.workflowKeyToStoreSignature] = newSignature
   const allFormData = {
@@ -335,12 +340,7 @@ async function handleApplySignature(newSignature: any) {
 }
 
 async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any) {
-  const {
-    buttons,
-    components,
-    signatureSetting,
-    buttonSetting
-  } = await getBpmnAdditionalElement(xml, state.taskDetail.taskDefinitionKey, taskDetail, formData)
+  const { buttons, components, signatureSetting, buttonSetting } = await getBpmnAdditionalElement(xml, state.taskDetail.taskDefinitionKey, taskDetail, formData)
   additionalButton.value = buttons
   if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
@@ -356,14 +356,13 @@ async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any)
     nextTick(() => {
       displayMode.value = 'form'
     })
-
   }
 }
 
 async function handleFormChange() {
   if (displayMode.value === 'signature') {
     // get new form data and update signature preview
-    let data = await vFormRef.value.getFormData(true, false)
+    let data = await fromRenderRef.value.getFormData(true, false)
     const allFormData = {
       ...formDataValue.value,
       ...data
@@ -372,7 +371,8 @@ async function handleFormChange() {
     const templateVariables = convertWorkflowVariableToTemplateVariable(allFormData, signatureDetail.value.workflowToTemplateMapping)
     // check if current step need to sign
     if (signatureDetail.value.signatureVariableSetting) {
-      templateVariables[signatureDetail.value.signatureVariableSetting.id] = signatureDetail.value.templateVariables[signatureDetail.value.signatureVariableSetting.id]
+      templateVariables[signatureDetail.value.signatureVariableSetting.id] =
+        signatureDetail.value.templateVariables[signatureDetail.value.signatureVariableSetting.id]
     }
     const newVariables = generateData(templateVariables, JSON.parse(JSON.stringify(signatureDetail.value.templateDetail)))
     const content = signatureDetail.value.templateDetail.json.content.content
@@ -381,7 +381,7 @@ async function handleFormChange() {
   }
 }
 
-async function addtionalSubmit({ formData, attr_booleanValue }: any) {
+async function addTionalSubmit({ formData, attr_booleanValue }: any) {
   state.loading = true
   if (state.taskDetail?.assignee !== userId) {
     await newClientApi.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
@@ -414,7 +414,7 @@ async function addtionalSubmit({ formData, attr_booleanValue }: any) {
     })
     routerProvider?.back(fallbackRoute)
   }
-  state.loading = false
+  // state.loading = false
 }
 
 const handleTaskInfoChange = async (taskDetailRes: any, isClaim: boolean) => {
@@ -425,11 +425,10 @@ const handleTaskInfoChange = async (taskDetailRes: any, isClaim: boolean) => {
       state.loading = true
       await handleFormDataGet()
     } else {
-      vFormRef.value.disableForm()
+      fromRenderRef.value.disableForm()
     }
-  } catch (error) {
-  }
-  state.loading = false
+  } catch (error) {}
+  // state.loading = false
 }
 
 function tabChange(tab: string) {
@@ -464,46 +463,37 @@ onMounted(() => {
 <template>
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
-      <h3>{{ state.taskDetail.name }}</h3>
+      <h3>{{ workflowJson.name }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto" @tab-change="tabChange">
-        <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info" v-loading="state.loading">
-          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="state.taskDetail"
-                                      :state="workflowType"></WorkflowDetailCompleteInfo>
-          <WorkflowDetailInfo v-else :taskDetail="state.taskDetail" :id="id"
-                              @change="handleTaskInfoChange"></WorkflowDetailInfo>
+        <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
+          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="state.taskDetail" :state="workflowType" />
+          <WorkflowDetailInfo v-else :taskDetail="detail" @change="handleTaskInfoChange" />
         </el-tab-pane>
-        <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_form')" name="form" v-loading="state.loading">
+        <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
           <div
             ref="workflowFormContainerRef"
             v-show="displayMode !== 'signature' || signSubmitStage !== 'afterSubmit'"
-            :class="
-              { workflowFormContainer:true, 
-                [displayMode]:true, 
-                glass: displayMode === 'signature' && !isFullScreenForm,
-                showForm
-              }">
+            :class="{ workflowFormContainer: true, [displayMode]: true, glass: displayMode === 'signature' && !isFullScreenForm, showForm }"
+          >
             <div v-if="displayMode === 'signature'" class="toggleFormButton">
-              <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'  " size="20" @click="toggleShowForm" />
+              <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'" size="20" @click="toggleShowForm" />
             </div>
             <div v-if="displayMode === 'signature'" class="toggleFullScreenButton">
-              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20"
-                    @click="toggleFullScreenForm" />
+              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
             </div>
-            <WorkflowDetailFormRender
-              ref="vFormRef"
-              :taskDetail="state.taskDetail"
-              @formChange="handleFormChange"
-            >
+
+            <ContextFormRender ref="fromRenderRef" @formChange="handleFormChange">
               <template #action>
                 <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
                   <template v-for="(item, index) in additionalButton" :key="index">
-                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props"
-                               @submit="addtionalSubmit" />
+                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTionalSubmit" />
                   </template>
                   <el-button
                     v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"
-                    id="Workflow__AvailableTask__Detail__Form__SaveDraft" :disabled="workflowType === 'completeTask'"
-                    @click="handleSave">
+                    id="Workflow__AvailableTask__Detail__Form__SaveDraft"
+                    :disabled="workflowType === 'completeTask'"
+                    @click="handleSave"
+                  >
                     <template v-if="pageButtonSetting && pageButtonSetting.saveDraftLabel">
                       {{ pageButtonSetting.saveDraftLabel }}
                     </template>
@@ -514,8 +504,11 @@ onMounted(() => {
 
                   <el-button
                     v-if="(!pageButtonSetting || pageButtonSetting.showSumBitButton) && (displayMode !== 'signature' || signSubmitStage === 'beforeSubmit')"
-                    id="Workflow__AvailableTask__Detail__Form__Submit" type="primary"
-                    :disabled="workflowType === 'completeTask'" @click="handleSubmit">
+                    id="Workflow__AvailableTask__Detail__Form__Submit"
+                    type="primary"
+                    :disabled="workflowType === 'completeTask'"
+                    @click="handleSubmit"
+                  >
                     <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
                       {{ pageButtonSetting.submitButtonLabel }}
                     </template>
@@ -523,38 +516,33 @@ onMounted(() => {
                       {{ $t('common_submit') }}
                     </template>
                   </el-button>
-
                 </div>
               </template>
-            </WorkflowDetailFormRender>
+            </ContextFormRender>
           </div>
           <template v-if="displayMode === 'signature'">
             <!-- template viewer -->
             <div class="templateViewerContainer">
               <!-- {{ signatureDetail.templateDetail }} -->
-              <DocTemplateViewer ref="templateViewerRef" v-if="!state.isEdit && signatureDetail"
-                                 :options="signatureDetail.templateDetail.json.options"
-                                 :json="signatureDetail.templateDetail.json.content" />
+              <DocTemplateViewer
+                ref="templateViewerRef"
+                v-if="!state.isEdit && signatureDetail"
+                :options="signatureDetail.templateDetail.json.options"
+                :json="signatureDetail.templateDetail.json.content"
+              />
             </div>
             <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
-              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'"
-                         @click="handleCancel">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'" @click="handleCancel">
                 {{ $t('cancelText') }}
               </el-button>
-              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary"
-                         :disabled="workflowType === 'completeTask'" @click="handleResign">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleResign">
                 {{ $t('workflow_resign') }}
               </el-button>
-              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary"
-                         :disabled="workflowType === 'completeTask'" @click="handleSubmit">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleSubmit">
                 {{ $t('common_submit') }}
               </el-button>
             </div>
-            <WorkflowSignatureDialog
-              ref="signatureSettingDialogRef"
-              :signatureSetting="signatureDetail"
-              @confirm="handleApplySignature"
-            />
+            <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
           </template>
         </el-tab-pane>
         <el-tab-pane :label="$t('workflow_graph')" name="graph">
@@ -567,14 +555,12 @@ onMounted(() => {
             :steps="state.activityList"
           />
         </el-tab-pane>
-        <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && isMobile"
-                     :label="$t('common_discussionChannel')" name="command">
+        <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && isMobile" :label="$t('common_discussionChannel')" name="command">
           <WorkflowDetailDiscussionChannel :id="state.taskDetail.instanceId" :noToggle="true" />
         </el-tab-pane>
       </el-tabs>
     </div>
-    <WorkflowDetailDiscussionChannel v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile"
-                                     :id="state.taskDetail.instanceId" />
+    <WorkflowDetailDiscussionChannel v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :id="state.taskDetail.instanceId" />
   </div>
   <div v-else>
     Workflow id not found, workflow id : {{ id }}.
@@ -583,6 +569,7 @@ onMounted(() => {
     </el-button>
   </div>
 </template>
+
 <style lang="scss" scoped>
 .floatingButtonContainer {
   position: absolute;
@@ -682,7 +669,6 @@ onMounted(() => {
     &.glass {
       background-color: transparent;
       background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, var(--app-primary-alpha-30) 2%, var(--app-primary-alpha-50) 100%);
-
     }
   }
 }

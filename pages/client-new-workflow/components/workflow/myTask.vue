@@ -1,13 +1,7 @@
 <template>
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="ResponsiveFilterRef"
-          @form-change="handleFilterFormChange"
-        />
-        <FormRenderer :form-json="formJson" @formChange="handleFormChange" />
-      </template>
+      <template #toolbar_buttons> </template>
       <template #status="{ row }">
         <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
         <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
@@ -27,48 +21,45 @@ const { t } = useI18n()
 // @ts-ignore
 const userId: string = useUserId().value
 let extraParams: any = {}
-const {
-  tableConfig,
-  tableEvent,
-  tableRef,
-  query,
-  reload,
-  cleanSelectedRows
-} = useVxeTable({
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'my_task',
-  api: (pageParams: any) => newClientApi.postDocpalWorkflowTasksUser({
-    ...pageParams,
-    ...extraParams,
-    assignedUser: userId
-  }),
-  columns: [
-    { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },
-    { field: 'taskInstance.processDefinitionName', title: 'workflow_workflowName' },
+  api: async (pageParams: any) => {
+    const userState = useUserState()
+    const groupsList = userState.value.aclUserDetail.groups.map((item: any) => item.groupId)
 
+    const params = {
+      ...extraParams.value,
+      // groups: groupsList,
+      // roles: [userState.value.aclUserDetail.roleId],
+      assignee: userId,
+      page_num: pageParams.pageNum,
+      page_size: pageParams.pageSize
+    }
+    const data = await $api.post('http://192.168.5.147:8080/api/v1/tasks/page', params).then((r) => r.data)
+    return {
+      data: {
+        entryList: data.items,
+        pageNum: data.page_num,
+        pageCount: data.page_size,
+        totalSize: data.total
+      }
+    }
+  },
+  columns: [
+    { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
+    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    { field: 'status', title: 'dpTable_status', slots: { default: 'assignee' } },
     {
-      field: 'name',
-      title: 'workflow_taskName'
-      //   slots: {
-      //     default: "status",
-      //   },
-    },
-    {
-      field: 'assignee',
-      title: 'workflow_assignee'
-    },
-    {
-      field: 'createDate',
+      field: 'created_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
-        // @ts-ignore
         return formatDate(cellValue)
       }
     },
     {
-      field: 'dueDate',
+      field: 'updated_at',
       title: 'workflow_dueDate',
       formatter({ cellValue }: any) {
-        // @ts-ignore
         return formatDate(cellValue)
       }
     }
@@ -79,84 +70,18 @@ const {
 })
 
 function handleDblclick(row: any) {
-  // router.push(`/easyFormManage/${row.id}`);
-  routerProvider?.navigateTo(routeWorkflowDetail({
-    ...row,
-    name: row.taskInstance.businessKey,
-    workflowType: 'myTask'
-  }), false)
+  routerProvider?.navigateTo(
+    routeWorkflowDetail({
+      ...row,
+      name: row.taskInstance.businessKey,
+      workflowType: 'myTask'
+    }),
+    false
+  )
 }
 
-async function claimTask(row: any) {
-  await newClientApi.postWorkflowTaskClaim({
-    taskId: row.id,
-    userId
-  })
-  query({})
-}
+onMounted(() => {})
 
-
-function getDownloadParams() {
-  return {
-    assignedUser: userId,
-    ...deepCopy(extraParams)
-  }
-}
-
-function handleFormChange(data: any) {
-  const params = Object.keys(data.formModel).reduce((prev: any, key: string) => {
-    if (data.formModel[key] && data.formModel[key].length > 0)
-      prev[key] = data.formModel[key]
-    return prev
-  }, {})
-  extraParams = params
-  reload()
-}
-
-const ResponsiveFilterRef = ref()
-
-function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-  extraParams = formModel
-  reload()
-}
-
-function getFilter() {
-  const data = [
-    {
-      key: 'orderBy',
-      label: 'tableHeader.sortBy',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'workflow_jobName', value: 'taskInstance.businessKey' },
-        { label: 'workflow_assignee', value: 'assignee' },
-        { label: 'workflow_dueDate', value: 'dueDate' },
-        { label: 'workflow_createDate', value: 'createDate' },
-        { label: 'workflow_taskName', value: 'name' },
-        { label: 'workflow_workflowName', value: 'taskInstance.processDefinitionName' }
-      ]
-    },
-    {
-      key: 'isDesc',
-      label: 'tableHeader.sortOrder',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'tableHeader.asc', value: false },
-        { label: 'tableHeader.desc', value: true }
-      ]
-    }
-  ]
-  ResponsiveFilterRef.value.init(data)
-}
-
-onMounted(() => {
-  // getFilter()
-})
-
-defineExpose({ getDownloadParams })
 </script>
 <style lang="scss" scoped>
 :deep(.el-input) {

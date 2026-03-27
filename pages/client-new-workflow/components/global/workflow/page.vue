@@ -3,30 +3,34 @@ const state = reactive<any>({
   activeTab: 'allTask',
   loading: false
 })
-const WorkflowRef = ref()
+const workflowRef = ref()
+
+function reload() {
+  workflowRef.value.reload()
+}
 </script>
 
 <template>
   <div class="pageContainer--padding workflow-page">
     <div class="buttons--absolute">
       <WorkflowPopoverPersonal />
-      <WorkflowPopoverNewTask/>
+      <WorkflowPopoverNewTask @submit="reload" />
     </div>
     <el-tabs v-model="state.activeTab" class="tag-container dp-tabs--auto">
       <el-tab-pane :label="$t('workflow_allTask')" name="allTask">
-        <WorkflowAllTask v-if="state.activeTab === 'allTask'" ref="WorkflowRef" />
+        <WorkflowAllTask v-if="state.activeTab === 'allTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_myTask')" name="myTask">
-        <WorkflowMyTask v-if="state.activeTab === 'myTask'" ref="WorkflowRef" />
+        <WorkflowMyTask v-if="state.activeTab === 'myTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_completedTask')" name="completeTask">
-        <WorkflowCompleteTask v-if="state.activeTab === 'completeTask'" ref="WorkflowRef" />
+        <WorkflowCompleteTask v-if="state.activeTab === 'completeTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_activeTask')" name="activeTask">
-        <WorkflowActiveTask v-if="state.activeTab === 'activeTask'" ref="WorkflowRef" />
+        <WorkflowActiveTask v-if="state.activeTab === 'activeTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_adhocTask')" name="adhocTask">
-        <WorkflowAdhocTask v-if="state.activeTab === 'adhocTask'" ref="WorkflowRef" />
+        <WorkflowAdhocTask v-if="state.activeTab === 'adhocTask'" ref="workflowRef" />
       </el-tab-pane>
     </el-tabs>
   </div>

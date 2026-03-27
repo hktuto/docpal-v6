@@ -6,11 +6,12 @@ export const routeWorkflowDetail  = function(params: any){
     label: params.name,
     component: 'LazyWorkflowDetail',
     props: {
-      id: params.id,
+      detail: params,
       workflowType: params.workflowType || 'myTask',
     }
   } as TabItem
 }
+
 export const routeWorkflowPage  = function(params: any){
   return {
     id: "client-workflow",

@@ -26,8 +26,7 @@
 
 <script lang="ts" setup>
 import { newClientApi } from 'api'
-import { routeWorkflowDetail } from '~/utils/routerHelper'
-import { getWorkflowList } from '#imports'
+import { routeWorkflowDetail, getWorkflowList } from '#imports'
 
 const { workflowList } = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
@@ -36,7 +35,9 @@ if (!routerProvider) {
 }
 const { t } = useI18n()
 const userId: string = useUserId().value
-const extraParams = ref({})
+const extraParams = ref({
+  definition_id: ''
+})
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
   api: async (pageParams: any) => {
@@ -48,15 +49,23 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       // groups: groupsList,
       // roles: [userState.value.aclUserDetail.roleId],
       assignee: userId,
-      page_num: pageParams.pageNum + 1,
+      page_num: pageParams.pageNum,
       page_size: pageParams.pageSize
     }
-    return await $api.post('http://192.168.5.147:8080/api/v1/tasks/page', params)
+    const data = await $api.post('http://192.168.5.147:8080/api/v1/tasks/page', params).then((r) => r.data)
+    return {
+      data: {
+        entryList: data.items,
+        pageNum: data.page_num,
+        pageCount: data.page_size,
+        totalSize: data.total
+      }
+    }
   },
   columns: [
     { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status', title: 'dpTable_status', slots: { default: 'assignee' } },
+    { field: 'status', title: 'dpTable_status' },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -81,7 +90,6 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      name: row.taskInstance.businessKey,
       workflowType: 'allTask'
     }),
     false
@@ -95,6 +103,8 @@ async function claimTask(row: any) {
   })
   query({})
 }
+
+defineExpose({ reload })
 </script>
 <style lang="scss" scoped>
 :deep(.el-input) {

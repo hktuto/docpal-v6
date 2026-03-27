@@ -673,6 +673,9 @@ export const workflowElement: WorkflowElement = {
   }
 }
 
+export function getUrlOrigin() {
+  return window?.location?.origin || ''
+}
 // #region node style
 /**
  * Default graph element template.
@@ -963,15 +966,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       config: {
         method: 'POST',
-        // url: `${process.env.CLIENTURL}/api/dms/facade/id-template/generate`,
+        // url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
         url: `https://sit-v3.wclsolution.com/api/dms/facade/id-template/generate`,
         headers: generatorHTTPRequestTaskHeaders(),
         body: {
           templateId: '',
           variables: {}
         },
-        output_mapping: {
-        }
+        output_mapping: {}
       }
     }
   }
