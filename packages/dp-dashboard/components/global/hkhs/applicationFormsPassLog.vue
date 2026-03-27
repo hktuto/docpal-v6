@@ -42,7 +42,7 @@ const tableComponent = ref([
 ])
 
 const formData = ref({
-  project: null,
+  project: '',
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]
 })
 const hkhsTableRef = ref()
