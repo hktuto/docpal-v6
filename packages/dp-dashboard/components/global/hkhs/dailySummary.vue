@@ -22,7 +22,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 const emits = defineEmits(['refreshSetting', 'delete'])
 
 const formData = ref({
-  project: '',
+  project: null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
   includeDuplicate: 2
 })
@@ -193,6 +193,7 @@ const dataList = ref([])
 const tableData = ref<any[]>([])
 async function getData() {
   const rpcParams = {
+    p_project_id: formData.value.project,
     p_start_date: formData.value.date[0],
     p_end_date: formData.value.date[1],
     p_distinct_flag: 2,
@@ -336,7 +337,7 @@ onMounted(async () => {
           <template #toolbar_buttons>
             <div class="toolbar-wrap">
               <div class="toolbar-form-row">
-                <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
+                <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" clearable @change="query">
                   <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
                 </el-select>
                 <el-select class="toolbar-select toolbar-select--type" v-model="statusMapRef" clearable @change="handleStatusMap">

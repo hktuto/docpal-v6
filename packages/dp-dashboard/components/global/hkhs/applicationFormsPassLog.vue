@@ -41,7 +41,7 @@ const tableComponent = ref([
 ])
 
 const formData = ref({
-  project: '',
+  project: null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]
 })
 const name = ref('SCS-101 - Activity Log of Application Forms Processed')
@@ -92,9 +92,7 @@ async function fetchStageData(stage: string) {
       p_distinct_flag: 2,
       default_schema: true
     }
-    const data: any[] = await newClientApi
-      .postPostgrestRpcFunc('get_batch_stage_detail_report', JSON.stringify(rpcParams))
-      .then((res: any) => res.data)
+    const data: any[] = await newClientApi.postPostgrestRpcFunc('get_batch_stage_detail_report', JSON.stringify(rpcParams)).then((res: any) => res.data)
     tablesData.value[stage] = data || []
   } catch (error) {
     console.error(`Failed to fetch data for stage ${stage}:`, error)
@@ -103,10 +101,8 @@ async function fetchStageData(stage: string) {
 }
 
 function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project 
-    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
-    : 'SSF2026'
-  
+  const projectName = formData.value.project ? projectList.value.find((p) => p.id === formData.value.project)?.name || 'SSF2026' : 'SSF2026'
+
   return {
     reportId: 'SCS-101',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
@@ -213,7 +209,7 @@ onMounted(async () => {
     </template>
     <div class="toolbar-wrap">
       <div class="toolbar-form-row">
-        <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
+        <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" clearable @change="query">
           <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
         </el-select>
         <el-date-picker
@@ -256,6 +252,7 @@ onMounted(async () => {
             ref="hkhsTableRef"
             :name="item.title"
             :stage="item.field"
+            :project="formData.project"
             :startDate="formData.date[0]"
             :endDate="formData.date[1]"
             :sortingField="sortingField"
@@ -264,7 +261,7 @@ onMounted(async () => {
         </div>
       </template>
     </div>
-    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)"/>
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)" />
   </DashboardCard>
 </template>
 

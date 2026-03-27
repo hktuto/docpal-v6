@@ -20,7 +20,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 })
 
 const formData = ref({
-  project: '',
+  project: null,
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
   includeDuplicate: 2
 })
@@ -115,9 +115,7 @@ function handleDownloadCommand(command: string) {
 }
 
 function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project
-    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
-    : 'SSF2026'
+  const projectName = formData.value.project ? projectList.value.find((p) => p.id === formData.value.project)?.name || 'SSF2026' : 'SSF2026'
 
   const includeDup = formData.value.includeDuplicate === 2 ? 'Yes' : 'No'
 
@@ -150,12 +148,7 @@ async function handleDownloadExcel() {
     ...row,
     transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
   }))
-  await exportReportToExcel(
-    getReportHeader(),
-    columnsRef.value,
-    formattedData,
-    footerData.value
-  )
+  await exportReportToExcel(getReportHeader(), columnsRef.value, formattedData, footerData.value)
 }
 
 function handleDownloadPDF() {
@@ -179,6 +172,7 @@ const IncludeDuplicateOption = ref([
 const dataList = ref([])
 async function getData() {
   const rpcParams = {
+    p_project_id: formData.value.project,
     p_start_date: formData.value.date[0],
     p_end_date: formData.value.date[1],
     p_distinct_flag: formData.value.includeDuplicate,
@@ -245,8 +239,6 @@ function handleOrderBy() {
 
 const projectList = ref([])
 
-
-
 onMounted(async () => {
   projectList.value = await newClientApi.postCaptureProjPage({}).then((r) => r.data)
 })
@@ -287,7 +279,7 @@ onMounted(async () => {
         <template #toolbar_buttons>
           <div class="toolbar-wrap">
             <div class="toolbar-form-row">
-              <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
+              <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" clearable @change="query">
                 <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
               </el-select>
               <el-date-picker
