@@ -16,23 +16,23 @@ export const useHomePage = () => {
     if (homeList.value.length > 0 && !force) return
     loading.value = true
     try {
-      let personal: any = await newClientApi.getDocpalPersonalLanding().then((res) => res.data)
+      // let personal: any = await newClientApi.getDocpalPersonalLanding().then((res) => res.data)
       let dashboardList: any = await newClientApi.getDocpalPersonalLandingDashboardList().then((res: any) => res.data)
-      if (!personal) personal = {}
+      // if (!personal) personal = {}
       if (!dashboardList) dashboardList = []
-      personal.id = 'PERSONAL'
-      personal.name = 'PERSONAL'
-      homeList.value = [personal, ...dashboardList]
-      const storageHomeList = preference.value.userStoreHome
-      if (storageHomeList && storageHomeList !== 'PERSONAL') {
+      // personal.id = 'PERSONAL'
+      // personal.name = 'PERSONAL'
+      homeList.value = [ ...dashboardList]
+      let storageHomeList = preference.value.userStoreHome
+      // TODO : remove PERSONAL
+      if (storageHomeList === 'PERSONAL' && dashboardList[0]) {
+        storageHomeList = dashboardList[0]?.id
+      }
+      if (storageHomeList) {
         const detail = dashboardList.find((item: any) => item.id.toString() === storageHomeList.toString())
         if (detail) {
           await checkoutDashboard(detail)
-        } else {
-          await checkoutDashboard(personal)
         }
-      } else {
-        await checkoutDashboard(personal)
       }
     } catch (error) {
       console.error(error)

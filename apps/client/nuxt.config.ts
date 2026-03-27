@@ -85,11 +85,12 @@ export default defineNuxtConfig({
     public: {
       platform: 'client',
       defaultTab: {
-        id: 'client-work-panel',
-        name: 'client-work-panel',
-        label: 'adminMenu.workPanel',
-        hoverIcon: 'material-symbols:dashboard-customize-outline-rounded',
-        component: 'LazyHomePage',
+        id: 'client-scan',
+        name: 'client-scan',
+        label: 'Batch List',
+        icon: 'lucide:scan-line',
+        hoverIcon: 'lucide:scan-line',
+        component: 'LazyClientScanPage',
         props: {}
       }
     }
