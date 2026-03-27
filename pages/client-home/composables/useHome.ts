@@ -25,7 +25,7 @@ export const useHomePage = () => {
       homeList.value = [ ...dashboardList]
       let storageHomeList = preference.value.userStoreHome
       // TODO : remove PERSONAL
-      if (storageHomeList === 'PERSONAL' && dashboardList[0]) {
+      if (!storageHomeList || storageHomeList === 'PERSONAL' && dashboardList[0]) {
         storageHomeList = dashboardList[0]?.id
       }
       if (storageHomeList) {
