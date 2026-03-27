@@ -50,7 +50,7 @@ async function handleSubmit() {
   const _formData = await formRef.value.getFormData()
   if (!_formData) return
   visible.value = false
-  emits('submit', _formData)
+  emits('submit', _formData, formData.value.id)
 }
 const open = (row: any, _mode: 'default' | 'edit' = 'default') => {
   formData.value = { ...row }

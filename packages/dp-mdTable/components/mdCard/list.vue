@@ -47,7 +47,7 @@ const emit = defineEmits<{
   'open-record': [row: any]
   'load-more': []
 }>()
-const { columns, viewStyleConfig, tableData, hasMore, loadingMore } = useMDCardInject()
+const { tableId, columns, systemFieldsTypes, updateRow, viewStyleConfig, tableData, hasMore, loadingMore } = useMDCardInject()
 const cardWidgetStyle = computed(() => mapViewStyleToWidget(viewStyleConfig.value))
 function mapViewStyleToWidget(config: Record<string, any> | undefined): CardWidgetStyle {
   const c = config || {}
@@ -70,11 +70,16 @@ const gridStyle = computed(() => {
     gridTemplateColumns: `repeat(${columnCount.value}, minmax(0, 1fr))`
   }
 })
-
+const recordCardDialogRef = ref()
 function handleOpenRecord(row: any) {
-  emit('open-record', row)
+  console.log('handleOpenRecord', row)
+  recordCardDialogRef.value.open(row)
+  // emit('open-record', row)
 }
-
+async function handleEditRecord(data: any, id: string) {
+  console.log('handleEditRecord', data)
+  await updateRow(id, data)
+}
 const localRows = ref<any[]>([])
 const isDragging = ref(false)
 
@@ -160,6 +165,13 @@ defineExpose({
       </div>
     </div>
     <el-empty v-else description="暂无记录" />
+    <MdFormPopover
+      ref="recordCardDialogRef"
+      :columns="columns"
+      :systemFieldsTypes="systemFieldsTypes"
+      showMoveButtons
+      @submit="handleEditRecord"
+    />
   </div>
 </template>
 

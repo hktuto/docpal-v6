@@ -128,6 +128,7 @@ export function useMDTable(props: any) {
   })
 
   return {
+    systemFieldsTypes,
     columns: props.extraColumnConfig.columns,
     addColumnPopoverRef,
     gridOptions,

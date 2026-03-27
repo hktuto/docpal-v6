@@ -240,6 +240,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const updateRow = async (rowId: string, data: any) => {
     try {
       await newClientApi.putDynamicDbTableTableidDataDataid(tableId, rowId, { data })
+      const row = tableData.value.find((item) => item.id === rowId)
+      if (row) {
+        Object.assign(row, data)
+      }
       return true
     } catch (error) {
       gridRef.value?.commitProxy('reload')

@@ -73,7 +73,8 @@ const getFormData = async () => {
       console.error('formData is not valid')
       return false
     }
-
+    console.log('props.formData', props.columns)
+    console.log('props.systemFieldsTypes', props.systemFieldsTypes)
     const newFormData = props.columns
       .filter((column: any) => !props.systemFieldsTypes.includes(column.business_type))
       .reduce((acc: any, column: any) => {

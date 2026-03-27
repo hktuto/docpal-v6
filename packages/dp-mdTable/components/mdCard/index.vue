@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { Refresh, Plus, Grid, Brush } from '@element-plus/icons-vue'
 import MdCardList from './list.vue'
-import MdCardSettingLayout from './setting/layout.vue'
-import MdCardSettingStyle from './setting/style.vue'
 import type { MDCardProps } from '../../composables/mdCard/useMDCard'
 
 const props = withDefaults(defineProps<MDCardProps>(), {
@@ -26,10 +24,9 @@ const emit = defineEmits<{
   refresh: []
   search: [value: string]
   'add-row': []
-  'open-record': [params: { row: any; recordId: string }]
 }>()
 
-const { columns, cardRef, getTableData, loadMore, addRow, systemFieldsTypes } = useMDCard(props)
+const { columns, cardRef, getTableData, addRow, systemFieldsTypes } = useMDCard(props)
 
 async function handleRefresh() {
   await getTableData({ pageNum: 1 })
@@ -48,24 +45,13 @@ async function handleAddRowSubmit(data: any) {
   await addRow(data)
   handleRefresh()
 }
-function handleOpenRecord(row: any) {
-  emit('open-record', {
-    row,
-    recordId: row?.id || ''
-  })
-}
-
-function handleLoadMore() {
-  loadMore()
-}
-
 </script>
 
 <template>
   <div class="md-card-view">
     <div class="md-card-toolbar">
       <div class="toolbar-left">
-        <el-popover placement="bottom-start" :width="280" trigger="click">
+        <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
             <el-button>
               <el-icon><Grid /></el-icon>
@@ -75,7 +61,7 @@ function handleLoadMore() {
           <MdCardSettingLayout />
         </el-popover>
 
-        <el-popover placement="bottom-start" :width="320" trigger="click">
+        <el-popover placement="bottom-start" :width="320" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
             <el-button>
               <el-icon><Brush /></el-icon>
@@ -101,8 +87,6 @@ function handleLoadMore() {
     <MdCardList
       :ref="cardRef"
       :draggable="props.editable"
-      @open-record="handleOpenRecord"
-      @load-more="handleLoadMore"
     />
     <MdFormPopover
       ref="MdFormPopoverRef"
@@ -139,5 +123,12 @@ function handleLoadMore() {
   .search-input {
     width: 240px;
   }
+}
+
+</style>
+<style>
+.md-card-setting-popover {
+  max-height: 70vh;
+  overflow-y: auto;
 }
 </style>

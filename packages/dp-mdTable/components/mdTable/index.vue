@@ -254,10 +254,12 @@ const handleImport = () => {
 const handleAddRow = () => {
   MdFormPopoverRef.value.open({})
 }
-const handleAddRowSubmit = (data: any) => {
-  console.log('handleAddRowSubmit', data)
-  addRow(data)
-  // emit('add-row-submit', data)
+const handleAddRowSubmit = (data: any, id: string) => {
+  if (id) {
+    updateRow(id, data)
+  } else {
+    addRow(data)
+  }
 }
 // Handle expand click from checkbox column
 const MdFormPopoverRef = ref()

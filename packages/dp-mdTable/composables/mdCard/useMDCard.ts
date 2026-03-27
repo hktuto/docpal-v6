@@ -48,10 +48,13 @@ export function useMDCard(props: MDCardProps) {
     return fileColumn?.field_name ?? ''
   })
   provide(MDCardContextKey, {
+    tableId: props.tableId,
+    updateRow,
     coverField,
     tableData,
     hasMore,
     loadingMore,
+    systemFieldsTypes,
     ...props.extraColumnConfig
   })
   onMounted(async () => {
