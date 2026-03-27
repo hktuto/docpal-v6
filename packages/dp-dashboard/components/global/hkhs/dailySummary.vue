@@ -275,13 +275,13 @@ const projectList = ref([])
 
 const statusMapRef = ref('')
 const statusList = ref([
-  { label: 'Failed to Export', value: 'failedToExport', status: ['Failed to Export'] },
+  { label: 'Failed to Export', value: 'failedToExport', status: ['failed to export'] },
   {
     label: 'Verification',
     value: 'verification',
     status: ['verified']
   },
-  { label: 'Export Ready', value: 'exportReady', status: ['exportReady', 'export-ready'] },
+  { label: 'Export Ready', value: 'exportReady', status: ['exportReady', 'export-ready','export ready'] },
   { label: 'Completed', value: 'completed', status: ['completed'] }
 ])
 
@@ -292,7 +292,7 @@ function handleStatusMap() {
   }
 
   const find = statusList.value.find((item: any) => item.value == statusMapRef.value)
-  const filter = dataList.value.filter((item: any) => find.status.includes(item.status))
+  const filter = dataList.value.filter((item: any) => find.status.includes(item.status.toLowerCase()))
   tableRef.value.loadData(filter)
 }
 
