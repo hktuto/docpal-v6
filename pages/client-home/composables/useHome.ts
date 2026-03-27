@@ -24,13 +24,22 @@ export const useHomePage = () => {
       // personal.name = 'PERSONAL'
       homeList.value = [ ...dashboardList]
       let storageHomeList = preference.value.userStoreHome
+      console.log('storageHomeList', storageHomeList, dashboardList)
       // TODO : remove PERSONAL
-      if (!storageHomeList || storageHomeList === 'PERSONAL' && dashboardList[0]) {
+      if (!storageHomeList || storageHomeList === 'PERSONAL' && dashboardList[0] ) {
         storageHomeList = dashboardList[0]?.id
       }
       if (storageHomeList) {
-        const detail = dashboardList.find((item: any) => item.id.toString() === storageHomeList.toString())
+        console.log('storageHomeList', dashboardList)
+        const detail = dashboardList.find((item: any) => item.id === storageHomeList)
+        console.log('detail', storageHomeList, dashboardList)
         if (detail) {
+          await checkoutDashboard(detail)
+        } else {
+
+        // if detail is not found, that mean the dashboard has been remove, use the first one instead
+          storageHomeList = dashboardList[0]?.id
+          const detail = dashboardList.find((item: any) => item.id === storageHomeList)
           await checkoutDashboard(detail)
         }
       }
