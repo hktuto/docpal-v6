@@ -45,7 +45,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       field: 'no_of_application',
       title: 'No of Applications',
       formatter: ({ cellValue, row }: any) => {
-        console.log(123,cellValue ,!!cellValue && String(cellValue) !== '' ? cellValue : 'N/A')
         return typeof cellValue === 'number' ? cellValue : 'N/A'
       }
     },

@@ -10,7 +10,7 @@ const emits = defineEmits(['delete', 'refreshSetting'])
 const props = withDefaults(
   defineProps<{
     setting?: {
-      name: string,
+      name: string
       project: string
     }
     hideSetting?: boolean
