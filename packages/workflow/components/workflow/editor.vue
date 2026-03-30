@@ -15,9 +15,9 @@ if (!routerProvider) {
 const props = defineProps<{
   workflowData: any
   readonly: boolean
-  showActions: boolean
+  showSidebar: boolean
 }>()
-const { workflowData: workflowJsonObject, readonly, showActions } = toRefs(props)
+const { workflowData: workflowJsonObject, readonly, showSidebar } = toRefs(props)
 
 const sidebarRef = ref()
 const nodeRef = ref()
@@ -323,7 +323,7 @@ defineExpose({ init })
       <slot name="actions" />
     </div>
   </div>
-  <Sidebar ref="sidebarRef" />
+  <Sidebar v-if="showSidebar" ref="sidebarRef" />
 </template>
 
 <style scoped lang="scss">

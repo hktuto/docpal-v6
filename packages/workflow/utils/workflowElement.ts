@@ -711,13 +711,12 @@ const workflowCellElementTemplate: CellTypeItem = {
       inputSchema: '',
       outputSchema: '',
       config: {
-        formKey: '',
         assignee: '',
         candidate_roles: [],
         candidate_groups: [],
-        due_date: '',
-        input_mapping: {},
-        output_mapping: {}
+        // due_date: '',
+        // input_mapping: {},
+        // output_mapping: {}
       },
       execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
@@ -726,7 +725,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         buttonSetting: {
           showSumBitButton: true,
           submitButtonLabel: 'Submit',
-          showSaveDraft: true,
+          showSaveDraft: false,
           saveDraftLabel: 'Save Draft'
         },
         booleanButton: []

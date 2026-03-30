@@ -65,7 +65,7 @@ onMounted(async () => {
 
 <template>
   <div v-if="openWorkflowEdit" class="pageContainer">
-    <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :show-actions="true">
+    <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :showSidebar="true" >
       <template #actions>
         <el-button :type="workflowReadonly ? 'danger' : 'primary'" @click="handleStatus">
           {{ workflowReadonly ? t('actions.inactivate') : t('actions.activate') }}

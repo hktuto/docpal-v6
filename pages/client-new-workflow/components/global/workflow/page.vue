@@ -4,17 +4,13 @@ const state = reactive<any>({
   loading: false
 })
 const workflowRef = ref()
-
-function reload() {
-  workflowRef.value.reload()
-}
 </script>
 
 <template>
   <div class="pageContainer--padding workflow-page">
     <div class="buttons--absolute">
       <WorkflowPopoverPersonal />
-      <WorkflowPopoverNewTask @submit="reload" />
+      <WorkflowPopoverNewTask />
     </div>
     <el-tabs v-model="state.activeTab" class="tag-container dp-tabs--auto">
       <el-tab-pane :label="$t('workflow_allTask')" name="allTask">

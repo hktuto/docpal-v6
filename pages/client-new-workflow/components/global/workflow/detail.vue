@@ -2,6 +2,7 @@
 import { newClientApi } from 'api'
 import { routeWorkflowPage } from '~/utils/routerHelper'
 import { generateData, replaceVariables } from 'docpal-document-editor/src/utils'
+import { CellType } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -28,9 +29,7 @@ const state = reactive<any>({
   processState: {
     completeTask: 'completeTask'
   },
-  isCompleted: false,
   activeTab: 'form',
-  taskDetail: {},
   activityList: [],
   loading: true,
   submitShow: false,
@@ -39,9 +38,14 @@ const state = reactive<any>({
 const fromRenderRef = ref()
 const taskDetail = ref({})
 const workflowJson = ref({})
-const workflowFormJson = ref()
+const nodeTags = ref(false)
+const isAssigneeUser = computed(() => {
+  return !detail?.assignee || detail?.assignee === userId
+})
 
 async function getDetail() {
+  console.log(1111, '--- detail', detail)
+  taskDetail.value = detail
   try {
     state.loading = true
     state.error = null
@@ -54,7 +58,7 @@ async function getDetail() {
           })
           .then((res) => res?.data?.entryList)
         if (!!historyList && historyList.length > 0) {
-          state.taskDetail = historyList[0]
+          taskDetail.value = historyList[0]
         }
         break
       default:
@@ -64,35 +68,21 @@ async function getDetail() {
         workflowJson.value = workflowTaskInstance.content
 
         const data = await $api.get(`http://192.168.5.147:8080/api/v1/processes/instance/${detail.process_instance_id}`).then((r) => r.data)
+        console.log(22222,data)
 
         const findNode = data.nodes.find((node: any) => node.id == detail.node_id)
         if (!!findNode) {
-          taskDetail.value = findNode
-          const formKey = findNode.metadata.formKey
-          // Get Form Json
-          const formJsonData = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
-          if (!formJsonData || !formJsonData.jsonValue) {
-            routerProvider?.message.error('The form does not exist!')
-            return
+          nodeTags.value = findNode.metadata.tags
+          switch (nodeTags.value) {
+            case CellType.userTask:
+              await initForm(findNode)
+              break
+            case CellType.signatureTask:
+              break
+            default:
           }
-          fromRenderRef.value.setForm(formJsonData.jsonValue)
-
-          findNode.metadata.buttonSetting
-
-
+          await handleAdditionalSetting(findNode.metadata)
         }
-
-      // state.taskDetail = await newClientApi.postDocpalWorkflowTask({ taskId: id }).then((res) => res.data)
-      // if (!state.taskDetail) {
-      //   // handle if workflow task is already complete ,and should use history api
-      //   state.taskDetail = await newClientApi
-      //     .postDocpalWorkflowHistoryProcess({
-      //       processInstanceId: id,
-      //       completed: true
-      //     })
-      //     .then((res) => res.data)
-      //   state.isCompleted = true
-      // }
     }
     // handleGetActivity()
   } catch (error) {
@@ -110,12 +100,28 @@ async function getDetail() {
   state.loading = true
 }
 
+async function initForm(node: any) {
+  const formKey = node.metadata.formKey
+  // Get Form Json
+  const formJsonData = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
+  if (!formJsonData || !formJsonData.jsonValue) {
+    routerProvider?.message.error('The form does not exist!')
+    return
+  }
+  // Get Form Data
+  let formData = {}
+  const taskDetailData = await $api.get(`http://192.168.5.147:8080/api/v1/tasks/instance/${detail.id}`).then((r) => r.data)
+  if (!!taskDetailData && !!taskDetailData.input_variables) {
+    formData = taskDetailData.input_variables
+  }
+  fromRenderRef.value.setForm(formJsonData.jsonValue, formData)
+  handleDisabledForm()
+}
+
 async function handleGetActivity() {
-  const processInstanceId = state.taskDetail.instanceId || state.taskDetail.processInstanceId
+  const processInstanceId = taskDetail.value.instanceId || taskDetail.value.processInstanceId
   state.activityList = await newClientApi
-    .postDocpalWorkflowHistoryActivity({
-      processInstanceId
-    })
+    .postDocpalWorkflowHistoryActivity({ processInstanceId })
     .then((res: any) => res.data?.list.filter((i) => i.activityName).reverse())
 }
 
@@ -181,19 +187,6 @@ function formDataGet(obj: any) {
   }, {})
 }
 
-function formDataGetFromProps(list: any) {
-  return list.reduce((prev: any, item: any) => {
-    // if item type is boolean, convert string to boolean
-    if (item.type === 'boolean' && (item.value === 'true' || item.value === 'false')) {
-      item.value = item.value === 'true'
-    }
-    if (item.value !== null && item.value !== undefined) {
-      prev[item.id] = item.value
-    }
-    return prev
-  }, {})
-}
-
 function handleDisabledForm() {
   if (!isAssigneeUser.value || workflowType === 'completeTask') {
     fromRenderRef.value.disableForm()
@@ -252,49 +245,30 @@ function handleResign() {
 
 async function handleSubmit() {
   // if displayMode is signature, and signSubmitStage is beforeSubmit, do not submit form, open signature setting dialog
-  if (displayMode.value === 'signature' && signSubmitStage.value === 'beforeSubmit' && signatureDetail.value.signatureVariableSetting) {
+  if (displayMode.value === CellType.signatureTask && signSubmitStage.value === 'beforeSubmit' && signatureDetail.value.signatureVariableSetting) {
     openSignatureSettingDialog()
     return
   }
   state.loading = true
   try {
-    if (state.taskDetail?.assignee !== userId) {
-      await newClientApi.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
+    if (detail.assignee !== userId) {
+      await $api
+        .post(`http://192.168.5.147:8080/api/v1/tasks/instance/${taskDetail.value.id}/claim`, {
+          user_id: userId,
+          process_id: taskDetail.process_instance_id
+        })
+        .then((res) => res.data)
     }
-    // get form data
-    let data = await fromRenderRef.value.getFormData(true, false)
-    if (signSubmitStage.value === 'afterSubmit') {
-      data[signatureDetail.value.workflowKeyToStoreSignature] = temSignatureData.value
-    }
-    // return;
-    if (!data) throw new Error(`${t('incompleteData')}`)
-    // check additional button
-    // if additional button has expose "beforeSubmit" method, call it
-    const additionButtonActions: any = []
-    additionalButtonRef.value.forEach((item) => {
-      if (item && item.beforeSubmit) {
-        additionButtonActions.push(item.beforeSubmit())
-      }
-    })
-    const buttonResults = await Promise.all(additionButtonActions)
-    // after check all actions, if any addtional data need to set to from data, set it
-    buttonResults.forEach((item: any) => {
-      if (item && typeof item === 'object') {
-        data = { ...data, ...item }
-      }
-    })
-    // end addtional button actions
 
-    Object.keys(data).forEach((key) => {
-      if (typeof data[key] === 'object') {
-        data[key] = JSON.stringify(data[key])
-      }
-    })
-    const param = {
-      taskId: id,
-      properties: { ...data }
+    // User Task
+    switch (nodeTags.value) {
+      case CellType.userTask | CellType.signatureTask:
+        await handleSubmitUserTask()
+        return
+      default:
+        await handleSubmitServiceTask()
     }
-    const res: any = await newClientApi.postDocpalWorkflowFormSubmit(param).then((res) => res.data)
+
     routerProvider?.message.success(`${t('msg_successfulOperation')}`)
     const fallbackRoute = routeWorkflowPage({
       workflowType: workflowType
@@ -304,11 +278,60 @@ async function handleSubmit() {
     console.log('error', error)
     routerProvider?.message.error(error.message)
   } finally {
-    // state.loading = false
+    state.loading = false
   }
 }
 
-// #endregion
+async function handleSubmitUserTask() {
+  // get form fromData
+  let fromData = await fromRenderRef.value.getFormData(true, false)
+  if (signSubmitStage.value === 'afterSubmit') {
+    fromData[signatureDetail.value.workflowKeyToStoreSignature] = temSignatureData.value
+  }
+
+  if (!fromData) throw new Error(`${t('incompleteData')}`)
+
+  // check additional button
+  // if additional button has expose "beforeSubmit" method, call it
+  const additionButtonActions: any = []
+  additionalButtonRef.value.forEach((item) => {
+    if (item && item.beforeSubmit) {
+      additionButtonActions.push(item.beforeSubmit())
+    }
+  })
+
+  const buttonResults = await Promise.all(additionButtonActions)
+  // after check all actions, if any addtional fromData need to set to from fromData, set it
+  buttonResults.forEach((item: any) => {
+    if (item && typeof item === 'object') {
+      fromData = { ...fromData, ...item }
+    }
+  })
+
+  Object.keys(fromData).forEach((key) => {
+    if (typeof fromData[key] === 'object') {
+      fromData[key] = JSON.stringify(fromData[key])
+    }
+  })
+
+  const data = $api
+    .post(`http://192.168.5.147:8080/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
+      user_id: userId,
+      variables: fromData
+    })
+    .then((r) => r.data)
+  console.log('--- handleSubmitUserTask: ', data)
+}
+
+async function handleSubmitServiceTask() {
+  const fromData = await fromRenderRef.value.getFormData(true, false)
+  const data = $api
+    .post(`http://192.168.5.147:8080/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/execute`, {
+      variables: fromData
+    })
+    .then((r) => r.data)
+  console.log('--handleSubmitServiceTask: ', data)
+}
 
 type AdditionalButton = {
   props: any
@@ -318,7 +341,6 @@ const additionalButton = ref<AdditionalButton[]>([])
 const additionalButtonRef = ref<any[]>([])
 const signatureDetail = ref<any>(null)
 const pageButtonSetting = ref<any>(null)
-
 const temSignatureData = ref<any>(null)
 
 async function handleApplySignature(newSignature: any) {
@@ -339,23 +361,16 @@ async function handleApplySignature(newSignature: any) {
   signSubmitStage.value = 'afterSubmit'
 }
 
-async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any) {
-  const { buttons, components, signatureSetting, buttonSetting } = await getBpmnAdditionalElement(xml, state.taskDetail.taskDefinitionKey, taskDetail, formData)
-  additionalButton.value = buttons
-  if (buttonSetting) {
-    pageButtonSetting.value = buttonSetting
+async function handleAdditionalSetting(metadata: any) {
+  if (metadata.buttonSetting) {
+    pageButtonSetting.value = metadata.buttonSetting
   }
-  if (signatureSetting) {
+  displayMode.value = metadata.tags
+  if (metadata.tags === CellType.signatureTask) {
     signatureDetail.value = signatureSetting
-    nextTick(() => {
-      displayMode.value = 'signature'
-    })
     signSubmitStage.value = 'beforeSubmit'
   } else {
     signatureDetail.value = null
-    nextTick(() => {
-      displayMode.value = 'form'
-    })
   }
 }
 
@@ -381,9 +396,9 @@ async function handleFormChange() {
   }
 }
 
-async function addTionalSubmit({ formData, attr_booleanValue }: any) {
+async function addTonalSubmit({ formData, attr_booleanValue }: any) {
   state.loading = true
-  if (state.taskDetail?.assignee !== userId) {
+  if (taskDetail.value?.assignee !== userId) {
     await newClientApi.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
   }
 
@@ -414,7 +429,7 @@ async function addTionalSubmit({ formData, attr_booleanValue }: any) {
     })
     routerProvider?.back(fallbackRoute)
   }
-  // state.loading = false
+  state.loading = false
 }
 
 const handleTaskInfoChange = async (taskDetailRes: any, isClaim: boolean) => {
@@ -444,9 +459,7 @@ function handleBack() {
   )
 }
 
-const isAssigneeUser = computed(() => {
-  return !state.taskDetail?.assignee || state.taskDetail?.assignee === userId
-})
+
 onMounted(() => {
   const backLinks = routerProvider?.getHistory()
   if (!backItem && backLinks && backLinks.length > 0) {
@@ -486,7 +499,7 @@ onMounted(() => {
               <template #action>
                 <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
                   <template v-for="(item, index) in additionalButton" :key="index">
-                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTionalSubmit" />
+                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
                   </template>
                   <el-button
                     v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"
@@ -555,11 +568,14 @@ onMounted(() => {
             :steps="state.activityList"
           />
         </el-tab-pane>
+
+
         <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && isMobile" :label="$t('common_discussionChannel')" name="command">
           <WorkflowDetailDiscussionChannel :id="state.taskDetail.instanceId" :noToggle="true" />
         </el-tab-pane>
       </el-tabs>
     </div>
+
     <WorkflowDetailDiscussionChannel v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :id="state.taskDetail.instanceId" />
   </div>
   <div v-else>

@@ -9,7 +9,6 @@ const workflowEditorRef = ref()
 const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
 const graphEl = ref()
-const emits = defineEmits(['submit'])
 const activeName = ref('Form')
 const state = reactive({
   availableWorkflow: [],
@@ -114,10 +113,10 @@ async function checkAndSubmit() {
       state.formDialogVisible = false
 
       setTimeout(async () => {
+        // Check workflow running status
         const newVar = await $api.get(`http://192.168.5.147:8080/api/v1/processes/instance/${data.id}`).then((r) => r.data)
         ElMessage.success('Workflow created')
       }, 100)
-      emits('submit')
     } catch (e) {
       console.log(e)
     }
@@ -170,7 +169,7 @@ defineExpose({ workflowClickHandler })
       </ElTabPane>
       <ElTabPane :label="$t('workflow_graph')" name="Graph">
         <div v-if="openWorkflowEdit" class="pageContainer">
-          <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :show-actions="true" />
+          <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :showSidebar="false" />
         </div>
       </ElTabPane>
     </ElTabs>

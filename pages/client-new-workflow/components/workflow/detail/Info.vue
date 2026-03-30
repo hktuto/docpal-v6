@@ -34,13 +34,12 @@ async function handleUnclaim() {
 async function handleClaim() {
   try {
     loading.value = true
-
     const parms = {
       user_id: userId,
       process_id: ''
     }
 
-    await $api.post(`http://192.168.5.147:8080/api/v1/tasks/instance/${props.id}/claim`, parms).then((res) => res.data)
+    await $api.post(`http://192.168.5.147:8080/api/v1/tasks/instance/${taskDetail.process_instance_id}/claim`, parms).then((res) => res.data)
 
     if (!response.errorCode) {
       emits('change', response, true)
@@ -56,7 +55,7 @@ async function handleClaim() {
 async function handelDelete() {
   try {
     loading.value = true
-    await $api.delete(`http://192.168.5.147:8080/api/v1/processes/instance/${props.id}`).then((r) => r.data)
+    await $api.delete(`http://192.168.5.147:8080/api/v1/processes/instance/${taskDetail.process_instance_id}`).then((r) => r.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('common_item') }))
     routerProvider?.back()
   } catch (e) {

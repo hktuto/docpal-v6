@@ -1,12 +1,10 @@
 <template>
   <div class="bpmnContainer">
-    <BpmnReplayViewer ref="viewerRef" :bpmnXml="bpmnFile" :x6Json="x6Json" :steps="steps" autoplay>
-    </BpmnReplayViewer>
+    <WorkflowReplayViewer ref="viewerRef" :bpmnXml="bpmnFile" :x6Json="x6Json" :steps="steps" autoplay />
   </div>
 </template>
 <script lang="ts" setup>
 import { newClientApi } from 'api'
-// import VueBpmn from 'vue-bpmn'
 const props = withDefaults(defineProps<{
   processDefinitionId?: string,
   processKey?: string,
@@ -17,10 +15,8 @@ const props = withDefaults(defineProps<{
 }>(), {
   steps: () => []
 })
-
 const bpmnFile = ref()
 const viewerRef = ref()
-
 const x6Json = ref<any>(null)
 
 const getBpmn = async (processDefinitionId: any, processKey: any) => {
