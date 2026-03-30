@@ -78,6 +78,10 @@ function handleDelete() {
   emits('delete', props.form)
 }
 
+function handleRemove() {
+  emits('remove', props.form)
+}
+
 function handleDuplicate() {
   emits('duplicate', props.form)
 }
@@ -122,6 +126,10 @@ onUnmounted(() => {
              <Icon name="lucide:trash-2" class="text-danger" />
              <span class="text-danger">Active</span>
            </ElDropdownItem>
+           <ElDropdownItem @click="handleRemove">
+            <Icon name="lucide:trash-2" class="text-danger" />
+            <span class="text-danger">Delete</span>
+          </ElDropdownItem>
           </ElDropdownMenu>
         </template>
       </ElDropdown>

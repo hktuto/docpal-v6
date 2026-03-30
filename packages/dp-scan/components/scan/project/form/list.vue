@@ -26,7 +26,7 @@ async function getForms() {
       'A': 0,
       'I': 1,
     }
-    forms.value = response.data.sort((a,b) => {
+    forms.value = response.data.filter((a) => a.status !== 'D').sort((a,b) => {
         const indexA = orderMap[a.status] ?? Number.MAX_SAFE_INTEGER; // Items not in order go last
         const indexB = orderMap[b.status] ?? Number.MAX_SAFE_INTEGER;
         return (indexA - indexB) || a.name.localeCompare(b.name);
@@ -86,6 +86,13 @@ async function deleteForm(form: any) {
   getForms()
 }
 
+async function removeForm(form: any) {
+  const newData = normalizeForm(form)
+  newData.status = 'D'
+  await clientApi.api.putCaptureProjformsetting(newData)
+  getForms()
+}
+
 function configureForm(form: any) {
   // TODO: Navigate to form configuration (page split, sections, fields)
   console.log('Configure form:', form)
@@ -136,6 +143,7 @@ watch(
           @delete="deleteForm"
           @configure="configureForm"
           @duplicate="duplicateForm"
+          @remove="removeForm"
         />
       </div>
     </div>
