@@ -45,7 +45,7 @@
       <WorkspacesTableView
         :data-table-id="tableId"
       />
-    </div> 
+    </div>
 
     <WorkspacesDetailTableViewsActions ref="actionsRef" />
   </div>
@@ -123,17 +123,18 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .workspace-table-views {
-  margin: 0 var(--app-space-s);
   height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-
+  background-color: var(--app-grey-950);
+  padding-top: var(--app-space-xs);
   &__tabs {
     display: flex;
     align-items: center;
     padding: 0;
     margin: 0;
+    line-height: 1;
   }
 
   &__tab-list {
@@ -148,11 +149,12 @@ onMounted(async () => {
     align-items: center;
     gap: var(--app-space-xxs);
     padding: 6px 10px;
-    border-radius: var(--app-border-radius-s) var(--app-border-radius-s) 0 0;
     font-size: var(--app-font-size-s);
     color: var(--app-text-color-secondary);
-    border: 1px solid transparent;
     border-bottom: none;
+    background-color: var(--app-grey-950);
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--app-grey-900);
     transition:
       background-color 0.15s ease,
       color 0.15s ease,
@@ -165,10 +167,12 @@ onMounted(async () => {
 
     &--active {
       color: var(--app-text-color);
-      background-color: var(--el-fill-color-light);
-      border-color: var(--app-border-color);
+      background-color: var(--app-paper);
       border-bottom-color: var(--app-paper);
-      font-weight: 500;
+      font-weight: 700;
+      border-radius: var(--app-border-radius-m) var(--app-border-radius-m) 0  0;
+      border-color: var(--app-grey-900);
+      border-bottom: 2px solid var(--app-accent-color);
     }
   }
   .workspace-table-views__tab-label {
