@@ -7,7 +7,7 @@
         tag="div"
         class="workspace-table-views__tab-list"
         :animation="150"
-        handle=".workspace-table-views__tab-label"
+        handle=".handler"
         @end="handleDragEnd"
       >
         <template #item="{ element: view }">
@@ -16,6 +16,9 @@
             :class="{ 'workspace-table-views__tab--active': view.id === activeViewId }"
             @click="handleSelectView(view.id)"
           >
+            <div class="handler" style="cursor: grab">
+              <Icon name="meteor-icons:grip-dots-vertical" />
+            </div>
             <div class="workspace-table-views__tab-label">
               {{ view.name }}
             </div>
@@ -31,10 +34,13 @@
         </button>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="table">
+            <el-dropdown-item :command="{ name: '表格类型', type: 'table' }">
               表格类型
             </el-dropdown-item>
-            <el-dropdown-item command="card">
+            <el-dropdown-item :command="{ name: '看板类型', type: 'kanban' }">
+              看板类型
+            </el-dropdown-item>
+            <el-dropdown-item :command="{ name: '卡片类型', type: 'card' }">
               卡片类型
             </el-dropdown-item>
           </el-dropdown-menu>
@@ -55,6 +61,7 @@
 import type { ViewConfig } from '../../../utils/db/schema/tableView'
 import { Plus, MoreFilled } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
+import type { ViewType } from '../../../../utils/db/schema/tableView'
 
 const { workspaceRouteParams, workspace } = useSingleWorkspaceContext()
 const tableId = computed(() => workspaceRouteParams.value.item_id)
@@ -78,11 +85,11 @@ watch(
 
 const activeViewId = computed(() => currentView.value?.id ?? '')
 
-async function handleAddView(command: string) {
-  const baseName = command === 'card' ? '卡片视图' : '表格视图'
+async function handleAddView(command: {name: string; type: ViewType}) {
+  // const baseName = command === 'card' ? '卡片视图' : '表格视图'
   const created = await createView({
-    name: `${baseName}`,
-    type: command
+    name: `${command.name}`,
+    type: command.type
   })
   if (created?.id) {
     setCurrentView(created)
@@ -129,22 +136,45 @@ onMounted(async () => {
   flex-direction: column;
   background-color: var(--app-grey-950);
   padding-top: var(--app-space-xs);
+  /* width */
+  ::-webkit-scrollbar {
+    width: 2px;
+    height: 2px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
   &__tabs {
-    display: flex;
+    width:100%;
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    gap: 0;
     align-items: center;
-    padding: 0;
-    margin: 0;
-    line-height: 1;
+
   }
 
   &__tab-list {
+
     display: flex;
     align-items: flex-end;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto;
+    /* overflow-y: hidden; */
   }
 
   &__tab {
+      max-width: 220px;
     display: inline-flex;
     align-items: center;
     gap: var(--app-space-xxs);
@@ -155,12 +185,13 @@ onMounted(async () => {
     background-color: var(--app-grey-950);
     border: 1px solid transparent;
     border-bottom: 1px solid var(--app-grey-900);
+
     transition:
       background-color 0.15s ease,
       color 0.15s ease,
       border-color 0.15s ease;
 
-    &:hover {
+    &:hover:not(.workspace-table-views__tab--active) {
       background-color: var(--el-fill-color-light);
       color: var(--app-text-color);
     }
@@ -178,6 +209,9 @@ onMounted(async () => {
   .workspace-table-views__tab-label {
     font-size: var(--app-font-size-m);
     cursor: move;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
   &__add-btn {
     display: inline-flex;
