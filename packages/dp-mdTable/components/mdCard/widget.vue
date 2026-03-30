@@ -25,7 +25,8 @@ const props = withDefaults(defineProps<Props>(), {
     showFieldName: true,
     bordered: true,
     compact: false,
-    shadow: 'small'
+    shadow: 'small',
+    cardCount: 5
   }),
   draggable: false
 })
@@ -95,6 +96,7 @@ function handleOpenRecord() {
     :class="cardClass"
     tabindex="0"
     aria-label="打开记录"
+    :style="{ '--card-count': styleConfig.cardCount }"
     @click="handleOpenRecord"
     @keydown.enter="handleOpenRecord"
   >
@@ -117,8 +119,8 @@ function handleOpenRecord() {
       <div v-else class="cover-placeholder">No Cover</div>
     </div>
 
-    <div class="card-content">
-      <div v-for="(field, index) in previewFields" :key="field.field_name" class="card-row" :class="{ 'is-title': index === 0 }">
+    <div class="card-content" >
+      <div v-for="(field, index) in previewFields" :key="field.field_name" :class="{ 'card-row': true, 'is-title': index === 0 }">
         <span v-if="styleConfig.showFieldName !== false && index > 0" class="field-name">{{ field.field_name_alias || field.field_name }}</span>
         <span class="field-value">{{ formatValue(row?.[field.field_name]) }}</span>
       </div>
@@ -194,6 +196,9 @@ function handleOpenRecord() {
 }
 
 .card-cover {
+  height: calc(200px + (8 - var(--card-count)) * 20px);
+  flex-shrink: 0;
+  overflow: hidden;
   background: var(--app-fill-color-light);
   display: flex;
   align-items: center;
