@@ -16,7 +16,7 @@ export default defineAppConfig({
       icon: 'dp-icon:browse-outline',
       hoverIcon: 'dp-icon:browse-fill',
       children:[
-        
+
         {
           name: 'client-browse',
         },
@@ -29,13 +29,13 @@ export default defineAppConfig({
         {
           name: 'client-fileRequest'
         },
-    
+
         {
           name: 'client-folder-cabinet'
         },
-        
+
       ]
-    }, 
+    },
     {
       name: 'client-search'
     },
@@ -60,7 +60,7 @@ export default defineAppConfig({
     // {
     //     name: "client-smartFolder"
     // },
-    
+
     {
       name: 'client-workflow'
     },
@@ -85,7 +85,7 @@ export default defineAppConfig({
     // {
     //   name: 'client-dashboard'
     // },
-    
+
     {
       name: 'client-easy-form'
     },
@@ -97,6 +97,9 @@ export default defineAppConfig({
     },
     {
       name: 'contact-book'
+    },
+    {
+      name: 'demo-workspaces'
     },
   ],
   adminMenu: [
@@ -197,7 +200,7 @@ export default defineAppConfig({
         // }
       ]
     },
-    
+
     {
       label: 'adminMenu.templateManagement',
       icon: 'lucide:layout-template',
@@ -261,13 +264,13 @@ export default defineAppConfig({
         }
       ]
     },
-    
-    
-    
+
+
+
     {
       name: 'admin-unique-id-generator'
     },
-    
+
     {
       name: 'admin-external-storage'
     },
@@ -291,8 +294,6 @@ export default defineAppConfig({
     // {
     //   name: 'admin-database-list'
     // },
-    {
-      name: 'demo-workspaces'
-    },
+
   ]
 })
