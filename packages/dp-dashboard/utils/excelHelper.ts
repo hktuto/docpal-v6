@@ -195,6 +195,11 @@ export async function exportSCS101ToExcel(
     table.data.forEach((row) => {
       const rowData = table.columns.map((col) => {
         const value = row[col.field]
+        // check if value is a date string
+        if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+          return formatDate(value)
+        }
+
         if (typeof value === 'string' && value.includes('<')) {
           return stripHtml(value)
         }
@@ -338,6 +343,9 @@ export async function exportReportToExcel(
   data.forEach((row) => {
     const rowData = columns.map((col) => {
       const value = row[col.field]
+      if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+        return formatDate(value)
+      }
       if (typeof value === 'string' && value.includes('<')) {
         return stripHtml(value)
       }
@@ -351,6 +359,9 @@ export async function exportReportToExcel(
     footerData.forEach((footerRow) => {
       const rowData = columns.map((col) => {
         const value = footerRow[col.field]
+        if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+          return formatDate(value)
+        }
         if (typeof value === 'string' && value.includes('<')) {
           return stripHtml(value)
         }
@@ -441,20 +452,20 @@ function stripHtml(html: string): string {
 /**
  * Format date for export
  */
-export function formatDate(date: string | Date, format = 'DD/MM/YYYY'): string {
-  if (!date) return ''
-  const d = new Date(date)
-  if (isNaN(d.getTime())) return String(date)
+// export function formatDate(date: string | Date, format = 'DD/MM/YYYY'): string {
+//   if (!date) return ''
+//   const d = new Date(date)
+//   if (isNaN(d.getTime())) return String(date)
 
-  const day = String(d.getDate()).padStart(2, '0')
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const year = d.getFullYear()
+//   const day = String(d.getDate()).padStart(2, '0')
+//   const month = String(d.getMonth() + 1).padStart(2, '0')
+//   const year = d.getFullYear()
 
-  return format
-    .replace('DD', day)
-    .replace('MM', month)
-    .replace('YYYY', String(year))
-}
+//   return format
+//     .replace('DD', day)
+//     .replace('MM', month)
+//     .replace('YYYY', String(year))
+// }
 
 /**
  * Format date for report header (DD/MM/YYYY)
@@ -576,6 +587,9 @@ export async function exportSCS103ToExcel(
   mainData.forEach((row) => {
     const rowData = mainColumns.map((col) => {
       const value = row[col.field]
+      if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+        return formatDate(value)
+      }
       if (typeof value === 'string' && value.includes('<')) {
         return stripHtml(value)
       }
@@ -608,6 +622,9 @@ export async function exportSCS103ToExcel(
   summaryData.forEach((row) => {
     const rowData = summaryColumns.map((col) => {
       const value = row[col.field]
+      if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+        return formatDate(value)
+      }
       if (typeof value === 'string' && value.includes('<')) {
         return stripHtml(value)
       }

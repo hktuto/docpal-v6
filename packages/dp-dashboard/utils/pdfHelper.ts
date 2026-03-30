@@ -178,6 +178,9 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
   const dataRows = data.map((row) => {
     return columns.map((col) => {
       const value = row[col.field]
+      if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+        return formatDate(value)
+      }
       if (typeof value === 'string' && value.includes('<')) {
         return stripHtml(value)
       }
@@ -271,6 +274,9 @@ export function exportTableToPDF(options: PDFTableOptions): void {
     return options.columns.map((col) => {
       const value = row[col.field]
       // Handle HTML content
+      if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+        return formatDate(value)
+      }
       if (typeof value === 'string' && value.includes('<')) {
         return stripHtml(value)
       }
@@ -283,6 +289,9 @@ export function exportTableToPDF(options: PDFTableOptions): void {
     options.footerData.forEach((footerRow) => {
       const footerDataRow = options.columns.map((col) => {
         const value = footerRow[col.field]
+        if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+          return formatDate(value)
+        }
         if (typeof value === 'string' && value.includes('<')) {
           return stripHtml(value)
         }
@@ -378,6 +387,9 @@ export function exportSCS101ToPDF(
     const dataRows = table.data.map((row) => {
       return table.columns.map((col) => {
         const value = row[col.field]
+        if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+          return formatDate(value)
+        }
         if (typeof value === 'string' && value.includes('<')) {
           return stripHtml(value)
         }
@@ -464,6 +476,9 @@ export function exportSCS103ToPDF(
   const mainDataRows = mainData.map((row) => {
     return mainColumns.map((col) => {
       const value = row[col.field]
+      if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+        return formatDate(value)
+      }
       if (typeof value === 'string' && value.includes('<')) {
         return stripHtml(value)
       }
