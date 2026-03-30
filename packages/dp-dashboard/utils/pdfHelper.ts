@@ -185,6 +185,14 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
     })
   })
 
+  // Add total row if specified (for SCS-102)
+  if (header.totalLabel && header.totalValue !== undefined) {
+    const totalRow = new Array(columns.length).fill('')
+    totalRow[0] = header.totalLabel
+    totalRow[1] = String(header.totalValue)
+    dataRows.push(totalRow)
+  }
+
   // Fixed header height: 2 rows (10mm) + title box (15mm) + input filters
   let inputFilterRows = 0
   if (header.inputProject !== undefined) inputFilterRows++
@@ -197,13 +205,14 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
   const startY = headerHeight + 5
 
   let isFirstPage = true
+  let finalY = 0
 
   // Generate table
   autoTable(pdf, {
     head: [headers],
     body: dataRows,
     startY: startY,
-    margin: { left: margin, right: margin, top: headerHeight + 15, bottom: 10 },
+    margin: { left: margin, right: margin, top: headerHeight + 15, bottom: 20 },
     styles: {
       fontSize: 8,
       cellPadding: 2,
@@ -227,8 +236,18 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
         data.cursor.y = headerHeight + 10
       }
       isFirstPage = false
+    },
+    didDrawCell: (data) => {
+      // Track final Y position
+      finalY = data.cell.y + data.cell.height
     }
   })
+
+  // Add "END OF REPORT" marker at the bottom
+  const pageHeight = pdf.internal.pageSize.getHeight()
+  const markerY = Math.min(finalY + 10, pageHeight - 10)
+  pdf.setFontSize(9)
+  pdf.text('*** END OF REPORT ***', pageWidth / 2, markerY, { align: 'center' })
 
   pdf.save(`${header.reportId}_${timestamp}.pdf`)
 }

@@ -127,13 +127,13 @@ function handleDownloadCommand(command: string) {
 }
 
 function getReportHeader(): ReportHeader {
-  const projectName = formData.value.project ? projectList.value.find((p) => p.id === formData.value.project)?.name || 'SSF2026' : 'SSF2026'
+  const projectName = projectList.value.find((p) => p.id === formData.value.project)
 
   return {
     reportId: 'SCS-103',
     compiledBy: 'HONG KONG HOUSING SOCIETY',
-    project: projectName,
-    inputProject: projectName,
+    project: projectName.code,
+    inputProject: projectName.code,
     inputFrom: formData.value.date[0] || 'NULL',
     inputTo: formData.value.date[1] || 'NULL',
     stage: '(5) Verified (6) Failed to Export (7) Export-Ready (8) Completed',
