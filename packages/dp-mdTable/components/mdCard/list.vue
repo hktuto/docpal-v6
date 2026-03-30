@@ -58,7 +58,8 @@ function mapViewStyleToWidget(config: Record<string, any> | undefined): CardWidg
     showFieldName: c.isColNameVisible !== false,
     bordered: c.isBordered !== false,
     compact: !!c.isCompact,
-    shadow: c.cardShadow ?? 'small'
+    shadow: c.cardShadow ?? 'small',
+    cardCount: c.cardCount || 5
   }
 }
 const columnCount = computed(() => {
