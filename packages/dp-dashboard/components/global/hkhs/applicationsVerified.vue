@@ -228,7 +228,7 @@ const columnsRef = ref([
   {
     field: 'application_no',
     title: 'Application No.',
-    width: '100px',
+    width: '120px',
     formatter: ({ cellValue, row }: any) => {
       return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
     }
@@ -236,7 +236,7 @@ const columnsRef = ref([
   {
     field: 'form_type',
     title: 'Form Type',
-    width: '100px',
+    width: '120px',
     formatter: ({ cellValue, row }: any) => {
       return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
     }
@@ -258,7 +258,7 @@ const columnsRef = ref([
   {
     field: 'modified',
     title: 'Modified',
-    width: '100px',
+    width: '120px',
     formatter: ({ cellValue, row }: any) => {
       return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
     }
@@ -266,7 +266,7 @@ const columnsRef = ref([
   {
     field: 'verified_by',
     title: 'Verified By',
-    width: '100px',
+    width: '120px',
     formatter: ({ cellValue, row }: any) => {
       return !!cellValue && cellValue !== '' ? cellValue : 'N/A'
     }
