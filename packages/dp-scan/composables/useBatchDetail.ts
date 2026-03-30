@@ -1179,9 +1179,9 @@ export function updateDocumentValues(detail: any): void {
   // Update oldValue - replace [formClass] placeholder if present
   if (detail.oldValue?.includes('[formClass]')) {
     const displayFamilyClass = detail.familyClass ? detail.familyClass.split('-')[0].trim() : ''
-    detail.oldValue = detail.oldValue.replace('[formClass]', displayFamilyClass);
+    detail.oldValue = detail.oldValue.replace('[formClass]', displayFamilyClass;
   }
-
+  detail.oldValue = detail.oldValue?.replaceAll('(', '').replaceAll(')', '');
   // Build newValue: <appln no>&<family type>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>
   const appl_no = detail.applicantNum
   const ahkid = detail.newResultJson?.['Applicant Info']?.ApplicantHKID
