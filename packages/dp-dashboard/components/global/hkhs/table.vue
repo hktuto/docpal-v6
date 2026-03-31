@@ -19,7 +19,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   virtualScroll: true,
   api: () => getData(),
   columns: [
-    { field: 'datetime', title: 'Date Time', fixed: 'left' },
+    {
+      field: 'datetime', title: 'Date Time', fixed: 'left',
+      formatter: ({cellValue}) => formatDate(cellValue) },
     {
       field: 'batch_no',
       title: 'Batch No.',

@@ -37,9 +37,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       field: 'transaction_date',
       title: 'Transaction Date',
       fixed: 'left',
-      formatter({ cellValue }: any) {
-        return dayjs(cellValue).format('DD/MM/YYYY')
-      }
+      formatter: ({ cellValue }: any) => formatDate(cellValue)
     },
     { field: 'uploaded', title: '(1)Uploaded' },
     { field: 'failed_to_process', title: '(2)Failed to Process' },

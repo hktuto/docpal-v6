@@ -36,7 +36,10 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   virtualScroll: true,
   api: () => getData(),
   columns: [
-    { field: 'datetime', title: 'Date Time', fixed: 'left' },
+    {
+      field: 'datetime', title: 'Date Time', fixed: 'left',
+       formatter: ({ cellValue }) => formatDate(cellValue)
+    },
     { field: 'batch_no', title: 'Batch No.' },
     {
       field: 'form_application_number',
@@ -139,11 +142,11 @@ function getReportHeader(): ReportHeader {
     stage: '(5) Verified (6) Failed to Export (7) Export-Ready (8) Completed',
     title: 'SUBSIDISED SALE FLATS PROJECTS 2026',
     subtitle: 'Daily Summary of the applications from Verified to Completed',
-    dateRange: `From ${formatDate(formData.value.date[0])} to ${formatDate(formData.value.date[1])}`
+    dateRange: `From ${formatDateLocal(formData.value.date[0])} to ${formatDateLocal(formData.value.date[1])}`
   }
 }
 
-function formatDate(dateStr: string): string {
+function formatDateLocal(dateStr: string): string {
   if (!dateStr) return 'NULL'
   const parts = dateStr.split('-')
   if (parts.length === 3) {
