@@ -521,7 +521,7 @@ export function exportSCS103ToPDF(
   // Add summary table on new page
   pdf.addPage()
   isFirstPage = true
-  drawPageHeader(pdf, header, 1, pageDate)
+  // drawPageHeader(pdf, header, 1, pageDate)
 
   // Add summary title
   const summaryTitleY = headerHeight + 15
@@ -563,9 +563,9 @@ export function exportSCS103ToPDF(
     },
     didDrawPage: (data) => {
       const pageNumber = data.pageNumber
-      currentPage++
-      drawPageHeader(pdf, header, currentPage, pageDate)
 
+      drawPageHeader(pdf, header, currentPage, pageDate)
+      currentPage++
       if (!isFirstPage) {
         data.cursor.y = headerHeight + 10
       }
