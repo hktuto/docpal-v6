@@ -68,7 +68,7 @@ async function getDetail() {
         workflowJson.value = workflowTaskInstance.content
 
         const data = await $api.get(`http://192.168.5.147:8080/api/v1/processes/instance/${detail.process_instance_id}`).then((r) => r.data)
-        console.log(22222,data)
+        console.log(22222, data)
 
         const findNode = data.nodes.find((node: any) => node.id == detail.node_id)
         if (!!findNode) {
@@ -262,9 +262,9 @@ async function handleSubmit() {
 
     // User Task
     switch (nodeTags.value) {
-      case CellType.userTask | CellType.signatureTask:
+      case CellType.userTask || CellType.signatureTask:
         await handleSubmitUserTask()
-        return
+        break
       default:
         await handleSubmitServiceTask()
     }
@@ -459,7 +459,6 @@ function handleBack() {
   )
 }
 
-
 onMounted(() => {
   const backLinks = routerProvider?.getHistory()
   if (!backItem && backLinks && backLinks.length > 0) {
@@ -473,7 +472,9 @@ onMounted(() => {
   getDetail()
 })
 </script>
+
 <template>
+  {{ state.error }}
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
       <h3>{{ workflowJson.name }}</h3>
@@ -568,7 +569,6 @@ onMounted(() => {
             :steps="state.activityList"
           />
         </el-tab-pane>
-
 
         <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && isMobile" :label="$t('common_discussionChannel')" name="command">
           <WorkflowDetailDiscussionChannel :id="state.taskDetail.instanceId" :noToggle="true" />

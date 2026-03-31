@@ -81,6 +81,20 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       }
     }
   ],
+  bodyActions: [
+    [
+      {
+        code: 'delete',
+        name: t('common_delete'),
+        visible: true,
+        disabled: false,
+        action: async ({ row }: any) => {
+          await $api.delete(`http://192.168.5.147:8080/api/v1/processes/instance/${row.process_instance_id}`).then((r) => r.data)
+          reload()
+        }
+      }
+    ]
+  ],
   dblClickAction: ({ row, column, event }: any) => {
     handleDblclick(row)
   }
