@@ -502,19 +502,20 @@ onMounted(() => {
                   <template v-for="(item, index) in additionalButton" :key="index">
                     <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
                   </template>
-                  <el-button
-                    v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"
-                    id="Workflow__AvailableTask__Detail__Form__SaveDraft"
-                    :disabled="workflowType === 'completeTask'"
-                    @click="handleSave"
-                  >
-                    <template v-if="pageButtonSetting && pageButtonSetting.saveDraftLabel">
-                      {{ pageButtonSetting.saveDraftLabel }}
-                    </template>
-                    <template v-else>
-                      {{ $t('workflow_save') }}
-                    </template>
-                  </el-button>
+<!--   TODO:  Save Draft is not supported.           -->
+<!--                  <el-button-->
+<!--                    v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"-->
+<!--                    id="Workflow__AvailableTask__Detail__Form__SaveDraft"-->
+<!--                    :disabled="workflowType === 'completeTask'"-->
+<!--                    @click="handleSave"-->
+<!--                  >-->
+<!--                    <template v-if="pageButtonSetting && pageButtonSetting.saveDraftLabel">-->
+<!--                      {{ pageButtonSetting.saveDraftLabel }}-->
+<!--                    </template>-->
+<!--                    <template v-else>-->
+<!--                      {{ $t('workflow_save') }}-->
+<!--                    </template>-->
+<!--                  </el-button>-->
 
                   <el-button
                     v-if="(!pageButtonSetting || pageButtonSetting.showSumBitButton) && (displayMode !== 'signature' || signSubmitStage === 'beforeSubmit')"

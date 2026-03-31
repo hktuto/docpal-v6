@@ -57,7 +57,7 @@ async function handleSubmit() {
     if (isEdit.valuel) {
       const workflowJson = formData.value.draft_content
       workflowJson.description = formData.value.description
-      $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${formData.value.id}`, workflowJson).then((res) => res.data)
+      await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${formData.value.id}`, workflowJson).then((res) => res.data)
       emits('refresh')
       return
     }
@@ -69,7 +69,7 @@ async function handleSubmit() {
       name: formData.value.name,
       description: formData.value.description
     }
-    const data = $api.post('http://192.168.5.147:8080/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data)
+    const data = await $api.post('http://192.168.5.147:8080/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data)
     if (!data) return
 
     const workflowEdit = routeWorkflowManageEditor({

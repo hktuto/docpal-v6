@@ -8,11 +8,8 @@ export enum WorkflowElementType {
   UserTask = 'UserTask',
   HTTPTask = 'HTTPTask',
   // ServiceTask = 'ServiceTask',
-  HTTPRequestTask = 'HTTPRequestTask'
-  // exclusiveGateway = 'exclusiveGateway',
-  // boundaryEvent = 'boundaryEvent',
-  // scriptTask = 'scriptTask',
-  // sequenceFlow = 'sequenceFlow'
+  HTTPRequestTask = 'HTTPRequestTask',
+  TransformTask = 'TransformTask'
 }
 
 Graph.registerNode(
@@ -134,6 +131,7 @@ export enum CellType {
   exclusive = 'ExclusiveGateway',
   parallel = 'ParallelGateway',
   inclusive = 'InclusiveGateway',
+  transformTask = 'TransformTask',
   HTTPTask = 'HTTPTask',
   uniqueIdGenerator = 'UniqueIdGenerator'
 }
@@ -163,6 +161,7 @@ export type CellTypeItem = {
       documentation: string
       inputSchema?: string
       outputSchema?: string
+      implementation?: string
       config?: any
       execution?: {
         async: boolean
@@ -572,6 +571,51 @@ export const workflowElement: WorkflowElement = {
       return 'LazyContextUserTask'
     }
   },
+  TransformTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.transformTask,
+        icon: 'tabler:transform',
+        label: 'Transform Task',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
+      const graph: GraphItem = {
+        id: workflowNodeItem.id,
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'image', selector: 'image' },
+          { tagName: 'text', selector: 'title' },
+          { tagName: 'text', selector: 'text' }
+        ],
+        attrs: GenAttrs('Transform Task', workflowNodeItem.name, workflowNodeItem.metadata.icon),
+        shape: 'bpmn-node',
+        zIndex: 1,
+        visible: true,
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          ...workflowNodeItem
+        },
+        ports: GenDefPorts(),
+        _order: 0
+      }
+      return graph
+    },
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      return 'LazyContextTransform'
+    }
+  },
   // ServiceTask: {
   //
   // },
@@ -713,7 +757,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: {
         assignee: '',
         candidate_roles: [],
-        candidate_groups: [],
+        candidate_groups: []
         // due_date: '',
         // input_mapping: {},
         // output_mapping: {}
@@ -886,6 +930,43 @@ const workflowCellElementTemplate: CellTypeItem = {
       execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
         tags: CellType.inclusive
+      }
+    }
+  },
+  TransformTask:{
+    id: `New_TransformTask_${Date.now()}`,
+    label: 'Transform Task',
+    shape: 'bpmn-node',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('Transform Task', 'Transform Task', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New Transform Task',
+      label: 'New Transform Task',
+      documentation: '',
+      type: WorkflowElementType.TransformTask,
+      implementation: 'data.transform',
+      config: {
+        mapping: {}
+      },
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      metadata: {
+        tags: CellType.transformTask
       }
     }
   },

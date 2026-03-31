@@ -41,145 +41,149 @@ const dropActionsItems = computed(() => {
 })
 const isReady = ref(false)
 function init() {
-  if (!workflowJsonObject.value) {
-    throw new Error('workflowJsonObject is not found')
-  }
-
-  // dispose graph
-  if (!!graph.value) {
-    isReady.value = false
-    graph.value.dispose()
-  }
-  const graphOptions = {
-    interacting: !readonly.value,
-    panning: {
-      enabled: true,
-      eventTypes: ['leftMouseDown', 'mouseWheel']
-    },
-    highlighting: {
-      magnetAvailable: {
-        name: 'stroke',
-        args: {
-          padding: 3,
-          attrs: {
-            strokeWidth: 3,
-            stroke: '#c41a1a'
-          }
-        }
-      }
-    },
-    connecting: {
-      // router: 'orth',
-      connector: 'rounded',
-      snap: true,
-      allowBlank: false,
-      allowLoop: false,
-      allowNode: true,
-      allowMulti: false,
-      allowEdge: false,
-      highlight: true,
-      validateMagnet({ magnet }: any) {
-        return !readonly.value
-      },
-      validateConnection({ sourceMagnet, targetMagnet }: any) {
-        return !readonly.value
-      }
+  try {
+    if (!workflowJsonObject.value) {
+      throw new Error('workflowJsonObject is not found')
     }
-  }
-  if (!containerEl.value) {
-    throw new Error('Container is not found')
-  }
 
-  // step 4 - init graph
-  const initGraphOptions: any = Object.assign(
-    {
-      container: containerEl.value,
-      grid: {
-        visible: true,
-        type: 'mesh',
-        args: {
-          color: '#eee',
-          thickness: 1
-        }
-      },
-      scaling: {
-        min: 0.005,
-        max: 2
-      },
-      background: {
-        color: 'var(--app-grey-9000)'
-      },
-      autoResize: true,
+    // dispose graph
+    if (!!graph.value) {
+      isReady.value = false
+      graph.value.dispose()
+    }
+    const graphOptions = {
+      interacting: !readonly.value,
       panning: {
         enabled: true,
         eventTypes: ['leftMouseDown', 'mouseWheel']
       },
-      embedding: {
-        enabled: false
-      },
-      mousewheel: {
-        enabled: true,
-        factor: 1.05,
-        modifiers: ['ctrl', 'meta']
+      highlighting: {
+        magnetAvailable: {
+          name: 'stroke',
+          args: {
+            padding: 3,
+            attrs: {
+              strokeWidth: 3,
+              stroke: '#c41a1a'
+            }
+          }
+        }
       },
       connecting: {
+        // router: 'orth',
         connector: 'rounded',
-        allowMulti: false
-      },
-      interacting: false
-    },
-    graphOptions
-  )
-  graph.value = new Graph({
-    container: containerEl,
-    ...initGraphOptions
-  })
+        snap: true,
+        allowBlank: false,
+        allowLoop: false,
+        allowNode: true,
+        allowMulti: false,
+        allowEdge: false,
+        highlight: true,
+        validateMagnet({ magnet }: any) {
+          return !readonly.value
+        },
+        validateConnection({ sourceMagnet, targetMagnet }: any) {
+          return !readonly.value
+        }
+      }
+    }
+    if (!containerEl.value) {
+      throw new Error('Container is not found')
+    }
 
-  workflowJson.value = workflowJsonObject.value
-  workflowId.value = workflowJsonObject.value.id
-  workflowKey.value = workflowJsonObject.value.key
-  version.value = workflowJsonObject.value.version
-  setVariables(workflowJsonObject.value.variables)
-  const json = workflowJsonToX6Node(workflowJsonObject.value)
-
-  nextTick(() => {
-    graph.value?.fromJSON(json)
-    // remove all tools
-    graph.value?.getNodes().forEach((node: any) => {
-      node.removeTools()
-      const ports = node.getPorts() || []
-      ports.forEach((port: any) => {
-        node.setPortProp(port.id, 'attrs/circle', {
-          fill: 'transparent',
-          stroke: 'transparent'
-        })
-      })
-    })
-    graph.value?.getEdges().forEach((edge: any) => {
-      edge.removeTools()
-    })
-
-    workflowJsonObject.value.edges.forEach((edge: any) => {
-      // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
-      graph.value?.addEdge({
-        source: { cell: edge.source_node_id, port: 'to' },
-        target: { cell: edge.target_node_id, port: 'from' },
-        attrs: {
-          line: {
-            stroke: '#000000',
-            strokeWidth: 2,
-            strokeDasharray: 0
+    // step 4 - init graph
+    const initGraphOptions: any = Object.assign(
+      {
+        container: containerEl.value,
+        grid: {
+          visible: true,
+          type: 'mesh',
+          args: {
+            color: '#eee',
+            thickness: 1
           }
         },
-        data: edge,
-        router: {
-          name: 'manhattan'
-        }
-      })
+        scaling: {
+          min: 0.005,
+          max: 2
+        },
+        background: {
+          color: 'var(--app-grey-9000)'
+        },
+        autoResize: true,
+        panning: {
+          enabled: true,
+          eventTypes: ['leftMouseDown', 'mouseWheel']
+        },
+        embedding: {
+          enabled: false
+        },
+        mousewheel: {
+          enabled: true,
+          factor: 1.05,
+          modifiers: ['ctrl', 'meta']
+        },
+        connecting: {
+          connector: 'rounded',
+          allowMulti: false
+        },
+        interacting: false
+      },
+      graphOptions
+    )
+    graph.value = new Graph({
+      container: containerEl,
+      ...initGraphOptions
     })
-    fitIn()
-    graphReady()
-  })
+
+    workflowJson.value = workflowJsonObject.value
+    workflowId.value = workflowJsonObject.value.id
+    workflowKey.value = workflowJsonObject.value.key
+    version.value = workflowJsonObject.value.version
+    setVariables(workflowJsonObject.value.variables)
+    const json = workflowJsonToX6Node(workflowJsonObject.value)
+
+    nextTick(() => {
+      graph.value?.fromJSON(json)
+      // remove all tools
+      graph.value?.getNodes().forEach((node: any) => {
+        node.removeTools()
+        const ports = node.getPorts() || []
+        ports.forEach((port: any) => {
+          node.setPortProp(port.id, 'attrs/circle', {
+            fill: 'transparent',
+            stroke: 'transparent'
+          })
+        })
+      })
+      graph.value?.getEdges().forEach((edge: any) => {
+        edge.removeTools()
+      })
+
+      workflowJsonObject.value.edges.forEach((edge: any) => {
+        // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
+        graph.value?.addEdge({
+          source: { cell: edge.source_node_id, port: 'to' },
+          target: { cell: edge.target_node_id, port: 'from' },
+          attrs: {
+            line: {
+              stroke: '#000000',
+              strokeWidth: 2,
+              strokeDasharray: 0
+            }
+          },
+          data: edge,
+          router: {
+            name: 'manhattan'
+          }
+        })
+      })
+      fitIn()
+      graphReady()
+    })
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 function fitIn() {
@@ -294,6 +298,13 @@ provide(WORKFLOW_EDITOR_PROVIDER, {
   copyForm,
   getFormByNode
 })
+
+watch(
+  () => workflowJsonObject.value,
+  async () => {
+    await init()
+  }
+)
 
 defineExpose({ init })
 </script>
