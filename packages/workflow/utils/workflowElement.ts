@@ -9,7 +9,10 @@ export enum WorkflowElementType {
   HTTPTask = 'HTTPTask',
   // ServiceTask = 'ServiceTask',
   HTTPRequestTask = 'HTTPRequestTask',
-  TransformTask = 'TransformTask'
+  TransformTask = 'TransformTask',
+  DocumentGenerationTask = 'DocumentGenerationTask',
+  SubProcess = 'SubProcess',
+  ValidateTask = 'ValidateTask'
 }
 
 Graph.registerNode(
@@ -133,7 +136,10 @@ export enum CellType {
   inclusive = 'InclusiveGateway',
   transformTask = 'TransformTask',
   HTTPTask = 'HTTPTask',
-  uniqueIdGenerator = 'UniqueIdGenerator'
+  uniqueIdGenerator = 'UniqueIdGenerator',
+  documentGenerationTask = 'DocumentGenerationTask',
+  subProcess = 'SubProcess',
+  validateTask= 'ValidateTask'
 }
 
 interface portsItems {
@@ -168,6 +174,7 @@ export type CellTypeItem = {
         timeout_ms: number
         priority: number
       }
+      input_mapping?: any
       metadata: {
         tags: CellType
         formKey?: string
@@ -177,6 +184,7 @@ export type CellTypeItem = {
       }
       celCondition?: string
     }
+    style?: any
   }
 }
 
@@ -714,11 +722,147 @@ export const workflowElement: WorkflowElement = {
     contextMenuComponent: () => {
       return 'ContextHttpTask'
     }
+  },
+  DocumentGenerationTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.documentGenerationTask,
+        icon: 'mdi:file-pdf',
+        label: 'Document Generation Task',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
+      const graph: GraphItem = {
+        id: workflowNodeItem.id,
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'image', selector: 'image' },
+          { tagName: 'text', selector: 'title' },
+          { tagName: 'text', selector: 'text' }
+        ],
+        attrs: GenAttrs('Document Generation Task', workflowNodeItem.name, workflowNodeItem.metadata.icon),
+        shape: 'bpmn-node',
+        zIndex: 1,
+        visible: true,
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 250,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          ...workflowNodeItem
+        },
+        ports: GenDefPorts(),
+        _order: 0
+      }
+      return graph
+    },
+    clickHandler: () => {},
+    contextMenuComponent: () => {
+      return 'LazyContextDocumentGeneration'
+    }
+  },
+  SubProcess: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.subProcess,
+        icon: 'pixelarticons:forwardburger',
+        label: 'Sub Process',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
+      const graph: GraphItem = {
+        id: workflowNodeItem.id,
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'image', selector: 'image' },
+          { tagName: 'text', selector: 'title' },
+          { tagName: 'text', selector: 'text' }
+        ],
+        attrs: GenAttrs('Sub Process', workflowNodeItem.name, workflowNodeItem.metadata.icon),
+        shape: 'bpmn-node',
+        zIndex: 1,
+        visible: true,
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          ...workflowNodeItem
+        },
+        ports: GenDefPorts(),
+        _order: 0
+      }
+      return graph
+    },
+    clickHandler: () => {},
+    contextMenuComponent: () => {
+      return 'LazyContextSubProcess'
+    }
+  },
+  ValidateTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.validateTask,
+        icon: 'material-symbols-light:list-alt-check-outline',
+        label: 'Validate Task',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
+      const graph: GraphItem = {
+        id: workflowNodeItem.id,
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'image', selector: 'image' },
+          { tagName: 'text', selector: 'title' },
+          { tagName: 'text', selector: 'text' }
+        ],
+        attrs: GenAttrs('Validate Task', workflowNodeItem.name, workflowNodeItem.metadata.icon),
+        shape: 'bpmn-node',
+        zIndex: 1,
+        visible: true,
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          ...workflowNodeItem
+        },
+        ports: GenDefPorts(),
+        _order: 0
+      }
+      return graph
+    },
+    clickHandler: () => {},
+    contextMenuComponent: () => {
+      return 'LazyContextValidateTask'
+    }
   }
 }
 
 export function getUrlOrigin() {
-  return window?.location?.origin || ''
+  return 'https://sit-v3.wclsolution.com'
+  // return window?.location?.origin || ''
 }
 // #region node style
 /**
@@ -933,7 +1077,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  TransformTask:{
+  TransformTask: {
     id: `New_TransformTask_${Date.now()}`,
     label: 'Transform Task',
     shape: 'bpmn-node',
@@ -1046,14 +1190,144 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       config: {
         method: 'POST',
-        // url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
-        url: `https://sit-v3.wclsolution.com/api/dms/facade/id-template/generate`,
+        url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
         headers: generatorHTTPRequestTaskHeaders(),
         body: {
           templateId: '',
           variables: {}
         },
         output_mapping: {}
+      }
+    }
+  },
+  DocumentGenerationTask: {
+    id: `New_DocumentGenerationTask_${Date.now()}`,
+    label: 'New Document Generation Task',
+    shape: 'bpmn-node',
+    width: 250,
+    height: 64,
+    attrs: GenAttrs('Document Generation Task', 'Document Generation Task', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New Document Generation Task',
+      label: 'New Document Generation Task',
+      documentation: '',
+      type: WorkflowElementType.DocumentGenerationTask,
+      config: {
+        method: 'POST',
+        url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
+        headers: generatorHTTPRequestTaskHeaders(),
+        body: {
+          templateId: '',
+          parentPath: '',
+          name: '',
+          type: 'File',
+          creator: '',
+          variables: {}
+        }
+      },
+      input_mapping: {
+        generateDocumentId: '',
+        parentPath: '',
+        documentName: '',
+        type: 'File',
+        applicant_name: '',
+        apply_user: '',
+        apply_date: ''
+      },
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      metadata: {
+        tags: CellType.documentGenerationTask
+      }
+    }
+  },
+  SubProcess: {
+    id: `New_SubProcess_${Date.now()}`,
+    label: 'Sub Process',
+    shape: 'bpmn-node',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('Sub Process', 'Sub Process', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New Sub Process',
+      label: 'New Sub Process',
+      documentation: '',
+      type: WorkflowElementType.SubProcess,
+      execution: { async: false, timeout_ms: 6000, priority: 1 },
+      config: {
+        processDefinitionId: ''
+      },
+      metadata: {
+        tags: CellType.subProcess
+      }
+    }
+  },
+  ValidateTask: {
+    id: `New_ValidateTask_${Date.now()}`,
+    label: 'Validate Task',
+    shape: 'bpmn-node',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('Validate Task', 'Validate Task', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New Validate Task',
+      label: 'New Validate Task',
+      documentation: '',
+      type: WorkflowElementType.ValidateTask,
+      execution: { async: false, timeout_ms: 6000, priority: 1 },
+      config: {
+        rules: [],
+        output_mapping: {
+          validation_passed: "valid",
+          validation_errors: "errors"
+        }
+      },
+      metadata: {
+        tags: CellType.validateTask
       }
     }
   }

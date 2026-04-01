@@ -82,7 +82,6 @@ defineExpose({
           v-model="dataMapping.value"
           draggable
           clearable
-          :placeholder="t('uniQueIdGenerator_prefix')"
           tag-effect="dark"
           tag-type="success"
         >

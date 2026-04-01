@@ -15,7 +15,7 @@ const variableList = computed(() => {
   return getVariablesByType()
 })
 const contextTransformDialogRef = ref()
-const dataMapping = ref({})
+const dataMapping = ref<Record<string, string>>({})
 const dataMappingList = computed(() => {
   return Object.entries(dataMapping.value).map(([key, value]) => ({
     id: key,
