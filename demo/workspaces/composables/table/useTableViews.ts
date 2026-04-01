@@ -186,6 +186,7 @@ export function useTableViews(options: UseTableViewsOptions) {
         display_structure: updates.display_structure
       }
     }
+    if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
   }
 
   /**

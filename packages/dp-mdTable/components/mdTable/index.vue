@@ -158,17 +158,15 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       })
     }
   },
-  'edit-closed': async (params: any) => {
+  editClosed: async (params: any) => {
     const { column, row } = params
     // need to check if the row data is changed
     const newData = row[column.field]
     const oldData = tableData.value.find((item) => item.id === row.id)
-    if (oldData && oldData[column.field] === newData) {
+    if (oldData && oldData.data[column.field] === newData) {
       // no change
       return
     }
-    // Only send the row ID and the updated field value
-    // This avoids sending all the additional data the table may have added
     const updateData = {
       [column.field]: row[column.field]
     }
@@ -177,6 +175,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     setLoading(row.id, column.field)
 
     try {
+      console.log('updateRow', row.id, updateData)
       await updateRow(row.id, updateData)
       // Set success state - will auto-clear after delay
       setSuccess(row.id, column.field)
@@ -206,7 +205,6 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   },
   'checkbox-all': ({ checked }: any) => {
     const { fullData } = gridRef.value?.getTableData()
-    console.log('checkbox-all', checked, fullData)
     const setChecked = (row: any) => {
       if (row.children && row.children.length > 0) {
         row.children.forEach((child: any) => {
