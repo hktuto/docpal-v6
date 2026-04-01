@@ -939,7 +939,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     shape: 'bpmn-node',
     width: 200,
     height: 64,
-    attrs: GenAttrs('Transform Task', 'Transform Task', '/icons/form.svg'),
+    attrs: GenAttrs('Transform Task', 'Transform Task', '/icons/transform.svg'),
     markup: [
       { tagName: 'rect', selector: 'body' },
       { tagName: 'image', selector: 'image' },

@@ -33,14 +33,52 @@ function handleCreate(visibleItem: any) {
     ...dataMapping.value,
     ...visibleItem
   }
+  updateData()
 }
 function handleDeleteMapping(id: string) {
   delete dataMapping.value[id]
+  updateData()
 }
+
+function init() {
+  const data = node.getData()
+  dataMapping.value = data.config?.mapping
+}
+
+function updateData() {
+  graphProvider?.graph.value?.startBatch('update-transform-data')
+
+  const nodeData = node.getData()
+  const newData = {
+    ...nodeData,
+    config: {
+      ...nodeData.config,
+      mapping: {
+        ...dataMapping.value
+      }
+    },
+    version: (nodeData.version || 0) + 1
+  }
+  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  graphProvider?.graph.value?.stopBatch('update-transform-data')
+}
+
+watch(
+  () => node,
+  async () => {
+    init()
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
 </script>
 
 <template>
   <SidebarLabel :node="node" />
+
+  <el-divider />
 
   <div class="mapping-label">
     <span class="mapping-label__text">Data Mapping</span>
