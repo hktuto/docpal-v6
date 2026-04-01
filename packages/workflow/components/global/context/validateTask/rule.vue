@@ -50,12 +50,12 @@ watch(
 </script>
 
 <template>
-  <div class="elementContainer">
-    <div class="removeConditionContainer">
-      <Icon name="lucide:trash" @click="deleteRule" />
+  <div class="elementContainer" >
+    <div v-if="!graphProvider.readonly.value" class="removeConditionContainer">
+      <Icon name="lucide:trash"  @click="deleteRule" />
     </div>
 
-    <el-form label-position="top">
+    <el-form label-position="top" :disabled="graphProvider.readonly.value">
       <el-form-item :label="t('Expression')">
         <el-input v-model="form.expression" />
       </el-form-item>

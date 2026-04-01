@@ -95,13 +95,13 @@ watch(
     <el-form-item :label="t('Data Rule Mapping')" />
     <div v-for="(element, index) in form" :key="index" class="group__item">
       <ContextValidateTaskRule :element="element" :index="index" @deleteRule="deleteRule" @updateRule="(newVal: any) => updateRule(newVal, index)" />
-      <div class="addNewContainer" @click="addNewRule">
+      <div class="addNewContainer" v-if="!graphProvider.readonly.value" @click="addNewRule">
         <Icon name="lucide:circle-plus" />
         <div class="label">And</div>
       </div>
     </div>
 
-    <div v-if="form.length === 0" :class="{ addNewContainer: true }" @click="addNewRule">
+    <div v-if="form.length === 0" :class="{addNewContainer:true, readonly: graphProvider.readonly.value}"  @click="addNewRule">
       <Icon name="lucide:circle-plus" />
       <div class="label">And</div>
     </div>
@@ -131,11 +131,11 @@ watch(
   &:hover {
     color: var(--app-main-color);
   }
-  //&.readonly {
-  //  cursor: not-allowed;
-  //  &:hover {
-  //    color: initial;
-  //  }
-  //}
+  &.readonly {
+    cursor: not-allowed;
+    &:hover {
+      color: initial;
+    }
+  }
 }
 </style>
