@@ -1321,10 +1321,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       execution: { async: false, timeout_ms: 6000, priority: 1 },
       config: {
         rules: [],
-        output_mapping: {
-          validation_passed: "valid",
-          validation_errors: "errors"
-        }
+        output_mapping: {}
       },
       metadata: {
         tags: CellType.validateTask

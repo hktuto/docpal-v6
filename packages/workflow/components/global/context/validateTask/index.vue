@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
 
+const { t } = useI18n()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
@@ -8,22 +9,35 @@ if (!graphProvider) {
 const { node } = defineProps<{
   node: Node
 }>()
+const { getVariablesByType } = useVariablesProvide()
+const variableList = computed(() => {
+  return getVariablesByType(['string'])
+})
 
+const outputMapping = ref({
+  valid: '',
+  errors: ''
+})
 const form = ref<any[]>([])
 
 function init() {
   const nodeData = node.getData()
   form.value = nodeData.config.rules || []
+
+  outputMapping.value = Object.fromEntries(Object.entries(nodeData.config?.output_mapping).map(([k, v]) => [v, k]))
 }
 
 function updateData() {
   graphProvider?.graph.value?.startBatch('update-validate-task-data')
+  const otMapping = Object.fromEntries(Object.entries(outputMapping.value).map(([k, v]) => [v, k]))
+
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
     config: {
       ...nodeData.config,
-      rules: form.value
+      rules: form.value,
+      output_mapping: otMapping
     },
     version: (nodeData.version || 0) + 1
   }
@@ -41,7 +55,7 @@ function addNewRule() {
   form.value.push(newRule)
 }
 
-function updateRule(newVal: any,index:number) {
+function updateRule(newVal: any, index: number) {
   form.value[index] = newVal
   updateData()
 }
@@ -66,10 +80,21 @@ watch(
 <template>
   <SidebarLabel :node="node" />
 
-  <span class="mapping-label__text">Data Rule Mapping</span>
-  <div>
+  <el-form label-position="top" :disabled="graphProvider.readonly.value">
+    <el-form-item :label="t('Valid')">
+      <el-select v-model="outputMapping.valid" @change="updateData">
+        <el-option v-for="item in variableList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
+    <el-form-item :label="t('Errors')">
+      <el-select v-model="outputMapping.errors" @change="updateData">
+        <el-option v-for="item in variableList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
+
+    <el-form-item :label="t('Data Rule Mapping')" />
     <div v-for="(element, index) in form" :key="index" class="group__item">
-      <ContextValidateTaskRule :element="element" :index="index" @deleteRule="deleteRule" @updateRule="(newVal: any) => updateRule(newVal,index)" />
+      <ContextValidateTaskRule :element="element" :index="index" @deleteRule="deleteRule" @updateRule="(newVal: any) => updateRule(newVal, index)" />
       <div class="addNewContainer" @click="addNewRule">
         <Icon name="lucide:circle-plus" />
         <div class="label">And</div>
@@ -80,14 +105,10 @@ watch(
       <Icon name="lucide:circle-plus" />
       <div class="label">And</div>
     </div>
-  </div>
+  </el-form>
 </template>
 
 <style scoped lang="scss">
-.mapping-label__text {
-  font-weight: 600;
-}
-
 .group__item {
   width: 100%;
   border: 1px solid #ccc;

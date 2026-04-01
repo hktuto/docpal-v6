@@ -62,6 +62,7 @@ function handelSubmitForm(id: string) {
     }
   }
   node.setData(newData, { overwrite: true, deep: true })
+  formKey.value = id
   graphProvider?.graph.value?.stopBatch('update-fromKey-data')
 }
 
@@ -119,7 +120,7 @@ watch(
 
   <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="node" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" @submit="handelSubmitForm" />
-  <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable>
+  <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
     <LazyContextFormRender ref="fromRenderRef" />
   </el-dialog>
 </template>
