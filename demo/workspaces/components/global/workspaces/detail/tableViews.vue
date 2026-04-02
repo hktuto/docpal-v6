@@ -137,32 +137,32 @@ onMounted(async () => {
   background-color: var(--app-grey-950);
   padding-top: var(--app-space-xs);
   /* width */
-  ::-webkit-scrollbar {
-    width: 2px;
-    height: 2px;
-  }
 
-  /* Track */
-  ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: #888;
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
   &__tabs {
     width:100%;
     display: grid;
     grid-template-columns: 1fr min-content;
     gap: 0;
     align-items: center;
+    ::-webkit-scrollbar {
+      width: 2px;
+      height: 2px;
+    }
 
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
   }
 
   &__tab-list {
