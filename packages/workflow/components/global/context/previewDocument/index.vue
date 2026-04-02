@@ -5,7 +5,7 @@ const { node } = defineProps<{
   node: Node
 }>()
 
-const graphProvider = inject(BPMN_PROVIDER)
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }

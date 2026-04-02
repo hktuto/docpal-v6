@@ -18,10 +18,16 @@ type EdgeData = {
 }
 
 function setupEdge() {
+  graphProvider?.graph.value?.on('edge:dblclick', ({ edge }: any) => {
+    graphProvider?.openSidebar('LazyContextGateway',edge)
+  })
+
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
     if (graphProvider?.readonly.value) return
     // cell.setRouter('normal')
+
     cell.addTools([
+      ...getGatewayButton(cell),
       {
         name: 'vertices',
         args: {
@@ -98,10 +104,10 @@ function setupEdge() {
     if (source.type === WorkflowElementType.Gateway) {
       newEdgeData.flow_control.type = 'conditional'
 
-      const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge:any) => {
+      const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge: any) => {
         return connectedEdge.id !== edge.id && connectedEdge.source.cell === source.id
       })
-      console.log(123,allNodeConnected)
+      console.log(123, allNodeConnected)
 
       switch (source.data.metadata.tags) {
         case CellType.parallel:
@@ -118,6 +124,45 @@ function setupEdge() {
     edge.data = newEdgeData
     edge.setRouter('manhattan')
   })
+}
+
+function getGatewayButton(cell: any) {
+  if (cell.data?.source_node_id?.includes('Gateway_')) {
+    return [
+      {
+        name: 'button',
+        args: {
+          markup: [
+            {
+              tagName: 'circle',
+              selector: 'button',
+              attrs: {
+                r: 18,
+                stroke: '#fe854f',
+                strokeWidth: 2,
+                fill: 'white',
+                cursor: 'pointer'
+              }
+            },
+            {
+              tagName: 'text',
+              textContent: 'Gateway',
+              selector: 'icon',
+              attrs: {
+                fill: '#fe854f',
+                fontSize: 8,
+                textAnchor: 'middle',
+                pointerEvents: 'none',
+                y: '0.3em'
+              }
+            }
+          ],
+          distance: 50
+        }
+      }
+    ]
+  }
+  return []
 }
 
 onMounted(() => {

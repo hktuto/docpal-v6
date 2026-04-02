@@ -255,6 +255,10 @@ function openSidebar(component: string, node: Node | Edge | Cell) {
   sidebarRef.value.openSidebar(component, node)
 }
 
+function closeSidebar() {
+  sidebarRef.value.closeSidebar()
+}
+
 function openForm() {}
 
 function openPermission() {
@@ -294,6 +298,7 @@ provide(WORKFLOW_EDITOR_PROVIDER, {
   copyKey,
   readonly,
   openSidebar,
+  closeSidebar,
   pasteForm,
   copyForm,
   getFormByNode

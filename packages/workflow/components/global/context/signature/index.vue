@@ -6,8 +6,8 @@ const { node } = defineProps<{
 }>()
 
 const switchRef = ref(true)
-const editorProvider = inject(EDITOR_PROVIDER)
-if (!editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('graph provider not found')
 }
 

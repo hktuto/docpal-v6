@@ -8,12 +8,13 @@ if (!graphProvider) {
   throw createError('graph provider not found')
 }
 
-const opened = ref(false)
-const editComponent = ref()
 const ignoreTypeList: string[] = []
-const selectedNode = ref()
 
 function setupNode() {
+  graphProvider?.graph.value?.on('blank:click', () => {
+    graphProvider?.closeSidebar()
+  })
+
   graphProvider?.graph.value?.on('blank:dblclick', () => {
     graphProvider?.graph.value?.zoomToFit({
       padding: 24
@@ -23,7 +24,6 @@ function setupNode() {
     if (currentZoom && currentZoom < 0.18) {
       graphProvider?.graph.value?.zoom(0.16)
     }
-    opened.value = false
   })
 
   graphProvider?.graph.value?.on('node:mouseenter', ({ cell }: any) => {
@@ -138,7 +138,7 @@ onMounted(() => {
       <Icon name="lucide:settings-2" />
       <div class="label">Edit</div>
     </div>
-    <div class="contextAction" v-if="contextSelectedNode && ['UserTask', 'StartEvent'].includes(contextSelectedNode.data.type)" @click="copy">
+    <div class="contextAction" v-if="contextSelectedNode && ['startevent', 'endevent'].includes(contextSelectedNode.data.type.toLowerCase())" @click="copy">
       <Icon name="lucide:clipboard-copy" />
       <div class="label">Copy</div>
     </div>
@@ -156,7 +156,7 @@ onMounted(() => {
       <div class="label">Paste</div>
     </div>
     <el-popconfirm
-      v-if="contextSelectedNode && !['start', 'end'].includes(contextSelectedNode.data.id.toLowerCase())"
+      v-if="contextSelectedNode && !['startevent', 'endevent'].includes(contextSelectedNode.data.type.toLowerCase())"
       title="Are you sure to delete this item?"
       @confirm="deleteItem"
     >

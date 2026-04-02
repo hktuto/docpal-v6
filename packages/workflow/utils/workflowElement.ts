@@ -636,7 +636,8 @@ export const workflowElement: WorkflowElement = {
         label: 'Unique Id Generator',
         group: '',
         order: 0
-      }
+      },
+
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
       const graph: GraphItem = {
@@ -777,7 +778,8 @@ export const workflowElement: WorkflowElement = {
         label: 'Sub Process',
         group: '',
         order: 0
-      }
+      },
+
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
       const graph: GraphItem = {
