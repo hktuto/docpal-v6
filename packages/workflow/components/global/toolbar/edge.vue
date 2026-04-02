@@ -13,13 +13,13 @@ type EdgeData = {
   flow_control: {
     type: 'sequence' | 'conditional' | 'default'
     condition?: string
-    label?: string
   }
+  label?: string
 }
 
 function setupEdge() {
   graphProvider?.graph.value?.on('edge:dblclick', ({ edge }: any) => {
-    graphProvider?.openSidebar('LazyContextGateway',edge)
+    graphProvider?.openSidebar('LazyContextGateway', edge)
   })
 
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
@@ -73,7 +73,7 @@ function setupEdge() {
 
     console.log('----edge:connected edge ', isNew, edge)
     console.log('----edge:connected source ', source)
-    console.log('----edge:connected target', target)
+    console.log('----edge:connected target ', target)
 
     if (!isNew) {
       // update edge
@@ -96,30 +96,15 @@ function setupEdge() {
       target_node_id: edge.target.cell,
       flow_control: {
         type: 'sequence'
-      }
+      },
+      label: ''
     }
 
     // type is Gateway
     // TODO: 無法從source區分是那個子節點連接到不同規則
-    if (source.type === WorkflowElementType.Gateway) {
+    if (source.data.type === WorkflowElementType.Gateway) {
       newEdgeData.flow_control.type = 'conditional'
-
-      const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge: any) => {
-        return connectedEdge.id !== edge.id && connectedEdge.source.cell === source.id
-      })
-      console.log(123, allNodeConnected)
-
-      switch (source.data.metadata.tags) {
-        case CellType.parallel:
-          break
-        case CellType.inclusive:
-          break
-        default:
-          // CellType.exclusive
-          newEdgeData.flow_control.condition = source.data.metadata.rules.success.condition
-          const successLabel = source.data.metadata.rules.success.label || 'true'
-          const failureLabel = source.data.metadata.rules.failure.label || 'false'
-      }
+      newEdgeData.flow_control.condition = ''
     }
     edge.data = newEdgeData
     edge.setRouter('manhattan')

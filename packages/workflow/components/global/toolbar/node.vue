@@ -11,10 +11,6 @@ if (!graphProvider) {
 const ignoreTypeList: string[] = []
 
 function setupNode() {
-  graphProvider?.graph.value?.on('blank:click', () => {
-    graphProvider?.closeSidebar()
-  })
-
   graphProvider?.graph.value?.on('blank:dblclick', () => {
     graphProvider?.graph.value?.zoomToFit({
       padding: 24
