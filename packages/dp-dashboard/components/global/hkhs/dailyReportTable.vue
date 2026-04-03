@@ -114,7 +114,7 @@ function handleDownloadCommand(command: string) {
 }
 
 function getReportHeader(): ReportHeader {
-  const projectName = projectList.value.find((p) => p.id === formData.value.project)
+  const projectName: any = projectList.value.find((p) => p.id === formData.value.project)
   const includeDup = formData.value.includeDuplicate === 2 ? 'Yes' : 'No'
 
   return {
@@ -163,8 +163,8 @@ function handleDownloadPDF() {
 }
 
 const IncludeDuplicateOption = ref([
-  { label: 'Yes', value: 2 },
-  { label: 'No', value: 1 }
+  { label: 'No', value: 2 },
+  { label: 'Yes', value: 1 }
 ])
 
 const dataList = ref([])
