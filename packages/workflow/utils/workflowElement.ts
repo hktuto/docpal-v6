@@ -4,15 +4,25 @@ import type { NodeItem } from './jsonConversion'
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
   EndEvent = 'EndEvent',
+  Exclusive = 'ExclusiveGateway',
+  Parallel = 'ParallelGateway',
+  Inclusive = 'InclusiveGateway',
   Gateway = 'Gateway',
   UserTask = 'UserTask',
   HTTPTask = 'HTTPTask',
-  // ServiceTask = 'ServiceTask',
   HTTPRequestTask = 'HTTPRequestTask',
   TransformTask = 'TransformTask',
   DocumentGenerationTask = 'DocumentGenerationTask',
   SubProcess = 'SubProcess',
   ValidateTask = 'ValidateTask'
+}
+
+export enum WorkflowNodeType {
+  BaseTask = 'BaseTask',
+  UserTask = 'UserTask',
+  Gateway = 'Gateway',
+  ServiceTask = 'ServiceTask',
+  HTTPRequestTask = 'HTTPRequestTask'
 }
 
 Graph.registerNode(
@@ -139,7 +149,7 @@ export enum CellType {
   uniqueIdGenerator = 'UniqueIdGenerator',
   documentGenerationTask = 'DocumentGenerationTask',
   subProcess = 'SubProcess',
-  validateTask= 'ValidateTask'
+  validateTask = 'ValidateTask'
 }
 
 interface portsItems {
@@ -357,6 +367,65 @@ function GenDefPorts() {
   }
 }
 
+/** 畫布節點通用 rect+image+text markup（workflowJson 轉圖與工具欄模板共用） */
+const GRAPH_NODE_MARKUP: Markup[] = [
+  { tagName: 'rect', selector: 'body' },
+  { tagName: 'image', selector: 'image' },
+  { tagName: 'text', selector: 'title' },
+  { tagName: 'text', selector: 'text' }
+]
+
+const PORT_START_OUT = { items: [{ id: 'to', group: 'to' }] }
+const PORT_END_IN = { items: [{ id: 'from', group: 'from' }] }
+
+function gatewayTitleFromTags(tags: string | undefined) {
+  switch (tags) {
+    case 'ParallelGateway':
+      return 'Parallel Gateway'
+    case 'InclusiveGateway':
+      return 'Inclusive Gateway'
+    default:
+      return 'Exclusive Gateway'
+  }
+}
+
+/**
+ * 將後端 NodeItem 轉為 X6 用 GraphItem
+ */
+function graphItemFromWorkflowNode(
+  workflowNodeItem: NodeItem,
+  title: string,
+  options?: {
+    defaultWidth?: number
+    defaultHeight?: number
+    ports?: { items: portsItems[] }
+    dataExtra?: Record<string, unknown>
+  }
+): GraphItem {
+  const meta = workflowNodeItem.metadata
+  const dw = options?.defaultWidth ?? 120
+  const dh = options?.defaultHeight ?? 64
+  return {
+    id: workflowNodeItem.id,
+    markup: GRAPH_NODE_MARKUP,
+    attrs: GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon),
+    shape: 'bpmn-node',
+    zIndex: 1,
+    visible: true,
+    position: {
+      x: meta.x || 60,
+      y: meta.y || 60
+    },
+    size: {
+      width: meta.width || dw,
+      height: meta.height || dh
+    },
+    data: options?.dataExtra ? { ...workflowNodeItem, ...options.dataExtra } : { ...workflowNodeItem },
+    ports: options?.ports ?? GenDefPorts(),
+    _order: 0
+  }
+}
+
 /**
  * Node => workflowElement
  * Cell => Element Item
@@ -365,86 +434,22 @@ export const workflowElement: WorkflowElement = {
   StartEvent: {
     embed: false,
     toolbar: [],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const node: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: GenAttrs('Start Event', workflowNodeItem.name, workflowNodeItem.metadata.icon),
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem,
-          version: 0
-        },
-        ports: {
-          items: [
-            {
-              id: 'to',
-              group: 'to'
-            }
-          ]
-        },
-        _order: 0
-      }
-      return node
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
+      graphItemFromWorkflowNode(workflowNodeItem, 'Start Event', {
+        ports: PORT_START_OUT,
+        dataExtra: { version: 0 }
+      }),
     clickHandler: () => {},
     contextMenuComponent: 'LazyContextStartEvent'
   },
   EndEvent: {
     embed: false,
     toolbar: [],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: GenAttrs('End Event', workflowNodeItem.name, workflowNodeItem.metadata.icon),
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem,
-          version: 0
-        },
-        ports: {
-          items: [
-            {
-              id: 'from',
-              group: 'from'
-            }
-          ]
-        },
-        _order: 0
-      }
-      return graph
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
+      graphItemFromWorkflowNode(workflowNodeItem, 'End Event', {
+        ports: PORT_END_IN,
+        dataExtra: { version: 0 }
+      }),
     clickHandler: () => {},
     contextMenuComponent: 'LazyContextEndEvent'
   },
@@ -473,51 +478,9 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      let title
-      switch (workflowNodeItem.metadata.tags) {
-        case 'ParallelGateway':
-          title = 'Parallel Gateway'
-          break
-        case 'InclusiveGateway':
-          title = 'Inclusive Gateway'
-          break
-        default:
-          title = 'Exclusive Gateway'
-      }
-
-      const attrs = GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon)
-
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: attrs,
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem
-        },
-        ports: GenDefPorts(),
-        _order: 0
-      }
-      return graph
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, gatewayTitleFromTags(workflowNodeItem.metadata.tags)),
     clickHandler: () => {},
-    contextMenuComponent: (workflowNodeItem: NodeItem) => {}
+    contextMenuComponent: () => {}
   },
   UserTask: {
     embed: false,
@@ -538,43 +501,12 @@ export const workflowElement: WorkflowElement = {
       // }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      let title = 'User Task'
-      if (workflowNodeItem.metadata.tags === 'SignatureTask') {
-        title = 'User Signature Task'
-      }
-      const attrs = GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon)
-
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: attrs,
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem
-        },
-        ports: GenDefPorts(),
-        _order: 0
-      }
-      return graph
+      const title = workflowNodeItem.metadata.tags === CellType.signatureTask ? 'User Signature Task' : 'User Task'
+      return graphItemFromWorkflowNode(workflowNodeItem, title)
     },
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      if (workflowNodeItem.metadata.tags === 'SignatureTask') {
+      if (workflowNodeItem.metadata.tags === CellType.signatureTask) {
         return 'LazyContextSignature'
       }
       return 'LazyContextUserTask'
@@ -591,43 +523,12 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: GenAttrs('Transform Task', workflowNodeItem.name, workflowNodeItem.metadata.icon),
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem
-        },
-        ports: GenDefPorts(),
-        _order: 0
-      }
-      return graph
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'Transform Task'),
     clickHandler: () => {},
-    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+    contextMenuComponent: () => {
       return 'LazyContextTransform'
     }
   },
-  // ServiceTask: {
-  //
-  // },
   HTTPRequestTask: {
     embed: false,
     toolbar: [
@@ -637,38 +538,9 @@ export const workflowElement: WorkflowElement = {
         label: 'Unique Id Generator',
         group: '',
         order: 0
-      },
-
-    ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: GenAttrs('Unique Id Generator', workflowNodeItem.name, workflowNodeItem.metadata.icon),
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem
-        },
-        ports: GenDefPorts(),
-        _order: 0
       }
-      return graph
-    },
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'Unique Id Generator'),
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       const tags = workflowNodeItem.metadata.tags
@@ -691,35 +563,7 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: GenAttrs('HTTP Task', workflowNodeItem.name, workflowNodeItem.metadata.icon),
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem
-        },
-        ports: GenDefPorts(),
-        _order: 0
-      }
-      return graph
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'HTTP Task'),
     clickHandler: () => {},
     contextMenuComponent: () => {
       return 'ContextHttpTask'
@@ -736,35 +580,10 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: GenAttrs('Document Generation Task', workflowNodeItem.name, workflowNodeItem.metadata.icon),
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 250,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem
-        },
-        ports: GenDefPorts(),
-        _order: 0
-      }
-      return graph
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
+      graphItemFromWorkflowNode(workflowNodeItem, 'Document Generation Task', {
+        defaultWidth: 250
+      }),
     clickHandler: () => {},
     contextMenuComponent: () => {
       return 'LazyContextDocumentGeneration'
@@ -779,38 +598,9 @@ export const workflowElement: WorkflowElement = {
         label: 'Sub Process',
         group: '',
         order: 0
-      },
-
-    ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: GenAttrs('Sub Process', workflowNodeItem.name, workflowNodeItem.metadata.icon),
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem
-        },
-        ports: GenDefPorts(),
-        _order: 0
       }
-      return graph
-    },
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'Sub Process'),
     clickHandler: () => {},
     contextMenuComponent: () => {
       return 'LazyContextSubProcess'
@@ -827,35 +617,7 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: GraphItem = {
-        id: workflowNodeItem.id,
-        markup: [
-          { tagName: 'rect', selector: 'body' },
-          { tagName: 'image', selector: 'image' },
-          { tagName: 'text', selector: 'title' },
-          { tagName: 'text', selector: 'text' }
-        ],
-        attrs: GenAttrs('Validate Task', workflowNodeItem.name, workflowNodeItem.metadata.icon),
-        shape: 'bpmn-node',
-        zIndex: 1,
-        visible: true,
-        position: {
-          x: workflowNodeItem.metadata.x || 60,
-          y: workflowNodeItem.metadata.y || 60
-        },
-        size: {
-          width: workflowNodeItem.metadata.width || 120,
-          height: workflowNodeItem.metadata.height || 64
-        },
-        data: {
-          ...workflowNodeItem
-        },
-        ports: GenDefPorts(),
-        _order: 0
-      }
-      return graph
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'Validate Task'),
     clickHandler: () => {},
     contextMenuComponent: () => {
       return 'LazyContextValidateTask'
@@ -868,31 +630,52 @@ export function getUrlOrigin() {
   // return window?.location?.origin || ''
 }
 // #region node style
+
+const DEFAULT_TASK_EXECUTION = { async: false, timeout_ms: 1000, priority: 0 }
+const LONG_RUNNING_EXECUTION = { async: false, timeout_ms: 6000, priority: 1 }
+
+interface ShellOpts {
+  id: string
+  paletteLabel: string
+  title?: string
+  icon: string
+  width?: number
+  height?: number
+}
+
+function createNodeShell(opts: ShellOpts) {
+  const { id, paletteLabel, title = paletteLabel, icon, width = 200, height = 64 } = opts
+  return {
+    id: `${id}_${Date.now()}`,
+    label: paletteLabel,
+    width,
+    height,
+    shape: 'bpmn-node',
+    attrs: GenAttrs(title, title, icon),
+    markup: GRAPH_NODE_MARKUP,
+    ports: GenDefPorts()
+  }
+}
+
+function createGatewayShell(id: string, title: string, icon: string) {
+  return {
+    id: `${id}${Date.now()}`,
+    label: title,
+    width: 200,
+    height: 64,
+    shape: 'custom-polygon',
+    attrs: GenAttrs(title, title, icon),
+    markup: GRAPH_NODE_MARKUP,
+    ports: GenDefPorts()
+  }
+}
+
 /**
  * Default graph element template.
  */
 const workflowCellElementTemplate: CellTypeItem = {
   UserTask: {
-    id: `New_UserTask_${Date.now()}`,
-    label: 'User Task',
-    width: 200,
-    height: 64,
-    shape: 'bpmn-node',
-    attrs: GenAttrs('User Task', 'User Task', '/icons/form.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createNodeShell({ id: 'New_UserTask', paletteLabel: 'User Task', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'New User Task',
@@ -909,7 +692,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         // input_mapping: {},
         // output_mapping: {}
       },
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: CellType.userTask,
         formKey: '',
@@ -924,26 +707,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   SignatureTask: {
-    id: `New_SignatureTask_${Date.now()}`,
-    label: 'Signature Task',
-    shape: 'bpmn-node',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('Signature Task', 'Signature Task', '/icons/form.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createNodeShell({ id: 'New_SignatureTask', paletteLabel: 'Signature Task', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'New Signature Task',
@@ -960,7 +724,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         input_mapping: {},
         output_mapping: {}
       },
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: CellType.signatureTask,
         formKey: '',
@@ -970,33 +734,14 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ExclusiveGateway: {
-    id: `New_ExclusiveGateway_${Date.now()}`,
-    label: 'Exclusive Gateway',
-    shape: 'custom-polygon',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('Exclusive Gateway', 'Exclusive Gateway', '/icons/form.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createGatewayShell('New_ExclusiveGateway', 'Exclusive Gateway', '/icons/form.svg'),
     data: {
       id: '',
       name: 'New Exclusive Gateway',
       label: 'New Exclusive Gateway',
       documentation: '',
-      type: WorkflowElementType.Gateway,
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      type: WorkflowElementType.Exclusive,
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: CellType.exclusive,
         rules: {
@@ -1011,99 +756,42 @@ const workflowCellElementTemplate: CellTypeItem = {
             style: ''
           }
         },
-        maxOutgoing: 2,
+        maxOutgoing: 2
       }
     }
   },
   ParallelGateway: {
-    id: `New_ParallelGateway_${Date.now()}`,
-    label: 'Parallel Gateway',
-    shape: 'custom-polygon',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('Parallel Gateway', 'Parallel Gateway', '/icons/a.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createGatewayShell('New_ParallelGateway', 'Parallel Gateway', '/icons/a.svg'),
     data: {
       id: '',
       name: 'New Parallel Gateway',
       label: 'New Parallel Gateway',
       documentation: '',
-      type: WorkflowElementType.Gateway,
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      type: WorkflowElementType.Parallel,
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: CellType.parallel,
-        maxOutgoing: 2,
+        maxOutgoing: 2
       }
     }
   },
   InclusiveGateway: {
-    id: `New_InclusiveGateway_${Date.now()}`,
-    label: 'Inclusive Gateway',
-    shape: 'custom-polygon',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('Inclusive Gateway', 'Inclusive Gateway', '/icons/form.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createGatewayShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/form.svg'),
     data: {
       id: '',
       name: 'New Inclusive Gateway',
       label: 'New Inclusive Gateway',
       documentation: '',
-      type: WorkflowElementType.Gateway,
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      type: WorkflowElementType.Inclusive,
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: CellType.inclusive,
-        maxOutgoing: 2,
+        maxOutgoing: 2
       }
     }
   },
   TransformTask: {
-    id: `New_TransformTask_${Date.now()}`,
-    label: 'Transform Task',
-    shape: 'bpmn-node',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('Transform Task', 'Transform Task', '/icons/transform.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createNodeShell({ id: 'New_TransformTask', paletteLabel: 'Transform Task', icon: '/icons/transform.svg' }),
     data: {
       id: '',
       name: 'New Transform Task',
@@ -1114,40 +802,21 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: {
         mapping: {}
       },
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: CellType.transformTask
       }
     }
   },
   HTTPTask: {
-    id: `New_HTTPTask_${Date.now()}`,
-    label: 'HTTP Task',
-    shape: 'bpmn-node',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('HTTP Task', 'HTTP Task', '/icons/http-task.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createNodeShell({ id: 'New_HTTPTask', paletteLabel: 'HTTP Task', icon: '/icons/http-task.svg' }),
     data: {
       id: '',
       name: 'New HTTP Task',
       label: 'New HTTP Task',
       documentation: '',
       type: WorkflowElementType.HTTPTask,
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      execution: { ...DEFAULT_TASK_EXECUTION },
       config: {
         method: 'GET',
         url: '',
@@ -1164,33 +833,14 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   UniqueIdGenerator: {
-    id: `New_UniqueIdGenerator_${Date.now()}`,
-    label: 'Unique Id Generator',
-    shape: 'bpmn-node',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('Unique Id Generator', 'Unique Id Generator', '/icons/form.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createNodeShell({ id: 'New_UniqueIdGenerator', paletteLabel: 'Unique Id Generator', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'New Unique Id Generator',
       label: 'New Unique Id Generator',
       documentation: '',
       type: WorkflowElementType.HTTPRequestTask,
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: CellType.uniqueIdGenerator
       },
@@ -1207,26 +857,13 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   DocumentGenerationTask: {
-    id: `New_DocumentGenerationTask_${Date.now()}`,
-    label: 'New Document Generation Task',
-    shape: 'bpmn-node',
-    width: 250,
-    height: 64,
-    attrs: GenAttrs('Document Generation Task', 'Document Generation Task', '/icons/form.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createNodeShell({
+      id: 'New_DocumentGenerationTask',
+      paletteLabel: 'New Document Generation Task',
+      title: 'Document Generation Task',
+      icon: '/icons/form.svg',
+      width: 250
+    }),
     data: {
       id: '',
       name: 'New Document Generation Task',
@@ -1255,40 +892,21 @@ const workflowCellElementTemplate: CellTypeItem = {
         apply_user: '',
         apply_date: ''
       },
-      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: CellType.documentGenerationTask
       }
     }
   },
   SubProcess: {
-    id: `New_SubProcess_${Date.now()}`,
-    label: 'Sub Process',
-    shape: 'bpmn-node',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('Sub Process', 'Sub Process', '/icons/form.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createNodeShell({ id: 'New_SubProcess', paletteLabel: 'Sub Process', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'New Sub Process',
       label: 'New Sub Process',
       documentation: '',
       type: WorkflowElementType.SubProcess,
-      execution: { async: false, timeout_ms: 6000, priority: 1 },
+      execution: { ...LONG_RUNNING_EXECUTION },
       config: {
         processDefinitionId: ''
       },
@@ -1298,33 +916,14 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ValidateTask: {
-    id: `New_ValidateTask_${Date.now()}`,
-    label: 'Validate Task',
-    shape: 'bpmn-node',
-    width: 200,
-    height: 64,
-    attrs: GenAttrs('Validate Task', 'Validate Task', '/icons/form.svg'),
-    markup: [
-      { tagName: 'rect', selector: 'body' },
-      { tagName: 'image', selector: 'image' },
-      { tagName: 'text', selector: 'title' },
-      { tagName: 'text', selector: 'text' }
-    ],
-    ports: {
-      items: [
-        { id: 'from', group: 'from' },
-        { id: 'to', group: 'to' },
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-      ]
-    },
+    ...createNodeShell({ id: 'New_ValidateTask', paletteLabel: 'Validate Task', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'New Validate Task',
       label: 'New Validate Task',
       documentation: '',
       type: WorkflowElementType.ValidateTask,
-      execution: { async: false, timeout_ms: 6000, priority: 1 },
+      execution: { ...LONG_RUNNING_EXECUTION },
       config: {
         rules: [],
         output_mapping: {}

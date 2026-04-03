@@ -24,6 +24,7 @@
       },
       "config": {},
       "metadata": {
+        "tags": "BaseTask",
         "x": 60,
         "y": -150,
         "width": 140,
@@ -56,6 +57,7 @@
       },
       "config": {},
       "metadata": {
+        "tags": "BaseTask",
         "x": 60,
         "y": 170,
         "width": 140,
