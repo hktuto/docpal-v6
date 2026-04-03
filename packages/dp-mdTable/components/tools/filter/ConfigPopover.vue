@@ -12,7 +12,7 @@
           <!-- 第一列：逻辑连接符 -->
           <div class="logic-connector">
             <el-button v-if="index !== 1" disabled size="small" class="connector-btn">
-              {{ index === 0 ? '当' : columnFilterRules.conjunction === 'and' ? '并且' : '或者' }}
+              {{ index === 0 ? '当' : columnFilterRules.conjunction === 'AND' ? '并且' : '或者' }}
             </el-button>
             <el-select
               v-else
@@ -24,8 +24,8 @@
               @visible-change="handleSelectVisibleChange"
               @click.stop
             >
-              <el-option label="并且" value="and" />
-              <el-option label="或者" value="or" />
+              <el-option label="并且" value="AND" />
+              <el-option label="或者" value="OR" />
             </el-select>
           </div>
 
@@ -63,8 +63,17 @@
           </el-select>
 
           <!-- 第四列：值输入 -->
+          <el-date-picker
+            v-if="isDateField(rule.field)"
+            v-model="rule.value"
+            placeholder="请选择日期"
+            size="small"
+            class="value-input"
+            value-format="x"
+            @change="handleEditRule(rule)"
+          />
           <el-input
-            v-if="!isValueEmptyOperator(rule.operator)"
+            v-else-if="!isValueEmptyOperator(rule.operator)"
             v-model="rule.value"
             placeholder="请输入值"
             size="small"
@@ -88,12 +97,12 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import { Delete, Plus, Document, Clock } from '@element-plus/icons-vue'
-import type { ColumnConfig } from '../../types/column-context'
-import { ColumnFieldType } from '../../types/column-types'
+import type { ColumnConfig } from '@packages/dp-mdTable/types/column-context'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 export interface FilterRule {
   id: string
-  connector: 'and' | 'or'
+  connector: 'AND' | 'OR'
   field: string
   operator: string
   value: string | number
@@ -120,7 +129,7 @@ const emit = defineEmits<{
   'filter-change': [
     rules: {
       conditions: FilterRule[]
-      conjunction: 'and' | 'or'
+      conjunction: 'AND' | 'OR'
     }
   ]
 }>()
@@ -162,36 +171,48 @@ const isNumericField = (field: string): boolean => {
     type === ColumnFieldType.Rating
   )
 }
-
+const isDateField = (field: string): boolean => {
+  const column = props.availableColumns.find((col) => col.field === field)
+  if (!column) return false
+  const type = column.business_type
+  return type === ColumnFieldType.DateTime || type === ColumnFieldType.CreatedTime || type === ColumnFieldType.LastModifiedTime
+}
 // 获取字段的操作符选项
 const getOperatorsForField = (field: string): OperatorOption[] => {
   if (!field) {
     return []
   }
-
-  const isNumeric = isNumericField(field)
-
-  if (isNumeric) {
+  if (isDateField(field)) {
+    return [
+      { label: '等于', value: 'EQ' },
+      { label: '晚于', value: 'GT' },
+      { label: '晚于等于', value: 'GTE' },
+      { label: '早于', value: 'LT' },
+      { label: '早于等于', value: 'LTE' },
+      { label: '为空', value: 'EMPTY' },
+      { label: '不为空', value: 'IS_NOT_NULL' }
+    ]
+  } else if (isNumericField(field)) {
     // 数字类型操作符
     return [
-      { label: '=', value: 'eq' },
-      { label: '≠', value: 'ne' },
-      { label: '>', value: 'gt' },
-      { label: '≥', value: 'gte' },
-      { label: '<', value: 'lt' },
-      { label: '≤', value: 'lte' },
-      { label: '为空', value: 'empty' }
+      { label: '=', value: 'EQ' },
+      { label: '≠', value: 'NE' },
+      { label: '>', value: 'GT' },
+      { label: '≥', value: 'GTE' },
+      { label: '<', value: 'LT' },
+      { label: '≤', value: 'LTE' },
+      { label: '为空', value: 'EMPTY' }
     ]
   } else {
     // 非数字类型操作符
     return [
-      { label: '等于', value: 'eq' },
-      { label: '不等于', value: 'ne' },
-      { label: '包含', value: 'contains' },
-      { label: '不包含', value: 'notContains' },
-      { label: '为空', value: 'empty' },
-      { label: '不为空', value: 'notEmpty' },
-      { label: '有重复', value: 'duplicate' }
+      { label: '等于', value: 'EQ' },
+      { label: '不等于', value: 'NE' },
+      { label: '包含', value: 'CONTAINS' },
+      { label: '不包含', value: 'NOT_CONTAINS' },
+      { label: '为空', value: 'EMPTY' },
+      { label: '不为空', value: 'NOT_EMPTY' },
+      { label: '有重复', value: 'DUPLICATE' }
     ]
   }
 }
@@ -209,6 +230,7 @@ const getFieldIcon = (type?: ColumnFieldType | string) => {
   return Document
 }
 function handleEditRule(rule: FilterRule) {
+  console.log('handleEditRule', rule)
   if (rule.field && rule.operator) {
     if (isValueEmptyOperator(rule.operator)) {
       handleRuleChange()
@@ -219,12 +241,12 @@ function handleEditRule(rule: FilterRule) {
 }
 // 处理规则变化
 const handleRuleChange = () => {
+  console.log('handleRuleChange', columnFilterRules.value)
   emit('filter-change', {
     conditions: [...(columnFilterRules.value?.conditions || [])],
-    conjunction: columnFilterRules.value?.conjunction || 'and'
+    conjunction: columnFilterRules.value?.conjunction || 'AND'
   })
 }
-
 
 // 处理字段变化
 const handleFieldChange = (rule: FilterRule) => {
@@ -251,14 +273,14 @@ const handleDeleteRule = (index: number) => {
 const handleAddRule = () => {
   const newRule: FilterRule = {
     id: `filter-${Date.now()}-${Math.random()}`,
-    connector: columnFilterRules.value?.conjunction || 'and',
+    connector: columnFilterRules.value?.conjunction || 'AND',
     field: '',
     operator: '',
     value: ''
   }
 
   columnFilterRules.value = {
-    conjunction: columnFilterRules.value?.conjunction || 'and',
+    conjunction: columnFilterRules.value?.conjunction || 'AND',
     conditions: [...(columnFilterRules.value?.conditions || []), newRule]
   }
 }

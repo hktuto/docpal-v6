@@ -83,6 +83,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       platform: 'client',
+      /** 根应用显式声明，确保客户端 useRuntimeConfig() 能拿到（仅靠 layers 合并时可能缺失） */
+      DYNAMIC_ACTIONS_PROXY: process.env.DYNAMIC_ACTIONS_PROXY,
       defaultTab: {
         id: 'client-work-panel',
         name: 'client-work-panel',

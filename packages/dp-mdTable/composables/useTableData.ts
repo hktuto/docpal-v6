@@ -1,6 +1,6 @@
 // composables/useTableData.ts
 import { ref, computed, provide, inject, type Ref, type InjectionKey, type ComputedRef } from 'vue'
-import { newClientApi } from 'api'
+import { newClientApi, postDynamicActions } from 'api'
 // import { createGroupTree } from '../utils/treeDataHelper'
 export interface UseTableDataOptions {
   /** 是否自动加载数据 */
@@ -107,11 +107,12 @@ export const TableDataContextKey: InjectionKey<TableDataContext> = Symbol('Table
 export function useTableData(tableId: string, gridRef: any, options: UseTableDataOptions = {}) {
   const { autoLoad = true, transform } = options
   const tableData = ref<any[]>([])
+  const totalSize = ref(0)
   const rawData = ref<any[]>([]) // 原始数据，用于行数据管理
   const loading = ref(false)
   const loadingMore = ref(false)
-  const totalSize = ref(0)
   const currentPage = ref(1)
+  const viewTools: any = inject('viewTools')
   /** 翻页时复用的查询条件（不含 pageNum） */
   const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
 
@@ -139,40 +140,29 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     // }
     try {
       loading.value = true
-      if (tableId) {
-        const pageSizeVal = params.pageSize ?? tableQueryBase.value.pageSize ?? 100
-        const pageNumVal = params.pageNum ?? 1
-        const { pageNum: _p, pageSize: _s, ...restPersist } = params
-        tableQueryBase.value = {
-          ...tableQueryBase.value,
-          ...restPersist,
-          pageSize: pageSizeVal
-        }
-        const requestBody = { ...tableQueryBase.value, pageNum: pageNumVal, pageSize: pageSizeVal }
-        currentPage.value = pageNumVal
-
-        const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, requestBody)
-        const mapped = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
-        tableData.value = transform ? transform(mapped) : mapped
-        totalSize.value = data?.totalSize ?? 0
-        return {
-          entryList: tableData.value,
-          totalSize: totalSize.value
-        }
+      let additionalParams = {}
+      if (viewTools?.getPageParams) {
+        additionalParams = viewTools?.getPageParams()
       }
-      console.warn('tableId 不能为空')
-      totalSize.value = 0
-      tableData.value = []
+      const { data } = await postDynamicActions({
+        tableId,
+        columns: [],
+        ...additionalParams,
+        pagination: {
+          pageSize: params.pageSize ?? tableQueryBase.value.pageSize ?? 100,
+          pageNum: params.pageNum ? params.pageNum + 1 : 1
+        }
+      })
+      tableData.value = data.data
+      rawData.value = JSON.parse(JSON.stringify(data.data))
+      totalSize.value = data.meta.total
       return {
-        entryList: [],
-        totalSize: 0
+        entryList: tableData.value,
+        totalSize: totalSize.value
       }
     } catch (error) {
       console.error('getTableData error', error)
-      return {
-        entryList: [],
-        totalSize: 0
-      }
+      return undefined
     } finally {
       loading.value = false
     }
@@ -195,6 +185,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
         return
       }
       tableData.value = [...tableData.value, ...newRows]
+      
       currentPage.value = nextPage
       if (data?.totalSize != null) {
         totalSize.value = data.totalSize

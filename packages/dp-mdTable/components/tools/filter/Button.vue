@@ -3,13 +3,12 @@
     <el-button ref="buttonRef" type="primary" @click="handleButtonClick">
       {{ columnFilterRules && columnFilterRules?.conditions?.length > 0 ? `${columnFilterRules?.conditions?.length}个筛选` : '筛选' }}
     </el-button>
-    <FilterConfigPopover ref="popoverRef" :available-columns="availableColumns" width="600" placement="bottom-start" @filter-change="handleFilterChange" />
+    <ToolsFilterConfigPopover ref="popoverRef" :available-columns="availableColumns" width="600" placement="bottom-start" @filter-change="handleFilterChange" />
   </div>
 </template>
 
 <script setup lang="ts">
-import FilterConfigPopover from './FilterConfigPopover.vue'
-import type { FilterRule } from './FilterConfigPopover.vue'
+import type { FilterRule } from './ConfigPopover.vue'
 import type { ColumnConfig } from '../../types/column-context'
 
 interface Props {
