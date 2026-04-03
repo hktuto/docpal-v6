@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { createError, workflowElement } from '#imports'
+import { createError, workflowElement, WorkflowElementType } from '#imports'
 import { onClickOutside } from '@vueuse/core'
 import { ElPopconfirm } from 'element-plus'
 
@@ -135,7 +135,11 @@ onMounted(() => {
       <Icon name="lucide:settings-2" />
       <div class="label">Edit</div>
     </div>
-    <div class="contextAction" v-if="contextSelectedNode && !['startevent', 'endevent'].includes(contextSelectedNode.data.type.toLowerCase())" @click="copy">
+    <div
+      class="contextAction"
+      v-if="contextSelectedNode && ![WorkflowElementType.StartEvent, WorkflowElementType.EndEvent].includes(contextSelectedNode.data.type)"
+      @click="copy"
+    >
       <Icon name="lucide:clipboard-copy" />
       <div class="label">Copy</div>
     </div>
@@ -143,7 +147,7 @@ onMounted(() => {
       class="contextAction"
       v-if="
         contextSelectedNode &&
-        ['UserTask', 'StartEvent'].includes(contextSelectedNode.data.type) &&
+        [WorkflowElementType.UserTask, WorkflowElementType.StartEvent].includes(contextSelectedNode.data.type) &&
         graphProvider.copyKey.value &&
         graphProvider.copyKey.value !== contextSelectedNode.data.id
       "
@@ -153,7 +157,7 @@ onMounted(() => {
       <div class="label">Paste</div>
     </div>
     <el-popconfirm
-      v-if="contextSelectedNode && !['startevent', 'endevent'].includes(contextSelectedNode.data.type.toLowerCase())"
+      v-if="contextSelectedNode && ![WorkflowElementType.StartEvent, WorkflowElementType.EndEvent].includes(contextSelectedNode.data.type)"
       title="Are you sure to delete this item?"
       @confirm="deleteItem"
     >

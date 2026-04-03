@@ -4,21 +4,6 @@ import type { NodeItem } from './jsonConversion'
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
   EndEvent = 'EndEvent',
-  Exclusive = 'ExclusiveGateway',
-  Parallel = 'ParallelGateway',
-  Inclusive = 'InclusiveGateway',
-  Gateway = 'Gateway',
-  UserTask = 'UserTask',
-  HTTPTask = 'HTTPTask',
-  HTTPRequestTask = 'HTTPRequestTask',
-  TransformTask = 'TransformTask',
-  DocumentGenerationTask = 'DocumentGenerationTask',
-  SubProcess = 'SubProcess',
-  ValidateTask = 'ValidateTask'
-}
-
-export enum WorkflowNodeType {
-  BaseTask = 'BaseTask',
   UserTask = 'UserTask',
   Gateway = 'Gateway',
   ServiceTask = 'ServiceTask',
@@ -141,9 +126,9 @@ Graph.registerNode(
 export enum CellType {
   userTask = 'UserTask',
   signatureTask = 'SignatureTask',
-  exclusive = 'ExclusiveGateway',
-  parallel = 'ParallelGateway',
-  inclusive = 'InclusiveGateway',
+  exclusiveGateway = 'ExclusiveGateway',
+  parallelGateway = 'ParallelGateway',
+  inclusiveGateway = 'InclusiveGateway',
   transformTask = 'TransformTask',
   HTTPTask = 'HTTPTask',
   uniqueIdGenerator = 'UniqueIdGenerator',
@@ -172,7 +157,7 @@ export type CellTypeItem = {
     data: {
       id: string
       name: string
-      type: WorkflowElementType
+      type: CellType
       label: string
       documentation: string
       inputSchema?: string
@@ -186,7 +171,7 @@ export type CellTypeItem = {
       }
       input_mapping?: any
       metadata: {
-        tags: CellType
+        tags: WorkflowElementType
         formKey?: string
         buttonSetting?: any
         booleanButton?: any[]
@@ -378,17 +363,6 @@ const GRAPH_NODE_MARKUP: Markup[] = [
 const PORT_START_OUT = { items: [{ id: 'to', group: 'to' }] }
 const PORT_END_IN = { items: [{ id: 'from', group: 'from' }] }
 
-function gatewayTitleFromTags(tags: string | undefined) {
-  switch (tags) {
-    case 'ParallelGateway':
-      return 'Parallel Gateway'
-    case 'InclusiveGateway':
-      return 'Inclusive Gateway'
-    default:
-      return 'Exclusive Gateway'
-  }
-}
-
 /**
  * 將後端 NodeItem 轉為 X6 用 GraphItem
  */
@@ -453,35 +427,6 @@ export const workflowElement: WorkflowElement = {
     clickHandler: () => {},
     contextMenuComponent: 'LazyContextEndEvent'
   },
-  Gateway: {
-    embed: false,
-    toolbar: [
-      {
-        id: CellType.exclusive,
-        icon: 'mdi:call-split',
-        label: 'Exclusive',
-        group: 'Gateway',
-        order: 0
-      },
-      {
-        id: CellType.parallel,
-        icon: 'mdi:axis-arrow',
-        label: 'Parallel',
-        group: 'Gateway',
-        order: 0
-      },
-      {
-        id: CellType.inclusive,
-        icon: 'mdi:axis-arrow',
-        label: 'Inclusive',
-        group: 'Gateway',
-        order: 0
-      }
-    ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, gatewayTitleFromTags(workflowNodeItem.metadata.tags)),
-    clickHandler: () => {},
-    contextMenuComponent: () => {}
-  },
   UserTask: {
     embed: false,
     toolbar: [
@@ -501,7 +446,7 @@ export const workflowElement: WorkflowElement = {
       // }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const title = workflowNodeItem.metadata.tags === CellType.signatureTask ? 'User Signature Task' : 'User Task'
+      const title = workflowNodeItem.type === CellType.signatureTask ? 'User Signature Task' : 'User Task'
       return graphItemFromWorkflowNode(workflowNodeItem, title)
     },
     clickHandler: () => {},
@@ -512,84 +457,36 @@ export const workflowElement: WorkflowElement = {
       return 'LazyContextUserTask'
     }
   },
-  TransformTask: {
+  Gateway: {
     embed: false,
     toolbar: [
       {
-        id: CellType.transformTask,
-        icon: 'tabler:transform',
-        label: 'Transform Task',
-        group: '',
+        id: CellType.exclusiveGateway,
+        icon: 'mdi:call-split',
+        label: 'Exclusive',
+        group: 'Gateway',
         order: 0
-      }
-    ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'Transform Task'),
-    clickHandler: () => {},
-    contextMenuComponent: () => {
-      return 'LazyContextTransform'
-    }
-  },
-  HTTPRequestTask: {
-    embed: false,
-    toolbar: [
+      },
       {
-        id: CellType.uniqueIdGenerator,
-        icon: 'mdi:numeric',
-        label: 'Unique Id Generator',
-        group: '',
+        id: CellType.parallelGateway,
+        icon: 'mdi:axis-arrow',
+        label: 'Parallel',
+        group: 'Gateway',
         order: 0
-      }
-    ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'Unique Id Generator'),
-    clickHandler: () => {},
-    contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      const tags = workflowNodeItem.metadata.tags
-      switch (tags) {
-        case CellType.uniqueIdGenerator:
-          return 'ContextUniqueIdGenerator'
-        default:
-          return
-      }
-    }
-  },
-  HTTPTask: {
-    embed: false,
-    toolbar: [
+      },
       {
-        id: CellType.HTTPTask,
-        icon: 'mdi:web',
-        label: 'HTTP Task',
-        group: '',
+        id: CellType.inclusiveGateway,
+        icon: 'mdi:axis-arrow',
+        label: 'Inclusive',
+        group: 'Gateway',
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'HTTP Task'),
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
-    contextMenuComponent: () => {
-      return 'ContextHttpTask'
-    }
+    contextMenuComponent: () => {}
   },
-  DocumentGenerationTask: {
-    embed: false,
-    toolbar: [
-      {
-        id: CellType.documentGenerationTask,
-        icon: 'mdi:file-pdf',
-        label: 'Document Generation Task',
-        group: '',
-        order: 0
-      }
-    ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
-      graphItemFromWorkflowNode(workflowNodeItem, 'Document Generation Task', {
-        defaultWidth: 250
-      }),
-    clickHandler: () => {},
-    contextMenuComponent: () => {
-      return 'LazyContextDocumentGeneration'
-    }
-  },
-  SubProcess: {
+  ServiceTask: {
     embed: false,
     toolbar: [
       {
@@ -598,29 +495,74 @@ export const workflowElement: WorkflowElement = {
         label: 'Sub Process',
         group: '',
         order: 0
-      }
-    ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'Sub Process'),
-    clickHandler: () => {},
-    contextMenuComponent: () => {
-      return 'LazyContextSubProcess'
-    }
-  },
-  ValidateTask: {
-    embed: false,
-    toolbar: [
+      },
       {
         id: CellType.validateTask,
         icon: 'material-symbols-light:list-alt-check-outline',
         label: 'Validate Task',
         group: '',
         order: 0
+      },
+      {
+        id: CellType.transformTask,
+        icon: 'tabler:transform',
+        label: 'Transform Task',
+        group: '',
+        order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, 'Validate Task'),
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
-    contextMenuComponent: () => {
-      return 'LazyContextValidateTask'
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      switch (workflowNodeItem.type) {
+        case CellType.subProcess:
+          return 'LazyContextSubProcess'
+        case CellType.validateTask:
+          return 'LazyContextValidateTask'
+        case CellType.transformTask:
+          return 'LazyContextTransform'
+        default:
+      }
+    }
+  },
+  HTTPRequestTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.HTTPTask,
+        icon: 'mdi:web',
+        label: 'HTTP Task',
+        group: '',
+        order: 0
+      },
+      {
+        id: CellType.documentGenerationTask,
+        icon: 'mdi:file-pdf',
+        label: 'Document Generation Task',
+        group: '',
+        order: 0
+      },
+      {
+        id: CellType.uniqueIdGenerator,
+        icon: 'mdi:numeric',
+        label: 'Unique Id Generator',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      switch (workflowNodeItem.type) {
+        case CellType.HTTPTask:
+          return 'ContextHttpTask'
+        case CellType.documentGenerationTask:
+          return 'LazyContextDocumentGeneration'
+        case CellType.uniqueIdGenerator:
+          return 'ContextUniqueIdGenerator'
+        default:
+          return
+      }
     }
   }
 }
@@ -629,7 +571,6 @@ export function getUrlOrigin() {
   return 'https://sit-v3.wclsolution.com'
   // return window?.location?.origin || ''
 }
-// #region node style
 
 const DEFAULT_TASK_EXECUTION = { async: false, timeout_ms: 1000, priority: 0 }
 const LONG_RUNNING_EXECUTION = { async: false, timeout_ms: 6000, priority: 1 }
@@ -740,10 +681,10 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Exclusive Gateway',
       label: 'New Exclusive Gateway',
       documentation: '',
-      type: WorkflowElementType.Exclusive,
+      type: CellType.exclusiveGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: CellType.exclusive,
+        tags: WorkflowElementType.Gateway,
         rules: {
           success: {
             label: 'success',
@@ -767,10 +708,10 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Parallel Gateway',
       label: 'New Parallel Gateway',
       documentation: '',
-      type: WorkflowElementType.Parallel,
+      type: CellType.parallelGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: CellType.parallel,
+        tags: WorkflowElementType.Gateway,
         maxOutgoing: 2
       }
     }
@@ -782,10 +723,10 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Inclusive Gateway',
       label: 'New Inclusive Gateway',
       documentation: '',
-      type: WorkflowElementType.Inclusive,
+      type: CellType.inclusiveGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: CellType.inclusive,
+        tags: WorkflowElementType.Gateway,
         maxOutgoing: 2
       }
     }
@@ -797,14 +738,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Transform Task',
       label: 'New Transform Task',
       documentation: '',
-      type: WorkflowElementType.TransformTask,
+      type: CellType.transformTask,
       implementation: 'data.transform',
       config: {
         mapping: {}
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: CellType.transformTask
+        tags: WorkflowElementType.ServiceTask
       }
     }
   },
@@ -815,7 +756,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New HTTP Task',
       label: 'New HTTP Task',
       documentation: '',
-      type: WorkflowElementType.HTTPTask,
+      type: CellType.HTTPTask,
       execution: { ...DEFAULT_TASK_EXECUTION },
       config: {
         method: 'GET',
@@ -825,7 +766,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         output_mapping: {}
       },
       metadata: {
-        tags: CellType.HTTPTask
+        tags: WorkflowElementType.HTTPRequestTask
       },
       celCondition: '',
       inputSchema: '',
@@ -839,10 +780,10 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Unique Id Generator',
       label: 'New Unique Id Generator',
       documentation: '',
-      type: WorkflowElementType.HTTPRequestTask,
+      type: CellType.uniqueIdGenerator,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: CellType.uniqueIdGenerator
+        tags: WorkflowElementType.HTTPRequestTask
       },
       config: {
         method: 'POST',
@@ -869,7 +810,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Document Generation Task',
       label: 'New Document Generation Task',
       documentation: '',
-      type: WorkflowElementType.DocumentGenerationTask,
+      type: CellType.documentGenerationTask,
       config: {
         method: 'POST',
         url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
@@ -894,7 +835,8 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: CellType.documentGenerationTask
+        tags: WorkflowElementType.HTTPRequestTask,
+        width: 250
       }
     }
   },
@@ -905,7 +847,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Sub Process',
       label: 'New Sub Process',
       documentation: '',
-      type: WorkflowElementType.SubProcess,
+      type: WorkflowElementType.ServiceTask,
       execution: { ...LONG_RUNNING_EXECUTION },
       config: {
         processDefinitionId: ''
@@ -922,14 +864,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Validate Task',
       label: 'New Validate Task',
       documentation: '',
-      type: WorkflowElementType.ValidateTask,
+      type: CellType.validateTask,
       execution: { ...LONG_RUNNING_EXECUTION },
       config: {
         rules: [],
         output_mapping: {}
       },
       metadata: {
-        tags: CellType.validateTask
+        tags: WorkflowElementType.ServiceTask
       }
     }
   }
@@ -953,7 +895,6 @@ export const workflowCellElement = {
     } as CellTypeItem[K]
   }
 }
-// #endregion
 
 // TODO get config setting
 function generatorHTTPRequestTaskHeaders() {

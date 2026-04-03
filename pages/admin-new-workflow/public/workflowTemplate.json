@@ -24,7 +24,7 @@
       },
       "config": {},
       "metadata": {
-        "tags": "BaseTask",
+        "tags": "StartEvent",
         "x": 60,
         "y": -150,
         "width": 140,
@@ -57,7 +57,7 @@
       },
       "config": {},
       "metadata": {
-        "tags": "BaseTask",
+        "tags": "EndEvent",
         "x": 60,
         "y": 170,
         "width": 140,

@@ -1,5 +1,5 @@
 import { Graph } from '@antv/x6'
-import { workflowElement, WorkflowElementType } from './workflowElement'
+import { CellType, workflowElement, WorkflowElementType } from './workflowElement'
 
 interface Flow {
   incoming: string[]
@@ -26,7 +26,7 @@ interface Markup {
 
 /**
  * node Style
- * @const tags 子類型  User Task => [User Task, Signature Task]. Server Task => ['Document Task', 'Email Task', ...]
+ * @const tags 類型
  * @const x X坐標
  * @const y Y坐標
  * @const width graph的寬度
@@ -49,7 +49,7 @@ export interface NodeItem {
   id: string
   label: string
   name: string
-  type: string
+  type: CellType
   flow: Flow
   execution: Execution
   config: Config
@@ -145,7 +145,7 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   const cells: any = []
 
   workflowJson.nodes.forEach((nodeItem: NodeItem) => {
-    const type = nodeItem.type as WorkflowElementType
+    const type = nodeItem.metadata.tags as WorkflowElementType
     if (type in workflowElement) {
       const graphData = workflowElement[type].workflowDataToGraphData(nodeItem)
       cells.push(graphData)

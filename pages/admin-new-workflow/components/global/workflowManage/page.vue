@@ -177,7 +177,8 @@ async function handleActiveAndInactive(row: any, status: boolean) {
 }
 
 async function handleRemove(row: any) {
-  if (Object.keys(row.content).length !== 0) return
+  if (row.status === 'A') return
+
   try {
     await $api.delete(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
     reload()
