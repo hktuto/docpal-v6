@@ -181,6 +181,7 @@ export type CellTypeItem = {
         buttonSetting?: any
         booleanButton?: any[]
         rules?: any
+        maxOutgoing?: number
       }
       celCondition?: string
     }
@@ -1009,7 +1010,8 @@ const workflowCellElementTemplate: CellTypeItem = {
             condition: {},
             style: ''
           }
-        }
+        },
+        maxOutgoing: 2,
       }
     }
   },
@@ -1042,7 +1044,8 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: WorkflowElementType.Gateway,
       execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
-        tags: CellType.parallel
+        tags: CellType.parallel,
+        maxOutgoing: 2,
       }
     }
   },
@@ -1075,7 +1078,8 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: WorkflowElementType.Gateway,
       execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
-        tags: CellType.inclusive
+        tags: CellType.inclusive,
+        maxOutgoing: 2,
       }
     }
   },

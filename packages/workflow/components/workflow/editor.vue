@@ -4,7 +4,16 @@ import { Transform } from '@antv/x6-plugin-transform'
 import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
-import { MenuRouterKey, useVariables, WORKFLOW_EDITOR_PROVIDER, workflowJsonToX6Node, workflowCellElement, workflowElement, type WorkflowJson } from '#imports'
+import {
+  MenuRouterKey,
+  useVariables,
+  WORKFLOW_EDITOR_PROVIDER,
+  workflowJsonToX6Node,
+  workflowCellElement,
+  workflowElement,
+  type WorkflowJson,
+  WorkflowElementType
+} from '#imports'
 import { newAdminApi } from 'api'
 
 const { setVariables } = useVariables()
@@ -40,6 +49,9 @@ const dropActionsItems = computed(() => {
   }, [])
 })
 const isReady = ref(false)
+
+const GATEWAY_NODE_TYPES = new Set<string>([WorkflowElementType.Gateway, 'ExclusiveGateway', 'ParallelGateway', 'InclusiveGateway'])
+
 function init() {
   try {
     if (!workflowJsonObject.value) {
@@ -79,8 +91,19 @@ function init() {
         allowMulti: false,
         allowEdge: false,
         highlight: true,
-        validateMagnet({ magnet }: any) {
-          return !readonly.value
+        validateMagnet({ e, magnet, view, cell }) {
+          if (readonly.value) {
+            return false
+          }
+
+          // 限制 gateway 類型的 node 出綫
+          if (GATEWAY_NODE_TYPES.has(cell.getData().type)) {
+            const outgoingEdges = this.model.getConnectedEdges(cell, { outgoing: true })
+            if (outgoingEdges.length === cell.getData().metadata.maxOutgoing) {
+              return false
+            }
+          }
+          return true
         },
         validateConnection({ sourceMagnet, targetMagnet }: any) {
           return !readonly.value
