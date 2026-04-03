@@ -18,22 +18,23 @@ const formData = ref({
 const gatewayType = ['ExclusiveGateway_', 'ParallelGateway_', 'InclusiveGateway_']
 
 const showCondition = computed(() => {
-  // if (edge.data.source_node_id.includes('ExclusiveGateway_')) {
+  // if (edge.getData().source_node_id.includes('ExclusiveGateway_')) {
   //   return false
   // }
   return true
 })
 
 const showPriority = computed(() => {
-  return edge.data.source_node_id.includes('InclusiveGateway_')
+  return edge.getData().source_node_id.includes('InclusiveGateway_')
 })
 
-function init(){
+function init() {
   const data = edge.getData()
-  data.flow_control
+  formData.value.condition = data.flow_control.condition || ''
+  formData.value.priority = data.flow_control.priority || 1
 }
 
-function updateData(){
+function updateData() {
   graphProvider?.graph.value?.startBatch('update-gateway-edge-data')
   const data = edge.getData()
 
@@ -43,15 +44,20 @@ function updateData(){
   }
   edge.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-gateway-edge-data')
+  console.log(123, edge.data)
 }
 
-watch(formData,()=>{
-  if (edge.getData().flow_control !== formData.value){
-    updateData()
+watch(
+  formData,
+  () => {
+    if (edge.getData().flow_control !== formData.value) {
+      updateData()
+    }
+  },
+  {
+    deep: true
   }
-},{
-  deep: true
-})
+)
 
 watch(
   () => edge,

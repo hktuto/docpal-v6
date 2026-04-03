@@ -78,6 +78,7 @@ function deleteItem() {
   const id = contextSelectedNode.value.id
   graphProvider?.graph.value?.removeNode(id)
   contextMenuOpened.value = false
+  graphProvider?.closeSidebar()
 }
 
 function editItem() {
@@ -134,7 +135,7 @@ onMounted(() => {
       <Icon name="lucide:settings-2" />
       <div class="label">Edit</div>
     </div>
-    <div class="contextAction" v-if="contextSelectedNode && ['startevent', 'endevent'].includes(contextSelectedNode.data.type.toLowerCase())" @click="copy">
+    <div class="contextAction" v-if="contextSelectedNode && !['startevent', 'endevent'].includes(contextSelectedNode.data.type.toLowerCase())" @click="copy">
       <Icon name="lucide:clipboard-copy" />
       <div class="label">Copy</div>
     </div>
