@@ -92,7 +92,7 @@ onClickOutside(rightClickEl, () => {
 // #endregion
 
 function handleNodeClick({ node }: any) {
-  const type = node.data.type as WorkflowElementType
+  const type = node.data.metadata.tags as WorkflowElementType
   if (type) {
     const workflowElementType = workflowElement[type]
     if (workflowElementType.contextMenuComponent) {

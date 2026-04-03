@@ -482,7 +482,10 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
+      graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name, {
+        defaultWidth: workflowNodeItem.metadata.width
+      }),
     clickHandler: () => {},
     contextMenuComponent: () => {}
   },
@@ -598,12 +601,12 @@ function createNodeShell(opts: ShellOpts) {
   }
 }
 
-function createGatewayShell(id: string, title: string, icon: string) {
+function createGatewayShell(id: string, title: string, icon: string, width?: number, height?: number) {
   return {
     id: `${id}${Date.now()}`,
     label: title,
-    width: 200,
-    height: 64,
+    width: width || 200,
+    height: height || 64,
     shape: 'custom-polygon',
     attrs: GenAttrs(title, title, icon),
     markup: GRAPH_NODE_MARKUP,
@@ -675,7 +678,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ExclusiveGateway: {
-    ...createGatewayShell('New_ExclusiveGateway', 'Exclusive Gateway', '/icons/form.svg'),
+    ...createGatewayShell('New_ExclusiveGateway', 'New Exclusive Gateway', '/icons/form.svg', 260),
     data: {
       id: '',
       name: 'New Exclusive Gateway',
@@ -685,6 +688,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.Gateway,
+        width: 250,
         rules: {
           success: {
             label: 'success',
@@ -702,7 +706,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ParallelGateway: {
-    ...createGatewayShell('New_ParallelGateway', 'Parallel Gateway', '/icons/a.svg'),
+    ...createGatewayShell('New_ParallelGateway', 'Parallel Gateway', '/icons/a.svg', 260),
     data: {
       id: '',
       name: 'New Parallel Gateway',
@@ -712,12 +716,13 @@ const workflowCellElementTemplate: CellTypeItem = {
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.Gateway,
+        width: 250,
         maxOutgoing: 2
       }
     }
   },
   InclusiveGateway: {
-    ...createGatewayShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/form.svg'),
+    ...createGatewayShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/form.svg', 260),
     data: {
       id: '',
       name: 'New Inclusive Gateway',
@@ -727,6 +732,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.Gateway,
+        width: 250,
         maxOutgoing: 2
       }
     }
@@ -803,7 +809,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       paletteLabel: 'New Document Generation Task',
       title: 'Document Generation Task',
       icon: '/icons/form.svg',
-      width: 250
+      width: 260
     }),
     data: {
       id: '',
