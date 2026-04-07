@@ -24,7 +24,7 @@ const emit = defineEmits<{
 }>()
 
 const menuContext = useSingleWorkspaceContext()
-
+const { navigateToItem } = useSingleWorkspaceContext()
 const treeRef = ref<InstanceType<typeof ElTree>>()
 
 const treeProps = {
@@ -32,73 +32,24 @@ const treeProps = {
   children: 'children'
 }
 
-// 深拷贝树节点（不含 children 引用），用于拖拽后生成新树
-function cloneTreeNode(node: TreeItem): TreeItem {
-  const { children, ...rest } = node
-  const cloned: TreeItem = { ...rest } as TreeItem
-  if (children && children.length > 0) {
-    cloned.children = children.map(cloneTreeNode)
-  }
-  return cloned
-}
-
-// 在树中查找节点所在父级与下标（父为 null 表示根）
-function findParentAndIndex(items: TreeItem[], nodeId: string, parent: TreeItem[] | null = null): { parentList: TreeItem[]; index: number } | null {
-  for (let i = 0; i < items.length; i++) {
-    if (items[i].id === nodeId) {
-      return { parentList: parent || items, index: i }
-    }
-    const child = items[i].children
-    if (child?.length) {
-      const found = findParentAndIndex(child, nodeId, child)
-      if (found) return found
-    }
-  }
-  return null
-}
-
-// 在树中查找节点的父节点 id（根节点返回 null，未找到返回 undefined）
-function findParentId(items: TreeItem[], nodeId: string, parentId: string | null = null): string | null | undefined {
-  for (const item of items) {
-    if (item.id === nodeId) return parentId
-    if (item.children?.length) {
-      const found = findParentId(item.children, nodeId, item.id)
-      if (found !== undefined) return found
-    }
-  }
-  return undefined
-}
-
-// 获取节点在父级中的下一个兄弟节点 id（无则返回 undefined）
-function getNextSiblingId(items: TreeItem[], nodeId: string): string | undefined {
-  const pos = findParentAndIndex(items, nodeId)
-  if (!pos) return undefined
-  const { parentList, index } = pos
-  const next = parentList[index + 1]
-  return next?.id
-}
-
 async function handleNodeDrop(
   draggingNode: { data: TreeItem; key: string },
   dropNode: { data: TreeItem; key: string },
-  dropType: 'inner' | 'prev' | 'next',
+  dropType: 'inner' | 'before' | 'after',
   event: Event
 ) {
-  console.log('handleNodeDrop', draggingNode, dropNode, dropType, event)
-  return
+  console.log('handleNodeDrop:', dropType, {draggingNode}, {dropNode}, event)
   const moveId = draggingNode.data.id
-  let moveToParentId: string | null
-  let insertBeforeMenuId: string | undefined
-
-  moveToParentId = dropNode.data.id
-
-  insertBeforeMenuId = getNextSiblingId(dropNode.parent.data, dropNode.data.id)
-
   const body: { move_to_parent_id?: string | null; insert_before_menu_id?: string } = {
-    move_to_parent_id: moveToParentId ?? null
   }
-  if (insertBeforeMenuId !== undefined) {
-    body.insert_before_menu_id = insertBeforeMenuId
+  if(dropType === 'inner') {
+    body.move_to_parent_id = dropNode.data.id
+  } else if(dropType === 'before') {
+    body.move_to_parent_id = dropNode.data.parent_id
+    body.insert_before_menu_id = dropNode.data.id
+  } else if(dropType === 'after') {
+    body.move_to_parent_id = dropNode.data.parent_id
+    // body.insert_before_menu_id = dropNode.data.id
   }
 
   try {
@@ -112,8 +63,16 @@ async function handleNodeDrop(
 }
 
 function allowDrop(_draggingNode: any, dropNode: any, _type: string) {
-  return dropNode?.data?.item_type === 'folder'
+  return dropNode?.data?.item_type === 'folder' || (_type !== 'inner' && dropNode.data.item_type !== 'folder')
 }
+function handleNodeClick(nodeData: any) {
+  setTimeout(() => {
+    const menuState = menuContext.menuState.value
+    if (menuState.editingItemId === nodeData.id) return
+    menuContext.navigateToItem(nodeData)
+  }, 100)
+}
+
 const { f2 } = useMagicKeys()
 watchEffect(() => {
   if (f2?.value) {
@@ -139,6 +98,7 @@ watchEffect(() => {
     class="menu-tree"
     :class="{ [`level-${level}`]: true }"
     @node-drop="handleNodeDrop"
+    @node-click="handleNodeClick"
   >
     <template #default="{ node, data }">
       <WorkspacesMenuItem :item="data" :is-admin="isAdmin" />
