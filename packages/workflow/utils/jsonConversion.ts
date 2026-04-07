@@ -156,7 +156,6 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   if (!cells.find((node: any) => node.id === workflowJson.id)) {
     cells.push({
       id: workflowJson.id ? workflowJson.id : Date.now(),
-      // shape: node.data.metadata.tags !== WorkflowElementType.Gateway ? 'invisible-node' : 'bpmn-node',
       shape: 'invisible-node',
       label: workflowJson.name,
       type: 'process',

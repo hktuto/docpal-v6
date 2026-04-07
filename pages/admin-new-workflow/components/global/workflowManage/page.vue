@@ -108,7 +108,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     // Show deactivate action only for active user groups
     if (code === 'deactivate') {
       return {
-        visible:  row.status === 'A',
+        visible: row.status === 'A',
         disabled: false
       }
     }

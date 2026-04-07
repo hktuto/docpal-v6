@@ -125,6 +125,7 @@ Graph.registerNode(
  */
 export enum CellType {
   userTask = 'UserTask',
+  serviceTask = 'ServiceTask',
   signatureTask = 'SignatureTask',
   exclusiveGateway = 'ExclusiveGateway',
   parallelGateway = 'ParallelGateway',
@@ -135,6 +136,21 @@ export enum CellType {
   documentGenerationTask = 'DocumentGenerationTask',
   subProcess = 'SubProcess',
   validateTask = 'ValidateTask'
+}
+
+export enum contextMenuComponentType {
+  StartEvent = 'LazyContextStartEvent',
+  EndEvent = 'LazyContextEndEvent',
+  UserTask = 'LazyContextUserTask',
+  ExclusiveGateway = 'LazyContextExclusiveGateway',
+  ParallelGateway = 'LazyContextParallelGateway',
+  InclusiveGateway = 'LazyContextInclusiveGateway',
+  SubProcess = 'LazyContextSubProcess',
+  ValidateTask = 'LazyContextValidateTask',
+  TransformTask = 'LazyContextTransformTask',
+  HTTPTask = 'LazyContextHttpTask',
+  UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
+  DocumentGenerationTask = 'LazyContextDocumentGenerationTask'
 }
 
 interface portsItems {
@@ -173,6 +189,7 @@ export type CellTypeItem = {
       metadata: {
         tags: WorkflowElementType
         formKey?: string
+        width?: number
         buttonSetting?: any
         booleanButton?: any[]
         rules?: any
@@ -282,12 +299,14 @@ interface GraphItem {
  * @param title 標題
  * @param textAnchor 副標題
  * @param icon 圖標
+ * @param bgColor 背景色
+ * @param textColor 文本顔色
  */
-function GenAttrs(title: string, textAnchor: string, icon?: string) {
+function GenAttrs(title: string, textAnchor: string, icon?: string, bgColor = '#fff', textColor = '#000') {
   return {
     text: {
       fontSize: 12,
-      fill: '#000',
+      fill: textColor,
       refX: 46,
       refY: 30,
       textAnchor: textAnchor,
@@ -305,7 +324,7 @@ function GenAttrs(title: string, textAnchor: string, icon?: string) {
       refHeight: 1,
       stroke: '#ddd',
       strokeWidth: 1,
-      fill: '#fff',
+      fill: bgColor,
       rx: 8,
       ry: 8,
       filter: 'drop-shadow(0px 2px 5px rgba(0,0,0,0.2))'
@@ -321,7 +340,7 @@ function GenAttrs(title: string, textAnchor: string, icon?: string) {
       text: title,
       refX: 46,
       refY: 12,
-      fill: '#000',
+      fill: textColor,
       fontSize: 14,
       fontWeight: 'bold',
       textAnchor: textAnchor
@@ -359,7 +378,6 @@ const GRAPH_NODE_MARKUP: Markup[] = [
   { tagName: 'text', selector: 'title' },
   { tagName: 'text', selector: 'text' }
 ]
-
 const PORT_START_OUT = { items: [{ id: 'to', group: 'to' }] }
 const PORT_END_IN = { items: [{ id: 'from', group: 'from' }] }
 
@@ -383,6 +401,7 @@ function graphItemFromWorkflowNode(
     id: workflowNodeItem.id,
     markup: GRAPH_NODE_MARKUP,
     attrs: GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon),
+    // shape: workflowNodeItem.metadata.tags !== WorkflowElementType.Gateway ? 'bpmn-node' : 'custom-polygon',
     shape: 'bpmn-node',
     zIndex: 1,
     visible: true,
@@ -493,6 +512,13 @@ export const workflowElement: WorkflowElement = {
     embed: false,
     toolbar: [
       {
+        id: CellType.serviceTask,
+        icon: 'material-symbols:widgets-rounded',
+        label: 'Service Task',
+        group: '',
+        order: 0
+      },
+      {
         id: CellType.subProcess,
         icon: 'pixelarticons:forwardburger',
         label: 'Sub Process',
@@ -525,6 +551,7 @@ export const workflowElement: WorkflowElement = {
         case CellType.transformTask:
           return 'LazyContextTransform'
         default:
+          return 'LazyContextServiceTask'
       }
     }
   },
@@ -607,8 +634,9 @@ function createGatewayShell(id: string, title: string, icon: string, width?: num
     label: title,
     width: width || 200,
     height: height || 64,
-    shape: 'custom-polygon',
-    attrs: GenAttrs(title, title, icon),
+    // shape: 'custom-polygon',
+    shape: 'bpmn-node',
+    attrs: GenAttrs(title, title, icon, '#0F2037', '#fff'),
     markup: GRAPH_NODE_MARKUP,
     ports: GenDefPorts()
   }
@@ -625,7 +653,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New User Task',
       label: 'New User Task',
       documentation: '',
-      type: WorkflowElementType.UserTask,
+      type: CellType.userTask,
       inputSchema: '',
       outputSchema: '',
       config: {
@@ -638,7 +666,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: CellType.userTask,
+        tags: WorkflowElementType.UserTask,
         formKey: '',
         buttonSetting: {
           showSumBitButton: true,
@@ -657,7 +685,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Signature Task',
       label: 'New Signature Task',
       documentation: '',
-      type: WorkflowElementType.UserTask,
+      type: CellType.signatureTask,
       inputSchema: '',
       outputSchema: '',
       config: {
@@ -670,7 +698,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: CellType.signatureTask,
+        tags: WorkflowElementType.UserTask,
         formKey: '',
         buttonSetting: {},
         booleanButton: []
@@ -678,7 +706,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ExclusiveGateway: {
-    ...createGatewayShell('New_ExclusiveGateway', 'New Exclusive Gateway', '/icons/form.svg', 260),
+    ...createGatewayShell('New_ExclusiveGateway', 'New Exclusive Gateway', '/icons/condition.svg', 260),
     data: {
       id: '',
       name: 'New Exclusive Gateway',
@@ -706,7 +734,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ParallelGateway: {
-    ...createGatewayShell('New_ParallelGateway', 'Parallel Gateway', '/icons/a.svg', 260),
+    ...createGatewayShell('New_ParallelGateway', 'Parallel Gateway', '/icons/condition.svg', 260),
     data: {
       id: '',
       name: 'New Parallel Gateway',
@@ -722,7 +750,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   InclusiveGateway: {
-    ...createGatewayShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/form.svg', 260),
+    ...createGatewayShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/condition.svg', 260),
     data: {
       id: '',
       name: 'New Inclusive Gateway',
@@ -853,13 +881,13 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Sub Process',
       label: 'New Sub Process',
       documentation: '',
-      type: WorkflowElementType.ServiceTask,
+      type: CellType.subProcess,
       execution: { ...LONG_RUNNING_EXECUTION },
       config: {
         processDefinitionId: ''
       },
       metadata: {
-        tags: CellType.subProcess
+        tags: WorkflowElementType.ServiceTask
       }
     }
   },
@@ -880,8 +908,22 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.ServiceTask
       }
     }
+  },
+  ServiceTask: {
+    ...createNodeShell({ id: 'New_ServiceTask', paletteLabel: 'Service Task', icon: '/icons/form.svg' }),
+    data: {
+      id: '',
+      name: 'New Service Task',
+      label: 'New Service Task',
+      documentation: '',
+      type: CellType.serviceTask,
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        tags: WorkflowElementType.ServiceTask
+      }
+    }
   }
-}
+} 
 
 /**
  * Get the Workflow component.

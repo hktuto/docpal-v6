@@ -42,7 +42,7 @@ const rules = ref([
 ])
 
 async function checkWorkflowName(rule: any, value: string, callback: any) {
-  const data:any = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions?name=${formData.value.name}`).then((r) => r.data)
+  const data: any = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions?name=${formData.value.name}`).then((r) => r.data)
   if (data.length > 0) {
     return callback(new Error(t('There are duplicate names')))
   }
