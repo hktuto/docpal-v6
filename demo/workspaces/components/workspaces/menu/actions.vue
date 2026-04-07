@@ -4,13 +4,15 @@ import { useSingleWorkspaceContext } from '../../../composables/workspace/useSin
 import { ElMessageBox } from 'element-plus'
 import type { ViewType, ViewSettings } from '../../../utils/db/schema/newTableSchema'
 const targetRef = ref()
-const item = ref<TreeItem | null>(null)
+const menuItem = ref<TreeItem | null>(null)
 const isAdmin = ref(false)
 const open = (data: { item: TreeItem; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) => {
+  console.log('open', data)
   if (!data.isAdmin) return
   targetRef.value = target
-  item.value = data.item
+  menuItem.value = data.item
   isAdmin.value = data.isAdmin
+  console.log('menuItem', menuItem.value)
   popoverRef.value?.open(target, highlight)
 }
 
@@ -22,27 +24,29 @@ const permissionPopoverRef = ref()
 
 function close() {
   popoverRef.value?.close()
-  item.value = null
-  isAdmin.value = false
+  setTimeout(() => {
+    menuItem.value = null
+    isAdmin.value = false
+  }, 100)
 }
 
 async function handleEdit() {
-  if (!item.value) return
-  menuContext.startEdit(item.value?.id)
+  if (!menuItem.value) return
+  menuContext.startEdit(menuItem.value?.id)
   close()
 }
 
 async function handleDelete() {
-  if (!item.value) return
+  if (!menuItem.value) return
   // Customize message based on item type
-  let message = `Are you sure you want to delete "${item.value.name}"?`
+  let message = `Are you sure you want to delete "${menuItem.value.name}"?`
   let confirmText = 'Delete'
 
-  if (item.value?.item_type === 'master_table') {
-    message = `Are you sure you want to delete the table "${item.value.name}"?\n\nThis will permanently delete:\n• The physical database table\n• All fields\n• All data records\n\nThis action cannot be undone.`
+  if (menuItem.value?.item_type === 'master_table') {
+    message = `Are you sure you want to delete the table "${menuItem.value.name}"?\n\nThis will permanently delete:\n• The physical database table\n• All fields\n• All data records\n\nThis action cannot be undone.`
     confirmText = 'Delete Table'
-  } else if (item.value?.item_type === 'folder' && item.value?.children && item.value?.children.length > 0) {
-    message = `Are you sure you want to delete the folder "${item.value.name}" and all its contents?`
+  } else if (menuItem.value?.item_type === 'folder' && menuItem.value?.children && menuItem.value?.children.length > 0) {
+    message = `Are you sure you want to delete the folder "${menuItem.value.name}" and all its contents?`
   }
 
   ElMessageBox.confirm(message, 'Delete Item', {
@@ -52,8 +56,8 @@ async function handleDelete() {
     dangerouslyUseHTMLString: true
   })
     .then(async () => {
-      if (!item.value) return
-      await menuContext.deleteItem(item.value.id)
+      if (!menuItem.value) return
+      await menuContext.deleteItem(menuItem.value.id)
       close()
     })
     .catch(() => {
@@ -61,12 +65,12 @@ async function handleDelete() {
     })
 }
 async function handleEditSetting(type: CaseTreeItemType) {
-  if (!item.value) return
-  await menuContext.openSetting(item.value?.id || '', type)
+  if (!menuItem.value) return
+  await menuContext.openSetting(menuItem.value?.id || '', type)
   close()
 }
 async function handleAddItem(type: CaseTreeItemType) {
-  await menuContext.addItem(item.value?.id || null, type)
+  await menuContext.addItem(menuItem.value?.id || null, type)
   close()
   // if(type ==='folder'){
 
@@ -77,7 +81,9 @@ async function handleAddItem(type: CaseTreeItemType) {
 
 function handleImportFromExcel() {
   close()
-  importExcelDialogRef.value?.open()
+  const entityId = menuContext.workspace.value?.id
+  const parentFolderId = menuItem.value?.item_type === 'folder' ? menuItem.value.id : null
+  importExcelDialogRef.value?.open(entityId, parentFolderId)
 }
 
 function handleImportSuccess(tables: { id: string; name: string }[]) {
@@ -92,7 +98,7 @@ function handleAddView() {
 
 async function handleViewCreated(data: { name: string; tableId: string; viewType: ViewType; viewSettings: ViewSettings }) {
   // Call addItem with 'view' type but pass additional data
-  const newItem = await menuContext.addItem(item.value?.id || null, 'view', {
+  const newItem = await menuContext.addItem(menuItem.value?.id || null, 'view', {
     name: data.name,
     tableId: data.tableId,
     viewType: data.viewType,
@@ -107,10 +113,10 @@ async function handleViewCreated(data: { name: string; tableId: string; viewType
 
 // Handle permission action
 function handlePermission(event: MouseEvent) {
-  if (!item.value) return
+  if (!menuItem.value) return
 
   // Save item reference before closing
-  const currentItem = item.value
+  const currentItem = menuItem.value
 
   close()
   // Open permission popover
@@ -126,7 +132,7 @@ defineExpose({ open, close })
 <template>
   <UiPopoverDialog ref="popoverRef" placement="bottom-start" :showHighlight="false" :width="200">
     <div class="item-actions-menu">
-      <template v-if="!item">
+      <template v-if="!menuItem">
         <div class="action-item" @click="handleAddItem('folder')">
           <Icon name="material-symbols:folder-outline" />
           <span>Add Folder</span>
@@ -161,7 +167,7 @@ defineExpose({ open, close })
           <span>Permissions</span>
         </div>
 
-        <template v-if="item.item_type === 'folder'">
+        <template v-if="menuItem.item_type === 'folder'">
           <div class="action-divider" />
           <div class="action-item" @click="handleAddItem('folder')">
             <Icon name="material-symbols:folder-outline" />
@@ -185,7 +191,7 @@ defineExpose({ open, close })
             <span>Import from Excel</span>
           </div>
         </template>
-        <template v-if="item.item_type === 'master_table'">
+        <template v-if="menuItem.item_type === 'master_table'">
           <div class="action-item" @click="handleEditSetting('master_table')">
             <Icon name="material-symbols:settings-outline" />
             <span>Table Settings</span>
@@ -202,18 +208,18 @@ defineExpose({ open, close })
   </UiPopoverDialog>
 
   <!-- Import Excel Dialog -->
-  <WorkspacesTableImportExcelDialog
-    ref="importExcelDialogRef"
-    :entity-id="menuContext.workspace.value?.id || ''"
-    :parent-folder-id="item?.item_type === 'folder' ? item.id : null"
-    @success="handleImportSuccess"
-  />
+  <WorkspacesTableImportExcelDialog ref="importExcelDialogRef" @success="handleImportSuccess" />
 
   <!-- Create View Dialog -->
   <WorkspacesDialogsCreateViewDialog ref="createViewDialogRef" @created="handleViewCreated" />
 
   <!-- Permission Popover -->
-  <WorkspacesPermissionPopover ref="permissionPopoverRef" :item-id="item?.id || ''" :item-label="item?.label || ''" :item-type="item?.item_type || 'folder'" />
+  <WorkspacesPermissionPopover
+    ref="permissionPopoverRef"
+    :item-id="menuItem?.id || ''"
+    :item-label="menuItem?.label || ''"
+    :item-type="menuItem?.item_type || 'folder'"
+  />
 </template>
 
 <style scoped lang="scss">

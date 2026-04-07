@@ -217,14 +217,10 @@ watch(
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: min-content 1fr;
   background: var(--app-grey-950);
   overflow: hidden;
-  flex-shrink: 0;
-  transition:
-    transform 0.3s ease,
-    width 0.3s ease;
 }
 
 // ============================================

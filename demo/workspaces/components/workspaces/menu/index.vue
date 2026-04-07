@@ -220,8 +220,8 @@ onMounted(async () => {
 .workspace-menu {
   display: flex;
   flex-direction: column;
-  flex: 1 0 auto;
   position: relative;
+  overflow: hidden;
 }
 
 .drop-overlay {

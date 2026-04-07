@@ -22,14 +22,7 @@ const isSelected = computed(() => workspaceRouteParams.value.detailId === props.
 // Check if this item is being edited
 const isEditing = computed(() => menuState.value.editingItemId === props.item.id)
 
-// Handle item click - navigate to the item
-function handleItemClick() {
-  console.log('handleItemClick', props.item)
-  setTimeout(() => {
-    if (isEditing.value) return
-    navigateToItem(props.item)
-  }, 100)
-}
+
 const itemContentRef = ref<HTMLElement>()
 // Handle actions menu
 function handleActionsClick(event: MouseEvent) {
@@ -121,17 +114,10 @@ async function onFolderDrop(event: DragEvent) {
     @dragenter.prevent
     @dragstart.prevent
   >
-    <div ref="itemContentRef" class="item-content" @click="handleItemClick">
-      <!-- Drag Handle (admin only, shown on hover) -->
-      <!-- <div v-if="isAdmin" class="drag-handle" :class="{ visible: isHovered }" @mousedown.stop @click.stop>
-        <Icon name="material-symbols:drag-indicator" />
-      </div> -->
-
-      <!-- Item Icon -->
+    <div ref="itemContentRef" class="item-content">
       <div class="item-icon">
         <Icon :name="calItemIcon" />
       </div>
-      <!-- Label or Label Editor -->
       <div class="item-label">
         <UiInlineEditor
           :model-value="item.name"

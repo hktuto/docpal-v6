@@ -5,7 +5,7 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import { usePermission } from '../utils/usePermission'
-
+import { newClientApi } from 'api'
 interface ImportField extends Partial<CaseFieldRecord> {
   originalIdx?: number
 }
@@ -862,566 +862,80 @@ export function isExcelFile(file: File): boolean {
   return validTypes.includes(file.type) || validExtensions.includes(extension || '')
 }
 
-/**
- * Map ColumnFieldType to business type
- */
-function mapToBusinessType(type: ColumnFieldType): string {
-  switch (type) {
-    case ColumnFieldType.Number:
-    case ColumnFieldType.Rating:
-      return 'number'
-    case ColumnFieldType.Checkbox:
-      return 'boolean'
-    case ColumnFieldType.DateTime:
-    case ColumnFieldType.CreatedTime:
-    case ColumnFieldType.LastModifiedTime:
-      return 'date'
-    case ColumnFieldType.Relation:
-      return 'relation'
-    case ColumnFieldType.Formula:
-      return 'formula'
-    case ColumnFieldType.Aggregation:
-      return 'aggregation'
-    default:
-      return 'text'
-  }
-}
-
-/**
- * Map ColumnFieldType to database type
- */
-function mapToDatabaseType(type: ColumnFieldType): string {
-  switch (type) {
-    case ColumnFieldType.Number:
-    case ColumnFieldType.Rating:
-      return 'numeric'
-    case ColumnFieldType.Checkbox:
-      return 'boolean'
-    case ColumnFieldType.DateTime:
-    case ColumnFieldType.CreatedTime:
-    case ColumnFieldType.LastModifiedTime:
-      return 'timestamp'
-    case ColumnFieldType.User:
-    case ColumnFieldType.CreatedBy:
-    case ColumnFieldType.LastModifiedBy:
-    case ColumnFieldType.Relation:
-      return 'uuid'
-    case ColumnFieldType.MultiSelect:
-    case ColumnFieldType.Document:
-      return 'jsonb'
-    default:
-      return 'text'
-  }
-}
-
 export function useImportBatch() {
   const { menuState, saveMenuItemToDb, findItemById, workspace } = useSingleWorkspaceContext()
-  const { createCaseTable, generateSlug } = useTableSchema()
-  const { queueImportJobs, notifyImportCompleted } = useImportQueue()
-  const { analyzeTableForRelations } = useRelationSuggestions()
-
-  /**
-   * Get all existing table names/slugs in the workspace
-   */
-  function getExistingTableNames(): { names: string[]; slugs: string[]; tableMap: Map<string, { id: string; name: string; dataTableId: string }> } {
-    const names: string[] = []
-    const slugs: string[] = []
-    const tableMap = new Map<string, { id: string; name: string; dataTableId: string }>()
-
-    function collectFromItems(items: any[]) {
-      for (const item of items) {
-        if (item.item_type === 'table') {
-          const lowerName = item.label.toLowerCase()
-          names.push(lowerName)
-          if (item.slug) {
-            slugs.push(item.slug.toLowerCase())
-          }
-          // Store table info by lowercase name for lookup
-          tableMap.set(lowerName, {
-            id: item.id,
-            name: item.label,
-            dataTableId: item.itemId
-          })
-        }
-        if (item.children) {
-          collectFromItems(item.children)
-        }
-      }
-    }
-
-    collectFromItems(menuState.value.items)
-    return { names, slugs, tableMap }
-  }
-
-  /**
-   * Generate unique table slug
-   */
-  function generateUniqueTableSlug(name: string, existingSlugs: string[]): string {
-    let baseSlug = generateSlug(name)
-    let slug = baseSlug
-    let counter = 1
-
-    while (existingSlugs.includes(slug.toLowerCase())) {
-      counter++
-      slug = `${baseSlug}-${counter}`
-    }
-
-    return slug
-  }
-
-  /**
-   * Parse Excel file and extract sheet data
-   */
-  async function parseExcelFile(file: File, entityId: string): Promise<{ sheets: SheetData[]; skippedSheets: SkippedSheetInfo[] }> {
-    const data = await readFileAsArrayBuffer(file)
-    const workbook = XLSX.read(data, { type: 'array', cellDates: false, cellNF: true })
-
-    const sheetNames = workbook.SheetNames || []
-    if (sheetNames.length === 0) {
-      throw new Error('No sheets found in the file')
-    }
-
-    const { slugs: existingSlugs } = getExistingTableNames()
-    const parsedSheets: SheetData[] = []
-    const skippedSheets: SkippedSheetInfo[] = []
-    const usedSlugs = [...existingSlugs]
-
-    for (let i = 0; i < sheetNames.length; i++) {
-      const sheetName = sheetNames[i]
-      const sheet = workbook.Sheets[sheetName]
-
-      // Skip hidden sheets (Hidden = 1 means hidden in Excel UI)
-      const wbSheet = (workbook as any).Workbook?.Sheets?.[i]
-      if (wbSheet?.Hidden === 1) {
-        console.log(`[useImportBatch] Skipping hidden sheet: '${sheetName}'`)
-        skippedSheets.push({
-          sheetName,
-          sheetIndex: i,
-          reason: 'hidden',
-          details: 'Sheet is hidden in Excel'
-        })
-        continue
-      }
-
-      const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false }) as any[][]
-
-      // Check if sheet is completely empty
-      const isEmpty = jsonData.length === 0 || jsonData.every((row) => !row || row.every((cell) => cell === undefined || cell === null || cell === ''))
-      if (isEmpty) {
-        console.log(`[useImportBatch] Skipping empty sheet: '${sheetName}'`)
-        skippedSheets.push({
-          sheetName,
-          sheetIndex: i,
-          reason: 'empty',
-          details: 'Sheet contains no data'
-        })
-        continue
-      }
-
-      // Detect and flatten multi-level headers (for pivot table style sheets)
-      const { headers: validHeaders, headerRowCount } = detectAndFlattenHeaders(jsonData)
-
-      // Skip sheets with no valid headers
-      if (validHeaders.length === 0) {
-        console.log(`[useImportBatch] Skipping sheet '${sheetName}': no valid headers`)
-        skippedSheets.push({
-          sheetName,
-          sheetIndex: i,
-          reason: 'no_headers',
-          details: 'No valid column headers found'
-        })
-        continue
-      }
-
-      if (headerRowCount > 1) {
-        console.log(`[useImportBatch] Detected multi-level headers in '${sheetName}': ${headerRowCount} rows flattened to ${validHeaders.length} columns`)
-      }
-
-      // Generate unique field names
-      const fieldNames = generateUniqueFieldNames(validHeaders)
-
-      // Get data rows (excluding all header rows)
-      const dataRows = jsonData
-        .slice(headerRowCount)
-        .filter((row: any[]) => row && !row.every((cell: any) => cell === undefined || cell === null || cell === ''))
-
-      // Create field definitions with auto-detected types
-      const fields: ImportField[] = validHeaders.map((header, idx) => {
-        // For flattened headers, use the column index directly as original index
-        const originalIdx = idx
-
-        // Collect samples for type detection
-        const samples: any[] = []
-        for (let i = 0; i < Math.min(20, dataRows.length) && samples.length < 10; i++) {
-          const value = dataRows[i]?.[originalIdx]
-          if (value !== undefined && value !== null && value !== '') {
-            samples.push(value)
-          }
-        }
-
-        // Get Excel format string for this column if available
-        let excelFormat: string | undefined
-        // Try to get format from first data cell in this column
-        // Account for multi-level headers when getting cell address
-        const firstDataRowIndex = headerRowCount // Use detected header row count
-        if (firstDataRowIndex < jsonData.length) {
-          const cellAddress = XLSX.utils.encode_cell({ r: firstDataRowIndex, c: originalIdx })
-          const cell = sheet[cellAddress]
-          if (cell && cell.z) {
-            excelFormat = cell.z
-          }
-        }
-        console.log('excelFormat', excelFormat)
-        const { type, properties } = detectColumnType(samples, excelFormat)
-
-        // Create display structure
-        const displayStructure: FieldDisplayStructure = {
-          type,
-          properties
-        }
-
-        return {
-          id: uuidv7(),
-          fieldName: fieldNames[idx],
-          fieldNameAlias: header,
-          businessType: mapToBusinessType(type) as any,
-          fieldType: mapToDatabaseType(type) as any,
-          displayStructure,
-          isRequired: false,
-          isHidden: false,
-          isArray: false,
-          isUnique: false,
-          fieldLength: 0,
-          originalIdx // Store the original column index for row parsing
-        }
-      })
-      // Parse data rows with proper value conversion
-      const rows: Record<string, any>[] = []
-
-      // Create a map from column index to field for quick lookup
-      const fieldByColumnIndex: Record<number, ImportField> = {}
-      fields.forEach((field) => {
-        if (field.originalIdx !== undefined && field.originalIdx !== -1) {
-          fieldByColumnIndex[field.originalIdx] = field
-        }
-      })
-
-      for (let i = headerRowCount; i < jsonData.length; i++) {
-        const rowData = jsonData[i]
-        if (!rowData || rowData.every((cell: any) => cell === undefined || cell === null || cell === '')) {
-          continue
-        }
-
-        const row: Record<string, any> = {}
-        validHeaders.forEach((header: string, idx: number) => {
-          const field = fieldByColumnIndex[idx]
-          const dateFormat = field?.displayStructure?.type === ColumnFieldType.DateTime ? field.displayStructure.properties?.dateFormat : undefined
-          const fieldType = field?.displayStructure?.type
-          const fieldProperties = field?.displayStructure?.properties
-          row[header] = cellValueToString(rowData[idx], dateFormat, fieldType, fieldProperties)
-        })
-        rows.push(row)
-      }
-
-      // Generate unique table slug
-      const tableSlug = generateUniqueTableSlug(sheetName, usedSlugs)
-      usedSlugs.push(tableSlug.toLowerCase())
-
-      parsedSheets.push({
-        name: sheetName,
-        tableName: sheetName,
-        slug: tableSlug,
-        headers: validHeaders,
-        fields,
-        rows
-      })
-    }
-
-    const hiddenCount = sheetNames.length - parsedSheets.length - skippedSheets.length
-    console.log(`[useImportBatch] Parsed ${parsedSheets.length} sheets, skipped ${skippedSheets.length} sheets from ${sheetNames.length} total`)
-
-    return { sheets: parsedSheets, skippedSheets }
-  }
-
   /**
    * Import Excel file directly without dialog
    */
-  async function importExcelFile(file: File, entityId: string, parentFolderId?: string | null): Promise<ImportBatchResult> {
-    // Validate file type
-    if (!isExcelFile(file)) {
-      ElMessage.error('Please drop an Excel file (.xlsx, .xls) or CSV file (.csv)')
-      return { success: false, error: 'Invalid file type' }
-    }
-
-    try {
-      // Parse the Excel file
-      const { sheets, skippedSheets } = await parseExcelFile(file, entityId)
-
-      if (sheets.length === 0) {
-        ElMessage.warning('No valid sheets found in the file')
-        return { success: false, error: 'No valid sheets found', skippedSheets }
-      }
-
-      // Check for duplicate table names
-      const { names: existingNames, tableMap } = getExistingTableNames()
-      const duplicateSheetNames = sheets.map((s) => s.tableName.toLowerCase()).filter((name) => existingNames.includes(name))
-
-      if (duplicateSheetNames.length > 0) {
-        const uniqueDuplicates = [...new Set(duplicateSheetNames)]
-        const duplicateList = uniqueDuplicates.join(', ')
-        const newSheetsCount = sheets.length - uniqueDuplicates.length
-
-        // Build message based on situation
-        let message = `Found ${uniqueDuplicates.length} sheet(s) matching existing tables: ${duplicateList}.`
-        if (newSheetsCount > 0) {
-          message += ` ${newSheetsCount} new table(s) will be created.`
-        }
-        message += '\n\nWhat would you like to do?'
-
-        try {
-          const action = await ElMessageBox({
-            title: 'Duplicate Tables Found',
-            message,
-            type: 'warning',
-            showCancelButton: true,
-            distinguishCancelAndClose: true,
-            confirmButtonText: 'Update Existing',
-            cancelButtonText: 'Skip Duplicates',
-            closeOnClickModal: false
-          })
-
-          console.log('[useImportBatch] ElMessageBox action:', action, typeof action)
-
-          // User clicked "Update Existing" - ElMessageBox resolves when confirm is clicked
-          console.log('[useImportBatch] User chose to update existing')
-
-          // Build duplicate sheet info for the caller to handle
-          const duplicateSheets: DuplicateSheetInfo[] = []
-
-          for (let i = 0; i < sheets.length; i++) {
-            const sheet = sheets[i]
-            const lowerName = sheet.tableName.toLowerCase()
-            const existingTable = tableMap.get(lowerName)
-
-            if (existingTable) {
-              console.log('[useImportBatch] Adding duplicate sheet:', sheet.name, '-> table:', existingTable)
-              duplicateSheets.push({
-                sheetName: sheet.name,
-                sheetIndex: i,
-                existingTableId: existingTable.dataTableId,
-                existingTableName: existingTable.name,
-                rows: sheet.rows,
-                headers: sheet.headers
-              })
-            }
-          }
-
-          console.log('[useImportBatch] Total duplicate sheets:', duplicateSheets.length)
-
-          // Create new tables (non-duplicates)
-          const newSheets = sheets.filter((s) => !existingNames.includes(s.tableName.toLowerCase()))
-          let createResult: ImportBatchResult = { success: true, tablesCreated: [] }
-
-          if (newSheets.length > 0) {
-            createResult = await createTablesFromSheets(newSheets, entityId, parentFolderId, file.name, skippedSheets)
-          }
-
-          const finalResult: ImportBatchResult = {
-            ...createResult,
-            action: 'update',
-            duplicates: uniqueDuplicates,
-            duplicateSheets,
-            skippedSheets
-          }
-          console.log('[useImportBatch] Returning update result:', finalResult)
-          console.log('[useImportBatch] About to return from importExcelFile')
-          return finalResult
-        } catch (actionResult) {
-          // User clicked "Skip Duplicates" (cancel button) or closed the dialog
-          if (actionResult === 'cancel') {
-            // Skip duplicates and continue with new tables
-            const filteredSheets = sheets.filter((s) => !existingNames.includes(s.tableName.toLowerCase()))
-
-            if (filteredSheets.length === 0) {
-              ElMessage.info('All sheets match existing tables. No new tables to import.')
-              return {
-                success: true,
-                action: 'skip',
-                duplicates: uniqueDuplicates,
-                tablesCreated: [],
-                skippedSheets
-              }
-            }
-
-            const result = await createTablesFromSheets(filteredSheets, entityId, parentFolderId, file.name, skippedSheets)
-            return { ...result, action: 'skip', duplicates: uniqueDuplicates, skippedSheets }
-          }
-
-          // User closed the dialog (X button or ESC)
-          return {
-            success: false,
-            action: 'cancelled',
-            duplicates: uniqueDuplicates,
-            error: 'Import cancelled',
-            skippedSheets
-          }
-        }
-      }
-
-      const result = await createTablesFromSheets(sheets, entityId, parentFolderId, file.name, skippedSheets)
-      return { ...result, skippedSheets }
-    } catch (error: any) {
-      console.error('Error importing Excel file:', error)
-      ElMessage.error(error.message || 'Failed to import Excel file')
-      return { success: false, error: error.message || 'Unknown error', skippedSheets }
-    }
+  let entityId = ''
+  let parentFolderId = ''
+  const uploadProgress = ref(0)
+  const isImporting = ref(false)
+  const selectedFile = ref<File | null>(null)
+  const errorMessage = ref('')
+  function initData(data: any) {
+    entityId = data.entityId
+    parentFolderId = data.parentFolderId
   }
 
-  /**
-   * Create tables from parsed sheets
-   */
-  async function createTablesFromSheets(
-    sheets: SheetData[],
-    entityId: string,
-    parentFolderId: string | null | undefined,
-    fileName: string,
-    skippedSheets: SkippedSheetInfo[] = []
-  ): Promise<ImportBatchResult> {
-    const createdTables: { id: string; name: string; physicalTableName: string; fields: any[]; rows: any[] }[] = []
-
+  async function importExcelFile(file: File) {
     try {
-      // Phase 1: Create tables, fields, views
-      for (const sheet of sheets) {
-        const tableId = uuidv7()
-
-        // Create the case table structure
-        const result = await createCaseTable(
-          {
-            id: tableId,
-            name: sheet.tableName,
-            entityId,
-            description: `Imported from ${fileName} - Sheet: ${sheet.name}`
-          },
-          sheet.fields,
-          undefined
-        )
-
-        // Create tree item
-        const treeItem: Partial<CaseTreeRecord> = {
-          id: uuidv7(),
-          entityId,
-          label: sheet.tableName,
-          slug: sheet.slug,
-          item_type: 'table',
-          itemId: tableId,
-          parentId: parentFolderId || null,
-          order: 0
-        }
-
-        // Save tree item to database
-        await saveMenuItemToDb(treeItem)
-
-        // Auto-assign 'manage' permission to creator
-        const { assignCreatorPermission } = usePermission()
-        try {
-          await assignCreatorPermission(treeItem.id as string)
-        } catch (error) {
-          console.error('Failed to assign creator permission:', error)
-          // Don't fail the creation if permission assignment fails
-        }
-
-        // Add to local menu state
-        if (parentFolderId) {
-          const parentFolder = findItemById(menuState.value.items, parentFolderId)
-          if (parentFolder && parentFolder.item_type === 'folder') {
-            if (!parentFolder.children) {
-              parentFolder.children = []
-            }
-            parentFolder.children.push(treeItem as any)
-          } else {
-            menuState.value.items.push(treeItem as any)
-          }
-        } else {
-          menuState.value.items.push(treeItem as any)
-        }
-
-        createdTables.push({
-          id: tableId,
-          name: sheet.tableName,
-          physicalTableName: result.table.tableName,
-          fields: result.fields,
-          rows: sheet.rows
-        })
+      isImporting.value = true
+      console.log('importExcelFile', file, entityId, parentFolderId)
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('reference_entity_id', entityId)
+      if (parentFolderId) formData.append('parentFolderId', parentFolderId)
+      uploadProgress.value = 0
+      const {
+        data: { job_id }
+      }: any = await newClientApi.postDynamicDbImportUpload(formData)
+      if (job_id) {
+        console.log('job_id', job_id)
+        await checkJobStatus(job_id, uploadProgress)
       }
-
-      // Show success message
-      const tableCount = createdTables.length
-      const rowCount = createdTables.reduce((sum, t) => sum + t.rows.length, 0)
-
-      if (rowCount > 0) {
-        ElMessage.success(`${tableCount} table(s) created. Importing ${rowCount} rows in background...`)
-      } else {
-        ElMessage.success(`${tableCount} table(s) created successfully!`)
-      }
-
-      // Phase 2: Queue row imports for background processing
-      if (rowCount > 0) {
-        const importJobs = createdTables
-          .filter((t) => t.rows.length > 0)
-          .map((t) => ({
-            tableName: t.id,
-            tableDisplayName: t.name,
-            physicalTableName: t.physicalTableName,
-            columns: t.fields,
-            rows: t.rows,
-            entityId // Pass entityId for relation analysis after import
-          }))
-
-        queueImportJobs(importJobs)
-      } else {
-        // No rows to import, but we still want to show a report
-        // Create a report with empty jobs to show table creation summary
-        const now = new Date().toISOString()
-        const emptyReport: import('./useImportQueue').ImportReport = {
-          id: uuidv7(),
-          jobs: createdTables.map((t) => ({
-            id: uuidv7(),
-            tableName: t.id,
-            tableDisplayName: t.name,
-            physicalTableName: t.physicalTableName,
-            columns: t.fields,
-            rows: [],
-            progress: { total: 0, imported: 0, errors: [] },
-            status: 'completed' as const,
-            startedAt: now,
-            completedAt: now,
-            entityId
-          })),
-          totalTables: tableCount,
-          totalRowsAttempted: 0,
-          totalRowsImported: 0,
-          totalErrors: 0,
-          startedAt: now,
-          completedAt: now,
-          skippedSheets
-        }
-        notifyImportCompleted(emptyReport)
-      }
-
-      return {
-        success: true,
-        tablesCreated: createdTables.map((t) => ({ id: t.id, name: t.name })),
-        skippedSheets
-      }
-    } catch (error: any) {
-      console.error('Error creating tables:', error)
-      ElMessage.error('Failed to create tables. Please try again.')
-      return { success: false, error: error.message || 'Failed to create tables', skippedSheets }
+    } catch (error) {
+      console.error('importExcelFile error', error)
+      isImporting.value = false
+      throw error
+    } finally {
+      isImporting.value = false
     }
   }
-
+  function reset() {
+    selectedFile.value = null
+    errorMessage.value = ''
+    uploadProgress.value = 0
+  }
   return {
+    initData,
     importExcelFile,
-    isExcelFile
+    isExcelFile,
+    isImporting,
+    selectedFile,
+    errorMessage,
+    uploadProgress,
+    reset
+  }
+}
+async function checkJobStatus(jobId: string, uploadProgress: Ref<number>) {
+  const {
+    data: { status, progress: progressValue }
+  }: any = await newClientApi.getDynamicDbImportJobidStatus(jobId)
+  if (status === 'completed' || status === 'failed') {
+    console.log('job completed')
+    uploadProgress.value = 100
+    return true
+  } else {
+    const promise = new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        uploadProgress.value = progressValue
+        const result = await checkJobStatus(jobId, uploadProgress)
+        if (result === true) {
+          resolve(true)
+        }
+      }, 1000)
+    })
+    return promise
   }
 }

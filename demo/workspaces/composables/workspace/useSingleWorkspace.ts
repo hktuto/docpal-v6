@@ -20,6 +20,7 @@ export const SingleWorkspaceContextKey: InjectionKey<WorkspaceContext> = Symbol(
 // Tree item for component rendering (includes computed children)
 export interface TreeItem extends CaseTreeRecord {
   children?: TreeItem[]
+  item_id?: string
 }
 
 // Menu state for component
@@ -312,6 +313,7 @@ export function useSingleWorkspace() {
         workspaceRouteParams.value.detailType = 'folder'
         break
       case 'master_table':
+        console.log('navigateToItem', item)
         workspaceRouteParams.value.detailId = item.id
         workspaceRouteParams.value.detailType = 'master_table'
         workspaceRouteParams.value.item_id = item.item_id

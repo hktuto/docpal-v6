@@ -1,15 +1,7 @@
 <template>
   <div class="workspace-table-views">
     <div class="workspace-table-views__tabs">
-      <draggable
-        v-model="localViews"
-        item-key="id"
-        tag="div"
-        class="workspace-table-views__tab-list"
-        :animation="150"
-        handle=".handler"
-        @end="handleDragEnd"
-      >
+      <draggable v-model="localViews" item-key="id" tag="div" class="workspace-table-views__tab-list" :animation="150" handle=".handler" @end="handleDragEnd">
         <template #item="{ element: view }">
           <div
             class="workspace-table-views__tab"
@@ -34,23 +26,18 @@
         </button>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item :command="{ name: '表格类型', type: 'table' }">
-              表格类型
-            </el-dropdown-item>
-            <el-dropdown-item :command="{ name: '看板类型', type: 'kanban' }">
-              看板类型
-            </el-dropdown-item>
-            <el-dropdown-item :command="{ name: '卡片类型', type: 'card' }">
-              卡片类型
-            </el-dropdown-item>
+            <el-dropdown-item :command="{ name: '表格类型', type: 'table' }"> 表格类型 </el-dropdown-item>
+            <el-dropdown-item :command="{ name: '看板类型', type: 'kanban' }"> 看板类型 </el-dropdown-item>
+            <el-dropdown-item :command="{ name: '卡片类型', type: 'card' }"> 卡片类型 </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
     </div>
     <div class="workspace-table-views__content">
-      <WorkspacesTableView
-        :data-table-id="tableId"
-      />
+      <WorkspacesTableView v-if="isReady" :data-table-id="tableId" />
+      <template v-else>
+        <el-skeleton :rows="10" animated />
+      </template>
     </div>
 
     <WorkspacesDetailTableViewsActions ref="actionsRef" />
@@ -66,7 +53,7 @@ import type { ViewType } from '../../../../utils/db/schema/tableView'
 const { workspaceRouteParams, workspace } = useSingleWorkspaceContext()
 const tableId = computed(() => workspaceRouteParams.value.item_id)
 const reference_entity_id = computed(() => workspace.value.id)
-
+const isReady = ref(false)
 const { getViews, currentView, tableViews, createView, setCurrentView, reorderViews } = useTableViews({
   tableId,
   reference_entity_id
@@ -85,7 +72,7 @@ watch(
 
 const activeViewId = computed(() => currentView.value?.id ?? '')
 
-async function handleAddView(command: {name: string; type: ViewType}) {
+async function handleAddView(command: { name: string; type: ViewType }) {
   // const baseName = command === 'card' ? '卡片视图' : '表格视图'
   const created = await createView({
     name: `${command.name}`,
@@ -123,9 +110,19 @@ async function handleDragEnd(event: any) {
   await reorderViews(oldIndex, newIndex)
 }
 
-onMounted(async () => {
-  await getViews()
-})
+watch(
+  workspaceRouteParams,
+  (newVal) => {
+    if (newVal.item_id) {
+      isReady.value = false
+      getViews()
+      setTimeout(() => {
+        isReady.value = true
+      }, 1000)
+    }
+  },
+  { immediate: true, deep: true }
+)
 </script>
 
 <style scoped lang="scss">
@@ -139,7 +136,7 @@ onMounted(async () => {
   /* width */
 
   &__tabs {
-    width:100%;
+    width: 100%;
     display: grid;
     grid-template-columns: 1fr min-content;
     gap: 0;
@@ -151,7 +148,7 @@ onMounted(async () => {
 
     /* Track */
     ::-webkit-scrollbar-track {
-        background: #f1f1f1;
+      background: #f1f1f1;
     }
 
     /* Handle */
@@ -166,7 +163,6 @@ onMounted(async () => {
   }
 
   &__tab-list {
-
     display: flex;
     align-items: flex-end;
     overflow: auto;
@@ -174,7 +170,7 @@ onMounted(async () => {
   }
 
   &__tab {
-      max-width: 220px;
+    max-width: 220px;
     display: inline-flex;
     align-items: center;
     gap: var(--app-space-xxs);
@@ -201,7 +197,7 @@ onMounted(async () => {
       background-color: var(--app-paper);
       border-bottom-color: var(--app-paper);
       font-weight: 700;
-      border-radius: var(--app-border-radius-m) var(--app-border-radius-m) 0  0;
+      border-radius: var(--app-border-radius-m) var(--app-border-radius-m) 0 0;
       border-color: var(--app-grey-900);
       border-bottom: 2px solid var(--app-accent-color);
     }

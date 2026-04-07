@@ -1,6 +1,6 @@
 {
-  "CLIENT_URL": "132.148.160.191:8003",
-  "ADMIN_URL": "132.148.160.191:8003/admin",
-  "PUBLIC_URL": "132.148.160.191:8003/public-api/report/v1",
-  "TEMPLATE_URL": "132.148.160.191:8003/open-api/template"
+  "CLIENT_URL": "https://sit-v3.wclsolution.com",
+  "ADMIN_URL": "https://sit-v3.wclsolution.com/admin",
+  "PUBLIC_URL": "https://sit-v3.wclsolution.com/public-api/report/v1",
+  "TEMPLATE_URL": "https://sit-v3.wclsolution.com/open-api/template"
 }
