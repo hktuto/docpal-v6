@@ -1,23 +1,17 @@
-export const GetServiceList = () => {
-
-  return [
-    { label: 'Document Generation Task', value: 'DocumentGenerationTask' },
-    { label: 'Message Task', value: 'MessageTask' },
-    { label: 'Unique Id Generator', value: 'UniqueIdGenerator' },
-    { label: '', value: '' },
-    { label: '', value: '' },
-    { label: '', value: '' },
-    { label: '', value: '' }
-  ]
-}
-
-// export const GetServiceList = ['DocumentGenerationTask', 'MessageTask', 'UniqueIdGenerator']
+export const GetServiceList = [
+  { label: 'Upload File', value: 'UploadFile' },
+  { label: 'Document Generation Task', value: 'DocumentGenerationTask' },
+  { label: 'Message Task', value: 'MessageTask' },
+  { label: 'Unique Id Generator', value: 'UniqueIdGenerator' },
+  { label: 'Submit Easy Form', value: 'SubmitEasyForm' },
+  { label: 'Filing Documents', value: 'FilingDocuments' }
+]
 
 export const getServiceTaskItemConfig = {
   DocumentGenerationTask: {
     implementation: 'upload_document',
     method: 'POST',
-    url: `${getUrlOrigin}/api/dms/facade/document/creation`,
+    url: `${getUrlOrigin()}/api/dms/facade/document/creation`,
     headers: generatorHTTPRequestTaskHeaders(),
     body: {
       parentPath: '',
@@ -40,28 +34,20 @@ export const getServiceTaskItemConfig = {
     output_mapping: {}
   },
   MessageTask: {
-    implementation: 'email/sms/whatsapp/notification',
+    implementation: 'email',
     method: 'POST',
-    url: `${getUrlOrigin}/api/dms/template/email/send`,
+    url: `${getUrlOrigin()}/api/dms/facade/email/send`,
     headers: generatorHTTPRequestTaskHeaders(),
-    to: ['${vendor_email}'],
-    cc: ['${requester_email}'],
-    subject: 'Purchase Order ${po_number}',
-    body: 'Submit Purchase Order Application for DocPal system',
+    to: [],
+    cc: [],
+    subject: '',
+    body: '',
     input_mapping: {
-      apply_user: '',
-      apply_date: '',
-      vendor_email: '',
-      requester_email: '',
-      vendor_name: '',
-      po_number: '',
-      po_url: '',
-      total_amount: ''
     }
   },
   UniqueIdGenerator: {
     method: 'POST',
-    url: `${getUrlOrigin}/api/dms/facade/id-template/generate`,
+    url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
     headers: generatorHTTPRequestTaskHeaders(),
     body: {
       templateId: '01KG66ARVKJGEFS4FVDV4QFT1Y',
@@ -86,7 +72,7 @@ function generatorHTTPRequestTaskHeaders() {
   return {
     ServerName: 'docpal-api',
     ServerKey: '14ecdf56081AGSDghw',
-    // 'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
+    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
     'Content-Type': 'application/json'
   }
 }

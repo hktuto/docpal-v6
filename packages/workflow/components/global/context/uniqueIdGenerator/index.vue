@@ -22,11 +22,7 @@ const stringFields = computed(() => {
   return getVariablesByType(['string'])
 })
 const stringAndNumberFields = computed(() => {
-  const fields = getVariablesByType(['string', 'number'])
-  return fields.map((item: any) => ({
-    id: '${' + item.id + '}',
-    name: item.name
-  }))
+  return getVariablesByType(['string', 'number'], true)
 })
 
 async function getGenerateIdTemplateList() {

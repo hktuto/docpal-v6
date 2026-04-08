@@ -131,11 +131,13 @@ export enum CellType {
   parallelGateway = 'ParallelGateway',
   inclusiveGateway = 'InclusiveGateway',
   transformTask = 'TransformTask',
+  HTTPRequestTask = 'HTTPRequestTask',
   HTTPTask = 'HTTPTask',
   uniqueIdGenerator = 'UniqueIdGenerator',
   documentGenerationTask = 'DocumentGenerationTask',
   subProcess = 'SubProcess',
-  validateTask = 'ValidateTask'
+  validateTask = 'ValidateTask',
+  MessageTask = 'MessageTask'
 }
 
 export enum contextMenuComponentType {
@@ -150,7 +152,8 @@ export enum contextMenuComponentType {
   TransformTask = 'LazyContextTransformTask',
   HTTPTask = 'LazyContextHttpTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
-  DocumentGenerationTask = 'LazyContextDocumentGenerationTask'
+  MessageTask = 'LazyContextServiceTaskMessage',
+  DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration'
 }
 
 interface portsItems {
@@ -543,16 +546,7 @@ export const workflowElement: WorkflowElement = {
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      switch (workflowNodeItem.type) {
-        case CellType.subProcess:
-          return 'LazyContextSubProcess'
-        case CellType.validateTask:
-          return 'LazyContextValidateTask'
-        case CellType.transformTask:
-          return 'LazyContextTransform'
-        default:
-          return 'LazyContextServiceTask'
-      }
+      return 'LazyContextServiceTask'
     }
   },
   HTTPRequestTask: {
@@ -565,13 +559,13 @@ export const workflowElement: WorkflowElement = {
         group: '',
         order: 0
       },
-      {
-        id: CellType.documentGenerationTask,
-        icon: 'mdi:file-pdf',
-        label: 'Document Generation Task',
-        group: '',
-        order: 0
-      },
+      // {
+      //   id: CellType.documentGenerationTask,
+      //   icon: 'mdi:file-pdf',
+      //   label: 'Document Generation Task',
+      //   group: '',
+      //   order: 0
+      // },
       {
         id: CellType.uniqueIdGenerator,
         icon: 'mdi:numeric',
@@ -583,15 +577,8 @@ export const workflowElement: WorkflowElement = {
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      switch (workflowNodeItem.type) {
-        case CellType.HTTPTask:
-          return 'ContextHttpTask'
-        case CellType.documentGenerationTask:
-          return 'LazyContextDocumentGeneration'
-        case CellType.uniqueIdGenerator:
-          return 'ContextUniqueIdGenerator'
-        default:
-          return
+      if (workflowNodeItem.type in contextMenuComponentType){
+       return contextMenuComponentType[workflowNodeItem.type]
       }
     }
   }
@@ -831,49 +818,49 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  DocumentGenerationTask: {
-    ...createNodeShell({
-      id: 'New_DocumentGenerationTask',
-      paletteLabel: 'New Document Generation Task',
-      title: 'Document Generation Task',
-      icon: '/icons/form.svg',
-      width: 260
-    }),
-    data: {
-      id: '',
-      name: 'New Document Generation Task',
-      label: 'New Document Generation Task',
-      documentation: '',
-      type: CellType.documentGenerationTask,
-      config: {
-        method: 'POST',
-        url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
-        headers: generatorHTTPRequestTaskHeaders(),
-        body: {
-          templateId: '',
-          parentPath: '',
-          name: '',
-          type: 'File',
-          creator: '',
-          variables: {}
-        }
-      },
-      input_mapping: {
-        generateDocumentId: '',
-        parentPath: '',
-        documentName: '',
-        type: 'File',
-        applicant_name: '',
-        apply_user: '',
-        apply_date: ''
-      },
-      execution: { ...DEFAULT_TASK_EXECUTION },
-      metadata: {
-        tags: WorkflowElementType.HTTPRequestTask,
-        width: 250
-      }
-    }
-  },
+  // DocumentGenerationTask: {
+  //   ...createNodeShell({
+  //     id: 'New_DocumentGenerationTask',
+  //     paletteLabel: 'New Document Generation Task',
+  //     title: 'Document Generation Task',
+  //     icon: '/icons/form.svg',
+  //     width: 260
+  //   }),
+  //   data: {
+  //     id: '',
+  //     name: 'New Document Generation Task',
+  //     label: 'New Document Generation Task',
+  //     documentation: '',
+  //     type: CellType.documentGenerationTask,
+  //     config: {
+  //       method: 'POST',
+  //       url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
+  //       headers: generatorHTTPRequestTaskHeaders(),
+  //       body: {
+  //         templateId: '',
+  //         parentPath: '',
+  //         name: '',
+  //         type: 'File',
+  //         creator: '',
+  //         variables: {}
+  //       }
+  //     },
+  //     input_mapping: {
+  //       generateDocumentId: '',
+  //       parentPath: '',
+  //       documentName: '',
+  //       type: 'File',
+  //       applicant_name: '',
+  //       apply_user: '',
+  //       apply_date: ''
+  //     },
+  //     execution: { ...DEFAULT_TASK_EXECUTION },
+  //     metadata: {
+  //       tags: WorkflowElementType.HTTPRequestTask,
+  //       width: 250
+  //     }
+  //   }
+  // },
   SubProcess: {
     ...createNodeShell({ id: 'New_SubProcess', paletteLabel: 'Sub Process', icon: '/icons/form.svg' }),
     data: {
@@ -918,6 +905,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.serviceTask,
       execution: { ...DEFAULT_TASK_EXECUTION },
+      config: {},
       metadata: {
         tags: WorkflowElementType.ServiceTask
       }

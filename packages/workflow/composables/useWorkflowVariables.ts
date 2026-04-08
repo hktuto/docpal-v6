@@ -145,8 +145,9 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
   /**
    * 根據數據類型返回對應的數據類型
    * @param typeList 變量的數據類型
+   * @param status 是否是變量
    */
-  function getVariablesByType(typeList?: VariableItemType[]): VariableSelectItem[] {
+  function getVariablesByType(typeList?: VariableItemType[], status = false): VariableSelectItem[] {
     let list: any = []
     if (!typeList) {
       list = variables.value
@@ -155,7 +156,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
     }
 
     return list.map((item: VariableItem) => ({
-      id: item.id,
+      id: status ? '${' + item.id + '}' : item.id,
       name: item.name,
       type: item.type
     }))
