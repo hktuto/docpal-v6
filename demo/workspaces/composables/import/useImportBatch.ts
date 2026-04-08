@@ -839,17 +839,6 @@ function cellValueToString(value: any, dateFormat?: string, fieldType?: ColumnFi
   return String(value)
 }
 
-/**
- * Read file as ArrayBuffer
- */
-function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = (e) => resolve(e.target?.result as ArrayBuffer)
-    reader.onerror = reject
-    reader.readAsArrayBuffer(file)
-  })
-}
 
 /**
  * Check if a file is an Excel file
@@ -863,7 +852,6 @@ export function isExcelFile(file: File): boolean {
 }
 
 export function useImportBatch() {
-  const { menuState, saveMenuItemToDb, findItemById, workspace } = useSingleWorkspaceContext()
   /**
    * Import Excel file directly without dialog
    */
@@ -891,13 +879,18 @@ export function useImportBatch() {
         data: { job_id }
       }: any = await newClientApi.postDynamicDbImportUpload(formData)
       if (job_id) {
-        console.log('job_id', job_id)
-        await checkJobStatus(job_id, uploadProgress)
+        const result: any = await checkJobStatus(job_id, uploadProgress)
+        return result
+      } else {
+        throw new Error('No job ID returned from server')
       }
     } catch (error) {
       console.error('importExcelFile error', error)
       isImporting.value = false
-      throw error
+      return {
+        status: 'failed',
+        hasErrorReport: false
+      }
     } finally {
       isImporting.value = false
     }
@@ -920,19 +913,35 @@ export function useImportBatch() {
 }
 async function checkJobStatus(jobId: string, uploadProgress: Ref<number>) {
   const {
-    data: { status, progress: progressValue }
+    data: { status, progress: progressValue, error_report_url, sheets }
   }: any = await newClientApi.getDynamicDbImportJobidStatus(jobId)
-  if (status === 'completed' || status === 'failed') {
-    console.log('job completed')
-    uploadProgress.value = 100
-    return true
+  uploadProgress.value = progressValue
+  if (status === 'completed') {
+    const result: any = {
+      status,
+      hasErrorReport: !!error_report_url,
+      jobId
+    }
+    if (error_report_url && sheets && sheets.length > 0) {
+      let errorMessage = ''
+      for (const sheet of sheets) {
+        if (sheet.skipped_rows > 0) {
+          errorMessage += `<b>Sheet: ${sheet.sheet_name}</b>`
+          errorMessage += `<div>Skipped rows: ${sheet.skipped_rows}</div>`
+          errorMessage += `<br>`
+        }
+      }
+      if (errorMessage) {
+        result.errorMessage = errorMessage
+      }
+    }
+    return result
   } else {
     const promise = new Promise((resolve, reject) => {
       setTimeout(async () => {
-        uploadProgress.value = progressValue
-        const result = await checkJobStatus(jobId, uploadProgress)
-        if (result === true) {
-          resolve(true)
+        const result: any = await checkJobStatus(jobId, uploadProgress)
+        if (result.status === 'completed') {
+          resolve(result)
         }
       }, 1000)
     })

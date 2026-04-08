@@ -6,6 +6,9 @@ import type { ViewType, ViewSettings } from '../../../utils/db/schema/newTableSc
 const targetRef = ref()
 const menuItem = ref<TreeItem | null>(null)
 const isAdmin = ref(false)
+const emit = defineEmits<{
+  (e: 'refresh'): void
+}>()
 const open = (data: { item: TreeItem; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) => {
   console.log('open', data)
   if (!data.isAdmin) return
@@ -21,7 +24,6 @@ const popoverRef = ref()
 const importExcelDialogRef = ref()
 const createViewDialogRef = ref()
 const permissionPopoverRef = ref()
-
 function close() {
   popoverRef.value?.close()
   setTimeout(() => {
@@ -86,9 +88,10 @@ function handleImportFromExcel() {
   importExcelDialogRef.value?.open(entityId, parentFolderId)
 }
 
-function handleImportSuccess(tables: { id: string; name: string }[]) {
+async function handleImportSuccess(tables: { id: string; name: string }[]) {
   // Could navigate to the first imported table if desired
   console.log('Imported tables:', tables)
+  await menuContext.getMenuFromDb()
 }
 
 function handleAddView() {

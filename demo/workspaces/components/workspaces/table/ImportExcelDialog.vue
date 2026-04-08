@@ -13,14 +13,19 @@
             <p class="file-types">Supports .xlsx, .xls, .csv</p>
           </div>
         </el-upload>
-        <el-alert v-if="errorMessage" :title="errorMessage" type="error" show-icon :closable="false" class="error-alert" />
       </div>
-      <div class="import-progress">
+      <div v-else class="import-progress">
         <div class="progress-container">
           <el-progress :percentage="uploadProgress" :status="uploadProgress === 100 ? 'success' : undefined" type="circle" stroke-width="8" />
         </div>
         <p class="progress-text">Importing Excel file...</p>
       </div>
+      <el-alert v-if="errorMessage" :title="errorMessage" type="error" show-icon :closable="false" class="error-alert" />
+      <template v-if="errorReportId">
+        <br />
+        <div v-html="errorReportMsg"></div>
+        <el-button type="danger" text :icon="Download"  @click="downloadErrorReport">Download Error Report</el-button>
+      </template>
     </div>
     <!-- Import Progress -->
 
@@ -37,8 +42,9 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
+import { Download } from '@element-plus/icons-vue'
 import type { CaseFieldRecord } from '../../../utils/db/schema/newTableSchema'
-
+import { newClientApi } from 'api'
 // Internal state for dynamic entityId and parentFolderId
 const effectiveEntityId = ref<string>('')
 const effectiveParentFolderId = ref<string | null>(null)
@@ -53,18 +59,24 @@ const { importExcelFile, initData, uploadProgress, isImporting, reset, selectedF
 const { query } = usePglite()
 
 const dialogVisible = ref(false)
+const errorReportId = ref('')
+const errorReportMsg = ref('')
 
 // Update existing tables state
 const importToTableDialogRef = ref()
 const pendingDuplicates = ref<DuplicateSheetInfo[]>([])
 const tablesUpdated = ref<{ id: string; name: string }[]>([])
-
+function resetState() {
+  reset()
+  errorReportId.value = ''
+  errorReportMsg.value = ''
+}
 function open(entityId?: string, parentFolderId?: string | null) {
   effectiveEntityId.value = entityId || workspace.value?.id || ''
   effectiveParentFolderId.value = parentFolderId !== undefined ? parentFolderId : null
   initData({ entityId: effectiveEntityId.value, parentFolderId: effectiveParentFolderId.value })
   dialogVisible.value = true
-  reset()
+  resetState()
 }
 
 function openWithFile(file: File, entityId?: string, parentFolderId?: string | null) {
@@ -78,21 +90,43 @@ function openWithFile(file: File, entityId?: string, parentFolderId?: string | n
 function close() {
   console.log('[ImportExcelDialog] close() called, stack:', new Error().stack)
   dialogVisible.value = false
-  reset()
+  resetState()
   emit('close')
 }
 
 async function handleFileChange(file: any) {
   selectedFile.value = file.raw
   errorMessage.value = ''
+  errorReportId.value = ''
+  errorReportMsg.value = ''
   console.log('handleFileChange', selectedFile.value)
   // Validate file type immediately
   if (selectedFile.value && !isExcelFile(selectedFile.value)) {
     errorMessage.value = 'Please select an Excel file (.xlsx, .xls) or CSV file (.csv)'
     return
   }
-  await importExcelFile(selectedFile.value)
-  dialogVisible.value = false
+  const result: any = await importExcelFile(selectedFile.value)
+  if (result.hasErrorReport) {
+    errorReportMsg.value = result.errorMessage
+    errorReportId.value = result.jobId
+  } else {
+    dialogVisible.value = false
+  }
+  emit('success')
+}
+async function downloadErrorReport() {
+  console.log('downloadErrorReport', errorReportId.value)
+  if (!errorReportId.value) return
+  try {
+    const blob: any = await newClientApi.getDynamicDbImportJobidErrorReport(errorReportId.value, {
+      format: 'blob'
+    })
+    downloadBlob(blob, 'error_report.xlsx', blob.type)
+  } catch (error) {
+    reset()
+    console.error('downloadErrorReport error', error)
+    errorMessage.value = 'Failed to download error report'
+  }
 }
 defineExpose({ open, openWithFile, close })
 </script>
