@@ -13,7 +13,7 @@ const { node } = defineProps<{
 const { workflowList } = await getWorkflowList()
 const processDefinitionId = ref<string>('')
 
-function init() {
+function initForm() {
   const data = node.getData()
   processDefinitionId.value = data.config?.processDefinitionId
 }
@@ -32,6 +32,20 @@ function updateData() {
   node.setData(newData, { overwrite: true, deep: true, silent: false })
   graphProvider?.graph.value?.stopBatch('update-sub-process-data')
 }
+
+
+watch(
+  () => node,
+  async () => {
+    if (node) {
+      initForm()
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
 </script>
 
 <template>

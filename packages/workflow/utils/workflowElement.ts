@@ -745,7 +745,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         tags: WorkflowElementType.Gateway,
         width: 250,
-        maxOutgoing: 2
+        maxOutgoing: 50
       }
     }
   },
@@ -761,7 +761,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         tags: WorkflowElementType.Gateway,
         width: 250,
-        maxOutgoing: 2
+        maxOutgoing: 50
       }
     }
   },

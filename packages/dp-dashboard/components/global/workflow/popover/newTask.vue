@@ -41,7 +41,7 @@ async function workflowClickHandler(item: any) {
   state.loading = true
   openWorkflowEdit.value = false
   openWorkflowEdit.value = true
-  const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${item.id}`).then((r) => r.data)
+  const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${item.id}`).then((r: any) => r.data)
   if (!data) return
   if (data.status === 'D') {
     state.loading = false
@@ -109,13 +109,15 @@ async function checkAndSubmit() {
     }
 
     try {
-      const data = await $api.post('http://192.168.5.147:8080/api/v1/processes', formParams).then((r) => r.data)
+      const data = await $api.post('http://192.168.5.147:8080/api/v1/processes', formParams).then((r: any) => r.data)
       state.formDialogVisible = false
 
       setTimeout(async () => {
         // Check workflow running status
-        const newVar = await $api.get(`http://192.168.5.147:8080/api/v1/processes/instance/${data.id}`).then((r) => r.data)
-        ElMessage.success('Workflow created')
+        const newVar = await $api.get(`http://192.168.5.147:8080/api/v1/processes/instance/${data.id}`).then((r: any) => r.data)
+        if (newVar.state === 'running') {
+          ElMessage.success('Workflow created')
+        }
       }, 100)
     } catch (e) {
       console.log(e)

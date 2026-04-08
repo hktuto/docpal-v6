@@ -19,11 +19,6 @@ interface Config {
   result?: string
 }
 
-interface Markup {
-  tagName: string
-  selector: string
-}
-
 /**
  * node Style
  * @const tags 類型
@@ -216,16 +211,29 @@ function AddFlowForChildNodes(x6Nodes: any[], edges: any[]) {
     // 遍历节点并根据 flowMap 设置 flow 属性
     x6Nodes.forEach((x6Node: any) => {
       if (x6Node.data.type === 'process') return
+
       const { incoming = [], outgoing = [] } = flowMap[x6Node.id] || {}
       x6Node.data.flow = {
         incoming,
         outgoing,
-        join_type: 'XOR',
+        join_type: joinType(x6Node.data.type),
         split_type: 'XOR'
       }
     })
     return x6Nodes
   } catch (e) {
     console.log(e)
+  }
+}
+
+function joinType(type: string) {
+  switch (type) {
+    case CellType.parallelGateway:
+      return 'AND'
+    case CellType.inclusiveGateway:
+      // return 'OR'
+      return 'XOR'
+    default:
+      return 'XOR'
   }
 }

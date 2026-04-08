@@ -44,7 +44,6 @@ const isAssigneeUser = computed(() => {
 })
 
 async function getDetail() {
-  console.log(1111, '--- detail', detail)
   taskDetail.value = detail
   try {
     state.loading = true
@@ -68,7 +67,6 @@ async function getDetail() {
         workflowJson.value = workflowTaskInstance.content
 
         const data = await $api.get(`http://192.168.5.147:8080/api/v1/processes/instance/${detail.process_instance_id}`).then((r) => r.data)
-        console.log(22222, data)
 
         const findNode = data.nodes.find((node: any) => node.id == detail.node_id)
         if (!!findNode) {
@@ -101,7 +99,13 @@ async function getDetail() {
 }
 
 async function initForm(node: any) {
+  console.log(123,node)
   const formKey = node.metadata.formKey
+  if (!formKey){
+    routerProvider?.message.error('The form does not exist!')
+    return
+  }
+
   // Get Form Json
   const formJsonData = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
   if (!formJsonData || !formJsonData.jsonValue) {

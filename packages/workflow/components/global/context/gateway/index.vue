@@ -37,11 +37,20 @@ function init() {
 function updateData() {
   graphProvider?.graph.value?.startBatch('update-gateway-edge-data')
   const data = edge.getData()
+  if (data.source_node_id.includes('ParallelGateway_') || data.target_node_id.includes('ParallelGateway_')) {
+    if (!formData.value.condition) {
+      formData.value.type = 'sequence'
+    } else {
+      formData.value.type = formData.value.condition === '' ? 'sequence' : 'parallel'
+    }
+  }
 
   const newData = {
     ...data,
     flow_control: formData.value
   }
+
+  // TODO 存在無法更新的情況
   edge.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-gateway-edge-data')
 }

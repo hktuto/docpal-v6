@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
-import { newAdminApi } from 'api'
+import { newClientApi } from 'api'
 
 const { getVariablesByType } = useVariablesProvide()
 const props = defineProps<{
@@ -35,11 +35,11 @@ async function handleFormSubmit() {
     jsonValue: JSON.stringify(json),
     versionId: '0'
   }
-  if (props.node.data.metadata.formKey !== '' && props.node.data.metadata.formKey !== 0) {
-    params.id = props.node.data.metadata.formKey
-  }
+  // if (props.node.data.metadata.formKey !== '' && props.node.data.metadata.formKey !== 0) {
+  //   params.id = props.node.data.metadata.formKey
+  // }
 
-  const data: any = await newAdminApi.postDmsFormPropertiesSave(params).then((r) => r.data)
+  const data: any = await newClientApi.postDmsFormPropertiesSave(params).then((r) => r.data)
   emits('submit', data.id)
   formDialogVisible.value = false
 }

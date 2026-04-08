@@ -38,7 +38,7 @@ function edit(row: any) {
 
 const rules = ref([
   { required: true, message: $t('render.hint.fieldRequired', { name: $t('workflow_workflowName') }), trigger: 'change' },
-  { validator: checkWorkflowName, trigger: 'change' }
+  { validator: checkWorkflowName, trigger: 'blur' }
 ])
 
 async function checkWorkflowName(rule: any, value: string, callback: any) {

@@ -13,6 +13,7 @@ const workflowData = ref()
 const workflowReadonly = ref(false)
 const workflowId = ref()
 const workflowEditorRef = ref()
+const loading = ref(false)
 
 async function getWorkflowData() {
   try {
@@ -37,6 +38,7 @@ async function getWorkflowData() {
 }
 
 async function handleStatus() {
+  loading.value = true
   try {
     if (workflowReadonly.value) {
       await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${workflowId.value}/deactivate`).then((r: any) => r.data)
@@ -52,7 +54,9 @@ async function handleStatus() {
       openWorkflowEdit.value = false
       openWorkflowEdit.value = true
     }
+    loading.value = false
   } catch (e) {
+    loading.value = false
     console.log(e)
   }
 }
@@ -63,10 +67,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="openWorkflowEdit" class="pageContainer">
+  <div v-if="openWorkflowEdit" v-loading="loading" class="pageContainer">
     <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :showSidebar="true">
       <template #actions>
-        <el-button :type="workflowReadonly ? 'danger' : 'primary'" @click="handleStatus">
+        <el-button id="Workflow__Edit__ActivateOrInactivate" :type="workflowReadonly ? 'danger' : 'primary'" @click="handleStatus">
           {{ workflowReadonly ? t('actions.inactivate') : t('actions.activate') }}
         </el-button>
       </template>

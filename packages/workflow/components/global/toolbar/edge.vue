@@ -103,8 +103,16 @@ function setupEdge() {
     // type is Gateway
     // TODO: 無法從source區分是那個子節點連接到不同規則
     if (source.data.type === WorkflowElementType.Gateway) {
-      newEdgeData.flow_control.type = 'conditional'
       newEdgeData.flow_control.condition = ''
+
+      // Exclusive or Inclusive Gateway 的出綫必須是 'conditional',
+      if (newEdgeData.source_node_id.includes('ExclusiveGateway_') || newEdgeData.source_node_id.includes('InclusiveGateway_')) {
+        newEdgeData.flow_control.type = 'conditional'
+      }
+      // if (newEdgeData.source_node_id.includes('ParallelGateway_') || newEdgeData.target_node_id.includes('ParallelGateway_')) {
+      //   // 進出綫是 'parallel'
+      //   newEdgeData.flow_control.type = 'parallel'
+      // }
     }
     edge.data = newEdgeData
     edge.setRouter('manhattan')
@@ -112,7 +120,7 @@ function setupEdge() {
 }
 
 function getGatewayButton(cell: any) {
-  if (cell.data?.source_node_id?.includes('Gateway_')) {
+  if (cell.data?.target_node_id?.includes('ParallelGateway_') || cell.data?.source_node_id?.includes('Gateway_')) {
     return [
       {
         name: 'button',
