@@ -162,9 +162,9 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     const { column, row } = params
     // need to check if the row data is changed
     const newData = row[column.field]
-    const oldData = tableData.value.find((item) => item.id === row.id)
-    if (oldData && oldData.data[column.field] === newData) {
-      // no change
+    const recordset = gridRef.value.getRecordset()
+    const hasChanged = recordset.updateRecords.length > 0
+    if (!hasChanged) {
       return
     }
     const updateData = {
