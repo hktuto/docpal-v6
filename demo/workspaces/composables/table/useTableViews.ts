@@ -98,7 +98,7 @@ export function useTableViews(options: UseTableViewsOptions) {
       currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
       columnFilterRules.value = (currentView.value.filterInfo as FilterInfo) ?? {
         conditions: [],
-        conjunction: 'and'
+        conjunction: 'AND'
       }
       columnSortRules.value = currentView.value.sortInfo ? currentView.value.sortInfo : []
       columnGroupRules.value = currentView.value.groupInfo ?? []

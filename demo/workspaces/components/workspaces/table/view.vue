@@ -107,8 +107,8 @@ function getPageParams() {
   const params = {
     // dryRun: true,
   }
-  if (columnFilterRules.value) {
-    // params.conditions = getFilterRules()
+  if (columnFilterRules.value && columnFilterRules.value.conditions.length > 0) {
+    params.conditions = getFilterRules()
   }
   if (columns.value) {
     params.columns = getColumns()

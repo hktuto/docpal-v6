@@ -1,7 +1,7 @@
 import type { ViewConfig, ViewColumn, SortInfo, GroupInfo, FilterInfo, ViewStyle } from '../db/schema/tableView'
 
 const DEFAULT_SORT_INFO: SortInfo[] = [{ desc: false, fieldId: '' }]
-const DEFAULT_FILTER_INFO: FilterInfo = { conditions: [], conjunction: 'and' }
+const DEFAULT_FILTER_INFO: FilterInfo = { conditions: [], conjunction: 'AND' }
 const DEFAULT_VIEW_STYLE: ViewStyle = {
   cardCount: 5,
   coverFieldId: '',

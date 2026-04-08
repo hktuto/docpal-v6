@@ -47,7 +47,7 @@ export interface FilterCondition {
 // 过滤信息
 export interface FilterInfo {
   conditions: FilterCondition[];
-  conjunction: 'and' | 'or';
+  conjunction: 'AND' | 'OR';
 }
 
 export interface ViewStyle {
