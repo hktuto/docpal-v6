@@ -144,15 +144,18 @@ export enum contextMenuComponentType {
   StartEvent = 'LazyContextStartEvent',
   EndEvent = 'LazyContextEndEvent',
   UserTask = 'LazyContextUserTask',
+  // Gateway
   ExclusiveGateway = 'LazyContextExclusiveGateway',
   ParallelGateway = 'LazyContextParallelGateway',
   InclusiveGateway = 'LazyContextInclusiveGateway',
-  SubProcess = 'LazyContextSubProcess',
+  // Http Task
+  HTTPTask = 'LazyContextHttpTask',
   ValidateTask = 'LazyContextValidateTask',
   TransformTask = 'LazyContextTransformTask',
-  HTTPTask = 'LazyContextHttpTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
+  // Service
   MessageTask = 'LazyContextServiceTaskMessage',
+  SubProcess = 'LazyContextServiceTaskSubProcess',
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration'
 }
 
@@ -514,13 +517,6 @@ export const workflowElement: WorkflowElement = {
   ServiceTask: {
     embed: false,
     toolbar: [
-      {
-        id: CellType.serviceTask,
-        icon: 'material-symbols:widgets-rounded',
-        label: 'Service Task',
-        group: '',
-        order: 0
-      },
       {
         id: CellType.subProcess,
         icon: 'pixelarticons:forwardburger',

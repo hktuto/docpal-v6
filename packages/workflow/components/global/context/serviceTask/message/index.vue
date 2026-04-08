@@ -42,7 +42,7 @@ function init() {
 
 function update() {
   if (formData.value === config) return
-  emits('update', formData.value)
+  emits('update', { name: 'update-message-data', config: formData.value })
 }
 
 watch(

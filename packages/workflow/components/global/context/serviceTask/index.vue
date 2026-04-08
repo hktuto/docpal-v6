@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
-import { contextMenuComponentType, GetServiceList, getServiceTaskItemConfig } from '#imports'
+import { contextMenuComponentType, getServiceTaskItemConfig } from '#imports'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
@@ -9,11 +9,8 @@ if (!graphProvider) {
 const { node } = defineProps<{
   node: Node
 }>()
-const { t } = useI18n()
-
 const editComponent = ref()
 const selectedServiceConfig = ref()
-const serviceType = ref('')
 
 const formData = ref<{
   config: any
@@ -21,15 +18,19 @@ const formData = ref<{
   config: {}
 })
 
-function handleChangeService() {
-  editComponent.value = resolveComponent(contextMenuComponentType[serviceType.value])
-  selectedServiceConfig.value = getServiceTaskItemConfig[serviceType.value]
-
-  console.log(node.getData())
+function init() {
+  const type = node.getData().type as keyof typeof getServiceTaskItemConfig
+  if (!(type in contextMenuComponentType)) {
+    editComponent.value = null
+    selectedServiceConfig.value = null
+    return
+  }
+  editComponent.value = resolveComponent(contextMenuComponentType[type as keyof typeof contextMenuComponentType])
+  selectedServiceConfig.value = getServiceTaskItemConfig[type]
 }
 
-function update() {
-  graphProvider?.graph.value?.startBatch('update-service-task-data')
+function update(name: string) {
+  graphProvider?.graph.value?.startBatch(name)
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
@@ -37,26 +38,39 @@ function update() {
     version: (nodeData.version || 0) + 1
   }
   node.setData(newData, { overwrite: true, deep: true })
-  graphProvider?.graph.value?.stopBatch('update-service-task-data')
+  graphProvider?.graph.value?.stopBatch(name)
 }
 
-function handleUpdateConfig(config: any) {
-  formData.value.config = config
-  update()
+type configData = {
+  name: string
+  config: any
 }
+
+function handleUpdateConfig(data: configData) {
+  formData.value.config = data.config
+  update(data.name)
+}
+
+watch(
+  () => node,
+  () => {
+    if (!!node) {
+      init()
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
+
+onMounted(() => {
+  init()
+})
 </script>
 
 <template>
   <SidebarLabel :node="node" />
-
-  <el-form label-position="top">
-    <el-form-item :label="t('Service Task Type')">
-      <el-select v-model="serviceType" @change="handleChangeService">
-        <el-option v-for="item in GetServiceList" :key="item.value" :label="item.label" :value="item.value" />
-      </el-select>
-    </el-form-item>
-  </el-form>
-
   <component v-if="editComponent" :is="editComponent" :config="selectedServiceConfig" @update="handleUpdateConfig" />
 </template>
 

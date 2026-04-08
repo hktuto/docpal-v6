@@ -1,13 +1,7 @@
-export const GetServiceList = [
-  { label: 'Upload File', value: 'UploadFile' },
-  { label: 'Document Generation Task', value: 'DocumentGenerationTask' },
-  { label: 'Message Task', value: 'MessageTask' },
-  { label: 'Unique Id Generator', value: 'UniqueIdGenerator' },
-  { label: 'Submit Easy Form', value: 'SubmitEasyForm' },
-  { label: 'Filing Documents', value: 'FilingDocuments' }
-]
-
 export const getServiceTaskItemConfig = {
+  SubProcess: {
+    processDefinitionId: ''
+  },
   DocumentGenerationTask: {
     implementation: 'upload_document',
     method: 'POST',
@@ -42,8 +36,7 @@ export const getServiceTaskItemConfig = {
     cc: [],
     subject: '',
     body: '',
-    input_mapping: {
-    }
+    input_mapping: {}
   },
   UniqueIdGenerator: {
     method: 'POST',
@@ -72,7 +65,6 @@ function generatorHTTPRequestTaskHeaders() {
   return {
     ServerName: 'docpal-api',
     ServerKey: '14ecdf56081AGSDghw',
-    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
     'Content-Type': 'application/json'
   }
 }
