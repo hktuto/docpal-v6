@@ -126,7 +126,6 @@ Graph.registerNode(
  */
 export enum CellType {
   userTask = 'UserTask',
-  serviceTask = 'ServiceTask',
   signatureTask = 'SignatureTask',
   exclusiveGateway = 'ExclusiveGateway',
   parallelGateway = 'ParallelGateway',
@@ -137,10 +136,12 @@ export enum CellType {
   documentGenerationTask = 'DocumentGenerationTask',
 
   // Service
+  serviceTask = 'ServiceTask',
   messageTask = 'MessageTask',
   uploadFile = 'UploadFile',
   subProcess = 'SubProcess',
-  validateTask = 'ValidateTask'
+  validateTask = 'ValidateTask',
+  filingDocuments = 'FilingDocuments'
 }
 
 // 組件Map
@@ -161,7 +162,8 @@ export enum contextMenuComponentType {
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
   SubProcess = 'LazyContextServiceTaskSubProcess',
-  DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration'
+  DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration',
+  FilingDocuments = 'LazyContextServiceTaskFilingDocuments'
 }
 
 interface portsItems {
@@ -563,6 +565,13 @@ export const workflowElement: WorkflowElement = {
         label: 'Document Generation Task',
         group: '',
         order: 0
+      },
+      {
+        id: CellType.filingDocuments,
+        icon: 'lucide-lab:cabinet-filing',
+        label: 'Filing Documents Task',
+        group: '',
+        order: 0
       }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
@@ -702,6 +711,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.UserTask,
+        icon: '/icons/form.svg',
         formKey: '',
         buttonSetting: {},
         booleanButton: []
@@ -771,6 +781,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
+  // Http Task
   HTTPTask: {
     ...createNodeShell({ id: 'New_HTTPTask', paletteLabel: 'HTTP Task', icon: '/icons/http-task.svg' }),
     data: {
@@ -906,13 +917,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   DocumentGenerationTask: {
-    ...createNodeShell({
-      id: 'New_DocumentGenerationTask',
-      paletteLabel: 'New Document Generation Task',
-      title: 'Document Generation Task',
-      icon: '/icons/form.svg',
-      width: 260
-    }),
+    ...createNodeShell({ id: 'New_DocumentGenerationTask', paletteLabel: 'New Document Generation Task', icon: '/icons/form.svg', width: 260 }),
     data: {
       id: '',
       name: 'Document Generation Task',
@@ -926,6 +931,38 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/transform.svg',
         width: 250
+      }
+    }
+  },
+  FilingDocuments: {
+    ...createNodeShell({ id: 'New_FilingDocuments', paletteLabel: 'New Filing Documents Task', icon: '/icons/form.svg', width: 260 }),
+    data: {
+      id: '',
+      name: 'Filing Documents Task',
+      label: 'New Filing Documents Task',
+      documentation: '',
+      type: CellType.filingDocuments,
+      config: getServiceTaskItemConfig[CellType.filingDocuments],
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/form.svg',
+        width: 250
+      }
+    }
+  },
+  ServiceTask: {
+    ...createNodeShell({ id: 'New_ServiceTask', paletteLabel: 'New Service Task', icon: '/icons/form.svg', width: 260 }),
+    data: {
+      id: '',
+      name: 'Service Task',
+      label: 'New Service Task',
+      documentation: '',
+      type: CellType.serviceTask,
+      config: {},
+      metadata: {
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/form.svg'
       }
     }
   }
