@@ -126,6 +126,7 @@ Graph.registerNode(
  */
 export enum CellType {
   userTask = 'UserTask',
+  serviceTask = 'ServiceTask',
   signatureTask = 'SignatureTask',
   exclusiveGateway = 'ExclusiveGateway',
   parallelGateway = 'ParallelGateway',
@@ -134,6 +135,10 @@ export enum CellType {
   HTTPTask = 'HTTPTask',
   uniqueIdGenerator = 'UniqueIdGenerator',
   documentGenerationTask = 'DocumentGenerationTask',
+
+  // Service
+  messageTask = 'MessageTask',
+  uploadFile = 'UploadFile',
   subProcess = 'SubProcess',
   validateTask = 'ValidateTask'
 }
@@ -149,12 +154,12 @@ export enum contextMenuComponentType {
   InclusiveGateway = 'LazyContextInclusiveGateway',
   // Http Task
   HTTPTask = 'LazyContextHttpTask',
-
   TransformTask = 'LazyContextTransformTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
-  MessageTask = 'LazyContextServiceTaskMessage',
   ValidateTask = 'LazyContextServiceTaskValidate',
+  MessageTask = 'LazyContextServiceTaskMessage',
+  UploadFile = 'LazyContextServiceTaskUploadFile',
   SubProcess = 'LazyContextServiceTaskSubProcess',
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration'
 }
@@ -194,6 +199,7 @@ export type CellTypeItem = {
       input_mapping?: any
       metadata: {
         tags: WorkflowElementType
+        icon: string
         formKey?: string
         width?: number
         buttonSetting?: any
@@ -407,7 +413,6 @@ function graphItemFromWorkflowNode(
     id: workflowNodeItem.id,
     markup: GRAPH_NODE_MARKUP,
     attrs: GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon),
-    // shape: workflowNodeItem.metadata.tags !== WorkflowElementType.Gateway ? 'bpmn-node' : 'custom-polygon',
     shape: 'bpmn-node',
     zIndex: 1,
     visible: true,
@@ -537,6 +542,27 @@ export const workflowElement: WorkflowElement = {
         label: 'Transform Task',
         group: '',
         order: 0
+      },
+      {
+        id: CellType.messageTask,
+        icon: 'material-symbols:chat-outline',
+        label: 'Message Task',
+        group: '',
+        order: 0
+      },
+      {
+        id: CellType.uploadFile,
+        icon: 'material-symbols:upload-file-outline',
+        label: 'Upload File',
+        group: '',
+        order: 0
+      },
+      {
+        id: CellType.documentGenerationTask,
+        icon: 'mdi:file-pdf',
+        label: 'Document Generation Task',
+        group: '',
+        order: 0
       }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
@@ -552,13 +578,6 @@ export const workflowElement: WorkflowElement = {
         id: CellType.HTTPTask,
         icon: 'mdi:web',
         label: 'HTTP Task',
-        group: '',
-        order: 0
-      },
-      {
-        id: CellType.documentGenerationTask,
-        icon: 'mdi:file-pdf',
-        label: 'Document Generation Task',
         group: '',
         order: 0
       },
@@ -633,7 +652,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     ...createNodeShell({ id: 'New_UserTask', paletteLabel: 'User Task', icon: '/icons/form.svg' }),
     data: {
       id: '',
-      name: 'New User Task',
+      name: 'User Task',
       label: 'New User Task',
       documentation: '',
       type: CellType.userTask,
@@ -650,6 +669,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.UserTask,
+        icon: '/icons/form.svg',
         formKey: '',
         buttonSetting: {
           showSumBitButton: true,
@@ -665,7 +685,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     ...createNodeShell({ id: 'New_SignatureTask', paletteLabel: 'Signature Task', icon: '/icons/form.svg' }),
     data: {
       id: '',
-      name: 'New Signature Task',
+      name: 'Signature Task',
       label: 'New Signature Task',
       documentation: '',
       type: CellType.signatureTask,
@@ -692,13 +712,14 @@ const workflowCellElementTemplate: CellTypeItem = {
     ...createGatewayShell('New_ExclusiveGateway', 'New Exclusive Gateway', '/icons/condition.svg', 260),
     data: {
       id: '',
-      name: 'New Exclusive Gateway',
+      name: 'Exclusive Gateway',
       label: 'New Exclusive Gateway',
       documentation: '',
       type: CellType.exclusiveGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.Gateway,
+        icon: '/icons/condition.svg',
         width: 250,
         rules: {
           success: {
@@ -720,13 +741,14 @@ const workflowCellElementTemplate: CellTypeItem = {
     ...createGatewayShell('New_ParallelGateway', 'Parallel Gateway', '/icons/condition.svg', 260),
     data: {
       id: '',
-      name: 'New Parallel Gateway',
+      name: 'Parallel Gateway',
       label: 'New Parallel Gateway',
       documentation: '',
       type: CellType.parallelGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.Gateway,
+        icon: '/icons/condition.svg',
         width: 250,
         maxOutgoing: 50
       }
@@ -736,24 +758,24 @@ const workflowCellElementTemplate: CellTypeItem = {
     ...createGatewayShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/condition.svg', 260),
     data: {
       id: '',
-      name: 'New Inclusive Gateway',
+      name: 'Inclusive Gateway',
       label: 'New Inclusive Gateway',
       documentation: '',
       type: CellType.inclusiveGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.Gateway,
+        icon: '/icons/condition.svg',
         width: 250,
         maxOutgoing: 50
       }
     }
   },
-
   HTTPTask: {
     ...createNodeShell({ id: 'New_HTTPTask', paletteLabel: 'HTTP Task', icon: '/icons/http-task.svg' }),
     data: {
       id: '',
-      name: 'New HTTP Task',
+      name: 'HTTP Task',
       label: 'New HTTP Task',
       documentation: '',
       type: CellType.HTTPTask,
@@ -766,7 +788,8 @@ const workflowCellElementTemplate: CellTypeItem = {
         output_mapping: {}
       },
       metadata: {
-        tags: WorkflowElementType.HTTPRequestTask
+        tags: WorkflowElementType.HTTPRequestTask,
+        icon: '/icons/http-task.svg'
       },
       celCondition: '',
       inputSchema: '',
@@ -777,14 +800,11 @@ const workflowCellElementTemplate: CellTypeItem = {
     ...createNodeShell({ id: 'New_UniqueIdGenerator', paletteLabel: 'Unique Id Generator', icon: '/icons/form.svg' }),
     data: {
       id: '',
-      name: 'New Unique Id Generator',
+      name: 'Unique Id Generator',
       label: 'New Unique Id Generator',
       documentation: '',
       type: CellType.uniqueIdGenerator,
       execution: { ...DEFAULT_TASK_EXECUTION },
-      metadata: {
-        tags: WorkflowElementType.HTTPRequestTask
-      },
       config: {
         method: 'POST',
         url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
@@ -794,6 +814,94 @@ const workflowCellElementTemplate: CellTypeItem = {
           variables: {}
         },
         output_mapping: {}
+      },
+      metadata: {
+        tags: WorkflowElementType.HTTPRequestTask,
+        icon: '/icons/transform.svg'
+      }
+    }
+  },
+  // Service Task
+  SubProcess: {
+    ...createNodeShell({ id: 'New_SubProcess', paletteLabel: 'Sub Process', icon: '/icons/form.svg' }),
+    data: {
+      id: '',
+      name: 'New Sub Process',
+      label: 'New Sub Process',
+      documentation: '',
+      type: CellType.subProcess,
+      config: getServiceTaskItemConfig[CellType.subProcess],
+      execution: { ...LONG_RUNNING_EXECUTION },
+      metadata: {
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/transform.svg'
+      }
+    }
+  },
+  ValidateTask: {
+    ...createNodeShell({ id: 'New_ValidateTask', paletteLabel: 'Validate Task', icon: '/icons/form.svg' }),
+    data: {
+      id: '',
+      name: 'Validate Task',
+      label: 'New Validate Task',
+      documentation: '',
+      type: CellType.validateTask,
+      config: getServiceTaskItemConfig[CellType.validateTask],
+      execution: { ...LONG_RUNNING_EXECUTION },
+      metadata: {
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/form.svg'
+      }
+    }
+  },
+  TransformTask: {
+    ...createNodeShell({ id: 'New_TransformTask', paletteLabel: 'Transform Task', icon: '/icons/transform.svg' }),
+    data: {
+      id: '',
+      name: 'Transform Task',
+      label: 'New Transform Task',
+      documentation: '',
+      type: CellType.transformTask,
+      implementation: 'data.transform',
+      config: {
+        mapping: {}
+      },
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/transform.svg'
+      }
+    }
+  },
+  MessageTask: {
+    ...createNodeShell({ id: 'New_MessageTask', paletteLabel: 'Message Task', icon: '/icons/message.svg' }),
+    data: {
+      id: '',
+      name: 'Message Task',
+      label: 'New Message Task',
+      documentation: '',
+      type: CellType.messageTask,
+      config: getServiceTaskItemConfig[CellType.messageTask],
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/message.svg'
+      }
+    }
+  },
+  UploadFile: {
+    ...createNodeShell({ id: 'New_UploadFileTask', paletteLabel: 'Upload File', icon: '/icons/uploadFile.svg' }),
+    data: {
+      id: '',
+      name: 'Upload File',
+      label: 'New Upload File',
+      documentation: '',
+      type: CellType.uploadFile,
+      config: getServiceTaskItemConfig[CellType.uploadFile],
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/uploadFile.svg'
       }
     }
   },
@@ -807,88 +915,20 @@ const workflowCellElementTemplate: CellTypeItem = {
     }),
     data: {
       id: '',
-      name: 'New Document Generation Task',
+      name: 'Document Generation Task',
       label: 'New Document Generation Task',
       documentation: '',
       type: CellType.documentGenerationTask,
-      config: {
-        method: 'POST',
-        url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
-        headers: generatorHTTPRequestTaskHeaders(),
-        body: {
-          templateId: '',
-          parentPath: '',
-          name: '',
-          type: 'File',
-          creator: '',
-          variables: {}
-        }
-      },
-      input_mapping: {
-        generateDocumentId: '',
-        parentPath: '',
-        documentName: '',
-        type: 'File',
-        applicant_name: '',
-        apply_user: '',
-        apply_date: ''
-      },
+      config: getServiceTaskItemConfig[CellType.documentGenerationTask],
+      input_mapping: {},
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
-        tags: WorkflowElementType.HTTPRequestTask,
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/transform.svg',
         width: 250
       }
     }
-  },
-  // Service Task
-  SubProcess: {
-    ...createNodeShell({ id: 'New_SubProcess', paletteLabel: 'Sub Process', icon: '/icons/form.svg' }),
-    data: {
-      id: '',
-      name: 'New Sub Process',
-      label: 'New Sub Process',
-      documentation: '',
-      type: CellType.subProcess,
-      execution: { ...LONG_RUNNING_EXECUTION },
-      config: getServiceTaskItemConfig[CellType.subProcess],
-      metadata: {
-        tags: WorkflowElementType.ServiceTask
-      }
-    }
-  },
-  ValidateTask: {
-    ...createNodeShell({ id: 'New_ValidateTask', paletteLabel: 'Validate Task', icon: '/icons/form.svg' }),
-    data: {
-      id: '',
-      name: 'New Validate Task',
-      label: 'New Validate Task',
-      documentation: '',
-      type: CellType.validateTask,
-      execution: { ...LONG_RUNNING_EXECUTION },
-      config: getServiceTaskItemConfig[CellType.validateTask],
-      metadata: {
-        tags: WorkflowElementType.ServiceTask
-      }
-    }
-  },
-  TransformTask: {
-    ...createNodeShell({ id: 'New_TransformTask', paletteLabel: 'Transform Task', icon: '/icons/transform.svg' }),
-    data: {
-      id: '',
-      name: 'New Transform Task',
-      label: 'New Transform Task',
-      documentation: '',
-      type: CellType.transformTask,
-      implementation: 'data.transform',
-      config: {
-        mapping: {}
-      },
-      execution: { ...DEFAULT_TASK_EXECUTION },
-      metadata: {
-        tags: WorkflowElementType.ServiceTask
-      }
-    }
-  },
+  }
 }
 
 /**

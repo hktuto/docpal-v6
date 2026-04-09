@@ -6,31 +6,6 @@ export const getServiceTaskItemConfig = {
     rules: [],
     output_mapping: {}
   },
-  DocumentGenerationTask: {
-    implementation: 'upload_document',
-    method: 'POST',
-    url: `${getUrlOrigin()}/api/dms/facade/document/creation`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {
-      parentPath: '',
-      name: '',
-      type: '',
-      fileContentId: '',
-      creator: '',
-      properties: {
-        title: '',
-        createDate: ''
-      }
-    },
-    input_mapping: {
-      document_name: '',
-      document_type: '',
-      document_file_id: '',
-      apply_user: '',
-      apply_date: ''
-    },
-    output_mapping: {}
-  },
   MessageTask: {
     implementation: 'email',
     method: 'POST',
@@ -41,6 +16,38 @@ export const getServiceTaskItemConfig = {
     subject: '',
     body: '',
     input_mapping: {}
+  },
+  UploadFile: {
+    implementation: 'upload_document',
+    method: 'POST',
+    url: `${getUrlOrigin()}/api/dms/facade/document/creation`,
+    headers: generatorHTTPRequestTaskHeaders(),
+    body: {
+      parentPath: '',
+      name: '',
+      type: '',
+      fileContentId: '',
+      creator: '',
+      properties: {}
+    },
+    input_mapping: {},
+    output_mapping: {}
+  },
+  DocumentGenerationTask: {
+    implementation: 'upload_document',
+    method: 'POST',
+    url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
+    headers: generatorHTTPRequestTaskHeaders(),
+    body: {
+      templateId: '',
+      parentPath: '',
+      name: '',
+      type: 'File',
+      creator: '',
+      variables: {}
+    },
+    input_mapping: {},
+    output_mapping: {}
   },
   UniqueIdGenerator: {
     method: 'POST',

@@ -50,7 +50,7 @@ export const VariableTypeOptions = [
 export type VariableItem = {
   id: string
   name: string
-  type: string
+  type: VariableItemType
   required: boolean
   maxLength?: number
   pattern?: string
@@ -72,7 +72,7 @@ export type WorkflowVariablesProvideContext = {
   addVariableItem: (node: any, variableItem: VariableItem) => void
   updateVariableItem: (node: any, variableItem: VariableItem) => void
   deleteVariableItem: (node: any, variableItemId: string) => void
-  getVariablesByType: (typeList?: VariableItemType[]) => VariableSelectItem[]
+  getVariablesByType: (typeList?: VariableItemType[], status?: boolean) => VariableSelectItem[]
 }
 
 export const useVariablesProvide = () => {
