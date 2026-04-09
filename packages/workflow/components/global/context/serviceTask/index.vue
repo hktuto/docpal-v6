@@ -19,14 +19,15 @@ const formData = ref<{
 })
 
 function init() {
-  const type = node.getData().type as keyof typeof getServiceTaskItemConfig
+  const data = node.getData()
+  const type = data.type as keyof typeof getServiceTaskItemConfig
   if (!(type in contextMenuComponentType)) {
     editComponent.value = null
     selectedServiceConfig.value = null
     return
   }
   editComponent.value = resolveComponent(contextMenuComponentType[type as keyof typeof contextMenuComponentType])
-  selectedServiceConfig.value = getServiceTaskItemConfig[type]
+  selectedServiceConfig.value = data.config
 }
 
 function update(name: string) {

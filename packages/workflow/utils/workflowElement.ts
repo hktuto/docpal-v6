@@ -1,5 +1,6 @@
 import { Cell, CellView, Graph } from '@antv/x6'
 import type { NodeItem } from './jsonConversion'
+import { getServiceTaskItemConfig } from '@packages/workflow/utils/serviceTaskItemConfig'
 
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
@@ -125,21 +126,19 @@ Graph.registerNode(
  */
 export enum CellType {
   userTask = 'UserTask',
-  serviceTask = 'ServiceTask',
   signatureTask = 'SignatureTask',
   exclusiveGateway = 'ExclusiveGateway',
   parallelGateway = 'ParallelGateway',
   inclusiveGateway = 'InclusiveGateway',
   transformTask = 'TransformTask',
-  HTTPRequestTask = 'HTTPRequestTask',
   HTTPTask = 'HTTPTask',
   uniqueIdGenerator = 'UniqueIdGenerator',
   documentGenerationTask = 'DocumentGenerationTask',
   subProcess = 'SubProcess',
-  validateTask = 'ValidateTask',
-  MessageTask = 'MessageTask'
+  validateTask = 'ValidateTask'
 }
 
+// 組件Map
 export enum contextMenuComponentType {
   StartEvent = 'LazyContextStartEvent',
   EndEvent = 'LazyContextEndEvent',
@@ -150,11 +149,12 @@ export enum contextMenuComponentType {
   InclusiveGateway = 'LazyContextInclusiveGateway',
   // Http Task
   HTTPTask = 'LazyContextHttpTask',
-  ValidateTask = 'LazyContextValidateTask',
+
   TransformTask = 'LazyContextTransformTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
   MessageTask = 'LazyContextServiceTaskMessage',
+  ValidateTask = 'LazyContextServiceTaskValidate',
   SubProcess = 'LazyContextServiceTaskSubProcess',
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration'
 }
@@ -555,13 +555,13 @@ export const workflowElement: WorkflowElement = {
         group: '',
         order: 0
       },
-      // {
-      //   id: CellType.documentGenerationTask,
-      //   icon: 'mdi:file-pdf',
-      //   label: 'Document Generation Task',
-      //   group: '',
-      //   order: 0
-      // },
+      {
+        id: CellType.documentGenerationTask,
+        icon: 'mdi:file-pdf',
+        label: 'Document Generation Task',
+        group: '',
+        order: 0
+      },
       {
         id: CellType.uniqueIdGenerator,
         icon: 'mdi:numeric',
@@ -573,8 +573,8 @@ export const workflowElement: WorkflowElement = {
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      if (workflowNodeItem.type in contextMenuComponentType){
-       return contextMenuComponentType[workflowNodeItem.type]
+      if (workflowNodeItem.type in contextMenuComponentType) {
+        return contextMenuComponentType[workflowNodeItem.type as keyof typeof contextMenuComponentType]
       }
     }
   }
@@ -748,24 +748,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  TransformTask: {
-    ...createNodeShell({ id: 'New_TransformTask', paletteLabel: 'Transform Task', icon: '/icons/transform.svg' }),
-    data: {
-      id: '',
-      name: 'New Transform Task',
-      label: 'New Transform Task',
-      documentation: '',
-      type: CellType.transformTask,
-      implementation: 'data.transform',
-      config: {
-        mapping: {}
-      },
-      execution: { ...DEFAULT_TASK_EXECUTION },
-      metadata: {
-        tags: WorkflowElementType.ServiceTask
-      }
-    }
-  },
+
   HTTPTask: {
     ...createNodeShell({ id: 'New_HTTPTask', paletteLabel: 'HTTP Task', icon: '/icons/http-task.svg' }),
     data: {
@@ -814,49 +797,50 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  // DocumentGenerationTask: {
-  //   ...createNodeShell({
-  //     id: 'New_DocumentGenerationTask',
-  //     paletteLabel: 'New Document Generation Task',
-  //     title: 'Document Generation Task',
-  //     icon: '/icons/form.svg',
-  //     width: 260
-  //   }),
-  //   data: {
-  //     id: '',
-  //     name: 'New Document Generation Task',
-  //     label: 'New Document Generation Task',
-  //     documentation: '',
-  //     type: CellType.documentGenerationTask,
-  //     config: {
-  //       method: 'POST',
-  //       url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
-  //       headers: generatorHTTPRequestTaskHeaders(),
-  //       body: {
-  //         templateId: '',
-  //         parentPath: '',
-  //         name: '',
-  //         type: 'File',
-  //         creator: '',
-  //         variables: {}
-  //       }
-  //     },
-  //     input_mapping: {
-  //       generateDocumentId: '',
-  //       parentPath: '',
-  //       documentName: '',
-  //       type: 'File',
-  //       applicant_name: '',
-  //       apply_user: '',
-  //       apply_date: ''
-  //     },
-  //     execution: { ...DEFAULT_TASK_EXECUTION },
-  //     metadata: {
-  //       tags: WorkflowElementType.HTTPRequestTask,
-  //       width: 250
-  //     }
-  //   }
-  // },
+  DocumentGenerationTask: {
+    ...createNodeShell({
+      id: 'New_DocumentGenerationTask',
+      paletteLabel: 'New Document Generation Task',
+      title: 'Document Generation Task',
+      icon: '/icons/form.svg',
+      width: 260
+    }),
+    data: {
+      id: '',
+      name: 'New Document Generation Task',
+      label: 'New Document Generation Task',
+      documentation: '',
+      type: CellType.documentGenerationTask,
+      config: {
+        method: 'POST',
+        url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
+        headers: generatorHTTPRequestTaskHeaders(),
+        body: {
+          templateId: '',
+          parentPath: '',
+          name: '',
+          type: 'File',
+          creator: '',
+          variables: {}
+        }
+      },
+      input_mapping: {
+        generateDocumentId: '',
+        parentPath: '',
+        documentName: '',
+        type: 'File',
+        applicant_name: '',
+        apply_user: '',
+        apply_date: ''
+      },
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        tags: WorkflowElementType.HTTPRequestTask,
+        width: 250
+      }
+    }
+  },
+  // Service Task
   SubProcess: {
     ...createNodeShell({ id: 'New_SubProcess', paletteLabel: 'Sub Process', icon: '/icons/form.svg' }),
     data: {
@@ -866,9 +850,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.subProcess,
       execution: { ...LONG_RUNNING_EXECUTION },
-      config: {
-        processDefinitionId: ''
-      },
+      config: getServiceTaskItemConfig[CellType.subProcess],
       metadata: {
         tags: WorkflowElementType.ServiceTask
       }
@@ -883,38 +865,37 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.validateTask,
       execution: { ...LONG_RUNNING_EXECUTION },
-      config: {
-        rules: [],
-        output_mapping: {}
-      },
+      config: getServiceTaskItemConfig[CellType.validateTask],
       metadata: {
         tags: WorkflowElementType.ServiceTask
       }
     }
   },
-  ServiceTask: {
-    ...createNodeShell({ id: 'New_ServiceTask', paletteLabel: 'Service Task', icon: '/icons/form.svg' }),
+  TransformTask: {
+    ...createNodeShell({ id: 'New_TransformTask', paletteLabel: 'Transform Task', icon: '/icons/transform.svg' }),
     data: {
       id: '',
-      name: 'New Service Task',
-      label: 'New Service Task',
+      name: 'New Transform Task',
+      label: 'New Transform Task',
       documentation: '',
-      type: CellType.serviceTask,
+      type: CellType.transformTask,
+      implementation: 'data.transform',
+      config: {
+        mapping: {}
+      },
       execution: { ...DEFAULT_TASK_EXECUTION },
-      config: {},
       metadata: {
         tags: WorkflowElementType.ServiceTask
       }
     }
-  }
-} 
+  },
+}
 
 /**
  * Get the Workflow component.
  * 根據組件模板生成一個新的graph
  */
 export const workflowCellElement = {
-  ...workflowCellElementTemplate,
   getCellItem<K extends CellType>(key: K): CellTypeItem[K] {
     const id = `New_${key}_${Date.now()}`
     return {

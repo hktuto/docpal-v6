@@ -2,6 +2,10 @@ export const getServiceTaskItemConfig = {
   SubProcess: {
     processDefinitionId: ''
   },
+  ValidateTask: {
+    rules: [],
+    output_mapping: {}
+  },
   DocumentGenerationTask: {
     implementation: 'upload_document',
     method: 'POST',
