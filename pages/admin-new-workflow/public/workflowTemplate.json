@@ -1,0 +1,89 @@
+{
+  "id": "",
+  "key": "process_1770090138471",
+  "name": "New Process",
+  "type": "process",
+  "version": 1,
+  "description": "Process definition created with JSON modeler",
+  "nodes": [
+    {
+      "id": "system_start_event",
+      "label": "Start Event",
+      "name": "Start Event",
+      "type": "StartEvent",
+      "flow": {
+        "incoming": [],
+        "outgoing": [],
+        "join_type": "XOR",
+        "split_type": "XOR"
+      },
+      "execution": {
+        "async": false,
+        "timeout_ms": 1000,
+        "priority": 0
+      },
+      "config": {},
+      "metadata": {
+        "tags": "StartEvent",
+        "x": 60,
+        "y": -150,
+        "width": 140,
+        "height": 64,
+        "icon": "/icons/form.svg",
+        "formKey": 0,
+        "buttonSetting": {
+          "showSumBitButton": true,
+          "submitButtonLabel": "Submit",
+          "showSaveDraft": false,
+          "saveDraftLabel": "Save Draft"
+        }
+      }
+    },
+    {
+      "id": "system_end_event",
+      "label": "End Event",
+      "name": "End Event",
+      "type": "EndEvent",
+      "flow": {
+        "incoming": [],
+        "outgoing": [],
+        "join_type": "XOR",
+        "split_type": "XOR"
+      },
+      "execution": {
+        "async": false,
+        "timeout_ms": 1000,
+        "priority": 0
+      },
+      "config": {},
+      "metadata": {
+        "tags": "EndEvent",
+        "x": 60,
+        "y": 170,
+        "width": 140,
+        "height": 64,
+        "icon": "/icons/close.svg"
+      }
+    }
+  ],
+  "edges": [],
+  "variables": {
+    "__system__user_creator_id": {
+      "name": "Creator",
+      "type": "string",
+      "required": false
+    }
+  },
+  "metadata": {
+    "created_date": "2026-02-03",
+    "version": "2.0-array-execution-tracking",
+    "author": "System",
+    "purpose": "Unified BPMN schema with nodes as array",
+    "status": "active",
+    "tags": [
+      "bpmn",
+      "unified_schema",
+      "execution_tracking"
+    ]
+  }
+}

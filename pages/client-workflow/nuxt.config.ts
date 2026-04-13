@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   ],
   extends:[
     "../../packages/base",
-    "../../packages/bpmn",
+    // "../../packages/bpmn",
     "../../packages/workflow",
     "../../packages/calendar",
     "../../packages/doc-template"

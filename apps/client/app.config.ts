@@ -8,9 +8,7 @@ export default defineAppConfig({
         }
       ]
     },
-    {
-      name: 'client-scan'
-    },
+
     // browse
     {
       name: 'client-browse',
@@ -56,12 +54,15 @@ export default defineAppConfig({
     {
       name: 'client-trash'
     },
-    {
-      name: 'client-smartFolder'
-    },
+    // {
+    //     name: "client-smartFolder"
+    // },
 
+    // {
+    //   name: 'client-workflow'
+    // },
     {
-      name: 'client-workflow'
+      name: 'client-new-workflow'
     },
     {
       label: 'client_retention_item',
@@ -81,9 +82,9 @@ export default defineAppConfig({
     {
       name: 'client-master-table'
     },
-    {
-      name: 'client-dashboard'
-    },
+    // {
+    //   name: 'client-dashboard'
+    // },
 
     {
       name: 'client-easy-form'
@@ -178,23 +179,28 @@ export default defineAppConfig({
         // }
       ]
     },
+    // {
+    //   label: 'adminMenu.workflow',
+    //   icon: 'dp-icon:flow-outline',
+    //   children: [
+    //     {
+    //       name: 'admin-workflow-manage'
+    //     },
+    //     {
+    //       name: 'admin-workflow-retry'
+    //     },
+    //     {
+    //       name: 'admin-workflow-editor'
+    //     }
+    //     // {
+    //     //     name: "super-workflow-form"
+    //     // }
+    //   ]
+    // },
     {
-      label: 'adminMenu.workflow',
+      label: 'New Workflow',
       icon: 'dp-icon:flow-outline',
-      children: [
-        {
-          name: 'admin-workflow-manage'
-        },
-        {
-          name: 'admin-workflow-retry'
-        },
-        {
-          name: 'admin-workflow-editor'
-        }
-        // {
-        //     name: "super-workflow-form"
-        // }
-      ]
+      children: [{ name: 'admin-new-workflow-manage' }]
     },
 
     {
@@ -274,9 +280,6 @@ export default defineAppConfig({
     },
     {
       name: 'admin-calendar-setting'
-    },
-    {
-      name: 'admin-scan'
     }
   ]
 })

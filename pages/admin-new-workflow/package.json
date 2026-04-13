@@ -1,0 +1,23 @@
+{
+  "name": "admin-new-workflow",
+  "version": "1.0.0",
+  "description": "Search Package",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:report": "vitest run --reporter=html --reporter=json"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "3.18.0",
+    "@vitest/ui": "3.1.4",
+    "@vue/test-utils": "^2.4.6",
+    "eventbus": "workspace:^",
+    "happy-dom": "^17.4.7",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "3.1.4"
+  }
+}
+
+
