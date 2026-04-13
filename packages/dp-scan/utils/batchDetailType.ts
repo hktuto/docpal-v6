@@ -12,6 +12,11 @@ export type ZoneObject = {
   zone: string
 }
 
+export type SectionParams = {
+  page: number
+  zone: string
+}
+
 export type FieldWithValue = {
   key: string
   type: string
@@ -85,4 +90,5 @@ export type BatchDetailContext = {
   reload: () => Promise<void>
   updateSectionZone: (sectionId: string, newZone: ZoneObject) => Promise<void>
   buildResultJson: () => Record<string, any>
+  getCropImageBySection: (section: SectionParams) => Promise<string | undefined>
 }

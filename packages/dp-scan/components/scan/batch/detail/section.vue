@@ -8,6 +8,8 @@ const props = defineProps<{
   readonly?: boolean
   allData: SectionWithValues[]
 }>()
+
+
 const formSize = ref('default')
 const emits = defineEmits<{
   fieldChange: [sectionId: string, fieldKey: string, value: any, rowIndex?: number]
@@ -21,7 +23,7 @@ if (!context) {
 }
 
 // Destructure for easier access
-const { highlightedSection, highlightedField, selectSection, selectField } = context
+const { highlightedSection, highlightedField, selectSection, selectField,getCropImageBySection } = context
 
 // Check if this section is currently highlighted
 const isHighlighted = computed(() => {
@@ -177,8 +179,28 @@ function getInputType(fieldType: string): string {
 
 onMounted(() => {
   validateForm()
+  if(props.section.save_to_result){
+    getSectionImage()
+  }
 })
 
+// preview image logic
+const previewImg = ref()
+const previewImgLoading = ref(false)
+
+async function getSectionImage(){
+  console.log("getSectionImage")
+  previewImgLoading.value = true;
+  previewImg.value = null;
+  try{
+    previewImg.value = await getCropImageBySection(props.section.zone)
+  }catch(err){
+    console.log("getSectionImage error", err)
+  }finally{
+    previewImgLoading.value = false;
+  }
+}
+//
 function displayField(fields: FieldWithValues) {
   return fields.filter((f) => !f.hidden )
 }
@@ -187,6 +209,9 @@ watch(() => props.section,()=>{
   nextTick(() => {
     console.log("currentSelectedDoc change")
     validateForm()
+    if(props.section.save_to_result) {
+      getSectionImage()
+    }
   })
 },{
   deep:true
@@ -228,8 +253,9 @@ defineExpose({
     @focus="handleSectionMouseEnter"
     @mouseenter="handleSectionMouseEnter"
   >
-
-
+      <template v-if="section.save_to_result">
+        <img v-loading="previewImgLoading" :src="previewImg" class="cropImgPreview" />
+      </template>
     <!-- Standard Section -->
     <div v-if="section.section_type !== 'table'" class="fieldsList">
       <ElForm
@@ -435,6 +461,10 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
+.cropImgPreview{
+    width:100%;
+
+}
 .warningText{
   color: var(--app-warning-color);
 }

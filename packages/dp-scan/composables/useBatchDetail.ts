@@ -59,6 +59,11 @@ dayjs.extend(customParseFormat)
  * }
  */
 
+ export interface SectionParams {
+   page: number
+   zone: string
+ }
+
 export const useBatchDetail = (batchId: string) => {
   // State
   const currentBatchId = ref(batchId)
@@ -354,9 +359,12 @@ export const useBatchDetail = (batchId: string) => {
     }
   }
 
-  async function downloadImage(path: string): Promise<Blob> {
+  async function downloadImage(path: string, cancelLast:boolean = true): Promise<Blob> {
     // Cancel any previous request
-    cancelImageRequest()
+    if (cancelLast) {
+
+      cancelImageRequest()
+    }
 
     // Create new abort controller for this request
     currentImageAbortController = new AbortController()
@@ -405,6 +413,127 @@ export const useBatchDetail = (batchId: string) => {
     }
   }
 
+  /**
+   * Parse zone string "x1,y1,x2,y2" to coordinates object
+   */
+  function parseZoneString(zone: string): { x: number; y: number; width: number; height: number } | null {
+    if (!zone) return null
+    const coords = zone.split(',').map(Number)
+    if (coords.length === 4) {
+      return {
+        x: coords[0],
+        y: coords[1],
+        width: coords[2] - coords[0],
+        height: coords[3] - coords[1]
+      }
+    }
+    return null
+  }
+
+
+
+  /**
+   * Get a cropped image of a specific section without changing the current page view
+   * Downloads the page image, extracts the crop based on zone coordinates, and returns base64
+   * @param section - Section parameters with page number and zone coordinates "x1,y1,x2,y2"
+   * @returns Base64 image data URL (png format) of the cropped section, or undefined if failed
+   * @example
+   * const base64Image = await getCropImageBySection({ page: 1, zone: "95,2344,1258,2753" })
+   */
+  async function getCropImageBySection(section: SectionParams): Promise<string | undefined> {
+    if (!section?.page || !section?.zone) {
+      console.warn('getCropImageBySection: Invalid section parameters', section)
+      return undefined
+    }
+
+    // Validate zone format
+    const zoneCoords = parseZoneString(section.zone)
+    if (!zoneCoords) {
+      console.warn('getCropImageBySection: Invalid zone format', section.zone)
+      return undefined
+    }
+
+    // Validate page number
+    const totalPageCount = selectedDocDetail.value?.detail?.pages?.length || 0
+    if (section.page < 1 || section.page > totalPageCount) {
+      console.warn('getCropImageBySection: Page number out of range', section.page, totalPageCount)
+      return undefined
+    }
+
+    try {
+      // Get the image URL for the specified page
+      const url = selectedDocDetail.value?.detail?.pages?.[section.page - 1]
+      if (!url) {
+        console.warn('getCropImageBySection: No image URL found for page', section.page)
+        return undefined
+      }
+
+      // Download the image blob
+      const blob = await downloadImage(url, false)
+      if (blob.size === 0) {
+        console.warn('getCropImageBySection: Failed to download image or request was aborted')
+        return undefined
+      }
+
+      // Convert blob to object URL for image loading
+      const imageUrl = URL.createObjectURL(blob)
+
+      try {
+        // Load image and extract crop in memory
+        return await new Promise<string | undefined>((resolve) => {
+          const img = new Image()
+          img.crossOrigin = 'anonymous'
+
+          img.onload = () => {
+            try {
+              // Create a temporary canvas to extract the crop
+              const tempCanvas = document.createElement('canvas')
+              tempCanvas.width = zoneCoords.width
+              tempCanvas.height = zoneCoords.height
+              const tempCtx = tempCanvas.getContext('2d')
+
+              if (!tempCtx) {
+                resolve(undefined)
+                return
+              }
+
+              // Draw the cropped area from the source image
+              tempCtx.drawImage(
+                img,
+                zoneCoords.x, zoneCoords.y, zoneCoords.width, zoneCoords.height,  // Source coordinates
+                0, 0, zoneCoords.width, zoneCoords.height  // Destination coordinates
+              )
+
+              // Convert to base64 PNG
+              const imageData = tempCanvas.toDataURL('image/png')
+              resolve(imageData)
+            } catch (error) {
+              console.error('getCropImageBySection: Failed to extract crop', error)
+              resolve(undefined)
+            } finally {
+              // Clean up the object URL
+              URL.revokeObjectURL(imageUrl)
+            }
+          }
+
+          img.onerror = () => {
+            console.error('getCropImageBySection: Failed to load image')
+            URL.revokeObjectURL(imageUrl)
+            resolve(undefined)
+          }
+
+          img.src = imageUrl
+        })
+      } catch (error) {
+        // Clean up on error
+        URL.revokeObjectURL(imageUrl)
+        throw error
+      }
+    } catch (error) {
+      console.error('getCropImageBySection: Failed to get crop image', error)
+      return undefined
+    }
+  }
 
   /**
    * Extract zone info from section/field object
@@ -708,6 +837,7 @@ export const useBatchDetail = (batchId: string) => {
     saveDraft,
     confirm,
     reload: getBatchDetail,
+    getCropImageBySection,
     updateSectionZone,
     buildResultJson,
 
