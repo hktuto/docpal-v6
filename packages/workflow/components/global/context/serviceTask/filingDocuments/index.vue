@@ -46,7 +46,7 @@ function updateData() {
 }
 
 async function getCabinetDetail() {
-  if (!formData.value.body.folderCabinetId) {
+  if (!formData.value.body.folderCabinetId || formData.value.body.folderCabinetId === '') {
     return
   }
 
@@ -163,9 +163,16 @@ function handleUpdateFieldData(item: any) {
   updateData()
 }
 
-onMounted(async () => {
-  await initForm()
-})
+watch(
+  () => config,
+  () => {
+    initForm()
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
 </script>
 
 <template>
