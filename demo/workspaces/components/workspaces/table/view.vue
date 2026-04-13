@@ -97,13 +97,15 @@ function getFilterRules() {
 }
 function getSortRules() {
   return (
-    columnSortRules.value?.map((rule: any) => {
-      console.log('rule', rule)
-      return {
-        column: rule.field,
-        desc: rule.desc
+    columnSortRules.value?.reduce((acc: any, rule: any) => {
+      if (rule.field) {
+        acc.push({
+          column: rule.field,
+          desc: rule.desc
+        })
       }
-    }) || []
+      return acc
+    }, []) || []
   )
 }
 function getColumns() {
