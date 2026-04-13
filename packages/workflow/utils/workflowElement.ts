@@ -414,7 +414,7 @@ function graphItemFromWorkflowNode(
   return {
     id: workflowNodeItem.id,
     markup: GRAPH_NODE_MARKUP,
-    attrs: GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon),
+    attrs: GenAttrs(title, workflowNodeItem.label, workflowNodeItem.metadata.icon),
     shape: 'bpmn-node',
     zIndex: 1,
     visible: true,
@@ -935,7 +935,13 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   FilingDocuments: {
-    ...createNodeShell({ id: 'New_FilingDocuments', paletteLabel: 'New Filing Documents Task', icon: '/icons/form.svg', width: 260 }),
+    ...createNodeShell({
+      id: 'New_FilingDocuments',
+      title: 'Filing Documents Task',
+      paletteLabel: 'New Filing Documents Task',
+      icon: '/icons/form.svg',
+      width: 260
+    }),
     data: {
       id: '',
       name: 'Filing Documents Task',
