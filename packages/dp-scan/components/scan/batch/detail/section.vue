@@ -79,12 +79,13 @@ function handleAddRow() {
 
 // Handle remove row for table sections
 async function handleRemoveRow(rowIndex: number) {
+
   const action = await ElMessageBox.confirm('Are you sure you want to remove this row?', 'Confirm', {
     confirmButtonText: 'Yes',
     cancelButtonText: 'No',
     type: 'warning',
-  })
-  if (action === 'confirm') {
+  }).catch(action => action)
+  if (action &&　action === 'confirm') {
     emits('removeRow', props.section.section_id, rowIndex)
   }
 }
