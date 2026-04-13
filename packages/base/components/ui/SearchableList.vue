@@ -253,15 +253,7 @@ async function computeFilteredList() {
       isFilterStage: isFilterStage.value
     })
 
-    // If handler returns results, use them directly
-    if (result) {
-      filteredList.value = result
-      const endTime = performance.now()
-      const duration = (endTime - startTime).toFixed(2)
 
-      ElMessage.info(`${filterType} Filter: ${duration}ms (${result.length} results)`)
-      return
-    }
   }
 
   // Default client-side filtering
@@ -292,9 +284,6 @@ async function computeFilteredList() {
   const endTime = performance.now()
   const duration = (endTime - startTime).toFixed(2)
 
-  if (hasActiveFilters) {
-    ElMessage.info(`${filterType} Filter: ${duration}ms (${filteredList.value.length} results)`)
-  }
 }
 
 // Sort items: non-dimmed first, then dimmed, then by sortBy field

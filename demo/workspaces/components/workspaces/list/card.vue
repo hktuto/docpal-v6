@@ -43,7 +43,7 @@ function openPopover(event: MouseEvent) {
         </div>
       </div>
     </div>
-    <div class="cardTitle" v-html="highlightText(workspace.name, keyword || '')"></div>
+    <div class="cardTitle" v-tooltip="workspace.name" v-html="highlightText(workspace.name, keyword || '')"></div>
     <div class="cardDescription" v-html="highlightText(workspace.description || '', keyword || '')"></div>
   </div>
 
@@ -125,7 +125,10 @@ function openPopover(event: MouseEvent) {
   font-size: var(--app-font-size-l);
   font-weight: 900;
   width: 100%;
-
+  white-space: normal;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
   :deep(mark.highlight) {
     background-color: yellow;
     color: var(--app-primary);
