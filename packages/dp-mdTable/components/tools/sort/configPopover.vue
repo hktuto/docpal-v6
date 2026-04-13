@@ -11,11 +11,11 @@
           <template #item="{ element, index }">
             <div class="sort-rule-item">
               <!-- 拖拽手柄 -->
-              <div class="drag-handle">
+              <!-- <div class="drag-handle">
                 <el-icon :size="16">
                   <Rank />
                 </el-icon>
-              </div>
+              </div> -->
 
               <!-- 字段选择 -->
               <el-select
@@ -46,7 +46,7 @@
               </div>
 
               <!-- 删除按钮 -->
-              <el-button v-if="false" type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteRule(index)" />
+              <el-button type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteRule(index)" />
             </div>
           </template>
         </draggable>
