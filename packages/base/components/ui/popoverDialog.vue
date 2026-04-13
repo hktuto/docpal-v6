@@ -35,6 +35,7 @@ interface Props {
   closeOnClickOutside?: boolean // If false, clicking outside won't close popover
   showClose?: boolean
   persistId?: string // If provided, save/restore size to localStorage
+  showHighlight?: boolean
 }
 
 interface Emits {
@@ -50,7 +51,8 @@ const props = withDefaults(defineProps<Props>(), {
   width: '400px',
   closeOnClickModal: true,
   closeOnClickOutside: true,
-  showClose: true
+  showClose: true,
+  showHighlight: true
 })
 
 const emit = defineEmits<Emits>()
@@ -461,12 +463,14 @@ async function open(target?: HTMLElement, highlight?: HTMLElement) {
     return
   }
   // set highlight element (or target if no highlight provided) to add outline
-  const elementToHighlight = highlightElement.value || target
-  elementToHighlight.classList.add('focus-outline')
+  if (props.showHighlight) {
+    const elementToHighlight = highlightElement.value || target
+    elementToHighlight.classList.add('focus-outline')
+  }
   // Desktop with target → use positioned popover
   emit('open')
   visible.value = true
-  if (highlightElement.value) {
+  if (props.showHighlight && highlightElement.value) {
     highlightElement.value.classList.add('highlight-element')
   } else if (targetElement.value) {
     targetElement.value.classList.add('highlight-element')
@@ -711,7 +715,7 @@ defineExpose({
 }
 
 .popover-content {
-  padding: var(--app-space-s);
+  padding: var(--app-space-xs);
   max-height: calc(100vh - 40px);
   height: 100%;
   overflow-y: auto;

@@ -2348,6 +2348,61 @@
   "masterTable_settingAddPermission": "新增權限",
   "masterTable_settingRemoveMsg": "Are you sure you want to remove the selected permission from the master table {name}?",
   "masterTable_settingRemoveSuccessMsg": "所選權限已從主表 {name} 中刪除。",
+  "mdTable": {
+    "countMethod": {
+      "avg": "平均值",
+      "count": "記錄總數",
+      "empty": "未填寫",
+      "emptyPercent": "未填寫佔比",
+      "filled": "已填寫",
+      "filledPercent": "已填寫佔比",
+      "getDataError": "獲取表格數據失敗",
+      "max": "最大值",
+      "min": "最小值",
+      "none": "不展示",
+      "statistics": "統計",
+      "sum": "求和",
+      "unique": "唯一值"
+    },
+    "deleteRow": "删除这行",
+    "deleteSelectedRow": "刪除這{count}行",
+    "relationCard": {
+      "removeRelation": "移除該關聯",
+      "unnamed": "未命名"
+    },
+    "relationPicker": {
+      "configRequired": "請先配置關聯表",
+      "defaultTableLabel": "關聯表",
+      "recordsOfTable": "關聯表「{tableLabel}」的記錄",
+      "searchPlaceholder": "搜尋你想關聯的記錄",
+      "onlySelected": "只看已選記錄",
+      "noRecords": "暫無記錄",
+      "addRecords": "添加記錄",
+      "addFromTable": "從「{tableLabel}」添加關聯記錄",
+      "loading": "載入中..."
+    },
+    "formulaEditor": {
+      "category": {
+        "date": "日期函數",
+        "logical": "邏輯函數",
+        "number": "數字函數",
+        "text": "文本函數",
+        "variable": "變量"
+      },
+      "description": "描述",
+      "emptyText": "請選擇函數或變量以查看詳情",
+      "example": "例子",
+      "inputLabel": "請輸入公式",
+      "inputPlaceholder": "請輸入公式, 例如: IF({field1} > 100, 'High', 'Low')",
+      "learnMore": "了解更多",
+      "missingOperator": "變量或函數之間缺少運算符",
+      "params": "參數",
+      "sidebarTitle": "選擇字段或函數",
+      "unrecognizedVariable": "未識別{0}",
+      "usage": "用法",
+      "variableDescription": "變量: {label}"
+    }
+  },
   "menu_master-table": "主表格",
   "menus_Virtual Folder": "虛擬文件夾",
   "menus_VirtualFolder": "虛擬文件夾",

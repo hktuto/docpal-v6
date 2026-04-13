@@ -3,6 +3,8 @@ import { Admin } from './generate/admin'
 import { Template } from './generate/template'
 import { Standard } from './generate/newClient'
 
+export type { MenuDTO, MenuRequestDTO, ResultListMenuDTO } from './generate/newClient'
+
 let clientBaseURL = '/'
 // let publicBaseURL = '/public-api/report/v1/api'
 let templateBaseURL = '/open-api/template'
@@ -32,6 +34,41 @@ export const templateApi = new Template({
   baseURL: templateBaseURL,
   timeout: 50000
 })
+
+export type DynamicActionConditionType = 'EQ' | 'NEQ' | 'GT' | 'GTE' | 'LT' | 'LTE' | 'LIKE' | 'ILIKE' | string
+
+export interface DynamicActionColumn {
+  name: string
+}
+
+export interface DynamicActionCondition {
+  type: DynamicActionConditionType
+  column?: string
+  value: unknown
+}
+
+export interface DynamicActionsRequestBody {
+  dryRun?: boolean
+  table?: string
+  tableId?: string
+  columns: DynamicActionColumn[]
+  conditions?: DynamicActionCondition[]
+  pagination?: {
+    pageSize?: number
+    pageNum?: number
+  }
+}
+
+export function postDynamicActions(body: DynamicActionsRequestBody) {
+  // 使用相对 path，便于 dev 走 Vite 代理、生产在拦截器里把 baseURL 换成 DYNAMIC_ACTIONS_PROXY
+  return clientApi.instance.post('/dynamic-actions', body, {
+    baseURL: '/dynamic-actions',  
+    headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  )
+}
 
 // if node env mode is dev set proxy
 export function PostgREST_Decorate(params: any) {

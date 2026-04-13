@@ -2351,6 +2351,61 @@
   "masterTable_settingAddPermission": "Add Permission",
   "masterTable_settingRemoveMsg": "Are you sure you want to remove the selected permission from the master table {name}?",
   "masterTable_settingRemoveSuccessMsg": "Selected permission has ben removed from the master table  {name}.",
+  "mdTable": {
+    "countMethod": {
+      "avg": "Average",
+      "count": "Total Records",
+      "empty": "Empty",
+      "emptyPercent": "Empty Percentage",
+      "filled": "Filled",
+      "filledPercent": "Filled Percentage",
+      "getDataError": "Failed to get table data",
+      "max": "Max",
+      "min": "Min",
+      "none": "Don't Show",
+      "statistics": "Statistics",
+      "sum": "Sum",
+      "unique": "Unique Values"
+    },
+    "deleteRow": "Delete this line",
+    "deleteSelectedRow": "Delete these {count} lines",
+    "relationCard": {
+      "removeRelation": "Remove this relation",
+      "unnamed": "Unnamed"
+    },
+    "relationPicker": {
+      "configRequired": "Please configure the relation table first",
+      "defaultTableLabel": "Relation table",
+      "recordsOfTable": "Records of \"{tableLabel}\"",
+      "searchPlaceholder": "Search records to link",
+      "onlySelected": "Selected only",
+      "noRecords": "No records",
+      "addRecords": "Add records",
+      "addFromTable": "Add related records from \"{tableLabel}\"",
+      "loading": "Loading..."
+    },
+    "formulaEditor": {
+      "category": {
+        "date": "Date Functions",
+        "logical": "Logical Functions",
+        "number": "Number Functions",
+        "text": "Text Functions",
+        "variable": "Variables"
+      },
+      "description": "Description",
+      "emptyText": "Please select a function or variable to view details",
+      "example": "Example",
+      "inputLabel": "Please enter the formula",
+      "inputPlaceholder": "Please enter the formula, for example: IF({field1} > 100, 'High', 'Low')",
+      "learnMore": "Learn More",
+      "missingOperator": "Missing operator between variables or functions",
+      "params": "Parameters",
+      "sidebarTitle": "Select a field or function",
+      "unrecognizedVariable": "Unrecognized variable {0}",
+      "usage": "Usage",
+      "variableDescription": "Variable: {label}"
+    }
+  },
   "menu_master-table": "Master Table",
   "menus_Virtual Folder": "Virtual Folder",
   "menus_VirtualFolder": "Virtual Folder",

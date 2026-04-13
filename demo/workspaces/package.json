@@ -1,0 +1,27 @@
+{
+  "name": "demo-workspaces",
+  "version": "1.0.0",
+  "description": "demo workspaces",
+  "main": "index.js",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@electric-sql/pglite": "^0.3.14",
+    "drizzle-orm": "^0.45.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.0"
+  },
+  "engines": {
+    "pnpm": ">=8.5.0",
+    "node": ">=19.0.0"
+  }
+}
