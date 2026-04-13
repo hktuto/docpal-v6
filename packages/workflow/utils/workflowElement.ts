@@ -783,7 +783,7 @@ const workflowCellElementTemplate: CellTypeItem = {
   },
   // Http Task
   HTTPTask: {
-    ...createNodeShell({ id: 'New_HTTPTask', paletteLabel: 'HTTP Task', icon: '/icons/http-task.svg' }),
+    ...createNodeShell({ id: 'New_HTTPTask', title: 'HTTP Task', paletteLabel: 'HTTP Task', icon: '/icons/http-task.svg' }),
     data: {
       id: '',
       name: 'HTTP Task',
@@ -808,7 +808,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   UniqueIdGenerator: {
-    ...createNodeShell({ id: 'New_UniqueIdGenerator', paletteLabel: 'Unique Id Generator', icon: '/icons/form.svg' }),
+    ...createNodeShell({ id: 'New_UniqueIdGenerator', title: 'Unique Id Generator', paletteLabel: 'New Unique Id Generator', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'Unique Id Generator',
@@ -834,7 +834,7 @@ const workflowCellElementTemplate: CellTypeItem = {
   },
   // Service Task
   SubProcess: {
-    ...createNodeShell({ id: 'New_SubProcess', paletteLabel: 'Sub Process', icon: '/icons/form.svg' }),
+    ...createNodeShell({ id: 'New_SubProcess', title: 'Sub Process', paletteLabel: 'New Sub Process', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'New Sub Process',
@@ -850,7 +850,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ValidateTask: {
-    ...createNodeShell({ id: 'New_ValidateTask', paletteLabel: 'Validate Task', icon: '/icons/form.svg' }),
+    ...createNodeShell({ id: 'New_ValidateTask', title: 'Validate Task', paletteLabel: 'Validate Task', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'Validate Task',
@@ -866,7 +866,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   TransformTask: {
-    ...createNodeShell({ id: 'New_TransformTask', paletteLabel: 'Transform Task', icon: '/icons/transform.svg' }),
+    ...createNodeShell({ id: 'New_TransformTask', title: 'Transform Task', paletteLabel: 'New Transform Task', icon: '/icons/transform.svg' }),
     data: {
       id: '',
       name: 'Transform Task',
@@ -885,7 +885,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   MessageTask: {
-    ...createNodeShell({ id: 'New_MessageTask', paletteLabel: 'Message Task', icon: '/icons/message.svg' }),
+    ...createNodeShell({ id: 'New_MessageTask', title: 'Message Task', paletteLabel: 'New Message Task', icon: '/icons/message.svg' }),
     data: {
       id: '',
       name: 'Message Task',
@@ -901,7 +901,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   UploadFile: {
-    ...createNodeShell({ id: 'New_UploadFileTask', paletteLabel: 'Upload File', icon: '/icons/uploadFile.svg' }),
+    ...createNodeShell({ id: 'New_UploadFileTask', title: 'Upload File', paletteLabel: 'New Upload File', icon: '/icons/uploadFile.svg' }),
     data: {
       id: '',
       name: 'Upload File',
@@ -917,7 +917,13 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   DocumentGenerationTask: {
-    ...createNodeShell({ id: 'New_DocumentGenerationTask', paletteLabel: 'New Document Generation Task', icon: '/icons/form.svg', width: 260 }),
+    ...createNodeShell({
+      id: 'New_DocumentGenerationTask',
+      title: 'Document Generation Task',
+      paletteLabel: 'New Document Generation Task',
+      icon: '/icons/document.svg',
+      width: 260
+    }),
     data: {
       id: '',
       name: 'Document Generation Task',
@@ -929,7 +935,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/transform.svg',
+        icon: '/icons/document.svg',
         width: 250
       }
     }
