@@ -13,41 +13,39 @@
     </button>
     <div class="relation-card-main">
       <div class="relation-card-content">
-        <div v-if="fields?.length > 0 && fields?.[0]?.fieldName" class="relation-card-title">
-          {{ formatFieldValue(fields[0].fieldName) }}
+        <div v-if="fields?.length > 0 && fields?.[0]?.name" class="relation-card-title">
+          {{ formatFieldValue(fields[0].name) }}
         </div>
         <div v-if="fields?.length > 1" class="relation-card-fields">
           <template v-for="(field, index) in fields">
-            <div v-if="index > 0" :key="field.fieldName" class="relation-card-field">
-              <div class="field-label" :title="getFieldLabel(field.fieldName)">{{ getFieldLabel(field.fieldName) }}</div>
-              <div class="field-value" :class="getFieldValueClass(field.fieldName)" :title="formatFieldValue(field.fieldName)">
+            <div v-if="index > 0" :key="field.name" class="relation-card-field">
+              <div class="field-label" :title="getFieldLabel(field.name)">{{ getFieldLabel(field.name) }}</div>
+              <div class="field-value" :title="formatFieldValue(field.name)">
                 <!-- 单选：标签 -->
-                <template v-if="getFieldType(field.fieldName) === ColumnFieldType.SingleSelect">
-                  <span v-if="getSelectOption(field.fieldName)" class="value-tag" :style="{ '--tag-color': getSelectOption(field.fieldName)?.color }">
-                    {{ getSelectOption(field.fieldName)?.label || getSelectOption(field.fieldName)?.name }}
+                <template v-if="getFieldType(field.name) === ColumnFieldType.SingleSelect">
+                  <span v-if="getSelectOption(field.name)" class="value-tag" :style="{ '--tag-color': getSelectOption(field.name)?.color }">
+                    {{ getSelectOption(field.name)?.label || getSelectOption(field.name)?.name }}
                   </span>
                   <span v-else>-</span>
                 </template>
                 <!-- 多选：多个标签 -->
-                <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.MultiSelect">
-                  <template v-if="getSelectOptions(field.fieldName)?.length">
-                    <span v-for="opt in getSelectOptions(field.fieldName)" :key="opt.id" class="value-tag" :style="{ '--tag-color': opt?.color }">
+                <template v-else-if="getFieldType(field.name) === ColumnFieldType.MultiSelect">
+                  <template v-if="getSelectOptions(field.name)?.length">
+                    <span v-for="opt in getSelectOptions(field.name)" :key="opt.id" class="value-tag" :style="{ '--tag-color': opt?.color }">
                       {{ opt?.label || opt?.name }}
                     </span>
                   </template>
                   <span v-else>-</span>
                 </template>
                 <template v-else>
-                  {{ formatFieldValue(field.fieldName) }}
+                  {{ formatFieldValue(field.name) }}
                 </template>
               </div>
             </div>
           </template>
         </div>
       </div>
-      <div class="relation-card-cover" v-if="coverField">
-        
-      </div>
+      <div class="relation-card-cover" v-if="coverField"></div>
     </div>
   </div>
 </template>
@@ -55,7 +53,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { CardViewConfig, FieldInfo } from '@packages/dp-mdTable/types/view-config'
+import type { FieldInfo } from '@packages/dp-mdTable/types/view-config'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import {
   getSelectOption as getSelectOptionUtil,
@@ -65,14 +63,13 @@ import {
 
 const props = withDefaults(
   defineProps<{
-    config: CardViewConfig
     fields: FieldInfo[]
     coverField?: string
-    sampleData?: Record<string, any>
     showRemove?: boolean
+    data: Record<string, any>
   }>(),
   {
-    showRemove: false,
+    showRemove: false
   }
 )
 
@@ -81,18 +78,13 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const recordData = computed(() => props.sampleData || {})
 function handleClick() {
   emit('original-click', recordData.value)
 }
-const titleDisplay = computed(() => {
-  if (!props.config.titleField) return ''
-  const v = recordData.value[props.config.titleField]
-  return v != null && v !== '' ? String(v) : t('mdTable.relationCard.unnamed')
-})
+const recordData = computed(() => props.data || {})
 
 function getFieldInfo(fieldName: string): FieldInfo | undefined {
-  return props.fields.find((f) => f.fieldName === fieldName)
+  return props.fields.find((f) => f.name === fieldName)
 }
 
 function getFieldType(fieldName: string): ColumnFieldType | undefined {
@@ -104,20 +96,14 @@ function getFieldProperties(fieldName: string): Record<string, any> {
 }
 
 function getFieldLabel(fieldName: string): string {
-  const fc = props.config.fields.find((f) => f.fieldName === fieldName)
-  if (fc?.label) return fc.label
-  const info = getFieldInfo(fieldName)
-  return (info as any)?.fieldNameAlias || fieldName
+  console.log('props.fields', props.fields, fieldName)
+  const fc = props.fields.find((f) => f.name === fieldName)
+  console.log('fc', fc)
+  return fc?.label || fieldName
 }
 
 function getFieldValue(fieldName: string): any {
   return recordData.value[fieldName]
-}
-
-function getFieldValueClass(fieldName: string): string {
-  const type = getFieldType(fieldName)
-  if (type === undefined) return ''
-  return `field-type-${ColumnFieldType[type].toLowerCase()}`
 }
 
 function getSelectOption(fieldName: string) {
@@ -128,10 +114,13 @@ function getSelectOptions(fieldName: string) {
   return getSelectOptionsUtil(getFieldValue(fieldName), getFieldProperties(fieldName))
 }
 
-
 function formatFieldValue(fieldName: string): string {
   const fieldInfo = getFieldInfo(fieldName)
-  return formatFieldValueByType(getFieldValue(fieldName), {...fieldInfo, properties: fieldInfo?.displayStructure?.properties, type: fieldInfo?.displayStructure?.type})
+  return formatFieldValueByType(getFieldValue(fieldName), {
+    ...fieldInfo,
+    properties: fieldInfo?.displayStructure?.properties,
+    type: fieldInfo?.displayStructure?.type
+  })
 }
 
 function handleRemove() {
@@ -142,6 +131,7 @@ function handleRemove() {
 <style lang="scss" scoped>
 .relation-card {
   position: relative;
+  width: 100%;
 }
 
 .relation-card-remove {
@@ -194,6 +184,7 @@ function handleRemove() {
 }
 
 .relation-card-fields {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
@@ -231,5 +222,4 @@ function handleRemove() {
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
-
 </style>

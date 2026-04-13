@@ -184,7 +184,6 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $table, row, column } = params
         const relationOptions = options?.props || {}
-
         return h(RelationEditVue, {
           ...relationOptions,
           row: row,

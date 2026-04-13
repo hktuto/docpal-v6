@@ -74,7 +74,7 @@ const triggerRef = ref()
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 const formData = ref<ColumnConfig>({
-  field_name: '',
+  field_name: 'New Field',
   business_type: ColumnFieldType.MultiText
 })
 function show(targetParams: any, column: any) {
@@ -118,6 +118,10 @@ const handleClose = () => {
 provide('handleSelectVisibleChange', handleSelectVisibleChange)
 function handleSelectChange(value: any) {
   console.log('handleSelectChange', value)
+  formData.value = {
+    field_name: formData.value.field_name,
+    business_type: value
+  }
   loadComponent(value)
 }
 const AsyncComponent = ref<null | any>(null)
@@ -137,7 +141,7 @@ const loadComponent = (value: any) => {
 // 重置表单
 const resetForm = () => {
   formData.value = {
-    field_name: '',
+    field_name: 'New Field',
     business_type: ColumnFieldType.MultiText
   }
   formRef.value?.clearValidate()
@@ -150,20 +154,23 @@ const handleSubmit = async () => {
   try {
     await formRef.value.validate()
     // 基本字段
-    const basicFields = ['field_name', 'business_type']
-    const columnConfig: ColumnConfig = {
-      business_type: formData.value.business_type as ColumnFieldType
-    }
-
+    const basicFields = ['field_name', 'business_type', 'relation_table_id', 'display_field_ids']
+    const display_structure_fields = ['relation_table_id', 'display_field_ids']
+    const columnConfig: ColumnConfig = {}
     // 将其他字段保存到 display_structure 中
     const display_structure: Record<string, any> = {}
     Object.keys(formData.value).forEach((key) => {
       if (!basicFields.includes(key)) {
         display_structure[key] = formData.value[key]
+      } else {
+        columnConfig[key] = formData.value[key]
       }
     })
-
-    // 如果有 properties，则添加到 columnConfig 中
+    display_structure_fields.forEach((field) => {
+      if (formData.value[field]) {
+        display_structure[field] = formData.value[field]
+      }
+    })
     if (Object.keys(display_structure).length > 0) {
       columnConfig.display_structure = display_structure
     }
@@ -171,7 +178,6 @@ const handleSubmit = async () => {
     if (state.isEdit) {
       const oldType = (state.column as any)?.business_type
       const newType = formData.value.business_type
-      columnConfig.field_name = formData.value.field_name
       // Type changed - warn user about potential data loss
       if (oldType !== newType) {
         try {
@@ -190,7 +196,6 @@ const handleSubmit = async () => {
       // This preserves relation data when only changing display field
       updateColumn(state.column?.field, columnConfig as any)
     } else {
-      columnConfig.field_name = formData.value.field_name
       addColumn([columnConfig])
     }
     resetForm()

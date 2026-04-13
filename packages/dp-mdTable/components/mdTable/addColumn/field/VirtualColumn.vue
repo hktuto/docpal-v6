@@ -1,6 +1,7 @@
 <template>
   <div class="virtual-column-config">
     <!-- Source Info (Read-only) -->
+    {{menus}}
     <div class="source-info">
       <div class="info-item">
         <span class="label">Source Relation:</span>
@@ -62,37 +63,17 @@
 
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
-
+import { ColumnFieldType, reverseColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
 }>()
 
-// Column type name mapping
-const COLUMN_TYPE_NAMES: Record<number, string> = {
-  1: 'Multi-line Text',
-  2: 'Number',
-  3: 'Single Select',
-  4: 'Multi Select',
-  5: 'Date/Time',
-  6: 'Attachment',
-  8: 'URL',
-  9: 'Email',
-  10: 'Phone',
-  11: 'Checkbox',
-  12: 'Rating',
-  13: 'Member',
-  14: 'Relation',
-  16: 'Formula',
-  17: 'Currency',
-  18: 'Percent',
-  19: 'Text'
-}
-
+const { menus } = useVirtualColumn()
 // Get target field type name from targetFieldConfig
 const targetTypeName = computed(() => {
   const type = props.formData?.targetFieldConfig?.type
   if (!type) return null
-  return COLUMN_TYPE_NAMES[type] || 'Text'
+  return reverseColumnFieldType[type] || 'Text'
 })
 
 // Initialize form data with defaults

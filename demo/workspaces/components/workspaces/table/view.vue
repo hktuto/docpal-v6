@@ -95,7 +95,17 @@ function getFilterRules() {
   }
   return [filterRules]
 }
-function getSortRules() {}
+function getSortRules() {
+  return (
+    columnSortRules.value?.map((rule: any) => {
+      console.log('rule', rule)
+      return {
+        column: rule.field,
+        desc: rule.desc
+      }
+    }) || []
+  )
+}
 function getColumns() {
   return columns.value.map((col: any) => {
     return {
@@ -111,7 +121,14 @@ function getPageParams() {
     params.conditions = getFilterRules()
   }
   if (columns.value) {
-    params.columns = getColumns()
+    params.columns = [
+      {
+        name: '*'
+      }
+    ]
+  }
+  if (columnSortRules.value && columnSortRules.value.length > 0) {
+    params.orderBy = getSortRules()
   }
   return params
 }

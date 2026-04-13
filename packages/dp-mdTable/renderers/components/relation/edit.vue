@@ -6,8 +6,9 @@ import { ColumnFieldType } from '../../../types/column-types'
 const props = withDefaults(
   defineProps<{
     modelValue: string[] | string | null
-    relationTableId: string
-    displayField: string
+    relation_table_id: string
+    display_field_ids: string[]
+    display_field_names: string[]
     multiple?: boolean
     placeholder?: string
     tableLabel?: string
@@ -22,24 +23,28 @@ const emit = defineEmits<{
 }>()
 
 const { updateRow, columns } = useMDTableInject()
-
 const currentValue = computed(() => {
   const v = props.modelValue
-  return Array.isArray(v) ? v : v != null ? [v] : []
+  if (typeof v === 'string') {
+    return v.split(',')
+  } else if (Array.isArray(v)) {
+    return v
+  } else {
+    return []
+  }
 })
 
 const relationPickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 
 /** 当前选中 ID 对应的关联展示字段值，用于批量显示 */
 const displayValues = computed(() => {
-  const ids = currentValue.value
-  if (!ids.length || !props.displayField || !props.column?.field) return []
-  const displayKey = props.column.field.includes('.') ? props.column.field : `${props.column.field}.${props.displayField}`
-  const fromRow = props.row[displayKey]
-  if (Array.isArray(fromRow) && fromRow.length === ids.length) return fromRow
-  const map = relationPickerRef.value?.selectedRecordsMap
-  if (map && props.displayField) return ids.map((id: string) => map[id]?.[props.displayField] ?? id)
-  return ids
+  if (props.display_field_names.length === 0) {
+    return []
+  }
+  const fieldName = props.column.field
+  const displayFieldNames = fieldName + '.' + props.display_field_names[0]
+  const displayValue = props.row[displayFieldNames]
+  return displayValue?.split(',').filter((val: any) => val !== '') || []
 })
 
 function handleAdd() {
@@ -59,39 +64,29 @@ function getVirtualColumnsForRelation(relationFieldName: string) {
   })
 }
 
-function handleUpdate(value: string[] | string | null) {
-  const ids = Array.isArray(value) ? value : value != null ? [value] : []
-  const { row, column, displayField } = props
-  const relationFieldName = column.field.includes('.') ? column.field.split('.')[0] : column.field
-
-  row[column.field] = ids
-
-  const recordsMap = relationPickerRef.value?.selectedRecordsMap
-
-  // 更新 relation 自身的 displayField
-  if (displayField) {
-    const displayKey = column.field.includes('.') ? column.field : `${column.field}.${displayField}`
-    if (recordsMap) {
-      const vals = ids.map((id: string) => recordsMap[id]?.[displayField] ?? id)
-      row[displayKey] = vals
-    } else {
-      row[displayKey] = ids.length ? ids : undefined
+function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
+  const fieldName = props.column.field
+  props.row[fieldName] = value.join(',')
+  const params = {
+    [fieldName]: value.join(',')
+  }
+  // 如果props.row 存在属性 key_1680_411d7500，has
+  const basicFieldNames = ['id', 'created_at', 'updated_at', 'updated_by', 'status', 'master_table_id']
+  Object.keys(props.row).forEach((key) => {
+    if (!basicFieldNames.includes(key)) {
+      if (key.startsWith(fieldName + '.')) {
+        const pureKey = key.split('.')[1]
+        const relatedValue = selectedRows.reduce((acc, sItem) => {
+          if (sItem[pureKey]) {
+            acc.push(sItem[pureKey])
+          }
+          return acc
+        }, [])
+        props.row[key] = relatedValue.join(',')
+      }
     }
-  }
-
-  // 同步更新与当前 relation 共享同一关联表的 VirtualColumn 数据
-  const virtualColumns = getVirtualColumnsForRelation(relationFieldName)
-  if (virtualColumns.length && recordsMap) {
-    virtualColumns.forEach((vc: any) => {
-      const displayFieldName = vc.properties?.displayFieldName ?? vc.field?.split('.')[1]
-      if (!displayFieldName) return
-      const dataKey = `${relationFieldName}.${displayFieldName}`
-      const vals = ids.map((id: string) => recordsMap[id]?.[displayFieldName] ?? id)
-      row[dataKey] = ids.length ? vals : undefined
-    })
-  }
-
-  updateRow(row)
+  })
+  updateRow(props.row.id, params) // rowId, data
   emit('update:modelValue', value)
 }
 </script>
@@ -99,12 +94,12 @@ function handleUpdate(value: string[] | string | null) {
 <template>
   <div class="relation-edit">
     <MdFormFieldRelationPicker
-      v-if="relationTableId"
+      v-if="relation_table_id"
       ref="relationPickerRef"
       mode=""
-      :relation-table-id="relationTableId"
-      :display-field="displayField"
-      :multiple="multiple"
+      :relationTableId="relation_table_id"
+      :displayFieldIds="display_field_ids"
+      :multiple="false"
       :placeholder="placeholder"
       :table-label="tableLabel"
       :model-value="currentValue"
@@ -126,7 +121,6 @@ function handleUpdate(value: string[] | string | null) {
   display: flex;
   align-items: center;
   gap: 4px;
-  
 }
 .relation-tags {
   display: flex;

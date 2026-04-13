@@ -4,31 +4,11 @@ import { ElTag } from "element-plus";
 export const RelationView = ({options, params}: ViewRenderFunctionParams<string>) => {
   const { $table,$grid, row, column } = params
   const relationOptions = options?.props
-  // console.log("table", params)
-  // Parse the column field to get relation field and display field
-  // Format: relationFieldName.displayFieldName
-  let relationFieldName = column.field
-  let displayValue: any = column.field.includes('.') ? row[column.field] : row[column.field + '.' + relationOptions.displayField]
-  // console.log('displayData', displayData)
-  
-  // The UUID value(s) are stored in the base relation field
-  // All relations are now arrays (uuid[])
-  const value = displayValue
-  
-  if (!value || !Array.isArray(value) || value.length === 0) {
-    return h('div', { class: 'relation-view empty' }, '-')
-  }
-  
-  // Display as tags for arrays
-  const displayValues = Array.isArray(displayValue) ? displayValue : []
-  
-  // Get the base relation field name (without display field suffix)
-  const baseRelationFieldName = column.field.includes('.') 
-    ? column.field.split('.')[0] 
-    : column.field
-  
-  // Get the UUID values from the base relation field
-  const relationUuids = row[baseRelationFieldName] || []
+  console.log('relationOptions', relationOptions)
+  const displayFieldName = relationOptions.display_field_names[0]
+  let fieldName = column.field
+  let displayFieldNames = fieldName + '.' + displayFieldName
+  let displayValues = row[displayFieldNames].split(',').filter((val: any) => val !== '') || []
   
   // Multiple items: display as tags
   return h('div', { 
@@ -40,7 +20,7 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
     }
   }, displayValues.map((val: any, index: number) => 
     h(ElTag, {
-      key: value[index] || index,
+      key: displayValues[index] || index,
       size: 'small',
       type: 'info',
       onClick: (e: MouseEvent) => {
@@ -49,12 +29,12 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
           event: e,
           targetElement: e.currentTarget,
           targetTableId: relationOptions?.relationTableId,
-          recordId: Array.isArray(relationUuids) ? relationUuids[index] : relationUuids,
+          recordId: displayValues[index],
           displayValue: val,
           row
         })
       }
-    }, () => val || value[index])
+    }, () => val || displayValues[index])
   ))
 }
 
@@ -75,7 +55,7 @@ export const RelationEdit = ({options, params}: ViewRenderFunctionParams<string>
   }
   
   return h('div', {
-    class: 'relation-edit',
+    class: 'relation-editaaa',
     style: {
       padding: '4px 8px',
       background: 'var(--el-fill-color-light)',
