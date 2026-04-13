@@ -363,9 +363,9 @@ function dataLostWarning(e){
 
 watch(formConfig, (newVal) => {
   // console.trace(newVal.section[1].fields[0].zone.zone)
-  if (!hasUnSaveChange.value) {
-    hasUnSaveChange.value = true;
-  }
+  // if (!hasUnSaveChange.value) {
+  //   hasUnSaveChange.value = true;
+  // }
 },{
   deep: true
 })
