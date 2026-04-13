@@ -9,26 +9,33 @@ if (!graphProvider) {
 const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
-    documentId: string
-    folderCabinetId: string
-    documentFileId: string
-    name: string
-    mapping: any
-    children: any[]
-    variables: any
+    body: {
+      folderCabinetId: string
+      folderCabinet: []
+    }
   }
 }>()
-const formData = ref({
+const formData = ref<{
+  body: {
+    folderCabinetId: string
+    folderCabinet: []
+  }
+}>({
   body: {}
 })
 const form = ref()
 const cabinetOptions = ref([])
 const cabinetDetail = ref()
 const loading = ref(false)
+const elementsIdList = ref()
 
 async function initForm() {
-  cabinetOptions.value = await newAdminApi.getDmsCabinetList().then((res) => res.data)
+  cabinetOptions.value = (await newAdminApi.getDmsCabinetList().then((res) => res.data)) || []
   formData.value = config
+
+  // 已使用的節點
+  elementsIdList.value = formData.value.body.folderCabinet.map((item) => item.id)
+  await getCabinetDetail()
 }
 
 function updateData() {
@@ -58,12 +65,35 @@ async function getCabinetDetail() {
 
   let arr: any[] = []
   arr = await loopChildren(arr, cabinetDetail.value, 0)
+
   form.value = arr.map((item) => {
-    const field = item.displayMeta.map((meta: any) => ({
-      formProperty: '',
-      metadata: meta.key,
-      metaDataType: meta.type
-    }))
+    let field: any[]
+
+    if (formData.value.body.folderCabinet.length > 0) {
+      const fc = formData.value.body.folderCabinet.find((fItem: any) => fItem.id === item.id)
+      field = item.displayMeta.reduce((allMeta: any, meta: any) => {
+        if (!!fc && !!fc.mapping) {
+          allMeta.push({
+            formProperty: fc.mapping[meta.key] || '',
+            metadata: meta.key,
+            metaDataType: meta.type
+          })
+        } else {
+          allMeta.push({
+            formProperty: '',
+            metadata: meta.key,
+            metaDataType: meta.type
+          })
+        }
+        return allMeta
+      }, [])
+    } else {
+      field = item.displayMeta.map((meta: any) => ({
+        formProperty: '',
+        metadata: meta.key,
+        metaDataType: meta.type
+      }))
+    }
 
     return {
       id: item.id,
@@ -72,9 +102,11 @@ async function getCabinetDetail() {
       name: item.label,
       level: item.level,
       isFolder: item.folder,
-      mapping: field
+      mapping: field,
+      check: elementsIdList.value?.includes(item.id)
     }
   })
+
   loading.value = false
 }
 
@@ -85,12 +117,6 @@ async function loopChildren(all: any, item: any, level = 0) {
     })
     .then((r) => r.data)
   const displayMata = [
-    {
-      key: 'folderCabinetId',
-      maxLength: 255,
-      type: 'string',
-      validationName: 'text'
-    },
     {
       key: 'fc:docTitle',
       maxLength: 255,
@@ -120,11 +146,21 @@ async function loopChildren(all: any, item: any, level = 0) {
 }
 
 function handleUpdateField(list: any) {
-  console.log(123, list)
+  formData.value.body.folderCabinet = list
+  updateData()
 }
 
 function handleUpdateFieldData(item: any) {
-  console.log(222, item)
+  const list = formData.value.body.folderCabinet
+
+  const idx = list.findIndex((f: any) => f.id === item.id)
+  if (idx === -1) {
+    return
+  }
+  const next = [...list]
+  next[idx] = item
+  formData.value.body.folderCabinet = next
+  updateData()
 }
 
 onMounted(async () => {
