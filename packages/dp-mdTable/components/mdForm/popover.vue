@@ -61,10 +61,6 @@ const open = (row: any, _mode: 'default' | 'edit' = 'default') => {
 function handleMove(direction: 'up' | 'down') {
   moveCurrentRow(direction)
   formData.value = { ...currentRow.value }
-  // const result = props.onMove?.(direction)
-  // if (result?.formData != null) {
-  //   formData.value = result.formData
-  // }
 }
 const close = () => {
   visible.value = false

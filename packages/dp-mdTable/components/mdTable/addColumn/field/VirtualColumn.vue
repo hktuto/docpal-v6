@@ -1,153 +1,68 @@
 <template>
-  <div class="virtual-column-config">
-    <!-- Source Info (Read-only) -->
-    {{menus}}
-    <div class="source-info">
-      <div class="info-item">
-        <span class="label">Source Relation:</span>
-        <span class="value">{{ formData.sourceRelationField || '-' }}</span>
-      </div>
-      <div class="info-item">
-        <span class="label">Display Field:</span>
-        <span class="value">{{ formData.displayFieldName || '-' }}</span>
-      </div>
-    </div>
-
-    <!-- Target Field Info -->
-    <el-alert 
-      v-if="targetTypeName" 
-      type="info" 
-      :closable="false"
-      class="target-info-alert"
+  <el-form-item label="Relation Table" prop="table_id_paths">
+    <el-cascader
+      v-model="formData.table_id_paths"
+      show-checked-strategy="parent"
+      placement="left-start"
+      :options="menus"
+      :props="cascaderProps"
+      clearable
+      @change="handleRTChange"
     >
-      <template #title>
-        Display type: {{ targetTypeName }}
+      <template #default="{ node, data }">
+        <div class="cascader-item">
+          <Icon :name="data.item_type === 'folder' ? 'material-symbols:folder-outline' : 'material-symbols:table-outline'" />
+          {{ data.name }}
+        </div>
       </template>
-      <span class="target-info-desc">
-        This column inherits display settings from the target table.
-      </span>
-    </el-alert>
-
-    <el-divider />
-
-    <!-- Aggregation Settings (Virtual Column specific) -->
-    <el-form-item label="Value Aggregation">
-      <el-radio-group v-model="formData.aggregation">
-        <el-radio-button value="all">Show All</el-radio-button>
-        <el-radio-button value="first">First</el-radio-button>
-        <el-radio-button value="last">Last</el-radio-button>
-        <el-radio-button value="count">Count</el-radio-button>
-      </el-radio-group>
-    </el-form-item>
-
-    <el-form-item label="Options">
-      <div class="options-list">
-        <el-checkbox v-model="formData.showUniqueOnly">
-          Show Unique Values Only
-        </el-checkbox>
-        <el-checkbox v-model="formData.linkToRecord">
-          Link to Related Record
-        </el-checkbox>
-      </div>
-    </el-form-item>
-
-    <el-form-item v-if="formData.aggregation === 'all'" label="Separator">
-      <el-input 
-        v-model="formData.separator" 
-        placeholder=", "
-        style="width: 100px"
-      />
-    </el-form-item>
-  </div>
+    </el-cascader>
+  </el-form-item>
+  <el-form-item label="Display Field" prop="display_field_name">
+    <el-select v-model="formData.display_field_name" placeholder="Select Display Field" @change="handleDisplayFieldChange">
+      <el-option v-for="field in tableFields" :key="field.id" :label="field.field_name_alias" :value="field.field_name" />
+    </el-select>
+  </el-form-item>
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
-import { ColumnFieldType, reverseColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { onMounted } from 'vue'
 const props = defineProps<{
   formData: any
 }>()
+const cascaderProps = {
+  label: 'name',
+  value: 'id'
+}
+const tableFields = ref([])
+const { menus, getTableFields, relationTables, updateRelationField } = useVirtualColumn()
 
-const { menus } = useVirtualColumn()
-// Get target field type name from targetFieldConfig
-const targetTypeName = computed(() => {
-  const type = props.formData?.targetFieldConfig?.type
-  if (!type) return null
-  return reverseColumnFieldType[type] || 'Text'
-})
-
-// Initialize form data with defaults
-const initializeFormData = () => {
-  if (props.formData.aggregation === undefined) {
-    props.formData.aggregation = 'all'
-  }
-  if (props.formData.showUniqueOnly === undefined) {
-    props.formData.showUniqueOnly = false
-  }
-  if (props.formData.linkToRecord === undefined) {
-    props.formData.linkToRecord = false
-  }
-  if (props.formData.separator === undefined) {
-    props.formData.separator = ', '
+async function handleRTChange(value: string[]) {
+  try {
+    const id = value[value.length - 1]
+    tableFields.value = await getTableFields(id)
+  } catch (error) {
+    tableFields.value = []
+    props.formData.relation_field_name = ''
+    props.formData.display_field_name = ''
+    props.formData.virtual_field_name = ''
   }
 }
-
-onMounted(() => {
-  initializeFormData()
-})
+function handleDisplayFieldChange(value: string) {
+  const selectedField = tableFields.value.find((field: any) => field.field_name === value)
+  props.formData.display_field_id = selectedField.id
+  updateRelationField(props.formData)
+}
 </script>
 
 <style scoped lang="scss">
-.virtual-column-config {
-  .source-info {
-    background: var(--el-fill-color-light);
-    border-radius: var(--el-border-radius-base);
-    padding: 12px;
-    margin-bottom: 8px;
-  }
-
-  .info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-
-    .label {
-      font-size: 12px;
-      color: var(--el-text-color-secondary);
-    }
-
-    .value {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--el-text-color-primary);
-      font-family: monospace;
-    }
-  }
-
-  .target-info-alert {
-    margin-top: 12px;
-    
-    .target-info-desc {
-      font-size: 12px;
-      color: var(--el-text-color-secondary);
-    }
-  }
-
-  .options-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  :deep(.el-divider) {
-    margin: 12px 0;
-  }
-
-  :deep(.el-radio-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
+:deep(.el-cascader) {
+  width: 100%;
+}
+.cascader-item {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xs);
+}
+.relation-config {
 }
 </style>

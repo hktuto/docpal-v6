@@ -51,19 +51,6 @@ function handleAdd() {
   console.log('handleAdd', props.row, props.column)
 }
 
-/**
- * 查找与当前 relation 共享同一关联表的 VirtualColumn 列
- * VirtualColumn 的 sourceRelationField 与 relation 的 field 一致时，关联表相同
- */
-function getVirtualColumnsForRelation(relationFieldName: string) {
-  const cols = columns?.value ?? []
-  return cols.filter((col: any) => {
-    if (col.type !== ColumnFieldType.VirtualColumn) return false
-    const sourceRelationField = col.properties?.sourceRelationField ?? col.field?.split('.')[0]
-    return sourceRelationField === relationFieldName
-  })
-}
-
 function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
   const fieldName = props.column.field
   props.row[fieldName] = value.join(',')
@@ -110,7 +97,7 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
       </template>
     </MdFormFieldRelationPicker>
     <div v-if="displayValues && displayValues.length" class="relation-tags">
-      <el-tag v-for="(label, index) in displayValues" :key="currentValue[index]" size="small">{{ label }}</el-tag>
+      <el-tag v-for="(label, index) in displayValues" type="info" :key="currentValue[index]" size="small">{{ label }}</el-tag>
     </div>
     <!-- {{ displayRecords }} -->
   </div>
@@ -131,5 +118,8 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
   align-items: center;
   gap: 4px;
   cursor: pointer;
+}
+:deep(.relation-picker) {
+  width: unset;
 }
 </style>
