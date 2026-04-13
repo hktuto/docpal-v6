@@ -864,7 +864,6 @@ export const useBatchDetail = (batchId: string) => {
   // Watch for selectedDocDetail changes and rebuild sectionsWithValues if user select another
   watch(selectedDocDetail, (newValue, oldValue) => {
     if (selectedDocDetail.value && (!oldValue || newValue.detail.id !== oldValue.detail.id)) {
-      console.log("change new doc",selectedDocDetail.value,  newValue, oldValue )
       buildSectionsWithValues()
       setupPreview()
     }
@@ -969,7 +968,7 @@ export function calculateFamilyClassification(detail: any): {
 } {
   const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
     'N', YouthScheme = 'N' } = detail.newResultJson?.PriorityScheme || {}
-  const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat } = detail.newResultJson?.SpecificField || {}
+  const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat, 'EMMS Code': emms } = detail.newResultJson?.SpecificField || {}
   const pplCount: number = (detail.newResultJson?.ApplicantFamilyMemberList?.length || 0) + 1;
   const hasFamilyMember = detail.newResultJson?.ApplicantFamilyMemberList?.length > 0;
 
@@ -984,7 +983,8 @@ export function calculateFamilyClassification(detail: any): {
   if (detail.newResultJson?.['Applicant Info']?.ApplicantFemalePregnanted16week === 'Y') {
     babyCount++
   }
-  console.log({
+  console.log("calculateFamilyClassification", {
+    emms,
     pplCount,
     hasFamilyMember,
     PrioritySchemeForElderly,
@@ -1063,7 +1063,7 @@ export function calculateFamilyClassification(detail: any): {
               PriorityIndicator = "Newborns";
             } else {
               FamilyCategory = "GF - Green Family";
-              FamilyClass = "8 - GF HA";
+              FamilyClass = emms && emms.startsWith('E') ? "2 - GF HA (Family)" : "8 - GF HA";
               PriorityIndicator = "";
             }
             FormSource = "HA - HA Green";
@@ -1103,7 +1103,7 @@ export function calculateFamilyClassification(detail: any): {
               PriorityIndicator = "Newborns";
             } else {
               FamilyCategory = "GF - Green Family";
-              FamilyClass = "4 - GF HS";
+              FamilyClass = !emms ? "3 - GF Cert (Family)" :  "4 - GF HS";
               PriorityIndicator = "";
             }
             FormSource = "HS - HS Green";
@@ -1141,7 +1141,7 @@ export function calculateFamilyClassification(detail: any): {
             PriorityIndicator = "Newborns";
           } else {
             FamilyCategory = "GF - Green Family";
-            FamilyClass = "3 - GF Cert";
+            FamilyClass = emms && emms.startsWith('R') ? "4 - GF HS (Family)" :  "3 - GF Cert";
             PriorityIndicator = "";
           }
           FormSource = "GC - GCert";
