@@ -75,17 +75,19 @@ function goBackList() {
 
 h3 {
   cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .header {
   width: 100%;
   padding: var(--app-space-s) var(--app-space-s);
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: min-content  min-content 1fr  min-content;
   align-items: center;
   gap: var(--app-space-xs);
   border-bottom: 1px solid var(--app-grey-800);
   height: var(--app-header-height);
+  overflow: hidden;
 }
 h3 {
   margin: 0;

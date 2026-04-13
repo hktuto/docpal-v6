@@ -51,7 +51,7 @@ const {
 async function handleFolderDrop(folderId: string, file: File) {
   if (workspace.value?.id) {
     const result = await importExcelFile(file, workspace.value.id, folderId)
-    
+
     // If update action, open dialog to handle duplicate updates
     if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
       handleDuplicateUpdates(file, result.duplicateSheets)
@@ -93,17 +93,17 @@ function triggerFileInput() {
  */
 function handleUpdateComplete(result: any) {
   const duplicate = pendingDuplicates.value.shift()
-  
+
   if (duplicate && (result.inserted > 0 || result.updated > 0)) {
     tablesUpdated.value.push({
       id: duplicate.existingTableId,
       name: duplicate.existingTableName
     })
   }
-  
+
   // Process next duplicate
   if (pendingDuplicates.value.length > 0) {
-    // continue with next duplicate 
+    // continue with next duplicate
     // TODO importToTableDialogRef.value?.openWithSheetData
   } else if (tablesUpdated.value.length > 0) {
     ElMessage.success(`${tablesUpdated.value.length} table(s) updated successfully`)
@@ -291,6 +291,8 @@ onMounted(async () => {
   .empty-description {
     margin: 0;
     font-size: var(--app-font-size-m);
+    white-space: normal;
+    word-break: break-all;
     strong {
       color: var(--app-primary-color);
     }

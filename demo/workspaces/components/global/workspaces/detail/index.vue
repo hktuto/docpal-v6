@@ -148,43 +148,68 @@ watch(
       <NuxtLoadingIndicator />
     </template>
     <template v-else>
-      <!-- Single layout structure - CSS handles responsive behavior -->
-      <div class="layout-wrapper">
-        <!-- Sidebar -->
-        <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
-          <WorkspacesMenuHeader />
-          <WorkspacesMenu :workspace-id="workspace?.id" :initialMenu="[]" :is-admin="true" />
-        </aside>
+    <el-splitter v-if="!isMobileView">
+         <el-splitter-panel size="220">
+             <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
+               <WorkspacesMenuHeader />
+               <WorkspacesMenu :workspace-id="workspace?.id" :initialMenu="[]" :is-admin="true" />
+             </aside>
+         </el-splitter-panel>
+          <el-splitter-panel >
+              <main class="main-content">
+                <WorkspacesDetailHeader>
+                  <template #left>
+                    <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
+                      <Icon name="lucide:menu" size="20" />
+                    </button>
+                  </template>
+                  <template #right>
+                    <div id="database-table-header-right" />
+                    <template v-if="workspaceRouteParams.pageType !== 'setting'">
+                      <Icon name="lucide:settings" class="header-action" @click="openSetting" />
+                    </template>
+                    <template v-if="workspaceRouteParams.pageType === 'setting'">
+                      <Icon name="lucide:table" class="header-action" @click="openDetail" />
+                    </template>
+                  </template>
+                </WorkspacesDetailHeader>
+                <div class="content-area">
+                  <component :is="detailComponent" :is-admin="true" />
+                </div>
+              </main>
 
-        <!-- Resize handle (desktop only) -->
-        <div class="resize-handle" />
-
-        <!-- Main content - never re-renders on resize -->
-        <main class="main-content">
-          <WorkspacesDetailHeader>
-            <template #left>
-              <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
-                <Icon name="lucide:menu" size="20" />
-              </button>
-            </template>
-            <template #right>
-              <div id="database-table-header-right" />
-              <template v-if="workspaceRouteParams.pageType !== 'setting'">
-                <Icon name="lucide:settings" class="header-action" @click="openSetting" />
-              </template>
-              <template v-if="workspaceRouteParams.pageType === 'setting'">
-                <Icon name="lucide:table" class="header-action" @click="openDetail" />
-              </template>
-            </template>
-          </WorkspacesDetailHeader>
-          <div class="content-area">
-            <component :is="detailComponent" :is-admin="true" />
-          </div>
-        </main>
-
-        <!-- Backdrop for mobile sidebar -->
-        <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />
+          </el-splitter-panel>
+    </el-splitter>
+    <template v-else>
+    <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
+      <WorkspacesMenuHeader />
+      <WorkspacesMenu :workspace-id="workspace?.id" :initialMenu="[]" :is-admin="true" />
+    </aside>
+    <main class="main-content">
+      <WorkspacesDetailHeader>
+        <template #left>
+          <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
+            <Icon name="lucide:menu" size="20" />
+          </button>
+        </template>
+        <template #right>
+          <div id="database-table-header-right" />
+          <template v-if="workspaceRouteParams.pageType !== 'setting'">
+            <Icon name="lucide:settings" class="header-action" @click="openSetting" />
+          </template>
+          <template v-if="workspaceRouteParams.pageType === 'setting'">
+            <Icon name="lucide:table" class="header-action" @click="openDetail" />
+          </template>
+        </template>
+      </WorkspacesDetailHeader>
+      <div class="content-area">
+        <component :is="detailComponent" :is-admin="true" />
       </div>
+    </main>
+     <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />
+    </template>
+      <!-- Single layout structure - CSS handles responsive behavior -->
+
 
       <WorkspacesMenuActions ref="menuActionsRef" />
       <WorkspacesTableImportProgressIndicator @view-report="handleViewImportReport" />
@@ -214,7 +239,7 @@ watch(
 // Sidebar
 // ============================================
 .sidebar {
-  width: var(--sidebar-width);
+  width: 100%;
   min-width: var(--sidebar-width);
   height: 100%;
   display: grid;
@@ -318,6 +343,7 @@ watch(
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
 
     &.is-open {
+        width: 220px;
       transform: translateX(0);
     }
   }
