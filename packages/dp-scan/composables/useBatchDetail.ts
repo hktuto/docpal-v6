@@ -262,7 +262,7 @@ export const useBatchDetail = (batchId: string) => {
       batchDetail.value.documents = batchDetail.value.documents.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename))
 
       currentSelectedDoc.value = response.data.documents[selectIndex || 0]
-
+      currentPageNumber.value = 1;
       // Handle batch locking
       const userId = useUserId()
       const lockBy = batchDetail.value.lockBy
@@ -734,6 +734,7 @@ export const useBatchDetail = (batchId: string) => {
   // Watch for selectedDocDetail changes and rebuild sectionsWithValues if user select another
   watch(selectedDocDetail, (newValue, oldValue) => {
     if (selectedDocDetail.value && (!oldValue || newValue.detail.id !== oldValue.detail.id)) {
+      console.log("change new doc",selectedDocDetail.value,  newValue, oldValue )
       buildSectionsWithValues()
       setupPreview()
     }
