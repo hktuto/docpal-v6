@@ -519,7 +519,6 @@ export function normalizeValue(
     })
 
     if (v) {
-      console.log("get value from default option", value, v)
       return v
     }
   }
