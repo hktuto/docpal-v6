@@ -131,7 +131,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
 })
 
 async function getData(params: any) {
-  const data = await $api.post('https://sit-v3.wclsolution.com/oniflow/api/v1/workflow/definitions/page', params).then((r) => r.data)
+  const data = await $api.post('/oniflow/api/v1/workflow/definitions/page', params).then((r) => r.data)
   return {
     data: {
       entryList: data.items,
@@ -166,9 +166,9 @@ async function handleActiveAndInactive(row: any, status: boolean) {
   try {
     if (status) {
       const userId = useUserId()
-      await $api.put(`https://sit-v3.wclsolution.com/oniflow/api/v1/workflow/definitions/instance/${row.id}/activate`, { user_id: userId.value }).then((r) => r.data)
+      await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${row.id}/activate`, { user_id: userId.value }).then((r) => r.data)
     } else {
-      await $api.put(`https://sit-v3.wclsolution.com/oniflow/api/v1/workflow/definitions/instance/${row.id}/deactivate`).then((r) => r.data)
+      await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${row.id}/deactivate`).then((r) => r.data)
     }
     reload()
   } catch (error) {
@@ -180,7 +180,7 @@ async function handleRemove(row: any) {
   if (row.status === 'A') return
 
   try {
-    await $api.delete(`https://sit-v3.wclsolution.com/oniflow/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
+    await $api.delete(`/oniflow/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
     reload()
   } catch (e) {
     console.log('')

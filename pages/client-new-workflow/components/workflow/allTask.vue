@@ -52,7 +52,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       page_num: pageParams.pageNum,
       page_size: pageParams.pageSize
     }
-    const data = await $api.post('https://sit-v3.wclsolution.com/oniflow/api/v1/tasks/page', params).then((r) => r.data)
+    const data = await $api.post('/oniflow/api/v1/tasks/page', params).then((r) => r.data)
     return {
       data: {
         entryList: data.items,
@@ -89,7 +89,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
         visible: true,
         disabled: false,
         action: async ({ row }: any) => {
-          await $api.delete(`https://sit-v3.wclsolution.com/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r) => r.data)
+          await $api.delete(`/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r) => r.data)
           reload()
         }
       }

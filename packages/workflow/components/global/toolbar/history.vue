@@ -19,7 +19,7 @@ async function save() {
 
   // update workflow Json Data
   try {
-    $api.put(`https://sit-v3.wclsolution.com/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r) => r.data)
+    $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r) => r.data)
   } catch (e) {
     console.log(e)
   }

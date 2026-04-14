@@ -7,7 +7,7 @@ import { useEventBus, EventType, emitBus } from 'eventbus'
  */
 function getBaseUrl(baseURL: string) {
   const {
-    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY }
+    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, WORKFLOW_PROXY }
   } = useRuntimeConfig()
   if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY
   if (baseURL === '/client') baseURL = CLIENT_PROXY
@@ -17,6 +17,7 @@ function getBaseUrl(baseURL: string) {
   if (baseURL === '/docpalApi') baseURL = PROXY
   if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
   if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
+  if (baseURL === '/oniflow') baseURL = WORKFLOW_PROXY as string
   return baseURL
 }
 

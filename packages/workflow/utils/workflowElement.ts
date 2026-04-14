@@ -608,11 +608,6 @@ export const workflowElement: WorkflowElement = {
   }
 }
 
-export function getUrlOrigin() {
-  return 'https://sit-v3.wclsolution.com'
-  // return window?.location?.origin || ''
-}
-
 const DEFAULT_TASK_EXECUTION = { async: false, timeout_ms: 1000, priority: 0 }
 const LONG_RUNNING_EXECUTION = { async: false, timeout_ms: 6000, priority: 1 }
 
