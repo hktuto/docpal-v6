@@ -75,13 +75,17 @@ async function previewForm() {
 }
 
 async function getFormJson() {
-  if (formKey.value !== 0) {
-    const data = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
-    if (!data) return {}
+  try {
+    if (formKey.value !== 0) {
+      const data = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
+      if (!data) return {}
 
-    return data.jsonValue
-  } else {
-    return {}
+      return data.jsonValue
+    } else {
+      return {}
+    }
+  } catch (e) {
+    console.log(e)
   }
 }
 
