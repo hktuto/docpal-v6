@@ -48,7 +48,7 @@ function handleAdd() {
 }
 
 function handleEdit(item: any) {
-  if (!checkIsSystemDefVariable(item)) return
+  if (graphProvider?.readonly.value || !checkIsSystemDefVariable(item)) return
   FormDialogRef.value.handleOpen(item)
 }
 
@@ -75,7 +75,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-form ref="FormRef" label-position="top" :model="form" @submit.stop="() => {}">
+  <el-form ref="FormRef" label-position="top" :model="form" @submit.stop="() => {}" :disabled="graphProvider.readonly.value">
     <el-formItem label="Name" prop="name" :rules="[{ required: true, message: 'Workflow Name is required' }]">
       <el-input v-model="form.name" @change="nameChange" :disabled="graphProvider.readonly.value" placeholder="Name" />
     </el-formItem>
@@ -83,7 +83,7 @@ onMounted(() => {
 
     <h4>
       {{ $t('bpmn.globalRules') }}
-      <Icon name="lucide:plus" @click="handleAdd" />
+      <Icon v-if="!graphProvider.readonly.value" name="lucide:plus" @click="handleAdd" />
     </h4>
     <div v-for="(item, index) in variables" :key="item.id" class="formFieldItem">
       <div class="label" @click="handleEdit(item)">
@@ -92,10 +92,10 @@ onMounted(() => {
       <div v-if="!checkIsSystemDefVariable(item)" style="width: 84px">
         <span style="color: #ff0000">System Field</span>
       </div>
-      <div v-if="checkIsSystemDefVariable(item)" class="actions">
+      <div v-if="!graphProvider.readonly.value && checkIsSystemDefVariable(item)" class="actions">
         <Icon name="lucide:square-pen" @click="handleEdit(item)" />
       </div>
-      <div v-if="checkIsSystemDefVariable(item)" class="actions">
+      <div v-if="!graphProvider.readonly.value && checkIsSystemDefVariable(item)" class="actions">
         <Icon name="lucide:delete" @click="handleRemove(item)" />
       </div>
     </div>

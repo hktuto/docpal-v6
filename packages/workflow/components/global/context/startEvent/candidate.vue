@@ -12,7 +12,7 @@ if (!graphProvider ) {
 }
 
 const allUserGroup = ref<any[]>([])
-const candidateGroup = ref<string>('')
+const candidateGroup = ref<string>('members')
 
 function candidateGroupChanged(newVal: string) {
   const data = node.getData()
