@@ -1,6 +1,7 @@
 import type { ViewRenderFunctionParams, VirtualColumnOptions } from '../../../types/column-types'
 import { ColumnFieldType } from '../../../types/column-types'
 import { h } from 'vue'
+import { ElTag } from 'element-plus'
 import {
   renderAsSingleSelect,
   renderAsMultiSelect,
@@ -27,50 +28,34 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
   if (props?.showUniqueOnly) {
     displayValues = [...new Set(displayValues)]
   }
-
-  const separator = props?.separator || ', '
-  const targetConfig = props?.targetFieldConfig
-
-  // Render based on target field type (if available)
-  if (targetConfig?.type) {
-    switch (targetConfig.type) {
-      case ColumnFieldType.SingleSelect:
-        return renderAsSingleSelect(displayValues, targetConfig, separator)
-
-      case ColumnFieldType.MultiSelect:
-        return renderAsMultiSelect(displayValues, targetConfig, separator)
-
-      case ColumnFieldType.Number:
-        return renderAsNumber(displayValues, targetConfig, separator)
-
-      case ColumnFieldType.DateTime:
-        return renderAsDateTime(displayValues, targetConfig, separator)
-
-      case ColumnFieldType.Email:
-        return renderAsEmail(displayValues, separator)
-
-      case ColumnFieldType.URL:
-        return renderAsURL(displayValues, separator)
-
-      case ColumnFieldType.Phone:
-        return renderAsPhone(displayValues, separator)
-
-      case ColumnFieldType.Checkbox:
-        return renderAsCheckbox(displayValues, separator)
-
-      case ColumnFieldType.Rating:
-        return renderAsRating(displayValues, targetConfig, separator)
-
-      case ColumnFieldType.Text:
-      case ColumnFieldType.MultiText:
-      default:
-        // Fall through to text rendering
-        break
-    }
+  
+  const tags: ReturnType<typeof h>[] = []
+  for (let i = 0; i < displayValues.length; i++) {
+    tags.push(
+      h(
+        ElTag,
+        {
+          key: `${virtual_field_name}-${i}`,
+          size: 'small',
+          type: 'info'
+        },
+        () => String(displayValues[i] ?? '-')
+      )
+    )
   }
 
-  // Default: render as plain text
-  return renderAsText(displayValues, separator)
+  return h(
+    'div',
+    {
+      class: 'virtual-column-view',
+      style: {
+        display: 'flex',
+        gap: '4px',
+        flexWrap: 'wrap'
+      }
+    },
+    tags
+  )
 }
 
 export const VirtualColumnEdit = ({ options, params }: ViewRenderFunctionParams<string>) => {
