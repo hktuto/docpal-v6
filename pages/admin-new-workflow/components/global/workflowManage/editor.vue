@@ -22,7 +22,7 @@ async function getWorkflowData() {
       throw new Error('Workflow ID is null')
     }
     openWorkflowEdit.value = true
-    const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${props.id}`).then((r) => r.data)
+    const data = await $api.get(`http://132.148.160.191:8001/api/v1/workflow/definitions/instance/${props.id}`).then((r) => r.data)
     if (!data) {
       throw Error('workflow Data is null')
     }
@@ -41,14 +41,14 @@ async function handleStatus() {
   loading.value = true
   try {
     if (workflowReadonly.value) {
-      await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${workflowId.value}/deactivate`).then((r: any) => r.data)
+      await $api.put(`http://132.148.160.191:8001/api/v1/workflow/definitions/instance/${workflowId.value}/deactivate`).then((r: any) => r.data)
       workflowReadonly.value = false
       openWorkflowEdit.value = false
       openWorkflowEdit.value = true
     } else {
       const userId = useUserId()
       await $api
-        .put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value })
+        .put(`http://132.148.160.191:8001/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value })
         .then((r: any) => r.data)
       workflowReadonly.value = true
       openWorkflowEdit.value = false
