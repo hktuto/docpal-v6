@@ -4,7 +4,6 @@ import { ElTag } from "element-plus";
 export const RelationView = ({options, params}: ViewRenderFunctionParams<string>) => {
   const { $table,$grid, row, column } = params
   const relationOptions = options?.props
-  console.log('relationOptions', relationOptions)
   const displayFieldName = relationOptions.display_field_names[0]
   let fieldName = column.field
   let displayFieldNames = fieldName + '.' + displayFieldName

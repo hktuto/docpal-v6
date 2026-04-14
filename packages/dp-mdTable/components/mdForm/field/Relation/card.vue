@@ -18,7 +18,7 @@
         </div>
         <div v-if="fields?.length > 1" class="relation-card-fields">
           <template v-for="(field, index) in fields">
-            <div v-if="index > 0" :key="field.name" class="relation-card-field">
+            <div v-if="index > 0 && index < 5" :key="field.name" class="relation-card-field">
               <div class="field-label" :title="getFieldLabel(field.name)">{{ getFieldLabel(field.name) }}</div>
               <div class="field-value" :title="formatFieldValue(field.name)">
                 <!-- 单选：标签 -->
@@ -96,9 +96,7 @@ function getFieldProperties(fieldName: string): Record<string, any> {
 }
 
 function getFieldLabel(fieldName: string): string {
-  console.log('props.fields', props.fields, fieldName)
   const fc = props.fields.find((f) => f.name === fieldName)
-  console.log('fc', fc)
   return fc?.label || fieldName
 }
 

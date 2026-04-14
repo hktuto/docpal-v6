@@ -135,7 +135,7 @@ function getPageParams() {
   return params
 }
 
-provide('viewTools', { getPageParams })
+provide('viewTools', { getPageParams, columns, tableFields })
 </script>
 
 <style lang="scss" scoped></style>
