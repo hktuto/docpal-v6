@@ -57,9 +57,3 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
     tags
   )
 }
-
-export const VirtualColumnEdit = ({ options, params }: ViewRenderFunctionParams<string>) => {
-  // Virtual columns are read-only - they display data from relations
-  // Editing should happen on the parent relation column
-  return VirtualColumnView({ options, params })
-}
