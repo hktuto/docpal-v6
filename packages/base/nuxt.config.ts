@@ -136,7 +136,7 @@ const config = {
             'accept-encoding': 'identity'
           }
         },
-        '/dynamic-actions':{
+        '/gateway':{
           target: process.env.DOCPAL_GATEWAY_PROXY,
           changeOrigin: true,
           prependPath: true,

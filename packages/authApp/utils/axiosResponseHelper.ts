@@ -17,7 +17,7 @@ function getBaseUrl(baseURL: string) {
   if (baseURL === '/docpalApi') baseURL = PROXY
   if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
   if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
-  if (baseURL === '/dynamic-actions') baseURL = DOCPAL_GATEWAY_PROXY as string
+  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string
   return baseURL
 }
 
@@ -36,11 +36,11 @@ export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) 
     } = useRuntimeConfig()
     const pathOnly = typeof config.url === 'string' ? config.url.split('?')[0] : ''
     const hitsDynamicActions =
-      pathOnly === '/dynamic-actions' || config.baseURL === '/dynamic-actions'
+      pathOnly === '/gateway' || config.baseURL === '/gateway'
     if (hitsDynamicActions && DOCPAL_GATEWAY_PROXY) {
       config.baseURL = DOCPAL_GATEWAY_PROXY as string
       if (!config.url) {
-        config.url = '/dynamic-actions'
+        config.url = '/gateway'
       }
     } else if (config.baseURL) {
       config.baseURL = getBaseUrl(config.baseURL)
