@@ -1160,30 +1160,30 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
         // column I - M
         if (totalFamilySize === 1) {
           // column M
-          FamilyCategory = "WS - White Single";
+          FamilyCategory = "GS - Green Single";
           FamilyClass = "5E - GS EFAS";
           PriorityIndicator = "";
           FormSource = 'HA - HA Green';
         }else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'Y') {
           // column I
-          FamilyCategory = "WF- White Family";
+          FamilyCategory = "GF - Green Family";
           FamilyClass = "1S - GF EFAS Elderly & NB";
           PriorityIndicator = "Elderly & Newborns";
           FormSource = 'HA - HA Green';
         } else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'N') {
           // column j
-          FamilyCategory = "WF- White Family";
+          FamilyCategory = "GF - Green Family";
           FamilyClass = "1S - GF EFAS Elderly & NB";
           PriorityIndicator = "Elderly";
           FormSource = 'HA - HA Green';
         } else if (PrioritySchemeForElderly === 'N' && PrioritySchemeForNewborns === 'Y') {
           // column k
-          FamilyCategory = "WF- White Family";
+          FamilyCategory = "GF - Green Family";
           FamilyClass = "1S - GF EFAS Elderly & NB";
           PriorityIndicator = "Newborns";
           FormSource = 'HA - HA Green';
         } else {
-          FamilyCategory = "WF- White Family";
+          FamilyCategory = "GF - Green Family";
           FamilyClass = "1E - GF EFAS";
           PriorityIndicator = "";
           FormSource = 'HA - HA Green';
