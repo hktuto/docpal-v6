@@ -64,6 +64,16 @@ async function workflowClickHandler(item: any) {
   }
 
   state.selectedWorkflow = deepCopy(data)
+
+  // Open in new page
+  if (startTask.metadata.openInNewPage) {
+    // TODO: open new page
+    return
+  }
+
+  // start Task has no set E-Form
+  if (!startTask.metadata.formKey || startTask.metadata.formKey === '') return
+
   state.formDialogVisible = true
   await initForm(startTask)
 }

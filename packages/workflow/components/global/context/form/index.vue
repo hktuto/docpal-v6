@@ -76,7 +76,7 @@ async function previewForm() {
 
 async function getFormJson() {
   try {
-    if (formKey.value !== 0) {
+    if (!!formKey.value && formKey.value !== 0) {
       const data = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
       if (!data) return {}
 
