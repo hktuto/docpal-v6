@@ -29,7 +29,7 @@ vi.mock('element-plus/es/components/time-picker/src/composables/use-time-picker.
 // Import the functions after mocking
 const {
   normalizeDocumentData,
-  calculateFamilyClassification,
+  familyClassCalulation,
   updateDocumentValues
 } = await import('./useBatchDetail')
 
@@ -206,7 +206,7 @@ describe('Part 1: normalizeDocumentData', () => {
   })
 })
 
-describe('Part 2: calculateFamilyClassification', () => {
+describe('Part 2: familyClassCalulation', () => {
   describe('Green Form (G) - Single Person', () => {
     it('should classify as 5E - GS EFAS when HA=Y, EFAS date > 14/04/2023', () => {
       const detail = createDetail('G', {}, {}, {
@@ -214,7 +214,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         EFAS: 'Y',
         CotForEfasApplication: '15/04/2023'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WS - White Single')
       expect(result.familyClass).toBe('5E - GS EFAS')
       expect(result.formSource).toBe('HA - HA Green')
@@ -225,7 +225,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'Y',
         EFAS: 'N'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GS - Green Single')
       expect(result.familyClass).toBe('6 - GS HA')
       expect(result.formSource).toBe('HA - HA Green')
@@ -236,7 +236,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'N',
         HKHS: 'N'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GS - Green Single')
       expect(result.familyClass).toBe('7 - GS Cert')
       expect(result.formSource).toBe('HS - HS Green')
@@ -246,7 +246,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('G', {}, {}, {
         HKHS: 'Y'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GS - Green Single')
       expect(result.familyClass).toBe('8 - GS HS')
       expect(result.formSource).toBe('HS - HS Green')
@@ -256,7 +256,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('G', {}, {}, {
         CleareesCat: 'Cat. 2'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GS - Green Single')
       expect(result.familyClass).toBe('10 - GS 1st Absolute Priority')
       expect(result.formSource).toBe('HS - HS Green')
@@ -266,7 +266,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('G', {}, {}, {
         CleareesCat: 'Cat. 4'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GS - Green Single')
       expect(result.familyClass).toBe('12 - GS 2nd Absolute Priority')
       expect(result.formSource).toBe('HS - HS Green')
@@ -285,7 +285,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         EFAS: 'Y',
         CotForEfasApplication: '15/04/2023'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('1S - GF EFAS Elderly & NB')
       expect(result.priorityIndicator).toBe('Elderly & Newborns')
@@ -300,7 +300,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'Y',
         EFAS: 'N'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('2N - GF HA Elderly & NB')
       expect(result.priorityIndicator).toBe('Elderly')
@@ -312,7 +312,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'Y',
         EFAS: 'N'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('8 - GF HA')
       expect(result.formSource).toBe('HA - HA Green')
@@ -326,7 +326,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'N',
         HKHS: 'N'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('4N - GF HS Elderly & NB')
       expect(result.priorityIndicator).toBe('Elderly & Newborns')
@@ -338,7 +338,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'N',
         HKHS: 'N'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('4 - GF HS')
       expect(result.formSource).toBe('HS - HS Green')
@@ -349,7 +349,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'Y',
         CleareesCat: 'Cat. 1'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('9 - GF 1st Absolute Priority')
       expect(result.formSource).toBe('HS - HS Green')
@@ -360,7 +360,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'Y',
         CleareesCat: 'Cat. 2'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('11 - GF 2nd Absolute Priority')
       expect(result.formSource).toBe('HS - HS Green')
@@ -371,7 +371,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'N',
         CleareesCat: 'Cat. 2'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GS - Green Single')
       expect(result.familyClass).toBe('10 - GS 1st Absolute Priority')
     })
@@ -383,7 +383,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       }, {
         HKHS: 'Y'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('3N - GF Cert Elderly & NB')
       expect(result.formSource).toBe('GC - GCert')
@@ -393,7 +393,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('G', {}, {}, {
         HKHS: 'Y'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('3 - GF Cert')
       expect(result.formSource).toBe('GC - GCert')
@@ -405,7 +405,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('W', {}, {
         YouthSchema: 'Y'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WS - White Single')
       expect(result.familyClass).toBe('5Y - WS Youth')
       expect(result.formSource).toBe('-')
@@ -415,7 +415,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('W', {}, {
         YouthSchema: 'N'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WS - White Single')
       expect(result.familyClass).toBe('5 - WS')
       expect(result.formSource).toBe('-')
@@ -430,7 +430,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         PrioritySchemeForElderly: 'Y',
         PrioritySchemeForNewborns: 'Y'
       }, {}, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WF- White Family')
       expect(result.familyClass).toBe('1N -WF Elderly & NB')
       expect(result.priorityIndicator).toBe('Elderly & Newborns')
@@ -442,7 +442,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         PrioritySchemeForElderly: 'Y',
         PrioritySchemeForNewborns: 'N'
       }, {}, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WF- White Family')
       expect(result.familyClass).toBe('1N -WF Elderly & NB')
       expect(result.priorityIndicator).toBe('Elderly')
@@ -453,7 +453,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         PrioritySchemeForElderly: 'N',
         PrioritySchemeForNewborns: 'Y'
       }, {}, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WF- White Family')
       expect(result.familyClass).toBe('1N -WF Elderly & NB')
       expect(result.priorityIndicator).toBe('Newborns')
@@ -463,14 +463,14 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('W', {}, {
         YouthSchema: 'Y'
       }, {}, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WF- White Family')
       expect(result.familyClass).toBe('1Y - WF Youth')
     })
 
     it('should classify as 1 - WF when no priority', () => {
       const detail = createDetail('W', {}, {}, {}, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WF- White Family')
       expect(result.familyClass).toBe('1 - WF')
     })
@@ -483,7 +483,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         { FamilyMemberPregnanted16Week: 'N' },
         { FamilyMemberPregnanted16Week: 'Y' }
       ])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.statePerson).toBe('4 + 2') // 3 members + 1 applicant + 2 babies
     })
 
@@ -491,7 +491,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('W', {}, {}, {}, [], {
         ApplicantFemalePregnanted16week: 'Y'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.statePerson).toBe('1 + 1')
     })
 
@@ -501,7 +501,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       ], {
         ApplicantFemalePregnanted16week: 'Y'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.statePerson).toBe('2 + 2')
     })
   })
@@ -515,7 +515,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         EFAS: 'Y',
         CotForEfasApplication: '14/04/2023'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       // Should NOT trigger EFAS path, should go to regular HA
       expect(result.familyClass).toBe('6 - GS HA')
     })
@@ -526,7 +526,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         EFAS: 'Y',
         CotForEfasApplication: '15/04/2023'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyClass).toBe('5E - GS EFAS')
     })
 
@@ -536,7 +536,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         EFAS: 'Y',
         CotForEfasApplication: '13/04/2023'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyClass).toBe('6 - GS HA')
     })
 
@@ -546,7 +546,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         EFAS: 'Y',
         CotForEfasApplication: ''
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyClass).toBe('6 - GS HA')
     })
 
@@ -555,7 +555,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'Y',
         EFAS: 'Y'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyClass).toBe('6 - GS HA')
     })
   })
@@ -572,7 +572,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         EFAS: 'Y',
         CotForEfasApplication: '15/04/2023'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('1S - GF EFAS Elderly & NB')
       expect(result.priorityIndicator).toBe('Elderly & Newborns')
@@ -586,7 +586,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         HA: 'Y',
         EFAS: 'N'
       }, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('GF - Green Family')
       expect(result.familyClass).toBe('2N - GF HA Elderly & NB')
       expect(result.priorityIndicator).toBe('Elderly & Newborns')
@@ -598,7 +598,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         EFAS: 'Y',
         CotForEfasApplication: '15/04/2023'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WS - White Single')
       expect(result.familyClass).toBe('5E - GS EFAS')
     })
@@ -608,7 +608,7 @@ describe('Part 2: calculateFamilyClassification', () => {
         PrioritySchemeForElderly: 'Y',
         PrioritySchemeForNewborns: 'Y'
       }, {}, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WF- White Family')
       expect(result.familyClass).toBe('1N -WF Elderly & NB')
       expect(result.priorityIndicator).toBe('Elderly & Newborns')
@@ -618,7 +618,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('W', {}, {
         YouthSchema: 'Y'
       }, {}, [familyMember])
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WF- White Family')
       expect(result.familyClass).toBe('1Y - WF Youth')
     })
@@ -627,7 +627,7 @@ describe('Part 2: calculateFamilyClassification', () => {
       const detail = createDetail('W', {}, {
         YouthSchema: 'Y'
       })
-      const result = calculateFamilyClassification(detail)
+      const result = familyClassCalulation(detail)
       expect(result.familyCategory).toBe('WS - White Single')
       expect(result.familyClass).toBe('5Y - WS Youth')
     })

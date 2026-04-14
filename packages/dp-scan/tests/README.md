@@ -32,7 +32,7 @@ The test file is organized into 3 parts, matching the refactored function struct
 - Apply zoneResizeConfig to settings sections
 - Handle missing/undefined data gracefully
 
-#### Part 2: `calculateFamilyClassification` (37 tests)
+#### Part 2: `familyClassCalulation` (37 tests)
 **Green Form (G) Tests:**
 - **Single Person (6 tests)**: EFAS date checks, HA/Cert classifications, Clearees categories
 - **Family with Members (10 tests)**: Priority schemes, EFAS logic, Clearees categories
@@ -61,7 +61,7 @@ Normalizes document data by:
 - Removing parentheses from HKID and ApplicantChineseName fields
 - Applying zoneResizeConfig to settings sections
 
-### 2. `calculateFamilyClassification(detail)`
+### 2. `familyClassCalulation(detail)`
 Calculates family classification:
 - Returns: `{ familyCategory, familyClass, priorityIndicator, formSource, statePerson }`
 - Based on form type (Green/White), priority schemes, and specific fields
@@ -106,7 +106,7 @@ it('should do something', () => {
 ```typescript
 it('should classify as X when condition', () => {
   const detail = createDetail('G', {}, {}, { HA: 'Y' })
-  const result = calculateFamilyClassification(detail)
+  const result = familyClassCalulation(detail)
   expect(result.familyCategory).toBe('GF - Green Family')
   expect(result.familyClass).toBe('X - Class Name')
 })

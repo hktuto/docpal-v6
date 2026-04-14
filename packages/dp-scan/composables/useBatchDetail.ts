@@ -1072,13 +1072,13 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
         FamilyClass = "3N - GF Cert Elderly & NB";
         PriorityIndicator = "Elderly";
         FormSource = 'GC - GCert';
-      } else if (PrioritySchemeForNewborns === 'N') {
+      } else if (PrioritySchemeForElderly === 'N') {
         // column AD
         FamilyCategory = "GF - Green Family";
         FamilyClass = "3N - GF Cert Elderly & NB";
         PriorityIndicator = "Newborns";
         FormSource = 'GC - GCert';
-      } else if (PrioritySchemeForElderly === 'N' && PrioritySchemeForNewborns === 'N') {
+      } else {
         // column AE
         FamilyCategory = "GF - Green Family";
         FamilyClass = "3 - GF Cert";
@@ -1293,7 +1293,7 @@ export function calculateFamilyClassification(detail: any): {
   if (detail.newResultJson?.['Applicant Info']?.ApplicantFemalePregnanted16week === 'Y') {
     babyCount++
   }
-  console.log("calculateFamilyClassification", {
+  console.log("familyClassCalulation", {
     emms,
     pplCount,
     hasFamilyMember,

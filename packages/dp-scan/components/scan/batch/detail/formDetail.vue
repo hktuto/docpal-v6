@@ -71,7 +71,7 @@ function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowI
       ...selectedDocDetail.value.detail,
       newResultJson
     }
-    const classification = calculateFamilyClassification(newDetail);;
+    const classification = familyClassCalulation(newDetail);;
     selectedDocDetail.value.detail.formSource = classification.formSource;
     selectedDocDetail.value.detail.familyCategory = classification.familyCategory;
     selectedDocDetail.value.detail.familyClass = classification.familyClass;
@@ -91,7 +91,7 @@ function handleAddRow(sectionId: string) {
       ...selectedDocDetail.value.detail,
       newResultJson
     }
-    const classification = calculateFamilyClassification(newDetail);
+    const classification = familyClassCalulation(newDetail);
     selectedDocDetail.value.detail.formSource = classification.formSource;
     selectedDocDetail.value.detail.familyCategory = classification.familyCategory;
     selectedDocDetail.value.detail.familyClass = classification.familyClass;
@@ -110,7 +110,7 @@ function handleRemoveRow(sectionId: string, rowIndex: number) {
       ...selectedDocDetail.value.detail,
       newResultJson
     }
-    const classification = calculateFamilyClassification(newDetail);
+    const classification = familyClassCalulation(newDetail);
     selectedDocDetail.value.detail.formSource = classification.formSource;
     selectedDocDetail.value.detail.familyCategory = classification.familyCategory;
     selectedDocDetail.value.detail.familyClass = classification.familyClass;
