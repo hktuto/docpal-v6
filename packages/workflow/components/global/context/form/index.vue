@@ -47,6 +47,7 @@ async function pasteForm() {
 }
 
 async function handleOpenForm() {
+  console.log(123123,newClientApi)
   const formJson = await getFormJson()
   formDialogRef.value.openDialog(formJson)
 }
@@ -58,11 +59,11 @@ function handelSubmitForm(id: string) {
     ...data,
     metadata: {
       ...data.metadata,
-      formKey: id
+      formKey: Number(id)
     }
   }
   node.setData(newData, { overwrite: true, deep: true })
-  formKey.value = id
+  formKey.value = Number(id)
   graphProvider?.graph.value?.stopBatch('update-fromKey-data')
 }
 

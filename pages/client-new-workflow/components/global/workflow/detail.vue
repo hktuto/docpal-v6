@@ -99,7 +99,6 @@ async function getDetail() {
 }
 
 async function initForm(node: any) {
-  console.log(123,node)
   const formKey = node.metadata.formKey
   if (!formKey){
     routerProvider?.message.error('The form does not exist!')
