@@ -20,7 +20,7 @@ const isAssigneeUser = computed(() => {
 async function handleUnclaim() {
   try {
     loading.value = true
-    const response = await $api.post(`http://132.148.160.191:8001/api/v1/tasks/instance/${userId}/unclaim`).then((r) => r.data)
+    const response = await $api.post(`https://132.148.160.191:8001/api/v1/tasks/instance/${userId}/unclaim`).then((r) => r.data)
     emits('change', response, false)
     taskDetail.assignee = ''
   } catch (error) {
@@ -39,7 +39,7 @@ async function handleClaim() {
       process_id: ''
     }
 
-    await $api.post(`http://132.148.160.191:8001/api/v1/tasks/instance/${taskDetail.process_instance_id}/claim`, parms).then((res) => res.data)
+    await $api.post(`https://132.148.160.191:8001/api/v1/tasks/instance/${taskDetail.process_instance_id}/claim`, parms).then((res) => res.data)
 
     if (!response.errorCode) {
       emits('change', response, true)
@@ -55,7 +55,7 @@ async function handleClaim() {
 async function handelDelete() {
   try {
     loading.value = true
-    await $api.delete(`http://132.148.160.191:8001/api/v1/processes/instance/${taskDetail.process_instance_id}`).then((r) => r.data)
+    await $api.delete(`https://132.148.160.191:8001/api/v1/processes/instance/${taskDetail.process_instance_id}`).then((r) => r.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('common_item') }))
     routerProvider?.back()
   } catch (e) {

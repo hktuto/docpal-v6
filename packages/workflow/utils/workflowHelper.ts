@@ -29,7 +29,7 @@ export async function getBpmnAdditionalElement(metadata: any) {
 export async function getWorkflowList() {
   let workflowList: any[] = []
   try {
-    workflowList = await $api.get(`http://132.148.160.191:8001/api/v1/workflow/definitions?published=true`).then((r) => r.data)
+    workflowList = await $api.get(`https://132.148.160.191:8001/api/v1/workflow/definitions?published=true`).then((r) => r.data)
   } catch (e) {
     console.log(e)
   }
