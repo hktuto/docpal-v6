@@ -1001,7 +1001,7 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
   };
 
   // Helper to check if Clearees category matches
-  const isCat = (cat: string): boolean => CleareesCat === `Cat. ${cat}`;
+  const isCat = (cat: string): boolean => CleareesCat === `Cat. ${cat}` || CleareesCat === cat;
 
   // check logic
 
