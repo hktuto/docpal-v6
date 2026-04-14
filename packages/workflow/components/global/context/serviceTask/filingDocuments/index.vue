@@ -69,8 +69,21 @@ async function getCabinetDetail() {
   form.value = arr.map((item) => {
     let field: any[]
 
+    const record = {
+      id: item.id,
+      parentId: item.parentId,
+      documentId: '',
+      name: item.label,
+      level: item.level,
+      isFolder: item.folder,
+      mapping: [],
+      check: elementsIdList.value?.includes(item.id)
+    }
+
     if (formData.value.body.folderCabinet.length > 0) {
-      const fc = formData.value.body.folderCabinet.find((fItem: any) => fItem.id === item.id)
+      const fc: any = formData.value.body.folderCabinet.find((fItem: any) => fItem.id === item.id)
+      if (!fc) return record
+
       field = item.displayMeta.reduce((allMeta: any, meta: any) => {
         if (!!fc && !!fc.mapping) {
           allMeta.push({
@@ -87,6 +100,8 @@ async function getCabinetDetail() {
         }
         return allMeta
       }, [])
+
+      record.documentId = fc.documentId || ''
     } else {
       field = item.displayMeta.map((meta: any) => ({
         formProperty: '',
@@ -95,23 +110,14 @@ async function getCabinetDetail() {
       }))
     }
 
-    return {
-      id: item.id,
-      parentId: item.parentId,
-      documentId: '',
-      name: item.label,
-      level: item.level,
-      isFolder: item.folder,
-      mapping: field,
-      check: elementsIdList.value?.includes(item.id)
-    }
+    record.mapping = field
+    return record
   })
-
   loading.value = false
 }
 
 async function loopChildren(all: any, item: any, level = 0) {
-  let data = await newClientApi
+  const data: any = await newClientApi
     .getDmsDocpalTypeDocpaltypenameSchema(item.documentType, {
       headers: { noThrowError: 'true' }
     })
@@ -151,6 +157,7 @@ function handleUpdateField(list: any) {
 }
 
 function handleUpdateFieldData(item: any) {
+  console.log(123, item)
   const list = formData.value.body.folderCabinet
 
   const idx = list.findIndex((f: any) => f.id === item.id)
@@ -160,7 +167,7 @@ function handleUpdateFieldData(item: any) {
   const next = [...list]
   next[idx] = item
   formData.value.body.folderCabinet = next
-  updateData()
+  // updateData()
 }
 
 watch(

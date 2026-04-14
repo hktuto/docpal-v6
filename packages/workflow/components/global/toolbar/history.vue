@@ -19,7 +19,7 @@ async function save() {
 
   // update workflow Json Data
   try {
-    $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r) => r.data)
+    $api.put(`http://132.148.160.191:8001/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r) => r.data)
   } catch (e) {
     console.log(e)
   }

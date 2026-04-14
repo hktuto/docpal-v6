@@ -47,7 +47,7 @@ const rules = {
   creator: [{ required: true, message: t('common_selectedIsRequiredMsg'), trigger: 'change' }]
 }
 
-const variables = ref<any>([])
+const variables = ref<any[]>([])
 
 async function initForm() {
   formData.value = config
@@ -78,9 +78,9 @@ async function getTemplateVariableList() {
   variables.value = []
   const fields: any = formData.value.body.variables
 
-  const data = await newAdminApi.getDmsTemplateDocumentId(formData.body.templateId).then((r: any) => r.data)
+  const data = await newAdminApi.getDmsTemplateDocumentId(formData.value.body.templateId).then((r: any) => r.data)
   if (data.fileType === 'Word') {
-    const variable = await JsonSchemaToJsonData(data.templateVariable)
+    const variable = JsonSchemaToJsonData(data.templateVariable)
     if (!variable) {
       return
     }
@@ -89,7 +89,7 @@ async function getTemplateVariableList() {
   }
 
   // PDF or Excel
-  const templateVariables = JSON.parse(data.templateVariable as any)
+  const templateVariables: any[] = JSON.parse(data.templateVariable as string)
   variables.value = templateVariables.map((item: string) => {
     return {
       id: item,
@@ -111,10 +111,10 @@ async function getDocList() {
 }
 
 async function handleChangeTemplateId() {
-  updateData()
   loading.value = true
   try {
     await getTemplateVariableList()
+    updateData()
   } catch (e) {
     console.log(e)
   } finally {
@@ -139,7 +139,7 @@ watch(
 </script>
 
 <template>
-  <el-form label-position="top" :model="formData" :rules="rules">
+  <el-form label-position="top" :model="formData">
     <el-form-item :label="t('Document Template')" prop="templateId">
       <el-select v-model="formData.body.templateId" :placeholder="t('common_selectedIsRequiredMsg')" @change="handleChangeTemplateId">
         <el-option v-for="item in allDocumentTemplates" :key="item.id" :label="item.name" :value="item.id" />
@@ -161,7 +161,12 @@ watch(
       </el-select>
     </el-form-item>
 
-    <template v-loading="loading" v-for="variable in variables" :key="item.id">
+    <div v-if="variables.length > 0">
+      <el-divider />
+      <p>Template Variable</p>
+    </div>
+
+    <template v-loading="loading" v-for="variable in variables" :key="variable.id">
       <el-form-item :label="variable.name">
         <el-select v-model="variable.value" @change="updateData">
           <el-option v-for="item in allVariablesList" :key="item.id" :label="item.name" :value="item.id" />
