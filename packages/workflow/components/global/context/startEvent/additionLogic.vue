@@ -28,7 +28,7 @@ function updateData() {
 
 function init() {
   const data = node.getData()
-  if (!!data.metadata.openInNewPage) {
+  if (data.metadata.openInNewPage) {
     openInNewPage.value = data.metadata.openInNewPage
   } else {
     openInNewPage.value = false

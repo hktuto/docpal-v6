@@ -22,7 +22,9 @@
         "timeout_ms": 1000,
         "priority": 0
       },
-      "config": {},
+      "config": {
+        "candidateGroups": "members"
+      },
       "metadata": {
         "tags": "StartEvent",
         "x": 60,
