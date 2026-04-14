@@ -46,11 +46,12 @@ function handleCheckBox(status: boolean, item: any) {
   const map = field.value
     .filter((i) => i.check)
     .map((item) => {
+      const mapping = handleMapping(item.mapping)
       return {
         parentId: item.parentId,
         id: item.id,
-        name: item.mapping['fc:docTitle'] || '',
-        mapping: handleMapping(item.mapping),
+        name: mapping['fc:docTitle'] || '',
+        mapping: mapping,
         documentId: item.documentId || ''
       }
     })
@@ -60,7 +61,7 @@ function handleCheckBox(status: boolean, item: any) {
 function handleMapping(mapping: any) {
   const map = {}
   mapping.map((item: any) => {
-    map[item.metadata] = item.formProperty || ''
+    map[item.metadata as string] = item.formProperty || ''
   })
   return map
 }
@@ -113,7 +114,15 @@ function filterOption() {
 
 function handleUpdateField(item: any) {
   if (item.check === true) {
-    emits('update:fieldData', item)
+    const mapping = handleMapping(item.mapping)
+    const map = {
+      parentId: item.parentId,
+      id: item.id,
+      name: mapping['fc:docTitle'] || '',
+      mapping: mapping,
+      documentId: item.documentId || ''
+    }
+    emits('update:fieldData', map)
   }
 }
 

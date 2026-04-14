@@ -70,13 +70,8 @@ export const getServiceTaskItemConfig = {
     url: `${getUrlOrigin()}/api/dms/facade/generate/folder-cabinet/documents`,
     headers: generatorHTTPRequestTaskHeaders(),
     body: {
-      documentId: '',
       folderCabinetId: '',
-      documentFileId: '',
-      name: 'Personal File',
-      mapping: {},
-      children: [],
-      variables: {}
+      folderCabinet: []
     },
     input_mapping: {},
     output_mapping: {}
