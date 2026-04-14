@@ -703,7 +703,7 @@ export const useBatchDetail = (batchId: string) => {
       ...selectedDocDetail.value.detail,
       newResultJson
     }
-    const classification = calculateFamilyClassification(newDetail);
+    const classification = familyClassCalulation(newDetail);
 
     // Apply classification results to detail
     newDetail.formSource = classification.formSource;
@@ -740,7 +740,7 @@ export const useBatchDetail = (batchId: string) => {
       ...selectedDocDetail.value.detail,
       newResultJson
     }
-    const classification = calculateFamilyClassification(newDetail);
+    const classification = familyClassCalulation(newDetail);
 
     // Apply classification results to detail
     newDetail.formSource = classification.formSource;
@@ -954,11 +954,321 @@ export function normalizeDocumentData(detail: any, setting: any): void {
   }
 }
 
+
+
+export type FamilyClassReturn = {
+  familyCategory: string
+  familyClass: string
+  priorityIndicator: string
+  formSource: string
+  statePerson: string
+}
+export function familyClassCalulation(detail: any): FamilyClassReturn {
+  // get all params needed.
+  const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
+    'N', YouthScheme = 'N' } = detail.newResultJson?.PriorityScheme || {}
+  const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat, 'EMMS Code': emms } = detail.newResultJson?.SpecificField || {}
+  const formType: "G" | "W" = detail.formTypeCode
+  const pplCount: number = (detail.newResultJson?.ApplicantFamilyMemberList?.length || 0) + 1;
+  const hasFamilyMember = detail.newResultJson?.ApplicantFamilyMemberList?.length > 0;
+
+  let babyCount: number = detail.newResultJson?.ApplicantFamilyMemberList?.reduce((acc: number, curr: any) => {
+    if (curr.FamilyMemberPregnanted16Week === 'Y') {
+      return acc + 1
+    }
+    return acc
+  }, 0) || 0
+
+  // Check if applicant has babyCount
+  if (detail.newResultJson?.['Applicant Info']?.ApplicantFemalePregnanted16week === 'Y') {
+    babyCount++
+  }
+  const totalFamilySize = pplCount + babyCount
+  // init return value
+  let FamilyClass = "";
+  let FamilyCategory = "";
+  let PriorityIndicator = '';
+  let FormSource = "";
+  const Person = pplCount + ' + ' + babyCount;
+
+  // Helper to check if EFAS date is after 14/4/2023
+  const isEfasAfterTargetDate = (dateStr: string): boolean => {
+    if (!dateStr) return false;
+    const EFAS_date = dayjs(dateStr, 'DD/MM/YYYY', true);
+    const Target_date = dayjs('14/04/2023', 'DD/MM/YYYY', true);
+    if (!EFAS_date.isValid()) return false;
+    return EFAS_date.isAfter(Target_date);
+  };
+
+  // Helper to check if Clearees category matches
+  const isCat = (cat: string): boolean => CleareesCat === `Cat. ${cat}`;
+
+  // check logic
+
+  // step 1 , check White form
+  if (formType === 'W') {
+    // check if form has more than 1 totalFamilySize(pplCount + babyCount)
+
+    if (totalFamilySize === 1) {
+      // checking column G - H
+      // check if Applicant has YouthScheme
+      if (YouthScheme === 'Y') {
+        // column G
+        FamilyCategory = "WS - White Single";
+        FamilyClass = "5Y - WS Youth";
+      } else {
+        // column H
+        FamilyCategory = "WS - White Single";
+        FamilyClass = "5 - WS";
+      }
+    } else {
+      // column B - F
+      // 1 check column F , if PrioritySchemeForElderly, PrioritySchemeForNewborns and Youth Scheme is N
+      if (PrioritySchemeForElderly === 'N' && PrioritySchemeForNewborns === 'N' && YouthScheme === 'N') {
+        FamilyCategory = "WF- White Family";
+        FamilyClass = "1 - WF";
+      } else if (YouthScheme === 'Y') {
+        // column E PrioritySchemeForElderly, PrioritySchemeForNewborns is N and Youth Scheme is Y
+        FamilyCategory = "WF- White Family";
+        FamilyClass = "1Y - WF Youth";
+      } else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'Y' && YouthScheme === 'N') {
+        // column B, PrioritySchemeForElderly, PrioritySchemeForNewborns is Y  and Youth Scheme is N
+        FamilyCategory = "WF- White Family";
+        FamilyClass = "1N -WF Elderly & NB";
+        PriorityIndicator = "Elderly & Newborns"
+      } else if (PrioritySchemeForElderly === 'Y') {
+        // column C PrioritySchemeForElderly is Y
+        FamilyCategory = "WF- White Family";
+        FamilyClass = "1N -WF Elderly & NB";
+        PriorityIndicator = "Elderly"
+      } else if (PrioritySchemeForNewborns === 'Y') {
+        // column D PrioritySchemeForNewborns is Y
+        FamilyCategory = "WF- White Family";
+        FamilyClass = "1N -WF Elderly & NB";
+        PriorityIndicator = "Newborns"
+      }
+      // END column B - F
+    }
+    // END White form
+  } else {
+    // Green Form Logic
+    // Layer 1 split by HKHS and HA
+    if (HKHS === 'N' && HA === 'N') {
+    // column AB - AF
+      if (totalFamilySize === 1) {
+        //column AF
+        FamilyCategory = "GS - Green Single";
+        FamilyClass = "7 - GS Cert";
+        FormSource = 'GC - GCert'
+      } else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'Y') {
+        // column AB
+        FamilyCategory = "GF - Green Family";
+        FamilyClass = "3N - GF Cert Elderly & NB";
+        PriorityIndicator = "Elderly & Newborns";
+        FormSource = 'GC - GCert';
+      } else if (PrioritySchemeForElderly === 'Y') {
+        // column AC
+        FamilyCategory = "GF - Green Family";
+        FamilyClass = "3N - GF Cert Elderly & NB";
+        PriorityIndicator = "Elderly";
+        FormSource = 'GC - GCert';
+      } else if (PrioritySchemeForNewborns === 'N') {
+        // column AD
+        FamilyCategory = "GF - Green Family";
+        FamilyClass = "3N - GF Cert Elderly & NB";
+        PriorityIndicator = "Newborns";
+        FormSource = 'GC - GCert';
+      } else if (PrioritySchemeForElderly === 'N' && PrioritySchemeForNewborns === 'N') {
+        // column AE
+        FamilyCategory = "GF - Green Family";
+        FamilyClass = "3 - GF Cert";
+        PriorityIndicator = "";
+        FormSource = 'GC - GCert';
+      }
+      // END Column AB -AF
+    } else if (HKHS === 'Y') {
+      // HKHS = Y
+      // column S - AA
+      if (totalFamilySize === 1) {
+        // column Y - AA
+        if (isCat('2')) {
+          // column Y
+          FamilyCategory = "GS - Green Single";
+          FamilyClass = "12 - GS 2nd Absolute Priority";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        } else if (isCat('4')) {
+          // column Z
+          FamilyCategory = "GS - Green Single";
+          FamilyClass = "12 - GS 2nd Absolute Priority";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        } else  {
+          // column AA
+          FamilyCategory = "GS - Green Single";
+          FamilyClass = "8 - GS HS";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        }
+
+        // END column Y- AA
+      } else {
+        // column S - X
+        if (isCat('1')) {
+          // column S
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "9 - GF 1st Absolute Priority";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        } else if (isCat('3')) {
+          // column T
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "11 - GF 2nd Absolute Priority";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        } else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'Y') {
+          // column U
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "4N - GF HS Elderly & NB";
+          PriorityIndicator = "Elderly & Newborns";
+          FormSource = 'HS - HS Green';
+        } else if (PrioritySchemeForElderly === 'Y') {
+          // column V
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "4N - GF HS Elderly & NB";
+          PriorityIndicator = "Elderly";
+          FormSource = 'HS - HS Green';
+        } else if (PrioritySchemeForNewborns === 'Y') {
+          // column W
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "4N - GF HS Elderly & NB";
+          PriorityIndicator = "Newborns";
+          FormSource = 'HS - HS Green';
+        } else {
+          // column X
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "4 - GF HS";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        }
+        // END column S - X
+      }
+      // END HKHS Y
+    } else if (HA === 'Y') {
+    // column I - R
+      if (EFAS === 'Y' && isEfasAfterTargetDate(EFAS_COT)) {
+        // column I - M
+        if (totalFamilySize === 1) {
+          // column M
+          FamilyCategory = "WS - White Single";
+          FamilyClass = "5E - GS EFAS";
+          PriorityIndicator = "";
+          FormSource = 'HA - HA Green';
+        }else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'Y') {
+          // column I
+          FamilyCategory = "WF- White Family";
+          FamilyClass = "1S - GF EFAS Elderly & NB";
+          PriorityIndicator = "Elderly & Newborns";
+          FormSource = 'HA - HA Green';
+        } else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'N') {
+          // column j
+          FamilyCategory = "WF- White Family";
+          FamilyClass = "1S - GF EFAS Elderly & NB";
+          PriorityIndicator = "Elderly";
+          FormSource = 'HA - HA Green';
+        } else if (PrioritySchemeForElderly === 'N' && PrioritySchemeForNewborns === 'Y') {
+          // column k
+          FamilyCategory = "WF- White Family";
+          FamilyClass = "1S - GF EFAS Elderly & NB";
+          PriorityIndicator = "Newborns";
+          FormSource = 'HA - HA Green';
+        } else {
+          FamilyCategory = "WF- White Family";
+          FamilyClass = "1E - GF EFAS";
+          PriorityIndicator = "";
+          FormSource = 'HA - HA Green';
+        }
+        // END column I -M
+      } else {
+        // column N -R
+        if (totalFamilySize === 1) {
+           // column R
+           FamilyCategory = "GS - Green Single";
+           FamilyClass = "6 - GS HA";
+           PriorityIndicator = "";
+           FormSource = 'HA - HA Green';
+        } else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'Y'){
+          // column  N
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "2N - GF HA Elderly & NB";
+          PriorityIndicator = "Elderly & Newborns";
+          FormSource = 'HA - HA Green';
+         } else if (PrioritySchemeForElderly === 'Y' && PrioritySchemeForNewborns === 'N') {
+           // column O
+           FamilyCategory = "GF - Green Family";
+           FamilyClass = "2N - GF HA Elderly & NB";
+           PriorityIndicator = "Elderly";
+           FormSource = 'HA - HA Green';
+         } else if (PrioritySchemeForElderly === 'N' && PrioritySchemeForNewborns === 'Y') {
+           // column P
+           FamilyCategory = "GF - Green Family";
+           FamilyClass = "2N - GF HA Elderly & NB";
+           PriorityIndicator = "Newborns";
+           FormSource = 'HA - HA Green';
+        } else {
+          // column Q
+           FamilyCategory = "GF - Green Family";
+           FamilyClass = "2 - GF HA";
+           PriorityIndicator = "";
+           FormSource = 'HA - HA Green';
+         }
+      }
+    }
+    // END GReen From
+  }
+
+
+
+  console.log("Calculate", {
+    result: {
+      familyCategory: FamilyCategory,
+      familyClass: FamilyClass,
+      priorityIndicator: PriorityIndicator,
+      formSource: FormSource,
+      statePerson: Person
+    },
+    org: {
+      emms,
+      pplCount,
+      hasFamilyMember,
+      PrioritySchemeForElderly,
+      PrioritySchemeForNewborns,
+      YouthScheme,
+      babyCount,
+      CleareesCat,
+      HKHS,
+      HA,
+      EFAS_COT,
+      EFAS,
+      formTypeCode: detail.formTypeCode,
+      detail
+    }
+  })
+  return {
+    familyCategory: FamilyCategory,
+    familyClass: FamilyClass,
+    priorityIndicator: PriorityIndicator,
+    formSource: FormSource,
+    statePerson: Person
+  };
+}
+
 /**
  * Part 2: Calculate family classification
  * - Calculate family category, class, priority indicator, and form source
  * - Based on form type (Green/White), priority schemes, and specific fields
  */
+ // deprecated
 export function calculateFamilyClassification(detail: any): {
   familyCategory: string
   familyClass: string
@@ -1332,7 +1642,7 @@ function DocumentInitFunctionBackup(detail: any, setting: any) {
 
 
   // Part 2: Calculate family classification
-  const classification = calculateFamilyClassification(detail);
+  const classification = familyClassCalulation(detail);
 
   // Apply classification results to detail
   detail.formSource = classification.formSource;
