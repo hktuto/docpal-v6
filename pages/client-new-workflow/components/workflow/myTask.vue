@@ -35,7 +35,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       page_num: pageParams.pageNum,
       page_size: pageParams.pageSize
     }
-    const data = await $api.post('https://132.148.160.191:8001/api/v1/tasks/page', params).then((r) => r.data)
+    const data = await $api.post('https://sit-v3.wclsolution.com/oniflow/api/v1/tasks/page', params).then((r) => r.data)
     return {
       data: {
         entryList: data.items,
