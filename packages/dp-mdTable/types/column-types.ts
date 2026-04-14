@@ -28,6 +28,7 @@ export enum ColumnFieldType {
   CreatedBy = '23', // 创建人
   LastModifiedBy = '24', // 修改人
   //OneWayLink = 26,     // 单向关联
+  AggVirtualColumn = '27', // 聚合虚拟列
 }
 export const reverseColumnFieldType = Object.fromEntries(
   Object.entries(ColumnFieldType).map(([key, value]) => [value, key])

@@ -60,7 +60,7 @@ export interface DynamicActionsRequestBody {
 }
 
 export function postDynamicActions(body: DynamicActionsRequestBody) {
-  // 使用相对 path，便于 dev 走 Vite 代理、生产在拦截器里把 baseURL 换成 DYNAMIC_ACTIONS_PROXY
+  // 使用相对 path，便于 dev 走 Vite 代理、生产在拦截器里把 baseURL 换成 DOCPAL_GATEWAY_PROXY
   return clientApi.instance.post('/dynamic-actions', body, {
     baseURL: '/dynamic-actions',  
     headers: {

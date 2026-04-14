@@ -36,15 +36,18 @@ export const useVirtualColumn = () => {
     const displayFieldNames = JSON.parse(JSON.stringify(relationTable.display_structure?.display_field_names))
     const virtualColumns = tableFields.value.filter((field: any) => field.business_type === ColumnFieldType.VirtualColumn)
     virtualColumns.forEach((column: any) => {
-      const tableId = column.table_id_paths.pop()
+      const tableId = column.display_structure?.table_id_paths?.pop()
       if (tableId === relationTableId && !displayFieldNames.includes(column.display_structure?.display_field_name)) {
         displayFieldNames.push(column.display_structure?.display_field_name)
         displayFieldIds.push(column.display_structure?.display_field_id)
       }
     })
 
-    if (displayFieldIds.length !== relationTable.display_structure?.display_field_ids.length) {
+    if (!areArraysEqualIgnoreOrder(displayFieldIds, relationTable.display_structure?.display_field_ids)) {
       updateColumn(relationTable.field_name, {
+        display_field_ids: displayFieldIds,
+        relation_table_id: relationTableId,
+        business_type: relationTable.business_type,
         display_structure: {
           ...relationTable.display_structure,
           display_field_ids: displayFieldIds,
@@ -65,7 +68,14 @@ export const useVirtualColumn = () => {
     updateRelationField
   }
 }
+function areArraysEqualIgnoreOrder(arr1: string[], arr2: string[]) {
+  if (arr1.length !== arr2.length) return false
 
+  const sorted1 = [...arr1].sort()
+  const sorted2 = [...arr2].sort()
+
+  return sorted1.every((item, index) => item === sorted2[index])
+}
 function getRelationTree(menus: any[], relationTables: any[]): any[] {
   return menus
     .map((menu: any) => {

@@ -44,7 +44,7 @@ const displayValues = computed(() => {
   const fieldName = props.column.field
   const displayFieldNames = fieldName + '.' + props.display_field_names[0]
   const displayValue = props.row[displayFieldNames]
-  return displayValue?.split(',').filter((val: any) => val !== '') || []
+  return Array.isArray(displayValue) ? displayValue : displayValue?.split(',').filter((val: any) => val !== '') || []
 })
 
 function handleAdd() {

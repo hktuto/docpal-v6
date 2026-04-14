@@ -69,6 +69,9 @@ export function useTableViews(options: UseTableViewsOptions) {
     isCoverFit: true
   })
   async function getViews() {
+    columnFilterRules.value = []
+    columnSortRules.value = []
+    columnGroupRules.value = []
     const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
       tableId: tableId.value
     })

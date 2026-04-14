@@ -7,7 +7,7 @@ import { useEventBus, EventType, emitBus } from 'eventbus'
  */
 function getBaseUrl(baseURL: string) {
   const {
-    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DYNAMIC_ACTIONS_PROXY }
+    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DOCPAL_GATEWAY_PROXY }
   } = useRuntimeConfig()
   if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY
   if (baseURL === '/client') baseURL = CLIENT_PROXY
@@ -17,7 +17,7 @@ function getBaseUrl(baseURL: string) {
   if (baseURL === '/docpalApi') baseURL = PROXY
   if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
   if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
-  if (baseURL === '/dynamic-actions') baseURL = DYNAMIC_ACTIONS_PROXY as string
+  if (baseURL === '/dynamic-actions') baseURL = DOCPAL_GATEWAY_PROXY as string
   return baseURL
 }
 
@@ -32,13 +32,13 @@ export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) 
   }
   if (process.env.NODE_ENV !== 'development') {
     const {
-      public: { DYNAMIC_ACTIONS_PROXY }
+      public: { DOCPAL_GATEWAY_PROXY }
     } = useRuntimeConfig()
     const pathOnly = typeof config.url === 'string' ? config.url.split('?')[0] : ''
     const hitsDynamicActions =
       pathOnly === '/dynamic-actions' || config.baseURL === '/dynamic-actions'
-    if (hitsDynamicActions && DYNAMIC_ACTIONS_PROXY) {
-      config.baseURL = DYNAMIC_ACTIONS_PROXY as string
+    if (hitsDynamicActions && DOCPAL_GATEWAY_PROXY) {
+      config.baseURL = DOCPAL_GATEWAY_PROXY as string
       if (!config.url) {
         config.url = '/dynamic-actions'
       }
