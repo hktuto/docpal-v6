@@ -6,7 +6,7 @@ const currentDir = dirname(fileURLToPath(import.meta.url))
 
 const config = {
   compatibilityDate: '2024-04-03',
-  devtools: { 
+  devtools: {
     enabled: true,
   },
   modules: [
@@ -20,7 +20,7 @@ const config = {
   extends:[
     "../sql-store"
   ],
-  
+
   runtimeConfig:{
     public:{
       isProduction: process.env.NODE_ENV === 'production',
@@ -144,6 +144,14 @@ const config = {
             'accept-encoding': 'identity'
           }
         },
+        '/oniflow':{
+          target: process.env.WORKFLOW_PROXY,
+          changeOrigin: true,
+          prependPath: true,
+          headers: {
+            'accept-encoding': 'identity'
+          }
+        }
       }
       // routeRules: {
       //     '/dashboard/**': {
@@ -172,7 +180,7 @@ const config = {
       script:{
         defineModel:true
       },
-    }    
+    }
   },
 } as any
 
