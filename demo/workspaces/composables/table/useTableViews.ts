@@ -1,4 +1,5 @@
 import type { ViewConfig } from '../../utils/db/schema/tableView'
+import { kanbanStyleDefault, cardStyleDefault } from '../../utils/db/schema/tableView';
 import {
   parseViewConfigList,
   serializeViewConfigList,
@@ -10,9 +11,7 @@ import {
   getDisplayColumns,
   updateViewColumnDisplay,
   initViewColumnsOrder,
-  updateViewColumnOrder,
-  kanbanStyleDefault,
-  cardStyleDefault,
+  updateViewColumnOrder
 } from '../../utils/tableViews'
 
 import { ElMessage } from 'element-plus'
