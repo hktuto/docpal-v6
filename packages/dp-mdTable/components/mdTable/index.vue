@@ -2,7 +2,7 @@
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
     <Toolbar
-      v-if="columns.length > 0"
+      v-if="columns && columns.length > 0"
       :groupable-columns="columns"
       @refresh="handleRefresh"
       @search="handleSearch"

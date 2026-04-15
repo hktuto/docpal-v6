@@ -873,7 +873,7 @@ export function useImportBatch() {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('reference_entity_id', entityId)
-      if (parentFolderId) formData.append('parentFolderId', parentFolderId)
+      if (parentFolderId) formData.append('parent_folder_id', parentFolderId)
       uploadProgress.value = 0
       const {
         data: { job_id }

@@ -25,9 +25,9 @@ const groupedData = computed(() => {
   if (!groupByField.value || !props.tableView.tableData.value) {
     return new Map<string, any[]>()
   }
-  
+
   const groups = new Map<string, any[]>()
-  
+
   for (const row of props.tableView.tableData.value) {
     const groupValue = row[groupByField.value] || 'Uncategorized'
     if (!groups.has(groupValue)) {
@@ -35,7 +35,7 @@ const groupedData = computed(() => {
     }
     groups.get(groupValue)!.push(row)
   }
-  
+
   return groups
 })
 
@@ -61,6 +61,7 @@ onMounted(() => {
 
 <template>
   <div class="kanban-view-container">
+      kanban
     <!-- Configuration Info -->
     <div class="kanban-header">
       <div class="config-info">
@@ -68,7 +69,7 @@ onMounted(() => {
         <el-tag size="small" type="info">{{ groupByFieldLabel }}</el-tag>
       </div>
     </div>
-    
+
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-state">
       <el-icon class="is-loading">
@@ -76,12 +77,12 @@ onMounted(() => {
       </el-icon>
       <span>Loading kanban data...</span>
     </div>
-    
+
     <!-- Kanban Board -->
     <div v-else class="kanban-board">
-      <div 
-        v-for="column in columns" 
-        :key="column" 
+      <div
+        v-for="column in columns"
+        :key="column"
         class="kanban-column"
       >
         <div class="column-header">
@@ -89,9 +90,9 @@ onMounted(() => {
           <el-badge :value="groupedData.get(column)?.length || 0" type="info" />
         </div>
         <div class="column-content">
-          <div 
-            v-for="item in groupedData.get(column)" 
-            :key="item.id" 
+          <div
+            v-for="item in groupedData.get(column)"
+            :key="item.id"
             class="kanban-card"
           >
             <div class="card-content">
@@ -104,14 +105,14 @@ onMounted(() => {
               </template>
             </div>
           </div>
-          
+
           <!-- Empty column state -->
           <div v-if="!groupedData.get(column)?.length" class="empty-column">
             No items
           </div>
         </div>
       </div>
-      
+
       <!-- No data state -->
       <div v-if="columns.length === 0" class="empty-board">
         <Icon name="material-symbols:view-kanban-outline" class="empty-icon" />
@@ -142,7 +143,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--app-space-s);
-  
+
   .config-label {
     color: var(--el-text-color-secondary);
     font-size: var(--app-font-size-s);
@@ -157,7 +158,7 @@ onMounted(() => {
   flex: 1;
   gap: 12px;
   color: var(--el-text-color-secondary);
-  
+
   .el-icon {
     font-size: 32px;
   }
@@ -189,7 +190,7 @@ onMounted(() => {
   padding: var(--app-space-m);
   border-bottom: 1px solid var(--el-border-color);
   flex-shrink: 0;
-  
+
   .column-title {
     font-weight: 600;
     color: var(--el-text-color-primary);
@@ -212,7 +213,7 @@ onMounted(() => {
   padding: var(--app-space-m);
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     border-color: var(--el-color-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -229,12 +230,12 @@ onMounted(() => {
   display: flex;
   gap: var(--app-space-xs);
   font-size: var(--app-font-size-s);
-  
+
   .field-label {
     color: var(--el-text-color-secondary);
     flex-shrink: 0;
   }
-  
+
   .field-value {
     color: var(--el-text-color-primary);
     overflow: hidden;
@@ -260,17 +261,17 @@ onMounted(() => {
   flex: 1;
   color: var(--el-text-color-secondary);
   text-align: center;
-  
+
   .empty-icon {
     font-size: 64px;
     margin-bottom: var(--app-space-m);
     color: var(--el-text-color-placeholder);
   }
-  
+
   p {
     margin: 0;
   }
-  
+
   .hint {
     font-size: var(--app-font-size-s);
     margin-top: var(--app-space-xs);

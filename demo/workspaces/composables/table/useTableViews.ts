@@ -1,4 +1,5 @@
 import type { ViewConfig } from '../../utils/db/schema/tableView'
+import { kanbanStyleDefault, cardStyleDefault } from '../../utils/db/schema/tableView';
 import {
   parseViewConfigList,
   serializeViewConfigList,
@@ -63,10 +64,6 @@ export function useTableViews(options: UseTableViewsOptions) {
   const columnGroupRules = ref<any[]>([])
 
   const viewStyleConfig = ref<any>({
-    cardCount: 5,
-    coverFieldId: '',
-    isColNameVisible: true,
-    isCoverFit: true
   })
   async function getViews() {
     columnFilterRules.value = []
@@ -81,7 +78,7 @@ export function useTableViews(options: UseTableViewsOptions) {
       const defaultViewId = generateViewId()
       views = addViewUtil([], {
         id: defaultViewId,
-        name: '默认视图'
+        name: 'Default View'
       })
       await saveViews(views)
     }
@@ -105,15 +102,17 @@ export function useTableViews(options: UseTableViewsOptions) {
       }
       columnSortRules.value = currentView.value.sortInfo ? currentView.value.sortInfo : []
       columnGroupRules.value = currentView.value.groupInfo ?? []
-      if (currentView.value.type !== 'table') {
-        viewStyleConfig.value = currentView.value.style ?? {
-          cardCount: 5,
-          coverFieldId: '',
-          isColNameVisible: true,
-          isCoverFit: true
-        }
+      // add default style to different view types
+      if (currentView.value.type === 'card') {
+        currentView.value.style  ||= cardStyleDefault
       }
-      console.log(currentView, viewStyleConfig)
+      if(currentView.value.type === 'kanban') {
+        currentView.value.style  ||= kanbanStyleDefault
+      }
+      // set current view style back to viewStyleConfig
+      if (currentView.value.type !== 'table') {
+        viewStyleConfig.value = currentView.value.style
+      }
     }
   }
   async function saveViews(views: ViewConfig[]) {

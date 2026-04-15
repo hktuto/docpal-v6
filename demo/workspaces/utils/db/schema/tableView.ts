@@ -51,14 +51,29 @@ export interface FilterInfo {
 }
 
 export interface ViewStyle {
-  cardCount: number;
+  // Card Design
+  cardCount?: number;
   /** 作为封面的文档列 field_name */
-  coverFieldId: string;
-  isColNameVisible: boolean;
-  isCoverFit: boolean;
+  coverFieldId?: string;
+  isColNameVisible?: boolean;
+  isCoverFit?: boolean;
   /** 是否显示封面区域（可与 coverFieldId 独立） */
   showCover?: boolean;
   isBordered?: boolean;
   isCompact?: boolean;
   cardShadow?: 'none' | 'small' | 'hover';
+  // Kanban Design
+  selectedColumnId?: string | null;
+  [key: string]: any;
+}
+
+export const cardStyleDefault:ViewStyle = {
+  cardCount: 5,
+  coverFieldId: '',
+  isColNameVisible: true,
+  isCoverFit: true
+}
+
+export const kanbanStyleDefault:ViewStyle = {
+  selectedColumnId: null,
 }

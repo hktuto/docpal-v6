@@ -34,7 +34,7 @@ function handleActionsClick(event: MouseEvent) {
 // Handle save from label editor
 async function handleSaveEdit(newLabel: string) {
   console.log('handleSaveEdit', JSON.stringify(props.item), props.item.id, newLabel)
-  const success = await saveEdit(props.item.id, newLabel)
+  const success = await saveEdit(props.item, newLabel)
   if (success) {
     props.item.name = newLabel
     nextTick(() => {
