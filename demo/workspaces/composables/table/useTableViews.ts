@@ -81,7 +81,7 @@ export function useTableViews(options: UseTableViewsOptions) {
       const defaultViewId = generateViewId()
       views = addViewUtil([], {
         id: defaultViewId,
-        name: '默认视图'
+        name: 'Default View'
       })
       await saveViews(views)
     }
