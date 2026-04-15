@@ -7,7 +7,7 @@ import { useEventBus, EventType, emitBus } from 'eventbus'
  */
 function getBaseUrl(baseURL: string) {
   const {
-    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DYNAMIC_ACTIONS_PROXY }
+    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DOCPAL_GATEWAY_PROXY }
   } = useRuntimeConfig()
   if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY
   if (baseURL === '/client') baseURL = CLIENT_PROXY
@@ -17,14 +17,13 @@ function getBaseUrl(baseURL: string) {
   if (baseURL === '/docpalApi') baseURL = PROXY
   if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
   if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
-  if (baseURL === '/dynamic-actions') baseURL = DYNAMIC_ACTIONS_PROXY as string
+  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string
   return baseURL
 }
 
 export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) => {
   // const {locale} = useI18n()
   // console.log(locale)
-
   const locale = localStorage.getItem('v_form_locale') || 'en-US'
   const token = localStorage.getItem('access_token')
   if (token) {
@@ -33,21 +32,20 @@ export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) 
   }
   if (process.env.NODE_ENV !== 'development') {
     const {
-      public: { DYNAMIC_ACTIONS_PROXY }
+      public: { DOCPAL_GATEWAY_PROXY }
     } = useRuntimeConfig()
     const pathOnly = typeof config.url === 'string' ? config.url.split('?')[0] : ''
     const hitsDynamicActions =
-      pathOnly === '/dynamic-actions' || config.baseURL === '/dynamic-actions'
-    if (hitsDynamicActions && DYNAMIC_ACTIONS_PROXY) {
-      config.baseURL = DYNAMIC_ACTIONS_PROXY as string
+      pathOnly === '/gateway' || config.baseURL === '/gateway'
+    if (hitsDynamicActions && DOCPAL_GATEWAY_PROXY) {
+      config.baseURL = DOCPAL_GATEWAY_PROXY as string
       if (!config.url) {
-        config.url = '/dynamic-actions'
+        config.url = '/gateway'
       }
     } else if (config.baseURL) {
       config.baseURL = getBaseUrl(config.baseURL)
     }
   }
-  //
   return config
 }
 export const requestErrorHelper = (error: any, axiosInstance: AxiosInstance) => {
@@ -71,6 +69,15 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     return
   }
 
+  if (error.response.status >= 500) {
+    if (error.config.headers.noThrowError) return
+
+    if (error.config.headers.noErrorMessage) return Promise.reject(error)
+
+    const message = error.response.data.message || error.message
+    ElMessage.error(message)
+    return Promise.reject(error)
+  }
   if (error.response.status === 403) {
     console.log('token expired, clear token and redirect to login page')
     localStorage.removeItem('access_token')
@@ -81,11 +88,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
   }
   console.log('error', error, this)
   const refreshToken = localStorage.getItem('refresh_token')
-  if (error.response.status === 401 && !originalRequest._retry) {
-    if (!refreshToken) {
-      logout()
-      return Promise.reject(error)
-    }
+  if (error.response.status === 401 && !originalRequest._retry && refreshToken) {
     originalRequest._retry = true
 
     try {
@@ -130,13 +133,8 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
       return Promise.reject(refreshError)
     }
   } else {
-    if (error.config.headers.noThrowError) return
-
-    if (error.config.headers.noErrorMessage) return Promise.reject(error)
-
-    const message = error.response.data.message || error.message
-    ElMessage.error(message)
-    return Promise.reject(error)
+    // 如果没有 refresh token，则直接退出登录
+    logout()
   }
 
   return Promise.reject(error)

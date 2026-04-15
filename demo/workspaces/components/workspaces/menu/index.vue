@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { menuState: state, openMenuItemActions, getMenuFromDb, workspace } = useSingleWorkspaceContext()
-const { importExcelFile } = useImportBatch()
+const { importExcelFile, initData } = useImportBatch()
 
 // File upload input ref
 const fileInputRef = ref<HTMLInputElement>()
@@ -26,7 +26,7 @@ const importToTableDialogRef = ref()
 // Pending duplicates for sequential update processing
 const pendingDuplicates = ref<DuplicateSheetInfo[]>([])
 const tablesUpdated = ref<{ id: string; name: string }[]>([])
-
+const menuLoading = ref(false);
 // 菜单区域拖放：状态与事件封装在 useMenuDrag 中
 const {
   isDraggingOver,
@@ -38,11 +38,19 @@ const {
 } = useMenuDrag({
   enabled: computed(() => props.isAdmin),
   onDrop: async (files) => {
+    menuLoading.value = true
+    try {
+
     const excelFile = files.find(isExcelFile)
+    initData({ entityId: workspace.value?.id })
     if (excelFile && workspace.value?.id) {
-      const result = await importExcelFile(excelFile, workspace.value.id, null)
-      if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
-      }
+      const result = await importExcelFile(excelFile)
+      await getMenuFromDb()
+    }
+    } catch (e) {
+
+    } finally {
+      menuLoading.value = false
     }
   }
 })
@@ -50,12 +58,17 @@ const {
 
 async function handleFolderDrop(folderId: string, file: File) {
   if (workspace.value?.id) {
-    const result = await importExcelFile(file, workspace.value.id, folderId)
+    try{
+      menuLoading.value = true
+      initData({ entityId: workspace.value?.id, parentFolderId:folderId })
+      const result = await importExcelFile(file)
 
-    // If update action, open dialog to handle duplicate updates
-    if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
-      handleDuplicateUpdates(file, result.duplicateSheets)
+    }catch(e){
+
+    }finally{
+      menuLoading.value = false
     }
+
   }
 }
 
@@ -71,7 +84,23 @@ async function handleFileInputChange(event: Event) {
   const file = files[0]
 
   if (isExcelFile(file)) {
-    const result = await importExcelFile(file, workspace.value.id, null)
+     menuLoading.value = true
+    try {
+
+    initData({ entityId: workspace.value?.id })
+    const result = await importExcelFile(file)
+    console.log("result", result)
+    if (result.hasErrorReport) {
+
+    } else {
+
+    }
+     await getMenuFromDb()
+    } catch (e) {
+
+    } finally {
+       menuLoading.value = false
+    }
   } else {
     ElMessage.error('Please select an Excel file (.xlsx, .xls) or CSV file (.csv)')
   }
@@ -122,7 +151,7 @@ function handleUpdateClose() {
 provide('handleFolderDrop', handleFolderDrop)
 provide('isExcelFile', isExcelFile)
 
-const { saveMenuItemToDb } = useSingleWorkspaceContext()
+
 
 // Helper: Update order numbers
 function updateOrderNumbers(items: TreeItem[]): TreeItem[] {
@@ -145,6 +174,7 @@ onMounted(async () => {
 
 <template>
   <div
+    v-loading="menuLoading"
     class="workspace-menu"
     :class="{ 'is-drag-over': isDraggingOver }"
     @dragover="handleDragOver"

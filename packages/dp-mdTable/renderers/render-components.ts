@@ -14,9 +14,9 @@ import { EmailView, EmailEdit } from './components/email/view'
 import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
 import { UserView } from './components/user/view'
-import { RelationView, RelationEdit } from './components/relation/view'
+import { RelationView } from './components/relation/view'
 import RelationEditVue from './components/relation/edit.vue'
-import { VirtualColumnView, VirtualColumnEdit } from './components/VirtualColumn/view'
+import { VirtualColumnView } from './components/VirtualColumn/view'
 import { FormulaView } from './components/formula'
 import { CheckboxView } from './components/checkbox'
 import { DocumentView } from './components/document'
@@ -30,11 +30,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     view: {
       render: (params: any) => TreeNode(params, TextView)
     }
-    // titleConfig: {
-    //   icon: 'vxe-icon-user-fill',
-    //   useHTML: true,
-    //   content: '点击链接：<a href="https://vxeui.com" target="_blank" style="color:#95c7fb;">vxe-ui 官网</a>'
-    // }
+
   },
   MultiText: {
     edit: {
@@ -200,15 +196,9 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     }
   },
   VirtualColumn: {
-    titleConfig: {
-      icon: 'lucide:columns-3',
-      content: 'Virtual Column'
-    },
+
     view: {
       render: (params: any) => TreeNode(params, VirtualColumnView)
-    },
-    edit: {
-      render: VirtualColumnEdit
     }
   },
   User: {

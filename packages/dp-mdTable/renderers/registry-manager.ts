@@ -77,6 +77,9 @@ export class RendererRegistryManager {
     const renderConfig: any = {}
     if (view?.render) {
       renderConfig.renderTableCell = createRenderFunction(view.render, view.props)
+      if (!edit?.render) {
+        renderConfig.renderTableDefault = renderConfig.renderTableCell
+      }
     }
     if (edit?.render) {
       renderConfig.renderEdit = createRenderFunction(edit.render, edit.props)
@@ -109,11 +112,8 @@ export class RendererRegistryManager {
       console.error(`字段类型 ${fieldName} ${type} 的组件配置未找到`)
       config = this.getComponentConfig('Text')
     }
-    const titleConfig = config?.titleConfig || {}
     const result: Partial<Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>> = {}
-    if (config?.titleConfig) {
-      result.titlePrefix = config.titleConfig
-    }
+
     // 3. 重构判断逻辑，提取重复代码为函数
     const createRenderConfig = (name: string, options: Record<string, any>, props: Record<string, any> = {}) => ({
       name,

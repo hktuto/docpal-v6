@@ -30,7 +30,7 @@ const config = {
       ADMIN_PROXY: process.env.ADMIN_PROXY,
       PROXY: process.env.PROXY,
       DASHBOARD_PROXY: process.env.DASHBOARD_PROXY,
-      DYNAMIC_ACTIONS_PROXY: process.env.DYNAMIC_ACTIONS_PROXY,
+      DOCPAL_GATEWAY_PROXY: process.env.DOCPAL_GATEWAY_PROXY,
       OFFICE_END_POINT: process.env.OFFICE_END_POINT,
       UPLOAD_END_POINT: process.env.UPLOAD_END_POINT,
       ADMIN_END_POINT: process.env.ADMIN_END_POINT,
@@ -136,8 +136,8 @@ const config = {
             'accept-encoding': 'identity'
           }
         },
-        '/dynamic-actions':{
-          target: process.env.DYNAMIC_ACTIONS_PROXY,
+        '/gateway':{
+          target: process.env.DOCPAL_GATEWAY_PROXY,
           changeOrigin: true,
           prependPath: true,
           headers: {

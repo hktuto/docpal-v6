@@ -6,7 +6,7 @@
       :width="520"
       placement="bottom-start"
       trigger="click"
-      :popper-class="`relation-picker-popover ${mode === 'card' ? '' : 'vxe-table--ignore-clear'}`"
+      :popper-class="`relation-picker-popover ${showSelected ? '' : 'vxe-table--ignore-clear'}`"
       @show="handlePopoverShow"
     >
       <template #default>
@@ -61,6 +61,19 @@
         </slot>
       </template>
     </ElPopover>
+
+    <!-- 已选卡片列表 -->
+    <div v-if="selectedIds.length > 0 && showSelected" class="selected-cards">
+      <div v-for="id in selectedIds" :key="id" class="selected-card-body">
+        <template v-if="selectedRecordsMap[id]">
+          <MdFormFieldRelationCard class="record-card-item" :fields="fields" :data="selectedRecordsMap[id]" :show-remove="true" @remove="handleRemove(id)" />
+        </template>
+        <div v-else-if="id" class="selected-card-loading">
+          <el-icon class="is-loading"><Loading /></el-icon>
+          <span>{{ $t('mdTable.relationPicker.loading') }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -78,12 +91,12 @@ const props = withDefaults(
     relationTableId: string
     displayFieldIds: string[]
     tableLabel: string
-    mode: 'card' | ''
     multiple: boolean
+    showSelected: boolean
   }>(),
   {
     tableLabel: '',
-    mode: 'card'
+    showSelected: false
   }
 )
 const emit = defineEmits<{
@@ -91,7 +104,6 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-console.log('props.displayFieldIds', props.displayFieldIds)
 const { options, fields, searchKeyword } = useRelationPicker(props.relationTableId, props.displayFieldIds)
 
 const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
@@ -101,6 +113,12 @@ const onlySelected = ref(false)
 const selectedIds = computed(() => {
   const v = props.modelValue
   return Array.isArray(v) ? v : v ? [v] : []
+})
+const selectedRecordsMap = computed(() => {
+  return options.value.reduce((acc: any, r: any) => {
+    acc[r.id] = r
+    return acc
+  }, {})
 })
 const displayOptions = computed(() => {
   if (onlySelected.value) {
@@ -120,7 +138,7 @@ function toggleRecord(id: string) {
       _selectedIds.push(id)
     }
   }
-  _selectedIds =  [...new Set(_selectedIds)]
+  _selectedIds = [...new Set(_selectedIds)]
   const selectedRows = options.value.filter((r: any) => _selectedIds.includes(r.id))
   emit('update:modelValue', _selectedIds, selectedRows, fields.value)
 }
@@ -132,6 +150,9 @@ function handlePopoverShow() {
   searchKeyword.value = ''
   onlySelected.value = false
 }
+function handleRemove(id: string) {
+  toggleRecord(id)
+}
 
 defineExpose({
   displayRecords: displayOptions
@@ -140,6 +161,7 @@ defineExpose({
 
 <style lang="scss" scoped>
 .relation-picker {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--app-space-m, 12px);

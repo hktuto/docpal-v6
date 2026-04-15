@@ -1,12 +1,14 @@
 <template>
-  <MdFormItem v-if="formData && column?.[fieldName]" v-bind="props"
-    >
+  <MdFormItem v-if="formData && curFieldName" v-bind="props">
     <MdFormFieldRelationPicker
       v-if="relationTableId"
       ref="pickerRef"
       :model-value="currentValue"
       :relation-table-id="relationTableId"
+      :display-field-ids="displayFieldIds"
       :table-label="tableLabel"
+      :multiple="false"
+      show-selected
       @update:model-value="handleUpdate"
       @original-click="handleOriginalClick"
     />
@@ -28,50 +30,43 @@ const emit = defineEmits<{
 }>()
 const pickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 const availableRecords = ref<any[]>([])
-const { columns } = useMDTableInject()
-const relationTableId = computed(() => props.column?.display_structure?.relationTableId ?? '')
+const { columns} = inject('viewTools')
+const relationTableId = computed(() => props.column?.display_structure?.relation_table_id ?? '')
+const displayFieldIds = computed(() => props.column?.display_structure?.display_field_ids ?? [])
+const curFieldName = computed(() => props.column?.[props.fieldName])
 const { t } = useI18n()
 const tableLabel = computed(() => props.column?.display_structure?.relationTableName ?? props.column?.title ?? t('mdTable.relationPicker.defaultTableLabel'))
 const currentValue = computed(() => {
-  const v = props.formData?.[props.column?.[props.fieldName]]
+  const v = props.formData?.[curFieldName.value]
   return Array.isArray(v) ? v : v != null ? [v] : []
 })
 
-/**
- * 查找与当前 relation 共享同一关联表的 VirtualColumn 列
- */
-function getVirtualColumnsForRelation(relationFieldName: string) {
-  const cols = columns?.value ?? []
-  return cols.filter((col: any) => {
-    if (col.type !== ColumnFieldType.VirtualColumn) return false
-    const sourceRelationField = col.display_structure?.sourceRelationField ?? col[props.fieldName]?.split('.')[0]
-    return sourceRelationField === relationFieldName
-  })
-}
 function handleOriginalClick(record: any) {
   emit('original-click', record)
 }
-function handleUpdate(value: string[]) {
-  if (!props.formData || props.column?.[props.fieldName] == null) return
 
-  const relationFieldName = props.column[props.fieldName].includes('.') ? props.column[props.fieldName].split('.')[0] : props.column[props.fieldName]
-  props.formData[props.column[props.fieldName]] = value
-
-  // 同步更新与当前 relation 共享同一关联表的 VirtualColumn 数据
-  const virtualColumns = getVirtualColumnsForRelation(relationFieldName)
-  if (virtualColumns.length > 0) {
-    const recordsMap = pickerRef.value?.selectedRecordsMap?.value ?? pickerRef.value?.selectedRecordsMap ?? {}
-    const ids = Array.isArray(value) ? value : value != null ? [value] : []
-    virtualColumns.forEach((vc: any) => {
-      const displayFieldName = vc.display_structure?.displayFieldName ?? vc[props.fieldName]?.split('.')[1]
-      if (!displayFieldName) return
-      const dataKey = `${relationFieldName}.${displayFieldName}`
-      const vals = ids.map((id: string) => recordsMap[id]?.[displayFieldName] ?? id)
-      props.formData[dataKey] = ids.length ? vals : undefined
-    })
-  }
+function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
+  if (!props.formData || curFieldName.value == null) return
+  const fieldName = curFieldName.value
+  props.formData[fieldName] = value.join(',')
+  // 如果props.row 存在属性 key_1680_411d7500，has
+  const basicFieldNames = ['id', 'created_at', 'updated_at', 'updated_by', 'status', 'master_table_id']
+  Object.keys(props.formData).forEach((key) => {
+    if (!basicFieldNames.includes(key)) {
+      if (key.startsWith(fieldName + '.')) {
+        const pureKey = key.split('.')[1]
+        const relatedValue = selectedRows.reduce((acc, sItem) => {
+          if (sItem[pureKey]) {
+            acc.push(sItem[pureKey])
+          }
+          return acc
+        }, [])
+        props.formData[key] = relatedValue.join(',')
+      }
+    }
+  })
+  console.log('props.formData', props.formData)
 }
-
 </script>
 
 <style lang="scss" scoped>
@@ -81,7 +76,6 @@ function handleUpdate(value: string[]) {
 }
 :deep(.el-form-item__content) {
   line-height: unset;
-  display: flex;
   align-items: center;
 }
 </style>

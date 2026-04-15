@@ -14,21 +14,21 @@ export default defineNuxtConfig({
     '../../pages/client-search',
     '../../pages/client-master-table',
     '../../pages/client-folder-cabinet',
-    // '../../pages/client-workflow',
-    '../../pages/client-new-workflow',
+    '../../pages/client-workflow',
     '../../packages/dp-dashboard',
     '../../pages/client-ai-upload',
     '../../pages/client-share',
     '../../pages/client-trash',
+    '../../pages/client-dashboard',
     '../../pages/client-home',
     '../../pages/client-file-policies',
-    // '../../packages/dp-cmmn-x6',
+    '../../packages/dp-cmmn-x6',
     '../../pages/client-case-manage',
     '../../pages/client-easy-form',
     '../../pages/client-rbac',
     '../../pages/client-user-setting',
 
-    // '../../pages/admin-workflow-editor',
+    '../../pages/admin-workflow-editor',
     '../../pages/admin-user',
     '../../pages/admin-acl',
     '../../pages/admin-setting',
@@ -37,18 +37,20 @@ export default defineNuxtConfig({
     '../../pages/admin-masterTable',
     '../../pages/admin-easy-form',
     '../../pages/super-workflow-form',
+    '../../pages/admin-bulk-import',
     '../../pages/admin-dam',
     '../../pages/admin-document-template',
     // '../../pages/admin-docTemplate',
     '../../pages/admin-case-management',
     '../../pages/admin-file-policies',
     '../../pages/admin-docker-log',
+    '../../pages/admin-dashboard',
     '../../pages/admin-message-queue',
     '../../pages/admin-share',
     '../../pages/admin-external-connection',
-    // '../../pages/admin-workflow',
+    '../../pages/admin-workflow',
     '../../pages/admin-document-type',
-    '../../pages/admin-new-workflow',
+
     '../../pages/admin-log-manage',
     '../../pages/admin-calendar-setting',
     '../../pages/admin-folder-cabinet',
@@ -56,12 +58,14 @@ export default defineNuxtConfig({
     '../../pages/admin-watermark',
     '../../pages/admin-message-template',
     '../../pages/admin-unique-id-generator',
+    '../../pages/admin-config-migration',
     // "../../pages/admin-share",
     '../../pages/admin-rbac',
     '../../pages/admin-password-policy',
     '../../pages/admin-company-profile',
     '../../pages/admin-external-storage',
     '../../pages/admin-import-jobs',
+    '../../packages/dp-mdTable',
 
     // public pages
     '../../pages/public-share',
@@ -69,9 +73,9 @@ export default defineNuxtConfig({
     '../../pages/public-easy-form',
     '../../packages/dp-contact',
 
-    "../../demo/workspaces"
-
     // demo packages
+    // "../../demo/database",
+    "../../demo/workspaces"
   ],
   features: {
     inlineStyles: true
@@ -79,6 +83,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       platform: 'client',
+      /** 根应用显式声明，确保客户端 useRuntimeConfig() 能拿到（仅靠 layers 合并时可能缺失） */
+      DOCPAL_GATEWAY_PROXY: process.env.DOCPAL_GATEWAY_PROXY,
       defaultTab: {
         id: 'client-work-panel',
         name: 'client-work-panel',
