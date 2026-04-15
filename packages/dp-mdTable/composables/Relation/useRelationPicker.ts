@@ -16,7 +16,7 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
     options.value = data.data
   }
   async function getFields(tableId: string) {
-    const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId })
+    const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: "master" })
     const tableFields = res.data.tableFields
     return tableFields
       .filter((field: any) => displayFieldIds.includes(field.id))
