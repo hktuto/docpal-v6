@@ -10,6 +10,8 @@ const props = defineProps<{
 const { t } = useI18n()
 const openWorkflowEdit = ref(false)
 const workflowData = ref()
+const showRelease = ref(false)
+const releaseContent = ref()
 const workflowReadonly = ref(false)
 const workflowId = ref()
 const workflowEditorRef = ref()
@@ -28,7 +30,11 @@ async function getWorkflowData() {
     }
     workflowId.value = data.id
     workflowData.value = data.draft_content
-    workflowReadonly.value = data.status !== 'D'
+    workflowReadonly.value = false
+
+    showRelease.value = !(!data.content || data.content === '')
+    releaseContent.value = data.content
+
     nextTick(async () => {
       workflowEditorRef.value?.init()
     })
@@ -47,9 +53,7 @@ async function handleStatus() {
       openWorkflowEdit.value = true
     } else {
       const userId = useUserId()
-      await $api
-        .put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value })
-        .then((r: any) => r.data)
+      await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
       workflowReadonly.value = true
       openWorkflowEdit.value = false
       openWorkflowEdit.value = true
@@ -61,6 +65,15 @@ async function handleStatus() {
   }
 }
 
+function handleOpenRelease() {
+  loading.value = true
+  workflowData.value = workflowReadonly.value = true
+
+
+
+  loading.value = false
+}
+
 onMounted(async () => {
   await getWorkflowData()
 })
@@ -70,8 +83,11 @@ onMounted(async () => {
   <div v-if="openWorkflowEdit" v-loading="loading" class="pageContainer">
     <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :showSidebar="true">
       <template #actions>
-        <el-button id="Workflow__Edit__ActivateOrInactivate" :type="workflowReadonly ? 'danger' : 'primary'" @click="handleStatus">
-          {{ workflowReadonly ? t('actions.inactivate') : t('actions.activate') }}
+        <!--        <el-button id="Workflow__Edit__ActivateOrInactivate" :type="workflowReadonly ? 'danger' : 'primary'" @click="handleStatus">-->
+        <!--          {{ workflowReadonly ? t('actions.inactivate') : t('actions.activate') }}-->
+        <!--        </el-button>-->
+        <el-button v-if="showRelease" type="primary" @click="handleOpenRelease">
+          {{ $t('Open The Release Version') }}
         </el-button>
       </template>
     </LazyWorkflowEditor>

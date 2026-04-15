@@ -19,32 +19,7 @@ function handleSwitch() {
   }
 
   if (switchRef.value) {
-    delete nodeData.data['attr_flowable:candidateRoles']
 
-    nodeData.data['attr_flowable:candidateGroups'] = ''
-    nodeData.data.extensionElements = {
-      ['modeler:activiti-idm-candidate-group']: {
-        ['attr_xmlns:modeler']: 'http://flowable.org/modeler',
-        ['__cdata']: true
-      },
-      ['modeler:initiator-can-complete']: {
-        ['attr_xmlns:modeler']: 'http://flowable.org/modeler',
-        ['__cdata']: false
-      },
-      ['modeler:group-info-name-Adhoc_Group']: {
-        ['attr_xmlns:modeler']: 'http://flowable.org/modeler',
-        ['__cdata']: ''
-      }
-    }
-  } else {
-    delete nodeData.data['attr_flowable:candidateGroups']
-
-    nodeData.data.extensionElements = {
-      ['flowable:taskListener']: {
-        ['attr_delegateExpression']: '${customTaskAssignmentListener}',
-        ['attr_event']: 'create'
-      }
-    }
   }
   node.setData(newData, { overwrite: true, deep: true, silent: false })
 }
@@ -61,16 +36,16 @@ watch(() => node, () => {
 
 <template>
   <div class="fromContainer">
-    <BpmnSidebarEditLabel :node="node" />
-    <BpmnSidebarEditAssignee :node="node" />
-    <el-switch :disabled="editorProvider.readonly.value" v-model="switchRef" size="small" active-text="Group"
+    <SidebarLabel :node="node" />
+    <ContextUserTaskAssignee :node="node" />
+    <el-switch :disabled="graphProvider.readonly.value" v-model="switchRef" size="small" active-text="Group"
                inactive-text="Roles" @change="handleSwitch" />
     <BpmnSidebarEditCandidateGroup v-if="switchRef" :node="node" />
     <BpmnSidebarEditCandidateRoles v-else :node="node" />
     <BpmnSidebarEditSignature :node="node" />
-    <BpmnSidebarEditForm :node="node" />
-    <!-- <BpmnSidebarPreviewDocument :node="node" /> -->
-    <BpmnSidebarBooleanButton :node="node" />
+    <ContextForm :node="node" />
+    <ContextUserTaskPreviewDocument :node="node" />
+    <ContextUserTaskBooleanButton :node="node" />
   </div>
 </template>
 

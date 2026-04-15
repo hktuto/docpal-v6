@@ -47,7 +47,7 @@ async function pasteForm() {
 }
 
 async function handleOpenForm() {
-  console.log(123123,newClientApi)
+  console.log(123123, newClientApi)
   const formJson = await getFormJson()
   formDialogRef.value.openDialog(formJson)
 }
@@ -78,7 +78,7 @@ async function previewForm() {
 async function getFormJson() {
   try {
     if (!!formKey.value && formKey.value !== 0) {
-      const data = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
+      const data: any = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
       if (!data) return {}
 
       return data.jsonValue
