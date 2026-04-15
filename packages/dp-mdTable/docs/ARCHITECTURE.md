@@ -194,7 +194,6 @@ export const MyTypeEdit = ({ options, params }: EditRenderFunctionParams) => {
 export const MDTableComponents = {
   MyType: {
     name: 'MyType',
-    titleConfig: { icon: 'lucide:my-icon', content: 'My Type' },
     view: { render: MyTypeView, defaultOptions: {} },
     edit: { render: MyTypeEdit, defaultOptions: {} }
   }

@@ -245,10 +245,6 @@ export const MDTableComponents = {
   // ... existing
   MyType: {
     name: 'MyType',
-    titleConfig: {
-      icon: 'lucide:star',
-      content: 'My Type'
-    },
     view: {
       name: 'MyTypeView',
       render: MyTypeView,

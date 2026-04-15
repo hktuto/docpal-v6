@@ -236,7 +236,7 @@ export function useSingleWorkspace() {
 
   async function saveEdit(id: string, newLabel: string): Promise<boolean> {
     try {
-      const { data }: any = await newClientApi.putDynamicDbMenusId(id, { name: newLabel, item_type: 'folder' })
+      const { data }: any = await newClientApi.putDynamicDbMenusId(id, { name: newLabel })
       cancelEdit()
       return data.name === newLabel
     } catch (error) {
