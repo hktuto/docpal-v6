@@ -16,7 +16,7 @@ import { TextView, TextEdit } from './components/text/view'
 import { UserView } from './components/user/view'
 import { RelationView } from './components/relation/view'
 import RelationEditVue from './components/relation/edit.vue'
-import { VirtualColumnView, VirtualColumnEdit } from './components/VirtualColumn/view'
+import { VirtualColumnView } from './components/VirtualColumn/view'
 import { FormulaView } from './components/formula'
 import { CheckboxView } from './components/checkbox'
 import { DocumentView } from './components/document'
@@ -206,9 +206,6 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     },
     view: {
       render: (params: any) => TreeNode(params, VirtualColumnView)
-    },
-    edit: {
-      render: VirtualColumnEdit
     }
   },
   User: {

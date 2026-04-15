@@ -77,6 +77,9 @@ export class RendererRegistryManager {
     const renderConfig: any = {}
     if (view?.render) {
       renderConfig.renderTableCell = createRenderFunction(view.render, view.props)
+      if (!edit?.render) {
+        renderConfig.renderTableDefault = renderConfig.renderTableCell
+      }
     }
     if (edit?.render) {
       renderConfig.renderEdit = createRenderFunction(edit.render, edit.props)

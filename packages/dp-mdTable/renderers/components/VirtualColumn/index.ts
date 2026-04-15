@@ -1,5 +1,5 @@
 import type { RenderComponentConfig } from '../../../types/column-types'
-import { VirtualColumnView, VirtualColumnEdit } from './view'
+import { VirtualColumnView } from './view'
 
 export const VirtualColumnConfig: RenderComponentConfig = {
   name: 'VirtualColumn',
@@ -16,10 +16,5 @@ export const VirtualColumnConfig: RenderComponentConfig = {
       showUniqueOnly: false,
       separator: ', '
     }
-  },
-  edit: {
-    name: 'VirtualColumnEdit',
-    render: VirtualColumnEdit,
-    defaultOptions: {}
   }
 }
