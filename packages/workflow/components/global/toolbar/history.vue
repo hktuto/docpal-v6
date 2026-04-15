@@ -6,9 +6,11 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw new Error('graph provider not found')
 }
-const { workflowId } = defineProps<{
+const { workflowId, isActivate } = defineProps<{
   workflowId: string
+  isActivate: boolean
 }>()
+const emits = defineEmits(['updateActivate'])
 
 async function save() {
   const workflowJson = x6NodeToWorkflowJson(graphProvider)
@@ -16,10 +18,16 @@ async function save() {
   if (!workflowId || workflowId === '') {
     throw new Error('Workflow ID is null')
   }
+  console.log(213)
+  // 修改時，檢查是否已激活
+  if (isActivate) {
+    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data)
+    emits('updateActivate')
+  }
 
   // update workflow Json Data
   try {
-    $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r) => r.data)
+    $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
   }
@@ -55,10 +63,6 @@ onMounted(() => {
 </script>
 
 <template>
-<!--  <div class="icon">-->
-<!--    <Icon name="lucide:save" @click="save" />-->
-<!--    <div class="label">Save</div>-->
-<!--  </div>-->
   <div :class="{ icon: true, disabled: !state.canUndo }">
     <Icon name="lucide:undo-dot" @click="undo" />
     <div class="label">Undo</div>

@@ -25,8 +25,9 @@ const props = defineProps<{
   workflowData: any
   readonly: boolean
   showSidebar: boolean
+  isActivate: boolean
 }>()
-const { workflowData: workflowJsonObject, readonly, showSidebar } = toRefs(props)
+const { workflowData: workflowJsonObject, readonly, showSidebar, isActivate } = toRefs(props)
 
 const sidebarRef = ref()
 const nodeRef = ref()
@@ -38,7 +39,7 @@ const workflowJson = ref<WorkflowJson>()
 const workflowId = ref<string>('')
 const workflowKey = ref<string>('')
 const version = ref<number>(0)
-const emits = defineEmits(['refresh'])
+const emits = defineEmits(['refresh', 'updateActivate'])
 
 const dropActionsItems = computed(() => {
   return Object.values(workflowElement).reduce((acc: any, cur: any) => {
@@ -313,6 +314,10 @@ async function copyForm(node: Node, obj: any) {
 
 function pasteForm() {}
 
+function updateActivate() {
+  emits('updateActivate')
+}
+
 provide(WORKFLOW_EDITOR_PROVIDER, {
   workflowId,
   workflowKey,
@@ -330,7 +335,7 @@ provide(WORKFLOW_EDITOR_PROVIDER, {
 watch(
   () => workflowJsonObject.value,
   async () => {
-    await init()
+    init()
   }
 )
 
@@ -343,7 +348,7 @@ defineExpose({ init })
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
         <div class="group">
-          <ToolbarHistory :workflowId="workflowId" />
+          <ToolbarHistory :workflowId="workflowId" :isActivate="isActivate" @update-activate="updateActivate" />
           <ToolbarInfo @click="openInfo" />
           <!--          <WorkflowToolbarPermission @click="openPermission" />-->
         </div>
