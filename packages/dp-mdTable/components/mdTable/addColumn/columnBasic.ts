@@ -1,5 +1,24 @@
 import { ColumnFieldType, reverseColumnFieldType } from '../../../types/column-types'
-export const columnBasic: any = {
+
+/** 表头列类型角标（图标 + 提示 + 样式类） */
+export type ColumnHeaderIndicator = {
+  icon: string
+  tooltip: string
+  class: string
+}
+
+export type ColumnBasicFieldConfig = {
+  label: string
+  isBasic?: boolean
+  order?: number
+  component?: string
+  disableCreate?: boolean
+  hidden?: boolean
+  /** 未配置则不显示表头角标 */
+  headerIndicator?: ColumnHeaderIndicator
+}
+
+export const columnBasic: Partial<Record<ColumnFieldType, ColumnBasicFieldConfig>> = {
   [ColumnFieldType.Text]: {
     label: 'Text',
     isBasic: true,
@@ -68,15 +87,51 @@ export const columnBasic: any = {
   [ColumnFieldType.Relation]: {
     label: 'Relation',
     isBasic: false,
-    component: 'Relation'
+    component: 'Relation',
+    headerIndicator: {
+      icon: 'lucide:link',
+      tooltip: 'Relation Column',
+      class: 'indicator-relation'
+    }
   },
   [ColumnFieldType.VirtualColumn]: {
     label: 'VirtualColumn',
     isBasic: false,
     disableCreate: true,
     hidden: false, // Not shown in add column dropdown, created via "Add Virtual Column" on relation headers
-    component: 'VirtualColumn'
+    component: 'VirtualColumn',
+    headerIndicator: {
+      icon: 'lucide:columns-3',
+      tooltip: '【${relation_field_name_alias}】Virtual Column - Display field from relation',
+      class: 'indicator-virtual'
+    }
   }
+}
+
+/**
+ * 根据列类型解析表头角标配置（数据来自 columnBasic）
+ */
+export function getColumnHeaderIndicator(columnType: ColumnFieldType, columnConfig: any): ColumnHeaderIndicator | null {
+  if (columnType === null || columnType === undefined) {
+    return null
+  }
+
+  if(columnBasic[columnType]) {
+    const headerIndicator = columnBasic[columnType]?.headerIndicator ?? null
+    if(headerIndicator) {
+      // 抓取变量，${}之间的内容,可能有多个
+      const variables = headerIndicator.tooltip.match(/\${(.*?)}/g)
+      if(variables) {
+        variables.forEach((variable) => {
+          const variableName = variable.replace('${', '').replace('}', '')
+          headerIndicator.tooltip = headerIndicator.tooltip.replace(variable, columnConfig[variableName])
+        })
+      }
+    }
+    return headerIndicator
+  }
+
+  return null
 }
 
 

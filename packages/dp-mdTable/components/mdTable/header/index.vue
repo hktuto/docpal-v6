@@ -7,8 +7,8 @@
     <div class="title">
       {{ column.title }}
 
-      <div 
-        v-if="suggestionCount > 0" 
+      <div
+        v-if="suggestionCount > 0"
         class="suggestion-badge"
         :title="`${suggestionCount} relation suggestion${suggestionCount > 1 ? 's' : ''} available`"
         @click.stop="handleSuggestionClick"
@@ -18,10 +18,9 @@
         <span class="badge-count">{{ suggestionCount }}</span>
       </div>
     </div>
-    
+
     <!-- Suggestion badge -->
-    
-    
+
     <div class="mdTableHeader-trigger" ref="triggerRef" @click="handleClick(triggerRef)">
       <SvgIcon src="/icons/tools/more.svg" />
     </div>
@@ -29,7 +28,8 @@
 </template>
 <script setup lang="ts">
 import { useMDTableInject } from '../../../composables/useMDTable'
-
+import { getColumnHeaderIndicator } from '../addColumn/columnBasic'
+import { ColumnFieldType } from '../../../types/column-types'
 const props = defineProps<{
   column: any
   headerProps: any
@@ -56,13 +56,13 @@ const headerAlign = computed(() => {
  */
 const suggestionCount = computed(() => {
   if (!columnSuggestions || !props.column?.field) return 0
-  
+
   // Don't show suggestions for virtual columns or relation columns
   const field = props.column.field
   if (field.includes('.')) return 0 // Virtual column
   const columnType = props.column?.type || props.column?.cellRender?.name
   if (columnType === 14 || columnType === 'MagicLink') return 0 // Already a relation
-  
+
   // Access the ref's value directly to establish reactive dependency
   const suggestion = columnSuggestions.suggestionsByField.value.get(field)
   return suggestion?.count || 0
@@ -73,44 +73,28 @@ const suggestionCount = computed(() => {
  */
 function handleSuggestionClick() {
   if (!columnSuggestions || !props.column?.field) return
-  
+
   const suggestion = columnSuggestions.suggestionsByField.value.get(props.column.field)
   if (!suggestion?.fieldId) return
-  
-  columnSuggestions.openSuggestionPopover(
-    props.column.field,
-    suggestion.fieldId,
-    suggestionBadgeRef.value
-  )
+
+  columnSuggestions.openSuggestionPopover(props.column.field, suggestion.fieldId, suggestionBadgeRef.value)
 }
 
 /**
- * Compute column indicator (icon + tooltip) based on column type
+ * 表头列类型角标：配置见 addColumn/columnBasic.ts 各字段的 headerIndicator
  */
 const columnIndicator = computed(() => {
-  const field = props.column?.field || ''
-  const properties = props.column?.properties || {}
-  const columnType = props.column?.type || props.column?.cellRender?.name
-  
-  // Check if it's a virtual column (type 15 or has dot notation like "rel_company.email")
-  if (columnType === 15 || columnType === 'VirtualColumn' || field.includes('.')) {
-    return {
-      icon: 'lucide:columns-3',
-      tooltip: 'Virtual Column - Display field from relation',
-      class: 'indicator-virtual'
+  const fullColumn = mdTable.columns.value.find((col: any) => col.field_name === props.column.field)
+  if (fullColumn.business_type === ColumnFieldType.VirtualColumn) {
+    const virtual_field_name = fullColumn.display_structure.virtual_field_name
+    const relation_field_name = virtual_field_name.split('.')[0]
+    const relation_field = mdTable.columns.value.find((col: any) => col.field_name === relation_field_name)
+    if (relation_field) {
+      fullColumn.display_structure.relation_field_name_alias = relation_field.field_name_alias
     }
   }
-  
-  // Check if it's a relation column (type 14 = MagicLink/Relation)
-  if (columnType === 14 || columnType === 'MagicLink' || properties?.relationTableId) {
-    return {
-      icon: 'lucide:link',
-      tooltip: 'Relation Column',
-      class: 'indicator-relation'
-    }
-  }
-  
-  return null
+  const columnIndicator = getColumnHeaderIndicator(fullColumn?.business_type, fullColumn.display_structure || {})
+  return columnIndicator
 })
 
 /**
@@ -175,11 +159,11 @@ function handleClick(htmlElement: HTMLElement) {
     align-items: center;
     flex-shrink: 0;
     font-size: 14px;
-    
+
     .indicator-relation {
       color: var(--el-color-primary);
     }
-    
+
     .indicator-virtual {
       color: var(--el-color-warning);
     }
@@ -191,7 +175,6 @@ function handleClick(htmlElement: HTMLElement) {
     line-height: 1.2;
   }
   .suggestion-badge {
-
     display: inline-flex;
     align-items: center;
     gap: 2px;
@@ -201,25 +184,25 @@ function handleClick(htmlElement: HTMLElement) {
     cursor: pointer;
     flex-shrink: 0;
     transition: all 0.2s ease;
-    
+
     .sparkle-icon {
       font-size: 12px;
       color: white;
     }
-    
+
     .badge-count {
       font-size: 11px;
       font-weight: 600;
       color: white;
       line-height: 1;
     }
-    
+
     &:hover {
       transform: scale(1.1);
       box-shadow: 0 2px 8px rgba(var(--el-color-warning-rgb), 0.4);
     }
   }
-  
+
   .mdTableHeader-trigger {
     position: absolute;
     top: 0;

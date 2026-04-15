@@ -30,11 +30,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     view: {
       render: (params: any) => TreeNode(params, TextView)
     }
-    // titleConfig: {
-    //   icon: 'vxe-icon-user-fill',
-    //   useHTML: true,
-    //   content: '点击链接：<a href="https://vxeui.com" target="_blank" style="color:#95c7fb;">vxe-ui 官网</a>'
-    // }
+
   },
   MultiText: {
     edit: {
@@ -200,10 +196,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     }
   },
   VirtualColumn: {
-    titleConfig: {
-      icon: 'lucide:columns-3',
-      content: 'Virtual Column'
-    },
+
     view: {
       render: (params: any) => TreeNode(params, VirtualColumnView)
     }

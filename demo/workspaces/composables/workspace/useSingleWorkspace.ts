@@ -1,8 +1,7 @@
 import type { CaseTypeRecord, CaseTreeRecord, ViewType, ViewSettings } from '../../utils/db/schema/newTableSchema'
 import type { CaseTreeItemType } from '../../utils/db/schema/newTableSchema'
 import type { MenuDTO, ResultListMenuDTO } from 'api'
-
-import { getCurrentUserId } from '../useCurrentUser'
+import { MenuType } from '@packages/dp-mdTable/types/menu-type'
 import { usePermission } from '../utils/usePermission'
 export type { CaseTreeItemType }
 import { v7 as uuidv7 } from 'uuid'
@@ -308,25 +307,25 @@ export function useSingleWorkspace() {
       return
     }
     switch (item.item_type) {
-      case 'folder':
+      case MenuType.folder:
         workspaceRouteParams.value.detailId = item.id
-        workspaceRouteParams.value.detailType = 'folder'
+        workspaceRouteParams.value.detailType = MenuType.folder
         break
-      case 'master_table':
+      case MenuType.table:
         console.log('navigateToItem', item)
         workspaceRouteParams.value.detailId = item.id
-        workspaceRouteParams.value.detailType = 'master_table'
+        workspaceRouteParams.value.detailType = MenuType.table
         workspaceRouteParams.value.item_id = item.item_id
         workspaceRouteParams.value.pageType = pageType
         break
-      case 'view':
+      case MenuType.view:
         workspaceRouteParams.value.detailId = item.id
-        workspaceRouteParams.value.detailType = 'view'
+        workspaceRouteParams.value.detailType = MenuType.view
         workspaceRouteParams.value.pageType = pageType
         break
-      case 'dashboard':
+      case MenuType.dashboard:
         workspaceRouteParams.value.detailId = item.id
-        workspaceRouteParams.value.detailType = 'dashboard'
+        workspaceRouteParams.value.detailType = MenuType.dashboard
         workspaceRouteParams.value.pageType = pageType
         break
       default:
@@ -360,7 +359,7 @@ export function useSingleWorkspace() {
       // Find the tree item for this table
       const findTableTreeItem = (items: TreeItem[]): TreeItem | undefined => {
         for (const item of items) {
-          if (item.item_type === 'table' && item.itemId === tableId) {
+          if (item.item_type === MenuType.table && item.itemId === tableId) {
             return item
           }
           if (item.children) {
