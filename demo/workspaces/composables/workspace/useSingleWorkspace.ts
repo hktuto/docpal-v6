@@ -1,8 +1,7 @@
 import type { CaseTypeRecord, CaseTreeRecord, ViewType, ViewSettings } from '../../utils/db/schema/newTableSchema'
 import type { CaseTreeItemType } from '../../utils/db/schema/newTableSchema'
 import type { MenuDTO, ResultListMenuDTO } from 'api'
-
-import { getCurrentUserId } from '../useCurrentUser'
+import { MenuType } from '@packages/dp-mdTable/types/menu-type'
 import { usePermission } from '../utils/usePermission'
 export type { CaseTreeItemType }
 import { v7 as uuidv7 } from 'uuid'
@@ -360,7 +359,7 @@ export function useSingleWorkspace() {
       // Find the tree item for this table
       const findTableTreeItem = (items: TreeItem[]): TreeItem | undefined => {
         for (const item of items) {
-          if (item.item_type === 'table' && item.itemId === tableId) {
+          if (item.item_type === MenuType.table && item.itemId === tableId) {
             return item
           }
           if (item.children) {
