@@ -67,7 +67,7 @@ export default defineNuxtConfig({
     '../../pages/public-share',
     '../../pages/public-upload',
     '../../pages/public-easy-form',
-    '../../packages/dp-contact'
+    '../../packages/dp-contact',
 
     // demo packages
     // "../../demo/database",
