@@ -10,6 +10,9 @@ const props = defineProps<{
 const { t } = useI18n()
 const openWorkflowEdit = ref(false)
 const workflowData = ref()
+const showRelease = ref(false)
+const isActivate = ref(false)
+const releaseContent = ref()
 const workflowReadonly = ref(false)
 const workflowId = ref()
 const workflowEditorRef = ref()
@@ -22,13 +25,17 @@ async function getWorkflowData() {
       throw new Error('Workflow ID is null')
     }
     openWorkflowEdit.value = true
-    const data = await $api.get(`http://132.148.160.191:8001/api/v1/workflow/definitions/instance/${props.id}`).then((r) => r.data)
+    const data: any = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${props.id}`).then((r: any) => r.data)
     if (!data) {
       throw Error('workflow Data is null')
     }
     workflowId.value = data.id
     workflowData.value = data.draft_content
-    workflowReadonly.value = data.status !== 'D'
+    workflowReadonly.value = false
+    isActivate.value = !(data.version > data.published_version)
+    showRelease.value = !(!data.content || data.content === '')
+    releaseContent.value = data.content
+
     nextTick(async () => {
       workflowEditorRef.value?.init()
     })
@@ -40,25 +47,27 @@ async function getWorkflowData() {
 async function handleStatus() {
   loading.value = true
   try {
-    if (workflowReadonly.value) {
-      await $api.put(`http://132.148.160.191:8001/api/v1/workflow/definitions/instance/${workflowId.value}/deactivate`).then((r: any) => r.data)
-      workflowReadonly.value = false
-      openWorkflowEdit.value = false
-      openWorkflowEdit.value = true
-    } else {
-      const userId = useUserId()
-      await $api
-        .put(`http://132.148.160.191:8001/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value })
-        .then((r: any) => r.data)
-      workflowReadonly.value = true
-      openWorkflowEdit.value = false
-      openWorkflowEdit.value = true
-    }
+    const userId = useUserId()
+    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
+    openWorkflowEdit.value = false
+    openWorkflowEdit.value = true
+    isActivate.value = true
     loading.value = false
   } catch (e) {
     loading.value = false
     console.log(e)
   }
+}
+
+function handleUpdateActivate() {
+  isActivate.value = false
+}
+
+function handleOpenRelease() {
+  loading.value = true
+  workflowData.value = workflowReadonly.value = true
+
+  loading.value = false
 }
 
 onMounted(async () => {
@@ -68,11 +77,21 @@ onMounted(async () => {
 
 <template>
   <div v-if="openWorkflowEdit" v-loading="loading" class="pageContainer">
-    <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :showSidebar="true">
+    <LazyWorkflowEditor
+      ref="workflowEditorRef"
+      :workflow-data="workflowData"
+      :readonly="workflowReadonly"
+      :showSidebar="true"
+      :is-activate="isActivate"
+      @updateActivate="handleUpdateActivate"
+    >
       <template #actions>
-        <el-button id="Workflow__Edit__ActivateOrInactivate" :type="workflowReadonly ? 'danger' : 'primary'" @click="handleStatus">
-          {{ workflowReadonly ? t('actions.inactivate') : t('actions.activate') }}
+        <el-button v-if="!isActivate" id="Workflow__Edit__ActivateOrInactivate" type="primary" @click="handleStatus">
+          {{ $t('actions.activate') }}
         </el-button>
+        <!--        <el-button v-if="showRelease" type="primary" @click="handleOpenRelease">-->
+        <!--          {{ $t('Open The Release Version') }}-->
+        <!--        </el-button>-->
       </template>
     </LazyWorkflowEditor>
   </div>

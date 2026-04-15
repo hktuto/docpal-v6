@@ -1,25 +1,34 @@
 <script lang="ts" setup>
 import { x6NodeToWorkflowJson } from '#imports'
 import { newAdminApi } from 'api'
+import { useDebounceFn } from '@vueuse/core'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw new Error('graph provider not found')
 }
-const { workflowId } = defineProps<{
+const { workflowId, isActivate } = defineProps<{
   workflowId: string
+  isActivate: boolean
 }>()
+const emits = defineEmits(['updateActivate'])
 
+const debouncedSave = useDebounceFn(save, 300)
 async function save() {
   const workflowJson = x6NodeToWorkflowJson(graphProvider)
 
   if (!workflowId || workflowId === '') {
     throw new Error('Workflow ID is null')
   }
+  // 修改時，檢查是否已激活
+  if (isActivate) {
+    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data)
+    emits('updateActivate')
+  }
 
   // update workflow Json Data
   try {
-    $api.put(`http://132.148.160.191:8001/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r) => r.data)
+    $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
   }
@@ -31,7 +40,7 @@ function setupHistory() {
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
     // check if workflow is empty
     if (graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length > 0) {
-      save()
+      debouncedSave()
     }
   })
 }
@@ -55,10 +64,6 @@ onMounted(() => {
 </script>
 
 <template>
-<!--  <div class="icon">-->
-<!--    <Icon name="lucide:save" @click="save" />-->
-<!--    <div class="label">Save</div>-->
-<!--  </div>-->
   <div :class="{ icon: true, disabled: !state.canUndo }">
     <Icon name="lucide:undo-dot" @click="undo" />
     <div class="label">Undo</div>

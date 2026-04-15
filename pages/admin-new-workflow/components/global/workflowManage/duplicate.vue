@@ -21,7 +21,7 @@ function handleSubmit() {
       name: formData.value.name,
       description: formData.value.description
     }
-    const data = $api.post('http://132.148.160.191:8001/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data)
+    const data = $api.post('/oniflow/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data)
     if (!data) return
 
     const workflowEdit = routeWorkflowManageEditor({

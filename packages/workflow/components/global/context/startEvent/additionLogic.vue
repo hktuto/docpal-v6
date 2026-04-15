@@ -8,23 +8,19 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('starterAdditionLogic -> graph provider not found')
 }
-type Form = {
-  openInNewPage: boolean
-}
-const form = ref<Form>({
-  openInNewPage: false
-})
+const openInNewPage = ref<boolean>(false)
 
 function updateData() {
-  const nodeData = node.getData()
-  const data = {
-    ...nodeData,
-    version: nodeData.version + 1 || 1,
-    additionSetting: {
-      openInNewPage: form.value.openInNewPage
-    }
+  const data = node.getData()
+  const newData = {
+    ...data,
+    metadata: {
+      ...data.metadata,
+      openInNewPage: openInNewPage.value
+    },
+    version: data.version + 1 || 1
   }
-  node.setData(data, {
+  node.setData(newData, {
     deep: true,
     overwrite: true
   })
@@ -32,10 +28,10 @@ function updateData() {
 
 function init() {
   const data = node.getData()
-  if (!!data.config.additionSetting && data.config.additionSetting.openInNewPage) {
-    form.value = data.config.additionSetting.openInNewPage
+  if (data.metadata.openInNewPage) {
+    openInNewPage.value = data.metadata.openInNewPage
   } else {
-    form.value = { openInNewPage: false }
+    openInNewPage.value = false
   }
 }
 
@@ -66,10 +62,10 @@ watch(
 <template>
   <div class="formContainer">
     <h4>Additional Setting</h4>
-    <ElForm label-position="top">
-      <ElFormItem label="Open Form in new page">
-        <ElSwitch :disabled="graphProvider.readonly.value" v-model="form.openInNewPage" @change="updateData" />
-      </ElFormItem>
-    </ElForm>
+    <el-form label-position="top">
+      <el-form-item label="Open Form in new page">
+        <el-switch :disabled="graphProvider.readonly.value" v-model="openInNewPage" @change="updateData" />
+      </el-form-item>
+    </el-form>
   </div>
 </template>

@@ -22,7 +22,9 @@
         "timeout_ms": 1000,
         "priority": 0
       },
-      "config": {},
+      "config": {
+        "candidateGroups": "members"
+      },
       "metadata": {
         "tags": "StartEvent",
         "x": 60,
@@ -31,6 +33,7 @@
         "height": 64,
         "icon": "/icons/form.svg",
         "formKey": 0,
+        "openInNewPage": false,
         "buttonSetting": {
           "showSumBitButton": true,
           "submitButtonLabel": "Submit",

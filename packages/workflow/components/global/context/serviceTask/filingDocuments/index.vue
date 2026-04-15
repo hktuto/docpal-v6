@@ -157,7 +157,6 @@ function handleUpdateField(list: any) {
 }
 
 function handleUpdateFieldData(item: any) {
-  console.log(123, item)
   const list = formData.value.body.folderCabinet
 
   const idx = list.findIndex((f: any) => f.id === item.id)
@@ -167,13 +166,15 @@ function handleUpdateFieldData(item: any) {
   const next = [...list]
   next[idx] = item
   formData.value.body.folderCabinet = next
-  // updateData()
+  updateData()
 }
 
 watch(
   () => config,
   () => {
-    initForm()
+    if (config !== formData.value) {
+      initForm()
+    }
   },
   {
     immediate: true,
