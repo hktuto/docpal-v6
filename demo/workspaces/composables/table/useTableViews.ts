@@ -10,7 +10,9 @@ import {
   getDisplayColumns,
   updateViewColumnDisplay,
   initViewColumnsOrder,
-  updateViewColumnOrder
+  updateViewColumnOrder,
+  kanbanStyleDefault,
+  cardStyleDefault,
 } from '../../utils/tableViews'
 
 import { ElMessage } from 'element-plus'
@@ -63,10 +65,6 @@ export function useTableViews(options: UseTableViewsOptions) {
   const columnGroupRules = ref<any[]>([])
 
   const viewStyleConfig = ref<any>({
-    cardCount: 5,
-    coverFieldId: '',
-    isColNameVisible: true,
-    isCoverFit: true
   })
   async function getViews() {
     columnFilterRules.value = []
@@ -105,15 +103,17 @@ export function useTableViews(options: UseTableViewsOptions) {
       }
       columnSortRules.value = currentView.value.sortInfo ? currentView.value.sortInfo : []
       columnGroupRules.value = currentView.value.groupInfo ?? []
-      if (currentView.value.type !== 'table') {
-        viewStyleConfig.value = currentView.value.style ?? {
-          cardCount: 5,
-          coverFieldId: '',
-          isColNameVisible: true,
-          isCoverFit: true
-        }
+      // add default style to different view types
+      if (currentView.value.type === 'card') {
+        currentView.value.style  ||= cardStyleDefault
       }
-      console.log(currentView, viewStyleConfig)
+      if(currentView.value.type === 'kanban') {
+        currentView.value.style  ||= kanbanStyleDefault
+      }
+      // set current view style back to viewStyleConfig
+      if (currentView.value.type !== 'table') {
+        viewStyleConfig.value = currentView.value.style
+      }
     }
   }
   async function saveViews(views: ViewConfig[]) {
