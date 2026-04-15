@@ -9,7 +9,7 @@ const props = defineProps<{
   allData: SectionWithValues[]
 }>()
 
-
+const sectionContainerRef = ref()
 const formSize = ref('default')
 const emits = defineEmits<{
   fieldChange: [sectionId: string, fieldKey: string, value: any, rowIndex?: number]
@@ -201,6 +201,9 @@ async function getSectionImage(){
   }
 }
 //
+function focusSection(){
+  sectionContainerRef.value?.focus()
+}
 function displayField(fields: FieldWithValues) {
   return fields.filter((f) => !f.hidden )
 }
@@ -211,6 +214,7 @@ watch(() => props.section,()=>{
     validateForm()
     if(props.section.save_to_result) {
       getSectionImage()
+      focusSection()
     }
   })
 },{
@@ -248,6 +252,7 @@ defineExpose({
   </ElButton>
 </div>
   <div
+  ref="sectionContainerRef"
     :class="{ sectionContainer: true, highlighted: isHighlighted, error: !noError }"
     tabindex="0"
     @focus="handleSectionMouseEnter"
