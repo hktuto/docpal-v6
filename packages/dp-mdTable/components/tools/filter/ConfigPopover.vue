@@ -24,8 +24,8 @@
               @visible-change="handleSelectVisibleChange"
               @click.stop
             >
-              <el-option label="AND" value="AND" />
-              <el-option label="OR" value="OR" />
+              <el-option label="And" value="AND" />
+              <el-option label="Or" value="OR" />
             </el-select>
           </div>
 
