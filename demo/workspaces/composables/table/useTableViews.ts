@@ -70,7 +70,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     columnSortRules.value = []
     columnGroupRules.value = []
     const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
-      tableId: tableId.value
+      tableId: tableId.value,
+      userId: "master"
     })
     let views = parseViewConfigList(data?.data?.tableConfig)
 
@@ -118,7 +119,8 @@ export function useTableViews(options: UseTableViewsOptions) {
   async function saveViews(views: ViewConfig[]) {
     await newClientApi.postDocpalMasterTableUserConfig({
       tableId: tableId.value,
-      tableConfig: serializeViewConfigList(views)
+      tableConfig: serializeViewConfigList(views),
+        userId: "master"
     })
   }
 

@@ -22,7 +22,7 @@ export const useVirtualColumn = () => {
     menus.value = list
   }
   async function getTableFields(tableId: string) {
-    const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId })
+    const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: "master" })
     return res.data.tableFields
   }
   function updateRelationField(formData: any) {
