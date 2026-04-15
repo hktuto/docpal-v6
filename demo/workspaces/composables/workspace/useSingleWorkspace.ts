@@ -307,25 +307,25 @@ export function useSingleWorkspace() {
       return
     }
     switch (item.item_type) {
-      case 'folder':
+      case MenuType.folder:
         workspaceRouteParams.value.detailId = item.id
-        workspaceRouteParams.value.detailType = 'folder'
+        workspaceRouteParams.value.detailType = MenuType.folder
         break
-      case 'master_table':
+      case MenuType.table:
         console.log('navigateToItem', item)
         workspaceRouteParams.value.detailId = item.id
-        workspaceRouteParams.value.detailType = 'master_table'
+        workspaceRouteParams.value.detailType = MenuType.table
         workspaceRouteParams.value.item_id = item.item_id
         workspaceRouteParams.value.pageType = pageType
         break
-      case 'view':
+      case MenuType.view:
         workspaceRouteParams.value.detailId = item.id
-        workspaceRouteParams.value.detailType = 'view'
+        workspaceRouteParams.value.detailType = MenuType.view
         workspaceRouteParams.value.pageType = pageType
         break
-      case 'dashboard':
+      case MenuType.dashboard:
         workspaceRouteParams.value.detailId = item.id
-        workspaceRouteParams.value.detailType = 'dashboard'
+        workspaceRouteParams.value.detailType = MenuType.dashboard
         workspaceRouteParams.value.pageType = pageType
         break
       default:
