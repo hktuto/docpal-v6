@@ -23,7 +23,7 @@ export interface MDKanbanProps {
   }
 }
 
-export const MDKanbanContextKey = Symbol('MDKanbanContextKey')
+export const MDKanbanContextKey = Symbol('MDCardContextKey')
 
 export function useMDKanban(props: MDKanbanProps) {
   const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
@@ -43,7 +43,7 @@ export function useMDKanban(props: MDKanbanProps) {
   } = useTableData(props.tableId, cardRef)
 
 
-  provide(MDKanbanContextKey, {
+  provide(MDCardContextKey, {
     tableId: props.tableId,
     updateRow,
     tableData,

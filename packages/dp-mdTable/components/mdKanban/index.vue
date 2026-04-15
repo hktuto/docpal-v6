@@ -23,7 +23,7 @@ const emit = defineEmits<{
   search: [value: string]
   'add-row': []
 }>()
-const { columns, cardRef, getTableData, addRow, systemFieldsTypes, viewStyleConfig } = useMDKanban(props)
+const { columns, cardRef, getTableData, addRow, systemFieldsTypes } = useMDKanban(props)
 
 async function handleRefresh() {
   await getTableData({ pageNum: 1 })
@@ -49,7 +49,6 @@ async function handleAddRowSubmit(data: any) {
 
 <template>
 <div class="kanbanViewContainer">
-{{viewStyleConfig}}
 {{extraColumnConfig.viewStyleConfig}}
 mdkanban
 </div>
