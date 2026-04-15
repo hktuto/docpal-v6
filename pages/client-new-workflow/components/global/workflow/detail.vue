@@ -61,9 +61,7 @@ async function getDetail() {
         }
         break
       default:
-        const workflowTaskInstance = await $api
-          .get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`)
-          .then((r) => r.data)
+        const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r) => r.data)
         workflowJson.value = workflowTaskInstance.content
 
         const data = await $api.get(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}`).then((r) => r.data)
@@ -100,7 +98,7 @@ async function getDetail() {
 
 async function initForm(node: any) {
   const formKey = node.metadata.formKey
-  if (!formKey){
+  if (!formKey) {
     routerProvider?.message.error('The form does not exist!')
     return
   }
@@ -172,10 +170,10 @@ async function handleFormDataGet() {
   // Get Form Data
   await $api.get(`/oniflow/api/v1/processes/variable/${id}/variables`).then((r) => r.data)
 
-  if (!formJsonData) {
-    throw Error('Get form JSON Error')
-  }
-  formJsonData.jsonValue
+  // if (!formJsonData) {
+  //   throw Error('Get form JSON Error')
+  // }
+  // formJsonData.jsonValue
 }
 
 function toggleShowForm() {
@@ -505,20 +503,20 @@ onMounted(() => {
                   <template v-for="(item, index) in additionalButton" :key="index">
                     <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
                   </template>
-<!--   TODO:  Save Draft is not supported.           -->
-<!--                  <el-button-->
-<!--                    v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"-->
-<!--                    id="Workflow__AvailableTask__Detail__Form__SaveDraft"-->
-<!--                    :disabled="workflowType === 'completeTask'"-->
-<!--                    @click="handleSave"-->
-<!--                  >-->
-<!--                    <template v-if="pageButtonSetting && pageButtonSetting.saveDraftLabel">-->
-<!--                      {{ pageButtonSetting.saveDraftLabel }}-->
-<!--                    </template>-->
-<!--                    <template v-else>-->
-<!--                      {{ $t('workflow_save') }}-->
-<!--                    </template>-->
-<!--                  </el-button>-->
+                  <!--   TODO:  Save Draft is not supported.           -->
+                  <!--                  <el-button-->
+                  <!--                    v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"-->
+                  <!--                    id="Workflow__AvailableTask__Detail__Form__SaveDraft"-->
+                  <!--                    :disabled="workflowType === 'completeTask'"-->
+                  <!--                    @click="handleSave"-->
+                  <!--                  >-->
+                  <!--                    <template v-if="pageButtonSetting && pageButtonSetting.saveDraftLabel">-->
+                  <!--                      {{ pageButtonSetting.saveDraftLabel }}-->
+                  <!--                    </template>-->
+                  <!--                    <template v-else>-->
+                  <!--                      {{ $t('workflow_save') }}-->
+                  <!--                    </template>-->
+                  <!--                  </el-button>-->
 
                   <el-button
                     v-if="(!pageButtonSetting || pageButtonSetting.showSumBitButton) && (displayMode !== 'signature' || signSubmitStage === 'beforeSubmit')"
@@ -563,6 +561,7 @@ onMounted(() => {
             <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
           </template>
         </el-tab-pane>
+
         <el-tab-pane :label="$t('workflow_graph')" name="graph">
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
           <WorkflowDetailGraph
@@ -583,7 +582,7 @@ onMounted(() => {
     <WorkflowDetailDiscussionChannel v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :id="state.taskDetail.instanceId" />
   </div>
   <div v-else>
-    Workflow id not found, workflow id : {{ id }}.
+    Workflow id not found, workflow id : {{ workflowJson.id }}.
     <el-button id="Workflow__AvailableTask__Detail__Form__Back" type="primary" @click="handleBack">
       {{ $t('common_back') }}
     </el-button>

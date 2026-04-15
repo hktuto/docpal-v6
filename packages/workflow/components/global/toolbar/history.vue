@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { x6NodeToWorkflowJson } from '#imports'
 import { newAdminApi } from 'api'
+import { useDebounceFn } from '@vueuse/core'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
@@ -12,13 +13,13 @@ const { workflowId, isActivate } = defineProps<{
 }>()
 const emits = defineEmits(['updateActivate'])
 
+const debouncedSave = useDebounceFn(save, 300)
 async function save() {
   const workflowJson = x6NodeToWorkflowJson(graphProvider)
 
   if (!workflowId || workflowId === '') {
     throw new Error('Workflow ID is null')
   }
-  console.log(213)
   // 修改時，檢查是否已激活
   if (isActivate) {
     await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data)
@@ -39,7 +40,7 @@ function setupHistory() {
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
     // check if workflow is empty
     if (graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length > 0) {
-      save()
+      debouncedSave()
     }
   })
 }
