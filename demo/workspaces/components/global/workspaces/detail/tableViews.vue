@@ -26,9 +26,9 @@
         </button>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item :command="{ name: '表格类型', type: 'table' }"> 表格类型 </el-dropdown-item>
-            <el-dropdown-item :command="{ name: '看板类型', type: 'kanban' }"> 看板类型 </el-dropdown-item>
-            <el-dropdown-item :command="{ name: '卡片类型', type: 'card' }"> 卡片类型 </el-dropdown-item>
+            <el-dropdown-item :command="{ name: 'Table', type: 'table' }"> Table </el-dropdown-item>
+            <el-dropdown-item :command="{ name: 'Kanban', type: 'kanban' }"> Kanban </el-dropdown-item>
+            <el-dropdown-item :command="{ name: 'Card', type: 'card' }"> Card </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
