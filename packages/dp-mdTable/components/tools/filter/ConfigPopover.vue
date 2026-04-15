@@ -80,7 +80,7 @@
             class="value-input"
             @input="handleEditRule(rule)"
           />
-
+          <div v-else class="placeholder-input value-input"> </div>
           <!-- 删除按钮 -->
           <el-button type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteRule(index)" />
         </div>
@@ -338,16 +338,9 @@ defineExpose({
     .filter-rule-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px;
-      background: #f5f7fa;
+      gap: var(--app-space-s);
       border-radius: 4px;
-      margin-bottom: 8px;
-      transition: background-color 0.2s;
-
-      &:hover {
-        background: #ebedf0;
-      }
+      margin-bottom: var(--app-space-s);
 
       .logic-connector {
         width: 60px;
@@ -356,6 +349,9 @@ defineExpose({
         .connector-btn {
           width: 100%;
           cursor: not-allowed;
+          &:hover {
+            background-color: #f5f7fa;
+          }
         }
 
         .connector-select {
@@ -399,5 +395,15 @@ defineExpose({
       color: #909399;
     }
   }
+}
+
+:deep(.filter-rule-item .el-input__wrapper),
+:deep(.filter-rule-item .el-select__wrapper),
+:deep(.filter-rule-item .el-date-editor.el-input .el-input__wrapper),
+.connector-btn {
+  min-height: 3rem;
+  box-shadow: none;
+  border: none;
+  background-color: #f5f7fa;
 }
 </style>
