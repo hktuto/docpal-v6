@@ -234,7 +234,6 @@ const filteredSlots = computed(() => {
 const handleRefresh = async () => {
   await refreshTableData()
   emit('refresh')
-  ElMessage.success('刷新成功')
 }
 
 const handleSearch = (value: string) => {

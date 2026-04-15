@@ -52,17 +52,15 @@ function handleDisplayFieldChange(value: string) {
   props.formData.display_field_id = selectedField.id
   updateRelationField(props.formData)
 }
+onMounted(() => {
+  if (props.formData.table_id_paths) {
+    handleRTChange(props.formData.table_id_paths)
+  }
+})
 </script>
-
 <style scoped lang="scss">
 :deep(.el-cascader) {
   width: 100%;
 }
-.cascader-item {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-xs);
-}
-.relation-config {
-}
+
 </style>

@@ -1,6 +1,5 @@
 <template>
   <div style="height: 100%" v-if="tableId">
-
     <MdCard v-if="currentView?.type === 'card'" :table-id="tableId" :extra-column-config="extraColumnConfig" :editable="true" />
     <MdKanban v-else-if="currentView?.type === 'kanban'" :table-id="tableId" :extra-column-config="extraColumnConfig" />
     <MdTable v-else :table-id="tableId" :extra-column-config="extraColumnConfig" />
@@ -58,41 +57,51 @@ function getFilterRules() {
   }
   const filterRules = {
     value:
-      columnFilterRules.value?.conditions?.map((rule: any) => {
-        if (isDateField(rule.field)) {
-          let value = rule.value
-          if (rule.operator === 'EQ') {
-            return {
-              type: 'AND',
-              value: [
-                {
-                  column: rule.field,
-                  type: 'GTE',
-                  value: dayjs(value).startOf('day').valueOf()
-                },
-                {
-                  column: rule.field,
-                  type: 'LTE',
-                  value: dayjs(value).endOf('day').valueOf()
-                }
-              ]
+      columnFilterRules.value?.conditions
+        ?.map((rule: any) => {
+          if (isDateField(rule.field)) {
+            let value = rule.value
+            if (rule.operator === 'EQ') {
+              return {
+                type: 'AND',
+                value: [
+                  {
+                    column: rule.field,
+                    type: 'GTE',
+                    value: dayjs(value).startOf('day').valueOf()
+                  },
+                  {
+                    column: rule.field,
+                    type: 'LTE',
+                    value: dayjs(value).endOf('day').valueOf()
+                  }
+                ]
+              }
+            } else if (['GT', 'LTE'].includes(rule.operator)) {
+              value = dayjs(value).endOf('day').valueOf()
             }
-          } else if (['GT', 'LTE'].includes(rule.operator)) {
-            value = dayjs(value).endOf('day').valueOf()
+            return {
+              column: rule.field,
+              type: rule.operator,
+              value
+            }
+          } else {
+            let params = {}
+            if (!['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(rule.operator)) {
+              params.value = rule.value
+              if (rule.operator === 'LIKE') {
+                params.value = rule.value ? `%${rule.value}%` : ''
+              }
+            }
+
+            return {
+              column: rule.field,
+              type: rule.operator,
+              ...params
+            }
           }
-          return {
-            column: rule.field,
-            type: rule.operator,
-            value
-          }
-        } else {
-          return {
-            column: rule.field,
-            type: rule.operator,
-            value: rule.value
-          }
-        }
-      }) || [],
+        })
+        .filter((rule: any) => rule.column && rule.type) || [],
     type: columnFilterRules.value?.conjunction || 'AND'
   }
   return [filterRules]
@@ -132,7 +141,10 @@ function getPageParams() {
     ]
   }
   if (columnSortRules.value && columnSortRules.value.length > 0) {
-    params.orderBy = getSortRules()
+    const orderBy = getSortRules()
+    if (orderBy.length > 0) {
+      params.orderBy = orderBy
+    }
   }
   return params
 }

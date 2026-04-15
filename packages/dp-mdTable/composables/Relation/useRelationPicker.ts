@@ -7,11 +7,17 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
     pageSize: 100,
     pageNum: 1
   })
-  async function getRelationPickerOptions(tableId: string) {
-    const { data } = await postDynamicActions({
+  async function getRelationPickerOptions() {
+    const params: any = {}
+    const filterRules = getFilterRules(searchKeyword.value, fields.value)
+    if (filterRules) {
+      params.conditions = filterRules
+    }
+    const { data }: any = await postDynamicActions({
       tableId,
       columns: [{ name: '*' }],
-      pagination: pageParams.value
+      pagination: pageParams.value,
+      ...params
     })
     options.value = data.data
   }
@@ -28,13 +34,32 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
       }))
   }
   onMounted(async () => {
-    getRelationPickerOptions(tableId)
     fields.value = await getFields(tableId)
+    getRelationPickerOptions()
     console.log('fields', fields.value)
   })
   return {
     options,
     fields,
-    searchKeyword
+    searchKeyword,
+    refresh: getRelationPickerOptions
   }
+}
+function getFilterRules(key: string, fields: any[]) {
+  const conditions: any[] = [
+    {
+      type: 'OR',
+      value: []
+    }
+  ]
+  fields.forEach((field: any) => {
+    if (!!key) {
+      conditions[0].value.push({
+        column: field.name,
+        type: 'LIKE',
+        value: `%${key}%`
+      })
+    }
+  })
+  return conditions[0].value.length > 0 ? conditions : null
 }
