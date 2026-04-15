@@ -112,7 +112,7 @@ function getSortRules() {
       if (rule.field) {
         acc.push({
           column: rule.field,
-          desc: rule.desc
+          desc: rule.order === 'desc'
         })
       }
       return acc
