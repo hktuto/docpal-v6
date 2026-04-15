@@ -19,14 +19,14 @@
     </div>
     <div class="toolbar-right">
       <slot name="toolbar-right">
-        <el-button v-if="showImport" @click="handleImport">
+        <!-- <el-button v-if="showImport" @click="handleImport">
           <el-icon><Upload /></el-icon>
           Import
         </el-button>
         <el-button v-if="showExport" type="primary" @click="handleExport">
           <el-icon><Download /></el-icon>
           Export
-        </el-button>
+        </el-button> -->
         <el-button type="primary" @click="handleSaveView"> Save View </el-button>
       </slot>
     </div>
