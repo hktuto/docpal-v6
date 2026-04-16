@@ -57,6 +57,11 @@ async function initForm() {
     return
   }
 
+  const keys = Object.keys(formData.value.output_mapping)
+  if (keys.length > 0) {
+    storeValue.value = keys[0]
+  }
+
   loading.value = true
   try {
     await getTemplateVariableList()
