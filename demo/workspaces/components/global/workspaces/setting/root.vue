@@ -10,21 +10,18 @@ const isSidebarVisible = ref(true)
 const settingsSections = [
   {
     group: 'GENERAL',
-    items: [
-      { id: 'general', label: 'General', icon: 'lucide:settings' }
-    ]
+    items: [{ id: 'general', label: 'General', icon: 'lucide:settings' }]
   },
   {
     group: 'ACCESS & SECURITY',
     items: [
-      { id: 'permissions', label: 'Permissions', icon: 'lucide:shield' }
+      { id: 'permissions', label: 'Permissions', icon: 'lucide:shield' },
+      { id: 'permission-guide', label: 'Workspace Permission Guide', icon: 'lucide:book-open' }
     ]
   },
   {
     group: 'SETTINGS',
-    items: [
-      { id: 'danger', label: 'Danger Zone', icon: 'lucide:alert-triangle' }
-    ]
+    items: [{ id: 'danger', label: 'Danger Zone', icon: 'lucide:alert-triangle' }]
   }
 ]
 
@@ -42,6 +39,8 @@ const sectionComponent = computed(() => {
       return 'LazyWorkspacesSettingRootGeneral'
     case 'permissions':
       return 'LazyWorkspacesSettingRootPermissions'
+    case 'permission-guide':
+      return 'LazyWorkspacesSettingRootPermissionGuide'
     case 'danger':
       return 'LazyWorkspacesSettingRootDanger'
     default:
@@ -54,7 +53,7 @@ function checkContainerSize() {
   if (!pageContainerRef.value) return
   const containerWidth = pageContainerRef.value.offsetWidth
   isMobileView.value = containerWidth < 700
-  
+
   // Auto-hide sidebar on mobile
   if (isMobileView.value && isSidebarVisible.value) {
     isSidebarVisible.value = false
@@ -69,11 +68,11 @@ function toggleSidebar() {
 
 onMounted(() => {
   checkContainerSize()
-  
+
   if (pageContainerRef.value) {
     const resizeObserver = new ResizeObserver(checkContainerSize)
     resizeObserver.observe(pageContainerRef.value)
-    
+
     onUnmounted(() => {
       resizeObserver.disconnect()
     })
@@ -85,11 +84,7 @@ onMounted(() => {
   <div ref="pageContainerRef" class="setting-page">
     <!-- Toggle button teleported to header for mobile -->
     <Teleport to="#database-table-header-right">
-      <el-button 
-        v-if="isMobileView" 
-        size="small" 
-        @click="toggleSidebar"
-      >
+      <el-button v-if="isMobileView" size="small" @click="toggleSidebar">
         <Icon :name="isSidebarVisible ? 'lucide:panel-left-close' : 'lucide:panel-left'" size="16" />
       </el-button>
     </Teleport>
@@ -110,7 +105,10 @@ onMounted(() => {
                       :key="item.id"
                       class="nav-item"
                       :class="{ active: activeSection === item.id }"
+                      tabindex="0"
+                      :aria-label="`Go to ${item.label}`"
                       @click="switchSection(item.id)"
+                      @keydown.enter="switchSection(item.id)"
                     >
                       <Icon :name="item.icon" />
                       <span>{{ item.label }}</span>
@@ -145,7 +143,10 @@ onMounted(() => {
                     :key="item.id"
                     class="nav-item"
                     :class="{ active: activeSection === item.id }"
+                    tabindex="0"
+                    :aria-label="`Go to ${item.label}`"
                     @click="switchSection(item.id)"
+                    @keydown.enter="switchSection(item.id)"
                   >
                     <Icon :name="item.icon" />
                     <span>{{ item.label }}</span>
