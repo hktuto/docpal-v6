@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Node } from '@antv/x6'
+import type { Edge, Node } from '@antv/x6'
 import { createError } from '#imports'
 
 const { node } = defineProps<{
@@ -20,7 +20,8 @@ const buttonSetting = ref({
   showSaveDraft: true,
   saveDraftLabel: 'Save Draft'
 })
-const form = ref()
+const form = ref([])
+const additionalButtons = ref([])
 
 const allBooleanInfo = computed(() => {
   return getVariablesByType(['boolean'])
@@ -41,7 +42,8 @@ function setForm() {
     metadata: {
       ...nodeData.metadata,
       buttonSetting: {
-        ...buttonSetting.value
+        ...buttonSetting.value,
+        additionalButtons: additionalButtons.value
       }
     },
     version: nodeData.version + 1 || 0
@@ -50,13 +52,51 @@ function setForm() {
   graphProvider?.graph.value?.stopBatch('update-startTask-data')
 }
 
-function addButton() {}
+const defaultForm = {
+  booleanValue: '',
+  buttonStyle: 'primary',
+  buttonText: 'Submit',
+  applyState: true
+}
+function addButton() {
+  form.value.push({
+    ...defaultForm
+  })
+}
+
+function getNextNodesAndGatewayOutgoingEdges(currentNode: Node) {
+  const graph = graphProvider?.graph.value
+  if (!graph) {
+    return {
+      nextNodes: [] as Node[],
+      gatewayOutgoingEdges: [] as Edge[]
+    }
+  }
+
+  const outgoingEdges = graph.getConnectedEdges(currentNode, { outgoing: true })
+  const nextNodes: any[] = outgoingEdges.map((edge) => edge.getTargetCell()).filter((targetNode): targetNode is Node => !!targetNode && !targetNode.isEdge())
+  console.log('next nodes =>', nextNodes)
+
+  if (nextNodes.length === 0) return
+
+  const gatewayOutgoingEdges = nextNodes
+    .filter((nextNode) => nextNode.getData()?.type.includes('Gateway'))
+    .flatMap((gatewayNode) => graph.getConnectedEdges(gatewayNode, { outgoing: true }))
+
+  return gatewayOutgoingEdges
+}
+
+function test() {
+  const gatewayOutgoingEdges = getNextNodesAndGatewayOutgoingEdges(node)
+  console.log('gateway outgoing edges =>', gatewayOutgoingEdges)
+}
 
 watch(
   () => node,
   async () => {
     if (node) {
       init()
+      test()
     }
   },
   {

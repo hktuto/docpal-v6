@@ -93,6 +93,11 @@ onClickOutside(rightClickEl, () => {
 
 function handleNodeClick({ node }: any) {
   const type = node.data.metadata.tags as WorkflowElementType
+  if (type === WorkflowElementType.Gateway) {
+    graphProvider?.closeSidebar()
+    return
+  }
+
   if (type) {
     const workflowElementType = workflowElement[type]
     if (workflowElementType.contextMenuComponent) {

@@ -97,22 +97,32 @@ function setupEdge() {
       flow_control: {
         type: 'sequence'
       },
-      label: ''
+      label: '',
+      metadata:{
+        type: source.data.metadata.type
+      }
     }
 
     // type is Gateway
-    // TODO: 無法從source區分是那個子節點連接到不同規則
-    if (source.data.type === WorkflowElementType.Gateway) {
+    if (source.data.metadata.tags === WorkflowElementType.Gateway) {
+      const allNodeConnected: any[] = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge: any) => {
+        return connectedEdge.id !== edge.id && connectedEdge.source.cell === source.id
+      })
+      const metadata = source.data.metadata
       newEdgeData.flow_control.condition = ''
 
+      // 亦或網關
+      if (metadata.type === CellType.exclusiveGateway) {
+        const edgeLabel = allNodeConnected.length > 0 ? 'False' : 'True'
+        if (isNew) {
+          edge.setLabels(edgeLabel)
+        }
+      }
+
       // Exclusive or Inclusive Gateway 的出綫必須是 'conditional',
-      if (newEdgeData.source_node_id.includes('ExclusiveGateway_') || newEdgeData.source_node_id.includes('InclusiveGateway_')) {
+      if (metadata.type === CellType.exclusiveGateway || metadata.type === CellType.inclusiveGateway) {
         newEdgeData.flow_control.type = 'conditional'
       }
-      // if (newEdgeData.source_node_id.includes('ParallelGateway_') || newEdgeData.target_node_id.includes('ParallelGateway_')) {
-      //   // 進出綫是 'parallel'
-      //   newEdgeData.flow_control.type = 'parallel'
-      // }
     }
     edge.data = newEdgeData
     edge.setRouter('manhattan')
