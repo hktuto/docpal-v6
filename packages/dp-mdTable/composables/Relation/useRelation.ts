@@ -1,10 +1,12 @@
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '../../types/column-types'
+import { findPath } from './useVirtualColumn'
 // For table's relation config
-export const useRelation = () => {
+export const useRelation = (relationTableId: string) => {
   const { workspace, workspaceRouteParams } = useSingleWorkspaceContext()
   const { tableFields } = inject<any>('viewTools')
   const menus = ref([])
+  const menuIdPaths = ref<string[]>([])
   function getRelationTableIds() {
     return tableFields.value
       .filter((field: any) => field.business_type === ColumnFieldType.Relation)
@@ -30,11 +32,13 @@ export const useRelation = () => {
     const visibleFields = displayFieldsInFirstView.filter((field: any) => field.hidden !== true)
     return visibleFields.slice(0, 5)
   }
-  onMounted(() => {
-    getMenuFromDb()
+  onMounted(async () => {
+    await getMenuFromDb()
+    if (relationTableId) menuIdPaths.value = findPath(menus.value, relationTableId)
   })
   return {
     menus,
+    menuIdPaths,
     getTop5Fields
   }
 }
