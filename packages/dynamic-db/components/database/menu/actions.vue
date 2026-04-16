@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TreeItem, CaseTreeItemType } from '../../../composables/workspace/useSingleDatabase'
+import type { TreeItem, CaseTreeItemType } from '../../../composables/useSingleDatabase'
 
 import { ElMessageBox } from 'element-plus'
 import type { ViewType, ViewSettings } from '../../../utils/db/schema/newTableSchema'
@@ -83,7 +83,7 @@ async function handleAddItem(type: CaseTreeItemType) {
 
 function handleImportFromExcel() {
   close()
-  const entityId = menuContext.workspace.value?.id
+  const entityId = menuContext.database.value?.id
   const parentFolderId = menuItem.value?.item_type === 'folder' ? menuItem.value.id : null
   importExcelDialogRef.value?.open(entityId, parentFolderId)
 }
@@ -212,7 +212,7 @@ defineExpose({ open, close })
   </UiPopoverDialog>
 
   <!-- Import Excel Dialog -->
-  <WorkspacesTableImportExcelDialog ref="importExcelDialogRef" @success="handleImportSuccess" />
+  <DatabaseTableImportExcelDialog ref="importExcelDialogRef" @success="handleImportSuccess" />
 
   <!-- Create View Dialog -->
   <!-- <WorkspacesDialogsCreateViewDialog ref="createViewDialogRef" @created="handleViewCreated" /> -->

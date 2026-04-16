@@ -67,15 +67,16 @@ export const useSingleDatabase = () => {
   }
 
   async function updateDatabase(newDatabaseData:DatabaseItem) {
-    if (!newdatabaseData && !database.value) return
-    newdatabaseData ||= database.value as DatabaseItem
-    const { name, description, icon, id } = newdatabaseData
+    if (!newDatabaseData && !database.value) return
+    newDatabaseData ||= database.value as DatabaseItem
+    const { name, description, icon, id } = newDatabaseData
     const dto: any = {}
     if (name) dto.name = name
     if (description) dto.description = description
     if (icon) dto.metadata = { icon }
 
     const { data }: any = await newClientApi.putDynamicDbCaseTypesId(id, dto)
+
     database.value = data as DatabaseItem
   }
 

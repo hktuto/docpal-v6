@@ -21,8 +21,6 @@ const { importExcelFile, initData } = useImportBatch()
 // File upload input ref
 const fileInputRef = ref<HTMLInputElement>()
 
-// Dialog refs for handling updates
-const importToTableDialogRef = ref()
 
 // Pending duplicates for sequential update processing
 const pendingDuplicates = ref<DuplicateSheetInfo[]>([])
@@ -118,27 +116,7 @@ function triggerFileInput() {
   fileInputRef.value?.click()
 }
 
-/**
- * Handle completion of a table update from ImportToTableDialog
- */
-function handleUpdateComplete(result: any) {
-  const duplicate = pendingDuplicates.value.shift()
 
-  if (duplicate && (result.inserted > 0 || result.updated > 0)) {
-    tablesUpdated.value.push({
-      id: duplicate.existingTableId,
-      name: duplicate.existingTableName
-    })
-  }
-
-  // Process next duplicate
-  if (pendingDuplicates.value.length > 0) {
-    // continue with next duplicate
-    // TODO importToTableDialogRef.value?.openWithSheetData
-  } else if (tablesUpdated.value.length > 0) {
-    ElMessage.success(`${tablesUpdated.value.length} table(s) updated successfully`)
-  }
-}
 
 /**
  * Handle close of ImportToTableDialog (skip this duplicate)
@@ -225,11 +203,7 @@ onMounted(async () => {
     <slot />
 
     <!-- Import To Table Dialog for updating existing tables -->
-    <WorkspacesDialogsImportToTableDialog
-      ref="importToTableDialogRef"
-      @complete="handleUpdateComplete"
-      @close="handleUpdateClose"
-    />
+
   </div>
 </template>
 

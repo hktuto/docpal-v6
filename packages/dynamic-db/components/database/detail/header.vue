@@ -309,7 +309,7 @@ watch(
       <slot />
     </div>
   </div>
-  <WorkspacesDetailInfoPopover v-model="infoDialogVisible" :item="infoDialogItem" @input="handleInfoInput" />
+  <DatabaseDetailInfoPopover v-model="infoDialogVisible" :item="infoDialogItem" @input="handleInfoInput" />
 </template>
 
 <style lang="scss" scoped>
