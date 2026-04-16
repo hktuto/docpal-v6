@@ -182,14 +182,14 @@ function getPermissionColor(permission: boolean, columnColor: string) {
         </template>
         <div>
           <el-row :gutter="20" class="header-row">
-            <el-col :span="6">Feature</el-col>
+            <el-col :span="7">Feature</el-col>
             <el-col :span="3" v-for="column in columnDefinitions" :key="column.key">
               <span :style="{ color: column.color }">{{ column.label }}</span>
             </el-col>
           </el-row>
 
           <el-row :gutter="20" v-for="row in item.children" :key="row.feature">
-            <el-col :span="6">{{ row.feature }}</el-col>
+            <el-col :span="7">{{ row.feature }}</el-col>
             <el-col :span="3" v-for="column in columnDefinitions" :key="`${row.feature}-${column.key}`">
               <Icon
                 name="lucide:check"
