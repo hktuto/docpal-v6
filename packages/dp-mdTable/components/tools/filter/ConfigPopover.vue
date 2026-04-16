@@ -343,7 +343,7 @@ defineExpose({
 
       .field-select {
         flex: 1;
-        min-width: 15rem;
+        min-width: 10rem;
       }
 
       .operator-select {
