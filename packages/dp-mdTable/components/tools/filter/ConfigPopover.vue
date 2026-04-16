@@ -80,7 +80,7 @@
             class="value-input"
             @input="handleEditRule(rule)"
           />
-          <div v-else class="placeholder-input value-input"> </div>
+          <div v-else class="placeholder-input value-input"></div>
           <!-- 删除按钮 -->
           <el-button type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteRule(index)" />
         </div>
@@ -306,31 +306,16 @@ defineExpose({
 
 <style scoped lang="scss">
 .filter-config-popover {
-  padding: 16px;
-  min-width: 500px;
+  padding: var(--app-space-s);
+  min-width: 40rem;
+  font-size: var(--app-font-size-l);
 
   .popover-header {
-    margin-bottom: 16px;
-
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      color: #303133;
-      margin-bottom: 8px;
-
-      .info-icon {
-        color: #909399;
-        cursor: help;
-      }
-    }
+    margin-bottom: var(--app-space-s);
 
     .auto-save-tip {
-      font-size: 12px;
-      color: #909399;
-      line-height: 1.5;
+      color: var(--app-text-color-secondary);
+      font-size: var(--app-font-size-m);
     }
   }
 
@@ -339,18 +324,15 @@ defineExpose({
       display: flex;
       align-items: center;
       gap: var(--app-space-s);
-      border-radius: 4px;
       margin-bottom: var(--app-space-s);
 
       .logic-connector {
-        width: 60px;
-        flex-shrink: 0;
-
+        width: 4rem;
         .connector-btn {
           width: 100%;
           cursor: not-allowed;
           &:hover {
-            background-color: #f5f7fa;
+            background-color: var(--app-fill-color);
           }
         }
 
@@ -361,17 +343,17 @@ defineExpose({
 
       .field-select {
         flex: 1;
-        min-width: 150px;
+        min-width: 15rem;
       }
 
       .operator-select {
         flex: 1;
-        min-width: 120px;
+        min-width: 12rem;
       }
 
       .value-input {
         flex: 1;
-        min-width: 150px;
+        min-width: 15rem;
       }
 
       .delete-btn {
@@ -381,19 +363,9 @@ defineExpose({
   }
 
   .add-rule-section {
-    margin-top: 12px;
+    margin-top: var(--app-space-s);
     display: flex;
     justify-content: center;
-  }
-
-  .field-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .field-icon {
-      color: #909399;
-    }
   }
 }
 
@@ -404,6 +376,6 @@ defineExpose({
   min-height: 3rem;
   box-shadow: none;
   border: none;
-  background-color: #f5f7fa;
+  background-color: var(--app-fill-color);
 }
 </style>
