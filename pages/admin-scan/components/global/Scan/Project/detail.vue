@@ -69,7 +69,7 @@ watch(
 
 <style lang="scss" scoped>
 .back {
-  cusor: pointer;
+  cursor: pointer;
 }
 .pageContainer {
   width: 100%;
