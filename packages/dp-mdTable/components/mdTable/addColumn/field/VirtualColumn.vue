@@ -1,7 +1,7 @@
 <template>
-  <el-form-item label="Relation Table" prop="table_id_paths">
+  <el-form-item label="Relation Table" prop="relation_table_id">
     <el-cascader
-      v-model="formData.table_id_paths"
+      v-model="menuIdPaths"
       show-checked-strategy="parent"
       placement="left-start"
       :options="menus"
@@ -34,14 +34,18 @@ const cascaderProps = {
   value: 'id'
 }
 const tableFields = ref([])
-const { menus, getTableFields, relationTables, updateRelationField } = useVirtualColumn()
+const { menus,menuIdPaths, getTableFields, relationTables, updateRelationField } = useVirtualColumn(props.formData.relation_table_id)
 
+// Relation Table Change
 async function handleRTChange(value: string[]) {
   try {
     const id = value[value.length - 1]
+    props.formData.relation_table_id = id
     tableFields.value = await getTableFields(id)
   } catch (error) {
     tableFields.value = []
+    menuIdPaths.value = []
+    props.formData.relation_table_id = ''
     props.formData.relation_field_name = ''
     props.formData.display_field_name = ''
     props.formData.virtual_field_name = ''
@@ -53,8 +57,8 @@ function handleDisplayFieldChange(value: string) {
   updateRelationField(props.formData)
 }
 onMounted(() => {
-  if (props.formData.table_id_paths) {
-    handleRTChange(props.formData.table_id_paths)
+  if (props.formData.relation_table_id) {
+    handleRTChange([props.formData.relation_table_id])
   }
 })
 </script>
