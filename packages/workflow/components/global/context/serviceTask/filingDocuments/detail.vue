@@ -168,7 +168,7 @@ function jsonParse(str: any) {
                 </el-form-item>
                 <div v-if="!item.isFolder">
                   <el-form-item label="File">
-                    <el-select v-model="item.documentFileId" clearable filterable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
+                    <el-select v-model="item.documentFileId" filterable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
                       <el-option v-for="option in fileFieldOption()" :key="option.id" :label="option.name" :value="option.id" />
                     </el-select>
                   </el-form-item>
