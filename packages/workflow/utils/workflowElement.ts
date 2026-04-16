@@ -1,6 +1,7 @@
 import { Cell, CellView, Graph } from '@antv/x6'
 import type { NodeItem } from './jsonConversion'
 import { getServiceTaskItemConfig } from '@packages/workflow/utils/serviceTaskItemConfig'
+import { getUrlOrigin } from '#imports'
 
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
@@ -200,6 +201,7 @@ export type CellTypeItem = {
       }
       input_mapping?: any
       metadata: {
+        type: CellType
         tags: WorkflowElementType
         icon: string
         formKey?: string
@@ -483,7 +485,7 @@ export const workflowElement: WorkflowElement = {
     },
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      if (workflowNodeItem.metadata.tags === CellType.signatureTask) {
+      if (workflowNodeItem.metadata.type === CellType.signatureTask) {
         return 'LazyContextSignature'
       }
       return 'LazyContextUserTask'
@@ -601,8 +603,8 @@ export const workflowElement: WorkflowElement = {
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      if (workflowNodeItem.type in contextMenuComponentType) {
-        return contextMenuComponentType[workflowNodeItem.type as keyof typeof contextMenuComponentType]
+      if (workflowNodeItem.metadata.type in contextMenuComponentType) {
+        return contextMenuComponentType[workflowNodeItem.metadata.type as keyof typeof contextMenuComponentType]
       }
     }
   }
@@ -672,6 +674,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.userTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
         formKey: '',
@@ -705,6 +708,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.signatureTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
         formKey: '',
@@ -723,6 +727,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: CellType.exclusiveGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.exclusiveGateway,
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
@@ -752,6 +757,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: CellType.parallelGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.parallelGateway,
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
@@ -769,6 +775,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: CellType.inclusiveGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.inclusiveGateway,
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
@@ -794,6 +801,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         output_mapping: {}
       },
       metadata: {
+        type: CellType.HTTPTask,
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/http-task.svg'
       },
@@ -822,6 +830,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         output_mapping: {}
       },
       metadata: {
+        type: CellType.uniqueIdGenerator,
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/transform.svg'
       }
@@ -839,6 +848,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: getServiceTaskItemConfig[CellType.subProcess],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
+        type: CellType.subProcess,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/transform.svg'
       }
@@ -855,6 +865,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: getServiceTaskItemConfig[CellType.validateTask],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
+        type: CellType.validateTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/form.svg'
       }
@@ -874,6 +885,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.transformTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/transform.svg'
       }
@@ -890,6 +902,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: getServiceTaskItemConfig[CellType.messageTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.messageTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/message.svg'
       }
@@ -906,6 +919,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: getServiceTaskItemConfig[CellType.uploadFile],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.uploadFile,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/uploadFile.svg'
       }
@@ -929,6 +943,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       input_mapping: {},
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.documentGenerationTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/document.svg',
         width: 250
@@ -948,10 +963,11 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Filing Documents Task',
       label: 'New Filing Documents Task',
       documentation: '',
-      type: CellType.filingDocuments,
+      type: CellType.serviceTask,
       config: getServiceTaskItemConfig[CellType.filingDocuments],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.filingDocuments,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/form.svg',
         width: 250

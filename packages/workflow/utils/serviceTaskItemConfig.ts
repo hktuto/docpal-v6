@@ -65,9 +65,9 @@ export const getServiceTaskItemConfig = {
     }
   },
   FilingDocuments: {
-    implementation: 'document_generation',
+    implementation: 'filing_document',
     method: 'POST',
-    url: `${getUrlOrigin()}/api/dms/facade/generate/folder-cabinet/documents`,
+    url: `${getUrlOrigin()}/api/dms/facade/filing-document`,
     headers: generatorHTTPRequestTaskHeaders(),
     body: {
       folderCabinetId: '',
