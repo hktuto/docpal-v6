@@ -187,7 +187,7 @@ watch(
 <template>
   <el-form label-position="top" @native.enter="() => {}">
     <el-form-item label="Folder Cabinet">
-      <el-select v-model="formData.body.folderCabinetId" :disabled="graphProvider.readonly.value" @change="getCabinetDetail" clearable>
+      <el-select v-model="formData.body.folderCabinetId" :disabled="graphProvider.readonly.value" @change="getCabinetDetail" clearable filterable>
         <el-option v-for="item in cabinetOptions" :key="item.id" :label="item.label" :value="item.id" />
       </el-select>
     </el-form-item>

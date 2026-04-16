@@ -206,7 +206,7 @@ watch(
       </div>
     </el-form-item>
     <el-form-item label="Store Value" prop="storeValue">
-      <el-select v-model="storeValue" @change="updateData">
+      <el-select v-model="storeValue" @change="updateData" filterable>
         <el-option v-for="item in storeVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
@@ -216,12 +216,12 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="Document Name" prop="name">
-      <el-select v-model="formData.body.name" :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
+      <el-select v-model="formData.body.name" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item label="Creator" prop="creator">
-      <el-select v-model="formData.body.creator" :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
+      <el-select v-model="formData.body.creator" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
@@ -233,7 +233,7 @@ watch(
 
     <template v-loading="loading" v-for="variable in variables" :key="variable.id">
       <el-form-item :label="variable.name">
-        <el-select v-model="variable.value" @change="updateData">
+        <el-select v-model="variable.value" @change="updateData" clearable filterable>
           <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>

@@ -162,13 +162,13 @@ function jsonParse(str: any) {
             <div class="content">
               <el-form label-position="top" @sumit.stop :disabled="!item.check">
                 <el-form-item label="Document Id">
-                  <el-select v-model="item.documentId" clearable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
+                  <el-select v-model="item.documentId" clearable filterable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
                     <el-option v-for="option in fileVariablesList" :key="option.id" :label="option.name" :value="option.id" />
                   </el-select>
                 </el-form-item>
                 <div v-if="!item.isFolder">
                   <el-form-item label="File">
-                    <el-select v-model="item.documentFileId" clearable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
+                    <el-select v-model="item.documentFileId" clearable filterable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
                       <el-option v-for="option in fileFieldOption()" :key="option.id" :label="option.name" :value="option.id" />
                     </el-select>
                   </el-form-item>
@@ -183,7 +183,7 @@ function jsonParse(str: any) {
                   </template>
                 </div>
                 <el-form-item v-for="metaField in item.mapping" :key="metaField.metadata" :label="metaField.metadata">
-                  <el-select v-model="metaField.formProperty" :disabled="graphProvider.readonly.value" clearable @change="handleUpdateField(item)">
+                  <el-select v-model="metaField.formProperty" :disabled="graphProvider.readonly.value" clearable filterable @change="handleUpdateField(item)">
                     <el-option v-for="option in filterOption()" :key="option.id" :label="option.name" :value="option.id" />
                   </el-select>
                 </el-form-item>
