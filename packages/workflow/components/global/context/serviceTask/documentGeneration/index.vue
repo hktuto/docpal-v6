@@ -167,6 +167,7 @@ onMounted(async () => {
 watch(
   () => config,
   () => {
+    if (config == formData.value) return
     initForm()
   },
   {
