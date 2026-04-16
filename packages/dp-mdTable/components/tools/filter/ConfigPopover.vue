@@ -348,7 +348,7 @@ defineExpose({
 
       .operator-select {
         flex: 1;
-        min-width: 12rem;
+        min-width: 8rem;
       }
 
       .value-input {
