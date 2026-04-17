@@ -2,7 +2,7 @@ import { newClientApi } from 'api'
 import { ColumnFieldType } from '../../types/column-types'
 // For table's relation config
 export const useVirtualColumn = (relationTableId: string, businessType: ColumnFieldType) => {
-  const { workspace, workspaceRouteParams } = useSingleWorkspaceContext()
+  const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
   const { updateColumn } = useMDTableInject()
   const { tableFields } = inject<any>('viewTools')
   const menus = ref([])
@@ -15,10 +15,10 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
   async function getMenuFromDb() {
     const res: any = await newClientApi.getDynamicDbMenusTree({
       referenceEntityType: 'case',
-      referenceEntityId: workspace.value.id
+      referenceEntityId: database.value.id
     })
     let list = res.data ?? []
-    if (workspaceRouteParams.value.detailId) {
+    if (databaseMenuRouteParams.value.detailId) {
       list = getRelationTree(list, relationTables.value)
     }
     menus.value = list
