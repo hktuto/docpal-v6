@@ -27,7 +27,7 @@
           <el-icon><Download /></el-icon>
           Export
         </el-button> -->
-        <el-button type="primary" @click="handleSaveView"> Save View </el-button>
+        <!-- <el-button type="primary" @click="handleSaveView"> Save View </el-button> -->
       </slot>
     </div>
   </div>
