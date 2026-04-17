@@ -984,6 +984,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: CellType.serviceTask,
       config: {},
       metadata: {
+        type: CellType.serviceTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/form.svg'
       }
