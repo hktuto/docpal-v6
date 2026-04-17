@@ -1,13 +1,14 @@
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '../../types/column-types'
 // For table's relation config
-export const useVirtualColumn = (relationTableId: string) => {
+export const useVirtualColumn = (relationTableId: string, businessType: ColumnFieldType) => {
   const { workspace, workspaceRouteParams } = useSingleWorkspaceContext()
   const { updateColumn } = useMDTableInject()
   const { tableFields } = inject<any>('viewTools')
   const menus = ref([])
   const menuIdPaths = ref<string[]>([])
   const relationTables = ref<any[]>([])
+  const isAgg = computed(() => businessType === ColumnFieldType.AggVirtualColumn)
   function getRelationTables() {
     return tableFields.value.filter((field: any) => field.business_type === ColumnFieldType.Relation)
   }
@@ -24,6 +25,9 @@ export const useVirtualColumn = (relationTableId: string) => {
   }
   async function getTableFields(tableId: string) {
     const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: 'master' })
+    if (isAgg.value) {
+      return res.data.tableFields.filter((field: any) => field.business_type === ColumnFieldType.Number)
+    }
     return res.data.tableFields
   }
   function updateRelationField(formData: any) {
@@ -65,6 +69,7 @@ export const useVirtualColumn = (relationTableId: string) => {
     console.log(relationTables.value)
   })
   return {
+    isAgg,
     menus,
     menuIdPaths,
     relationTables,

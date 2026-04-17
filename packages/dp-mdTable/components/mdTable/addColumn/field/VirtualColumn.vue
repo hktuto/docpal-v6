@@ -18,7 +18,7 @@
     </el-cascader>
   </el-form-item>
   <el-form-item label="Display Field" prop="display_field_name">
-    <el-select v-model="formData.display_field_name" placeholder="Select Display Field" @change="handleDisplayFieldChange">
+    <el-select v-model="formData.display_field_name" clearable placeholder="Select Display Field" @change="handleDisplayFieldChange">
       <el-option v-for="field in tableFields" :key="field.id" :label="field.field_name_alias" :value="field.field_name" />
     </el-select>
   </el-form-item>
@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
 }>()
@@ -34,8 +35,8 @@ const cascaderProps = {
   value: 'id'
 }
 const tableFields = ref([])
-const { menus,menuIdPaths, getTableFields, relationTables, updateRelationField } = useVirtualColumn(props.formData.relation_table_id)
-
+const { menus, menuIdPaths, isAgg, getTableFields, relationTables, updateRelationField } = useVirtualColumn(props.formData.relation_table_id, props.formData.business_type)
+const placeholder = computed(() => isAgg.value ? 'Select a number field' : 'Select Display Field')
 // Relation Table Change
 async function handleRTChange(value: string[]) {
   try {
@@ -54,6 +55,10 @@ async function handleRTChange(value: string[]) {
 function handleDisplayFieldChange(value: string) {
   const selectedField = tableFields.value.find((field: any) => field.field_name === value)
   props.formData.display_field_id = selectedField.id
+  if (isAgg.value) {
+    props.formData.aggregation_field_name = selectedField.field_name
+    props.formData.aggregation_method = 'sum'
+  }
   updateRelationField(props.formData)
 }
 onMounted(() => {
@@ -66,5 +71,4 @@ onMounted(() => {
 :deep(.el-cascader) {
   width: 100%;
 }
-
 </style>

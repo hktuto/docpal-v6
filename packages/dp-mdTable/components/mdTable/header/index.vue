@@ -85,8 +85,11 @@ function handleSuggestionClick() {
  */
 const columnIndicator = computed(() => {
   const fullColumn = mdTable.columns.value.find((col: any) => col.field_name === props.column.field)
+  // 删除列后 columns 已更新但表头可能仍短暂渲染：必须用 null，避免 `{}` 让 v-if 为真进而把 undefined 传给 Icon（会触发 name.startsWith 报错）
+  if (!fullColumn) return null
   if (fullColumn.business_type === ColumnFieldType.VirtualColumn) {
-    const virtual_field_name = fullColumn.display_structure.virtual_field_name
+    const virtual_field_name = fullColumn.display_structure?.virtual_field_name
+    if (!virtual_field_name || typeof virtual_field_name !== 'string') return null
     const relation_field_name = virtual_field_name.split('.')[0]
     const relation_field = mdTable.columns.value.find((col: any) => col.field_name === relation_field_name)
     if (relation_field) {
