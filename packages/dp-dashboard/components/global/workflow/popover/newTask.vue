@@ -43,7 +43,7 @@ async function workflowClickHandler(item: any) {
   openWorkflowEdit.value = true
   const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${item.id}`).then((r: any) => r.data)
   if (!data) return
-  if (data.status === 'D') {
+  if (data.published_version < 1) {
     state.loading = false
     routerProvider?.message.error('Workflow has not been released.')
     return

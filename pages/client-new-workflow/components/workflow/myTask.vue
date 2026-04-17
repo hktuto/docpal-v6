@@ -35,14 +35,18 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       page_num: pageParams.pageNum,
       page_size: pageParams.pageSize
     }
-    const data = await $api.post('/oniflow/api/v1/tasks/page', params).then((r) => r.data)
-    return {
-      data: {
-        entryList: data.items,
-        pageNum: data.page_num,
-        pageCount: data.page_size,
-        totalSize: data.total
+    try {
+      const data = await $api.get('/oniflow/api/v1/task/overview/all', params).then((r) => r.data)
+      return {
+        data: {
+          entryList: data.items,
+          pageNum: data.page_num,
+          pageCount: data.page_size,
+          totalSize: data.total
+        }
       }
+    } catch (e) {
+      console.log(e)
     }
   },
   columns: [
@@ -81,7 +85,6 @@ function handleDblclick(row: any) {
 }
 
 onMounted(() => {})
-
 </script>
 <style lang="scss" scoped>
 :deep(.el-input) {

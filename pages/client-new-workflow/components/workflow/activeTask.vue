@@ -2,16 +2,11 @@
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="ResponsiveFilterRef"
-          @form-change="handleFilterFormChange"
-        />
-        <FormRenderer :form-json="formJson" @formChange="handleFormChange" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small"
-                   round @click="claimTask(row)">
+        <el-button :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small" round @click="claimTask(row)">
           {{ $t('workflow_claim') }}
         </el-button>
       </template>
@@ -23,7 +18,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import formJson from './active.vform.json'
 import { newClientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
 
@@ -35,20 +29,15 @@ const { t } = useI18n()
 // @ts-ignore
 const userId: string = useUserId().value
 let extraParams: any = {}
-const {
-  tableConfig,
-  tableEvent,
-  tableRef,
-  query,
-  reload,
-  cleanSelectedRows
-} = useVxeTable({
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'active_task',
-  api: (pageParams: any) => newClientApi.postDocpalWorkflowTasksUser({
-    ...pageParams,
-    ...extraParams,
-    interrelatedUserId: userId
-  }),
+  api: async (pageParams: any) => {
+    const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data)
+
+    return {
+      data: {}
+    }
+  },
   columns: [
     { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },
     { field: 'taskInstance.processDefinitionName', title: 'workflow_workflowName' },
@@ -83,11 +72,14 @@ const {
 
 function handleDblclick(row: any) {
   // router.push(`/easyFormManage/${row.id}`);
-  routerProvider?.navigateTo(routeWorkflowDetail({
-    ...row,
-    name: row.taskInstance.businessKey,
-    workflowType: 'activeTask'
-  }), false)
+  routerProvider?.navigateTo(
+    routeWorkflowDetail({
+      ...row,
+      name: row.taskInstance.businessKey,
+      workflowType: 'activeTask'
+    }),
+    false
+  )
 }
 
 async function claimTask(row: any) {
@@ -100,8 +92,7 @@ async function claimTask(row: any) {
 
 function handleFormChange(data: any) {
   extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
-    if (data.formModel[key] && data.formModel[key].length > 0)
-      prev[key] = data.formModel[key]
+    if (data.formModel[key] && data.formModel[key].length > 0) prev[key] = data.formModel[key]
     return prev
   }, {})
   reload()

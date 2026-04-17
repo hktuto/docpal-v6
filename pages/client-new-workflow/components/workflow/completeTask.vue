@@ -2,11 +2,7 @@
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="ResponsiveFilterRef"
-          @form-change="handleFilterFormChange"
-        />
-        <FormRenderer :form-json="formJson" @formChange="handleFormChange" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
       </template>
       <template #status="{ row }">
         <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
@@ -16,7 +12,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import formJson from './complete.vform.json'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
@@ -29,21 +24,14 @@ const { t } = useI18n()
 // @ts-ignore
 const userId: string = useUserId().value
 let extraParams: any = {}
-const {
-  tableConfig,
-  tableEvent,
-  tableRef,
-  query,
-  reload,
-  cleanSelectedRows
-} = useVxeTable({
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
-  api: (pageParams: any) => newClientApi.postDocpalWorkflowHistoryProcessWithoutVariables({
-    ...pageParams,
-    ...extraParams,
-    completed: true,
-    userId
-  }),
+  api: (pageParams: any) => {
+    $api.get(`'/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
+    return {
+      data: {}
+    }
+  },
   columns: [
     { field: 'businessKey', title: 'table_name', fixed: 'left' },
     { field: 'processDefinitionName', title: 'workflow_workflowName' },
@@ -65,7 +53,8 @@ const {
       }
     },
     {
-      field: 'duration', title: 'workflow_duration',
+      field: 'duration',
+      title: 'workflow_duration',
       formatter({ cellValue, row }: any) {
         return dayjs(row.completeDate).diff(row.startTime, 'day') + ' ' + t('common_days')
       }
@@ -79,10 +68,14 @@ const {
 function handleDblclick(row: any) {
   console.log(row, 'completeTask')
   // router.push(`/easyFormManage/${row.id}`);
-  routerProvider?.navigateTo(routeWorkflowDetail({
-    ...row, name: row.businessKey,
-    workflowType: 'completeTask'
-  }), false)
+  routerProvider?.navigateTo(
+    routeWorkflowDetail({
+      ...row,
+      name: row.businessKey,
+      workflowType: 'completeTask'
+    }),
+    false
+  )
 }
 
 async function claimTask(row: any) {
@@ -103,8 +96,7 @@ function getDownloadParams() {
 
 function handleFormChange(data: any) {
   extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
-    if (data.formModel[key] && data.formModel[key].length > 0)
-      prev[key] = data.formModel[key]
+    if (data.formModel[key] && data.formModel[key].length > 0) prev[key] = data.formModel[key]
     return prev
   }, {})
   reload()
