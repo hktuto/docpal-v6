@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
-import { createError } from '#imports'
+import { CellType, createError } from '#imports'
+import { JsonSchemaToJsonData } from 'docpal-document-editor/src/client'
+
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
@@ -14,15 +16,37 @@ const form = ref({
 })
 const signatureVariable = ref([])
 const allDocumentStep = computed(() => {
-  return []
+  return (
+    graphProvider?.graph?.value
+      ?.getNodes()
+      .filter((node) => {
+        return node.getData()?.type === CellType.documentGenerationTask
+      })
+      .map((item: any) => ({
+        value: item.getData().id,
+        label: item.getData().name,
+        templateId: item.getData().config.body.templateId
+      })) || []
+  )
 })
 
-function init() {
-  const allNodes = graph.getNodes()
+function init() {}
 
+async function getTemplateVariableList() {
+  if (!form.value.documentStepId || form.value.documentStepId !== '') return
+
+  const data = await newAdminApi.getDmsTemplateDocumentRefreshId(selectedStep.templateId).then((r) => r.data)
+  if (data.fileType !== 'Word') {
+    console.log('not word file')
+    // reset form
+    return
+  }
+  const variable = JsonSchemaToJsonData(data.templateVariable)
+  if (!variable) {
+    return
+  }
+  signatureVariable.value = variable.filter((item: any) => item.type === 'signature')
 }
-
-function getTemplateVariableList() {}
 onMounted(() => {
   init()
 })

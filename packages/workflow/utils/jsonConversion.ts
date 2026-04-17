@@ -236,7 +236,6 @@ function joinType(type: string) {
     case CellType.parallelGateway:
       return 'AND'
     case CellType.inclusiveGateway:
-      // return 'OR'
       return 'XOR'
     default:
       return 'XOR'
