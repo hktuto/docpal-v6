@@ -3,7 +3,7 @@ import { ColumnFieldType } from '../../types/column-types'
 import { findPath } from './useVirtualColumn'
 // For table's relation config
 export const useRelation = (relationTableId: string) => {
-  const { workspace, workspaceRouteParams } = useSingleWorkspaceContext()
+  const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
   const { tableFields } = inject<any>('viewTools')
   const menus = ref([])
   const menuIdPaths = ref<string[]>([])
@@ -16,11 +16,11 @@ export const useRelation = (relationTableId: string) => {
     const relationTableIds = getRelationTableIds()
     const res: any = await newClientApi.getDynamicDbMenusTree({
       referenceEntityType: 'case',
-      referenceEntityId: workspace.value.id
+      referenceEntityId: database.value.id
     })
     let list = res.data ?? []
-    if (workspaceRouteParams.value.detailId) {
-      list = getRelationTree(list, workspaceRouteParams.value.detailId, relationTableIds)
+    if (databaseMenuRouteParams.value.detailId) {
+      list = getRelationTree(list, databaseMenuRouteParams.value.detailId, relationTableIds)
     }
     menus.value = list
   }

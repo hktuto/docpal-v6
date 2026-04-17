@@ -34,15 +34,24 @@ function handleSearch(value: string) {
   emit('search', value)
 }
 
-const MdFormPopoverRef = ref()
-function handleAddRow() {
-  MdFormPopoverRef.value.open({})
+// open setting logic
+const kanbanSettingRef = ref()
+function openSetting() {
+  kanbanSettingRef.value.open()
 }
-async function handleAddRowSubmit(data: any) {
-  console.log('handleAddRowSubmit', data)
-  await addRow(data)
-  handleRefresh()
-}
+
+watch(() => props.extraColumnConfig.viewStyleConfig, () => {
+  if (!props?.extraColumnConfig?.viewStyleConfig?.selectedColumnId) {
+    nextTick(() => {
+      openSetting()
+    })
+  }
+}, {
+  deep: true,
+  immediate: true
+})
+
+
 
 </script>
 
@@ -51,5 +60,6 @@ async function handleAddRowSubmit(data: any) {
 <div class="kanbanViewContainer">
 {{extraColumnConfig.viewStyleConfig}}
 mdkanban
+<MdKanbanSettingDialog ref="kanbanSettingRef"  />
 </div>
 </template>

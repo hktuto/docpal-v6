@@ -206,7 +206,7 @@ const initOptions = async() => {
       props.formData.options = []
     }
   }
-  
+
   // 初始化 defaultValue
   if (props.formData) {
     if (isMultiSelect.value) {
@@ -250,7 +250,7 @@ const handleClearDefaultValue = () => {
 const handleDeleteOption = (index: number) => {
   const deletedOption = options.value[index]
   options.value.splice(index, 1)
-  
+
   // 如果删除的选项是默认值，需要从 defaultValue 中移除
   if (deletedOption && props.formData?.defaultValue) {
     if (isMultiSelect.value) {
@@ -268,7 +268,7 @@ const handleDeleteOption = (index: number) => {
       }
     }
   }
-  
+
   updateFormData()
 }
 
@@ -399,6 +399,8 @@ onMounted(() => {
   }
 
   .options-list {
+      max-height: 400px;
+      overflow-y: auto;
   }
 
   .option-item {
