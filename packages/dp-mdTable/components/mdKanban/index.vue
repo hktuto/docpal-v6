@@ -48,8 +48,9 @@ watch(() => props.extraColumnConfig.viewStyleConfig, () => {
   }
 }, {
   deep: true,
-  immediate: true
 })
+
+
 
 
 
