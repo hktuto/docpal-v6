@@ -2,7 +2,7 @@
 import { useMDTableInject } from '../../../composables/useMDTable'
 import { Plus } from '@element-plus/icons-vue'
 import { ColumnFieldType } from '../../../types/column-types'
-
+import { buildRelationArray } from '../../../utils/relationHelper'
 const props = withDefaults(
   defineProps<{
     modelValue: string[] | string | null
@@ -22,7 +22,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string[] | string | null): void
 }>()
 
-const { updateRow, columns } = useMDTableInject()
+const mdTableContext = useMDTableInject()
 const currentValue = computed(() => {
   const v = props.modelValue
   if (typeof v === 'string') {
@@ -42,9 +42,9 @@ const displayValues = computed(() => {
     return []
   }
   const fieldName = props.column.field
-  const displayFieldNames = fieldName + '.' + props.display_field_names[0]
-  const displayValue = props.row[displayFieldNames]
-  return Array.isArray(displayValue) ? displayValue : displayValue?.split(',').filter((val: any) => val !== '') || []
+  const displayFieldName = props.display_field_names[0]
+  const relationArray = buildRelationArray(props.row, fieldName, displayFieldName)
+  return relationArray
 })
 
 function handleAdd() {
@@ -52,10 +52,12 @@ function handleAdd() {
 }
 
 function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
+  const normalizedValue = Array.isArray(value) ? value : value ? [value] : []
+  const joinedValue = normalizedValue.join(',')
   const fieldName = props.column.field
-  props.row[fieldName] = value.join(',')
+  props.row[fieldName] = joinedValue
   const params = {
-    [fieldName]: value.join(',')
+    [fieldName]: joinedValue
   }
   // 如果props.row 存在属性 key_1680_411d7500，has
   const basicFieldNames = ['id', 'created_at', 'updated_at', 'updated_by', 'status', 'master_table_id']
@@ -73,7 +75,9 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
       }
     }
   })
-  updateRow(props.row.id, params) // rowId, data
+  if (mdTableContext.updateRow && props.row?.id) {
+    mdTableContext.updateRow(props.row.id, params) // rowId, data
+  }
   emit('update:modelValue', value)
 }
 </script>
@@ -97,7 +101,7 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
       </template>
     </MdFormFieldRelationPicker>
     <div v-if="displayValues && displayValues.length" class="relation-tags">
-      <el-tag v-for="(label, index) in displayValues" type="info" :key="currentValue[index]" size="small">{{ label }}</el-tag>
+      <el-tag v-for="(item, index) in displayValues" type="info" :key="index" size="small">{{ item.displayFieldName }}</el-tag>
     </div>
     <!-- {{ displayRecords }} -->
   </div>
