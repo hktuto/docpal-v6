@@ -1,5 +1,5 @@
 import type { ViewConfig } from '../../utils/db/schema/tableView'
-import { kanbanStyleDefault, cardStyleDefault } from '../../utils/db/schema/tableView';
+import { kanbanStyleDefault, cardStyleDefault } from '../../utils/db/schema/tableView'
 import {
   parseViewConfigList,
   serializeViewConfigList,
@@ -63,15 +63,14 @@ export function useTableViews(options: UseTableViewsOptions) {
   const columnSortRules = ref<any[]>([])
   const columnGroupRules = ref<any[]>([])
 
-  const viewStyleConfig = ref<any>({
-  })
+  const viewStyleConfig = ref<any>({})
   async function getViews() {
     columnFilterRules.value = []
     columnSortRules.value = []
     columnGroupRules.value = []
     const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
       tableId: tableId.value,
-      userId: "master"
+      userId: 'master'
     })
     let views = parseViewConfigList(data?.data?.tableConfig)
 
@@ -105,10 +104,10 @@ export function useTableViews(options: UseTableViewsOptions) {
       columnGroupRules.value = currentView.value.groupInfo ?? []
       // add default style to different view types
       if (currentView.value.type === 'card') {
-        currentView.value.style  ||= cardStyleDefault
+        currentView.value.style ||= cardStyleDefault
       }
-      if(currentView.value.type === 'kanban') {
-        currentView.value.style  ||= kanbanStyleDefault
+      if (currentView.value.type === 'kanban') {
+        currentView.value.style ||= kanbanStyleDefault
       }
       // set current view style back to viewStyleConfig
       if (currentView.value.type !== 'table') {
@@ -120,7 +119,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     await newClientApi.postDocpalMasterTableUserConfig({
       tableId: tableId.value,
       tableConfig: serializeViewConfigList(views),
-        userId: "master"
+      userId: 'master'
     })
   }
 
@@ -171,10 +170,14 @@ export function useTableViews(options: UseTableViewsOptions) {
   }
 
   async function deleteField(fieldId: string) {
-    await newClientApi.deleteDynamicDbTableFieldsFieldid(fieldId)
-    const index = tableFields.value.findIndex((f: any) => f.id === fieldId)
-    if (index !== -1) tableFields.value.splice(index, 1)
-    if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    try {
+      await newClientApi.deleteDynamicDbTableFieldsFieldid(fieldId)
+      const index = tableFields.value.findIndex((f: any) => f.id === fieldId)
+      if (index !== -1) tableFields.value.splice(index, 1)
+      if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    } catch (error) {
+      ElMessage.error('删除字段失败')
+    }
   }
 
   async function updateField(fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) {

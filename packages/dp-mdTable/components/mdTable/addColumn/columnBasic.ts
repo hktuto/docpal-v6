@@ -105,6 +105,16 @@ export const columnBasic: Partial<Record<ColumnFieldType, ColumnBasicFieldConfig
       tooltip: '【${relation_field_name_alias}】Virtual Column - Display field from relation',
       class: 'indicator-virtual'
     }
+  },
+  [ColumnFieldType.AggVirtualColumn]: {
+    label: 'AggVirtualColumn',
+    isBasic: false,
+    component: 'VirtualColumn',
+    headerIndicator: {
+      icon: 'lucide:calculator',
+      tooltip: '【${relation_field_name_alias}-${display_field_name_alias}】Aggregate Virtual Column',
+      class: 'indicator-agg-virtual'
+    }
   }
 }
 
