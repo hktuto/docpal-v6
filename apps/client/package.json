@@ -36,7 +36,6 @@
     "@editorjs/nested-list": "^1.4.3",
     "@editorjs/paragraph": "^2.11.7",
     "@editorjs/table": "^2.4.5",
-    "@electric-sql/pglite": "^0.3.14",
     "@hocuspocus/provider": "^3.3.2",
     "@iconify-json/lucide": "^1.2.70",
     "@iconify-json/material-symbols": "^1.2.42",

@@ -172,10 +172,14 @@ export function useTableViews(options: UseTableViewsOptions) {
   }
 
   async function deleteField(fieldId: string) {
-    await newClientApi.deleteDynamicDbTableFieldsFieldid(fieldId)
-    const index = tableFields.value.findIndex((f: any) => f.id === fieldId)
-    if (index !== -1) tableFields.value.splice(index, 1)
-    if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    try {
+      await newClientApi.deleteDynamicDbTableFieldsFieldid(fieldId)
+      const index = tableFields.value.findIndex((f: any) => f.id === fieldId)
+      if (index !== -1) tableFields.value.splice(index, 1)
+      if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    } catch (error) {
+      ElMessage.error('删除字段失败')
+    }
   }
 
   async function updateField(fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) {

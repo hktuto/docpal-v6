@@ -99,7 +99,7 @@ export default defineAppConfig({
       name: 'contact-book'
     },
     {
-      name: 'demo-workspaces'
+      name: 'dynamic-db'
     },
   ],
   adminMenu: [

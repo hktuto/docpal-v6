@@ -27,6 +27,7 @@ export default defineNuxtConfig({
     '../../pages/client-easy-form',
     '../../pages/client-rbac',
     '../../pages/client-user-setting',
+    "../../packages/dynamic-db",
 
     '../../pages/admin-workflow-editor',
     '../../pages/admin-user',
@@ -75,7 +76,6 @@ export default defineNuxtConfig({
 
     // demo packages
     // "../../demo/database",
-    "../../demo/workspaces"
   ],
   features: {
     inlineStyles: true
