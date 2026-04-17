@@ -65,6 +65,7 @@ export function useMDKanban(props: MDKanbanProps) {
     addRow,
     updateRow,
     deleteRow,
+    viewStyleConfig: props.extraColumnConfig?.viewStyleConfig,
   }
 }
 export const useMDKanbanInject = () => {

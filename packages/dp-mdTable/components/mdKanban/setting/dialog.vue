@@ -5,6 +5,7 @@ const visible = ref(false);
 const { viewStyleConfig, updateViewFilterSortGroup, columns } = useMDKanbanInject()
 function open(setting: any) {
   visible.value = true;
+  form.value = { ...viewStyleConfig.value, ...setting }
 }
 
 function close() {
@@ -29,6 +30,7 @@ const selectedColumnDetail = computed(() => {
 async function submitSetting(){
   // check if selectedColumnId is valid
   console.log("form", form.value)
+  form.value.options = selectedColumnDetail.value?.display_structure.options
   await updateViewFilterSortGroup?.('style', form.value)
   close()
 }
@@ -49,8 +51,9 @@ defineExpose({
         :show-close="false"
         >
             <ElForm :model="form" label-position="top">
-                <ElFormItem v-if="selectFilter.length > 0" label="Column">
-                    <ElSelect v-model="form.selectedColumnId" placeholder="Select a column">
+
+                <ElFormItem v-if="selectFilter.length > 0" label="Column" >
+                    <ElSelect v-model="form.selectedColumnId" placeholder="Select a column" clearable filterable>
                         <ElOption v-for="column in selectFilter" :key="column.id" :label="column.field_name_alias" :value="column.id"></ElOption>
                     </ElSelect>
                 </ElFormItem>
@@ -58,6 +61,7 @@ defineExpose({
                     <p>No columns available</p>
                     <ElButton type="primary" @click="close">Create Select Column</ElButton>
                 </ElFormItem>
+
                 <ElFormItem>
                     <ElButton type="primary" @click="submitSetting">Save</ElButton>
                 </ElFormItem>
