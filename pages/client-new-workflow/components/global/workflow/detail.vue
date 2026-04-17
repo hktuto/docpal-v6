@@ -61,10 +61,10 @@ async function getDetail() {
         }
         break
       default:
-        const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r) => r.data)
+        const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r: any) => r.data)
         workflowJson.value = workflowTaskInstance.content
 
-        const data = await $api.get(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}`).then((r) => r.data)
+        const data = await $api.get(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}`).then((r: any) => r.data)
 
         const findNode = data.nodes.find((node: any) => node.id == detail.node_id)
         if (!!findNode) {
@@ -168,7 +168,7 @@ function toggleFullScreenForm() {
 
 async function handleFormDataGet() {
   // Get Form Data
-  await $api.get(`/oniflow/api/v1/processes/variable/${id}/variables`).then((r) => r.data)
+  await $api.get(`/oniflow/api/v1/processes/variable/${id}/variables`).then((r: any) => r.data)
 
   // if (!formJsonData) {
   //   throw Error('Get form JSON Error')
@@ -475,7 +475,6 @@ onMounted(() => {
 </script>
 
 <template>
-  {{ state.error }}
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
       <h3>{{ workflowJson.name }}</h3>
@@ -579,7 +578,7 @@ onMounted(() => {
       </el-tabs>
     </div>
 
-    <WorkflowDetailDiscussionChannel v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :id="state.taskDetail.instanceId" />
+    <WorkflowDetailDiscussionChannel v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :id="state.taskDetail.instanceId" :no-toggle="false" />
   </div>
   <div v-else>
     Workflow id not found, workflow id : {{ workflowJson.id }}.

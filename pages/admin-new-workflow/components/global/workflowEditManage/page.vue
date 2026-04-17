@@ -204,8 +204,8 @@ function openCreateDialog() {
       </template>
     </VxeGrid>
   </div>
-  <workflowManageDialog ref="workflowManageDialogRef" @refresh="reload" />
-  <workflowManageDuplicate ref="workflowManageDuplicateRef" />
+  <workflowEditManageDialog ref="workflowManageDialogRef" @refresh="reload" />
+  <workflowEditManageDuplicate ref="workflowManageDuplicateRef" />
 </template>
 
 <style lang="scss" scoped></style>
