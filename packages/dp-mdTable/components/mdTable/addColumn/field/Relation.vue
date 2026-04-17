@@ -42,10 +42,16 @@ const cascaderProps = {
 const { menus,menuIdPaths, getTop5Fields } = useRelation(props.formData.relation_table_id)
 
 async function handleRTChange(value: string[]) {
-  props.formData.relation_table_id = value[value.length - 1]
-  const top5Fields = await getTop5Fields(props.formData.relation_table_id)
-  props.formData.display_field_ids = top5Fields.map((field: any) => field.id)
-  props.formData.display_field_names = top5Fields.map((field: any) => field.field_name)
+  try {
+    props.formData.relation_table_id = value[value.length - 1]
+    const top5Fields = await getTop5Fields(props.formData.relation_table_id)
+    props.formData.display_field_ids = top5Fields.map((field: any) => field.id)
+    props.formData.display_field_names = top5Fields.map((field: any) => field.field_name)
+  } catch (error) {
+    props.formData.relation_table_id = ''
+    props.formData.display_field_ids = []
+    props.formData.display_field_names = []
+  }
 }
 </script>
 
