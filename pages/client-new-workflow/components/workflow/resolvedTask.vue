@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const tableRef = ref()
+
+const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')

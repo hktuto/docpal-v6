@@ -1,22 +1,3 @@
-<template>
-  <div>
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
-      </template>
-      <template #assignee="{ row }">
-        <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small" round @click="claimTask(row)">
-          {{ $t('workflow_claim') }}
-        </el-button>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
-      </template>
-    </VxeGrid>
-  </div>
-</template>
 <script lang="ts" setup>
 import { newClientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
@@ -33,9 +14,13 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'active_task',
   api: async (pageParams: any) => {
     const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data)
-
     return {
-      data: {}
+      data: {
+        entryList: data.items || [],
+        pageNum: data.page_num || 0,
+        pageCount: data.page_size || 1,
+        totalSize: data.total || 0
+      }
     }
   },
   columns: [
@@ -98,13 +83,6 @@ function handleFormChange(data: any) {
   reload()
 }
 
-function getDownloadParams() {
-  return {
-    interrelatedUserId: userId,
-    ...deepCopy(extraParams)
-  }
-}
-
 function handleFilterFormChange(formModel: any) {
   if (!formModel.isDesc) formModel.isDesc = true
   if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
@@ -113,42 +91,28 @@ function handleFilterFormChange(formModel: any) {
 }
 
 const ResponsiveFilterRef = ref()
-
-function getFilter() {
-  const data = [
-    {
-      key: 'orderBy',
-      label: 'tableHeader.sortBy',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'workflow_jobName', value: 'taskInstance.businessKey' },
-        { label: 'workflow_assignee', value: 'assignee' },
-        { label: 'workflow_createDate', value: 'createDate' },
-        { label: 'workflow_taskName', value: 'name' },
-        { label: 'workflow_workflowName', value: 'taskInstance.processDefinitionName' }
-      ]
-    },
-    {
-      key: 'isDesc',
-      label: 'tableHeader.sortOrder',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'tableHeader.asc', value: false },
-        { label: 'tableHeader.desc', value: true }
-      ]
-    }
-  ]
-  ResponsiveFilterRef.value.init(data)
-}
-
-onMounted(() => {
-  // getFilter()
-})
-
-defineExpose({ getDownloadParams })
 </script>
+
+<template>
+  <div>
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+      <template #toolbar_buttons>
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
+      </template>
+      <template #assignee="{ row }">
+        <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
+        <el-button :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small" round @click="claimTask(row)">
+          {{ $t('workflow_claim') }}
+        </el-button>
+      </template>
+      <template #status="{ row }">
+        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
+        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
+      </template>
+    </VxeGrid>
+  </div>
+</template>
+
 <style lang="scss" scoped>
 :deep(.el-input) {
   width: 200px;

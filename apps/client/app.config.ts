@@ -200,7 +200,10 @@ export default defineAppConfig({
     {
       label: 'New Workflow',
       icon: 'dp-icon:flow-outline',
-      children: [{ name: 'admin-new-workflow-manage' }]
+      children: [
+        { name: 'admin-new-workflow-manage' },
+        { name: 'admin-new-workflow-edit-manage'}
+      ]
     },
 
     {

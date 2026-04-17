@@ -25,8 +25,8 @@ const workflowRef = ref()
       <el-tab-pane :label="$t('workflow_activeTask')" name="activeTask">
         <WorkflowActiveTask v-if="state.activeTab === 'activeTask'" ref="workflowRef" />
       </el-tab-pane>
-      <el-tab-pane :label="$t('workflow_adhocTask')" name="adhocTask">
-        <WorkflowAdhocTask v-if="state.activeTab === 'adhocTask'" ref="workflowRef" />
+      <el-tab-pane :label="$t('Resolved Task')" name="resolvedTask">
+        <WorkflowResolvedTask v-if="state.activeTab === 'resolvedTask'" ref="workflowRef" />
       </el-tab-pane>
     </el-tabs>
   </div>

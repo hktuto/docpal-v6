@@ -1,16 +1,3 @@
-<template>
-  <div>
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
-      </template>
-    </VxeGrid>
-  </div>
-</template>
 <script lang="ts" setup>
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
@@ -27,9 +14,14 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
   api: (pageParams: any) => {
-    $api.get(`'/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
+    const data = $api.get(`'/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
     return {
-      data: {}
+      data: {
+        entryList: data.items || [],
+        pageNum: data.page_num || 0,
+        pageCount: data.page_size || 1,
+        totalSize: data.total || 0
+      }
     }
   },
   columns: [
@@ -66,8 +58,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
-  console.log(row, 'completeTask')
-  // router.push(`/easyFormManage/${row.id}`);
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -76,30 +66,6 @@ function handleDblclick(row: any) {
     }),
     false
   )
-}
-
-async function claimTask(row: any) {
-  await newClientApi.postWorkflowTaskClaim({
-    taskId: row.id,
-    userId
-  })
-  query({})
-}
-
-function getDownloadParams() {
-  return {
-    completed: true,
-    userId,
-    ...deepCopy(extraParams)
-  }
-}
-
-function handleFormChange(data: any) {
-  extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
-    if (data.formModel[key] && data.formModel[key].length > 0) prev[key] = data.formModel[key]
-    return prev
-  }, {})
-  reload()
 }
 
 const ResponsiveFilterRef = ref()
@@ -111,41 +77,22 @@ function handleFilterFormChange(formModel: any) {
   reload()
 }
 
-function getFilter() {
-  const data = [
-    {
-      key: 'orderBy',
-      label: 'tableHeader.sortBy',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'table_name', value: 'businessKey' },
-        { label: 'workflow_workflowName', value: 'processDefinitionName' },
-        { label: 'workflow_createDate', value: 'startTime' },
-        { label: 'workflow_completeDate', value: 'completeDate' },
-        { label: 'workflow_duration', value: 'duration' }
-      ]
-    },
-    {
-      key: 'isDesc',
-      label: 'tableHeader.sortOrder',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'tableHeader.asc', value: false },
-        { label: 'tableHeader.desc', value: true }
-      ]
-    }
-  ]
-  ResponsiveFilterRef.value.init(data)
-}
-
-onMounted(() => {
-  // getFilter()
-})
-
-defineExpose({ getDownloadParams })
 </script>
+
+<template>
+  <div>
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+      <template #toolbar_buttons>
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
+      </template>
+      <template #status="{ row }">
+        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
+        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
+      </template>
+    </VxeGrid>
+  </div>
+</template>
+
 <style lang="scss" scoped>
 :deep(.el-input) {
   width: 200px;
