@@ -87,7 +87,7 @@ const detailComponent = computed(() => {
       if (databaseMenuRouteParams.value.pageType === 'setting') {
         return 'LazyDatabaseSettingTable'
       }
-      return 'LazyDatabaseDetailTableViews'
+      return 'LazyDatabaseDetailTable'
     case 'view':
       if (databaseMenuRouteParams.value.pageType === 'setting') {
         return 'LazyDatabaseSettingView'
