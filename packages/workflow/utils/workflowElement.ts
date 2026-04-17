@@ -1,7 +1,7 @@
 import { Cell, CellView, Graph } from '@antv/x6'
 import type { NodeItem } from './jsonConversion'
 import { getServiceTaskItemConfig } from '@packages/workflow/utils/serviceTaskItemConfig'
-import { getUrlOrigin } from '#imports'
+// import { getUrlOrigin } from '#imports'
 
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
@@ -150,6 +150,7 @@ export enum contextMenuComponentType {
   StartEvent = 'LazyContextStartEvent',
   EndEvent = 'LazyContextEndEvent',
   UserTask = 'LazyContextUserTask',
+  signatureTask = 'LazyContextSignature',
   // Gateway
   ExclusiveGateway = 'LazyContextExclusiveGateway',
   ParallelGateway = 'LazyContextParallelGateway',
@@ -210,6 +211,7 @@ export type CellTypeItem = {
         booleanButton?: any[]
         rules?: any
         maxOutgoing?: number
+        signature?: any
       }
       celCondition?: string
     }
@@ -470,14 +472,14 @@ export const workflowElement: WorkflowElement = {
         label: 'User Form',
         group: '',
         order: 0
+      },
+      {
+        id: CellType.signatureTask,
+        label: 'User Signature Task',
+        icon: 'lucide:user-round-pen',
+        group: '',
+        order: 0
       }
-      // {
-      //   id: CellType.signatureTask,
-      //   label: 'User Signature Task',
-      //   icon: 'lucide:user-round-pen',
-      //   group: '',
-      //   order: 0
-      // }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
       const title = workflowNodeItem.type === CellType.signatureTask ? 'User Signature Task' : 'User Task'
@@ -486,9 +488,9 @@ export const workflowElement: WorkflowElement = {
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       if (workflowNodeItem.metadata.type === CellType.signatureTask) {
-        return 'LazyContextSignature'
+        return contextMenuComponentType.signatureTask
       }
-      return 'LazyContextUserTask'
+      return contextMenuComponentType.UserTask
     }
   },
   Gateway: {
@@ -682,9 +684,9 @@ const workflowCellElementTemplate: CellTypeItem = {
           showSumBitButton: true,
           submitButtonLabel: 'Submit',
           showSaveDraft: false,
-          saveDraftLabel: 'Save Draft'
-        },
-        booleanButton: []
+          saveDraftLabel: 'Save Draft',
+          booleanButton: []
+        }
       }
     }
   },
@@ -695,16 +697,16 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Signature Task',
       label: 'New Signature Task',
       documentation: '',
-      type: CellType.signatureTask,
+      type: CellType.userTask,
       inputSchema: '',
       outputSchema: '',
       config: {
         assignee: '',
         candidate_roles: [],
-        candidate_groups: [],
-        due_date: '',
-        input_mapping: {},
-        output_mapping: {}
+        candidate_groups: []
+        // due_date: '',
+        // input_mapping: {},
+        // output_mapping: {}
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
@@ -712,8 +714,14 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
         formKey: '',
-        buttonSetting: {},
-        booleanButton: []
+        buttonSetting: {
+          showSumBitButton: true,
+          submitButtonLabel: 'Submit',
+          showSaveDraft: false,
+          saveDraftLabel: 'Save Draft',
+          booleanButton: []
+        },
+        signature: {}
       }
     }
   },

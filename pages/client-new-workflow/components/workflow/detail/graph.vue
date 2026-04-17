@@ -1,22 +1,23 @@
 <template>
   <div class="bpmnContainer">
-    <BpmnReplayViewer ref="viewerRef" :bpmnXml="bpmnFile" :x6Json="x6Json" :steps="steps" autoplay>
-    </BpmnReplayViewer>
+    <BpmnReplayViewer ref="viewerRef" :bpmnXml="bpmnFile" :x6Json="x6Json" :steps="steps" autoplay> </BpmnReplayViewer>
   </div>
 </template>
 <script lang="ts" setup>
 import { newClientApi } from 'api'
 // import VueBpmn from 'vue-bpmn'
-const props = withDefaults(defineProps<{
-  processDefinitionId?: string,
-  processKey?: string,
-  deploymentId?: string,
-  processDefinitionVersionId?: string,
-  steps: any[],
-  step: string
-}>(), {
-  steps: () => []
-})
+const props = withDefaults(
+  defineProps<{
+    processDefinitionId?: string
+    processKey?: string
+    deploymentId?: string
+    processDefinitionVersionId?: string
+    steps: any[]
+  }>(),
+  {
+    steps: () => []
+  }
+)
 
 const bpmnFile = ref()
 const viewerRef = ref()
@@ -28,9 +29,9 @@ const getBpmn = async (processDefinitionId: any, processKey: any) => {
     if (!processDefinitionId && !processKey) return
     const data = processKey
       ? {
-        processKey,
-        deploymentId: props.deploymentId
-      }
+          processKey,
+          deploymentId: props.deploymentId
+        }
       : { processDefinitionId, deploymentId: props.deploymentId }
     const blob: any = await newClientApi.postDocpalWorkflowProcessModel(data, {
       format: 'blob'
@@ -53,11 +54,15 @@ const getBpmn = async (processDefinitionId: any, processKey: any) => {
   }
 }
 
-watch(() => [props.processKey, props.processDefinitionId], async ([newKey, newId]) => {
-  if (newKey || newId) {
-    await getBpmn(newId, newKey)
-  }
-}, { immediate: true })
+watch(
+  () => [props.processKey, props.processDefinitionId],
+  async ([newKey, newId]) => {
+    if (newKey || newId) {
+      await getBpmn(newId, newKey)
+    }
+  },
+  { immediate: true }
+)
 </script>
 <style lang="scss" scoped>
 .bpmnContainer {
@@ -70,6 +75,4 @@ watch(() => [props.processKey, props.processDefinitionId], async ([newKey, newId
   height: 100%;
   width: 100%;
 }
-
 </style>
-

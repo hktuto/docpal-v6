@@ -31,12 +31,17 @@ interface Config {
  */
 interface Metadata {
   type: string
-  tags: string
+  tags: WorkflowElementType
   x: number
   y: number
   width: number
   height: number
   icon?: string
+  formKey?: string
+  buttonSetting?: any
+  signature?: any
+  rules?: any
+  maxOutgoing?: number
 }
 
 /**

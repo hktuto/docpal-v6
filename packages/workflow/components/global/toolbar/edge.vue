@@ -11,10 +11,11 @@ type EdgeData = {
   source_node_id: string
   target_node_id: string
   flow_control: {
-    type: 'sequence' | 'conditional' | 'default'
+    type: 'sequence' | 'conditional'
     condition?: string
   }
   label?: string
+  metadata: any
 }
 
 function setupEdge() {
@@ -98,26 +99,15 @@ function setupEdge() {
         type: 'sequence'
       },
       label: '',
-      metadata:{
+      metadata: {
         type: source.data.metadata.type
       }
     }
 
     // type is Gateway
     if (source.data.metadata.tags === WorkflowElementType.Gateway) {
-      const allNodeConnected: any[] = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge: any) => {
-        return connectedEdge.id !== edge.id && connectedEdge.source.cell === source.id
-      })
       const metadata = source.data.metadata
       newEdgeData.flow_control.condition = ''
-
-      // 亦或網關
-      if (metadata.type === CellType.exclusiveGateway) {
-        const edgeLabel = allNodeConnected.length > 0 ? 'False' : 'True'
-        if (isNew) {
-          edge.setLabels(edgeLabel)
-        }
-      }
 
       // Exclusive or Inclusive Gateway 的出綫必須是 'conditional',
       if (metadata.type === CellType.exclusiveGateway || metadata.type === CellType.inclusiveGateway) {

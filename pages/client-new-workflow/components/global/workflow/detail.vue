@@ -447,10 +447,6 @@ const handleTaskInfoChange = async (taskDetailRes: any, isClaim: boolean) => {
   // state.loading = false
 }
 
-function tabChange(tab: string) {
-  // router.push({query: { tab, state: workflowType }})
-}
-
 function handleBack() {
   routerProvider?.navigateTo(
     routeWorkflowPage({
@@ -478,11 +474,12 @@ onMounted(() => {
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
       <h3>{{ workflowJson.name }}</h3>
-      <el-tabs v-model="state.activeTab" class="dp-tabs--auto" @tab-change="tabChange">
+      <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
           <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="state.taskDetail" :state="workflowType" />
           <WorkflowDetailInfo v-else :taskDetail="detail" @change="handleTaskInfoChange" />
         </el-tab-pane>
+
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
           <div
             ref="workflowFormContainerRef"
@@ -572,13 +569,11 @@ onMounted(() => {
           />
         </el-tab-pane>
 
-        <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && isMobile" :label="$t('common_discussionChannel')" name="command">
+        <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :label="$t('common_discussionChannel')" name="command">
           <WorkflowDetailDiscussionChannel :id="state.taskDetail.instanceId" :noToggle="true" />
         </el-tab-pane>
       </el-tabs>
     </div>
-
-    <WorkflowDetailDiscussionChannel v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :id="state.taskDetail.instanceId" :no-toggle="false" />
   </div>
   <div v-else>
     Workflow id not found, workflow id : {{ workflowJson.id }}.

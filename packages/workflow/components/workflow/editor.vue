@@ -97,16 +97,10 @@ function init() {
             return false
           }
 
-          // start Event 出綫只能是一條
           const nodeType = cell.getData().metadata.type
-          if (!!nodeType && nodeType === 'StartEvent') {
-            const outgoingEdges = this.model.getConnectedEdges(cell, { outgoing: true })
-            return !outgoingEdges.length === 1
-          }
-
           // 限制 gateway 類型的 node 出綫
           if (GATEWAY_NODE_TYPES.has(nodeType)) {
-            const outgoingEdges = this.model.getConnectedEdges(cell, { outgoing: true })
+            const outgoingEdges = graph.value?.getConnectedEdges(cell, { outgoing: true })
             if (outgoingEdges.length === cell.getData().metadata.maxOutgoing) {
               return false
             }

@@ -1,32 +1,3 @@
-<template>
-  <div class="workflowFormContainer">
-    <FormRenderer
-      :class="{ vformReadonly: state.readonly, workflowForm: true }"
-      ref="FormRendererRef"
-      :formJson="formJson"
-      :data="formData"
-      @previewFileInit="handlePreviewFileInit"
-      @formChange="$emit('formChange')"
-    >
-      <template v-slot:previewFile="{ data }">
-        <LazyContextFormReaderDocument class="WorkflowDetailReader" ref="WorkflowReaderDocumentRef"/>
-      </template>
-      <template v-for="item in formRenderSlots" :key="item.name" v-slot:[item.name]="{ data }">
-        <component
-          :is="item.component"
-          :ref="(el: any) => (formRenderSlotsRef[item.name] = el)"
-          :disabled="state.readonly"
-          :formData="state.formData"
-          :options="data.options?.dynamicConfig"
-          :vformOptions="data.options"
-          :taskDetail="props.taskDetail"
-        />
-      </template>
-    </FormRenderer>
-    <slot name="action" />
-  </div>
-</template>
-
 <script lang="ts" setup>
 import { newClientApi } from 'api'
 
@@ -296,6 +267,35 @@ provide('workflowFormRender', {
   getFormData
 })
 </script>
+
+<template>
+  <div class="workflowFormContainer">
+    <FormRenderer
+      :class="{ vformReadonly: state.readonly, workflowForm: true }"
+      ref="FormRendererRef"
+      :formJson="formJson"
+      :data="formData"
+      @previewFileInit="handlePreviewFileInit"
+      @formChange="$emit('formChange')"
+    >
+      <template v-slot:previewFile="{ data }">
+        <LazyContextFormReaderDocument class="WorkflowDetailReader" ref="WorkflowReaderDocumentRef" />
+      </template>
+      <template v-for="item in formRenderSlots" :key="item.name" v-slot:[item.name]="{ data }">
+        <component
+          :is="item.component"
+          :ref="(el: any) => (formRenderSlotsRef[item.name] = el)"
+          :disabled="state.readonly"
+          :formData="state.formData"
+          :options="data.options?.dynamicConfig"
+          :vformOptions="data.options"
+          :taskDetail="props.taskDetail"
+        />
+      </template>
+    </FormRenderer>
+    <slot name="action" />
+  </div>
+</template>
 
 <style lang="scss" scoped>
 .workflowForm {
