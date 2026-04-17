@@ -1,11 +1,11 @@
 <template>
   <div v-if="showToolbar" class="table-toolbar">
     <div class="toolbar-left">
-      <el-input v-if="showSearch" v-model="searchValue" placeholder="Filter..." style="width: 200px" @input="handleSearch">
+      <!-- <el-input v-if="showSearch" v-model="searchValue" placeholder="Filter..." style="width: 200px" @input="handleSearch">
         <template #prefix>
           <el-icon><Search /></el-icon>
         </template>
-      </el-input>
+      </el-input> -->
       <ToolsColumnVisibilityPopover />
       <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="(v) => handleRefresh('groupInfo', v)" />
       <ToolsFilterButton :available-columns="groupableColumns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
@@ -27,7 +27,7 @@
           <el-icon><Download /></el-icon>
           Export
         </el-button> -->
-        <el-button type="primary" @click="handleSaveView"> Save View </el-button>
+        <!-- <el-button type="primary" @click="handleSaveView"> Save View </el-button> -->
       </slot>
     </div>
   </div>
