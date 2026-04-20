@@ -8,7 +8,6 @@ const vFormRef = ref()
 const workflowEditorRef = ref()
 const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
-const graphEl = ref()
 const activeName = ref('Form')
 const state = reactive({
   availableWorkflow: [],
@@ -21,16 +20,6 @@ const state = reactive({
 const pageButtonSetting = ref<any>(null)
 const openWorkflowEdit = ref(false)
 const userId = useUserId()
-
-function tabChangeHandler() {
-  if (activeName.value === 'Graph') {
-    // @ts-ignore
-    nextTick(async () => {
-      console.log(state.selectedWorkflow)
-      graphEl.value.init(state.bpmnXml)
-    })
-  }
-}
 
 const { workflowList } = await getWorkflowList()
 
@@ -60,6 +49,7 @@ async function workflowClickHandler(item: any) {
     return
   }
 
+  console.log(123, data)
   state.selectedWorkflow = deepCopy(data)
 
   // Open in new page
@@ -185,16 +175,17 @@ defineExpose({ workflowClickHandler })
         </div>
       </div>
     </template>
-    <ElTabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading" @tab-change="tabChangeHandler">
-      <ElTabPane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
+    <el-tabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading">
+      <el-tab-pane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
         <WorkflowDetailFormRender ref="vFormRef" />
-      </ElTabPane>
-      <ElTabPane :label="$t('workflow_graph')" name="Graph">
+      </el-tab-pane>
+      <el-tab-pane :label="$t('workflow_graph')" name="Graph">
         <div v-if="openWorkflowEdit" class="pageContainer">
           <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :showSidebar="false" />
         </div>
-      </ElTabPane>
-    </ElTabs>
+      </el-tab-pane>
+    </el-tabs>
+
     <template #footer>
       <el-button
         v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"

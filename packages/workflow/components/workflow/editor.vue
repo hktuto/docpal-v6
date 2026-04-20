@@ -25,7 +25,7 @@ const props = defineProps<{
   workflowData: any
   readonly: boolean
   showSidebar: boolean
-  isActivate: boolean
+  isActivate?: boolean
 }>()
 const { workflowData: workflowJsonObject, readonly, showSidebar, isActivate } = toRefs(props)
 

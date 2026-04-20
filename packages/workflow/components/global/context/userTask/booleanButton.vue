@@ -13,14 +13,26 @@ if (!graphProvider) {
 }
 const { getVariablesByType } = useVariablesProvide()
 const buttonStyle = ['primary', 'success', 'warning', 'danger', 'info', 'text']
-const buttonSetting = ref({
+type buttonItem = {
+  booleanValue: string
+  buttonStyle: string
+  buttonText: string
+  applyState: true
+}
+
+const buttonSetting = ref<{
+  showSumBitButton: boolean
+  submitButtonLabel: string
+  showSaveDraft: boolean
+  saveDraftLabel: string
+  booleanButton: buttonItem[]
+}>({
   showSumBitButton: true,
   submitButtonLabel: 'Submit',
   showSaveDraft: true,
   saveDraftLabel: 'Save Draft',
   booleanButton: []
 })
-const form = ref([])
 const allBooleanInfo = computed(() => {
   return getVariablesByType(['boolean'])
 })
@@ -41,20 +53,20 @@ function updateData() {
       ...nodeData.metadata,
       buttonSetting: buttonSetting.value
     },
-    version: nodeData.version + 1 || 0
+    version: nodeData.version + 1 || 1
   }
   node.setData(newData, { overwrite: true, deep: true, silent: false })
   graphProvider?.graph.value?.stopBatch('update-boolean-button-data')
 }
 
-const defaultForm = {
+const defaultForm: buttonItem = {
   booleanValue: '',
   buttonStyle: 'primary',
   buttonText: 'Submit',
   applyState: true
 }
 function addButton() {
-  if (!buttonSetting.value.booleanButton){
+  if (!buttonSetting.value.booleanButton) {
     buttonSetting.value.booleanButton = []
   }
 
@@ -92,7 +104,7 @@ onMounted(() => {
     <div>
       <span>Button Setting</span>
       <el-form label-position="top">
-        <el-form-item label="Show Submit Button">
+        <el-form-item v-if="node.data.type !== 'StartEvent'" label="Show Submit Button">
           <el-switch v-model="buttonSetting.showSumBitButton" @change="updateData" />
         </el-form-item>
         <el-form-item label="Submit Button Label">
@@ -139,7 +151,7 @@ onMounted(() => {
         </el-form>
       </template>
       <div class="actions">
-        <el-button text @click="addButton">Add</el-button>
+        <el-button v-if="node.data.type !== 'StartEvent'" text @click="addButton">Add</el-button>
       </div>
     </div>
   </div>

@@ -3,8 +3,6 @@ import { CellType } from '#imports'
 export async function getButtonAdditionalElement(metadata: any) {
   let signatureSetting: any = {}
   let buttonSetting: any
-  let buttons: any[] = []
-  let components: any[] = []
 
   // Check Task is Signature
   if (metadata.type === CellType.signatureTask) {
@@ -14,7 +12,6 @@ export async function getButtonAdditionalElement(metadata: any) {
     // signatureSetting.workflowToTemplateMapping = metadata.workflowToTemplateMapping
     // signatureSetting.templateDetail = metadata.templateDetail
   }
-
   buttonSetting = metadata.buttonSetting
 
   return {
