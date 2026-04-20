@@ -122,7 +122,7 @@ onMounted(() => {
         <el-form-item label="Submit Button Label">
           <el-input v-model="buttonSetting.submitButtonLabel" @change="setForm" />
         </el-form-item>
-        <template v-if="node.data.type !== 'StartEvent'">
+        <template v-if="node.data.metadata.type === 'UserTask'">
           <el-form-item label="Show Save Draft Button">
             <el-switch v-model="buttonSetting.showSaveDraft" @change="setForm" />
           </el-form-item>

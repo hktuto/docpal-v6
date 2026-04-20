@@ -1,20 +1,22 @@
 <template>
   <el-dialog :model-value="visible" @close="handleClose" title="Select Variable" width="500px">
-    <el-table
-      :data="variables"
-      @row-click="handleSelect"
-      highlight-current-row
-      :row-class-name="rowClassName"
-      style="margin-bottom: 1rem;"
-    >
-      <el-table-column prop="name" label="Name" />
-      <el-table-column prop="type" label="Type"/>
-      <el-table-column prop="displayValue" label="Display Value" />
-    </el-table>
-    <div class="actions">
+    <div class="table-style">
+      <el-table
+        :data="variables"
+        @row-click="handleSelect"
+        highlight-current-row
+        :row-class-name="rowClassName"
+        style="margin-bottom: 1rem;"
+      >
+        <el-table-column prop="name" label="Name" />
+        <el-table-column prop="type" label="Type"/>
+        <el-table-column prop="displayValue" label="Display Value" />
+      </el-table>
+    </div>
+    <template #footer>
       <el-button type="primary" :disabled="!selected" @click="handleInsert" v-tooltip="!selected ? 'Select a variable' : ''">Insert</el-button>
       <el-button @click="handleClose">Cancel</el-button>
-    </div>
+    </template>
   </el-dialog>
 </template>
 
@@ -58,12 +60,11 @@ function rowClassName({ row }: { row: DocTemplateVariable }) {
 </script>
 
 <style lang="scss" scoped>
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-}
 .selected-row {
   background: #e6f7ff !important;
+}
+.table-style{
+  height: 500px;
+  overflow-y: auto;
 }
 </style> 

@@ -19,14 +19,9 @@ const companyOptions = ref<any[]>([])
 
 async function getCompanyList() {
   try {
-    const data = await newAdminApi
-      .postDocpalAclRoleList({
-        pageNum: 0,
-        pageSize: 100
-      })
-      .then((r: any) => r.data)
-    if (data && data.entryList) {
-      companyOptions.value = data.entryList
+    const data = await newAdminApi.postDocpalAclRoleList([]).then((r: any) => r.data)
+    if (!!data) {
+      companyOptions.value = data
     }
   } catch (e) {
     console.log(e)

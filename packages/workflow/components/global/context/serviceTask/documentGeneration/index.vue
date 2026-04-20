@@ -114,7 +114,16 @@ async function getTemplateVariableList() {
     if (!variable) {
       return
     }
-    variables.value = variable
+
+    variables.value = variable.map((item: any) => {
+      Object.keys(fields).forEach((key: string) => {
+        if (item.id === key) {
+          item.value = fields[key]
+        }
+      })
+      return item
+    })
+
     return
   }
 

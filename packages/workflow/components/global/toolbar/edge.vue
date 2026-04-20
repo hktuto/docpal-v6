@@ -28,7 +28,6 @@ function setupEdge() {
     // cell.setRouter('normal')
 
     cell.addTools([
-      ...getGatewayButton(cell),
       {
         name: 'vertices',
         args: {
@@ -117,45 +116,6 @@ function setupEdge() {
     edge.data = newEdgeData
     edge.setRouter('manhattan')
   })
-}
-
-function getGatewayButton(cell: any) {
-  if (cell.data?.target_node_id?.includes('ParallelGateway_') || cell.data?.source_node_id?.includes('Gateway_')) {
-    return [
-      {
-        name: 'button',
-        args: {
-          markup: [
-            {
-              tagName: 'circle',
-              selector: 'button',
-              attrs: {
-                r: 18,
-                stroke: '#fe854f',
-                strokeWidth: 2,
-                fill: 'white',
-                cursor: 'pointer'
-              }
-            },
-            {
-              tagName: 'text',
-              textContent: 'Gateway',
-              selector: 'icon',
-              attrs: {
-                fill: '#fe854f',
-                fontSize: 8,
-                textAnchor: 'middle',
-                pointerEvents: 'none',
-                y: '0.3em'
-              }
-            }
-          ],
-          distance: 50
-        }
-      }
-    ]
-  }
-  return []
 }
 
 onMounted(() => {

@@ -15,6 +15,11 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('provider not found')
 }
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
+
 const { workflowKey } = graphProvider
 
 const formItems = ref<any[]>([])
@@ -90,6 +95,15 @@ async function getFormJson() {
   }
 }
 
+const processNode = computed(() => {
+  const process: Node = graphProvider?.graph.value?.getNodes().find((node: any) => node.getData().type === 'process')
+  if (!process) {
+    routerProvider?.message.error('Process Node not found')
+    return {}
+  }
+  return process
+})
+
 onMounted(() => {
   useWorkflowAdditionalContext(refreshData)
 })
@@ -123,7 +137,7 @@ watch(
     </div>
   </div>
 
-  <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="node" />
+  <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="processNode" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" @submit="handelSubmitForm" />
   <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
     <LazyContextFormRender ref="fromRenderRef" />
