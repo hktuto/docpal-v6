@@ -169,11 +169,6 @@ function toggleFullScreenForm() {
 async function handleFormDataGet() {
   // Get Form Data
   await $api.get(`/oniflow/api/v1/processes/variable/${id}/variables`).then((r: any) => r.data)
-
-  // if (!formJsonData) {
-  //   throw Error('Get form JSON Error')
-  // }
-  // formJsonData.jsonValue
 }
 
 function toggleShowForm() {
@@ -436,7 +431,7 @@ async function addTonalSubmit({ formData, attr_booleanValue }: any) {
 const handleTaskInfoChange = async (taskDetailRes: any, isClaim: boolean) => {
   try {
     state.taskDetail = { ...taskDetailRes }
-    handleGetActivity()
+    await handleGetActivity()
     if (!isAssigneeUser.value) {
       state.loading = true
       await handleFormDataGet()

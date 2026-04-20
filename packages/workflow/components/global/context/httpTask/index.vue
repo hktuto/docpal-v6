@@ -9,7 +9,6 @@ const { node } = defineProps<{
 const variablesParamsRef = ref()
 const variablesHeaderRef = ref()
 const bodyDialogRef = ref()
-const outputMappingRef = ref()
 const outputMappingDialogRef = ref()
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
@@ -174,6 +173,11 @@ function handleOutputMapping(mapping: any) {
   updateData()
 }
 
+const outputMapping = computed(() => {
+  const arr: Array<{ name: string; value: string }> = Object.entries(formData.value.output_mapping).map(([key, value]) => ({ name: key, value }))
+  return arr
+})
+
 function openBodyEdit() {
   bodyDialogRef.value.open(formData.value.body)
 }
@@ -270,6 +274,12 @@ watch(
     <el-form-item :label="t('Response Mapping')">
       <el-button size="small" type="primary" style="width: 100%" @click="handleOpenResponseDialog">Add Response Mapping</el-button>
     </el-form-item>
+
+    <el-divider />
+
+    <template v-for="(item, index) in outputMapping" :key="index">
+      {{ item.name }} --- {{ item.value }}
+    </template>
   </el-form>
 
   <LazyContextHttpTaskVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
