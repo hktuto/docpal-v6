@@ -39,7 +39,8 @@
           "showSumBitButton": true,
           "submitButtonLabel": "Submit",
           "showSaveDraft": false,
-          "saveDraftLabel": "Save Draft"
+          "saveDraftLabel": "Save Draft",
+          "booleanButton": []
         }
       }
     },

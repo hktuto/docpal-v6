@@ -23,42 +23,47 @@ function ensureUserId(): string {
 const signatureCanvasRef = ref<any>(null)
 
 async function getUserSignature() {
-  const signature = await newClientApi.getDmsUserprofileUseridSignature(ensureUserId(), {
-    format: 'blob', headers: {
-      'noThrowError': true
+  const signature = (await newClientApi.getDmsUserprofileUseridSignature(ensureUserId(), {
+    format: 'blob',
+    headers: {
+      noThrowError: true
     }
-  }) as unknown as Blob
+  })) as unknown as Blob
 
   if (!signature || signature.size === 0) {
     signaturePreview.value.push({
-      type: 'user', img: ''
+      type: 'user',
+      img: ''
     })
     return
   }
   const reader = new FileReader()
   reader.readAsDataURL(signature)
-  reader.onloadend = function() {
+  reader.onloadend = function () {
     var base64data = reader.result
     signatures.value.push(base64data)
     signaturePreview.value.push({
-      type: 'user', img: base64data
+      type: 'user',
+      img: base64data
     })
   }
 }
 
 async function getCompanyChop(chopId: string) {
-  const signature = await newClientApi.getDmsCompanyprofilesChopsCompanychopidFile(chopId, {
-    format: 'blob', headers: {
-      'noThrowError': true
+  const signature = (await newClientApi.getDmsCompanyprofilesChopsCompanychopidFile(chopId, {
+    format: 'blob',
+    headers: {
+      noThrowError: true
     }
-  }) as unknown as Blob
+  })) as unknown as Blob
   const reader = new FileReader()
   reader.readAsDataURL(signature)
-  reader.onloadend = function() {
+  reader.onloadend = function () {
     var base64data = reader.result
     signatures.value.push(base64data)
     signaturePreview.value.push({
-      type: 'company', img: base64data
+      type: 'company',
+      img: base64data
     })
   }
 }
@@ -171,6 +176,7 @@ defineExpose({
   </el-dialog>
   <SignatureCanvas ref="signatureCanvasRef" @submit="handleSubmitSignature" />
 </template>
+
 <style scoped>
 .signatureContainer {
   display: flex;

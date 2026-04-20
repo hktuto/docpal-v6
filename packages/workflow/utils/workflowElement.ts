@@ -721,7 +721,10 @@ const workflowCellElementTemplate: CellTypeItem = {
           saveDraftLabel: 'Save Draft',
           booleanButton: []
         },
-        signature: {}
+        signature: {
+          documentTemplateId: '',
+          signatureValue: ''
+        }
       }
     }
   },

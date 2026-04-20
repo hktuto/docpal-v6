@@ -1,27 +1,24 @@
 import { CellType } from '#imports'
 
-export async function getBpmnAdditionalElement(metadata: any) {
+export async function getButtonAdditionalElement(metadata: any) {
   let signatureSetting: any = {}
   let buttonSetting: any
   let buttons: any[] = []
   let components: any[] = []
 
   // Check Task is Signature
-  if (metadata.tags === CellType.signatureTask) {
+  if (metadata.type === CellType.signatureTask) {
+    signatureSetting.templateId = metadata.signature.documentTemplateId
     // signatureSetting.templateVariables = metadata.templateVariables
     // signatureSetting.workflowKeyToStoreSignature = metadata.workflowKeyToStoreSignature
     // signatureSetting.workflowToTemplateMapping = metadata.workflowToTemplateMapping
-    // signatureSetting.templateId = metadata.templateId
     // signatureSetting.templateDetail = metadata.templateDetail
-    // signatureSetting.templateVariables = metadata.templateVariables
   }
 
   buttonSetting = metadata.buttonSetting
 
   return {
     buttonSetting,
-    buttons,
-    components,
     signatureSetting
   }
 }

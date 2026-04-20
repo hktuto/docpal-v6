@@ -2,7 +2,7 @@
 import { ElMessage } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
-import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
+import { getButtonAdditionalElement, getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 
 const vFormRef = ref()
 const workflowEditorRef = ref()
@@ -17,13 +17,10 @@ const state = reactive({
   bpmnXml: null,
   loading: false
 })
-type AdditionalButton = {
-  props: any
-  component: string
-}
-const additionalButton = ref<AdditionalButton[]>([])
+
 const pageButtonSetting = ref<any>(null)
 const openWorkflowEdit = ref(false)
+const userId = useUserId()
 
 function tabChangeHandler() {
   if (activeName.value === 'Graph') {
@@ -72,7 +69,22 @@ async function workflowClickHandler(item: any) {
   }
 
   // start Task has no set E-Form
-  if (!startTask.metadata.formKey || startTask.metadata.formKey === '') return
+  if (!startTask.metadata.formKey || startTask.metadata.formKey === '') {
+    // Directly Submit form
+    try {
+      const formParams = {
+        start_user_id: userId.value,
+        definition_id: state.selectedWorkflow.id,
+        variables: {}
+      }
+
+      await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
+    } catch (e) {
+      console.log(e)
+    }
+
+    return
+  }
 
   state.formDialogVisible = true
   await initForm(startTask)
@@ -97,8 +109,7 @@ async function initForm(startTask: any) {
 }
 
 async function handleAdditionalSetting(metadata: any) {
-  const { buttons, components, signatureSetting, buttonSetting } = await getBpmnAdditionalElement(metadata)
-  additionalButton.value = buttons
+  const { buttonSetting } = await getButtonAdditionalElement(metadata)
   if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
   }
@@ -107,7 +118,6 @@ async function handleAdditionalSetting(metadata: any) {
 async function checkAndSubmit() {
   state.loading = true
   const formData = await vFormRef.value.getFormData()
-  const userId = useUserId()
 
   if (!!formData) {
     const formParams = {
