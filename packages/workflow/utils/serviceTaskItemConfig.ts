@@ -54,15 +54,10 @@ export const getServiceTaskItemConfig = {
     url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
     headers: generatorHTTPRequestTaskHeaders(),
     body: {
-      templateId: '01KG66ARVKJGEFS4FVDV4QFT1Y',
-      variables: {
-        name: '${username}'
-      }
+      templateId: '',
+      variables: {}
     },
-    output_mapping: {
-      create_status: 'success',
-      document_number: '${data}'
-    }
+    output_mapping: {}
   },
   FilingDocuments: {
     implementation: 'filing_document',

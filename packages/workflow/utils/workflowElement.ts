@@ -1,7 +1,6 @@
 import { Cell, CellView, Graph } from '@antv/x6'
 import type { NodeItem } from './jsonConversion'
 import { getServiceTaskItemConfig } from '@packages/workflow/utils/serviceTaskItemConfig'
-// import { getUrlOrigin } from '#imports'
 
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
@@ -415,10 +414,11 @@ function graphItemFromWorkflowNode(
   const meta = workflowNodeItem.metadata
   const dw = options?.defaultWidth ?? 120
   const dh = options?.defaultHeight ?? 64
+
   return {
     id: workflowNodeItem.id,
     markup: GRAPH_NODE_MARKUP,
-    attrs: GenAttrs(title, workflowNodeItem.label, workflowNodeItem.metadata.icon),
+    attrs: GenAttrs(title, workflowNodeItem.label, meta.icon),
     shape: 'bpmn-node',
     zIndex: 1,
     visible: true,
@@ -482,7 +482,7 @@ export const workflowElement: WorkflowElement = {
       }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const title = workflowNodeItem.type === CellType.signatureTask ? 'User Signature Task' : 'User Task'
+      const title = workflowNodeItem.metadata.type === CellType.signatureTask ? 'User Signature Task' : 'User Task'
       return graphItemFromWorkflowNode(workflowNodeItem, title)
     },
     clickHandler: () => {},
@@ -691,7 +691,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   SignatureTask: {
-    ...createNodeShell({ id: 'New_SignatureTask', paletteLabel: 'Signature Task', icon: '/icons/form.svg' }),
+    ...createNodeShell({ id: 'New_SignatureTask', title: 'Signature Task', paletteLabel: 'Signature Task', icon: '/icons/form.svg' }),
     data: {
       id: '',
       name: 'Signature Task',
@@ -827,16 +827,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.uniqueIdGenerator,
       execution: { ...DEFAULT_TASK_EXECUTION },
-      config: {
-        method: 'POST',
-        url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
-        headers: generatorHTTPRequestTaskHeaders(),
-        body: {
-          templateId: '',
-          variables: {}
-        },
-        output_mapping: {}
-      },
+      config: getServiceTaskItemConfig[CellType.uniqueIdGenerator],
       metadata: {
         type: CellType.uniqueIdGenerator,
         tags: WorkflowElementType.HTTPRequestTask,
