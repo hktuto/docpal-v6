@@ -54,6 +54,10 @@ const defaultForm = {
   applyState: true
 }
 function addButton() {
+  if (!buttonSetting.value.booleanButton){
+    buttonSetting.value.booleanButton = []
+  }
+
   buttonSetting.value.booleanButton.push({
     ...defaultForm
   })
@@ -135,7 +139,7 @@ onMounted(() => {
         </el-form>
       </template>
       <div class="actions">
-        <el-button v-if="node.data.type !== 'StartEvent'" text @click="addButton">Add</el-button>
+        <el-button text @click="addButton">Add</el-button>
       </div>
     </div>
   </div>
