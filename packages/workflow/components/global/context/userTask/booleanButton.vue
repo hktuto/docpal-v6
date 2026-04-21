@@ -21,13 +21,13 @@ type buttonItem = {
 }
 
 const buttonSetting = ref<{
-  showSumBitButton: boolean
+  showSubmitButton: boolean
   submitButtonLabel: string
   showSaveDraft: boolean
   saveDraftLabel: string
   booleanButton: buttonItem[]
 }>({
-  showSumBitButton: true,
+  showSubmitButton: true,
   submitButtonLabel: 'Submit',
   showSaveDraft: true,
   saveDraftLabel: 'Save Draft',
@@ -105,7 +105,7 @@ onMounted(() => {
       <span>Button Setting</span>
       <el-form label-position="top">
         <el-form-item v-if="node.data.type !== 'StartEvent'" label="Show Submit Button">
-          <el-switch v-model="buttonSetting.showSumBitButton" @change="updateData" />
+          <el-switch v-model="buttonSetting.showSubmitButton" @change="updateData" />
         </el-form-item>
         <el-form-item label="Submit Button Label">
           <el-input v-model="buttonSetting.submitButtonLabel" @change="updateData" />

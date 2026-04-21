@@ -38,7 +38,7 @@ const state = reactive<any>({
 const fromRenderRef = ref()
 const taskDetail = ref({})
 const workflowJson = ref({})
-const nodeType = ref<string>()
+const nodeType = ref<'UserTask' | 'SignatureTask'>()
 const isAssigneeUser = computed(() => {
   return !detail?.assignee || detail?.assignee === userId
 })
@@ -48,56 +48,32 @@ async function getDetail() {
   try {
     state.loading = true
     state.error = null
-    switch (workflowType) {
-      //  TODO: Delete
-      case state.processState.completeTask:
-        const historyList: any = await newClientApi
-          .postDocpalWorkflowHistoryProcess({
-            processInstanceId: id,
-            completed: true
-          })
-          .then((res) => res?.data?.entryList)
-        if (!!historyList && historyList.length > 0) {
-          taskDetail.value = historyList[0]
-        }
-        break
-      default:
-        const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r: any) => r.data)
-        workflowJson.value = workflowTaskInstance.content
+    const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r: any) => r.data)
+    workflowJson.value = workflowTaskInstance.content
 
-        const data = await $api.get(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}`).then((r: any) => r.data)
-        // if (!data.nodes) return
-        // const findNode = data.nodes.find((node: any) => node.id == detail.node_id)
-        const findNode = workflowJson.value.nodes.find((node: any) => node.name == detail.node_name)
+    const data = await $api.get(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}`).then((r: any) => r.data)
+    // if (!data.nodes) return
+    // const findNode = data.nodes.find((node: any) => node.id == detail.node_id)
+    const findNode = workflowJson.value.nodes.find((node: any) => node.name == detail.node_name)
 
-        // const findNode = workflowJson.value.nodes.find((node: any) => node.id == detail.node_id)
-        console.log('------ Workflow Detail', workflowJson.value, findNode)
-        if (!!findNode) {
-          nodeType.value = findNode.metadata.type
-          switch (nodeType.value) {
-            case CellType.userTask:
-              break
-            case CellType.signatureTask:
-              await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
-              break
-            default:
-          }
-          await initForm(findNode)
-        }
+    // const findNode = workflowJson.value.nodes.find((node: any) => node.id == detail.node_id)
+    console.log('------ Workflow Detail', workflowJson.value, findNode)
+    if (!!findNode) {
+      nodeType.value = findNode.metadata.type
+      switch (nodeType.value) {
+        case CellType.userTask:
+          break
+        case CellType.signatureTask:
+          await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
+          break
+        default:
+      }
+      await initForm(findNode)
     }
   } catch (error) {
     console.log(error)
     state.error = error
   }
-  // setTimeout(async () => {
-  //   try {
-  //     await handleFormDataGet()
-  //     handleDisabledForm()
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  //   state.loading = false
-  // }, 100)
   state.loading = true
 }
 

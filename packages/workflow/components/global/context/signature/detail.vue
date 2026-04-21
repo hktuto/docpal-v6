@@ -12,7 +12,7 @@ const { node } = defineProps<{
   node: Node
 }>()
 const form = ref({
-  documentTemplateId: '',
+  documentStepId: '',
   signatureValue: ''
 })
 const signatureVariable = ref<{
@@ -39,10 +39,10 @@ const allDocumentStep = computed(() => {
 function init() {
   const data = node.getData()
 
-  form.value.documentTemplateId = data.metadata.signature.documentTemplateId || ''
+  form.value.documentStepId = data.metadata.signature.documentStepId || ''
   form.value.signatureValue = data.metadata.signature.signatureValue || ''
 
-  if (!!form.value.documentTemplateId && form.value.documentTemplateId !== '') {
+  if (!!form.value.documentStepId && form.value.documentStepId !== '') {
     getTemplateVariableList()
   }
 }
@@ -75,8 +75,8 @@ async function updateDocumentId() {
 }
 
 async function getTemplateVariableList() {
-  if (!form.value.documentTemplateId || form.value.documentTemplateId === '') return
-  const selectedStep = allDocumentStep.value.find((item: any) => item.value === form.value.documentTemplateId)
+  if (!form.value.documentStepId || form.value.documentStepId === '') return
+  const selectedStep = allDocumentStep.value.find((item: any) => item.value === form.value.documentStepId)
 
   const data = await newAdminApi.getDmsTemplateDocumentRefreshId(selectedStep.templateId).then((r: any) => r.data)
   if (data.fileType !== 'Word') {
@@ -105,7 +105,7 @@ watch(
 <template>
   <el-form :model="form" label-position="top" class="listItem">
     <el-form-item label="Document Generate Step">
-      <el-select v-model="form.documentTemplateId" placeholder="Document Step" filterable clearable @change="updateDocumentId">
+      <el-select v-model="form.documentStepId" placeholder="Document Step" filterable clearable @change="updateDocumentId">
         <el-option v-for="item in allDocumentStep" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
     </el-form-item>

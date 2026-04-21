@@ -681,7 +681,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         icon: '/icons/form.svg',
         formKey: '',
         buttonSetting: {
-          showSumBitButton: true,
+          showSubmitButton: true,
           submitButtonLabel: 'Submit',
           showSaveDraft: false,
           saveDraftLabel: 'Save Draft',
@@ -715,7 +715,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         icon: '/icons/form.svg',
         formKey: '',
         buttonSetting: {
-          showSumBitButton: true,
+          showSubmitButton: true,
           submitButtonLabel: 'Submit',
           showSaveDraft: false,
           saveDraftLabel: 'Save Draft',

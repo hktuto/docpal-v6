@@ -16,7 +16,7 @@ const state = reactive({
   bpmnXml: null,
   loading: false
 })
-
+const emits = defineEmits(['reload'])
 const pageButtonSetting = ref<any>(null)
 const openWorkflowEdit = ref(false)
 const userId = useUserId()
@@ -99,7 +99,7 @@ async function initForm(startTask: any) {
 }
 
 async function handleAdditionalSetting(metadata: any) {
-  const { buttonSetting } = await getButtonAdditionalElement(metadata)
+  const { buttonSetting, signatureSetting } = await getButtonAdditionalElement([], metadata, {})
   if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
   }
@@ -134,6 +134,7 @@ async function checkAndSubmit() {
     }
   }
   state.loading = false
+  emits('reload')
 }
 
 onMounted(() => {})
@@ -188,7 +189,7 @@ defineExpose({ workflowClickHandler })
 
     <template #footer>
       <el-button
-        v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
+        v-if="!pageButtonSetting || pageButtonSetting.showSubmitButton"
         id="Workflow__NewWorkflow__StartWorkflow"
         type="primary"
         :disabled="state.loading"
