@@ -6,6 +6,7 @@
       :width="520"
       placement="bottom-start"
       :close-on-click-outside="false"
+      :offset="showSelected ? 400 : 0"
       @open="handlePopoverOpen"
       @close="handlePopoverClose"
     >
@@ -39,7 +40,7 @@
             :class="{ selected: selectedIds.includes(row.id) }"
             @click="toggleRecord(row.id)"
           >
-            <MdFormFieldRelationCard :fields="fields" :data="row"  @remove="toggleRecord(row.id)" />
+            <MdFormFieldRelationCard :fields="fields" :data="row" @remove="toggleRecord(row.id)" />
           </div>
           <div v-if="displayOptions.length === 0 && !listLoading" class="list-empty">{{ $t('mdTable.relationPicker.noRecords') }}</div>
         </div>
