@@ -104,7 +104,7 @@ export const TableDataContextKey: InjectionKey<TableDataContext> = Symbol('Table
  * 表格数据管理 Composable
  * 通过 tableId 获取和管理表格数据
  */
-export function useTableData(tableId: string, gridRef: any, options: UseTableDataOptions = {}) {
+export function useTableData(tableId: string, gridRef: any, options: UseTableDataOptions = {}, overideConditionFn?:Function) {
   const { autoLoad = true, transform } = options
   const tableData = ref<any[]>([])
   const totalSize = ref(0)
@@ -142,14 +142,17 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       loading.value = true
       let additionalParams = {}
       if (viewTools?.getPageParams) {
-        additionalParams = viewTools?.getPageParams()
+        additionalParams = overideConditionFn ? overideConditionFn() : viewTools?.getPageParams()
+      }
+      if (params.pageSize) {
+        tableQueryBase.value.pageSize = params.pageSize
       }
       const { data } = await postDynamicActions({
         tableId,
         columns: [],
         ...additionalParams,
         pagination: {
-          pageSize: params.pageSize ?? tableQueryBase.value.pageSize ?? 100,
+          pageSize: tableQueryBase.value.pageSize ?? 100,
           pageNum: params.pageNum ? params.pageNum + 1 : 1
         }
       })
@@ -176,15 +179,25 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     try {
       const pageSizeVal = tableQueryBase.value.pageSize ?? 100
       const nextPage = currentPage.value + 1
-      const requestBody = { ...tableQueryBase.value, pageNum: nextPage, pageSize: pageSizeVal }
-      const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, requestBody)
-      const mapped = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
-      const newRows = transform ? transform(mapped) : mapped
-      if (newRows.length === 0) {
+      let additionalParams = {}
+      if (viewTools?.getPageParams) {
+        additionalParams = overideConditionFn ? overideConditionFn() : viewTools?.getPageParams()
+      }
+      const { data } = await postDynamicActions({
+        tableId,
+        columns: [],
+        ...additionalParams,
+        pagination: {
+          pageSize: pageSizeVal,
+          pageNum: nextPage
+        }
+      })
+      console.log("load more data", data)
+      if (data?.entryList?.length === 0) {
         totalSize.value = tableData.value.length
         return
       }
-      tableData.value = [...tableData.value, ...newRows]
+      tableData.value.push(...data.data)
 
       currentPage.value = nextPage
       if (data?.totalSize != null) {
