@@ -174,8 +174,10 @@ function handleOutputMapping(mapping: any) {
 }
 
 const outputMapping = computed(() => {
-  const arr: Array<{ name: string; value: string }> = Object.entries(formData.value.output_mapping).map(([key, value]) => ({ name: key, value }))
-  return arr
+  return Object.entries(formData.value.output_mapping).map(([key, value]) => ({
+    name: key,
+    value: String(value ?? '')
+  }))
 })
 
 function openBodyEdit() {
@@ -277,9 +279,16 @@ watch(
 
     <el-divider />
 
-    <template v-for="(item, index) in outputMapping" :key="index">
-      {{ item.name }} --- {{ item.value }}
-    </template>
+    <div class="output-mapping-summary">
+      <template v-if="outputMapping.length">
+        <div v-for="(item, index) in outputMapping" :key="`${item.name}-${index}`" class="output-mapping-row">
+          <span class="output-mapping-key" :title="item.name">{{ item.name }}</span>
+          <span class="output-mapping-arrow" aria-hidden="true">--</span>
+          <span class="output-mapping-val" :title="item.value">{{ item.value }}</span>
+        </div>
+      </template>
+      <p v-else class="output-mapping-empty">{{ t('No response mapping yet') }}</p>
+    </div>
   </el-form>
 
   <LazyContextHttpTaskVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
@@ -294,5 +303,58 @@ watch(
 .error {
   color: red;
   margin-top: 10px;
+}
+
+.output-mapping-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-xs, 8px);
+  width: 100%;
+}
+
+.output-mapping-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.5fr);
+  align-items: center;
+  gap: var(--app-space-xs, 8px);
+  padding: var(--app-space-s, 10px) var(--app-space-m, 12px);
+  border: 1px solid var(--app-grey-800, #dcdfe6);
+  border-radius: var(--app-border-radius-m, 6px);
+  background: var(--app-grey-9000, #fafafa);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.output-mapping-key {
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.output-mapping-arrow {
+  flex-shrink: 0;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+
+.output-mapping-val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: rgb(57, 57, 57);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.output-mapping-empty {
+  margin: 0;
+  padding: var(--app-space-m, 12px);
+  text-align: center;
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+  border: 1px dashed var(--app-grey-800, #dcdfe6);
+  border-radius: var(--app-border-radius-m, 6px);
+  background: var(--el-fill-color-lighter);
 }
 </style>
