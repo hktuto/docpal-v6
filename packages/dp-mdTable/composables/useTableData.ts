@@ -184,7 +184,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       const nextPage = currentPage.value + 1
       let additionalParams = {}
       if (viewTools?.getPageParams) {
-        additionalParams = overideConditionFn ? overideConditionFn() : viewTools?.getPageParams()
+        additionalParams = viewTools?.getPageParams()
       }
       if (params.additionalParams) {
         additionalParams = { ...additionalParams, ...params.additionalParams }
