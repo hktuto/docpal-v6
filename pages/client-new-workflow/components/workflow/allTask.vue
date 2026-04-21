@@ -21,7 +21,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       page_size: pageParams.pageSize
     }
     try {
-      const data = await $api.get(`/oniflow/api/v1/task/overview/all`).then((r) => r.data)
+      const data = await $api.post(`/oniflow/api/v1/tasks/page`, params).then((r) => r.data)
       // const data = await $api.get(`/oniflow/api/v1/task/overview/all/${userId}`).then((r) => r.data)
       return {
         data: {
@@ -90,6 +90,12 @@ async function claimTask(row: any) {
   await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`, parms).then((res) => res.data)
   reload()
 }
+
+function reloadTable(){
+  reload()
+}
+
+defineExpose({ reloadTable })
 </script>
 
 <template>

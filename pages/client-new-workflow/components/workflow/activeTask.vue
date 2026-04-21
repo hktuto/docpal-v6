@@ -91,6 +91,11 @@ function handleFilterFormChange(formModel: any) {
 }
 
 const ResponsiveFilterRef = ref()
+function reloadTable(){
+  reload()
+}
+
+defineExpose({ reloadTable })
 </script>
 
 <template>

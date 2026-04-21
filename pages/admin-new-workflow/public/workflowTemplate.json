@@ -36,7 +36,7 @@
         "formKey": 0,
         "openInNewPage": false,
         "buttonSetting": {
-          "showSumBitButton": true,
+          "showSubmitButton": true,
           "submitButtonLabel": "Submit",
           "showSaveDraft": false,
           "saveDraftLabel": "Save Draft",

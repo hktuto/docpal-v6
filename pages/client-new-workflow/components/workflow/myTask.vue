@@ -68,7 +68,11 @@ function handleDblclick(row: any) {
   )
 }
 
-onMounted(() => {})
+function reloadTable(){
+  reload()
+}
+
+defineExpose({ reloadTable })
 </script>
 
 <template>

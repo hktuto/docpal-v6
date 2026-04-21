@@ -77,6 +77,11 @@ function handleFilterFormChange(formModel: any) {
   reload()
 }
 
+function reloadTable(){
+  reload()
+}
+
+defineExpose({ reloadTable })
 </script>
 
 <template>

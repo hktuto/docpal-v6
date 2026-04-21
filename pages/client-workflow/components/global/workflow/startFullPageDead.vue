@@ -157,7 +157,7 @@ onMounted(() => {
             {{ $t('cancelText') }}
           </el-button>
           <el-button
-            v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
+            v-if="!pageButtonSetting || pageButtonSetting.showSubmitButton"
             id="Workflow__NewWorkflow__StartFullPageDead__Submit" type="primary"
             :disabled="loading" @click="handleSubmit">
             <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">

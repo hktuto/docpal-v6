@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -49,6 +48,11 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 function handleDblclick(row: any) {
   // routerProvider?.navigateTo(,false)
 }
+function reloadTable(){
+  reload()
+}
+
+defineExpose({ reloadTable })
 </script>
 
 <template>
