@@ -68,10 +68,10 @@ watch(viewStyleConfig ,(style) => {
   deep: true,
 })
 const groupRef = ref<Record<string, any>>({})
-function handleNeedRefresh(groupId: string) {
-  groupRef.value.forEach((el:any) => {
-    console.log("el", el.groupId)
-    if(el.groupId === groupId) {
+function handleNeedRefresh(groupId: string = 'all') {
+  const items = Array.isArray(groupRef.value) ? groupRef.value : groupRef.value ? [groupRef.value] : []
+  items.forEach((el: any) => {
+    if (el?.groupId === groupId) {
       el.refresh()
     }
   })
@@ -101,6 +101,13 @@ onBeforeUnmount(() => {
         <div class="title">
             <span class="text">All Data</span>
         </div>
+        <MdKanbanGroup
+            ref="groupRef"
+            :group="{ id: null, label: 'All Data' }"
+            :field="viewStyleConfig.selectedColumnId"
+            :table-id="props.tableId"
+            @needRefresh="handleNeedRefresh"
+        />
     </div>
      <div ref="groupListRef" class="group_list">
          <div

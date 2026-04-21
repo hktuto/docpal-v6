@@ -4,7 +4,7 @@ import { useIntersectionObserver } from '@vueuse/core'
 const props = defineProps<{
   field: string,
   group: {
-    id: string,
+    id: string | null,
     label: string,
   },
   tableId: string,
@@ -96,7 +96,7 @@ async function handleDrop(event: DragEvent) {
   const { itemId, sourceGroupId } = JSON.parse(data)
   if (sourceGroupId === props.group.id) return
 
-  await updateRow(itemId, { [props.field]: props.group.id }, props.tableId)
+  await updateRow(itemId, { [props.field]: props.group.id || '' }, props.tableId)
   emits('itemMoved', { itemId, sourceGroupId })
   refresh()
 }

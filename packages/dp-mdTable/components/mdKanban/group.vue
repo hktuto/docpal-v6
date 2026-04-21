@@ -6,7 +6,7 @@ import { useMDKanbanInject } from '../../composables/mdKanban/useMDKanban'
 const props = defineProps<{
   field: string,
   group: {
-    id: string,
+    id: string | null,
     label: string,
   },
   tableId: string,
@@ -25,16 +25,29 @@ function getPageParams(){
   const params:any = {
     // dryRun: true,
   }
-  params.conditions = [{
-     type: 'AND',
-     value:[
-       {
-         column: props.field,
-         type: "EQ",
-         value: props.group.id
-       }
-     ]
-  }]
+  if (props.group.id == null) {
+    params.conditions = [{
+      type: 'AND',
+      value:[
+        {
+          column: props.field,
+          type: "EQ",
+          value:""
+        }
+      ]
+    }]
+  } else {
+    params.conditions = [{
+      type: 'AND',
+      value:[
+        {
+          column: props.field,
+          type: "EQ",
+          value: props.group.id
+        }
+      ]
+    }]
+  }
   params.columns = [
     {
       name: '*'
@@ -57,7 +70,7 @@ function refresh(){
   listRef.value?.refresh()
 }
 
-function handleItemMoved({ sourceGroupId }: { sourceGroupId: string }) {
+function handleItemMoved({ sourceGroupId }: { sourceGroupId: string | null }) {
   emit('needRefresh', sourceGroupId)
 }
 
@@ -74,14 +87,13 @@ async function handleAddRowSubmit(data: any) {
   }else{
     await listRef.value?.addRow(data)
   }
-  // await addRow(data)
   // check if data[props.field] === props.group.id
   //
   if (data[props.field] !== props.group.id) {
     console.log('needToRefresh', data[props.field], props.group.id)
     setTimeout(() => {
       emit('needRefresh', data[props.field])
-    },1000)
+    },300)
   }
   refresh()
 }
@@ -89,7 +101,7 @@ async function handleAddRowSubmit(data: any) {
 
 defineExpose({
   refresh,
-  groupId: props.group.id,
+  groupId: props.group.id || 'all',
 })
 
 </script>
@@ -110,8 +122,10 @@ defineExpose({
         <MdFormPopover
           ref="MdFormPopoverRef"
           :columns="columns"
+          :table-id="props.tableId"
           :systemFieldsTypes="systemFieldsTypes"
-          showMoveButtons
+          :showMoveButtons="false"
+          :showSourceButton="false"
           @submit="handleAddRowSubmit"
         />
     </div>
