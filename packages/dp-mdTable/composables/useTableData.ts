@@ -104,7 +104,7 @@ export const TableDataContextKey: InjectionKey<TableDataContext> = Symbol('Table
  * 表格数据管理 Composable
  * 通过 tableId 获取和管理表格数据
  */
-export function useTableData(tableId: string, gridRef: any, options: UseTableDataOptions = {}, overideConditionFn?:Function) {
+export function useTableData(tableId: string, gridRef: any, options: UseTableDataOptions = {}) {
   const { autoLoad = true, transform } = options
   const tableData = ref<any[]>([])
   const totalSize = ref(0)
@@ -142,10 +142,13 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       loading.value = true
       let additionalParams = {}
       if (viewTools?.getPageParams) {
-        additionalParams = overideConditionFn ? overideConditionFn() : viewTools?.getPageParams()
+        additionalParams = viewTools?.getPageParams()
       }
       if (params.pageSize) {
         tableQueryBase.value.pageSize = params.pageSize
+      }
+      if (params.additionalParams) {
+        additionalParams = { ...additionalParams, ...params.additionalParams }
       }
       const { data } = await postDynamicActions({
         tableId,
@@ -171,7 +174,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
   }
 
-  const loadMore = async () => {
+  const loadMore = async (params:any) => {
     if (!tableId || loading.value || loadingMore.value || !hasMore.value) {
       return
     }
@@ -182,6 +185,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       let additionalParams = {}
       if (viewTools?.getPageParams) {
         additionalParams = overideConditionFn ? overideConditionFn() : viewTools?.getPageParams()
+      }
+      if (params.additionalParams) {
+        additionalParams = { ...additionalParams, ...params.additionalParams }
       }
       const { data } = await postDynamicActions({
         tableId,
