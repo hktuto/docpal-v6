@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import  { useMDKanban, type MDKanbanProps } from '../../composables/mdKanban/useMDKanban'
 import { MoreFilled } from '@element-plus/icons-vue'
-import draggable from 'vuedraggable'
+import Sortable from 'sortablejs'
+
 const props = withDefaults(defineProps<MDKanbanProps>(), {
   tableId: '',
   editable: false,
@@ -34,13 +35,25 @@ function openSetting() {
 }
 
 
-async function handleDragEnd(event: any){
-  const { oldIndex, newIndex } = event
-  if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) {
-    return
-  }
-  await props.extraColumnConfig?.updateViewFilterSortGroup?.('style', viewStyleConfig.value)
+const groupListRef = ref<HTMLDivElement>()
+const sortableInstance = ref<any>()
 
+function initSortable() {
+  if (!groupListRef.value) return
+  sortableInstance.value = Sortable.create(groupListRef.value, {
+    handle: '.title',
+    animation: 150,
+    onEnd: async (event) => {
+      const { oldIndex, newIndex } = event
+      if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) {
+        return
+      }
+      const options = viewStyleConfig.value.options
+      const movedItem = options.splice(oldIndex, 1)[0]
+      options.splice(newIndex, 0, movedItem)
+      await props.extraColumnConfig?.updateViewFilterSortGroup?.('style', viewStyleConfig.value)
+    }
+  })
 }
 
 
@@ -54,19 +67,27 @@ watch(viewStyleConfig ,(style) => {
 },{
   deep: true,
 })
-const gorupRef = ref<any>({})
+const groupRef = ref<Record<string, any>>({})
 function handleNeedRefresh(groupId: string) {
-  const index = viewStyleConfig.value.options.findIndex((option) => option.id === groupId)
-  if(index === -1) return
-  gorupRef.value[index]?.refresh()
+  groupRef.value.forEach((el:any) => {
+    console.log("el", el.groupId)
+    if(el.groupId === groupId) {
+      el.refresh()
+    }
+  })
 }
 
 onMounted(() => {
+  initSortable()
   if(viewStyleConfig.value && !viewStyleConfig.value.selectedColumnId || (!viewStyleConfig.value.options || !viewStyleConfig.value.options.length)){
     nextTick(() => {
       openSetting()
     })
   }
+})
+
+onBeforeUnmount(() => {
+  sortableInstance.value?.destroy()
 })
 
 </script>
@@ -81,21 +102,21 @@ onMounted(() => {
             <span class="text">All Data</span>
         </div>
     </div>
-     <draggable v-model="viewStyleConfig.options" item-key="id" tag="div" class="group_list" :animation="150" handle=".title" @end="handleDragEnd">
-         <template #item="{ element: option }">
-            <div
-                class="groups"
-                :style="{ '--color': option.color }"
-            >
-                <div class="title">
-                    <div class="color" ></div>
-                    <span class="text">{{option.label}}</span>
-                    <el-button text size="small" :icon="MoreFilled" class="optionsBtn" />
-                </div>
-                <MdKanbanGroup ref="gorupRef" :group="option" :field="viewStyleConfig.selectedColumnId" :table-id="props.tableId" @needRefresh="handleNeedRefresh" />
-            </div>
-         </template>
-     </draggable>
+     <div ref="groupListRef" class="group_list">
+         <div
+             v-for="option in viewStyleConfig.options"
+             :key="option.id"
+             class="groups"
+             :style="{ '--color': option.color }"
+         >
+             <div class="title">
+                 <div class="color" ></div>
+                 <span class="text">{{option.label}}</span>
+                 <el-button text size="small" :icon="MoreFilled" class="optionsBtn" />
+             </div>
+             <MdKanbanGroup ref="groupRef" :group="option" :field="viewStyleConfig.selectedColumnId" :table-id="props.tableId" @needRefresh="handleNeedRefresh" />
+         </div>
+     </div>
 
     <div class="newGroup">
 

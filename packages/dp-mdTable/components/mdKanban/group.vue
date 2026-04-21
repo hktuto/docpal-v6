@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { useIntersectionObserver } from '@vueuse/core'
+
 import { useMDKanbanInject } from '../../composables/mdKanban/useMDKanban'
-import { postDynamicActions } from 'api'
-import _default$5 from 'element-plus';
+
+
 const props = defineProps<{
   field: string,
   group: {
@@ -11,7 +11,7 @@ const props = defineProps<{
   },
   tableId: string,
 }>()
-const currentRow = ref(null)
+
 
 const groupRef = ref<HTMLDivElement>()
 const loadMoreRef = ref<HTMLDivElement>()
@@ -20,19 +20,7 @@ const loadingMore = ref(false)
 const { updateViewFilterSortGroup, columns, tableFields, systemFieldsTypes } = useMDKanbanInject()
 
 const emit = defineEmits(['needRefresh'])
-const listRef = ref({
-  setCurrentRow: (row: any) => {
-    currentRow.value = row
-  },
-  scrollToRow: (row: any) => {
 
-  },
-  commitProxy : async (command:string)=>{
-    if (command === 'reload') {
-      refresh()
-    }
-  }
-})
 function getPageParams(){
   const params:any = {
     // dryRun: true,
@@ -55,64 +43,25 @@ function getPageParams(){
   return params
 }
 const MdFormPopoverRef = ref()
-
-const listElRef = ref()
-// todo : need to setup viewTools to provide to useTableData
-
-
-
-
-const { tableData, totalSize, loading,  hasMore, updateRow,  addRow, getTableData, loadMore } = useTableData(props.tableId, listRef)
-
-function refresh(){
-  console.log('refresh', props.group.id)
-  tableData.value = []
-  nextTick(async () => {
-   await getTableData({
-      pageSize: 5,
-      additionalParams: getPageParams(),
-    })
-   console.log(props.group.id, tableData.value)
-  })
-}
-
-const { stop } = useIntersectionObserver(
-  groupRef,
-  ([{ isIntersecting }]) => {
-    if (isIntersecting && !hasLoaded.value) {
-      hasLoaded.value = true
-      nextTick(() => {
-        refresh()
-      })
-    }
-  },
-  {
-    threshold: 0
-  }
-)
-
-const { stop: stopLoadMore } = useIntersectionObserver(
-  loadMoreRef,
-  ([{ isIntersecting }]) => {
-    if (isIntersecting && hasLoaded.value && hasMore.value) {
-
-      loadMore({
-        additionalParams: getPageParams(),
-      })
-    }
-  },
-  {
-    root: listElRef,
-    rootMargin: '0px 0px 200px 0px',
-    threshold: 0
-  }
-)
-const selectedRow = ref()
+provide('viewTools', { getPageParams, columns, tableFields })
 function openAddRow() {
   MdFormPopoverRef.value?.open({
     [props.field]: props.group.id,
   })
 }
+
+
+const listRef = ref()
+
+function refresh(){
+  listRef.value?.refresh()
+}
+
+function handleItemMoved({ sourceGroupId }: { sourceGroupId: string }) {
+  emit('needRefresh', sourceGroupId)
+}
+
+const selectedRow = ref<any>()
 function openRecordDetail(item: any) {
   selectedRow.value = item
   MdFormPopoverRef.value?.open(item)
@@ -120,10 +69,10 @@ function openRecordDetail(item: any) {
 async function handleAddRowSubmit(data: any) {
   console.log('handleAddRowSubmit', data, props.field, props.group.id)
   if (selectedRow.value) {
-    await updateRow(selectedRow.value.id, data, props.tableId)
+    await listRef.value?.updateRow(selectedRow.value.id, data, props.tableId)
     selectedRow.value = null
   }else{
-    await addRow(data)
+    await listRef.value?.addRow(data)
   }
   // await addRow(data)
   // check if data[props.field] === props.group.id
@@ -137,25 +86,24 @@ async function handleAddRowSubmit(data: any) {
   refresh()
 }
 
-onBeforeUnmount(() => {
-  stop()
-  stopLoadMore()
-})
 
 defineExpose({
-  refresh
+  refresh,
+  groupId: props.group.id,
 })
 
 </script>
 
 <template>
     <div ref="groupRef" class="group">
-        <div ref="listElRef" class="list">
-
-             <MdKanbanGroupItem
-             v-for="item in tableData" :key="item.id" :item="item" :field="props.field"     @click="openRecordDetail(item)"/>
-            <div v-if="hasMore" ref="loadMoreRef" class="load-more-sentinel"></div>
-        </div>
+        <MdKanbanGroupList
+          ref="listRef"
+          :field="props.field"
+          :group="props.group"
+          :table-id="props.tableId"
+          @select="openRecordDetail"
+          @itemMoved="handleItemMoved"
+        />
         <div class="addSection">
             <ElButton type="link" @click="openAddRow">+ Add</ElButton>
         </div>
@@ -182,6 +130,11 @@ defineExpose({
     flex-flow: column;
     gap: var(--app-space-xs);
     overflow: auto;
+}
+.list.drag-over{
+    background-color: var(--app-color-bg-hover, rgba(0,0,0,0.05));
+    outline: 2px dashed var(--app-primary);
+    outline-offset: -2px;
 }
 .load-more-sentinel {
     height: 20px;

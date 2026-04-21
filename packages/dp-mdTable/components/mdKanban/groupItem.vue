@@ -7,8 +7,8 @@ const props = defineProps<{
 
 <template>
     <div class="groupItem">
-        {{item.company_id_2168_c8e5e7d0}}
-        {{item[field]}}
+
+        {{item[props.field]}}
     </div>
 </template>
 
