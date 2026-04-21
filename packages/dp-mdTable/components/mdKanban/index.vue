@@ -26,10 +26,6 @@ const emit = defineEmits<{
 }>()
 const { columns, cardRef, getTableData, addRow, systemFieldsTypes, viewStyleConfig } = useMDKanban(props)
 
-async function handleRefresh() {
-  await getTableData({ pageNum: 1 })
-  emit('refresh')
-}
 
 // open setting logic
 const kanbanSettingRef = ref()
@@ -50,7 +46,6 @@ async function handleDragEnd(event: any){
 
 
 watch(viewStyleConfig ,(style) => {
-  console.log("viewStyleConfig", style, style.selectedColumnId)
   if(style && !style.selectedColumnId || (!style.options || !style.options.length)){
     nextTick(() => {
       openSetting()
@@ -58,12 +53,21 @@ watch(viewStyleConfig ,(style) => {
   }
 },{
   deep: true,
-  immediate:true
 })
+const gorupRef = ref<any>({})
+function handleNeedRefresh(groupId: string) {
+  const index = viewStyleConfig.value.options.findIndex((option) => option.id === groupId)
+  if(index === -1) return
+  gorupRef.value[index]?.refresh()
+}
 
-
-
-
+onMounted(() => {
+  if(viewStyleConfig.value && !viewStyleConfig.value.selectedColumnId || (!viewStyleConfig.value.options || !viewStyleConfig.value.options.length)){
+    nextTick(() => {
+      openSetting()
+    })
+  }
+})
 
 </script>
 
@@ -72,7 +76,7 @@ watch(viewStyleConfig ,(style) => {
 <div class="kanbanViewContainer">
     <template v-if="viewStyleConfig.selectedColumnId">
 
-    <div class="allData group">
+    <div class="allData groups">
         <div class="title">
             <span class="text">All Data</span>
         </div>
@@ -80,7 +84,7 @@ watch(viewStyleConfig ,(style) => {
      <draggable v-model="viewStyleConfig.options" item-key="id" tag="div" class="group_list" :animation="150" handle=".title" @end="handleDragEnd">
          <template #item="{ element: option }">
             <div
-                class="group"
+                class="groups"
                 :style="{ '--color': option.color }"
             >
                 <div class="title">
@@ -88,6 +92,7 @@ watch(viewStyleConfig ,(style) => {
                     <span class="text">{{option.label}}</span>
                     <el-button text size="small" :icon="MoreFilled" class="optionsBtn" />
                 </div>
+                <MdKanbanGroup ref="gorupRef" :group="option" :field="viewStyleConfig.selectedColumnId" :table-id="props.tableId" @needRefresh="handleNeedRefresh" />
             </div>
          </template>
      </draggable>
@@ -96,6 +101,7 @@ watch(viewStyleConfig ,(style) => {
 
     </div>
     </template>
+    <MdKanbanSettingDialog :view-style-config="viewStyleConfig" ref="kanbanSettingRef" />
 </div>
 </template>
 
@@ -121,13 +127,17 @@ watch(viewStyleConfig ,(style) => {
     flex-flow: row nowrap;
     gap: var(--app-space-xs);
 }
-.group{
+.groups{
     --group-space: var(--app-space-s);
     flex: 0 0 220px;
     width: 220px;
-    padding: var(--group-space);
+
     background: var(--app-paper);
     border-radius: var(--app-border-radius-s);
+    overflow: hidden;
+    display: grid;
+    grid-template-rows:  min-content 1fr;
+    gap: 0;
 }
 .color{
     width: var(--app-space-s);
@@ -143,7 +153,7 @@ watch(viewStyleConfig ,(style) => {
     font-size: var(--app-font-size-m);
     font-weight: bold;
     color: var(--app-grey-300);
-    padding-bottom: var(--group-space);
+    padding: var(--group-space);
     border-bottom: 1px solid var(--app-grey-800);
     cursor: grab;
 }
