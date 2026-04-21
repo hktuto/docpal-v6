@@ -29,7 +29,7 @@ async function getForms() {
     forms.value = response.data.filter((a) => a.status !== 'D').sort((a,b) => {
         const indexA = orderMap[a.status] ?? Number.MAX_SAFE_INTEGER; // Items not in order go last
         const indexB = orderMap[b.status] ?? Number.MAX_SAFE_INTEGER;
-        return (indexA - indexB) || a.name.localeCompare(b.name);
+        return (indexA - indexB) || a.name.localeCompare(b.name) || a.id.localeCompare(b.name);
     })
   } catch (err) {
     console.error(err)
