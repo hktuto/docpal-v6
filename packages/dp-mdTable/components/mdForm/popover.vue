@@ -2,15 +2,25 @@
   <el-dialog v-model="visible" class="scroll-dialog" @close="resetForm">
     <template v-if="mode === 'edit'" #header>
       <div class="el-dialog__title mdForm-title">
-        {{ $t('common_edit') }}
-        <div v-if="showSourceButtons">
-          <el-icon style="font-size: 16px" @click="handleSourceClick"><Position /></el-icon>
-        </div>
+        {{ title }}
+        <el-button class="source-button"  type="info" link :icon="Position" v-if="showSourceButton" @click="handleSourceClick">
+          Go to Source Table
+        </el-button>
         <div v-if="showMoveButtons">
-          <el-icon style="font-size: 16px" :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledUp" @click="handleMove('up')">
+          <el-icon
+            style="font-size: var(--app-font-size-m)"
+            :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'"
+            :disabled="disabledUp"
+            @click="handleMove('up')"
+          >
             <Top />
           </el-icon>
-          <el-icon style="font-size: 16px" :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledDown" @click="handleMove('down')">
+          <el-icon
+            style="font-size: var(--app-font-size-m)"
+            :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'"
+            :disabled="disabledDown"
+            @click="handleMove('down')"
+          >
             <Bottom />
           </el-icon>
         </div>
@@ -30,17 +40,21 @@
 import { newClientApi } from 'api'
 import { Top, Bottom, Position } from '@element-plus/icons-vue'
 const { updateRow } = useTableDataInject()
+const viewTools = inject('viewTools')
+const { navigateToTableMenu } = viewTools
 const visible = ref(false)
 const formData = ref<any>({})
 const mode = ref('edit')
 const props = defineProps<{
   showMoveButtons: boolean
-  showSourceButtons: boolean
+  showSourceButton: boolean
   columns: any[]
   tableId: string
   systemFieldsTypes: any[]
 }>()
 const emits = defineEmits(['submit'])
+const { t } = useI18n()
+const title = ref(t('common_edit'))
 const { currentRow, setCurrentRow, moveCurrentRow, disabledUp, disabledDown } = useCurrentRow()
 const formColumns = ref<any[]>([])
 const resetForm = () => {
@@ -56,11 +70,17 @@ async function handleSubmit() {
   visible.value = false
   emits('submit', _formData, formData.value.id)
 }
-async function open(row: any, _mode: 'default' | 'edit' = 'default') {
+async function open(row: any, _mode: 'default' | 'edit' = 'default', _title: string = '') {
   formData.value = { ...row }
   mode.value = _mode
+
   visible.value = true
   if (props.showMoveButtons) setCurrentRow(row)
+  if (_title) {
+    title.value = _title
+  } else {
+    title.value = t('common_edit')
+  }
   await getFormColumns()
 }
 function handleMove(direction: 'up' | 'down') {
@@ -92,7 +112,9 @@ async function getFormColumns() {
     formColumns.value = result
   }
 }
-
+function handleSourceClick() {
+  navigateToTableMenu(props.tableId)
+}
 defineExpose({ open, close })
 </script>
 
@@ -104,5 +126,9 @@ defineExpose({ open, close })
 .cursor-not-allowed {
   cursor: not-allowed;
   color: var(--app-grey-400);
+}
+
+.source-button {
+  font-size: var(--app-font-size-m);
 }
 </style>

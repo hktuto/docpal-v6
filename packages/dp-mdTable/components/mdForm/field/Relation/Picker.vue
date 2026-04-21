@@ -87,7 +87,7 @@
         />
       </div>
     </div>
-    <MdFormPopover ref="MdFormPopoverRef" :tableId="relationTableId" :systemFieldsTypes="systemFieldsTypes" @submit="handleSubmit" />
+    <MdFormPopover ref="MdFormPopoverRef" :tableId="relationTableId" :systemFieldsTypes="systemFieldsTypes" showSourceButton @submit="handleSubmit" />
   </div>
 </template>
 
@@ -194,7 +194,10 @@ async function handleSubmit(data: any, id: string) {
 }
 const MdFormPopoverRef = ref()
 function handleClick(data: any) {
-  MdFormPopoverRef.value.open(data, 'edit')
+  console.log('handleClick', data,fields)
+  const fieldName = fields.value[0].name
+  const title = data[fieldName]
+  MdFormPopoverRef.value.open(data, 'edit', title)
 }
 defineExpose({
   displayRecords: displayOptions
