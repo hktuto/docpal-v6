@@ -38,7 +38,7 @@ export function useMDTable(props: any) {
     props.extraColumnConfig.columnGroupRules = ref([])
   }
   if(!props.extraColumnConfig.columnSortRules) {
-    props.extraColumnConfig.columnSortRules = ref([]) 
+    props.extraColumnConfig.columnSortRules = ref([])
   }
   const {
     loading,
@@ -105,8 +105,16 @@ export function useMDTable(props: any) {
     const options = new Set()
     tableData.value.forEach((row: any) => {
       const value = row[column.field]
-      if (value) {
+      if (typeof value === 'string' && value) {
         options.add(value)
+        return
+      }
+      if (Array.isArray(value)) {
+        value.forEach((item: any) => {
+          if (typeof item === 'string' && item) {
+            options.add(item)
+          }
+        })
       }
     })
     return Array.from(options).filter(Boolean)
