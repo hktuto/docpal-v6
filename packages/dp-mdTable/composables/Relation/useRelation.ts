@@ -29,8 +29,19 @@ export const useRelation = (relationTableId: string) => {
     const configStr = res.data.tableConfig
     const config = configStr ? JSON.parse(configStr) : []
     const displayFieldsInFirstView = config.length > 0 ? (config[0].columns.length > 0 ? config[0].columns : res.data.tableFields) : res.data.tableFields
+    let result = []
     const visibleFields = displayFieldsInFirstView.filter((field: any) => field.hidden !== true)
-    return visibleFields.slice(0, 5)
+    if (config.length > 0 && config[0].columns.length > 0) {
+      visibleFields.forEach((field: any) => {
+        const fieldItem = res.data.tableFields.find((item: any) => item.id === field.id)
+        if (fieldItem) {
+          result.push({ ...fieldItem, ...field })
+        }
+      })
+    } else {
+      result = visibleFields
+    }
+    return result.slice(0, 5)
   }
   onMounted(async () => {
     await getMenuFromDb()

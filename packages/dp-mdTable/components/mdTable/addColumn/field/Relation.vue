@@ -45,8 +45,10 @@ async function handleRTChange(value: string[]) {
   try {
     props.formData.relation_table_id = value[value.length - 1]
     const top5Fields = await getTop5Fields(props.formData.relation_table_id)
+    console.log('top5Fields', top5Fields)
     props.formData.display_field_ids = top5Fields.map((field: any) => field.id)
     props.formData.display_field_names = top5Fields.map((field: any) => field.field_name)
+    props.formData.is_array = true
   } catch (error) {
     props.formData.relation_table_id = ''
     props.formData.display_field_ids = []

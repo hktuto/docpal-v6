@@ -10,7 +10,14 @@
       field-name="field_name"
     />
   </ElForm>
-  <MdFormPopover v-if="originalShow" ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showSourceButtons @submit="handleOriginalSubmit" />
+  <MdFormPopover
+    v-if="originalShow"
+    ref="MdFormPopoverRef"
+    :columns="columns"
+    :systemFieldsTypes="systemFieldsTypes"
+    showSourceButtons
+    @submit="handleOriginalSubmit"
+  />
 </template>
 
 <script setup lang="ts">
@@ -52,19 +59,16 @@ const getComponent = (type: string) => {
   return componentMap[s_type] || resolveComponent('LazyMdFormFieldDisabled')
 }
 const normalizedColumns = computed(() => {
-  console.log('props.columns', props.columns)
   if (!props.columns) return []
-  console.log('props.columns', props.columns)
-  return props.columns
-    .map((column: any) => {
-      return {
-        ...column,
-        field: column.field ?? column.field_name,
-        title: column.title ?? column.field_name_alias ?? column.field_name
-      }
-    })
+  return props.columns.map((column: any) => {
+    return {
+      ...column,
+      field: column.field ?? column.field_name,
+      title: column.title ?? column.field_name_alias ?? column.field_name
+    }
+  })
 })
-
+const unEditableFields = [ColumnFieldType.VirtualColumn, ColumnFieldType.Formula, ColumnFieldType.AggVirtualColumn]
 const formRef = ref()
 const getFormData = async () => {
   try {
@@ -73,10 +77,8 @@ const getFormData = async () => {
       console.error('formData is not valid')
       return false
     }
-    console.log('props.formData', props.columns)
-    console.log('props.systemFieldsTypes', props.systemFieldsTypes)
     const newFormData = props.columns
-      .filter((column: any) => !props.systemFieldsTypes.includes(column.business_type))
+      .filter((column: any) => !props.systemFieldsTypes.includes(column.business_type) && !unEditableFields.includes(column.business_type))
       .reduce((acc: any, column: any) => {
         acc[column.field_name] = props.formData[column.field_name]
         return acc

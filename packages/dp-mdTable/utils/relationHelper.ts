@@ -10,10 +10,14 @@ export function buildRelationArray(row: any, fieldName: string, displayFieldName
     return []
   }
   let displayFieldNameFull = fieldName + '.' + displayFieldName
-  const fieldDataIds = Array.isArray(row[fieldName]) ? row[fieldName] : row[fieldName]?.split(',').filter((val: any) => val !== '') || []
-  const displayValues = Array.isArray(row[displayFieldNameFull])
-    ? row[displayFieldNameFull]
-    : row[displayFieldNameFull]?.split(',').filter((val: any) => val !== '') || []
+  if (typeof row[fieldName] === 'string') {
+    row[fieldName] = JSONParse(row[fieldName])
+  }
+  if (typeof row[displayFieldNameFull] === 'string') {
+    row[displayFieldNameFull] = JSONParse(row[displayFieldNameFull])
+  }
+  const fieldDataIds = Array.isArray(row[fieldName]) ? row[fieldName] : []
+  const displayValues = Array.isArray(row[displayFieldNameFull]) ? row[displayFieldNameFull] : []
   const relationArray = fieldDataIds.map((id: string, index: number) => {
     return {
       id,
@@ -21,4 +25,12 @@ export function buildRelationArray(row: any, fieldName: string, displayFieldName
     }
   })
   return relationArray
+}
+function JSONParse(value: string) {
+  try {
+    return JSON.parse(value)
+  } catch (error) {
+    if(!value) return []
+    return value.slice(1, -1).split(',').map((item: string) => item.trim().replaceAll('"', ''))
+  }
 }

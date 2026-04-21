@@ -51,7 +51,7 @@
           </slot>
         </div>
       </div>
-      <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" />
+      <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @refresh="handleRefresh" />
       <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
@@ -135,7 +135,8 @@ const emit = defineEmits<{
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow, systemFieldsTypes } = useMDTable(props)
+const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow, systemFieldsTypes } =
+  useMDTable(props)
 
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -251,11 +252,12 @@ const handleImport = () => {
 const handleAddRow = () => {
   MdFormPopoverRef.value.open({})
 }
-const handleAddRowSubmit = (data: any, id: string) => {
+const handleAddRowSubmit = async (data: any, id: string) => {
   if (id) {
-    updateRow(id, data)
+    await updateRow(id, data)
+    await handleRefresh()
   } else {
-    addRow(data)
+    await addRow(data)
   }
 }
 // Handle expand click from checkbox column

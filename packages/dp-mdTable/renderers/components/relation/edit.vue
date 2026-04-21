@@ -52,27 +52,26 @@ function handleAdd() {
 }
 
 function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
+  console.log({selectedRows})
   const normalizedValue = Array.isArray(value) ? value : value ? [value] : []
-  const joinedValue = normalizedValue.join(',')
+  const joinedValue = normalizedValue.filter((item: any) => item !== '[]')
   const fieldName = props.column.field
   props.row[fieldName] = joinedValue
   const params = {
     [fieldName]: joinedValue
   }
-  // 如果props.row 存在属性 key_1680_411d7500，has
   const basicFieldNames = ['id', 'created_at', 'updated_at', 'updated_by', 'status', 'master_table_id']
-  Object.keys(props.row).forEach((key) => {
+  const basicRow = selectedRows.length > 0 ? selectedRows[0] : props.row
+  Object.keys(basicRow).forEach((key) => {
     if (!basicFieldNames.includes(key)) {
-      if (key.startsWith(fieldName + '.')) {
-        const pureKey = key.split('.')[1]
-        const relatedValue = selectedRows.reduce((acc, sItem) => {
-          if (sItem[pureKey]) {
-            acc.push(sItem[pureKey])
-          }
-          return acc
-        }, [])
-        props.row[key] = relatedValue.join(',')
-      }
+      const fullKey = fieldName + '.' + key
+      const relatedValue = selectedRows.reduce((acc, sItem) => {
+        if (sItem[key]) {
+          acc.push(sItem[key])
+        }
+        return acc
+      }, [])
+      props.row[fullKey] = relatedValue
     }
   })
   if (mdTableContext.updateRow && props.row?.id) {
@@ -90,7 +89,7 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
       mode=""
       :relationTableId="relation_table_id"
       :displayFieldIds="display_field_ids"
-      :multiple="false"
+      :multiple="multiple"
       :placeholder="placeholder"
       :table-label="tableLabel"
       :model-value="currentValue"

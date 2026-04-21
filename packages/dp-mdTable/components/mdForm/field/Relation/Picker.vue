@@ -39,7 +39,7 @@
             :class="{ selected: selectedIds.includes(row.id) }"
             @click="toggleRecord(row.id)"
           >
-            <MdFormFieldRelationCard :fields="fields" :data="row" />
+            <MdFormFieldRelationCard :fields="fields" :data="row"  @remove="toggleRecord(row.id)" />
           </div>
           <div v-if="displayOptions.length === 0 && !listLoading" class="list-empty">{{ $t('mdTable.relationPicker.noRecords') }}</div>
         </div>
@@ -71,15 +71,22 @@
     <!-- 已选卡片列表 -->
     <div v-if="selectedIds.length > 0 && showSelected" class="selected-cards">
       <div v-for="id in selectedIds" :key="id" class="selected-card-body">
-        <template v-if="selectedRecordsMap[id]">
-          <MdFormFieldRelationCard class="record-card-item" :fields="fields" :data="selectedRecordsMap[id]" :show-remove="true" @remove="handleRemove(id)" />
-        </template>
-        <div v-else-if="id" class="selected-card-loading">
+        <div v-if="id && displayOptions.length === 0" class="selected-card-loading">
           <el-icon class="is-loading"><Loading /></el-icon>
           <span>{{ $t('mdTable.relationPicker.loading') }}</span>
         </div>
+        <MdFormFieldRelationCard
+          v-else
+          class="record-card-item"
+          :fields="fields"
+          :data="selectedRecordsMap[id]"
+          :show-remove="true"
+          @original-click="handleClick"
+          @remove="handleRemove(id)"
+        />
       </div>
     </div>
+    <MdFormPopover ref="MdFormPopoverRef" :tableId="relationTableId" :systemFieldsTypes="systemFieldsTypes" @submit="handleSubmit" />
   </div>
 </template>
 
@@ -111,7 +118,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const { options, fields, searchKeyword, refresh } = useRelationPicker(props.relationTableId, props.displayFieldIds)
-
+const { updateRow } = useTableDataInject()
 const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
 
 const popoverDialogRef = ref()
@@ -179,7 +186,15 @@ function handleTriggerClick(event?: MouseEvent | KeyboardEvent) {
 function handleRemove(id: string) {
   toggleRecord(id)
 }
-
+const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
+async function handleSubmit(data: any, id: string) {
+  await updateRow(id, data, props.tableId)
+  // emits('submit', data, id)
+}
+const MdFormPopoverRef = ref()
+function handleClick(data: any) {
+  MdFormPopoverRef.value.open(data, 'edit')
+}
 defineExpose({
   displayRecords: displayOptions
 })

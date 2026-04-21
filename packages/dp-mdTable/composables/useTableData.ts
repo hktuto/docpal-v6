@@ -185,7 +185,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
         return
       }
       tableData.value = [...tableData.value, ...newRows]
-      
+
       currentPage.value = nextPage
       if (data?.totalSize != null) {
         totalSize.value = data.totalSize
@@ -228,9 +228,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
    * 更新行数据：根据每行的 id 在 tableData/rawData 中查找并合并更新
    * @param rows - 要更新的行（可含部分字段），至少需包含 id
    */
-  const updateRow = async (rowId: string, data: any) => {
+  const updateRow = async (rowId: string, data: any, mdTableId: string) => {
     try {
-      await newClientApi.putDynamicDbTableTableidDataDataid(tableId, rowId, { data })
+      if (!mdTableId) mdTableId = tableId
+      await newClientApi.putDynamicDbTableTableidDataDataid(mdTableId, rowId, { data })
       const row = tableData.value.find((item) => item.id === rowId)
       if (row) {
         Object.assign(row, data)

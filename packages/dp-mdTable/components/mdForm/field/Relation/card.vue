@@ -6,15 +6,15 @@
       class="relation-card-remove"
       tabindex="0"
       :aria-label="$t('mdTable.relationCard.removeRelation')"
-      @click="handleRemove"
-      @keydown.enter="handleRemove"
+      @click.stop.prevent="handleRemove"
+      @keydown.enter.stop.prevent="handleRemove"
     >
       <Icon name="lucide:minus" size="14" />
     </button>
     <div class="relation-card-main">
       <div class="relation-card-content">
         <div v-if="fields?.length > 0 && fields?.[0]?.name" class="relation-card-title">
-          {{ formatFieldValue(fields[0].name) }}
+          {{ formatFieldValue(fields[0].name) }} 
         </div>
         <div v-if="fields?.length > 1" class="relation-card-fields">
           <template v-for="(field, index) in fields">
@@ -121,7 +121,9 @@ function formatFieldValue(fieldName: string): string {
   })
 }
 
-function handleRemove() {
+function handleRemove(event: MouseEvent | KeyboardEvent) {
+  event.stopPropagation()
+  event.preventDefault()
   emit('remove')
 }
 </script>

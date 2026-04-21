@@ -7,7 +7,7 @@
       :relation-table-id="relationTableId"
       :display-field-ids="displayFieldIds"
       :table-label="tableLabel"
-      :multiple="false"
+      :multiple="multiple"
       show-selected
       @update:model-value="handleUpdate"
       @original-click="handleOriginalClick"
@@ -29,8 +29,9 @@ const emit = defineEmits<{
   (e: 'original-click', id: string): void
 }>()
 const pickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
+const multiple = computed(() => props.column?.display_structure?.multiple ?? false)
 const availableRecords = ref<any[]>([])
-const { columns} = inject('viewTools')
+const { columns } = inject('viewTools')
 const relationTableId = computed(() => props.column?.display_structure?.relation_table_id ?? '')
 const displayFieldIds = computed(() => props.column?.display_structure?.display_field_ids ?? [])
 const curFieldName = computed(() => props.column?.[props.fieldName])
@@ -38,7 +39,13 @@ const { t } = useI18n()
 const tableLabel = computed(() => props.column?.display_structure?.relationTableName ?? props.column?.title ?? t('mdTable.relationPicker.defaultTableLabel'))
 const currentValue = computed(() => {
   const v = props.formData?.[curFieldName.value]
-  return Array.isArray(v) ? v : v != null ? [v] : []
+  if (typeof v === 'string') {
+    return v.split(',')
+  } else if (Array.isArray(v)) {
+    return v
+  } else {
+    return []
+  }
 })
 
 function handleOriginalClick(record: any) {
@@ -48,8 +55,7 @@ function handleOriginalClick(record: any) {
 function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
   if (!props.formData || curFieldName.value == null) return
   const fieldName = curFieldName.value
-  props.formData[fieldName] = value.join(',')
-  // 如果props.row 存在属性 key_1680_411d7500，has
+  props.formData[fieldName] = value
   const basicFieldNames = ['id', 'created_at', 'updated_at', 'updated_by', 'status', 'master_table_id']
   Object.keys(props.formData).forEach((key) => {
     if (!basicFieldNames.includes(key)) {
@@ -61,11 +67,11 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
           }
           return acc
         }, [])
-        props.formData[key] = relatedValue.join(',')
+        console.log({ relatedValue }, key)
+        props.formData[key] = relatedValue
       }
     }
   })
-  console.log('props.formData', props.formData)
 }
 </script>
 
