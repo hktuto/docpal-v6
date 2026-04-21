@@ -29,7 +29,7 @@ const form = ref({
   icon: ''
 })
 
-const { createWorkspace } = useWorkspaces()
+const { createWorkspace } = useDatabases()
 const rules = reactive<FormRules>({
   name: [{ required: true, message: 'Please enter Database name', trigger: 'blur' }]
 })

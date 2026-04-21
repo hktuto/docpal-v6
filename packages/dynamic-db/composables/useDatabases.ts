@@ -31,6 +31,28 @@ export const useDatabases = () => {
     return data
   }
 
+  async function createDatabase(workspace: Partial<any>): Promise<any> {
+    const now = new Date().toISOString()
+    const currentUserId = workspace.createdBy || useUserId()
+    if (workspace.name == null || workspace.name === '') {
+      throw new Error('Workspace name is required')
+    }
+    const dto: any = {
+      name: workspace.name,
+      description: workspace.description ?? undefined,
+    }
+    if (workspace.icon) {
+      dto.metadata = {
+        icon: workspace.icon
+      }
+    }
+    const { data }: any = await newClientApi.postDynamicDbCaseTypes(dto)
+
+    databases.value = [...databases.value, data]
+
+    return data
+  }
+
 
 
 
@@ -39,5 +61,6 @@ export const useDatabases = () => {
     databases,
     getDatabases,
     deleteDatabase,
+    createDatabase,
   }
 }
