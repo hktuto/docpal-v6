@@ -184,6 +184,17 @@ onMounted(() => {
   }
 })
 
+function checkDateisDOB(field:any, date:Date){
+
+  const label = field.lable || field.label
+  if(label.includes('DOB')){
+    // check if data is before today
+    return date > new Date()
+  }
+
+  return false
+}
+
 // preview image logic
 const previewImg = ref()
 const previewImgLoading = ref(false)
@@ -298,6 +309,7 @@ defineExpose({
               :class="{fieldInput: true, edited: isFieldModified(field)}"
 
               :disabled="readonly"
+              clearable
               filterable
               @focus="handleFieldMouseEnter(field)"
               @update:model-value="(val) => handleFieldChange(field, val)"
@@ -319,6 +331,9 @@ defineExpose({
                 :disabled="readonly"
                 :format="field.format || 'DD/MM/YYYY'"
                 :value-format="field.format || 'DD/MM/YYYY'"
+                 :disabled-date="(d) => checkDateisDOB(field, d)"
+                clearable
+
                 @focus="handleFieldMouseEnter(field)"
                 @update:model-value="(val) => handleFieldChange(field, val)"
               />
@@ -411,6 +426,7 @@ defineExpose({
                   :size="formSize"
                   class="fieldInput"
                   filterable
+                  clearable
                   :disabled="readonly"
                   @focus="handleFieldMouseEnter(field)"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
@@ -429,10 +445,11 @@ defineExpose({
                     :modelValue="field.currentValue"
                     :size="formSize"
                     :class="{fieldInput: true, edited: isFieldModified(field)}"
-
+                    clearable
                     :disabled="readonly"
                     :format="field.format || 'DD/MM/YYYY'"
                     :value-format="field.format || 'DD/MM/YYYY'"
+                    :disabled-date="(d) => checkDateisDOB(field, d)"
                     @focus="handleFieldMouseEnter(field)"
                     @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                   />
