@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import {useTableViewsInject } from '../../../composables/table/useTableViews'
+import { useTableViewsInject } from '../../../composables/table/useTableViews'
 const props = defineProps<{
   dataTableId: string
 }>()
@@ -28,6 +28,7 @@ const {
   updateViewFilterSortGroup,
   viewStyleConfig
 } = useTableViewsInject()
+const { navigateToItem, findItemById, menuState } = useSingleDatabaseContext()
 const columns = computed(() => currentView.value?.displayColumns)
 
 const extraColumnConfig = computed(() => {
@@ -149,8 +150,11 @@ function getPageParams() {
   }
   return params
 }
-
-provide('viewTools', { getPageParams, columns, tableFields })
+function navigateToTableMenu(tableId: string) {
+  const tableItem = findItemById(menuState.value.items, tableId)
+  navigateToItem(tableItem)
+}
+provide('viewTools', { getPageParams, columns, tableFields, navigateToTableMenu })
 </script>
 
 <style lang="scss" scoped></style>

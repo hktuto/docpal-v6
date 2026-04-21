@@ -166,7 +166,7 @@ export const useSingleDatabase = () => {
 
   function findItemById(items: MenuDTO[], id: string): MenuDTO | undefined {
     for (const item of items) {
-      if (item.id === id) {
+      if (item.id === id || item.item_id === id) {
         return item
       }
       if (item.children) {
