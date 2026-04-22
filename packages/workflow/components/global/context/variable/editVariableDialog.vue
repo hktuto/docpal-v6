@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { Node } from '@antv/x6'
 import { VariableTypeOptions, type VariableItem, type VariableSelectItem } from '#imports'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
@@ -7,9 +6,6 @@ if (!graphProvider) {
   throw createError('graph provider not found')
 }
 const { addVariableItem, updateVariableItem, getVariablesByType } = useVariablesProvide()
-const { node } = defineProps<{
-  node: Node
-}>()
 const comRef = ref()
 const opened = ref(false)
 const emits = defineEmits(['reload'])
@@ -17,6 +13,7 @@ const initData = {
   id: '',
   name: '',
   type: 'string',
+  tag: 'text',
   required: false,
   maxLength: 200
 }
@@ -56,7 +53,7 @@ function handleOpen(variable?: VariableSelectItem) {
   }
 
   exitRules.value = isEdit.value ? getVariablesByType().filter((item: any) => item.id !== variable?.id) : getVariablesByType()
-  typeChanged(formData.value.type)
+  typeChanged(formData.value.tag)
   setTimeout(() => {
     if (idFieldRef.value) {
       idFieldRef.value?.focus()
@@ -88,17 +85,19 @@ function idChanged(rule: any, value: any, callback: any) {
   callback()
 }
 
-function typeChanged(type: any) {
+function typeChanged(tag: string) {
   const options = VariableTypeOptions.reduce((acc: any, item: any) => {
     acc.push(...item.options)
     return acc
   }, [])
-  const typeObject = options.find((item: any) => item.type === type)
+  const typeObject = options.find((item: any) => item.tag === tag)
+
   if (!!typeObject) {
     formData.value = {
       id: formData.value.id,
       name: formData.value.name,
-      type: type,
+      type: Object.entries(VariableItemTag).find(([, arr]) => arr.includes(tag))?.[0],
+      tag: tag,
       required: false,
       ...typeObject.validation
     }
@@ -150,18 +149,15 @@ defineExpose({
         <el-input v-model="formData.name" placeholder="Name" />
       </el-form-item>
       <el-form-item label="Type" prop="type">
-        <el-select v-model="formData.type" placeholder="Select" @change="typeChanged">
+        <el-select v-model="formData.tag" placeholder="Select" @change="typeChanged">
           <el-option-group v-for="group in VariableTypeOptions" :key="group.group" :label="$t(group.group)">
-            <el-option v-for="option in group.options" :key="option.type" :label="$t(option.label)" :value="option.type" />
+            <el-option v-for="option in group.options" :key="option.tag" :label="$t(option.label)" :value="option.tag" />
           </el-option-group>
         </el-select>
       </el-form-item>
 
-      <component ref="comRef" :is="editComponent" :form="formData" />
-      <DataTypeText v-if="formData.type === 'string'" :form="formData"></DataTypeText>
-      <DataTypeNumber v-else-if="formData.type === 'number'" :form="formData" />
-      <DataTypeBoolean v-else-if="formData.type === 'boolean'" :form="formData" />
-      <DataTypeDate v-else-if="formData.type === 'date'" :form="formData" />
+      <el-divider />
+      <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="formData" :form="formData" />
 
       <el-form-item>
         <ElButton id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">{{ $t('dpButtom_confirm') }}</ElButton>
