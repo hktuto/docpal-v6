@@ -265,7 +265,6 @@ async function handleSubmitUserTask() {
       additionButtonActions.push(item.beforeSubmit())
     }
   })
-  console.log(1111, additionButtonActions)
 
   const buttonResults = await Promise.all(additionButtonActions)
   // after check all actions, if any additional fromData need to set to from fromData, set it
@@ -393,12 +392,13 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
     }
   })
 
-  return
-  const param = {
-    taskId: id,
-    properties: { ...formData }
-  }
-  const res: any = await newClientApi.postDocpalWorkflowFormSubmit(param).then((res) => res.data)
+  const res = $api
+    .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
+      user_id: userId,
+      variables: { ...formData }
+    })
+    .then((r: any) => r.data)
+
   routerProvider?.message.success(`${t('msg_successfulOperation')}`)
   if (backItem) {
     routerProvider?.back(backItem)
