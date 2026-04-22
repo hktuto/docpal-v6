@@ -14,6 +14,7 @@ const { detail, workflowType, backItem } = defineProps<{
     process_instance_id: string
     definition_id: string
     node_id: string
+    status: string
     node_name: string
     assignee: string
     variables: any
@@ -99,12 +100,6 @@ async function initForm(node: any) {
   handleDisabledForm()
 }
 
-async function handleGetActivity() {
-  const processInstanceId = taskDetail.value.instanceId || taskDetail.value.processInstanceId
-  state.activityList = await newClientApi
-    .postDocpalWorkflowHistoryActivity({ processInstanceId })
-    .then((res: any) => res.data?.list.filter((i) => i.activityName).reverse())
-}
 const showForm = ref(true)
 const formDataValue = ref<any>(null)
 
@@ -151,35 +146,9 @@ function toggleShowForm() {
   showForm.value = !showForm.value
 }
 
-function formDataGet(obj: any) {
-  if (!obj) obj = {}
-  return Object.keys(obj).reduce((prev: any, key: string) => {
-    prev[key] = String(obj[key])
-    return prev
-  }, {})
-}
-
 function handleDisabledForm() {
   if (!isAssigneeUser.value || workflowType === 'completeTask') {
     fromRenderRef.value.disableForm()
-  }
-}
-
-async function handleSave() {
-  try {
-    const data = await fromRenderRef.value.getFormData(false, false)
-    state.loading = true
-    const param = {
-      taskId: id,
-      properties: { ...data }
-    }
-    await newClientApi.postDocpalWorkflowPropertiesSave(param)
-    routerProvider?.message.success(`${t('msg_successfulOperation')}`)
-  } catch (error) {
-    console.log(error)
-    // routerProvider?.message.error(error)
-  } finally {
-    // state.loading = false
   }
 }
 
@@ -279,9 +248,6 @@ async function handleSubmitUserTask() {
       fromData[key] = JSON.stringify(fromData[key])
     }
   })
-
-  console.log(123, fromData)
-  return
 
   const data = $api
     .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
@@ -477,7 +443,7 @@ onMounted(() => {
                     <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
                   </template>
                   <!--   TODO:  Save Draft is not supported.           -->
-                  <!--                  <el-button
+                  <!-- <el-button
                     v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"
                     id="Workflow__AvailableTask__Detail__Form__SaveDraft"
                     :disabled="workflowType === 'completeTask'"
