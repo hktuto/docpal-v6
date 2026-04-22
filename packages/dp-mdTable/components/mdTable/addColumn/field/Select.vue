@@ -55,6 +55,7 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   column: any
+  isChanged?:boolean
 }>()
 
 const { getOptionsFromTableData } = useMDTableInject()
@@ -174,7 +175,7 @@ const getNextColor = (): string => {
 const initOptions = async() => {
   // check type in column if current column type is not select or multiSelect, need to try get all possible options from table data
   console.log("props.column.type", props.column)
-  if (props.column && props.column.type !== ColumnFieldType.SingleSelect && props.column.type !== ColumnFieldType.MultiSelect) {
+  if (props.column && props.column.type !== ColumnFieldType.SingleSelect && props.column.type !== ColumnFieldType.MultiSelect && (!props.column.display_structure?.options || !props.column.display_structure?.options.length)) {
     // promt user to see if need to convert current table data into options\
     // TODO：　get unique option from backend
     const possibleOptions = await getOptionsFromTableData(props.column)
