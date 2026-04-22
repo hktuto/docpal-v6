@@ -387,28 +387,35 @@ defineExpose({
                   >
                     <template #title>
                       <div class="field-header">
-                        <span class="field-label">{{ field.lable }}</span>
-                        <span class="field-type">{{ getFieldTypeLabel(field.type) }}</span>
+                        <span class="field-label">{{ field.lable }} <span class="field-type">{{ getFieldTypeLabel(field.type) }}</span></span>
+
+                        <div class="actions">
+                            <ElButton
+                                v-if="index !== 0"
+                              :disabled="index === 0"
+                              type="text"
+                              size="small"
+                              @click="moveField(index, 'up')"
+                            >
+                              <Icon name="lucide:arrow-up" />
+                            </ElButton>
+                            <ElButton
+                            v-if="index !== section.fields.length - 1"
+                              :disabled="index === section.fields.length - 1"
+                              size="small"
+                              type="text"
+                              @click="moveField(index, 'down')"
+                            >
+                              <Icon name="lucide:arrow-down" />
+                            </ElButton>
+                        </div>
                       </div>
                     </template>
 
                     <FieldEditor v-model="section.fields[index]" />
 
                     <div class="field-actions">
-                      <ElButton
-                        :disabled="index === 0"
-                        size="small"
-                        @click="moveField(index, 'up')"
-                      >
-                        <Icon name="lucide:arrow-up" />
-                      </ElButton>
-                      <ElButton
-                        :disabled="index === section.fields.length - 1"
-                        size="small"
-                        @click="moveField(index, 'down')"
-                      >
-                        <Icon name="lucide:arrow-down" />
-                      </ElButton>
+
                       <ElButton type="danger" size="small" @click="removeField(index)">
                         <Icon name="lucide:trash-2" />
                       </ElButton>
