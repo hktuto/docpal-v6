@@ -174,7 +174,6 @@ const getNextColor = (): string => {
 // 初始化选项
 const initOptions = async() => {
   // check type in column if current column type is not select or multiSelect, need to try get all possible options from table data
-  console.log("props.column.type", props.column)
   if (props.column && props.column.type !== ColumnFieldType.SingleSelect && props.column.type !== ColumnFieldType.MultiSelect && (!props.column.display_structure?.options || !props.column.display_structure?.options.length)) {
     // promt user to see if need to convert current table data into options\
     // TODO：　get unique option from backend

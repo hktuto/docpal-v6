@@ -32,13 +32,15 @@ const { columns, cardRef, getTableData, addRow, systemFieldsTypes, viewStyleConf
 const kanbanSettingRef = ref()
 function initSetting() {
   // check if viewStyleConfig has already selected a column
+
   if (viewStyleConfig.value && viewStyleConfig.value.selectedColumnId) {
+    console.log("viewStyleConfig.valu", viewStyleConfig.value)
     return
   }
   // check if columns has single select field
 
   const selectColumn = columns.value.filter((col) => col.business_type === '3')
-
+  console.log("selectColumn", selectColumn, columns.value)
   if (selectColumn && selectColumn.length == 1) {
     // only one select column, auto selecte this column
     viewStyleConfig.value.selectedColumnId = selectColumn[0].field_name

@@ -119,7 +119,6 @@ export function useMDTable(props: any) {
     })
     return Array.from(options).filter(Boolean)
   }
-  console.log(props.extraColumnConfig, 'props.extraColumnConfig')
   provide(MdTableContextKey, {
     ...props.extraColumnConfig,
     tableData,
