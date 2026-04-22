@@ -1,4 +1,4 @@
-import type { ViewConfig } from '../../utils/databaseType'
+import type { ViewConfig, FilterInfo } from '../../utils/databaseType'
 
 import { kanbanStyleDefault, cardStyleDefault } from '../../utils/databaseType';
 import {
@@ -27,7 +27,7 @@ export interface ViewContext {
   tableFields: Ref<any[]>
   currentView: Ref<ViewConfig | null>
   tableViews: Ref<ViewConfig[]>
-  columnFilterRules: Ref<any[]>
+  columnFilterRules: Ref<FilterInfo | null>
   columnSortRules: Ref<any[]>
   columnGroupRules: Ref<any[]>
   viewStyleConfig: Ref<any>
@@ -60,7 +60,7 @@ export function useTableViews(options: UseTableViewsOptions) {
   const tableViews = ref<ViewConfig[]>([])
   const tableFields = ref<any[]>([])
 
-  const columnFilterRules = ref<any>()
+  const columnFilterRules = ref<FilterInfo | null>(null)
   const columnSortRules = ref<any[]>([])
   const columnGroupRules = ref<any[]>([])
 
@@ -86,9 +86,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     tableFields.value = data.data?.tableFields ?? []
     tableViews.value = views
-    if (!currentView.value) {
-      setCurrentView(views[0].id)
-    }
+    setCurrentView(views[0].id)
   }
   function setCurrentView(view: ViewConfig | string) {
     if (typeof view === 'string') {
@@ -171,7 +169,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (newFieldsOnly.length > 0) {
       await saveColumnOrder(newFieldsOnly[0].id, targetFieldId, dragPos)
     }
-    return newFieldsOnly
   }
 
   async function deleteField(fieldId: string) {
@@ -248,6 +245,7 @@ export function useTableViews(options: UseTableViewsOptions) {
   })
 
   return {
+    tableFields,
     setCurrentView,
     currentView,
     tableViews,
