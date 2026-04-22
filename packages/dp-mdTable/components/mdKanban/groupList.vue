@@ -31,14 +31,12 @@ const pageSize = 20
 const { tableData, totalSize, loading,  hasMore, updateRow,  addRow, getTableData, loadMore } = useTableData(props.tableId, listRef)
 const localKey = ref(1)
 async function refresh(){
-  console.log('refresh on group list', props.group.id)
   tableData.value = []
   localKey.value ++
   nextTick(async() => {
     await getTableData({
        pageSize: pageSize,
    })
-    console.log('refresh done', tableData.value )
   })
 }
 

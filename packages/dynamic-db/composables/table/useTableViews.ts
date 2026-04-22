@@ -86,7 +86,9 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     tableFields.value = data.data?.tableFields ?? []
     tableViews.value = views
-    setCurrentView(views[0].id)
+    if (!currentView.value) {
+      setCurrentView(views[0].id)
+    }
   }
   function setCurrentView(view: ViewConfig | string) {
     if (typeof view === 'string') {
@@ -169,6 +171,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (newFieldsOnly.length > 0) {
       await saveColumnOrder(newFieldsOnly[0].id, targetFieldId, dragPos)
     }
+    return newFieldsOnly
   }
 
   async function deleteField(fieldId: string) {

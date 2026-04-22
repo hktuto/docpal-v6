@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { useMDKanbanInject } from "../../../composables/mdKanban/useMDKanban"
-
+import {useTableViewsInject} from '../../../../dynamic-db/composables/table/useTableViews'
 const visible = ref(false);
 const { viewStyleConfig, updateViewFilterSortGroup, columns } = useMDKanbanInject()
+const { deleteView, currentView, addField } = useTableViewsInject()
 function open(setting: any) {
   visible.value = true;
   form.value = { ...viewStyleConfig.value, ...setting }
@@ -29,12 +30,50 @@ const selectedColumnDetail = computed(() => {
 
 async function submitSetting(){
   // check if selectedColumnId is valid
-  console.log("form", form.value)
   form.value.options = selectedColumnDetail.value?.display_structure.options
   await updateViewFilterSortGroup?.('style', form.value)
   close()
 }
 
+async function deleteKanban() {
+  await deleteView?.(currentView.value.id)
+  close()
+}
+
+async function addDummyColumn() {
+// create columns to table and set form
+  const dummyColumns = [
+    {
+    "field_name": "New Field",
+    "business_type": "3",
+    "display_structure": {
+      "options": [
+        {
+          "id": `opt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          "label": "pending",
+          "color": "#9b59b6"
+        },
+        {
+          "id": `opt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          "label": "in progress",
+          "color": "#3498db"
+        },
+        {
+          "id": `opt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          "label": "done",
+          "color": "#1abc9c"
+        }
+      ]
+    }
+  }]
+  await addField(dummyColumns)
+  const selectColumn = columns.value.filter((col) => col.business_type === '3')
+  if (selectColumn && selectColumn.length == 1) {
+    // only one select column, auto selecte this column
+    form.value.selectedColumnId = selectColumn[0].field_name
+    submitSetting()
+  }
+}
 
 defineExpose({
   open,
@@ -57,13 +96,14 @@ defineExpose({
                         <ElOption v-for="column in selectFilter" :key="column.field_name" :label="column.field_name_alias" :value="column.field_name"></ElOption>
                     </ElSelect>
                 </ElFormItem>
-                <ElFormItem v-else>
-                    <p>No columns available</p>
-                    <ElButton type="primary" @click="close">Create Select Column</ElButton>
-                </ElFormItem>
+                <div v-else>
+                    <div>No columns available</div>
+                    <ElButton type="primary" @click="addDummyColumn">Create Select Column</ElButton>
+                    <ElButton type="primary" @click="deleteKanban">Remove View</ElButton>
+                </div>
 
                 <ElFormItem>
-                    <ElButton type="primary" @click="submitSetting">Save</ElButton>
+                    <ElButton v-if="selectFilter.length > 0" type="primary" @click="submitSetting">Save</ElButton>
                 </ElFormItem>
             </ElForm>
     </ElDialog>

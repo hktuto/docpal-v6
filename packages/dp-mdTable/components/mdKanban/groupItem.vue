@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
   item:any
-  field:any
+  field: any
+  theme: any;
 }>()
 </script>
 

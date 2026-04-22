@@ -30,6 +30,25 @@ const { columns, cardRef, getTableData, addRow, systemFieldsTypes, viewStyleConf
 
 // open setting logic
 const kanbanSettingRef = ref()
+function initSetting() {
+  // check if viewStyleConfig has already selected a column
+  if (viewStyleConfig.value && viewStyleConfig.value.selectedColumnId) {
+    return
+  }
+  // check if columns has single select field
+
+  const selectColumn = columns.value.filter((col) => col.business_type === '3')
+
+  if (selectColumn && selectColumn.length == 1) {
+    // only one select column, auto selecte this column
+    viewStyleConfig.value.selectedColumnId = selectColumn[0].field_name
+    viewStyleConfig.value.options = selectColumn[0].display_structure.options
+    props.extraColumnConfig?.updatedViewFilterSortGroup?.('style', viewStyleConfig.value)
+
+  } else {
+    openSetting()
+  }
+}
 function openSetting() {
   kanbanSettingRef.value.open()
 }
@@ -79,11 +98,7 @@ function handleNeedRefresh(groupId: string = 'all') {
 
 onMounted(() => {
   initSortable()
-  if(viewStyleConfig.value && !viewStyleConfig.value.selectedColumnId || (!viewStyleConfig.value.options || !viewStyleConfig.value.options.length)){
-    nextTick(() => {
-      openSetting()
-    })
-  }
+  initSetting()
 })
 
 onBeforeUnmount(() => {

@@ -20,6 +20,7 @@ interface Props {
     | 'top-end'
     | 'bottom'
     | 'bottom-start'
+
     | 'bottom-center'
     | 'bottom-end'
     | 'left'
