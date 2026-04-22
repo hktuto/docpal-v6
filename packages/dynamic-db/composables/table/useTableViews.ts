@@ -1,4 +1,4 @@
-import type { ViewConfig } from '../../utils/databaseType'
+import type { ViewConfig, FilterInfo } from '../../utils/databaseType'
 
 import { kanbanStyleDefault, cardStyleDefault } from '../../utils/databaseType';
 import {
@@ -27,7 +27,7 @@ export interface ViewContext {
   tableFields: Ref<any[]>
   currentView: Ref<ViewConfig | null>
   tableViews: Ref<ViewConfig[]>
-  columnFilterRules: Ref<any[]>
+  columnFilterRules: Ref<FilterInfo | null>
   columnSortRules: Ref<any[]>
   columnGroupRules: Ref<any[]>
   viewStyleConfig: Ref<any>
@@ -60,7 +60,7 @@ export function useTableViews(options: UseTableViewsOptions) {
   const tableViews = ref<ViewConfig[]>([])
   const tableFields = ref<any[]>([])
 
-  const columnFilterRules = ref<any>()
+  const columnFilterRules = ref<FilterInfo | null>(null)
   const columnSortRules = ref<any[]>([])
   const columnGroupRules = ref<any[]>([])
 
