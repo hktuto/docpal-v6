@@ -46,15 +46,16 @@
 <script lang="ts" setup>
 import { useTableViews } from '../../../../composables/table/useTableViews'
 import type { ViewConfig, ViewType } from '../../../../utils/databaseType'
+import { useRelationConfig } from '../../../../composables/table/useRelationConfig'
 import { Plus, MoreFilled } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 
-
 const { databaseMenuRouteParams, database } = useSingleDatabaseContext()
+const { setRelationConfig } = useRelationConfig()
 const tableId = computed(() => databaseMenuRouteParams.value.item_id)
 const reference_entity_id = computed(() => database.value.id)
 const isReady = ref(false)
-const { getViews, currentView, tableViews, createView, setCurrentView, reorderViews } = useTableViews({
+const { getViews, currentView, tableViews, createView, setCurrentView, reorderViews, tableFields } = useTableViews({
   tableId,
   reference_entity_id
 })
@@ -112,10 +113,11 @@ async function handleDragEnd(event: any) {
 
 watch(
   databaseMenuRouteParams,
-  (newVal) => {
+  async (newVal) => {
     if (newVal.item_id) {
       isReady.value = false
-      getViews()
+      await getViews()
+      setRelationConfig(tableFields.value)
       setTimeout(() => {
         isReady.value = true
       }, 1000)

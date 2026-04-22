@@ -33,7 +33,7 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
   function updateRelationField(formData: any) {
     const relationTableId = formData.relation_table_id
     const relationTable = relationTables.value.find((table: any) => table.display_structure?.relation_table_id === relationTableId)
-    formData.virtual_field_name = relationTable.field_name + '.' + formData.display_field_name
+    formData.relation_field_name = relationTable.field_name
     // formData.relation_field_name = relationTable.field_name
 
     // 重新获取relationTable中的displayFields

@@ -245,6 +245,7 @@ export function useTableViews(options: UseTableViewsOptions) {
   })
 
   return {
+    tableFields,
     setCurrentView,
     currentView,
     tableViews,

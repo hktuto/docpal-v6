@@ -17,6 +17,7 @@ import { UserView } from './components/user/view'
 import { RelationView } from './components/relation/view'
 import RelationEditVue from './components/relation/edit.vue'
 import { VirtualColumnView } from './components/VirtualColumn/view'
+import { AggVirtualColumnView } from './components/VirtualColumn/agg'
 import { FormulaView } from './components/formula'
 import { CheckboxView } from './components/checkbox'
 import { DocumentView } from './components/document'
@@ -30,7 +31,6 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     view: {
       render: (params: any) => TreeNode(params, TextView)
     }
-
   },
   MultiText: {
     edit: {
@@ -196,9 +196,13 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     }
   },
   VirtualColumn: {
-
     view: {
       render: (params: any) => TreeNode(params, VirtualColumnView)
+    }
+  },
+  AggVirtualColumn: {
+    view: {
+      render: (params: any) => TreeNode(params, AggVirtualColumnView)
     }
   },
   User: {

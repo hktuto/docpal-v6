@@ -49,7 +49,7 @@ async function handleRTChange(value: string[]) {
     props.formData.relation_table_id = ''
     props.formData.relation_field_name = ''
     props.formData.display_field_name = ''
-    props.formData.virtual_field_name = ''
+    props.formData.relation_field_name = ''
   }
 }
 function handleDisplayFieldChange(value: string) {

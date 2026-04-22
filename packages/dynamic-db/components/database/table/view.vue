@@ -11,6 +11,7 @@ import dayjs from 'dayjs'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { useTableViewsInject } from '../../../composables/table/useTableViews'
 import { useDBParams } from '../../../composables/table/useDBParams'
+import { useRelationConfigInject } from '../../../composables/table/useRelationConfig'
 const props = defineProps<{
   dataTableId: string
 }>()
@@ -31,6 +32,7 @@ const {
 } = useTableViewsInject()
 const { navigateToItem, findItemById, menuState } = useSingleDatabaseContext()
 const { getPageParams, columns } = useDBParams()
+const { getRelationFieldConfig } = useRelationConfigInject()
 
 const extraColumnConfig = computed(() => {
   const data = {
@@ -55,7 +57,7 @@ function navigateToTableMenu(tableId: string) {
   const tableItem = findItemById(menuState.value.items, tableId)
   navigateToItem(tableItem)
 }
-provide('viewTools', { getPageParams, columns, tableFields, navigateToTableMenu })
+provide('viewTools', { getPageParams, columns, tableFields, navigateToTableMenu, getRelationFieldConfig })
 </script>
 
 <style lang="scss" scoped></style>

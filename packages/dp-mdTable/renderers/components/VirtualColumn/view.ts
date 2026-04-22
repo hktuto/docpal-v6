@@ -1,5 +1,6 @@
 import type { ViewRenderFunctionParams, VirtualColumnOptions } from '../../../types/column-types'
 import { ColumnFieldType } from '../../../types/column-types'
+import { buildRelationArray } from '../../../utils/relationHelper'
 import { h } from 'vue'
 import { ElTag } from 'element-plus'
 import {
@@ -18,28 +19,20 @@ import {
 export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { row, column } = params
   const props: any = options?.props || {}
-  const virtual_field_name = props?.virtual_field_name
-  const rawValues = row[virtual_field_name]
-  if (!rawValues || (Array.isArray(rawValues) && rawValues.length === 0)) {
-    return h('div', { class: 'virtual-column-view empty' }, '-')
-  }
-
-  let displayValues = Array.isArray(rawValues) ? [...rawValues] : [rawValues]
-  if (props?.showUniqueOnly) {
-    displayValues = [...new Set(displayValues)]
-  }
-  
+  const viewTools: any = inject('viewTools')
+  const relationFieldConfig = viewTools?.getRelationFieldConfig(props.relation_table_id, props.display_field_id)
+  const relationArray = buildRelationArray(row, props.relation_field_name, relationFieldConfig.field_name)
   const tags: ReturnType<typeof h>[] = []
-  for (let i = 0; i < displayValues.length; i++) {
+  for (let i = 0; i < relationArray.length; i++) {
     tags.push(
       h(
         ElTag,
         {
-          key: `${virtual_field_name}-${i}`,
+          key: `${relationFieldConfig.field_name}-${i}`,
           size: 'small',
           type: 'info'
         },
-        () => String(displayValues[i] ?? '-')
+        () => String(relationArray[i].displayFieldName || '-')
       )
     )
   }
