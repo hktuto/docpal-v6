@@ -173,8 +173,10 @@ const getNextColor = (): string => {
 // 初始化选项
 const initOptions = async() => {
   // check type in column if current column type is not select or multiSelect, need to try get all possible options from table data
-  if (props.column.type !== ColumnFieldType.SingleSelect && props.column.type !== ColumnFieldType.MultiSelect) {
-    // promt user to see if need to convert current table data into options
+  console.log("props.column.type", props.column)
+  if (props.column && props.column.type !== ColumnFieldType.SingleSelect && props.column.type !== ColumnFieldType.MultiSelect) {
+    // promt user to see if need to convert current table data into options\
+    // TODO：　get unique option from backend
     const possibleOptions = await getOptionsFromTableData(props.column)
 
     if(possibleOptions.length > 0) {
@@ -316,10 +318,11 @@ const syncOptionsFromProps = () => {
     // 比较新选项和当前选项是否相同（通过比较序列化后的字符串）
 
     const normalizeOptions = (opts: any[]) => {
+      console.log("normalizeOptions opts", opts)
       return JSON.stringify(
         opts
+          .filter((opt) => typeof opt.id === 'string' && typeof opt.label === 'string')
           .map((opt: any) => ({ id: opt.id || '', label: opt.label || '', color: opt.color || '' }))
-          .sort((a: any, b: any) => (a.label || '').localeCompare(b.label || ''))
       )
     }
 

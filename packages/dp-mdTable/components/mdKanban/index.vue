@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import  { useMDKanban, type MDKanbanProps } from '../../composables/mdKanban/useMDKanban'
 import { MoreFilled } from '@element-plus/icons-vue'
-import draggable from 'vuedraggable'
+import Sortable from 'sortablejs'
+
 const props = withDefaults(defineProps<MDKanbanProps>(), {
   tableId: '',
   editable: false,
@@ -26,10 +27,6 @@ const emit = defineEmits<{
 }>()
 const { columns, cardRef, getTableData, addRow, systemFieldsTypes, viewStyleConfig } = useMDKanban(props)
 
-async function handleRefresh() {
-  await getTableData({ pageNum: 1 })
-  emit('refresh')
-}
 
 // open setting logic
 const kanbanSettingRef = ref()
@@ -38,19 +35,30 @@ function openSetting() {
 }
 
 
-async function handleDragEnd(event: any){
-  const { oldIndex, newIndex } = event
-  if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) {
-    return
-  }
-  await props.extraColumnConfig?.updateViewFilterSortGroup?.('style', viewStyleConfig.value)
+const groupListRef = ref<HTMLDivElement>()
+const sortableInstance = ref<any>()
 
+function initSortable() {
+  if (!groupListRef.value) return
+  sortableInstance.value = Sortable.create(groupListRef.value, {
+    handle: '.title',
+    animation: 150,
+    onEnd: async (event) => {
+      const { oldIndex, newIndex } = event
+      if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) {
+        return
+      }
+      const options = viewStyleConfig.value.options
+      const movedItem = options.splice(oldIndex, 1)[0]
+      options.splice(newIndex, 0, movedItem)
+      await props.extraColumnConfig?.updateViewFilterSortGroup?.('style', viewStyleConfig.value)
+    }
+  })
 }
 
 
 
 watch(viewStyleConfig ,(style) => {
-  console.log("viewStyleConfig", style, style.selectedColumnId)
   if(style && !style.selectedColumnId || (!style.options || !style.options.length)){
     nextTick(() => {
       openSetting()
@@ -58,12 +66,29 @@ watch(viewStyleConfig ,(style) => {
   }
 },{
   deep: true,
-  immediate:true
+})
+const groupRef = ref<Record<string, any>>({})
+function handleNeedRefresh(groupId: string = 'all') {
+  const items = Array.isArray(groupRef.value) ? groupRef.value : groupRef.value ? [groupRef.value] : []
+  items.forEach((el: any) => {
+    if (el?.groupId === groupId) {
+      el.refresh()
+    }
+  })
+}
+
+onMounted(() => {
+  initSortable()
+  if(viewStyleConfig.value && !viewStyleConfig.value.selectedColumnId || (!viewStyleConfig.value.options || !viewStyleConfig.value.options.length)){
+    nextTick(() => {
+      openSetting()
+    })
+  }
 })
 
-
-
-
+onBeforeUnmount(() => {
+  sortableInstance.value?.destroy()
+})
 
 </script>
 
@@ -72,30 +97,39 @@ watch(viewStyleConfig ,(style) => {
 <div class="kanbanViewContainer">
     <template v-if="viewStyleConfig.selectedColumnId">
 
-    <div class="allData group">
+    <div class="allData groups">
         <div class="title">
             <span class="text">All Data</span>
         </div>
+        <MdKanbanGroup
+            ref="groupRef"
+            :group="{ id: null, label: 'All Data' }"
+            :field="viewStyleConfig.selectedColumnId"
+            :table-id="props.tableId"
+            @needRefresh="handleNeedRefresh"
+        />
     </div>
-     <draggable v-model="viewStyleConfig.options" item-key="id" tag="div" class="group_list" :animation="150" handle=".title" @end="handleDragEnd">
-         <template #item="{ element: option }">
-            <div
-                class="group"
-                :style="{ '--color': option.color }"
-            >
-                <div class="title">
-                    <div class="color" ></div>
-                    <span class="text">{{option.label}}</span>
-                    <el-button text size="small" :icon="MoreFilled" class="optionsBtn" />
-                </div>
-            </div>
-         </template>
-     </draggable>
+     <div ref="groupListRef" class="group_list">
+         <div
+             v-for="option in viewStyleConfig.options"
+             :key="option.id"
+             class="groups"
+             :style="{ '--color': option.color }"
+         >
+             <div class="title">
+                 <div class="color" ></div>
+                 <span class="text">{{option.label}}</span>
+                 <el-button text size="small" :icon="MoreFilled" class="optionsBtn" />
+             </div>
+             <MdKanbanGroup ref="groupRef" :group="option" :field="viewStyleConfig.selectedColumnId" :table-id="props.tableId" @needRefresh="handleNeedRefresh" />
+         </div>
+     </div>
 
     <div class="newGroup">
 
     </div>
     </template>
+    <MdKanbanSettingDialog :view-style-config="viewStyleConfig" ref="kanbanSettingRef" />
 </div>
 </template>
 
@@ -121,13 +155,17 @@ watch(viewStyleConfig ,(style) => {
     flex-flow: row nowrap;
     gap: var(--app-space-xs);
 }
-.group{
+.groups{
     --group-space: var(--app-space-s);
     flex: 0 0 220px;
     width: 220px;
-    padding: var(--group-space);
+
     background: var(--app-paper);
     border-radius: var(--app-border-radius-s);
+    overflow: hidden;
+    display: grid;
+    grid-template-rows:  min-content 1fr;
+    gap: 0;
 }
 .color{
     width: var(--app-space-s);
@@ -143,7 +181,7 @@ watch(viewStyleConfig ,(style) => {
     font-size: var(--app-font-size-m);
     font-weight: bold;
     color: var(--app-grey-300);
-    padding-bottom: var(--group-space);
+    padding: var(--group-space);
     border-bottom: 1px solid var(--app-grey-800);
     cursor: grab;
 }

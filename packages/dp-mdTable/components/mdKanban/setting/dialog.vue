@@ -24,7 +24,7 @@ const selectFilter = computed(() => {
 })
 
 const selectedColumnDetail = computed(() => {
-  return columns.value.find((column:any) => column.id === form.value.selectedColumnId)
+  return columns.value.find((column:any) => column.field_name === form.value.selectedColumnId)
 })
 
 async function submitSetting(){
@@ -54,7 +54,7 @@ defineExpose({
 
                 <ElFormItem v-if="selectFilter.length > 0" label="Column" >
                     <ElSelect v-model="form.selectedColumnId" placeholder="Select a column" clearable filterable>
-                        <ElOption v-for="column in selectFilter" :key="column.id" :label="column.field_name_alias" :value="column.id"></ElOption>
+                        <ElOption v-for="column in selectFilter" :key="column.field_name" :label="column.field_name_alias" :value="column.field_name"></ElOption>
                     </ElSelect>
                 </ElFormItem>
                 <ElFormItem v-else>

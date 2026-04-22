@@ -147,9 +147,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       if (params.pageSize) {
         tableQueryBase.value.pageSize = params.pageSize
       }
-      if (params.additionalParams) {
-        additionalParams = { ...additionalParams, ...params.additionalParams }
-      }
       const { data } = await postDynamicActions({
         tableId,
         columns: [],
@@ -174,7 +171,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
   }
 
-  const loadMore = async (params:any) => {
+  const loadMore = async () => {
     if (!tableId || loading.value || loadingMore.value || !hasMore.value) {
       return
     }
@@ -185,9 +182,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       let additionalParams = {}
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
-      }
-      if (params.additionalParams) {
-        additionalParams = { ...additionalParams, ...params.additionalParams }
       }
       const { data } = await postDynamicActions({
         tableId,
@@ -215,6 +209,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       loadingMore.value = false
     }
   }
+
 
   function getAggregateData(params?: any) {
     return createMockAggregateData(params, tableId)
