@@ -472,7 +472,7 @@ defineExpose({
       </FormDesigner>
     </ElDialog>
     <ElDialog v-model="formRenderVisible" class="big" distory-on-close draggable>
-      <WorkflowDetailFormRender ref="fromRenderRef" />
+      <ContextFormRender ref="fromRenderRef" />
     </ElDialog>
     <div class="actions">
       <slot name="actions" />

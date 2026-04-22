@@ -147,7 +147,7 @@ onMounted(() => {
 
 <template>
   <div class="pageContainer">
-    <WorkflowDetailFormRender ref="vFormRef">
+    <ContextFormRender ref="vFormRef">
       <template #action>
         <div class="workflow-actions">
           <template v-for="(item,index) in additionalButton" :key="index">
@@ -169,7 +169,7 @@ onMounted(() => {
           </el-button>
         </div>
       </template>
-    </WorkflowDetailFormRender>
+    </ContextFormRender>
   </div>
 </template>
 

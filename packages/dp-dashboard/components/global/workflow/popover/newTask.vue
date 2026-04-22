@@ -178,7 +178,7 @@ defineExpose({ workflowClickHandler })
     </template>
     <el-tabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading">
       <el-tab-pane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
-        <WorkflowDetailFormRender ref="vFormRef" />
+        <ContextFormRender ref="vFormRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_graph')" name="Graph">
         <div v-if="openWorkflowEdit" class="pageContainer">

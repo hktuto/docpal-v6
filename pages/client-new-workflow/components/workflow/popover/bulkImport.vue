@@ -1,7 +1,7 @@
 <template>
   <el-dialog v-model="state.dialogVisible" :title="$t('workflow_bulkImport')"
              destroy-on-close append-to-body :close-on-click-modal="false">
-    <WorkflowDetailFormRender ref="vFormRef" />
+    <ContextFormRender ref="vFormRef" />
     <template #footer>
       <el-button id="Workflow__BulkImport__Cancel" @click="state.dialogVisible = false">
         {{ $t('cancelText') }}

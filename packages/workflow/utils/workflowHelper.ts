@@ -1,16 +1,30 @@
 import { newClientApi } from 'api'
 import { CellType } from '#imports'
 
+// const generateDocumentComponent = 'LazyBpmnButtonGenerateDocument'
+const booleanButtonComponent = 'LazyContextFormBooleanButton'
+
 export async function getButtonAdditionalElement(nodes: any[], metadata: any, formVariables: any) {
   let signatureSetting: any = {}
+  let buttons: any[] = []
   const buttonSetting = metadata.buttonSetting
 
-  // Check Task is Signature
-  if (metadata.type === CellType.signatureTask) {
-    const documentNode = nodes.find((node: any) => node.id === metadata.signature.documentStepId)
-    if (!documentNode) return
+  try {
+    if (!!metadata.buttonSetting.booleanButton) {
+      metadata.buttonSetting.booleanButton.forEach((item: any) => {
+        // Add Additional Button Setting
+        buttons.push({
+          props: item,
+          component: booleanButtonComponent
+        })
+      })
+    }
 
-    try {
+    // Check Task is Signature
+    if (metadata.type === CellType.signatureTask) {
+      const documentNode = nodes.find((node: any) => node.id === metadata.signature.documentStepId)
+      if (!documentNode) return
+
       // Get Document Template
       const documentBody = documentNode.config.body
       signatureSetting.templateId = documentBody.templateId
@@ -21,20 +35,20 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
       const documentTemplateData: any = await newClientApi.getDmsTemplateDocumentId(documentBody.templateId).then((r) => r.data)
       if (!documentTemplateData) return
 
-      const data = await newClientApi.postDmsDocumentPreview({ idOrPath: documentTemplateData.documentId })
-
+      const data: any = await newClientApi.postDmsDocumentPreview({ idOrPath: documentTemplateData.documentId })
       signatureSetting.templateDetail = JSON.parse(JSON.stringify(data))
       signatureSetting.signatureVariableSetting = data.variables.find((item: any) => item.id === metadata.signature.signatureValue)
 
       console.log('signatureSetting', signatureSetting)
-    } catch (error) {
-      console.log(error)
     }
-  }
-
-  return {
-    buttonSetting,
-    signatureSetting
+  } catch (e) {
+    console.log(e)
+  } finally {
+    return {
+      buttons,
+      buttonSetting,
+      signatureSetting
+    }
   }
 }
 

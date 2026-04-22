@@ -131,7 +131,7 @@ const formRenderSlotsRef = ref<any>({})
 
 async function getFormData(needValidation = true, onlyWritable = false) {
   try {
-    let formData = {}
+    let formData
     if (!needValidation) formData = await FormRendererRef.value.getFormData(false)
     else {
       formData = await FormRendererRef.value
@@ -140,14 +140,13 @@ async function getFormData(needValidation = true, onlyWritable = false) {
           return res
         })
         .catch((error: any) => {
+          console.log(error)
           return false
         })
     }
     if (!formData) return false
     let resultFormData = onlyWritable ? writableDataDeArray(deepCopy(formData)) : dataDeArray(deepCopy(formData))
     const slotData = await getSlotData(formRenderSlotsRef.value, needValidation)
-
-    // throw new Error("slotData", result)
     return {
       ...resultFormData,
       ...slotData

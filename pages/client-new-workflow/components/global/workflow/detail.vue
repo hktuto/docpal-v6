@@ -57,7 +57,6 @@ async function getDetail() {
     const findNode = workflowJson.value.nodes.find((node: any) => node.name == detail.node_name)
 
     // const findNode = workflowJson.value.nodes.find((node: any) => node.id == detail.node_id)
-    console.log('------ Workflow Detail', workflowJson.value, findNode)
     if (!!findNode) {
       nodeType.value = findNode.metadata.type
       switch (nodeType.value) {
@@ -212,16 +211,13 @@ async function handleCancel() {
   signSubmitStage.value = 'beforeSubmit'
 }
 
-function handleResign() {
-  openSignatureSettingDialog()
-}
-
 async function handleSubmit() {
   // if nodeType is signature, and signSubmitStage is beforeSubmit, do not submit form, open signature setting dialog
   if (nodeType.value === CellType.signatureTask && signSubmitStage.value === 'beforeSubmit' && signatureDetail.value.signatureVariableSetting) {
     openSignatureSettingDialog()
     return
   }
+
   state.loading = true
   try {
     if (detail.assignee !== userId) {
@@ -230,16 +226,13 @@ async function handleSubmit() {
           user_id: userId,
           process_id: taskDetail.process_instance_id
         })
-        .then((res) => res.data)
+        .then((res: any) => res.data)
     }
 
-    // User Task
-    switch (nodeType.value) {
-      case CellType.userTask || CellType.signatureTask:
-        await handleSubmitUserTask()
-        break
-      default:
-        await handleSubmitServiceTask()
+    if (nodeType.value === CellType.userTask || CellType.signatureTask) {
+      await handleSubmitUserTask()
+    } else {
+      await handleSubmitServiceTask()
     }
 
     routerProvider?.message.success(`${t('msg_successfulOperation')}`)
@@ -272,9 +265,10 @@ async function handleSubmitUserTask() {
       additionButtonActions.push(item.beforeSubmit())
     }
   })
+  console.log(1111, additionButtonActions)
 
   const buttonResults = await Promise.all(additionButtonActions)
-  // after check all actions, if any addtional fromData need to set to from fromData, set it
+  // after check all actions, if any additional fromData need to set to from fromData, set it
   buttonResults.forEach((item: any) => {
     if (item && typeof item === 'object') {
       fromData = { ...fromData, ...item }
@@ -286,6 +280,9 @@ async function handleSubmitUserTask() {
       fromData[key] = JSON.stringify(fromData[key])
     }
   })
+
+  console.log(123, fromData)
+  return
 
   const data = $api
     .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
@@ -316,8 +313,8 @@ const signatureDetail = ref<any>()
 const pageButtonSetting = ref<any>()
 const temSignatureData = ref<any>(null)
 
+// Render template content
 async function handleApplySignature(newSignature: any) {
-  // temp add signature to form data and update signature setting variable
   // get form data
   let data = await fromRenderRef.value.getFormData(true, false)
 
@@ -335,14 +332,13 @@ async function handleApplySignature(newSignature: any) {
 }
 
 async function handleAdditionalSetting(nodes: any[], metadata: any, formVariables: any) {
-  const { signatureSetting, buttonSetting } = await getButtonAdditionalElement(nodes, metadata, formVariables)
+  const setting: any = await getButtonAdditionalElement(nodes, metadata, formVariables)
 
-  if (metadata.buttonSetting) {
-    pageButtonSetting.value = buttonSetting
-  }
+  additionalButton.value = setting.buttons
+  pageButtonSetting.value = setting.buttonSetting
   nodeType.value = metadata.type
   if (nodeType.value === CellType.signatureTask) {
-    signatureDetail.value = signatureSetting
+    signatureDetail.value = setting.signatureSetting
     signSubmitStage.value = 'beforeSubmit'
   } else {
     signatureDetail.value = null
@@ -371,25 +367,33 @@ async function handleFormChange() {
   }
 }
 
-async function addTonalSubmit({ formData, attr_booleanValue }: any) {
+async function addTonalSubmit({ formData, booleanValue }: any) {
   state.loading = true
   if (taskDetail.value?.assignee !== userId) {
-    await newClientApi.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
+    await $api
+      .post(`/oniflow/api/v1/tasks/instance/${taskDetail.value.id}/claim`, {
+        user_id: userId,
+        process_id: taskDetail.process_instance_id
+      })
+      .then((res: any) => res.data)
   }
 
   const additionButtonActions: any = []
   additionalButtonRef.value.forEach((item) => {
-    if (item && item.beforeSubmit && item.attr_booleanValue !== attr_booleanValue) {
-      additionButtonActions.push(item.beforeSubmit())
+    const submit = item.beforeSubmit()
+    if (!!item && !!submit && item.booleanValue !== booleanValue) {
+      additionButtonActions.push(submit)
     }
   })
   const buttonResults = await Promise.all(additionButtonActions)
-  // after check all actions, if any addtional data need to set to from data, set it
+  // after check all actions, if any additional data need to set to from data, set it
   buttonResults.forEach((item: any) => {
     if (item && typeof item === 'object') {
       formData = { ...formData, ...item }
     }
   })
+
+  return
   const param = {
     taskId: id,
     properties: { ...formData }
@@ -516,11 +520,17 @@ onMounted(() => {
                 :json="signatureDetail.templateDetail.json.content"
               />
             </div>
+
             <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
               <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'" @click="handleCancel">
                 {{ $t('cancelText') }}
               </el-button>
-              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleResign">
+              <el-button
+                id="Workflow__AvailableTask__Detail__Form__Confirm"
+                type="primary"
+                :disabled="workflowType === 'completeTask'"
+                @click="openSignatureSettingDialog"
+              >
                 {{ $t('workflow_resign') }}
               </el-button>
               <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleSubmit">
