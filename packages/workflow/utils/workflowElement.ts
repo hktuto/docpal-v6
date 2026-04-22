@@ -136,6 +136,7 @@ export enum CellType {
   documentGenerationTask = 'DocumentGenerationTask',
 
   // Service
+  conditionTask = 'ConditionTask',
   serviceTask = 'ServiceTask',
   messageTask = 'MessageTask',
   uploadFile = 'UploadFile',
@@ -159,6 +160,7 @@ export enum contextMenuComponentType {
   TransformTask = 'LazyContextTransformTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
+  ConditionTask = '',
   ValidateTask = 'LazyContextServiceTaskValidate',
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
@@ -991,6 +993,23 @@ const workflowCellElementTemplate: CellTypeItem = {
         icon: '/icons/form.svg'
       }
     }
+  },
+  ConditionTask: {
+    ...createNodeShell({ id: 'New_ConditionTask', title: 'Condition Task', paletteLabel: 'Condition Task', icon: '/icons/form.svg' }),
+    data: {
+      id: '',
+      name: 'Condition Task',
+      label: 'New Condition Task',
+      documentation: '',
+      type: CellType.conditionTask,
+      config: {},
+      metadata: {
+        type: CellType.conditionTask,
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/form.svg',
+        width: 250
+      }
+    }
   }
 }
 
@@ -1009,15 +1028,5 @@ export const workflowCellElement = {
         id: id
       }
     } as CellTypeItem[K]
-  }
-}
-
-// TODO get config setting
-function generatorHTTPRequestTaskHeaders() {
-  return {
-    ServerName: 'docpal-api',
-    ServerKey: '14ecdf56081AGSDghw',
-    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
-    'Content-Type': 'application/json'
   }
 }
