@@ -69,7 +69,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     return
   }
 
-  if (error.response.status >= 500) {
+  if (error.response.status >= 500 || error.response.status <= 400) {
     if (error.config.headers.noThrowError) return
 
     if (error.config.headers.noErrorMessage) return Promise.reject(error)
