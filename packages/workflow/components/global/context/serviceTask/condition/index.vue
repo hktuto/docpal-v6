@@ -35,8 +35,7 @@ function updateNode() {
     ...config,
     conditions: form.value
   }
-  console.log(1111, data)
-  // emits('update', { name: 'update-condition-data', config: data })
+  emits('update', { name: 'update-condition-data', config: data })
 }
 
 function addNewCondition() {
@@ -65,7 +64,16 @@ function updateCondition() {
   updateNode()
 }
 
-console.log(1111111,config)
+watch(
+  () => config,
+  async () => {
+    init()
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
 </script>
 
 <template>
