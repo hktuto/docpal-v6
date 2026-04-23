@@ -90,12 +90,9 @@ async function initForm(node: any) {
     routerProvider?.message.error('The form does not exist!')
     return
   }
+
   // Get Form Data
-  let formData = {}
-  const taskDetailData = await $api.get(`/oniflow/api/v1/tasks/instance/${detail.id}`).then((r: any) => r.data)
-  if (!!taskDetailData && !!taskDetailData.input_variables) {
-    formData = taskDetailData.input_variables
-  }
+  let formData = detail.variables
   fromRenderRef.value.setForm(formJsonData.jsonValue, formData)
   handleDisabledForm()
 }

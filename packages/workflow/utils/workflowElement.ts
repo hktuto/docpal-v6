@@ -160,7 +160,7 @@ export enum contextMenuComponentType {
   TransformTask = 'LazyContextTransformTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
-  ConditionTask = '',
+  ConditionTask = 'LazyContextServiceTaskCondition',
   ValidateTask = 'LazyContextServiceTaskValidate',
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
@@ -982,8 +982,8 @@ const workflowCellElementTemplate: CellTypeItem = {
         bgColor: '#0F2037',
         textColor: '#fff',
         graphLabel: {
-          success: 'Success',
-          failure: 'Failure'
+          successLabel: 'Success',
+          failureLabel: 'Failure'
         }
       }
     }

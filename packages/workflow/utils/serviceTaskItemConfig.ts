@@ -1,5 +1,13 @@
 export const getServiceTaskItemConfig = {
-  ConditionTask: {},
+  ConditionTask: {
+    relation: 'OR',
+    conditions: [
+      {
+        relation: 'AND',
+        rule: []
+      }
+    ]
+  },
   SubProcess: {
     processDefinitionId: ''
   },
