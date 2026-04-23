@@ -1,9 +1,9 @@
 export const getServiceTaskItemConfig = {
   ConditionTask: {
-    relation: 'OR',
+    relation: 'AND',
     conditions: [
       {
-        relation: 'AND',
+        relation: 'OR',
         rule: []
       }
     ]

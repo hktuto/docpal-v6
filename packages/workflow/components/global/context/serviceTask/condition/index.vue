@@ -5,11 +5,11 @@ if (!graphProvider) {
   throw createError('graph provider not found')
 }
 type ruleItemType = {
-  id: number
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
+  val_type: 'string' | 'number' | 'boolean'
   field: string
-  condition: 'is' | 'eq' | 'gt'
-  targetValue: string
+  condition: 'contains' | 'is' | 'eq' | 'gt'
+  value: string
 }
 
 const { config } = defineProps<{
@@ -37,78 +37,51 @@ function addNewCondition() {
       field: '',
       condition: 'contains',
       value: ''
-    }
+    } as ruleItemType
   ]
 
   form.value.push({
     relation: 'AND',
     rule: rules
   })
-  console.log(123, form.value)
 }
 
-function deleteCondition() {}
+function deleteCondition(index: number) {
+  form.value.splice(index, 1)
+}
 
 function updateCondition() {}
 </script>
 
 <template>
-  <div class="labelContainer">
-    <div class="title">Graph Label</div>
-    <div class="label">
-      <div class="labelTitle">Success</div>
-      <el-input v-model="conditionLabel.successLabel" placeholder="Success" @change="updateNode" />
+  <p>Graph Label</p>
+  <el-form label-position="top">
+    <el-form-item label="Success">
+      <el-input size="small" v-model="conditionLabel.successLabel" placeholder="Success" @change="updateNode" />
+    </el-form-item>
+    <el-form-item label="Failure">
+      <el-input size="small" v-model="conditionLabel.failureLabel" placeholder="Failure" @change="updateNode" />
+    </el-form-item>
+  </el-form>
+
+  <p>Conditions</p>
+  <div class="conditions">
+    <div v-for="(conditionsElement, index) in form" :key="index">
+      <ContextServiceTaskConditionGroup
+        :rule="conditionsElement.rule"
+        :index="index"
+        @delete="deleteCondition"
+        @update="(newVal: any) => updateCondition(newVal, index)"
+      />
     </div>
-    <div class="label">
-      <div class="labelTitle">Failure</div>
-      <el-input v-model="conditionLabel.failureLabel" placeholder="Failure" @change="updateNode" />
-    </div>
-  </div>
-  <div class="listContainer">
-    <div class="title">Conditions</div>
-    <div class="conditions">
-      <div v-for="(element, index) in form" :key="index" class="group">
-        <ContextServiceTaskConditionGroup
-          :elements="element.rule"
-          :index="index"
-          @delete="deleteCondition"
-          @update="(newVal: any) => updateCondition(newVal, index)"
-        />
-        <!--        <div v-if="!graphProvider.readonly.value" class="addNewContainer" @click="addNewCondition">-->
-        <!--          <Icon name="lucide:circle-plus" />-->
-        <!--          <div class="label">And</div>-->
-        <!--        </div>-->
-      </div>
-      <div :class="{ addNewContainer: true, readonly: graphProvider.readonly.value }" @click="addNewCondition">
-        <Icon name="lucide:circle-plus" />
-        <div class="label">And</div>
-      </div>
+    <div :class="{ addNewContainer: true, readonly: graphProvider.readonly.value }" @click="addNewCondition">
+      <Icon name="lucide:circle-plus" />
+      <div class="label">And</div>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.labelContainer {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: var(--app-space-xs);
-  margin-block: var(--app-space-s);
-  > * {
-    width: 100%;
-  }
-}
-
-.listContainer {
-  height: 100%;
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: min-content 1fr;
-  gap: var(--app-space-xs);
-  width: 100%;
-}
-
 .conditions {
   min-height: var(--app-space-s);
   display: flex;

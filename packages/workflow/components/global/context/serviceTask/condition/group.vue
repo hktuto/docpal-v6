@@ -3,29 +3,33 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { elements, index } = defineProps<{
+const { rule, index } = defineProps<{
   rule: any[]
   index: number
 }>()
 const emits = defineEmits(['delete', 'update'])
 
 function addNewElement() {
-  elements.push({
-
-  })
+  rule.push({})
 }
 
 function updateItem(newVal: any, ruleIndex: number) {}
 
-function deleteItem(ruleIndex: number) {}
+function deleteItem(ruleIndex: number) {
+  rule.splice(ruleIndex, 1)
+  if (rule.length === 0) {
+    emits('delete', index)
+  } else {
+    emits('update', rule)
+  }
+}
 </script>
 
 <template>
   <div class="conditionContainer">
-    <div v-for="(ruleItem, ruleIndex) in elements" :key="item.attr_id" class="elementsContainer">
-      {{ ruleItem }}
-      <!--      <ContextServiceTaskConditionElement :element="ruleItem" @delete="deleteItem(ruleIndex)" @update="(newVal: any) => updateItem(newVal, ruleIndex)" />-->
-      <div v-if="elementIndex === elements.length - 1" :class="{ moreButtonContainer: true, readonly: graphProvider.readonly.value }" @click="addNewElement">
+    <div v-for="(ruleItem, ruleIndex) in rule" :key="ruleIndex" class="elementsContainer">
+      <ContextServiceTaskConditionElement :element="ruleItem" @delete="deleteItem(ruleIndex)" @update="(newVal: any) => updateItem(newVal, ruleIndex)" />
+      <div v-if="ruleIndex === rule.length - 1" :class="{ moreButtonContainer: true, readonly: graphProvider.readonly.value }" @click="addNewElement">
         <Icon name="lucide:plus" />
         <div class="label">Or</div>
       </div>

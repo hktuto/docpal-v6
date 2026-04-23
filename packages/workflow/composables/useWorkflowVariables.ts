@@ -174,11 +174,11 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
    * @param status 是否是變量
    */
   function getVariablesByType(typeList?: string[], status = false): VariableSelectItem[] {
-    let list: any = []
-    if (!typeList) {
-      list = variables.value
-    } else if (typeList.length > 0) {
+    let list: any
+    if (!!typeList && typeList.length > 0) {
       list = variables.value.filter((item: VariableItem) => typeList.includes(item.type))
+    } else {
+      list = variables.value
     }
 
     return list.map((item: VariableItem) => ({
