@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 
 import { useMDKanbanInject } from '../../composables/mdKanban/useMDKanban'
+import { MoreFilled } from '@element-plus/icons-vue'
 
 
 const props = defineProps<{
@@ -10,6 +11,7 @@ const props = defineProps<{
     label: string,
   },
   tableId: string,
+  color?: string,
 }>()
 
 
@@ -19,7 +21,7 @@ const hasLoaded = ref(false)
 const loadingMore = ref(false)
 const { updateViewFilterSortGroup, columns, tableFields, systemFieldsTypes } = useMDKanbanInject()
 
-const emit = defineEmits(['needRefresh'])
+const emit = defineEmits(['needRefresh', 'update-label', 'update-color'])
 
 function getPageParams(){
   const params:any = {
@@ -98,6 +100,18 @@ async function handleAddRowSubmit(data: any) {
   refresh()
 }
 
+const colorPopoverRef = ref()
+
+function handleLabelSave(value: string) {
+  emit('update-label', { id: props.group.id, label: value })
+}
+
+function handleColorChange(value: string | null) {
+  if (!value) return
+  emit('update-color', { id: props.group.id, color: value })
+  colorPopoverRef.value?.hide?.()
+}
+
 
 defineExpose({
   refresh,
@@ -107,7 +121,26 @@ defineExpose({
 </script>
 
 <template>
-    <div ref="groupRef" class="group">
+    <div ref="groupRef" class="group" :style="color ? { '--color': color } : undefined">
+        <div class="title">
+            <ElPopover v-if="color" ref="colorPopoverRef" trigger="click" width="auto">
+                <template #reference>
+                    <div class="color" style="cursor: pointer;"></div>
+                </template>
+                <ElColorPicker
+                    :model-value="props.color"
+                    show-alpha
+                    @change="handleColorChange"
+                />
+            </ElPopover>
+            <uiInlineEditor
+                class="text"
+                :model-value="props.group.label"
+                :editable="props.group.id !== null"
+                @save="handleLabelSave"
+            />
+            <el-button v-if="props.group.id !== null" text size="small" :icon="MoreFilled" class="optionsBtn" />
+        </div>
         <MdKanbanGroupList
           ref="listRef"
           :field="props.field"
@@ -132,11 +165,42 @@ defineExpose({
 </template>
 <style lang="scss" scoped>
 .group {
-    display: grid;
-    grid-template-rows: 1fr min-content;
-    gap: 0;
+    --group-space: var(--app-space-s);
+    flex: 0 0 220px;
+    width: 220px;
+    background: var(--app-paper);
+    border-radius: var(--app-border-radius-s);
     overflow: hidden;
-    position: relative;
+    display: grid;
+    grid-template-rows:  min-content 1fr min-content;
+    gap: 0;
+}
+.title{
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: var(--app-space-xs);
+    font-size: var(--app-font-size-m);
+    font-weight: bold;
+    color: var(--app-grey-300);
+    padding: var(--group-space);
+    border-bottom: 1px solid var(--app-grey-800);
+    cursor: grab;
+}
+.color{
+    width: var(--app-space-s);
+    height: var(--app-space-s);
+    border-radius: var(--app-border-radius-s);
+    background: var(--color);
+}
+.text{
+    flex: 1 0 auto;
+}
+.optionsBtn {
+    color: var(--app-grey-300);
+    :deep(.el-icon) {
+      rotate: 90deg;
+    }
 }
 .list{
     padding: var(--group-space);
