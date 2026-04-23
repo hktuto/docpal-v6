@@ -4,9 +4,11 @@ import { buildRelationArray } from '../../../utils/relationHelper'
 export const RelationView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $table, $grid, row, column } = params
   const relationOptions = options?.props
-  const displayFieldName = relationOptions.display_field_names[0]
+  const viewTools: any = inject('viewTools')
+  const displayFieldId = relationOptions.display_field_ids[0]
+  const displayField = viewTools?.getRelationFieldConfig(relationOptions.relation_table_id, displayFieldId)
   let fieldName = column.field
-  const relationArray = buildRelationArray(row, fieldName, displayFieldName)
+  const relationArray = buildRelationArray(row, fieldName, displayField.field_name)
   // Multiple items: display as tags
   return h(
     'div',

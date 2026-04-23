@@ -198,7 +198,9 @@ const handleSubmit = async () => {
     } else {
       await addColumn([columnConfig])
     }
-    updateRelationDisplayFields(columnConfig)
+    if ([ColumnFieldType.AggVirtualColumn, ColumnFieldType.virtualColumn].includes(columnConfig.business_type)) {
+      updateRelationDisplayFields(columnConfig)
+    }
     resetForm()
     handleClose()
     emit('refresh')
@@ -208,19 +210,17 @@ const handleSubmit = async () => {
 }
 async function updateRelationDisplayFields(column: ColumnConfig) {
   const relationFields = tableFields.value.find((item: any) => item.display_structure?.relation_table_id === column.relation_table_id)
-  if (relationFields) {
+  if (relationFields && column.display_structure?.display_field_id) {
     const existColumn = relationFields.display_structure.display_field_ids.includes(column.display_structure?.display_field_id)
     if (!existColumn) {
       relationFields.display_structure.display_field_ids.push(column.display_structure?.display_field_id)
-      relationFields.display_structure.display_field_names.push(column.display_structure?.display_field_name)
       await updateColumn(relationFields.field_name, {
         business_type: relationFields.business_type,
         display_field_ids: relationFields.display_structure.display_field_ids,
         relation_table_id: relationFields.display_structure.relation_table_id,
         display_structure: {
           ...relationFields.display_structure,
-          display_field_ids: relationFields.display_structure.display_field_ids,
-          display_field_names: relationFields.display_structure.display_field_names
+          display_field_ids: relationFields.display_structure.display_field_ids
         }
       })
     }

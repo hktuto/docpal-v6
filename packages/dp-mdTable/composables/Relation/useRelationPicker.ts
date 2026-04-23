@@ -8,8 +8,11 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
     pageSize: 100,
     pageNum: 1
   })
+  const viewTools: any = inject('viewTools')
+
   async function getRelationPickerOptions() {
     const params: any = {}
+    console.log('fields', fields.value,searchKeyword.value)
     const filterRules = getFilterRules(searchKeyword.value, fields.value)
     if (filterRules) {
       params.conditions = filterRules
@@ -22,20 +25,19 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
     })
     options.value = data.data
   }
-  async function getFields(tableId: string) {
-    const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: 'master' })
-    const tableFields = res.data.tableFields
-    return tableFields
-      .filter((field: any) => displayFieldIds.includes(field.id))
-      .map((field: any) => ({
-        id: field.id,
-        name: field.field_name,
-        label: field.field_name_alias,
-        type: field.business_type
-      }))
+  function getFields(tableId: string) {
+    const _fields: any[] = []
+    displayFieldIds.forEach((displayFieldId: string) => {
+      const relationFieldConfig = viewTools?.getRelationFieldConfig(tableId, displayFieldId)
+      _fields.push({
+        ...relationFieldConfig,
+        id: displayFieldId,
+      })
+    })
+    return _fields
   }
   onMounted(async () => {
-    fields.value = await getFields(tableId)
+    fields.value = getFields(tableId)
     getRelationPickerOptions()
     console.log('fields', fields.value)
   })
@@ -47,6 +49,7 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
   }
 }
 function getFilterRules(key: string, fields: any[]) {
+  console.log('fields', fields,key)
   const conditions: any[] = [
     {
       type: 'OR',
@@ -56,9 +59,9 @@ function getFilterRules(key: string, fields: any[]) {
   const LIKE_FIELDS = [ColumnFieldType.Text, ColumnFieldType.MultiText, ColumnFieldType.Email, ColumnFieldType.URL, ColumnFieldType.Phone, ColumnFieldType.User]
   fields.forEach((field: any) => {
     if (!!key) {
-      if (LIKE_FIELDS.includes(field.type)) {
+      if (LIKE_FIELDS.includes(field.business_type)) {
         conditions[0].value.push({
-          column: field.name,
+          column: field.field_name,
           type: 'LIKE',
           value: `%${key}%`
         })
