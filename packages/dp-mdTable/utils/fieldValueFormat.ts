@@ -18,30 +18,6 @@ export interface SelectOptionLike {
   color: string
 }
 
-/**
- * 根据 value 与 properties.options 取单选选项
- */
-export function getSelectOption(
-  value: any,
-  properties: Record<string, any> = {}
-): SelectOptionLike | null {
-  if (value == null) return null
-  const options = properties?.options || []
-  const opt = options.find((o: any) => o.id === value)
-  return opt || null
-}
-
-/**
- * 根据 value（数组）与 properties.options 取多选选项列表
- */
-export function getSelectOptions(
-  value: any,
-  properties: Record<string, any> = {}
-): SelectOptionLike[] {
-  if (!value || !Array.isArray(value)) return []
-  const options = properties?.options || []
-  return value.map((id: string) => options.find((o: any) => o.id === id)).filter(Boolean)
-}
 
 /**
  * 按字段配置格式化日期时间（支持 dateFormat、includeTime、dateTimeFormat、timezone）

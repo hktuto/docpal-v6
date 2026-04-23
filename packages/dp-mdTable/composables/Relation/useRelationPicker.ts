@@ -8,6 +8,8 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
     pageSize: 100,
     pageNum: 1
   })
+  const viewTools: any = inject('viewTools')
+
   async function getRelationPickerOptions() {
     const params: any = {}
     const filterRules = getFilterRules(searchKeyword.value, fields.value)
@@ -22,20 +24,19 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
     })
     options.value = data.data
   }
-  async function getFields(tableId: string) {
-    const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: 'master' })
-    const tableFields = res.data.tableFields
-    return tableFields
-      .filter((field: any) => displayFieldIds.includes(field.id))
-      .map((field: any) => ({
-        id: field.id,
-        name: field.field_name,
-        label: field.field_name_alias,
-        type: field.business_type
-      }))
+  function getFields(tableId: string) {
+    const _fields: any[] = []
+    displayFieldIds.forEach((displayFieldId: string) => {
+      const relationFieldConfig = viewTools?.getRelationFieldConfig(tableId, displayFieldId)
+      _fields.push({
+        ...relationFieldConfig,
+        id: displayFieldId,
+      })
+    })
+    return _fields
   }
   onMounted(async () => {
-    fields.value = await getFields(tableId)
+    fields.value = getFields(tableId)
     getRelationPickerOptions()
     console.log('fields', fields.value)
   })

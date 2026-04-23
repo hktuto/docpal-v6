@@ -13,32 +13,34 @@
     </button>
     <div class="relation-card-main">
       <div class="relation-card-content">
-        <div v-if="fields?.length > 0 && fields?.[0]?.name" class="relation-card-title">
-          {{ formatFieldValue(fields[0].name) }} 
+        <div v-if="fields?.length > 0 && fields?.[0]?.field_name" class="relation-card-title">
+          {{ formatFieldValue(fields[0].field_name) }}
         </div>
         <div v-if="fields?.length > 1" class="relation-card-fields">
           <template v-for="(field, index) in fields">
-            <div v-if="index > 0 && index < 5" :key="field.name" class="relation-card-field">
-              <div class="field-label" :title="getFieldLabel(field.name)">{{ getFieldLabel(field.name) }}</div>
-              <div class="field-value" :title="formatFieldValue(field.name)">
+            <div v-if="index > 0 && index < 5" :key="field.field_name" class="relation-card-field">
+              <div class="field-label" :title="field.field_name_alias">{{ field.field_name_alias }}</div>
+              <div class="field-value" :title="formatFieldValue(field.field_name)">
                 <!-- 单选：标签 -->
-                <template v-if="getFieldType(field.name) === ColumnFieldType.SingleSelect">
-                  <span v-if="getSelectOption(field.name)" class="value-tag" :style="{ '--tag-color': getSelectOption(field.name)?.color }">
-                    {{ getSelectOption(field.name)?.label || getSelectOption(field.name)?.name }}
+                <template v-if="field.business_type === ColumnFieldType.SingleSelect">
+                  {{ formatSelect(field) }}
+                  <!-- <span v-if="getSelectOption(field.field_name)" class="value-tag" :style="{ '--tag-color': getSelectOption(field.field_name)?.color }">
+                    {{ getSelectOption(field.field_name)?.label || getSelectOption(field.field_name)?.name }}
                   </span>
-                  <span v-else>-</span>
+                  <span v-else>-</span> -->
                 </template>
                 <!-- 多选：多个标签 -->
-                <template v-else-if="getFieldType(field.name) === ColumnFieldType.MultiSelect">
-                  <template v-if="getSelectOptions(field.name)?.length">
-                    <span v-for="opt in getSelectOptions(field.name)" :key="opt.id" class="value-tag" :style="{ '--tag-color': opt?.color }">
+                <template v-else-if="field.business_type === ColumnFieldType.MultiSelect">
+                  {{ field }}
+                  <!-- <template v-if="getSelectOptions(field.field_name)?.length">
+                    <span v-for="opt in getSelectOptions(field.field_name)" :key="opt.id" class="value-tag" :style="{ '--tag-color': opt?.color }">
                       {{ opt?.label || opt?.name }}
                     </span>
                   </template>
-                  <span v-else>-</span>
+                  <span v-else>-</span> -->
                 </template>
                 <template v-else>
-                  {{ formatFieldValue(field.name) }}
+                  {{ formatFieldValue(field) }}
                 </template>
               </div>
             </div>
@@ -55,11 +57,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FieldInfo } from '@packages/dp-mdTable/types/view-config'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import {
-  getSelectOption as getSelectOptionUtil,
-  getSelectOptions as getSelectOptionsUtil,
-  formatFieldValueByType
-} from '@packages/dp-mdTable/utils/fieldValueFormat'
+import { formatFieldValueByType } from '@packages/dp-mdTable/utils/fieldValueFormat'
 
 const props = withDefaults(
   defineProps<{
@@ -82,42 +80,19 @@ function handleClick() {
   emit('original-click', recordData.value)
 }
 const recordData = computed(() => props.data || {})
-
-function getFieldInfo(fieldName: string): FieldInfo | undefined {
-  return props.fields.find((f) => f.name === fieldName)
+function formatSelect(field: FieldInfo) {
+  const value = recordData.value[field.field_name]
+  console.log(value,recordData)
+  const options = field.options
+  const option = options.find((o: any) => o.id === value)
+  console.log(option)
+  return option?.label || option?.name
 }
-
-function getFieldType(fieldName: string): ColumnFieldType | undefined {
-  return getFieldInfo(fieldName)?.type
-}
-
-function getFieldProperties(fieldName: string): Record<string, any> {
-  return getFieldInfo(fieldName)?.display_structure || {}
-}
-
-function getFieldLabel(fieldName: string): string {
-  const fc = props.fields.find((f) => f.name === fieldName)
-  return fc?.label || fieldName
-}
-
-function getFieldValue(fieldName: string): any {
-  return recordData.value[fieldName]
-}
-
-function getSelectOption(fieldName: string) {
-  return getSelectOptionUtil(getFieldValue(fieldName), getFieldProperties(fieldName))
-}
-
-function getSelectOptions(fieldName: string) {
-  return getSelectOptionsUtil(getFieldValue(fieldName), getFieldProperties(fieldName))
-}
-
-function formatFieldValue(fieldName: string): string {
-  const fieldInfo = getFieldInfo(fieldName)
-  return formatFieldValueByType(getFieldValue(fieldName), {
-    ...fieldInfo,
-    properties: fieldInfo?.displayStructure?.properties,
-    type: fieldInfo?.displayStructure?.type
+function formatFieldValue(field: FieldInfo): string {
+  return formatFieldValueByType(recordData.value[field.field_name], {
+    ...field,
+    properties: field,
+    type: field?.business_type
   })
 }
 

@@ -38,12 +38,10 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
 
     // 重新获取relationTable中的displayFields
     const displayFieldIds = JSON.parse(JSON.stringify(relationTable.display_structure?.display_field_ids))
-    const displayFieldNames = JSON.parse(JSON.stringify(relationTable.display_structure?.display_field_names))
     const virtualColumns = tableFields.value.filter((field: any) => field.business_type === ColumnFieldType.VirtualColumn)
     virtualColumns.forEach((column: any) => {
       const tableId = column.display_structure?.relation_table_id
-      if (tableId === relationTableId && !displayFieldNames.includes(column.display_structure?.display_field_name)) {
-        displayFieldNames.push(column.display_structure?.display_field_name)
+      if (tableId === relationTableId ){
         displayFieldIds.push(column.display_structure?.display_field_id)
       }
     })
@@ -56,7 +54,6 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
         display_structure: {
           ...relationTable.display_structure,
           display_field_ids: displayFieldIds,
-          display_field_names: displayFieldNames
         }
       })
     }

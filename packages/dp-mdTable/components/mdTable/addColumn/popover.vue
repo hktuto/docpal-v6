@@ -212,7 +212,6 @@ async function updateRelationDisplayFields(column: ColumnConfig) {
     const existColumn = relationFields.display_structure.display_field_ids.includes(column.display_structure?.display_field_id)
     if (!existColumn) {
       relationFields.display_structure.display_field_ids.push(column.display_structure?.display_field_id)
-      relationFields.display_structure.display_field_names.push(column.display_structure?.display_field_name)
       await updateColumn(relationFields.field_name, {
         business_type: relationFields.business_type,
         display_field_ids: relationFields.display_structure.display_field_ids,
@@ -220,7 +219,6 @@ async function updateRelationDisplayFields(column: ColumnConfig) {
         display_structure: {
           ...relationFields.display_structure,
           display_field_ids: relationFields.display_structure.display_field_ids,
-          display_field_names: relationFields.display_structure.display_field_names
         }
       })
     }

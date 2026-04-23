@@ -8,7 +8,6 @@ const props = withDefaults(
     modelValue: string[] | string | null
     relation_table_id: string
     display_field_ids: string[]
-    display_field_names: string[]
     multiple?: boolean
     placeholder?: string
     tableLabel?: string
@@ -23,6 +22,7 @@ const emit = defineEmits<{
 }>()
 
 const mdTableContext = useMDTableInject()
+const viewTools: any = inject('viewTools')
 const currentValue = computed(() => {
   const v = props.modelValue
   if (typeof v === 'string') {
@@ -38,12 +38,13 @@ const relationPickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 
 /** 当前选中 ID 对应的关联展示字段值，用于批量显示 */
 const displayValues = computed(() => {
-  if (props.display_field_names.length === 0) {
+  if (props.display_field_ids.length === 0) {
     return []
   }
   const fieldName = props.column.field
-  const displayFieldName = props.display_field_names[0]
-  const relationArray = buildRelationArray(props.row, fieldName, displayFieldName)
+  const displayFieldId = props.display_field_ids[0]
+  const displayField = viewTools?.getRelationFieldConfig(props.relation_table_id, displayFieldId)
+  const relationArray = buildRelationArray(props.row, fieldName, displayField.field_name)
   return relationArray
 })
 
