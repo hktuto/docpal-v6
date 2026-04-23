@@ -19,34 +19,38 @@ const groupRef = ref<HTMLDivElement>()
 const loadMoreRef = ref<HTMLDivElement>()
 const hasLoaded = ref(false)
 const loadingMore = ref(false)
-const { updateViewFilterSortGroup, columns, tableFields, systemFieldsTypes } = useMDKanbanInject()
-
+const { updateViewFilterSortGroup, columns, tableFields, systemFieldsTypes, columnFilterRules, columnSortRules } = useMDKanbanInject()
+const { getPageParams: globalGetPageParams } = useDBParams()
 const emit = defineEmits(['needRefresh', 'update-label', 'update-color'])
 
 function getPageParams(){
-  const params:any = {
-    // dryRun: true,
+  const globalParams  = globalGetPageParams()
+  const params:any = globalParams
+  if(!params.conditions || !params.conditions.length ){
+    params.conditions = [
+      {
+        type: 'AND',
+        value:[]
+      }
+    ]
   }
-  if (props.group.id == null) {
-    params.conditions = [{
-      type: 'AND',
-      value:[
-        {
-          column: props.field,
-          type: "EQ",
-          value:""
-        }
-      ]
-    }]
+  const groupCondition = props.group.id || ''
+  if(params.conditions[0].type === 'AND'){
+    params.conditions[0].value.push({
+      column: props.field,
+      type: "EQ",
+      value: groupCondition
+    })
   } else {
     params.conditions = [{
       type: 'AND',
-      value:[
+      value: [
         {
           column: props.field,
           type: "EQ",
-          value: props.group.id
-        }
+          value: groupCondition
+        },
+        params.conditions
       ]
     }]
   }
@@ -55,6 +59,7 @@ function getPageParams(){
       name: '*'
     }
   ]
+  console.log("getPageParams", params)
   return params
 }
 const MdFormPopoverRef = ref()
@@ -82,7 +87,6 @@ function openRecordDetail(item: any) {
   MdFormPopoverRef.value?.open(item)
 }
 async function handleAddRowSubmit(data: any) {
-  console.log('handleAddRowSubmit', data, props.field, props.group.id)
   if (selectedRow.value) {
     await listRef.value?.updateRow(selectedRow.value.id, data, props.tableId)
     selectedRow.value = null
@@ -92,10 +96,9 @@ async function handleAddRowSubmit(data: any) {
   // check if data[props.field] === props.group.id
   //
   if (data[props.field] !== props.group.id) {
-    console.log('needToRefresh', data[props.field], props.group.id)
-    setTimeout(() => {
+    nextTick(() => {
       emit('needRefresh', data[props.field])
-    },300)
+    })
   }
   refresh()
 }
