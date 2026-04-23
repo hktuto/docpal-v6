@@ -86,7 +86,10 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     tableFields.value = data.data?.tableFields ?? []
     tableViews.value = views
-    setCurrentView(views[0].id)
+    // only set current view if on current view is set, otherwise addField will trigger chagne view
+    if(!currentView.value){
+      setCurrentView(views[0].id)
+    }
   }
   function setCurrentView(view: ViewConfig | string) {
     if (typeof view === 'string') {
