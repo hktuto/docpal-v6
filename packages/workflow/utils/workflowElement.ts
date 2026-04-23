@@ -973,7 +973,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Condition Task',
       documentation: '',
       type: CellType.conditionTask,
-      config: {},
+      config: getServiceTaskItemConfig[CellType.conditionTask],
       metadata: {
         type: CellType.conditionTask,
         tags: WorkflowElementType.ServiceTask,

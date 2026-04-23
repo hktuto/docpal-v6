@@ -10,17 +10,27 @@ const { rule, index } = defineProps<{
 const emits = defineEmits(['delete', 'update'])
 
 function addNewElement() {
-  rule.push({})
+  rule.push({
+    type: 'string_validation',
+    val_type: 'string',
+    field: '',
+    condition: 'contains',
+    value: ''
+  })
+  emits('update', rule)
 }
 
-function updateItem(newVal: any, ruleIndex: number) {}
+function updateItem(newVal: any, ruleIndex: number) {
+  rule[ruleIndex] = newVal
+  emits('update')
+}
 
 function deleteItem(ruleIndex: number) {
   rule.splice(ruleIndex, 1)
   if (rule.length === 0) {
     emits('delete', index)
   } else {
-    emits('update', rule)
+    emits('update')
   }
 }
 </script>

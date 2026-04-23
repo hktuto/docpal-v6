@@ -27,6 +27,7 @@ function init() {
     return
   }
   editComponent.value = resolveComponent(contextMenuComponentType[type as keyof typeof contextMenuComponentType])
+  console.log(123,data.config)
   selectedServiceConfig.value = data.config
 }
 

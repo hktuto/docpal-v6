@@ -7,7 +7,7 @@ const { element } = defineProps<{
   element: any
 }>()
 const { getVariablesByType } = useVariablesProvide()
-
+const emits = defineEmits(['delete', 'update'])
 const formData = ref<{
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
   val_type: 'is_null' | 'string' | 'number' | 'boolean'
@@ -18,7 +18,6 @@ const formData = ref<{
 const selectedType = computed(() => {
   return formData.value?.type || 'string_validation'
 })
-
 const allVariables = computed(() => {
   let typeList = []
   if (formData.value?.val_type === 'is_null') {
@@ -66,7 +65,6 @@ function typeChange() {
       break
     default:
   }
-  console.log(222, formData.value)
 }
 
 watch(
@@ -74,7 +72,19 @@ watch(
   () => {
     if (!element) return
     if (JSON.stringify(element) !== JSON.stringify(formData.value)) {
-      formData.value = deepCopy(element)
+      formData.value = JSON.parse(JSON.stringify(element))
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
+watch(
+  () => formData,
+  () => {
+    if (JSON.stringify(formData.value) !== JSON.stringify(element)) {
+      emits('update', JSON.parse(JSON.stringify(formData.value)))
     }
   },
   {
@@ -91,7 +101,7 @@ watch(
     </div>
     <el-form :disabled="graphProvider.readonly.value" label-position="top" size="small">
       <el-form-item label="Type" prop="type">
-        <el-select v-model="formData.type" placeholder="Select form field" filterable clearable @change="typeChange">
+        <el-select v-model="formData.type" placeholder="Select form type" filterable clearable @change="typeChange">
           <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
@@ -101,7 +111,7 @@ watch(
         </el-select>
       </el-form-item>
       <el-form-item label="Condition" prop="condition">
-        <el-select v-model="formData.condition" placeholder="Select form field" filterable clearable>
+        <el-select v-model="formData.condition" placeholder="Select form condition" filterable clearable>
           <el-option v-for="condition in conditionOption" :key="condition.value" :label="condition.label" :value="condition.value" />
         </el-select>
       </el-form-item>

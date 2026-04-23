@@ -11,7 +11,7 @@ type ruleItemType = {
   condition: 'contains' | 'is' | 'eq' | 'gt'
   value: string
 }
-
+const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
     relation: 'AND' | 'OR'
@@ -25,9 +25,19 @@ const conditionLabel = ref({
 
 const form = ref([])
 
-function init() {}
+function init() {
+  form.value = config.conditions || []
+}
 
-function updateNode() {}
+function updateNode() {
+  if (form.value === config.conditions) return
+  const data = {
+    ...config,
+    conditions: form.value
+  }
+  console.log(1111, data)
+  // emits('update', { name: 'update-condition-data', config: data })
+}
 
 function addNewCondition() {
   const rules = [
@@ -41,16 +51,21 @@ function addNewCondition() {
   ]
 
   form.value.push({
-    relation: 'AND',
+    relation: 'OR',
     rule: rules
   })
+  updateNode()
 }
 
 function deleteCondition(index: number) {
   form.value.splice(index, 1)
 }
 
-function updateCondition() {}
+function updateCondition() {
+  updateNode()
+}
+
+console.log(1111111,config)
 </script>
 
 <template>
@@ -67,12 +82,7 @@ function updateCondition() {}
   <p>Conditions</p>
   <div class="conditions">
     <div v-for="(conditionsElement, index) in form" :key="index">
-      <ContextServiceTaskConditionGroup
-        :rule="conditionsElement.rule"
-        :index="index"
-        @delete="deleteCondition"
-        @update="(newVal: any) => updateCondition(newVal, index)"
-      />
+      <ContextServiceTaskConditionGroup :rule="conditionsElement.rule" :index="index" @delete="deleteCondition" @update="updateCondition" />
     </div>
     <div :class="{ addNewContainer: true, readonly: graphProvider.readonly.value }" @click="addNewCondition">
       <Icon name="lucide:circle-plus" />
