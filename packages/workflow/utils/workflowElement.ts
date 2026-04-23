@@ -407,30 +407,30 @@ function graphItemFromWorkflowNode(
   workflowNodeItem: NodeItem,
   title: string,
   options?: {
-    defaultWidth?: number
-    defaultHeight?: number
     ports?: { items: portsItems[] }
     dataExtra?: Record<string, unknown>
   }
 ): GraphItem {
-  const meta = workflowNodeItem.metadata
-  const dw = options?.defaultWidth ?? 120
-  const dh = options?.defaultHeight ?? 64
+  const metadata = workflowNodeItem.metadata
+  const dw = metadata.width || 120
+  const dh = metadata.height || 64
+  const bgColor = metadata.bgColor || '#fff'
+  const textColor = metadata.textColor || '#000'
 
   return {
     id: workflowNodeItem.id,
     markup: GRAPH_NODE_MARKUP,
-    attrs: GenAttrs(title, workflowNodeItem.label, meta.icon),
+    attrs: GenAttrs(title, workflowNodeItem.label, metadata.icon, bgColor, textColor),
     shape: 'bpmn-node',
     zIndex: 1,
     visible: true,
     position: {
-      x: meta.x || 60,
-      y: meta.y || 60
+      x: metadata.x || 60,
+      y: metadata.y || 60
     },
     size: {
-      width: meta.width || dw,
-      height: meta.height || dh
+      width: dw,
+      height: dh
     },
     data: options?.dataExtra ? { ...workflowNodeItem, ...options.dataExtra } : { ...workflowNodeItem },
     ports: options?.ports ?? GenDefPorts(),
@@ -520,16 +520,20 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
-      graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name, {
-        defaultWidth: workflowNodeItem.metadata.width
-      }),
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
     contextMenuComponent: () => {}
   },
   ServiceTask: {
     embed: false,
     toolbar: [
+      {
+        id: CellType.conditionTask,
+        icon: '/icons/condition.svg',
+        label: 'Condition Task',
+        group: '',
+        order: 0
+      },
       {
         id: CellType.subProcess,
         icon: 'pixelarticons:forwardburger',
@@ -617,38 +621,23 @@ export const workflowElement: WorkflowElement = {
 const DEFAULT_TASK_EXECUTION = { async: false, timeout_ms: 1000, priority: 0 }
 const LONG_RUNNING_EXECUTION = { async: false, timeout_ms: 6000, priority: 1 }
 
-interface ShellOpts {
-  id: string
-  paletteLabel: string
-  title?: string
-  icon: string
-  width?: number
-  height?: number
-}
-
-function createNodeShell(opts: ShellOpts) {
-  const { id, paletteLabel, title = paletteLabel, icon, width = 200, height = 64 } = opts
+function createNodeShell(
+  id: string,
+  title: string,
+  paletteLabel: string,
+  icon: string,
+  width?: number,
+  height?: number,
+  bgColor? = '#fff',
+  textColor? = '#000'
+) {
   return {
     id: `${id}_${Date.now()}`,
     label: paletteLabel,
-    width,
-    height,
-    shape: 'bpmn-node',
-    attrs: GenAttrs(title, title, icon),
-    markup: GRAPH_NODE_MARKUP,
-    ports: GenDefPorts()
-  }
-}
-
-function createGatewayShell(id: string, title: string, icon: string, width?: number, height?: number) {
-  return {
-    id: `${id}${Date.now()}`,
-    label: title,
     width: width || 200,
     height: height || 64,
-    // shape: 'custom-polygon',
     shape: 'bpmn-node',
-    attrs: GenAttrs(title, title, icon, '#0F2037', '#fff'),
+    attrs: GenAttrs(title, title, icon, bgColor, textColor),
     markup: GRAPH_NODE_MARKUP,
     ports: GenDefPorts()
   }
@@ -659,7 +648,7 @@ function createGatewayShell(id: string, title: string, icon: string, width?: num
  */
 const workflowCellElementTemplate: CellTypeItem = {
   UserTask: {
-    ...createNodeShell({ id: 'New_UserTask', paletteLabel: 'User Task', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_UserTask', 'User Task', 'New User Task', '/icons/form.svg'),
     data: {
       id: '',
       name: 'User Task',
@@ -693,7 +682,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   SignatureTask: {
-    ...createNodeShell({ id: 'New_SignatureTask', title: 'Signature Task', paletteLabel: 'Signature Task', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_SignatureTask', 'Signature Task', 'Signature Task', '/icons/form.svg'),
     data: {
       id: '',
       name: 'Signature Task',
@@ -731,7 +720,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ExclusiveGateway: {
-    ...createGatewayShell('New_ExclusiveGateway', 'New Exclusive Gateway', '/icons/condition.svg', 260),
+    ...createNodeShell('New_ExclusiveGateway', 'New Exclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Exclusive Gateway',
@@ -744,24 +733,14 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
-        rules: {
-          success: {
-            label: 'success',
-            condition: {},
-            style: ''
-          },
-          failure: {
-            label: 'failure',
-            condition: {},
-            style: ''
-          }
-        },
+        bgColor: '#c9ffb3',
+        textColor: '#fff',
         maxOutgoing: 2
       }
     }
   },
   ParallelGateway: {
-    ...createGatewayShell('New_ParallelGateway', 'Parallel Gateway', '/icons/condition.svg', 260),
+    ...createNodeShell('New_ParallelGateway', 'Parallel Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Parallel Gateway',
@@ -774,12 +753,14 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
+        bgColor: '#c9ffb3',
+        textColor: '#fff',
         maxOutgoing: 50
       }
     }
   },
   InclusiveGateway: {
-    ...createGatewayShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/condition.svg', 260),
+    ...createNodeShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Inclusive Gateway',
@@ -792,13 +773,15 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
+        bgColor: '#c9ffb3',
+        textColor: '#fff',
         maxOutgoing: 50
       }
     }
   },
   // Http Task
   HTTPTask: {
-    ...createNodeShell({ id: 'New_HTTPTask', title: 'HTTP Task', paletteLabel: 'HTTP Task', icon: '/icons/http-task.svg' }),
+    ...createNodeShell('New_HTTPTask', 'HTTP Task', 'HTTP Task', '/icons/http-task.svg'),
     data: {
       id: '',
       name: 'HTTP Task',
@@ -824,7 +807,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   UniqueIdGenerator: {
-    ...createNodeShell({ id: 'New_UniqueIdGenerator', title: 'Unique Id Generator', paletteLabel: 'New Unique Id Generator', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_UniqueIdGenerator', 'Unique Id Generator', 'New Unique Id Generator', '/icons/form.svg'),
     data: {
       id: '',
       name: 'Unique Id Generator',
@@ -842,7 +825,7 @@ const workflowCellElementTemplate: CellTypeItem = {
   },
   // Service Task
   SubProcess: {
-    ...createNodeShell({ id: 'New_SubProcess', title: 'Sub Process', paletteLabel: 'New Sub Process', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_SubProcess', 'Sub Process', 'New Sub Process', '/icons/form.svg'),
     data: {
       id: '',
       name: 'New Sub Process',
@@ -859,7 +842,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ValidateTask: {
-    ...createNodeShell({ id: 'New_ValidateTask', title: 'Validate Task', paletteLabel: 'Validate Task', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_ValidateTask', 'Validate Task', 'Validate Task', '/icons/form.svg'),
     data: {
       id: '',
       name: 'Validate Task',
@@ -876,7 +859,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   TransformTask: {
-    ...createNodeShell({ id: 'New_TransformTask', title: 'Transform Task', paletteLabel: 'New Transform Task', icon: '/icons/transform.svg' }),
+    ...createNodeShell('New_TransformTask', 'Transform Task', 'New Transform Task', '/icons/transform.svg'),
     data: {
       id: '',
       name: 'Transform Task',
@@ -896,7 +879,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   MessageTask: {
-    ...createNodeShell({ id: 'New_MessageTask', title: 'Message Task', paletteLabel: 'New Message Task', icon: '/icons/message.svg' }),
+    ...createNodeShell('New_MessageTask', 'Message Task', 'New Message Task', '/icons/message.svg'),
     data: {
       id: '',
       name: 'Message Task',
@@ -913,7 +896,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   UploadFile: {
-    ...createNodeShell({ id: 'New_UploadFileTask', title: 'Upload File', paletteLabel: 'New Upload File', icon: '/icons/uploadFile.svg' }),
+    ...createNodeShell('New_UploadFileTask', 'Upload File', 'New Upload File', '/icons/uploadFile.svg'),
     data: {
       id: '',
       name: 'Upload File',
@@ -930,13 +913,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   DocumentGenerationTask: {
-    ...createNodeShell({
-      id: 'New_DocumentGenerationTask',
-      title: 'Document Generation Task',
-      paletteLabel: 'New Document Generation Task',
-      icon: '/icons/document.svg',
-      width: 260
-    }),
+    ...createNodeShell('New_DocumentGenerationTask', 'Document Generation Task', 'New Document Generation Task', '/icons/document.svg', 260),
     data: {
       id: '',
       name: 'Document Generation Task',
@@ -955,13 +932,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   FilingDocuments: {
-    ...createNodeShell({
-      id: 'New_FilingDocuments',
-      title: 'Filing Documents Task',
-      paletteLabel: 'New Filing Documents Task',
-      icon: '/icons/form.svg',
-      width: 260
-    }),
+    ...createNodeShell('New_FilingDocuments', 'Filing Documents Task', 'New Filing Documents Task', '/icons/form.svg', 260),
     data: {
       id: '',
       name: 'Filing Documents Task',
@@ -974,12 +945,12 @@ const workflowCellElementTemplate: CellTypeItem = {
         type: CellType.filingDocuments,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/form.svg',
-        width: 250
+        width: 260
       }
     }
   },
   ServiceTask: {
-    ...createNodeShell({ id: 'New_ServiceTask', paletteLabel: 'New Service Task', icon: '/icons/form.svg', width: 260 }),
+    ...createNodeShell('New_ServiceTask', 'Service Task', 'New Service Task', '/icons/form.svg', 260),
     data: {
       id: '',
       name: 'Service Task',
@@ -995,7 +966,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ConditionTask: {
-    ...createNodeShell({ id: 'New_ConditionTask', title: 'Condition Task', paletteLabel: 'Condition Task', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_ConditionTask', 'Condition Task', 'New Condition Task', '/icons/condition.svg', 200, 64, '#0F2037', '#fff'),
     data: {
       id: '',
       name: 'Condition Task',
@@ -1006,8 +977,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.conditionTask,
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/form.svg',
-        width: 250
+        icon: '/icons/condition.svg',
+        width: 200,
+        bgColor: '#0F2037',
+        textColor: '#fff',
+        graphLabel: {
+          success: 'Success',
+          failure: 'Failure'
+        }
       }
     }
   }

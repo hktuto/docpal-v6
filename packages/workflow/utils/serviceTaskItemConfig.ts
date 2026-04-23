@@ -1,4 +1,5 @@
 export const getServiceTaskItemConfig = {
+  ConditionTask: {},
   SubProcess: {
     processDefinitionId: ''
   },
