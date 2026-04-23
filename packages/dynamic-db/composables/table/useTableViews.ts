@@ -32,6 +32,7 @@ export interface ViewContext {
   columnGroupRules: Ref<any[]>
   viewStyleConfig: Ref<any>
   getViews: () => Promise<void>
+  getViewsOnly: () => Promise<void>
   createView: (view: Partial<ViewConfig>) => Promise<ViewConfig>
   updateView: (viewId: string, updates: Partial<ViewConfig>) => Promise<void>
   deleteView: (viewId: string) => Promise<void>
@@ -66,7 +67,7 @@ export function useTableViews(options: UseTableViewsOptions) {
 
   const viewStyleConfig = ref<any>({
   })
-  async function getViews() {
+  async function getViewsOnly() {
     columnFilterRules.value = null
     columnSortRules.value = []
     columnGroupRules.value = []
@@ -86,10 +87,12 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     tableFields.value = data.data?.tableFields ?? []
     tableViews.value = views
+
+  }
+  async function getViews() {
+    await getViewsOnly()
     // only set current view if on current view is set, otherwise addField will trigger chagne view
-    if(!currentView.value){
-      setCurrentView(views[0].id)
-    }
+    setCurrentView(tableViews.value[0].id)
   }
   function setCurrentView(view: ViewConfig | string) {
     if (typeof view === 'string') {
@@ -164,7 +167,7 @@ export function useTableViews(options: UseTableViewsOptions) {
   async function addField(newColumns: any[], targetFieldId: string, dragPos?: 'left' | 'right') {
     const oldFields = JSON.parse(JSON.stringify(tableFields.value))
     await newClientApi.postDynamicDbTableTableidFields(tableId.value, { fields: newColumns })
-    await getViews()
+    await getViewsOnly()
     if (!dragPos) return
     // insert new field to the target field
     const newFields = JSON.parse(JSON.stringify(tableFields.value))
@@ -234,6 +237,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     columnSortRules,
     columnGroupRules,
     getViews,
+    getViewsOnly,
     createView,
     updateView,
     deleteView,
@@ -256,6 +260,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     columnSortRules,
     columnGroupRules,
     getViews,
+    getViewsOnly,
     createView,
     updateView,
     deleteView,
