@@ -12,6 +12,7 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
 
   async function getRelationPickerOptions() {
     const params: any = {}
+    console.log('fields', fields.value,searchKeyword.value)
     const filterRules = getFilterRules(searchKeyword.value, fields.value)
     if (filterRules) {
       params.conditions = filterRules
@@ -48,6 +49,7 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
   }
 }
 function getFilterRules(key: string, fields: any[]) {
+  console.log('fields', fields,key)
   const conditions: any[] = [
     {
       type: 'OR',
@@ -57,9 +59,9 @@ function getFilterRules(key: string, fields: any[]) {
   const LIKE_FIELDS = [ColumnFieldType.Text, ColumnFieldType.MultiText, ColumnFieldType.Email, ColumnFieldType.URL, ColumnFieldType.Phone, ColumnFieldType.User]
   fields.forEach((field: any) => {
     if (!!key) {
-      if (LIKE_FIELDS.includes(field.type)) {
+      if (LIKE_FIELDS.includes(field.business_type)) {
         conditions[0].value.push({
-          column: field.name,
+          column: field.field_name,
           type: 'LIKE',
           value: `%${key}%`
         })
