@@ -31,7 +31,7 @@ const emit = defineEmits<{
 const showToolbar = computed(() => {
   return columns.value && columns.value.length > 0
 })
-const { columns, cardRef, getTableData, addRow, systemFieldsTypes, viewStyleConfig } = useMDKanban(props)
+const { columns, cardRef, getTableData, addRow, systemFieldsTypes, viewStyleConfig, columnFilterRules } = useMDKanban(props)
 const { updateField, currentView } = useTableViewsInject()
 
 // open setting logic
@@ -279,6 +279,16 @@ function updateColor(e: { id: string; color: string }) {
   }
 }
 
+function handleFilterChange(rules: any) {
+  props.extraColumnConfig?.updateViewFilterSortGroup?.('filterInfo', rules)
+  emit('refresh')
+}
+
+function handleSortChange(rules: any) {
+  props.extraColumnConfig?.updateViewFilterSortGroup?.('sortInfo', rules)
+  emit('refresh')
+}
+
 onMounted(() => {
   initSortable()
   initSetting()
@@ -295,10 +305,12 @@ onBeforeUnmount(() => {
 <div ref="kanbanContainerRef" class="kanbanViewContainer">
     <Toolbar
       v-if="showToolbar"
-      @add-row="emit('add-row')"
+      :available-columns="columns"
       @refresh="emit('refresh')"
       @search="emit('search', $event)"
       @open-settings="openSetting"
+      @filter-change="handleFilterChange"
+      @sort-change="handleSortChange"
     >
       <template #toolbar-left>
         <slot name="toolbar-left" />

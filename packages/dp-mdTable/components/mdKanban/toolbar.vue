@@ -1,12 +1,9 @@
 <template>
   <div v-if="showToolbar" class="kanban-toolbar">
     <div class="toolbar-left">
-      <slot name="toolbar-left">
-        <el-button type="primary" @click="handleAddRow">
-          <el-icon><Plus /></el-icon>
-          Add Row
-        </el-button>
-      </slot>
+      <MdKanbanToolsFilterButton :available-columns="availableColumns" @filter-change="handleFilterChange" />
+      <MdKanbanToolsSortButton :available-columns="availableColumns" @sort-change="handleSortChange" />
+      <slot name="toolbar-left" />
     </div>
     <div class="toolbar-right">
       <slot name="toolbar-right">
@@ -23,6 +20,7 @@ import { Plus, Setting } from '@element-plus/icons-vue'
 
 interface Props {
   showToolbar?: boolean
+  availableColumns?: any[]
 }
 
 interface Emits {
@@ -30,10 +28,13 @@ interface Emits {
   (e: 'search', value: string): void
   (e: 'add-row'): void
   (e: 'open-settings'): void
+  (e: 'filter-change', rules: any): void
+  (e: 'sort-change', rules: any): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showToolbar: true
+  showToolbar: true,
+  availableColumns: () => []
 })
 
 const emit = defineEmits<Emits>()
@@ -44,6 +45,14 @@ const handleAddRow = () => {
 
 const handleOpenSettings = () => {
   emit('open-settings')
+}
+
+const handleFilterChange = (rules: any) => {
+  emit('filter-change', rules)
+}
+
+const handleSortChange = (rules: any) => {
+  emit('sort-change', rules)
 }
 </script>
 

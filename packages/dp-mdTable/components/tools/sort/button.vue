@@ -37,7 +37,7 @@ const { columnSortRules: sortRules } = useMDTableInject()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
-  if (props.availableColumns) {
+  if (props.availableColumns ) {
     const availableColumns = props.availableColumns.filter((column) => sortRules.value.some((sort) => sort.field === column.field))
     return props.availableColumns
   }

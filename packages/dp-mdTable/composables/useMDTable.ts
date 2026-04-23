@@ -28,6 +28,7 @@ export function useMDTable(props: any) {
   const editable = ref(props.editable)
   const gridRef = ref<any>()
   const addColumnPopoverRef = ref()
+  console.log("props.extraColumnConfig", props.extraColumnConfig)
   if(!props.extraColumnConfig.columnFilterRules) {
     props.extraColumnConfig.columnFilterRules = ref({
       conditions: [],
