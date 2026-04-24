@@ -281,12 +281,17 @@ function updateColor(e: { id: string; color: string }) {
 
 function handleFilterChange(rules: any) {
   props.extraColumnConfig?.updateViewFilterSortGroup?.('filterInfo', rules)
-  emit('refresh')
+
+  groupRef.value.forEach((el: any) => {
+    el.refresh()
+  })
 }
 
 function handleSortChange(rules: any) {
   props.extraColumnConfig?.updateViewFilterSortGroup?.('sortInfo', rules)
-  emit('refresh')
+  groupRef.value.forEach((el: any) => {
+    el.refresh()
+  })
 }
 
 onMounted(() => {

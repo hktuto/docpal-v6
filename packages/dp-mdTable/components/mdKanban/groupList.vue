@@ -24,6 +24,7 @@ const listRef = ref({
     }
   }
 })
+const isIntersectingState = ref(false)
 const emits = defineEmits(['select', 'itemMoved'])
 const loadMoreRef = ref()
 const isDragOver = ref(false)
@@ -31,6 +32,7 @@ const pageSize = 20
 const { tableData, totalSize, loading,  hasMore, updateRow,  addRow, getTableData, loadMore } = useTableData(props.tableId, listRef)
 const localKey = ref(1)
 async function refresh(){
+  if(!isIntersectingState.value) return
   tableData.value = []
   localKey.value ++
   nextTick(async() => {
@@ -46,9 +48,12 @@ const { stop } = useIntersectionObserver(
   ([{ isIntersecting }]) => {
     if (isIntersecting && !hasMore.value) {
       hasMore.value = true
+      isIntersectingState.value = true
       nextTick(() => {
         refresh()
       })
+    }else{
+      isIntersectingState.value = false
     }
   },
   {
