@@ -97,6 +97,9 @@ export default defineAppConfig({
     },
     {
       name: 'contact-book'
+    },
+    {
+      name: 'client-scan'
     }
   ],
   adminMenu: [
@@ -280,6 +283,9 @@ export default defineAppConfig({
     },
     {
       name: 'admin-calendar-setting'
+    },
+    {
+      name: 'admin-scan'
     }
   ]
 })

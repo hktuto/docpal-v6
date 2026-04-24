@@ -1,0 +1,1019 @@
+{
+  "qrcode": [
+    {
+      "key": "9dafebd3-c87b-4080-8058-f20f3bd84db4",
+      "zone": {
+        "page": 1,
+        "zone": "1808,193,2270,482"
+      },
+      "label": "Application Number",
+      "format": "qrcode",
+      "readonly": true,
+      "required": true,
+      "export_label": "application_no"
+    }
+  ],
+  "section": [
+    {
+      "zone": {
+        "page": 1,
+        "zone": "1805,71,2311,600"
+      },
+      "fields": [
+        {
+          "key": "AT_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "1884,532,1984,600"
+          },
+          "lable": "AT",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "AT"
+        },
+        {
+          "key": "E_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "2060,532,2160,600"
+          },
+          "lable": "E",
+          "need_ocr": true,
+          "export_label": "E",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        }
+      ],
+      "section_id": "For_office_use_only",
+      "corp_to_scan": false,
+      "export_label": "",
+      "merge_method": "overwirite",
+      "section_name": "For office use only",
+      "section_type": "standard",
+      "save_to_result": false,
+      "prompt_template_id": ""
+    },
+    {
+      "zone": {
+        "page": 1,
+        "zone": "81,651,2355,1253"
+      },
+      "fields": [
+        {
+          "key": "chinese_name_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "172,798,682,300"
+          },
+          "lable": "中文姓名",
+          "need_ocr": true,
+          "required": true,
+          "export_label": "ApplicantName",
+          "support_chs_to_cht": true
+        },
+        {
+          "key": "eng_name_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "英文姓名",
+          "need_ocr": true,
+          "export_label": "ApplicantEnglishName"
+        },
+        {
+          "key": "sex_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "性别",
+          "need_ocr": true,
+          "export_label": "ApplicantSex",
+          "field_setting": {
+            "options": [
+              {
+                "M": "男"
+              },
+              {
+                "F": "女"
+              }
+            ]
+          }
+        },
+        {
+          "key": "birthday_field",
+          "type": "date",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "出生日期",
+          "format": "DD/MM/YYYY",
+          "need_ocr": true,
+          "export_label": "ApplicantDOB"
+        },
+        {
+          "key": "hkic_field",
+          "type": "hkic",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "香港身份证号码",
+          "need_ocr": true,
+          "export_label": "ApplicantHKID"
+        },
+        {
+          "key": "marriage_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "婚姻状况",
+          "need_ocr": true,
+          "export_label": "ApplicantMaritalStatus",
+          "field_setting": {
+            "options": [
+              {
+                "none": ""
+              },
+              {
+                "已婚": "已婚"
+              },
+              {
+                "未婚": "未婚"
+              },
+              {
+                "離婚": "離婚"
+              },
+              {
+                "喪偶": "喪偶"
+              }
+            ]
+          }
+        },
+        {
+          "key": "is16month_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "是否懷孕滿16週",
+          "need_ocr": true,
+          "export_label": "ApplicantFemalePregnanted16Week",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "expected_delivery_date_field",
+          "type": "date",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "預產期",
+          "format": "DD/MM/YYYY",
+          "need_ocr": true,
+          "export_label": "ApplicantFemaleExpectedDateOfDelivery"
+        },
+        {
+          "key": "applicat_phone_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "申請人香港手提電話",
+          "need_ocr": true,
+          "export_label": "ApplicationMobilePhone"
+        },
+        {
+          "key": "applicat_contact_no_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "日間香港聯絡電話",
+          "need_ocr": true,
+          "export_label": "ApplicationDayPhone"
+        }
+      ],
+      "section_id": "applicat_setction",
+      "corp_to_scan": true,
+      "export_label": "",
+      "merge_method": "overwirite",
+      "section_name": "申请人",
+      "section_type": "standard",
+      "save_to_result": false,
+      "prompt_template_id": "9dafebd3-c87b-4080-8058-f20f3bd84db9"
+    },
+    {
+      "zone": {
+        "page": 1,
+        "zone": "73,1249,2371,1953"
+      },
+      "fields": [
+        {
+          "key": "chinese_name_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "中文姓名",
+          "need_ocr": true,
+          "required": true,
+          "export_label": "FamilyMemberChineseName",
+          "support_chs_to_cht": true
+        },
+        {
+          "key": "eng_name_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "英文姓名",
+          "need_ocr": true,
+          "required": true,
+          "export_label": "FamilyMemberEnglishName",
+          "support_chs_to_cht": true
+        },
+        {
+          "key": "sex_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "性别",
+          "need_ocr": true,
+          "export_label": "FamilyMemberSex",
+          "field_setting": {
+            "options": [
+              {
+                "M": "男"
+              },
+              {
+                "F": "女"
+              }
+            ]
+          }
+        },
+        {
+          "key": "birthday_field",
+          "type": "date",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "出生日期",
+          "format": "DD/MM/YYYY",
+          "need_ocr": true,
+          "export_label": "FamilyMemberDOB"
+        },
+        {
+          "key": "hkic_field",
+          "type": "hkic",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "香港身份证号码",
+          "need_ocr": true,
+          "export_label": "FamilyMemberHKID"
+        },
+        {
+          "key": "relation_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "与申请人关系",
+          "need_ocr": true,
+          "export_label": "FamilyMemberRelationship",
+          "field_setting": {
+            "options": [
+              {
+                "配偶": "配偶"
+              },
+              {
+                "子女": "子女"
+              },
+              {
+                "父母": "父母"
+              },
+              {
+                "其他": "其他"
+              }
+            ]
+          }
+        },
+        {
+          "key": "marriage_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "婚姻状况",
+          "need_ocr": true,
+          "export_label": "FamilyMemberMaritalStatus",
+          "field_setting": {
+            "options": [
+              {
+                "none": ""
+              },
+              {
+                "已婚": "已婚"
+              },
+              {
+                "未婚": "未婚"
+              },
+              {
+                "離婚": "離婚"
+              },
+              {
+                "喪偶": "喪偶"
+              }
+            ]
+          }
+        },
+        {
+          "key": "is16month_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "是否懷孕滿16週",
+          "need_ocr": true,
+          "export_label": "FamilyMemberPregnanted16Week",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "expected_delivery_date_field",
+          "type": "date",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "預產期",
+          "format": "DD/MM/YYYY",
+          "need_ocr": true,
+          "export_label": "FamilyMemberExpectedDateOfDelivery"
+        }
+      ],
+      "section_id": "family_setction",
+      "corp_to_scan": true,
+      "export_label": "ApplicantFamilyMemberList",
+      "merge_method": "append",
+      "section_name": "家庭成員",
+      "section_type": "table",
+      "save_to_result": false,
+      "prompt_template_id": "2dafebd3-c87b-4080-8058-f20f3bd84db2"
+    },
+    {
+      "zone": {
+        "page": 1,
+        "zone": "81,2294,1230,2761"
+      },
+      "fields": [
+        {
+          "key": "communication_address_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "通訊地址",
+          "need_ocr": true,
+          "required": true,
+          "export_label": "ApplicationCorrespondenceAddress"
+        },
+        {
+          "key": "current_address_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "80,140,450,300"
+          },
+          "lable": "現居地址",
+          "need_ocr": true,
+          "required": true,
+          "export_label": "ApplicationHomeAddress"
+        }
+      ],
+      "section_id": "address_setction",
+      "corp_to_scan": false,
+      "export_label": "CorrAddress",
+      "merge_method": "overwirite",
+      "section_name": "地址",
+      "section_type": "standard",
+      "save_to_result": true,
+      "prompt_template_id": ""
+    },
+    {
+      "zone": {
+        "page": 1,
+        "zone": "1236,1945,2374,2645"
+      },
+      "fields": [
+        {
+          "key": "income_range_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "每月家庭總收入範圍",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "TotalHouseholdMonthlyIncome",
+          "field_setting": {
+            "options": [
+              {
+                "0-10,000": "0-10,000"
+              },
+              {
+                "10,001-20,000": "10,001-20,000"
+              },
+              {
+                "20,001-30,000": "20,001-30,000"
+              },
+              {
+                "30,001-40,000": "30,001-40,000"
+              },
+              {
+                "40,001-50,000": "40,001-50,000"
+              },
+              {
+                "50,001 或以上": "50,001 或以上"
+              }
+            ]
+          }
+        },
+        {
+          "key": "asset_range_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "家庭總資產淨值範圍",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "TotalHouseholeNetAssetValue",
+          "field_setting": {
+            "options": [
+              {
+                "0-205,000": "0-205,000"
+              },
+              {
+                "205,001-410,000": "205,001-410,000"
+              },
+              {
+                "410,001-615,000": "410,001-615,000"
+              },
+              {
+                "615,001-820,000": "615,001-820,000"
+              },
+              {
+                "820,001-1,025,000": "820,001-1,025,000"
+              },
+              {
+                "1,025,001 或以上": "1,025,001 或以上"
+              }
+            ]
+          }
+        },
+        {
+          "key": "current_house_type_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "現居房屋類別",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "HousingTypeOfPresentHomeAddress",
+          "field_setting": {
+            "options": [
+              {
+                "公營租住房屋(公屋/中轉房屋)": "公營租住房屋(公屋/中轉房屋)"
+              },
+              {
+                "資助自置居所房屋(居屋/夾屋)": "資助自置居所房屋(居屋/夾屋)"
+              },
+              {
+                "私人樓宇": "私人樓宇"
+              },
+              {
+                "其他": "其他"
+              }
+            ]
+          }
+        },
+        {
+          "key": "current_house_region_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "現時居住地區",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "DistrictOfPresentHomeAddress",
+          "field_setting": {
+            "options": [
+              {
+                "香港島": "香港島"
+              },
+              {
+                "觀塘": "觀塘"
+              },
+              {
+                "九龍(觀塘除外)": "九龍(觀塘除外)"
+              },
+              {
+                "粉嶺/上水": "粉嶺/上水"
+              },
+              {
+                "新界及離島(粉嶺/上水除外)": "新界及離島(粉嶺/上水除外)"
+              }
+            ]
+          }
+        },
+        {
+          "key": "know_this_plan_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "得悉本計劃途徑",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "ChannelsToKnowAboutTheScheme",
+          "field_setting": {
+            "options": [
+              {
+                "房協網站": "房協網站"
+              },
+              {
+                "社交媒體": "社交媒體"
+              },
+              {
+                "親友": "親友"
+              },
+              {
+                "報章雜誌": "報章雜誌"
+              },
+              {
+                "其他": "其他"
+              }
+            ]
+          }
+        }
+      ],
+      "section_id": "income_setction",
+      "corp_to_scan": true,
+      "export_label": "ApplicationStatistics",
+      "merge_method": "overwirite",
+      "section_name": "經濟與居住狀況统计",
+      "section_type": "standard",
+      "save_to_result": false,
+      "prompt_template_id": "3dafebd3-c87b-4080-8058-f20f3bd84db3"
+    },
+    {
+      "fields": [
+        {
+          "key": "have_elder_plan_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "家有長者計劃",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "PrioritySchemeForElderly",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "have_newborn_plan_field",
+          "type": "select",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "家有初生計劃",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "PrioritySchemeForNewborns",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        }
+      ],
+      "section_id": "priority_setction",
+      "corp_to_scan": false,
+      "merge_method": "overwirite",
+      "section_name": "家有長者及初生兒童優先選樓計劃",
+      "section_type": "standard",
+      "save_to_result": false,
+      "prompt_template_id": ""
+    },
+    {
+      "fields": [
+        {
+          "key": "payment_cheque_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "繳交港幣 290元正申請費用支票或本票號碼",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "PaymentReference"
+        },
+        {
+          "key": "bank_name_field",
+          "type": "text",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "銀行名稱",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "BankName"
+        },
+        {
+          "key": "payment_date_field",
+          "type": "date",
+          "zone": {
+            "page": 1,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "繳費日期",
+          "format": "DD/MM/YYYY",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "PaymentDate"
+        }
+      ],
+      "section_id": "payment_setction",
+      "corp_to_scan": false,
+      "merge_method": "overwirite",
+      "section_name": "繳費部分",
+      "section_type": "standard",
+      "save_to_result": false,
+      "prompt_template_id": ""
+    },
+    {
+      "zone": {
+        "page": 5,
+        "zone": "98,2609,2382,3332"
+      },
+      "fields": [
+        {
+          "key": "CertNumber_field",
+          "type": "text",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "綠表資格證明書編號",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "CertNumber"
+        },
+        {
+          "key": "hkhs_field",
+          "type": "select",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "HKHS",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "HKHS",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "ha_field",
+          "type": "select",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "HA",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "HA",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "emms_code_field",
+          "type": "text",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "EMMS Code",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "EMMSCode"
+        },
+        {
+          "key": "join_fep_field",
+          "type": "select",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "Join FEP",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "JoinFEP",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "join_families_with_newborns_field",
+          "type": "select",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "Join Families with Newborns",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "JoinNewborns",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "split_application_field",
+          "type": "select",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "Split Application",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "SplitApplication",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "Y"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "efas_field",
+          "type": "select",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "EFAS",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "EFAS",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "N"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "cot_date_on_field",
+          "type": "text",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "COT date on",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "CotForEfasApplication"
+        },
+        {
+          "key": "cglsfield",
+          "type": "text",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "CGLS",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "CGLS",
+          "field_setting": {
+            "options": [
+              {
+                "Y": "N"
+              },
+              {
+                "N": "N"
+              }
+            ]
+          }
+        },
+        {
+          "key": "cgls_flat_1_field",
+          "type": "text",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "CGLS Flat 1",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "CGLSFlat1"
+        },
+        {
+          "key": "cgls_flat_2_field",
+          "type": "text",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "CGLS Flat 2",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "CGLSFlat2"
+        },
+        {
+          "key": "hkhs_clearees_field",
+          "type": "select",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "HKHS Clearees",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "CleareesCat",
+          "field_setting": {
+            "options": [
+              {
+                "Cat.1": "Cat.1"
+              },
+              {
+                "Cat.2": "Cat.2"
+              },
+              {
+                "Cat.3": "Cat.3"
+              },
+              {
+                "Cat.4": "Cat.4"
+              }
+            ]
+          }
+        },
+        {
+          "key": "family_member_added_on_form_field",
+          "type": "text",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "Family Member(s) added on form",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "NameOfFamilyMemberAddedOnForm"
+        },
+        {
+          "key": "other_remarks_field",
+          "type": "text",
+          "zone": {
+            "page": 5,
+            "zone": "3929,6076,7536,8292"
+          },
+          "lable": "Other remarks",
+          "need_ocr": true,
+          "required": false,
+          "export_label": "OtherRemarks"
+        }
+      ],
+      "section_id": "internal_staff_setction",
+      "corp_to_scan": true,
+      "export_label": "SpecificField",
+      "merge_method": "overwirite",
+      "section_name": "内部職员核实栏",
+      "section_type": "standard",
+      "save_to_result": false,
+      "prompt_template_id": "4dafebd3-c87b-4080-8058-f20f3bd84db4"
+    }
+  ],
+  "form_name": "申请表",
+  "index_field": {
+    "qrcode_option": "9dafebd3-c87b-4080-8058-f20f3bd84db4"
+  },
+  "export_format": "xml",
+  "prompt_template_id": "8dafebd3-c87b-4080-8058-f20f3bd84db6",
+  "out_file_name_template": "${batch_id}-${yyyy-mm-dd}",
+  "new_document_name_tempate": "${doc_id}-${yyyy-mm-dd}"
+}

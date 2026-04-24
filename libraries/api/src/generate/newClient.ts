@@ -299,8 +299,8 @@ export interface Permission {
 
 export interface SortObject {
     sorted?: boolean;
-    empty?: boolean;
     unsorted?: boolean;
+    empty?: boolean;
 }
 
 export interface BasicField {
@@ -2184,6 +2184,7 @@ export interface ResourcePermissionRequest {
     /** @format int32 */
     permissionLevel?: number;
     permissionIds?: string[];
+    parentId?: string;
     configurationRuleName?: string;
     members?: MemberDTO[];
     rules?: RuleDTO[];
@@ -2417,30 +2418,75 @@ export interface RetentionPolicyResponseDTO {
     events?: RetentionEvent[];
 }
 
-export interface HoldPolicy {
+/** HoldPolicy RequestDTO */
+export interface HoldPolicyRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** HoldPolicy ID */
     id?: string;
+    /** HoldPolicy name */
     policyName?: string;
-    holdApprovalId?: string;
-    removeApprovalId?: string;
+    /** HoldPolicy status */
     status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
+    /** Is Hold Auto */
+    isHoldAuto?: boolean;
+    /** Is Hold Reason Req */
+    isHoldReasonReq?: boolean;
+    /** Hold Approval Id */
+    holdApprovalId?: string;
+    /** Is Remove Auto */
+    isRemoveAuto?: boolean;
+    /** Is Remove Reason Req */
+    isRemoveReasonReq?: boolean;
+    /** Remove Approval Id */
+    removeApprovalId?: string;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
+    desc?: boolean;
+    sort?: SortObject;
+}
+
+export interface HoldPolicyResp {
+    isHoldAuto?: boolean;
+    isHoldReasonReq?: boolean;
+    isRemoveAuto?: boolean;
+    isRemoveReasonReq?: boolean;
     /** @format date-time */
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
-    holdAuto?: boolean;
-    removeAuto?: boolean;
-    holdReasonReq?: boolean;
-    removeReasonReq?: boolean;
+    createdBy?: string;
+    holdApprovalId?: string;
+    id?: string;
+    modifiedBy?: string;
+    policyName?: string;
+    removeApprovalId?: string;
+    status?: string;
 }
 
-export interface ResultHoldPolicy {
+export interface ResultHoldPolicyResp {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: HoldPolicy;
+    data?: HoldPolicyResp;
     messageKey?: string;
     locale?: string;
 }
@@ -2580,8 +2626,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    isMultiple?: boolean;
     validationRuleName?: string;
+    isMultiple?: boolean;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -2917,15 +2963,15 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentExtension?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentName?: string;
     fileContentMimeType?: string;
+    fileContentExtension?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
 }
 
 export interface FileContentDTO {
@@ -2956,91 +3002,6 @@ export interface ResultDocumentDTO {
     message?: string;
     /** Document */
     data?: DocumentDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface AdhocApprovalDTO {
-    /** @format int64 */
-    id?: number;
-    documentId?: string;
-    documentPath?: string;
-    documentStartVersion?: string;
-    documentApprovalVersion?: string;
-    /** @format int32 */
-    documentStatus?: number;
-    taskId?: string;
-    taskName?: string;
-    businessKey?: string;
-    processInstanceId?: string;
-    /** @format int32 */
-    processInstanceStatus?: number;
-    user_creator_id?: string;
-    /** @format date-time */
-    startTime?: string;
-    approvedBy?: string;
-    user_approver_id?: string;
-    /** @format date-time */
-    approvedDate?: string;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    orderBy?: string;
-    isDesc?: boolean;
-    isComplete?: boolean;
-    participant?: string;
-    /**
-     * Page Index
-     * @deprecated
-     * @format int32
-     */
-    pageIndex?: number;
-}
-
-export interface AdhocApproval {
-    /** @format int64 */
-    id?: number;
-    documentId?: string;
-    documentPath?: string;
-    documentStartVersion?: string;
-    documentApprovalVersion?: string;
-    /** @format int32 */
-    documentStatus?: number;
-    taskId?: string;
-    taskName?: string;
-    processInstanceId?: string;
-    businessKey?: string;
-    /** @format int32 */
-    processInstanceStatus?: number;
-    user_creator_id?: string;
-    /** @format date-time */
-    startTime?: string;
-    approvedBy?: string;
-    user_approver_id?: string;
-    /** @format date-time */
-    approvedDate?: string;
-}
-
-export interface PaginationDTOAdhocApproval {
-    entryList?: AdhocApproval[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOAdhocApproval {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOAdhocApproval;
     messageKey?: string;
     locale?: string;
 }
@@ -4276,10 +4237,10 @@ export interface PageNotificationRecord {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: NotificationRecord[];
@@ -4293,9 +4254,9 @@ export interface PageableObject {
     paged?: boolean;
     unpaged?: boolean;
     /** @format int32 */
-    pageSize?: number;
-    /** @format int32 */
     pageNumber?: number;
+    /** @format int32 */
+    pageSize?: number;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -4413,10 +4374,10 @@ export interface PageUploadBatchDTO {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: UploadBatchDTO[];
@@ -5544,6 +5505,92 @@ export interface DateRangeRequestDTO {
     groupBy?: string;
 }
 
+export interface AdhocApprovalDTO {
+    /** @format int64 */
+    id?: number;
+    documentId?: string;
+    documentPath?: string;
+    documentStartVersion?: string;
+    documentApprovalVersion?: string;
+    /** @format int32 */
+    documentStatus?: number;
+    taskId?: string;
+    taskName?: string;
+    businessKey?: string;
+    processInstanceId?: string;
+    /** @format int32 */
+    processInstanceStatus?: number;
+    user_creator_id?: string;
+    /** @format date-time */
+    startTime?: string;
+    approvedBy?: string;
+    user_approver_id?: string;
+    /** @format date-time */
+    approvedDate?: string;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+    orderBy?: string;
+    isDesc?: boolean;
+    isComplete?: boolean;
+    participant?: string;
+    /**
+     * Page Index
+     * @deprecated
+     * @format int32
+     */
+    pageIndex?: number;
+}
+
+export interface AdhocRecord {
+    id?: string;
+    documentId?: string;
+    docPath?: string;
+    docVersion?: string;
+    applyInfo?: string;
+    applyUserId?: string;
+    applyUserName?: string;
+    approvers?: string;
+    approveType?: string;
+    approveStatus?: string;
+    approvalItem?: string;
+    approvedBy?: string;
+    /** @format date-time */
+    approvedDate?: string;
+    /** @format date-time */
+    rejectedDate?: string;
+    /** @format date-time */
+    cancelTime?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface PaginationDTOAdhocRecord {
+    entryList?: AdhocRecord[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOAdhocRecord {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOAdhocRecord;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Comment */
 export interface CommentDTO {
     /** Comment ID */
@@ -5652,10 +5699,10 @@ export interface PageWatermarkSettingsTemplate {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: WatermarkSettingsTemplate[];
@@ -6932,12 +6979,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    watermarkTemplateId?: string;
-    conversionId?: string;
-    watermarkedLocalPath?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
+    watermarkedLocalPath?: string;
+    watermarkTemplateId?: string;
+    conversionId?: string;
 }
 
 /** EasyShare (Request) */
@@ -7973,7 +8020,109 @@ export interface FormDesignDataDTO {
     bizType?: string;
 }
 
+/** The folder cabinet metadata */
+export interface FCMetadata {
+    /** Name */
+    name?: string;
+    /** Type */
+    type?: string;
+    /** Value */
+    value?: any;
+}
+
+export interface FCNotificationConfig {
+    id?: string;
+    folderCabinetId?: string;
+    reminderType?: string;
+    /** @format int32 */
+    intervalTime?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    notificationReminder?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    reportDay?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    emailReminder?: number;
+    tos?: string;
+    ccs?: string;
+}
+
+export interface FilingItem {
+    /** Generate document mode */
+    mode?: GenerateDocumentMode;
+    id?: string;
+    /** Document Path */
+    path?: string;
+    /** Parent Document Path */
+    parentPath?: string;
+    parentId?: string;
+    name?: string;
+    /** Document Creator */
+    creator?: string;
+    /** Document Type */
+    type?: string;
+    /** Document Properties */
+    properties?: Record<string, any>;
+    /** Document Language */
+    languages?: string[];
+    folderCabinet?: FolderCabinet;
+    documentId?: string;
+    documentFileId?: string;
+    mapping?: Record<string, any>;
+}
+
+export interface FolderCabinet {
+    id?: string;
+    parentId?: string;
+    pathIds?: string;
+    label?: string;
+    documentId?: string;
+    documentType?: string;
+    documentPath?: string;
+    allow?: boolean;
+    multiple?: boolean;
+    complete?: boolean;
+    folder?: boolean;
+    metadata?: FCMetadata[];
+    labelRule?: string;
+    permission?: string;
+    repeatName?: boolean;
+    metadataValue?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    binds?: FolderCabinetBinds[];
+    children?: FolderCabinet[];
+    configList?: FCNotificationConfig[];
+}
+
+export interface FolderCabinetBinds {
+    /** @format int64 */
+    id?: number;
+    folderCabinetId?: string;
+    bindId?: string;
+    type?: string;
+    label?: string;
+}
+
 export type GenerateDocumentMode = any;
+
+export interface GeneratedFilingDocRequestDTO {
+    folderCabinetId?: string;
+    folderCabinet?: FilingItem[];
+    creator?: string;
+}
 
 /** Generate Document (RequestDTO) */
 export interface GenerateDocumentRequestDTO {
@@ -8864,15 +9013,15 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentExtension?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentName?: string;
     fileContentMimeType?: string;
+    fileContentExtension?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9238,41 +9387,6 @@ export interface ResultPaginationDTOEventCalendarSetting {
     locale?: string;
 }
 
-/** The folder cabinet metadata */
-export interface FCMetadata {
-    /** Name */
-    name?: string;
-    /** Type */
-    type?: string;
-    /** Value */
-    value?: any;
-}
-
-export interface FCNotificationConfig {
-    id?: string;
-    folderCabinetId?: string;
-    reminderType?: string;
-    /** @format int32 */
-    intervalTime?: number;
-    /**
-     * @deprecated
-     * @format int32
-     */
-    notificationReminder?: number;
-    /**
-     * @deprecated
-     * @format int32
-     */
-    reportDay?: number;
-    /**
-     * @deprecated
-     * @format int32
-     */
-    emailReminder?: number;
-    tos?: string;
-    ccs?: string;
-}
-
 export interface FCReminder {
     /**
      * Interval Time
@@ -9283,15 +9397,6 @@ export interface FCReminder {
     tos?: string[];
     /** ccRecipients list */
     ccs?: string[];
-}
-
-export interface FolderCabinetBinds {
-    /** @format int64 */
-    id?: number;
-    folderCabinetId?: string;
-    bindId?: string;
-    type?: string;
-    label?: string;
 }
 
 /** Folder Cabinet RequestDTO */
@@ -9531,34 +9636,6 @@ export interface ResultPaginationDTOFolderCabinetResponseDTO {
     data?: PaginationDTOFolderCabinetResponseDTO;
     messageKey?: string;
     locale?: string;
-}
-
-export interface FolderCabinet {
-    id?: string;
-    parentId?: string;
-    pathIds?: string;
-    label?: string;
-    documentId?: string;
-    documentType?: string;
-    documentPath?: string;
-    allow?: boolean;
-    multiple?: boolean;
-    complete?: boolean;
-    folder?: boolean;
-    metadata?: FCMetadata[];
-    labelRule?: string;
-    permission?: string;
-    repeatName?: boolean;
-    metadataValue?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    binds?: FolderCabinetBinds[];
-    children?: FolderCabinet[];
-    configList?: FCNotificationConfig[];
 }
 
 /** Document Folder Cabinet RequestDTO */
@@ -11212,10 +11289,10 @@ export interface PageBusinessResultRecord {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: BusinessResultRecord[];
@@ -11713,47 +11790,10 @@ export interface RetentionPolicy {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
-    /** @uniqueItems true */
-    triggers?: RetentionTrigger[];
-    /** @uniqueItems true */
-    events?: RetentionEvent[];
 }
 
-/** HoldPolicy RequestDTO */
-export interface HoldPolicyRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** HoldPolicy ID */
-    id?: string;
-    /** HoldPolicy name */
-    policyName?: string;
-    /** HoldPolicy status */
-    status?: string;
-    descSort?: SortObject;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    desc?: boolean;
-    sort?: SortObject;
-}
-
-export interface PaginationDTOHoldPolicy {
-    entryList?: HoldPolicy[];
+export interface PaginationDTOHoldPolicyResp {
+    entryList?: HoldPolicyResp[];
     /** @format int32 */
     totalSize?: number;
     /** @format int32 */
@@ -11765,12 +11805,12 @@ export interface PaginationDTOHoldPolicy {
     isNextPageAvailable?: boolean;
 }
 
-export interface ResultPaginationDTOHoldPolicy {
+export interface ResultPaginationDTOHoldPolicyResp {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PaginationDTOHoldPolicy;
+    data?: PaginationDTOHoldPolicyResp;
     messageKey?: string;
     locale?: string;
 }
@@ -12251,26 +12291,6 @@ export interface ResultListBpmnDynamicFormDTO {
     locale?: string;
 }
 
-export interface AdhocApprovalResp {
-    histories?: AdhocApproval[];
-    pendingApproval?: AdhocApproval;
-    id?: string;
-    approvedDate?: string;
-    approvalTaskId?: string;
-    documentApprovalVersion?: string;
-    approvedBy?: string;
-}
-
-export interface ResultAdhocApprovalResp {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: AdhocApprovalResp;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultBpmnDynamicFormDTO {
     result?: boolean;
     /** @format int32 */
@@ -12298,10 +12318,10 @@ export interface PageSearchHistory {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: SearchHistory[];
@@ -12604,6 +12624,16 @@ export interface TableStructureDTO {
     relation_display_fields?: Record<string, any>[];
 }
 
+export interface ResultListTableDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: TableDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListMenuDTO {
     result?: boolean;
     /** @format int32 */
@@ -12669,6 +12699,25 @@ export interface ResultAzureOcrSettingDTO {
     code?: number;
     message?: string;
     data?: AzureOcrSettingDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AdhocRecordResp {
+    histories?: AdhocRecord[];
+    pendingRecord?: AdhocRecord;
+    id?: string;
+    approvedDate?: string;
+    documentApprovalVersion?: string;
+    approvedBy?: string;
+}
+
+export interface ResultAdhocRecordResp {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AdhocRecordResp;
     messageKey?: string;
     locale?: string;
 }
@@ -13121,12 +13170,12 @@ export interface ResultMapStringListRetentionEvent {
     locale?: string;
 }
 
-export interface ResultListHoldPolicy {
+export interface ResultListHoldPolicyResp {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: HoldPolicy[];
+    data?: HoldPolicyResp[];
     messageKey?: string;
     locale?: string;
 }
@@ -13959,11 +14008,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
+    finish?: number;
     error?: number;
     create?: number;
     pending?: number;
     completed?: number;
-    finish?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -15278,6 +15327,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ExternalStorageImportJobDTO, any>({
                 path: `/api/ext3rdStorage/importJobs/${id}/update`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PutDynamicDbTableTableidRecordDataid
+         * @request PUT:/api/dynamic-db/table/{tableId}/record/{dataId}
+         */
+        putDynamicDbTableTableidRecordDataid: (
+            tableId: string,
+            dataId: string,
+            data: TableDataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/record/${dataId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -17940,54 +18010,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Instance
-         * @name PostWorkflowInstanceSubmitadhocapproval
-         * @request POST:/api/workflow/instance/submitAdhocApproval
-         */
-        postWorkflowInstanceSubmitadhocapproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/instance/submitAdhocApproval`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceAdhocApproval
-         * @request POST:/api/workflow/instance/adhoc/approval
-         */
-        postWorkflowInstanceAdhocApproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/instance/adhoc/approval`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceQueryadhocapprovalpage
-         * @request POST:/api/workflow/instance/queryAdhocApprovalPage
-         */
-        postWorkflowInstanceQueryadhocapprovalpage: (data: AdhocApprovalDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAdhocApproval, any>({
-                path: `/api/workflow/instance/queryAdhocApprovalPage`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
          * @name PostWorkflowInstanceProperties
          * @summary Retrieve task form properties
          * @request POST:/api/workflow/instance/properties
@@ -20321,6 +20343,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DynamicDBTableController
+         * @name PostDynamicDbTableTableidRecord
+         * @request POST:/api/dynamic-db/table/{tableId}/record
+         */
+        postDynamicDbTableTableidRecord: (tableId: string, data: TableDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/record`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
          * @name GetDynamicDbTableTableidFields
          * @summary List Fields for Master Table
          * @request GET:/api/dynamic-db/table/{tableId}/fields
@@ -21443,22 +21481,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Instance
-         * @name PostDocpalWorkflowAdhocApproval
-         * @request POST:/api/docpal/workflow/adhoc/approval
-         */
-        postDocpalWorkflowAdhocApproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/adhoc/approval`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
          * @name PostDocpalWorkflowSubmitadhocapproval
          * @request POST:/api/docpal/workflow/submitAdhocApproval
          */
@@ -21475,12 +21497,44 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Instance
+         * @name PostDocpalWorkflowAdhocApply
+         * @request POST:/api/docpal/workflow/adhoc/apply
+         */
+        postDocpalWorkflowAdhocApply: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/docpal/workflow/adhoc/apply`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
          * @name PostDocpalWorkflowQueryadhocapprovalpage
          * @request POST:/api/docpal/workflow/queryAdhocApprovalPage
          */
         postDocpalWorkflowQueryadhocapprovalpage: (data: AdhocApprovalDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAdhocApproval, any>({
+            this.request<ResultPaginationDTOAdhocRecord, any>({
                 path: `/api/docpal/workflow/queryAdhocApprovalPage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostDocpalWorkflowAdhocPage
+         * @request POST:/api/docpal/workflow/adhoc/page
+         */
+        postDocpalWorkflowAdhocPage: (data: AdhocApprovalDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOAdhocRecord, any>({
+                path: `/api/docpal/workflow/adhoc/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22405,6 +22459,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/api/docpal/workflow/comment/process/`,
                 method: "POST",
                 query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostDocpalWorkflowAdhocApproval
+         * @request POST:/api/docpal/workflow/adhoc/approval
+         */
+        postDocpalWorkflowAdhocApproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/docpal/workflow/adhoc/approval`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -24211,6 +24281,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags RetentionDocumentController
+         * @name PostDmsPolicyRetentionDocumentRetentionpolicyidStart
+         * @request POST:/api/dms/policy/retention/document/{retentionPolicyId}/start
+         */
+        postDmsPolicyRetentionDocumentRetentionpolicyidStart: (retentionPolicyId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/policy/retention/document/${retentionPolicyId}/start`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionDocumentController
          * @name PostDmsPolicyRetentionDocumentRetentiondocumentidApprovalApproved
          * @summary Approval retention policy document
          * @request POST:/api/dms/policy/retention/document/{retentionDocumentId}/approval/{approved}
@@ -24231,7 +24315,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          *
          * @tags RetentionDocumentController
          * @name PostDmsPolicyRetentionDocumentListQuery
-         * @summary Pagination search
+         * @summary Pagination search retention document
          * @request POST:/api/dms/policy/retention/document/list/query
          */
         postDmsPolicyRetentionDocumentListQuery: (
@@ -25316,6 +25400,24 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsFacadeFilingCreateDocument: (data: FilingCreateDocRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, any>({
                 path: `/api/dms/facade/filing/create/document`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeFilingDocument2
+         * @request POST:/api/dms/facade/filing-document
+         * @originalName postDmsFacadeFilingDocument
+         * @duplicate
+         */
+        postDmsFacadeFilingDocument2: (data: GeneratedFilingDocRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/facade/filing-document`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -30242,48 +30344,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceAdhocList
-         * @summary Check whether the current version of the document has Adhoc audit records
-         * @request GET:/api/workflow/instance/adhoc/list
-         */
-        getWorkflowInstanceAdhocList: (
-            query: {
-                documentId: string;
-                userId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultAdhocApprovalResp, any>({
-                path: `/api/workflow/instance/adhoc/list`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceAdhocCanstart
-         * @request GET:/api/workflow/instance/adhoc/canStart
-         */
-        getWorkflowInstanceAdhocCanstart: (
-            query: {
-                documentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/workflow/instance/adhoc/canStart`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Workflow Process Definition Controller
          * @name GetWorkflowDefinitionProcessdefinitionkey
          * @summary Get deployed process definition through process definition key
@@ -31674,6 +31734,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTableController
+         * @name GetDynamicDbTableList
+         * @request GET:/api/dynamic-db/table/list
+         */
+        getDynamicDbTableList: (
+            query: {
+                /** Table Request DTO */
+                request: TableRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListTableDTO, any>({
+                path: `/api/dynamic-db/table/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags DynamicDBPersonalViewController
          * @name GetDynamicDbPersonalViewsId
          * @summary Get Personal View configuration by ID
@@ -32474,7 +32555,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultAdhocApprovalResp, any>({
+            this.request<ResultAdhocRecordResp, any>({
                 path: `/api/docpal/workflow/adhoc/list`,
                 method: "GET",
                 query: query,
@@ -33987,7 +34068,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/api/dms/policy/hold/{holdPolicyId}
          */
         getDmsPolicyHoldHoldpolicyid: (holdPolicyId: string, params: RequestParams = {}) =>
-            this.request<ResultHoldPolicy, any>({
+            this.request<ResultHoldPolicyResp, any>({
                 path: `/api/dms/policy/hold/${holdPolicyId}`,
                 method: "GET",
                 ...params,
@@ -34002,7 +34083,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/api/dms/policy/hold/list
          */
         getDmsPolicyHoldList: (params: RequestParams = {}) =>
-            this.request<ResultListHoldPolicy, any>({
+            this.request<ResultListHoldPolicyResp, any>({
                 path: `/api/dms/policy/hold/list`,
                 method: "GET",
                 ...params,
@@ -36993,13 +37074,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Generic Audit Log
-         * @name GetAuditLogId
-         * @summary Query AuditLog info by Id
-         * @request GET:/api/audit-log/{id}
+         * @name GetAuditLogEventid
+         * @summary Query AuditLog info by eventId
+         * @request GET:/api/audit-log/{eventId}
          */
-        getAuditLogId: (id: string, params: RequestParams = {}) =>
+        getAuditLogEventid: (eventId: string, params: RequestParams = {}) =>
             this.request<ResultGenericAuditLogRequestDTO, any>({
-                path: `/api/audit-log/${id}`,
+                path: `/api/audit-log/${eventId}`,
                 method: "GET",
                 ...params,
             }),
@@ -39184,8 +39265,8 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @summary Update hold policy
          * @request PUT:/admin/api/dms/policy/hold
          */
-        putDmsPolicyHold: (data: HoldPolicy, params: RequestParams = {}) =>
-            this.request<ResultHoldPolicy, any>({
+        putDmsPolicyHold: (data: HoldPolicyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultHoldPolicyResp, any>({
                 path: `/admin/api/dms/policy/hold`,
                 method: "PUT",
                 body: data,
@@ -39201,8 +39282,8 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @summary Create a new hold policy
          * @request POST:/admin/api/dms/policy/hold
          */
-        postDmsPolicyHold: (data: HoldPolicy, params: RequestParams = {}) =>
-            this.request<ResultHoldPolicy, any>({
+        postDmsPolicyHold: (data: HoldPolicyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultHoldPolicyResp, any>({
                 path: `/admin/api/dms/policy/hold`,
                 method: "POST",
                 body: data,
@@ -43133,20 +43214,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name PostDmsPolicyRetentionWorkflowInit
-         * @request POST:/admin/api/dms/policy/retention/workflow/init
-         */
-        postDmsPolicyRetentionWorkflowInit: (params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/dms/policy/retention/workflow/init`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminRetentionPolicyController
          * @name PostDmsPolicyRetentionListQuery
          * @summary Pagination search
          * @request POST:/admin/api/dms/policy/retention/list/query
@@ -43164,13 +43231,16 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name PostDmsPolicyHoldWorkflowInit
-         * @request POST:/admin/api/dms/policy/hold/workflow/init
+         * @name PostDmsPolicyHoldListQuery
+         * @summary Pagination search
+         * @request POST:/admin/api/dms/policy/hold/list/query
          */
-        postDmsPolicyHoldWorkflowInit: (params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/dms/policy/hold/workflow/init`,
+        postDmsPolicyHoldListQuery: (data: HoldPolicyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOHoldPolicyResp, any>({
+                path: `/admin/api/dms/policy/hold/list/query`,
                 method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -43178,13 +43248,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name PostDmsPolicyHoldListQuery
+         * @name PostDmsPolicyHoldPage
          * @summary Pagination search
-         * @request POST:/admin/api/dms/policy/hold/list/query
+         * @request POST:/admin/api/dms/policy/hold/page
          */
-        postDmsPolicyHoldListQuery: (data: HoldPolicyRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOHoldPolicy, any>({
-                path: `/admin/api/dms/policy/hold/list/query`,
+        postDmsPolicyHoldPage: (data: HoldPolicyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOHoldPolicyResp, any>({
+                path: `/admin/api/dms/policy/hold/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -48939,7 +49009,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/admin/api/dms/policy/hold/{holdPolicyId}
          */
         getDmsPolicyHoldHoldpolicyid: (holdPolicyId: string, params: RequestParams = {}) =>
-            this.request<ResultHoldPolicy, any>({
+            this.request<ResultHoldPolicyResp, any>({
                 path: `/admin/api/dms/policy/hold/${holdPolicyId}`,
                 method: "GET",
                 ...params,
