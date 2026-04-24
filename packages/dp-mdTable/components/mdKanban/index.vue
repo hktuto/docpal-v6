@@ -226,7 +226,12 @@ watch(viewStyleConfig ,(style) => {
   deep: true,
 })
 const groupRef = ref<Record<string, any>>({})
+const allGroupRef = ref()
 function handleNeedRefresh(groupId: string = 'all') {
+  if (groupId === 'all') {
+    allGroupRef.value?.refresh()
+    return
+  }
   const items = Array.isArray(groupRef.value) ? groupRef.value : groupRef.value ? [groupRef.value] : []
   items.forEach((el: any) => {
     if (el?.groupId === groupId) {
@@ -279,16 +284,43 @@ function updateColor(e: { id: string; color: string }) {
   }
 }
 
+function handleRemove(e: { id: string }) {
+  if (!columns || !columns.value) return
+  const selectedColumn = columns.value.find(
+    (c) => c.field_name === viewStyleConfig.value.selectedColumnId
+  ) as ColumnConfig
+  if (!selectedColumn?.display_structure?.options) return
+
+  const columnOptionIndex = selectedColumn.display_structure.options.findIndex(
+    (v: any) => v.id === e.id
+  )
+  if (columnOptionIndex === -1) return
+
+  selectedColumn.display_structure.options.splice(columnOptionIndex, 1)
+  const newData = JSON.parse(JSON.stringify(selectedColumn))
+  delete newData.field_name
+  delete newData.field_name_alias
+  updateField(viewStyleConfig.value.selectedColumnId, newData)
+
+  const index = viewStyleConfig.value.options.findIndex((v: any) => v.id === e.id)
+  if (index !== -1) {
+    viewStyleConfig.value.options.splice(index, 1)
+    props.extraColumnConfig?.updatedViewFilterSortGroup?.('style', viewStyleConfig.value)
+  }
+}
+
 function handleFilterChange(rules: any) {
   props.extraColumnConfig?.updateViewFilterSortGroup?.('filterInfo', rules)
-
+  allGroupRef.value?.refresh()
   groupRef.value.forEach((el: any) => {
+    console.log("el",el)
     el.refresh()
   })
 }
 
 function handleSortChange(rules: any) {
   props.extraColumnConfig?.updateViewFilterSortGroup?.('sortInfo', rules)
+  allGroupRef.value?.refresh()
   groupRef.value.forEach((el: any) => {
     el.refresh()
   })
@@ -327,7 +359,7 @@ onBeforeUnmount(() => {
     <div v-if="viewStyleConfig.selectedColumnId" class="kanban-groups">
         <MdKanbanGroup
             class="allData"
-            ref="groupRef"
+            ref="allGroupRef"
             :group="{ id: null, label: 'All Data' }"
             :field="viewStyleConfig.selectedColumnId"
             :table-id="props.tableId"
@@ -345,6 +377,7 @@ onBeforeUnmount(() => {
                 @needRefresh="handleNeedRefresh"
                 @update-label="updateLabel"
                 @update-color="updateColor"
+                @remove="handleRemove"
             />
         </div>
         <UiPopoverDialog
