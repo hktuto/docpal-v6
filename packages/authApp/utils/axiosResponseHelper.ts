@@ -134,7 +134,9 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     }
   } else {
     // 如果没有 refresh token，则直接退出登录
-    logout()
+    if (error.response.status === 401 && !refreshToken) {
+      logout()
+    }
   }
 
   return Promise.reject(error)
