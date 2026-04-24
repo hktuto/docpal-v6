@@ -4,13 +4,14 @@ import { ColumnFieldType } from '../../types/column-types'
 export const useVirtualColumn = (relationTableId: string, businessType: ColumnFieldType) => {
   const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
   const { updateColumn } = useMDTableInject()
+  const relationFields = [ColumnFieldType.Relation, ColumnFieldType.VirtualColumn, ColumnFieldType.AggVirtualColumn]
   const { tableFields } = inject<any>('viewTools')
   const menus = ref([])
   const menuIdPaths = ref<string[]>([])
   const relationTables = ref<any[]>([])
   const isAgg = computed(() => businessType === ColumnFieldType.AggVirtualColumn)
   function getRelationTables() {
-    return tableFields.value.filter((field: any) => field.business_type === ColumnFieldType.Relation)
+    return tableFields.value.filter((field: any) => relationFields.includes(field.business_type))
   }
   async function getMenuFromDb() {
     const res: any = await newClientApi.getDynamicDbMenusTree({
@@ -41,7 +42,7 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
     const virtualColumns = tableFields.value.filter((field: any) => field.business_type === ColumnFieldType.VirtualColumn)
     virtualColumns.forEach((column: any) => {
       const tableId = column.display_structure?.relation_table_id
-      if (tableId === relationTableId ){
+      if (tableId === relationTableId) {
         displayFieldIds.push(column.display_structure?.display_field_id)
       }
     })
@@ -53,7 +54,7 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
         business_type: relationTable.business_type,
         display_structure: {
           ...relationTable.display_structure,
-          display_field_ids: displayFieldIds,
+          display_field_ids: displayFieldIds
         }
       })
     }
