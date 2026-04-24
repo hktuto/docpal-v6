@@ -1,5 +1,6 @@
 <template>
   <MdFormItem v-if="formData && curFieldName" v-bind="props">
+    {{ props.formData }}
     <template v-if="relationTableId">
       <MdFormFieldRelationPicker
         ref="pickerRef"
@@ -79,12 +80,22 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
   if (!props.formData || curFieldName.value == null) return
   const fieldName = curFieldName.value
   props.formData[fieldName] = value
+  const allSelectedRows = value.reduce((acc, rowId) => {
+    let row = selectedRows.find((sItem) => sItem.id === rowId)
+    if (!row) {
+      row = selectedRecords.value.find((sItem) => sItem.id === rowId)
+    }
+    if (row) {
+      acc.push(row)
+    }
+    return acc
+  }, [])
   const basicFieldNames = ['id', 'created_at', 'updated_at', 'updated_by', 'status', 'master_table_id']
   Object.keys(props.formData).forEach((key) => {
     if (!basicFieldNames.includes(key)) {
       if (key.startsWith(fieldName + '.')) {
         const pureKey = key.split('.')[1]
-        const relatedValue = selectedRows.reduce((acc, sItem) => {
+        const relatedValue = allSelectedRows.reduce((acc, sItem) => {
           if (sItem[pureKey]) {
             acc.push(sItem[pureKey])
           }
