@@ -8,11 +8,10 @@ import { h } from 'vue'
 import { ElTag } from 'element-plus'
 import dayjs from 'dayjs'
 import type { TargetFieldConfig } from '../../../types/column-types'
-
 /**
  * Render values as MultiSelect tags with colors
  */
-export function renderAsMultiSelect(values: any[], targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsSingleSelect(values: any[], targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
   const options = targetConfig.properties?.options || targetConfig.options || []
   if (values.length === 0) {
     return h('div', { class: 'virtual-column-view empty' }, '-')
@@ -40,6 +39,44 @@ export function renderAsMultiSelect(values: any[], targetConfig: any, separator:
           style: option?.color ? `--color: ${option.color}` : undefined
         },
         option?.label || String(val ?? '')
+      )
+    })
+  )
+}
+/**
+ * Render values as MultiSelect tags with colors
+ */
+export function renderAsMultiSelect(values: any[], targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+  const options = targetConfig.properties?.options || targetConfig.options || []
+  if (values.length === 0) {
+    return h('div', { class: 'virtual-column-view empty' }, '-')
+  }
+  // Flatten nested arrays (each value might be an array of selections)
+  const flatValues: any[] = Array.isArray(values) ? values : [values]
+  return h(
+    'div',
+    {
+      class: 'virtual-column-view select-tags',
+      style: {
+        display: 'flex',
+        gap: '4px',
+        flexWrap: 'wrap'
+      }
+    },
+    flatValues.map((val: any, index: number) => {
+      const vals = Array.isArray(val) ? val : [val]
+      const result = vals.map((v: any) => {
+        let option = options.find((o: any) => o.id === v || o.value === v || o.label === v)
+        return option?.label || '-'
+      })
+      return h(
+        'div',
+        {
+          key: index,
+          class: 'table-tag',
+          style: `--color: #dddddd`
+        },
+        result.join(separator)
       )
     })
   )

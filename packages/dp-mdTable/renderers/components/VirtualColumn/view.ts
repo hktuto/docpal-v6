@@ -4,6 +4,7 @@ import { buildRelationArray } from '../../../utils/relationHelper'
 import { h } from 'vue'
 import { ElTag } from 'element-plus'
 import {
+  renderAsSingleSelect,
   renderAsMultiSelect,
   renderAsNumber,
   renderAsDateTime,
@@ -26,6 +27,7 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
   const values = relationArray.map((item: any) => item[relationFieldConfig.field_name])
   switch (relationFieldConfig.business_type) {
     case ColumnFieldType.SingleSelect:
+      return renderAsSingleSelect(values, relationFieldConfig)
     case ColumnFieldType.MultiSelect:
       return renderAsMultiSelect(values, relationFieldConfig)
     default:

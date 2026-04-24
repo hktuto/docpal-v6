@@ -4,7 +4,7 @@ import { ColumnFieldType } from '../../types/column-types'
 export const useVirtualColumn = (relationTableId: string, businessType: ColumnFieldType) => {
   const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
   const { updateColumn } = useMDTableInject()
-  const relationFields = [ColumnFieldType.Relation, ColumnFieldType.VirtualColumn, ColumnFieldType.AggVirtualColumn]
+  const relationFields = [ColumnFieldType.Relation]
   const { tableFields } = inject<any>('viewTools')
   const menus = ref([])
   const menuIdPaths = ref<string[]>([])
@@ -36,7 +36,7 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
     const relationTable = relationTables.value.find((table: any) => table.display_structure?.relation_table_id === relationTableId)
     formData.relation_field_name = relationTable.field_name
     // formData.relation_field_name = relationTable.field_name
-
+    console.log('formData', formData,relationTable)
     // 重新获取relationTable中的displayFields
     const displayFieldIds = JSON.parse(JSON.stringify(relationTable.display_structure?.display_field_ids))
     const virtualColumns = tableFields.value.filter((field: any) => field.business_type === ColumnFieldType.VirtualColumn)
