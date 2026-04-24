@@ -13,6 +13,7 @@
       />
       <template v-for="record in selectedRecords" :key="record.id">
         <MdFormFieldRelationCard
+          v-loading="loading"
           :fields="fields"
           :data="record"
           :show-remove="true"
@@ -28,15 +29,15 @@
 
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-
+import { postDynamicActions } from 'api'
+import { ElMessage } from 'element-plus'
 const props = defineProps<{
   formData: any
   column: any
   fieldName: string
 }>()
 
-const emit = defineEmits<{
-}>()
+const emit = defineEmits<{}>()
 const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
 const pickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 const multiple = computed(() => props.column?.display_structure?.multiple ?? false)
@@ -46,6 +47,7 @@ const relationTableId = computed(() => props.column?.display_structure?.relation
 const displayFieldIds = computed(() => props.column?.display_structure?.display_field_ids ?? [])
 const curFieldName = computed(() => props.column?.[props.fieldName])
 const { t } = useI18n()
+const loading = ref(false)
 const tableLabel = computed(() => props.column?.display_structure?.relationTableName ?? props.column?.title ?? t('mdTable.relationPicker.defaultTableLabel'))
 const currentValue = computed(() => {
   const v = props.formData?.[curFieldName.value]
@@ -64,7 +66,7 @@ const fields = computed(() => {
       acc.push(fieldConfig)
     }
     return acc
-  },[])
+  }, [])
 })
 const selectedRecords = computed(() => {
   if (!currentValue.value) return []
@@ -88,17 +90,38 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
           }
           return acc
         }, [])
-        console.log({ relatedValue }, key)
         props.formData[key] = relatedValue
       }
     }
   })
 }
 const MdFormPopoverRef = ref()
-function handleClick(data: any) {
+const getRowData = async (id: string) => {
+  const filters = [
+    {
+      column: 'id',
+      type: 'EQ',
+      value: id
+    }
+  ]
+  const { data } = await postDynamicActions({
+    tableId: relationTableId.value,
+    conditions: filters,
+    columns: [{ name: '*' }]
+  })
+  return data.data?.[0] || null
+}
+async function handleClick(data: any) {
   const fieldName = fields.value[0].name
   const title = data[fieldName]
-  MdFormPopoverRef.value.open(data, 'edit', title)
+  loading.value = true
+  const rowData = await getRowData(data.id)
+  if (!rowData) {
+    ElMessage.error('Record not found')
+    return
+  }
+  loading.value = false
+  MdFormPopoverRef.value.open(rowData, 'edit', title)
 }
 </script>
 
