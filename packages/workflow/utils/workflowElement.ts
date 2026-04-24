@@ -543,7 +543,7 @@ export const workflowElement: WorkflowElement = {
       },
       {
         id: CellType.validateTask,
-        icon: 'material-symbols-light:list-alt-check-outline',
+        icon: 'material-symbols:list-alt-check-outline',
         label: 'Validate Task',
         group: '',
         order: 0
@@ -720,7 +720,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ExclusiveGateway: {
-    ...createNodeShell('New_ExclusiveGateway', 'New Exclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
+    ...createNodeShell('New_ExclusiveGateway', 'Exclusive Gateway', 'New Exclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Exclusive Gateway',
@@ -740,7 +740,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ParallelGateway: {
-    ...createNodeShell('New_ParallelGateway', 'Parallel Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
+    ...createNodeShell('New_ParallelGateway', 'Parallel Gateway', 'New Parallel Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Parallel Gateway',
@@ -760,7 +760,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   InclusiveGateway: {
-    ...createNodeShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
+    ...createNodeShell('New_InclusiveGateway', 'Inclusive Gateway', 'New Inclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Inclusive Gateway',
@@ -781,7 +781,7 @@ const workflowCellElementTemplate: CellTypeItem = {
   },
   // Http Task
   HTTPTask: {
-    ...createNodeShell('New_HTTPTask', 'HTTP Task', 'HTTP Task', '/icons/http-task.svg'),
+    ...createNodeShell('New_HTTPTask', 'HTTP Task', 'New HTTP Task', '/icons/http-task.svg'),
     data: {
       id: '',
       name: 'HTTP Task',
@@ -807,7 +807,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   UniqueIdGenerator: {
-    ...createNodeShell('New_UniqueIdGenerator', 'Unique Id Generator', 'New Unique Id Generator', '/icons/form.svg'),
+    ...createNodeShell('New_UniqueIdGenerator', 'Unique Id Generator', 'New Unique Id Generator', '/icons/numeric.svg'),
     data: {
       id: '',
       name: 'Unique Id Generator',
@@ -819,13 +819,13 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.uniqueIdGenerator,
         tags: WorkflowElementType.HTTPRequestTask,
-        icon: '/icons/transform.svg'
+        icon: '/icons/numeric.svg'
       }
     }
   },
   // Service Task
   SubProcess: {
-    ...createNodeShell('New_SubProcess', 'Sub Process', 'New Sub Process', '/icons/form.svg'),
+    ...createNodeShell('New_SubProcess', 'Sub Process', 'New Sub Process', '/icons/forwardburger.svg'),
     data: {
       id: '',
       name: 'New Sub Process',
@@ -837,12 +837,12 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.subProcess,
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/transform.svg'
+        icon: '/icons/forwardburger.svg'
       }
     }
   },
   ValidateTask: {
-    ...createNodeShell('New_ValidateTask', 'Validate Task', 'Validate Task', '/icons/form.svg'),
+    ...createNodeShell('New_ValidateTask', 'Validate Task', 'Validate Task', '/icons/list-alt-check-outline.svg'),
     data: {
       id: '',
       name: 'Validate Task',
@@ -854,7 +854,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.validateTask,
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/form.svg'
+        icon: '/icons/list-alt-check-outline.svg'
       }
     }
   },
@@ -932,7 +932,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   FilingDocuments: {
-    ...createNodeShell('New_FilingDocuments', 'Filing Documents Task', 'New Filing Documents Task', '/icons/form.svg', 260),
+    ...createNodeShell('New_FilingDocuments', 'Filing Documents Task', 'New Filing Documents Task', '/icons/cabinet-filing.svg', 260),
     data: {
       id: '',
       name: 'Filing Documents Task',
@@ -944,7 +944,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.filingDocuments,
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/form.svg',
+        icon: '/icons/cabinet-filing.svg',
         width: 260
       }
     }

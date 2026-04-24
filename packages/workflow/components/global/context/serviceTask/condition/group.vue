@@ -41,7 +41,7 @@ function deleteItem(ruleIndex: number) {
       <ContextServiceTaskConditionElement :element="ruleItem" @delete="deleteItem(ruleIndex)" @update="(newVal: any) => updateItem(newVal, ruleIndex)" />
       <div v-if="ruleIndex === rule.length - 1" :class="{ moreButtonContainer: true, readonly: graphProvider.readonly.value }" @click="addNewElement">
         <Icon name="lucide:plus" />
-        <div class="label">Or</div>
+        <div class="label">OR</div>
       </div>
       <ElDivider v-else />
     </div>

@@ -94,7 +94,7 @@ watch(
     </div>
     <div :class="{ addNewContainer: true, readonly: graphProvider.readonly.value }" @click="addNewCondition">
       <Icon name="lucide:circle-plus" />
-      <div class="label">And</div>
+      <div class="label">AND</div>
     </div>
   </div>
 </template>
