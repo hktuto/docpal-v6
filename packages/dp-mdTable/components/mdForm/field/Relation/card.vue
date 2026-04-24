@@ -14,13 +14,13 @@
     <div class="relation-card-main">
       <div class="relation-card-content">
         <div v-if="fields?.length > 0 && fields?.[0]?.field_name" class="relation-card-title">
-          {{ formatFieldValue(fields[0].field_name) }}
+          {{ formatFieldValue(fields[0]) }}
         </div>
         <div v-if="fields?.length > 1" class="relation-card-fields">
           <template v-for="(field, index) in fields">
             <div v-if="index > 0 && index < 5" :key="field.field_name" class="relation-card-field">
               <div class="field-label" :title="field.field_name_alias">{{ field.field_name_alias }}</div>
-              <div class="field-value" :title="formatFieldValue(field.field_name)">
+              <div class="field-value" :title="formatFieldValue(field)">
                 <!-- 单选：标签 -->
                 <template v-if="[ColumnFieldType.SingleSelect, ColumnFieldType.MultiSelect].includes(field.business_type)">
                   <template v-if="getSelectOption(field)?.length">
@@ -74,7 +74,6 @@ function handleClick() {
 }
 const recordData = computed(() => props.data || {})
 function getFieldName(field: FieldInfo) {
-  console.log(field, 'getFieldName')
   return field.field_name
 }
 function getSelectOption(field: FieldInfo) {

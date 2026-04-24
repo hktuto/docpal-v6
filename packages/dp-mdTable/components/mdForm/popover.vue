@@ -3,9 +3,7 @@
     <template v-if="mode === 'edit'" #header>
       <div class="el-dialog__title mdForm-title">
         {{ title }}
-        <el-button class="source-button"  type="info" link :icon="Position" v-if="showSourceButton" @click="handleSourceClick">
-          Go to Source Table
-        </el-button>
+        <el-button class="source-button" type="info" link :icon="Position" v-if="showSourceButton" @click="handleSourceClick"> Go to Source Table </el-button>
         <div v-if="showMoveButtons">
           <el-icon
             style="font-size: var(--app-font-size-m)"

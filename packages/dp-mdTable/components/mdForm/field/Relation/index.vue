@@ -112,7 +112,7 @@ const getRowData = async (id: string) => {
   return data.data?.[0] || null
 }
 async function handleClick(data: any) {
-  const fieldName = fields.value[0].name
+  const fieldName = fields.value[0].field_name
   const title = data[fieldName]
   loading.value = true
   const rowData = await getRowData(data.id)
