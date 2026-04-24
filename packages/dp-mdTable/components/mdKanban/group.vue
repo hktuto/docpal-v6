@@ -2,7 +2,8 @@
 
 import { useMDKanbanInject } from '../../composables/mdKanban/useMDKanban'
 import { MoreFilled } from '@element-plus/icons-vue'
-
+import {useDBParams} from '../../../dynamic-db/composables/table/useDBParams'
+import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
   field: string,
@@ -21,7 +22,7 @@ const hasLoaded = ref(false)
 const loadingMore = ref(false)
 const { updateViewFilterSortGroup, columns, tableFields, systemFieldsTypes, columnFilterRules, columnSortRules } = useMDKanbanInject()
 const { getPageParams: globalGetPageParams } = useDBParams()
-const emit = defineEmits(['needRefresh', 'update-label', 'update-color'])
+const emit = defineEmits(['needRefresh', 'update-label', 'update-color', 'remove'])
 
 function getPageParams(){
   const globalParams  = globalGetPageParams()
@@ -115,6 +116,23 @@ function handleColorChange(value: string | null) {
   colorPopoverRef.value?.hide?.()
 }
 
+async function handleRemove() {
+  try {
+    await ElMessageBox.confirm(
+      `Are you sure you want to remove "${props.group.label}"?`,
+      'Confirm Remove',
+      {
+        confirmButtonText: 'Remove',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }
+    )
+    emit('remove', { id: props.group.id })
+  } catch {
+    // user cancelled
+  }
+}
+
 
 defineExpose({
   refresh,
@@ -142,7 +160,14 @@ defineExpose({
                 :editable="props.group.id !== null"
                 @save="handleLabelSave"
             />
-            <el-button v-if="props.group.id !== null" text size="small" :icon="MoreFilled" class="optionsBtn" />
+            <ElDropdown v-if="props.group.id !== null" trigger="click">
+                <el-button text size="small" :icon="MoreFilled" class="optionsBtn" />
+                <template #dropdown>
+                    <ElDropdownMenu>
+                        <ElDropdownItem @click="handleRemove">Remove</ElDropdownItem>
+                    </ElDropdownMenu>
+                </template>
+            </ElDropdown>
         </div>
         <MdKanbanGroupList
           ref="listRef"
