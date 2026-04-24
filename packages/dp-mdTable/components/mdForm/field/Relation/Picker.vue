@@ -27,21 +27,22 @@
             </template>
           </ElInput>
           <!-- 只看已选记录 -->
-          <div class="filter-row">
+          <!-- <div class="filter-row">
             <span class="filter-label">{{ $t('mdTable.relationPicker.onlySelected') }}</span>
             <ElSwitch v-model="onlySelected" />
-          </div>
+          </div> -->
         </div>
-        <div v-loading="listLoading" class="dropdown-list">
+        <div v-infinite-scroll="getRelationPickerOptions" :infinite-scroll-disabled="loading || noMore" class="dropdown-list">
           <div
             v-for="row in displayOptions"
             :key="row.id"
+            class="record-card-item"
             :class="{ selected: selectedIds.includes(row.id) }"
             @click="toggleRecord(row.id)"
           >
             <MdFormFieldRelationCard :fields="fields" :data="row" @remove="toggleRecord(row.id)" />
           </div>
-          <div v-if="displayOptions.length === 0 && !listLoading" class="list-empty">{{ $t('mdTable.relationPicker.noRecords') }}</div>
+          <div v-if="!loading && noMore" class="list-empty">{{ $t('noMore') }}</div>
         </div>
         <!-- <div class="dropdown-footer">
           <ElButton type="primary" class="add-btn" @click="handleAddRelationRecord">
@@ -97,7 +98,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { options, fields, searchKeyword, refresh } = useRelationPicker(props.relationTableId, props.displayFieldIds)
+const { options, fields, searchKeyword, refresh, loading, noMore, getRelationPickerOptions } = useRelationPicker(props.relationTableId, props.displayFieldIds)
 const { updateRow } = useTableDataInject()
 const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
 
@@ -210,7 +211,7 @@ defineExpose({
 .relation-picker-dropdown {
   display: flex;
   flex-direction: column;
-  max-height: 480px;
+  height: 480px;
 
   .dropdown-header {
     padding: 8px 0 12px;
@@ -249,7 +250,7 @@ defineExpose({
   .dropdown-list {
     flex: 1;
     overflow-y: auto;
-    max-height: 320px;
+    height: 320px;
     padding-right: 4px;
   }
 
@@ -273,5 +274,39 @@ defineExpose({
     background: var(--el-fill-color);
   }
 }
-
+.record-card-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--app-border-radius-s);
+  &.selected {
+    border-color: var(--el-color-primary);
+    &:after {
+      content: ' ';
+      z-index: 1;
+      left: 3px;
+      top: 6px;
+      width: 4px;
+      height: 8px;
+      position: absolute;
+      display: table;
+      border: 1px solid #fff;
+      border-top: 0;
+      border-left: 0;
+      transform: rotate(45deg) scale(1) translate(-50%, -50%);
+      opacity: 1;
+      transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+    }
+    &:before {
+      content: ' ';
+      z-index: 1;
+      width: 31px;
+      height: 31px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%) rotate(45deg);
+      background-color: var(--app-primary-color);
+    }
+  }
+}
 </style>

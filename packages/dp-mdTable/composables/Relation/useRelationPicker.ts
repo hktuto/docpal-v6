@@ -8,11 +8,14 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
     pageSize: 100,
     pageNum: 1
   })
+  const noMore = ref(false)
+  const loading = ref(false)
   const viewTools: any = inject('viewTools')
 
   async function getRelationPickerOptions() {
     const params: any = {}
-    console.log('fields', fields.value,searchKeyword.value)
+    loading.value = true
+    noMore.value = false
     const filterRules = getFilterRules(searchKeyword.value, fields.value)
     if (filterRules) {
       params.conditions = filterRules
@@ -23,7 +26,13 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
       pagination: pageParams.value,
       ...params
     })
-    options.value = data.data
+    options.value.push(...data.data)
+    if (options.value.length >= data.meta.total) {
+      noMore.value = true
+    } else {
+      pageParams.value.pageNum++
+    }
+    loading.value = false
   }
   function getFields(tableId: string) {
     const _fields: any[] = []
@@ -31,25 +40,35 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
       const relationFieldConfig = viewTools?.getRelationFieldConfig(tableId, displayFieldId)
       _fields.push({
         ...relationFieldConfig,
-        id: displayFieldId,
+        id: displayFieldId
       })
     })
     return _fields
   }
-  onMounted(async () => {
-    fields.value = getFields(tableId)
+  function refresh() {
+    options.value = []
     getRelationPickerOptions()
+  }
+  onMounted(async () => {
+    options.value = []
+    fields.value = getFields(tableId)
+    pageParams.value.pageNum = 1
+    noMore.value = false
+    loading.value = false
     console.log('fields', fields.value)
   })
   return {
     options,
     fields,
     searchKeyword,
-    refresh: getRelationPickerOptions
+    getRelationPickerOptions,
+    refresh,
+    loading,
+    noMore,
   }
 }
 function getFilterRules(key: string, fields: any[]) {
-  console.log('fields', fields,key)
+  console.log('fields', fields, key)
   const conditions: any[] = [
     {
       type: 'OR',

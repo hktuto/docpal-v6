@@ -1,8 +1,8 @@
 <template>
   <MdFormItem v-if="formData && curFieldName" v-bind="props">
-    {{ props.formData }}
     <template v-if="relationTableId">
       <MdFormFieldRelationPicker
+      class="relation-picker"
         ref="pickerRef"
         :model-value="currentValue"
         :relation-table-id="relationTableId"
@@ -144,5 +144,8 @@ async function handleClick(data: any) {
 :deep(.el-form-item__content) {
   line-height: unset;
   align-items: center;
+}
+.relation-picker {
+  margin-bottom: var(--app-space-xs);
 }
 </style>

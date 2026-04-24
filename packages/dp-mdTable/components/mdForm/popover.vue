@@ -69,7 +69,7 @@ async function handleSubmit() {
   emits('submit', _formData, formData.value.id)
 }
 async function open(row: any, _mode: 'default' | 'edit' = 'default', _title: string = '') {
-  formData.value = { ...row }
+  formData.value = JSON.parse(JSON.stringify(row))
   mode.value = _mode
 
   visible.value = true

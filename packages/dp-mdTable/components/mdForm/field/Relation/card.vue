@@ -197,7 +197,7 @@ function handleRemove(event: MouseEvent | KeyboardEvent) {
   display: flex;
   flex: 1;
   min-width: 0;
-  margin-top: var(--app-space-xs);
+  margin-bottom: var(--app-space-xs);
   background: var(--el-fill-color-light);
   border-radius: var(--app-border-radius-s);
   border: 1px solid transparent;
@@ -208,35 +208,6 @@ function handleRemove(event: MouseEvent | KeyboardEvent) {
 
   position: relative;
   overflow: hidden;
-  &.selected {
-    border-color: var(--el-color-primary);
-    &:after {
-      content: ' ';
-      z-index: 1;
-      left: 3px;
-      top: 6px;
-      width: 4px;
-      height: 8px;
-      position: absolute;
-      display: table;
-      border: 1px solid #fff;
-      border-top: 0;
-      border-left: 0;
-      transform: rotate(45deg) scale(1) translate(-50%, -50%);
-      opacity: 1;
-      transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
-    }
-    &:before {
-      content: ' ';
-      z-index: 1;
-      width: 31px;
-      height: 31px;
-      position: absolute;
-      left: 0;
-      top: 0;
-      transform: translate(-50%, -50%) rotate(45deg);
-      background-color: var(--app-primary-color);
-    }
-  }
+ 
 }
 </style>
