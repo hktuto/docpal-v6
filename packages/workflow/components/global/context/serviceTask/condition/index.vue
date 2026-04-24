@@ -30,7 +30,6 @@ function init() {
 }
 
 function updateNode() {
-  if (form.value === config.conditions) return
   const data = {
     ...config,
     conditions: form.value
@@ -61,6 +60,7 @@ function deleteCondition(index: number) {
 }
 
 function updateCondition() {
+  console.log(123, form.value)
   updateNode()
 }
 

@@ -12,7 +12,8 @@ import {
   workflowCellElement,
   workflowElement,
   type WorkflowJson,
-  WorkflowElementType
+  WorkflowElementType,
+  CellType
 } from '#imports'
 import { newAdminApi } from 'api'
 
@@ -51,7 +52,7 @@ const dropActionsItems = computed(() => {
 })
 const isReady = ref(false)
 
-const GATEWAY_NODE_TYPES = new Set<string>([WorkflowElementType.Gateway, 'ExclusiveGateway', 'ParallelGateway', 'InclusiveGateway'])
+const NODE_TYPES = new Set<string>([WorkflowElementType.Gateway, CellType.conditionTask, 'ExclusiveGateway', 'ParallelGateway', 'InclusiveGateway'])
 
 function init() {
   try {
@@ -98,8 +99,8 @@ function init() {
           }
 
           const nodeType = cell.getData().metadata.type
-          // 限制 gateway 類型的 node 出綫
-          if (GATEWAY_NODE_TYPES.has(nodeType)) {
+          // 限制特定類型的 node 出綫
+          if (NODE_TYPES.has(nodeType)) {
             const outgoingEdges = graph.value?.getConnectedEdges(cell, { outgoing: true })
             if (outgoingEdges.length === cell.getData().metadata.maxOutgoing) {
               return false

@@ -101,17 +101,17 @@ watch(
     </div>
     <el-form :disabled="graphProvider.readonly.value" label-position="top" size="small">
       <el-form-item label="Type" prop="type">
-        <el-select v-model="formData.type" placeholder="Select form type" filterable clearable @change="typeChange">
+        <el-select v-model="formData.type" placeholder="Select form type" filterable @change="typeChange">
           <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="Field" prop="id">
-        <el-select v-model="formData.field" placeholder="Select form field" filterable clearable>
+        <el-select v-model="formData.field" placeholder="Select form field" filterable>
           <el-option v-for="item in allVariables" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="Condition" prop="condition">
-        <el-select v-model="formData.condition" placeholder="Select form condition" filterable clearable>
+        <el-select v-model="formData.condition" placeholder="Select form condition" filterable>
           <el-option v-for="condition in conditionOption" :key="condition.value" :label="condition.label" :value="condition.value" />
         </el-select>
       </el-form-item>

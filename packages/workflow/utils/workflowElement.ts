@@ -978,6 +978,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         type: CellType.conditionTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/condition.svg',
+        maxOutgoing: 2,
         width: 200,
         bgColor: '#0F2037',
         textColor: '#fff',
