@@ -981,11 +981,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         maxOutgoing: 2,
         width: 200,
         bgColor: '#0F2037',
-        textColor: '#fff',
-        graphLabel: {
-          successLabel: 'Success',
-          failureLabel: 'Failure'
-        }
+        textColor: '#fff'
       }
     }
   }
