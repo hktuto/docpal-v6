@@ -2,7 +2,7 @@
   <MdFormItem v-if="formData && curFieldName" v-bind="props">
     <template v-if="relationTableId">
       <MdFormFieldRelationPicker
-      class="relation-picker"
+        class="relation-picker"
         ref="pickerRef"
         :model-value="currentValue"
         :relation-table-id="relationTableId"
@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { postDynamicActions } from 'api'
+import { emitBus, EventType } from 'eventbus'
 import { ElMessage } from 'element-plus'
 const props = defineProps<{
   formData: any
@@ -49,6 +50,7 @@ const displayFieldIds = computed(() => props.column?.display_structure?.display_
 const curFieldName = computed(() => props.column?.[props.fieldName])
 const { t } = useI18n()
 const loading = ref(false)
+const { updateRow } = useTableDataInject()
 const tableLabel = computed(() => props.column?.display_structure?.relationTableName ?? props.column?.title ?? t('mdTable.relationPicker.defaultTableLabel'))
 const currentValue = computed(() => {
   const v = props.formData?.[curFieldName.value]
@@ -70,6 +72,7 @@ const fields = computed(() => {
   }, [])
 })
 const selectedRecords = computed(() => {
+  console.log('selectedRecords', props.formData, curFieldName.value)
   if (!currentValue.value) return []
   const displayFieldNames = fields.value.map((field) => field.field_name)
   const relationArray = buildRelationArray(props.formData, curFieldName.value, displayFieldNames)
@@ -133,6 +136,24 @@ async function handleClick(data: any) {
   }
   loading.value = false
   MdFormPopoverRef.value.open(rowData, 'edit', title)
+}
+async function handleSubmit(data: any, id: string) {
+  await updateRow(id, data, relationTableId.value)
+  const row = selectedRecords.value.find((sItem) => sItem.id === id)
+  if (!row) return
+  const newFormData: any = {}
+  Object.keys(row).forEach((key) => {
+    const fullKey = curFieldName.value + '.' + key
+    if (key !== 'id') {
+      newFormData[fullKey] = data[key]
+    }
+  })
+  emitBus(EventType.RELATION_NEED_REFRESH, {
+    data: newFormData,
+    relationTableId: relationTableId.value,
+    relationRowId: id,
+    relationField: curFieldName.value
+  })
 }
 </script>
 

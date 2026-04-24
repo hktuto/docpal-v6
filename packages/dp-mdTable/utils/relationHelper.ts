@@ -1,3 +1,4 @@
+import { index } from 'drizzle-orm/pg-core'
 // row: {
 //   [fieldName]: string[] | string
 //   [displayFieldName]: string[] | string
@@ -44,4 +45,12 @@ function JSONParse(value: string) {
       return inner.split(',').map((item) => item.trim().replace(/^"|"$/g, '').replace(/\\"/g, '"'))
     }
   }
+}
+export function updateRelationFields(relationRowId: string, relationData: any, rowData: any, relationField: string) {
+  if (!rowData[relationField]) return
+  const index = rowData[relationField].findIndex((item: any) => item === relationRowId)
+  if (index === -1) return
+  Object.keys(relationData).forEach((key) => {
+    rowData[key][index] = relationData[key]
+  })
 }

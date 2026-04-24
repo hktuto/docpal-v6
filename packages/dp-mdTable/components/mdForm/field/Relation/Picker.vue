@@ -99,7 +99,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const { options, fields, searchKeyword, refresh, loading, noMore, getRelationPickerOptions } = useRelationPicker(props.relationTableId, props.displayFieldIds)
-const { updateRow } = useTableDataInject()
+
 const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
 
 const popoverDialogRef = ref()
@@ -166,10 +166,6 @@ function handleTriggerClick(event?: MouseEvent | KeyboardEvent) {
 }
 function handleRemove(id: string) {
   toggleRecord(id)
-}
-async function handleSubmit(data: any, id: string) {
-  await updateRow(id, data, props.tableId)
-  // emits('submit', data, id)
 }
 
 defineExpose({

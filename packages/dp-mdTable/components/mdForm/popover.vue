@@ -36,7 +36,9 @@
 
 <script setup lang="ts">
 import { newClientApi } from 'api'
+import { EventType, useEventBus } from 'eventbus'
 import { Top, Bottom, Position } from '@element-plus/icons-vue'
+import { updateRelationFields } from '../../utils/relationHelper'
 const { updateRow } = useTableDataInject()
 const viewTools = inject('viewTools')
 const { navigateToTableMenu } = viewTools
@@ -62,6 +64,22 @@ function handleCancel() {
   visible.value = false
 }
 const formRef = ref()
+const relationRefreshBus = useEventBus(EventType.RELATION_NEED_REFRESH)
+/**
+ * 处理关系表单数据刷新
+ * @param payload { data: any, relationTableId: string, relationRowId: string, relationField: string }
+ */
+const stopRelationRefresh = relationRefreshBus.on((payload: any) => {
+  if (props.showSourceButton) return
+  if (!visible.value) return
+  if (payload?.data) {
+    updateRelationFields(payload.relationRowId, payload.data, formData.value, payload.relationField)
+  }
+})
+onBeforeUnmount(() => {
+  stopRelationRefresh()
+})
+
 async function handleSubmit() {
   const _formData = await formRef.value.getFormData()
   if (!_formData) return
@@ -113,6 +131,7 @@ async function getFormColumns() {
 function handleSourceClick() {
   navigateToTableMenu(props.tableId)
 }
+
 defineExpose({ open, close })
 </script>
 
