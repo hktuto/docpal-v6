@@ -186,11 +186,11 @@ function init() {
         edge.removeTools()
       })
 
+      // Set Edges Setting to X6Edge
       workflowJsonObject.value.edges.forEach((edge: any) => {
-        // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
         graph.value?.addEdge({
-          source: { cell: edge.source_node_id, port: 'to' },
-          target: { cell: edge.target_node_id, port: 'from' },
+          source: { cell: edge.source_node_id, port: edge.metadata.sourcePort || 'top' },
+          target: { cell: edge.target_node_id, port: edge.metadata.targetPort || 'from' },
           attrs: {
             line: {
               stroke: '#000000',
@@ -198,6 +198,7 @@ function init() {
               strokeDasharray: 0
             }
           },
+          label: edge.metadata.label || null,
           data: edge,
           router: {
             name: 'manhattan'

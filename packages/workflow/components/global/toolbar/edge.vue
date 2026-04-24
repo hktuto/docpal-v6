@@ -19,8 +19,8 @@ type EdgeData = {
 }
 
 function setupEdge() {
-  graphProvider?.graph.value?.on('edge:dblclick', ({ edge }: any) => {
-    graphProvider?.openSidebar('LazyContextGateway', edge)
+  graphProvider?.graph.value?.on('edge:dblclick', ({ edge, e }: any) => {
+    if (edge.metadata.sourceType !== CellType.conditionTask) return
   })
 
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
@@ -82,14 +82,20 @@ function setupEdge() {
         ...data,
         id: `edge-${edge.id}`,
         source_node_id: source.id,
-        target_node_id: target.id
+        target_node_id: target.id,
+        metadata: {
+          ...data.metadata,
+          sourceType: source.getData().metadata.type,
+          targetType: target.getData().metadata.type,
+          sourcePort: edge.source.port,
+          targetPort: edge.target.port
+        }
       }
       edge.setData(newData, { overwrite: true, deep: true })
       return
     }
 
     // create new edge
-    // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
     const newEdgeData: EdgeData = {
       id: `edge-${edge.id}`,
       source_node_id: edge.source.cell,
@@ -97,9 +103,12 @@ function setupEdge() {
       flow_control: {
         type: 'sequence'
       },
-      label: '',
       metadata: {
-        type: source.data.metadata.type
+        label: '',
+        sourceType: source.getData().metadata.type,
+        targetType: target.getData().metadata.type,
+        sourcePort: edge.source.port,
+        targetPort: edge.target.port
       }
     }
 
@@ -113,6 +122,22 @@ function setupEdge() {
         newEdgeData.flow_control.type = 'conditional'
       }
     }
+
+    const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge: any) => {
+      return connectedEdge.id !== edge.id && connectedEdge.source.cell === source.id
+    })
+
+    // Set Label to condition edge
+    if (newEdgeData.metadata.sourceType === CellType.conditionTask) {
+      newEdgeData.metadata.label = 'Success'
+      if (isNew) {
+        if (allNodeConnected.length > 0) {
+          newEdgeData.metadata.label = 'Failure'
+        }
+        edge.setLabels(newEdgeData.metadata.label)
+      }
+    }
+
     edge.data = newEdgeData
     edge.setRouter('manhattan')
   })

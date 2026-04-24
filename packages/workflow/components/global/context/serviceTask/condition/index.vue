@@ -18,10 +18,6 @@ const { config } = defineProps<{
     conditions: any[]
   }
 }>()
-const conditionLabel = ref({
-  successLabel: '',
-  failureLabel: ''
-})
 
 const form = ref([])
 
@@ -60,7 +56,6 @@ function deleteCondition(index: number) {
 }
 
 function updateCondition() {
-  console.log(123, form.value)
   updateNode()
 }
 
@@ -77,16 +72,6 @@ watch(
 </script>
 
 <template>
-  <p>Graph Label</p>
-  <el-form label-position="top">
-    <el-form-item label="Success">
-      <el-input size="small" v-model="conditionLabel.successLabel" placeholder="Success" @change="updateNode" />
-    </el-form-item>
-    <el-form-item label="Failure">
-      <el-input size="small" v-model="conditionLabel.failureLabel" placeholder="Failure" @change="updateNode" />
-    </el-form-item>
-  </el-form>
-
   <p>Conditions</p>
   <div class="conditions">
     <div v-for="(conditionsElement, index) in form" :key="index">
