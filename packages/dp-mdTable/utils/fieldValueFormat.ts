@@ -107,13 +107,6 @@ export function formatFieldValueByType(
     case 18: // Percent（枚举未导出时用数字）
       return formatPercent(value, properties)
 
-    case ColumnFieldType.MultiSelect:
-      if (Array.isArray(value)) {
-        const options = getSelectOptions(value, properties)
-        return options.map(o => o.label ?? o.name).join(', ') || value.join(', ')
-      }
-      return String(value)
-
     case ColumnFieldType.User:
       return formatFieldValue(value)
 

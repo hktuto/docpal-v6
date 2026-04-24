@@ -27,12 +27,12 @@
             </template>
           </ElInput>
           <!-- 只看已选记录 -->
-          <div class="filter-row">
+          <!-- <div class="filter-row">
             <span class="filter-label">{{ $t('mdTable.relationPicker.onlySelected') }}</span>
             <ElSwitch v-model="onlySelected" />
-          </div>
+          </div> -->
         </div>
-        <div v-loading="listLoading" class="dropdown-list">
+        <div v-infinite-scroll="getRelationPickerOptions" :infinite-scroll-disabled="loading || noMore" class="dropdown-list">
           <div
             v-for="row in displayOptions"
             :key="row.id"
@@ -42,7 +42,7 @@
           >
             <MdFormFieldRelationCard :fields="fields" :data="row" @remove="toggleRecord(row.id)" />
           </div>
-          <div v-if="displayOptions.length === 0 && !listLoading" class="list-empty">{{ $t('mdTable.relationPicker.noRecords') }}</div>
+          <div v-if="!loading && noMore" class="list-empty">{{ $t('noMore') }}</div>
         </div>
         <!-- <div class="dropdown-footer">
           <ElButton type="primary" class="add-btn" @click="handleAddRelationRecord">
@@ -68,26 +68,6 @@
         </div>
       </slot>
     </div>
-
-    <!-- 已选卡片列表 -->
-    <div v-if="selectedIds.length > 0 && showSelected" class="selected-cards">
-      <div v-for="id in selectedIds" :key="id" class="selected-card-body">
-        <div v-if="id && displayOptions.length === 0" class="selected-card-loading">
-          <el-icon class="is-loading"><Loading /></el-icon>
-          <span>{{ $t('mdTable.relationPicker.loading') }}</span>
-        </div>
-        <MdFormFieldRelationCard
-          v-else
-          class="record-card-item"
-          :fields="fields"
-          :data="selectedRecordsMap[id]"
-          :show-remove="true"
-          @original-click="handleClick"
-          @remove="handleRemove(id)"
-        />
-      </div>
-    </div>
-    <MdFormPopover ref="MdFormPopoverRef" :tableId="relationTableId" :systemFieldsTypes="systemFieldsTypes" showSourceButton @submit="handleSubmit" />
   </div>
 </template>
 
@@ -118,7 +98,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { options, fields, searchKeyword, refresh } = useRelationPicker(props.relationTableId, props.displayFieldIds)
+const { options, fields, searchKeyword, refresh, loading, noMore, getRelationPickerOptions } = useRelationPicker(props.relationTableId, props.displayFieldIds)
 const { updateRow } = useTableDataInject()
 const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
 
@@ -187,18 +167,11 @@ function handleTriggerClick(event?: MouseEvent | KeyboardEvent) {
 function handleRemove(id: string) {
   toggleRecord(id)
 }
-const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
 async function handleSubmit(data: any, id: string) {
   await updateRow(id, data, props.tableId)
   // emits('submit', data, id)
 }
-const MdFormPopoverRef = ref()
-function handleClick(data: any) {
-  console.log('handleClick', data,fields)
-  const fieldName = fields.value[0].name
-  const title = data[fieldName]
-  MdFormPopoverRef.value.open(data, 'edit', title)
-}
+
 defineExpose({
   displayRecords: displayOptions
 })
@@ -238,7 +211,7 @@ defineExpose({
 .relation-picker-dropdown {
   display: flex;
   flex-direction: column;
-  max-height: 480px;
+  height: 480px;
 
   .dropdown-header {
     padding: 8px 0 12px;
@@ -277,7 +250,7 @@ defineExpose({
   .dropdown-list {
     flex: 1;
     overflow-y: auto;
-    max-height: 320px;
+    height: 320px;
     padding-right: 4px;
   }
 
@@ -302,20 +275,9 @@ defineExpose({
   }
 }
 .record-card-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 8px;
-  background: var(--el-fill-color-light);
-  border-radius: var(--app-border-radius-s);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-
   position: relative;
   overflow: hidden;
+  border-radius: var(--app-border-radius-s);
   &.selected {
     border-color: var(--el-color-primary);
     &:after {

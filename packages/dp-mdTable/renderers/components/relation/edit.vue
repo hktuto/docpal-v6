@@ -35,16 +35,19 @@ const currentValue = computed(() => {
 })
 
 const relationPickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
-
+const dispalyFieldName = computed(() => {
+  const displayFieldId = props.display_field_ids[0]
+  const displayField = viewTools?.getRelationFieldConfig(props.relation_table_id, displayFieldId)
+  return displayField?.field_name
+})
 /** 当前选中 ID 对应的关联展示字段值，用于批量显示 */
 const displayValues = computed(() => {
   if (props.display_field_ids.length === 0) {
     return []
   }
   const fieldName = props.column.field
-  const displayFieldId = props.display_field_ids[0]
-  const displayField = viewTools?.getRelationFieldConfig(props.relation_table_id, displayFieldId)
-  const relationArray = buildRelationArray(props.row, fieldName, displayField.field_name)
+
+  const relationArray = buildRelationArray(props.row, fieldName, dispalyFieldName.value)
   return relationArray
 })
 
@@ -53,7 +56,7 @@ function handleAdd() {
 }
 
 function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
-  console.log({selectedRows})
+  console.log({ selectedRows })
   const normalizedValue = Array.isArray(value) ? value : value ? [value] : []
   const joinedValue = normalizedValue.filter((item: any) => item !== '[]')
   const fieldName = props.column.field
@@ -101,7 +104,7 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
       </template>
     </MdFormFieldRelationPicker>
     <div v-if="displayValues && displayValues.length" class="relation-tags">
-      <el-tag v-for="(item, index) in displayValues" type="info" :key="index" size="small">{{ item.displayFieldName }}</el-tag>
+      <el-tag v-for="(item, index) in displayValues" type="info" :key="index" size="small">{{ item[dispalyFieldName] }}</el-tag>
     </div>
     <!-- {{ displayRecords }} -->
   </div>
