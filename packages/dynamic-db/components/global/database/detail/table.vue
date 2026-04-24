@@ -116,6 +116,7 @@ watch(
   async (newVal) => {
     if (newVal.item_id) {
       isReady.value = false
+      currentView.value = null
       await getViews()
       setRelationConfig(tableFields.value)
       setTimeout(() => {
