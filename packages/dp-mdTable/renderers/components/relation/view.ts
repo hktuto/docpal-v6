@@ -7,6 +7,7 @@ export const RelationView = ({ options, params }: ViewRenderFunctionParams<strin
   const viewTools: any = inject('viewTools')
   const displayFieldId = relationOptions.display_field_ids[0]
   const displayField = viewTools?.getRelationFieldConfig(relationOptions.relation_table_id, displayFieldId)
+  if (!displayField) return h('span', '-')
   let fieldName = column.field
   const relationArray = buildRelationArray(row, fieldName, displayField.field_name)
   // Multiple items: display as tags
@@ -24,7 +25,7 @@ export const RelationView = ({ options, params }: ViewRenderFunctionParams<strin
             e.stopPropagation()
           }
         },
-        val.displayFieldName
+        val[displayField.field_name]
       )
     )
   )

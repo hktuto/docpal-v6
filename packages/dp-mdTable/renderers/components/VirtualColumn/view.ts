@@ -32,7 +32,7 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
           size: 'small',
           type: 'info'
         },
-        () => String(relationArray[i].displayFieldName || '-')
+        () => String(relationArray[i][relationFieldConfig.field_name] || '-')
       )
     )
   }

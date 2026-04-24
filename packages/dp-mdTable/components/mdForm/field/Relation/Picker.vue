@@ -36,7 +36,6 @@
           <div
             v-for="row in displayOptions"
             :key="row.id"
-            class="record-card-item"
             :class="{ selected: selectedIds.includes(row.id) }"
             @click="toggleRecord(row.id)"
           >
@@ -68,26 +67,6 @@
         </div>
       </slot>
     </div>
-
-    <!-- 已选卡片列表 -->
-    <div v-if="selectedIds.length > 0 && showSelected" class="selected-cards">
-      <div v-for="id in selectedIds" :key="id" class="selected-card-body">
-        <div v-if="id && displayOptions.length === 0" class="selected-card-loading">
-          <el-icon class="is-loading"><Loading /></el-icon>
-          <span>{{ $t('mdTable.relationPicker.loading') }}</span>
-        </div>
-        <MdFormFieldRelationCard
-          v-else
-          class="record-card-item"
-          :fields="fields"
-          :data="selectedRecordsMap[id]"
-          :show-remove="true"
-          @original-click="handleClick"
-          @remove="handleRemove(id)"
-        />
-      </div>
-    </div>
-    <MdFormPopover ref="MdFormPopoverRef" :tableId="relationTableId" :systemFieldsTypes="systemFieldsTypes" showSourceButton @submit="handleSubmit" />
   </div>
 </template>
 
@@ -187,18 +166,11 @@ function handleTriggerClick(event?: MouseEvent | KeyboardEvent) {
 function handleRemove(id: string) {
   toggleRecord(id)
 }
-const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
 async function handleSubmit(data: any, id: string) {
   await updateRow(id, data, props.tableId)
   // emits('submit', data, id)
 }
-const MdFormPopoverRef = ref()
-function handleClick(data: any) {
-  console.log('handleClick', data,fields)
-  const fieldName = fields.value[0].name
-  const title = data[fieldName]
-  MdFormPopoverRef.value.open(data, 'edit', title)
-}
+
 defineExpose({
   displayRecords: displayOptions
 })
@@ -301,50 +273,5 @@ defineExpose({
     background: var(--el-fill-color);
   }
 }
-.record-card-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 8px;
-  background: var(--el-fill-color-light);
-  border-radius: var(--app-border-radius-s);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
 
-  position: relative;
-  overflow: hidden;
-  &.selected {
-    border-color: var(--el-color-primary);
-    &:after {
-      content: ' ';
-      z-index: 1;
-      left: 3px;
-      top: 6px;
-      width: 4px;
-      height: 8px;
-      position: absolute;
-      display: table;
-      border: 1px solid #fff;
-      border-top: 0;
-      border-left: 0;
-      transform: rotate(45deg) scale(1) translate(-50%, -50%);
-      opacity: 1;
-      transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
-    }
-    &:before {
-      content: ' ';
-      z-index: 1;
-      width: 31px;
-      height: 31px;
-      position: absolute;
-      left: 0;
-      top: 0;
-      transform: translate(-50%, -50%) rotate(45deg);
-      background-color: var(--app-primary-color);
-    }
-  }
-}
 </style>

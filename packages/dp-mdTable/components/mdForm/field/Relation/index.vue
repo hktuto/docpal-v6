@@ -1,18 +1,28 @@
 <template>
   <MdFormItem v-if="formData && curFieldName" v-bind="props">
-    <MdFormFieldRelationPicker
-      v-if="relationTableId"
-      ref="pickerRef"
-      :model-value="currentValue"
-      :relation-table-id="relationTableId"
-      :display-field-ids="displayFieldIds"
-      :table-label="tableLabel"
-      :multiple="multiple"
-      show-selected
-      @update:model-value="handleUpdate"
-      @original-click="handleOriginalClick"
-    />
+    <template v-if="relationTableId">
+      <MdFormFieldRelationPicker
+        ref="pickerRef"
+        :model-value="currentValue"
+        :relation-table-id="relationTableId"
+        :display-field-ids="displayFieldIds"
+        :table-label="tableLabel"
+        :multiple="multiple"
+        show-selected
+        @update:model-value="handleUpdate"
+      />
+      <template v-for="record in selectedRecords" :key="record.id">
+        <MdFormFieldRelationCard
+          :fields="fields"
+          :data="record"
+          :show-remove="true"
+          @original-click="handleClick"
+          @remove="handleRemove(record.id)"
+        />
+      </template>
+    </template>
     <span v-else class="relation-no-config">{{ $t('mdTable.relationPicker.configRequired') }}</span>
+    <MdFormPopover ref="MdFormPopoverRef" :tableId="relationTableId" :systemFieldsTypes="systemFieldsTypes" showSourceButton @submit="handleSubmit" />
   </MdFormItem>
 </template>
 
@@ -26,12 +36,12 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'original-click', id: string): void
 }>()
+const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
 const pickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 const multiple = computed(() => props.column?.display_structure?.multiple ?? false)
 const availableRecords = ref<any[]>([])
-const { columns } = inject('viewTools')
+const { columns, getRelationFieldConfig } = inject('viewTools')
 const relationTableId = computed(() => props.column?.display_structure?.relation_table_id ?? '')
 const displayFieldIds = computed(() => props.column?.display_structure?.display_field_ids ?? [])
 const curFieldName = computed(() => props.column?.[props.fieldName])
@@ -47,10 +57,21 @@ const currentValue = computed(() => {
     return []
   }
 })
-
-function handleOriginalClick(record: any) {
-  emit('original-click', record)
-}
+const fields = computed(() => {
+  return displayFieldIds.value.reduce((acc: FieldInfo[], id: string) => {
+    const fieldConfig = getRelationFieldConfig(relationTableId.value, id)
+    if (fieldConfig) {
+      acc.push(fieldConfig)
+    }
+    return acc
+  },[])
+})
+const selectedRecords = computed(() => {
+  if (!currentValue.value) return []
+  const displayFieldNames = fields.value.map((field) => field.field_name)
+  const relationArray = buildRelationArray(props.formData, curFieldName.value, displayFieldNames)
+  return relationArray
+})
 
 function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
   if (!props.formData || curFieldName.value == null) return
@@ -72,6 +93,12 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
       }
     }
   })
+}
+const MdFormPopoverRef = ref()
+function handleClick(data: any) {
+  const fieldName = fields.value[0].name
+  const title = data[fieldName]
+  MdFormPopoverRef.value.open(data, 'edit', title)
 }
 </script>
 
