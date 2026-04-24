@@ -1,0 +1,89 @@
+<script lang="ts" setup>
+import type { Node } from '@antv/x6'
+import { getUserSelectOption } from '#imports'
+
+const { node } = defineProps<{
+  node: Node
+}>()
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
+  throw createError('provider not found')
+}
+const { getVariablesByType } = useVariablesProvide()
+const autoAssignField = ref<string>('')
+const assignFieldList = ref<any[]>([])
+
+function refreshData() {
+  const data = node.getData()
+  if (!!data.config.assignee) {
+    autoAssignField.value = data.config.assignee
+  } else {
+    autoAssignField.value = ''
+  }
+}
+
+function assigneeChanged(newVal: string) {
+  graphProvider?.graph.value?.startBatch('update-form-assignee-data')
+  const nodeData = node.getData()
+  const newData = {
+    ...nodeData,
+    config: {
+      ...nodeData.config,
+      assignee: newVal
+    },
+    version: node.data.version + 1 || 0
+  }
+
+  node.setData(newData, { overwrite: true, deep: true })
+  graphProvider?.graph.value?.stopBatch('update-form-assignee-data')
+}
+
+async function getAssignFieldList() {
+  const stringVariables = getVariablesByType(['string'], true)
+  const userList = await getUserSelectOption()
+
+  assignFieldList.value = [
+    {
+      label: 'Variables',
+      options: stringVariables
+    },
+    {
+      label: 'User',
+      options: userList.map((item: any) => ({
+        id: item.value,
+        name: item.label
+      }))
+    }
+  ]
+}
+
+onMounted(async () => {
+  await getAssignFieldList()
+  // useWorkflowAdditionalContext(refreshData)
+})
+
+watch(
+  () => node,
+  () => {
+    if (node) {
+      refreshData()
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
+</script>
+
+<template>
+  <el-form label-position="top" label-width="100px" size="small">
+    <el-form-item label="Auto Assignee">
+      <el-select v-model="autoAssignField" placeholder="Select Field" filterable clearable :disabled="graphProvider.readonly.value" @change="assigneeChanged">
+        <el-option-group v-for="group in assignFieldList" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+        </el-option-group>
+      </el-select>
+    </el-form-item>
+  </el-form>
+</template>

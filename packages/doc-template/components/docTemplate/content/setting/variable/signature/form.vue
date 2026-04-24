@@ -18,12 +18,13 @@ const modelValue = defineModel<SignatureSetting>('modelValue', {
 const companyOptions = ref<any[]>([])
 
 async function getCompanyList() {
-  const data = await newAdminApi.postDocpalAclRoleList({
-    pageNum: 0,
-    pageSize: 100
-  }).then(r => r.data)
-  if (data && data.entryList) {
-    companyOptions.value = data.entryList
+  try {
+    const data = await newAdminApi.postDocpalAclRoleList([]).then((r: any) => r.data)
+    if (!!data) {
+      companyOptions.value = data
+    }
+  } catch (e) {
+    console.log(e)
   }
 }
 
@@ -43,15 +44,11 @@ onMounted(async () => {
     }
   }
 })
-
 </script>
 
 <template>
   <div class="variable_editor">
-    <TemplateEditor
-      v-model="modelValue"
-      :companyListOptions="companyOptions"
-    />
+    <TemplateEditor v-model="modelValue" :companyListOptions="companyOptions" />
   </div>
 </template>
 
@@ -62,4 +59,4 @@ onMounted(async () => {
   width: 100%;
   gap: var(--app-space-xs);
 }
-</style> 
+</style>

@@ -1,0 +1,128 @@
+.table-tag-list {
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: hidden;
+  gap: var(--app-space-xs);
+  .table-tag {
+    flex: 0 0 auto;
+  }
+}
+.vxe-table--render-default .vxe-cell--drag-handle + span {
+  padding: 0 !important;
+}
+.mb-table-cell {
+  // Tooltip base - always present but hidden
+  // TODO : add tooltip styles here
+}
+.text-view,
+.email-view,
+.date-time-view {
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  // overflow: hidden;
+  position: relative;
+  cursor: default;
+}
+.checkbox-view-icon--active {
+  color: var(--el-color-primary);
+}
+.table-tag {
+  padding: var(--app-space-xs) var(--app-space-s);
+  border-radius: var(--app-border-radius-m);
+  background-color: oklch(from var(--color) 1 0.2 h);
+  border: 1px solid oklch(from var(--color) l c h);
+  color: oklch(from var(--color) 0.2 c h);
+  font-size: var(--app-font-size-s);
+  font-weight: 500;
+  line-height: 1.1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: max-content;
+  max-width: 100px;
+  &.round {
+    padding: var(--app-space-xs);
+    display: inline-block;
+    border-radius: 12px;
+    height: 12px;
+    width: 12px;
+  }
+}
+.vxe-table--column {
+  overflow: hidden;
+}
+.vxe-header-cell--wrapper {
+  &:hover {
+    .vxe-cell--drag-handle {
+      transform: translateX(0);
+      background: linear-gradient(to right, var(--vxe-ui-table-border-color) 50%, transparent);
+    }
+  }
+}
+.col--checkbox {
+  .vxe-header-cell--wrapper:hover {
+    .vxe-cell--drag-handle {
+      display: none;
+    }
+  }
+}
+// handle drag over handler styles
+.vxe-cell--drag-handle {
+  /* display: none; */
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  transform: translateX(-40px);
+  transition: all 0.2s ease-in-out;
+  .vxe-table-icon-drag-handle {
+    transform: rotate(90deg);
+  }
+}
+// tree node styles
+.custom-tree-node {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-xs);
+
+  .tree-node-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1;
+    text-align: left !important;
+    font-weight: 900;
+  }
+  .tree-node-title {
+    font-size: var(--app-font-size-s);
+    font-weight: 500;
+  }
+  .tree-node-count {
+    position: absolute;
+    display: block;
+    right: 0;
+    top: 0;
+    padding-inline: var(--app-space-xs);
+    font-size: var(--app-font-size-s);
+    color: var(--app-text-color-placeholder);
+    background-color: var(--app-fill-color-light);
+    border-radius: var(--app-border-radius-s);
+  }
+}
+
+// edit mode overrider
+.vxe-table--render-default .vxe-body--column.col--auto-height.col--edit {
+  overflow: visible !important;
+}
+
+.vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox,
+.vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox > .vxe-cell {
+  overflow: visible !important;
+}

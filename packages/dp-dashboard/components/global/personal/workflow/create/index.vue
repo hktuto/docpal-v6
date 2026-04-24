@@ -19,7 +19,6 @@
       :workflowAList="state.workflowAList"
       @delete="handleDelete"
       @refresh="handleRefresh"
-      @title-refresh="handleTitleRefresh"
     />
     <div v-show="false">
       <WorkflowPopoverNewTask ref="newTaskRef" />
@@ -74,7 +73,7 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
   }
 })
 onMounted(async () => {
-  getWorkflowId()
+  await getWorkflowId()
 })
 </script>
 <style lang="scss" scoped>

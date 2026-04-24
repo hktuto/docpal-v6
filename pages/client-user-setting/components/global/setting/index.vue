@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { newClientApi } from 'api'
-import userSignature from '~/components/setting/userSignature.vue'
 
 const platform = useAppPlatform()
 const router = useRouter()
@@ -178,11 +177,11 @@ onMounted(() => {
             {{ t('user_editPassword') }}
           </el-button>
 
-          <el-divider />
+          <!-- <el-divider />
           <h3>{{ t('user.setting.userSignature') }}</h3>
           <el-button type="primary" @click="handleChangeMangeSignatureOpen">
             {{ t('user.setting.mangeSignature') }}
-          </el-button>
+          </el-button> -->
 
           <el-divider />
         </el-col>
@@ -193,10 +192,10 @@ onMounted(() => {
           <div>
             <h3>{{ $t('user.setting.preference') }}</h3>
 
-            <div class="colorSetting">
+            <!-- <div class="colorSetting">
               <div class="label">{{ $t('userSetting_colorMode') }}</div>
               <ElSwitch v-model="colorMode" active-text="Light" inactive-text="Dark" />
-            </div>
+            </div> -->
             <div>
               <div class="label">{{ $t('dpTool_fontSize') }}</div>
               <el-slider v-model="fontSize" style="width: 50%" :min="10" :max="24" />
@@ -205,7 +204,7 @@ onMounted(() => {
 
           <el-divider />
 
-          <div v-if="platform !== 'admin'">
+          <!-- <div v-if="platform !== 'admin'">
             <h3 style="margin-bottom: 0">{{ t('user.setting.notificationPreference') }}</h3>
             <div class="notification-scroll-wrapper">
               <div v-for="(item, index) in state.notificationPreferenceList" :key="index">
@@ -214,7 +213,7 @@ onMounted(() => {
                              :key="ite.key" />
               </div>
             </div>
-          </div>
+          </div> -->
         </el-col>
       </el-row>
     </div>
@@ -223,7 +222,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <userSignature ref="userSignatureRef" :userId="userId" />
+  <SettingUserSignature ref="userSignatureRef" :userId="userId" />
 
 </template>
 

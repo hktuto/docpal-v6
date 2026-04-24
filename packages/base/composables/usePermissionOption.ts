@@ -8,7 +8,7 @@ interface PermissionOption {
   options: any[];
 }
 
-interface BaseOption {
+export interface BaseOption {
   value: string,
   label: string,
   email?: string

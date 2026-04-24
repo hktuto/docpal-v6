@@ -25,12 +25,14 @@
     "@vueuse/core": "^11.3.0",
     "cross-env": "^7.0.3",
     "element-plus": "^2.11.5",
+    "jspdf-autotable": "^5.0.7",
     "keycloak-js": "26.2.0",
     "nuxt": "3.17.7",
     "nuxt-auth-utils": "^0.3.9",
     "vue": "3.5.6",
     "vue-inline-svg": "^3.1.4",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nuxt/test-utils": "3.18.0",

@@ -4,22 +4,18 @@
       <h2>Variables</h2>
       <el-button type="primary" @click="handleOpenCreate" v-tooltip="'Create new variable'">New Variable</el-button>
     </div>
-    <el-table :data="docTemplateCtx.variables.value" :key="renderKey + '_' +docTemplateCtx.variables.value.length"
-              style="width: 100%">
+    <el-table :data="docTemplateCtx.variables.value" :key="renderKey + '_' + docTemplateCtx.variables.value.length" height="400">
       <el-table-column prop="name" label="Name" />
       <el-table-column prop="type" label="Type" />
       <el-table-column prop="displayValue" label="Display Value" />
       <el-table-column label="Actions">
         <template #default="{ row }">
           <el-button size="small" @click="handleEdit(row)" v-tooltip="'Edit variable'">Edit</el-button>
-          <el-button size="small" type="danger" @click="handleDelete(row)" v-tooltip="'Delete variable'"
-                     :disabled="editorUse(row.id)">Delete
-          </el-button>
+          <el-button size="small" type="danger" @click="handleDelete(row)" v-tooltip="'Delete variable'" :disabled="editorUse(row.id)">Delete </el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog v-model="showForm" :title="formMode === 'create' ? 'Create Variable' : 'Edit Variable'" class="big"
-               destroy-on-close>
+    <el-dialog v-model="showForm" :title="formMode === 'create' ? 'Create Variable' : 'Edit Variable'" class="big" destroy-on-close>
       <VariableForm
         v-if="showForm"
         :mode="formMode"
@@ -67,7 +63,6 @@ function handleDelete(variable: DocTemplateVariable) {
   if ('inUse' in variable && variable.inUse) return
   docTemplateCtx?.removeVariable?.({ ...variable })
   renderKey.value++
-
 }
 
 function handleFormSubmit(payload: { mode: 'create' | 'edit'; variable: any }) {
@@ -100,7 +95,6 @@ function checkIdIsExists(item: any, id: string) {
     return false
   }
 }
-
 </script>
 
 <style lang="scss" scoped>
@@ -114,4 +108,4 @@ function checkIdIsExists(item: any, id: string) {
     margin-bottom: 1rem;
   }
 }
-</style> 
+</style>

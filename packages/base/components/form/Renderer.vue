@@ -68,7 +68,7 @@ const fromJsonNormalizer = computed((): FormJson => {
   return json
 })
 function setFormJson(json: FormJson) {
-  console.log('setFormJson', json)
+  // console.log('setFormJson', json)
   /**
    * old migrate function , change axious to $api
    */

@@ -1,0 +1,153 @@
+---
+description: DocPal V5 前端 monorepo 架构与编码约束（与 AGENTS.md / .ai.harness.yml 一致）
+globs:
+alwaysApply: true
+---
+
+# DocPal V5 - AI Harness 架构约束
+
+与 AGENTS.md 保持一致，供 AI 助手与自动化工具遵循。
+
+---
+
+## 1. 技术栈约束
+
+### 必须使用
+- **Framework:** Vue 3, Nuxt 3
+- **Language:** TypeScript
+- **UI:** Element Plus
+- **Table:** vxe-table
+- **Styling:** SCSS
+- **Package Manager:** pnpm
+- **Node:** >= 22
+
+### 禁止项
+- 禁止使用 Element Plus 的 `el-table`，必须使用 `useVxeTable` / vxe-table
+- 禁止在业务代码中直接使用 axios，应使用 `libraries/api` 生成的 `clientApi` / `adminApi` / `publicApi` / `templateApi`
+- 禁止在组件中直接使用 fetch/axios，必须通过 composable 或 api 包发起请求
+- 禁止硬编码 API 基址与敏感配置，必须使用 env 变量
+
+---
+
+## 2. Monorepo 目录与职责
+
+| Layer     | Path       | 职责                         | 可导入自                    | 不可导入自   |
+|----------|------------|------------------------------|-----------------------------|--------------|
+| apps     | apps/*     | 可部署应用入口（client/desktop） | packages, pages, libraries  | demo         |
+| packages | packages/* | 共享功能包，packages/base 为核心 | packages/base, libraries    | apps, pages, demo |
+| pages    | pages/*    | 页面模块（client-*/admin-*/public-*） | packages, libraries         | demo         |
+| libraries| libraries/*| API 客户端、i18n、PDF、事件总线等 | —                           | 被 apps/pages/packages 依赖，不反向依赖业务 |
+| demo     | demo/*     | Demo/Playground，仅用于演示与试验 | packages, pages, libraries  | —            |
+| env      | env/       | 环境变量，不提交敏感值       | —                           | —            |
+| dev-tools| dev-tools/*| 脚手架与示例包               | —                           | —            |
+
+**包间依赖：** 使用 `workspace:*`，feature 包依赖 base。
+
+---
+
+## 3. Nuxt 扩展层级（不可颠倒）
+
+- **顺序：** apps/client → pages/* → packages/*
+- **Base：** packages/base
+- **规则：** apps/client 聚合 pages 与 packages；pages 与 packages 均扩展 packages/base
+
+---
+
+## 4. Vue 组件与代码规范
+
+### SFC 与脚本
+- **SFC 顺序：** script setup → template → style
+- **Script：** 强制使用 `<script setup>`，禁止普通 `<script>` 组件写法
+- **Style：** 使用 `scss`
+- **单文件组件：** 不超过 200 行，超出需拆分为子组件或 composable
+- **组件名：** 必须多词（如 UserProfile），避免与原生标签冲突
+- **事件处理函数：** 前缀 `handle`
+- **Tooltip：** 使用 `v-tooltip`，禁止仅用 `title`
+- **表单：** label 位置为 `top`
+- **Props：** 定义与传递使用 camelCase
+
+### 模板规则
+- `v-for` 必须带 `:key`，且 key 稳定唯一
+- 禁止在同一元素上同时使用 `v-if` 与 `v-for`，可改用 `<template>` 或计算属性
+
+### 无障碍
+- 可聚焦元素需 `tabindex="0"`
+- 提供 `aria-label`
+- 键盘支持如 `@keydown.enter` 等
+
+### Form/State 分离
+- **必须遵守：** 表单/状态逻辑放在 composable 或 Pinia store 中
+- **组件内只做：** 绑定状态、派发事件、调用 composable 提供的方法
+- **禁止：** 在组件中直接写请求逻辑（fetch/axios）或大块业务状态逻辑
+
+---
+
+## 5. 表格与筛选
+
+- **表格：** 必须使用 `useVxeTable` 或 vxe-table 相关能力
+- **筛选：** 必须使用 `ResponsiveFilter` 做表格筛选
+- **禁止：** 使用 Element Plus 的 `el-table`
+
+---
+
+## 6. API 与 i18n
+
+### API
+- **客户端：** 从 api 包 `import` clientApi / adminApi / publicApi / templateApi
+- **组件内禁止** 直接使用 fetch/axios，通过 composable 或 api 包调用
+- **Base paths：**
+  - client: `/api`
+  - admin: `/adminApi/api`
+  - public: `/public-api/report/v1/api`
+  - template: `/open-api/template`
+- **生成：** 使用 `pnpm -F api generate`，配置在 libraries/api
+
+### i18n
+- **Locales：** en-US, zh-CN, zh-HK
+- **资源：** libraries/deployment/src/*.json
+- **Strategy：** no_prefix
+
+---
+
+## 7. 命名与文件
+
+- **变量/函数：** camelCase
+- **组件/类：** PascalCase
+- **文件：** kebab-case
+- **常量：** UPPER_SNAKE_CASE
+- **CSS 变量：** `--app-*`，定义在 packages/base/assets/styles/main.scss
+
+---
+
+## 8. 测试与质量
+
+### 测试
+- **单元：** Vitest + @vue/test-utils
+- **E2E：** Playwright
+- **DOM：** happy-dom
+- **位置：** 与组件同目录，`ComponentName.spec.ts` 或 `*.nuxt.spec.ts`
+
+### 圈复杂度
+- **上限：** 10（建议 ESLint `"complexity": ["error", { "max": 10 }]`）
+- **超过：** 按错误处理，需拆分子函数或简化分支
+
+---
+
+## 9. 任务与文档
+
+- **Tasks 目录：** tasks/
+- **Tasks 命名：** `{gitUser}-{YYYYMMDD}-{task-name}.md`
+- **BRD 目录：** brd/
+- **BRD 命名：** `{gitUser}-{YYYYMMDD}-{task-name}.md`
+
+---
+
+## 10. 安全与构建
+
+### 安全
+- 不在代码中硬编码密码与密钥
+- 使用环境变量，敏感配置仅放在 env/ 且不提交
+
+### 构建
+- 生产构建会移除 console.error / warn / debug / trace 与 debugger
+- 输出目录：apps/client/.output/public

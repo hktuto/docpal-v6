@@ -23,6 +23,10 @@ export type DashboardWidget =
   | 'PersonalCaseCreate'
   | 'PersonalCase'
   | 'Browse'
+  | 'HkhsDailyReportTable'
+  | 'HkhsApplicationFormsPassLog'
+  | 'HkhsApplicationsVerified'
+  | 'HkhsDailySummary'
 export type WorkflowCoCountWidget =
   | 'WorkflowActiveCount'
   | 'WorkflowApproveRate'
@@ -38,6 +42,7 @@ export const enum DASHBOARD_TYPE {
   workflow = 'workflow',
   case = 'case',
   azure = 'azure',
+  hkhs = 'HKHS',
   default = 'default'
 }
 export type DashboardWidgetSetting = {
@@ -61,6 +66,59 @@ export type DashboardWidgetSetting = {
 }
 
 export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting } = {
+  // HKHS
+  HkhsDailyReportTable:{
+    type: DASHBOARD_TYPE.hkhs,
+    label: 'HkhsDailyReportTable',
+    minW: 8,
+    minH: 6,
+    maxW: 12,
+    maxH: 8,
+    w: 8,
+    h: 6,
+    component: 'LazyHkhsDailyReportTable',
+    setting: {
+    }
+  },
+  HkhsApplicationFormsPassLog:{
+    type: DASHBOARD_TYPE.hkhs,
+    label: 'HkhsApplicationFormsPassLog',
+    minW: 8,
+    minH: 10,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 10,
+    component: 'LazyHkhsApplicationFormsPassLog',
+    setting: {
+    }
+  },
+  HkhsApplicationsVerified:{
+    type: DASHBOARD_TYPE.hkhs,
+    label: 'HkhsApplicationsVerified',
+    minW: 8,
+    minH: 6,
+    maxW: 12,
+    maxH: 8,
+    w: 8,
+    h: 6,
+    component: 'LazyHkhsApplicationsVerified',
+    setting: {
+    }
+  },
+  HkhsDailySummary:{
+    type: DASHBOARD_TYPE.hkhs,
+    label: 'HkhsDailySummary',
+    minW: 8,
+    minH: 6,
+    maxW: 12,
+    maxH: 8,
+    w: 8,
+    h: 6,
+    component: 'LazyHkhsDailySummary',
+    setting: {
+    }
+  },
   DocSizeStatistics: {
     type: DASHBOARD_TYPE.documentCount,
     label: 'DocSizeStatistics',

@@ -1,0 +1,757 @@
+{
+  "databases": [
+    {
+      "id": "db-crm",
+      "name": "CRM Database",
+      "description": "Customer Relationship Management system for managing companies, contacts, quotations, and contracts",
+      "icon": "briefcase",
+      "color": "#3b82f6",
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-12-10T14:30:00Z",
+      "createdBy": {
+        "id": "user-5",
+        "name": "Emma Zhang",
+        "email": "emma.zhang@company.com"
+      },
+      "dashboards": [
+        {
+          "id": "dash-overview",
+          "name": "CRM Overview",
+          "icon": "chart-bar",
+          "scope": "database",
+          "widgets": [
+            { "id": "w1", "title": "Total Companies", "type": "stat", "width": 1, "height": 1, "config": { "aggregation": "count", "tableId": "tbl-company" } },
+            { "id": "w2", "title": "Total Contacts", "type": "stat", "width": 1, "height": 1, "config": { "aggregation": "count", "tableId": "tbl-contact" } },
+            { "id": "w3", "title": "Open Quotations", "type": "stat", "width": 1, "height": 1, "config": { "aggregation": "count", "tableId": "tbl-quotation" } },
+            { "id": "w4", "title": "Active Contracts", "type": "stat", "width": 1, "height": 1, "config": { "aggregation": "count", "tableId": "tbl-contract" } },
+            { "id": "w5", "title": "Companies by Type", "type": "chart-pie", "width": 2, "height": 2, "config": { "tableId": "tbl-company", "groupByField": "type" } },
+            { "id": "w6", "title": "Quotations by Status", "type": "chart-bar", "width": 2, "height": 2, "config": { "tableId": "tbl-quotation", "groupByField": "status" } }
+          ]
+        }
+      ],
+      "navigation": [
+        {
+          "id": "nav-overview",
+          "type": "dashboard",
+          "label": "CRM Overview",
+          "icon": "data-analysis",
+          "targetId": "dash-overview"
+        },
+        {
+          "id": "nav-company-mgmt",
+          "type": "folder",
+          "label": "Company Management",
+          "description": "Centralize all your company and contact information in one place. Track company details, maintain contact records, and manage organizational relationships efficiently. This section provides a comprehensive view of your customer and partner network.",
+          "icon": "office-building",
+          "isExpanded": true,
+          "children": [
+            {
+              "id": "nav-companies",
+              "type": "table",
+              "label": "Companies",
+              "icon": "suitcase",
+              "targetId": "tbl-company"
+            },
+            {
+              "id": "nav-contacts",
+              "type": "table",
+              "label": "Contacts",
+              "icon": "user",
+              "targetId": "tbl-contact"
+            }
+          ]
+        },
+        {
+          "id": "nav-sales-mgmt",
+          "type": "folder",
+          "label": "Sales Management",
+          "description": "Monitor your entire sales pipeline from initial quotation to deal closure. Track quotation details, line items, deal values, and sales performance metrics. Use custom views to focus on high-value opportunities and manage your personal sales pipeline effectively.",
+          "icon": "money",
+          "isExpanded": true,
+          "children": [
+            {
+              "id": "nav-quotations",
+              "type": "table",
+              "label": "Quotations",
+              "icon": "document",
+              "targetId": "tbl-quotation"
+            },
+            {
+              "id": "nav-quot-lines",
+              "type": "table",
+              "label": "Quotation Lines",
+              "icon": "document-copy",
+              "targetId": "tbl-quotation-line"
+            },
+            {
+              "id": "nav-high-value",
+              "type": "view",
+              "label": "High Value Deals",
+              "icon": "trophy",
+              "targetId": "view-quot-high-value",
+              "targetTableId": "tbl-quotation"
+            },
+            {
+              "id": "nav-my-pipeline",
+              "type": "view",
+              "label": "My Sales Pipeline",
+              "icon": "trend-charts",
+              "targetId": "view-quot-sales-pipeline",
+              "targetTableId": "tbl-quotation"
+            }
+          ]
+        },
+        {
+          "id": "nav-contract-mgmt",
+          "type": "folder",
+          "label": "Contracts",
+          "description": "Manage all your contracts and contract terms in one centralized location. Track contract status, monitor active agreements, review contract lines, and stay on top of renewal dates. Quickly access views for active contracts requiring your attention.",
+          "icon": "tickets",
+          "children": [
+            {
+              "id": "nav-contracts",
+              "type": "table",
+              "label": "All Contracts",
+              "icon": "document-checked",
+              "targetId": "tbl-contract"
+            },
+            {
+              "id": "nav-contract-lines",
+              "type": "table",
+              "label": "Contract Lines",
+              "icon": "document-copy",
+              "targetId": "tbl-contract-line"
+            }
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "id": "tbl-company",
+          "name": "Companies",
+          "icon": "building",
+          "views": [
+            { "id": "view-company-table", "name": "All Companies", "type": "table", "isDefault": true },
+            { "id": "view-company-kanban", "name": "By Type", "type": "kanban", "config": { "groupByField": "type" } }
+          ],
+          "columns": [
+            { "id": "col-1", "field": "name", "title": "Name", "type": "text", "width": 200, "required": true },
+            { "id": "col-2", "field": "email", "title": "Email", "type": "email", "width": 200 },
+            { "id": "col-3", "field": "phone", "title": "Phone", "type": "text", "width": 150 },
+            { "id": "col-4", "field": "address", "title": "Address", "type": "textarea", "width": 250 },
+            { "id": "col-5", "field": "type", "title": "Type", "type": "single-select", "width": 120, "options": [
+              { "id": "opt-1", "label": "Enterprise", "color": "#8b5cf6" },
+              { "id": "opt-2", "label": "SMB", "color": "#3b82f6" },
+              { "id": "opt-3", "label": "Startup", "color": "#10b981" },
+              { "id": "opt-4", "label": "Government", "color": "#f59e0b" }
+            ]},
+            { "id": "col-6", "field": "salesPerson", "title": "Sales Person", "type": "user", "width": 150 },
+            { "id": "col-7", "field": "contacts", "title": "Contacts", "type": "relation", "width": 200, "relationConfig": { "tableId": "tbl-contact", "displayField": "name", "multiple": true }},
+            { "id": "col-8", "field": "quotations", "title": "Quotations", "type": "relation", "width": 200, "relationConfig": { "tableId": "tbl-quotation", "displayField": "quotationNumber", "multiple": true }},
+            { "id": "col-9", "field": "contracts", "title": "Contracts", "type": "relation", "width": 200, "relationConfig": { "tableId": "tbl-contract", "displayField": "contractNumber", "multiple": true }},
+            { "id": "col-10", "field": "isActive", "title": "Active", "type": "switch", "width": 80 },
+            { "id": "col-11", "field": "website", "title": "Website", "type": "url", "width": 200 },
+            { "id": "col-12", "field": "rating", "title": "Rating", "type": "rating", "width": 120, "maxRating": 5 }
+          ],
+          "rows": [
+            {
+              "id": "row-comp-1",
+              "name": "TechCorp Solutions",
+              "email": "info@techcorp.com",
+              "phone": "+1-555-0101",
+              "address": "123 Tech Avenue, Silicon Valley, CA 94025",
+              "type": "opt-1",
+              "salesPerson": "user-1",
+              "contacts": ["row-contact-1", "row-contact-2"],
+              "quotations": ["row-quot-1"],
+              "contracts": ["row-contract-1"],
+              "isActive": true,
+              "website": "https://techcorp.com",
+              "rating": 5,
+              "createdAt": "2024-02-01T09:00:00Z",
+              "updatedAt": "2024-12-05T11:30:00Z"
+            },
+            {
+              "id": "row-comp-2",
+              "name": "Global Industries Ltd",
+              "email": "contact@globalind.com",
+              "phone": "+1-555-0202",
+              "address": "456 Business Park, New York, NY 10001",
+              "type": "opt-1",
+              "salesPerson": "user-2",
+              "contacts": ["row-contact-3"],
+              "quotations": ["row-quot-2"],
+              "contracts": [],
+              "isActive": true,
+              "website": "https://globalind.com",
+              "rating": 4,
+              "createdAt": "2024-03-15T14:00:00Z",
+              "updatedAt": "2024-11-20T16:45:00Z"
+            },
+            {
+              "id": "row-comp-3",
+              "name": "StartupXYZ",
+              "email": "hello@startupxyz.io",
+              "phone": "+1-555-0303",
+              "address": "789 Innovation Hub, Austin, TX 78701",
+              "type": "opt-3",
+              "salesPerson": "user-3",
+              "contacts": ["row-contact-4"],
+              "quotations": ["row-quot-3"],
+              "contracts": [],
+              "isActive": true,
+              "website": "https://startupxyz.io",
+              "rating": 3,
+              "createdAt": "2024-05-10T10:30:00Z",
+              "updatedAt": "2024-12-01T09:15:00Z"
+            },
+            {
+              "id": "row-comp-4",
+              "name": "MegaRetail Corp",
+              "email": "sales@megaretail.com",
+              "phone": "+1-555-0404",
+              "address": "321 Commerce Street, Chicago, IL 60601",
+              "type": "opt-2",
+              "salesPerson": "user-4",
+              "contacts": ["row-contact-5", "row-contact-6"],
+              "quotations": [],
+              "contracts": ["row-contract-2"],
+              "isActive": true,
+              "website": "https://megaretail.com",
+              "rating": 4,
+              "createdAt": "2024-04-20T08:00:00Z",
+              "updatedAt": "2024-10-15T13:20:00Z"
+            },
+            {
+              "id": "row-comp-5",
+              "name": "City Government Office",
+              "email": "procurement@citygovt.gov",
+              "phone": "+1-555-0505",
+              "address": "100 Government Plaza, Boston, MA 02101",
+              "type": "opt-4",
+              "salesPerson": "user-1",
+              "contacts": ["row-contact-7"],
+              "quotations": [],
+              "contracts": [],
+              "isActive": false,
+              "website": "https://citygovt.gov",
+              "rating": 3,
+              "createdAt": "2024-06-01T11:00:00Z",
+              "updatedAt": "2024-09-30T15:00:00Z"
+            }
+          ]
+        },
+        {
+          "id": "tbl-contact",
+          "name": "Contacts",
+          "icon": "user",
+          "views": [
+            { "id": "view-contact-table", "name": "All Contacts", "type": "table", "isDefault": true },
+            { "id": "view-contact-gallery", "name": "Gallery", "type": "gallery", "config": { "titleField": "name" } }
+          ],
+          "columns": [
+            { "id": "col-1", "field": "name", "title": "Name", "type": "text", "width": 180, "required": true },
+            { "id": "col-2", "field": "email", "title": "Email", "type": "email", "width": 220 },
+            { "id": "col-3", "field": "phone", "title": "Phone", "type": "text", "width": 150 },
+            { "id": "col-4", "field": "company", "title": "Company", "type": "relation", "width": 180, "relationConfig": { "tableId": "tbl-company", "displayField": "name", "multiple": false }},
+            { "id": "col-5", "field": "position", "title": "Position", "type": "text", "width": 150 },
+            { "id": "col-6", "field": "isPrimary", "title": "Primary Contact", "type": "checkbox", "width": 120 }
+          ],
+          "rows": [
+            { "id": "row-contact-1", "name": "John Smith", "email": "john.smith@techcorp.com", "phone": "+1-555-1001", "company": "row-comp-1", "position": "CTO", "isPrimary": true, "createdAt": "2024-02-01T09:30:00Z", "updatedAt": "2024-11-01T10:00:00Z" },
+            { "id": "row-contact-2", "name": "Sarah Johnson", "email": "sarah.j@techcorp.com", "phone": "+1-555-1002", "company": "row-comp-1", "position": "Procurement Manager", "isPrimary": false, "createdAt": "2024-02-15T14:00:00Z", "updatedAt": "2024-10-20T11:30:00Z" },
+            { "id": "row-contact-3", "name": "Michael Brown", "email": "m.brown@globalind.com", "phone": "+1-555-1003", "company": "row-comp-2", "position": "VP Operations", "isPrimary": true, "createdAt": "2024-03-15T15:00:00Z", "updatedAt": "2024-11-10T09:45:00Z" },
+            { "id": "row-contact-4", "name": "Emily Chen", "email": "emily@startupxyz.io", "phone": "+1-555-1004", "company": "row-comp-3", "position": "CEO", "isPrimary": true, "createdAt": "2024-05-10T11:00:00Z", "updatedAt": "2024-12-01T08:30:00Z" },
+            { "id": "row-contact-5", "name": "Robert Taylor", "email": "r.taylor@megaretail.com", "phone": "+1-555-1005", "company": "row-comp-4", "position": "IT Director", "isPrimary": true, "createdAt": "2024-04-20T09:00:00Z", "updatedAt": "2024-09-15T14:00:00Z" },
+            { "id": "row-contact-6", "name": "Lisa Wang", "email": "l.wang@megaretail.com", "phone": "+1-555-1006", "company": "row-comp-4", "position": "Finance Manager", "isPrimary": false, "createdAt": "2024-04-25T10:30:00Z", "updatedAt": "2024-10-01T16:00:00Z" },
+            { "id": "row-contact-7", "name": "James Miller", "email": "j.miller@citygovt.gov", "phone": "+1-555-1007", "company": "row-comp-5", "position": "Procurement Officer", "isPrimary": true, "createdAt": "2024-06-01T12:00:00Z", "updatedAt": "2024-08-20T11:00:00Z" }
+          ]
+        },
+        {
+          "id": "tbl-quotation",
+          "name": "Quotations",
+          "icon": "file-text",
+          "views": [
+            { "id": "view-quot-table", "name": "All Quotations", "type": "table", "isDefault": true },
+            { "id": "view-quot-kanban", "name": "By Status", "type": "kanban", "config": { "groupByField": "status" } },
+            { "id": "view-quot-calendar", "name": "Calendar", "type": "calendar", "config": { "dateField": "quotationDate" } },
+            {
+              "id": "view-quot-sales-pipeline",
+              "name": "My Sales Pipeline",
+              "type": "table",
+              "baseTableId": "tbl-quotation",
+              "isDefault": false,
+              "createdBy": "user-1",
+              "visibility": "personal",
+              "columns": [
+                { "id": "vcol-1", "columnId": "col-1", "field": "quotationNumber", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 0 },
+                { "id": "vcol-2", "columnId": "col-2", "field": "company", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 1 },
+                { "id": "vcol-3", "columnId": "col-1", "field": "name", "sourceTableId": "tbl-company", "sourceType": "relation", "relationField": "company", "displayTitle": "Company Name", "visible": true, "order": 2 },
+                { "id": "vcol-4", "columnId": "col-2", "field": "email", "sourceTableId": "tbl-company", "sourceType": "relation", "relationField": "company", "displayTitle": "Company Email", "visible": true, "order": 3 },
+                { "id": "vcol-5", "columnId": "col-6", "field": "totalAmount", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 4 },
+                { "id": "vcol-6", "columnId": "col-8", "field": "status", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 5 },
+                { "id": "vcol-7", "columnId": "col-7", "field": "salesPerson", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 6 }
+              ],
+              "config": {
+                "filters": [
+                  { "field": "status", "operator": "in", "value": ["status-2", "status-3"] }
+                ],
+                "sorting": [
+                  { "field": "totalAmount", "order": "desc" }
+                ]
+              },
+              "createdAt": "2024-12-01T10:00:00Z",
+              "updatedAt": "2024-12-15T14:30:00Z"
+            },
+            {
+              "id": "view-quot-high-value",
+              "name": "High Value Deals",
+              "type": "table",
+              "baseTableId": "tbl-quotation",
+              "isDefault": false,
+              "createdBy": "user-1",
+              "visibility": "shared",
+              "sharedWith": [
+                { "type": "user", "id": "user-2", "name": "Bob Johnson", "permission": "view", "sharedAt": "2024-12-10T09:00:00Z" },
+                { "type": "group", "id": "group-sales", "name": "Sales Team", "permission": "view", "sharedAt": "2024-12-10T09:00:00Z" }
+              ],
+              "columns": [
+                { "id": "vcol-hv-1", "columnId": "col-1", "field": "quotationNumber", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 0 },
+                { "id": "vcol-hv-2", "columnId": "col-2", "field": "company", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 1 },
+                { "id": "vcol-hv-3", "columnId": "col-6", "field": "totalAmount", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 2 },
+                { "id": "vcol-hv-4", "columnId": "col-8", "field": "status", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 3 },
+                { "id": "vcol-hv-5", "columnId": "col-3", "field": "contactPerson", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 4 },
+                { "id": "vcol-hv-6", "columnId": "col-1", "field": "name", "sourceTableId": "tbl-contact", "sourceType": "relation", "relationField": "contactPerson", "displayTitle": "Contact Name", "visible": true, "order": 5 },
+                { "id": "vcol-hv-7", "columnId": "col-2", "field": "email", "sourceTableId": "tbl-contact", "sourceType": "relation", "relationField": "contactPerson", "displayTitle": "Contact Email", "visible": true, "order": 6 }
+              ],
+              "config": {
+                "filters": [],
+                "sorting": [
+                  { "field": "totalAmount", "order": "desc" }
+                ],
+                "groupBy": {
+                  "field": "salesPerson",
+                  "secondaryField": "status",
+                  "aggregations": [
+                    { "field": "totalAmount", "type": "sum" }
+                  ]
+                }
+              },
+              "createdAt": "2024-12-05T11:00:00Z",
+              "updatedAt": "2024-12-12T16:00:00Z"
+            }
+          ],
+          "columns": [
+            { "id": "col-1", "field": "quotationNumber", "title": "Quotation #", "type": "text", "width": 140, "required": true },
+            { "id": "col-2", "field": "company", "title": "Company", "type": "relation", "width": 180, "relationConfig": { "tableId": "tbl-company", "displayField": "name", "multiple": false }},
+            { "id": "col-3", "field": "contactPerson", "title": "Contact Person", "type": "relation", "width": 160, "relationConfig": { "tableId": "tbl-contact", "displayField": "name", "multiple": false }},
+            { "id": "col-4", "field": "quotationDate", "title": "Date", "type": "date", "width": 120, "dateFormat": "YYYY-MM-DD" },
+            { "id": "col-5", "field": "quotationLines", "title": "Lines", "type": "relation", "width": 200, "relationConfig": { "tableId": "tbl-quotation-line", "displayField": "product", "multiple": true }},
+            { "id": "col-6", "field": "totalAmount", "title": "Total Amount", "type": "rollup", "width": 140, "decimalPlaces": 2, "rollupConfig": { "relationField": "quotationLines", "aggregateField": "totalPrice", "aggregation": "sum" }},
+            { "id": "col-7", "field": "salesPerson", "title": "Sales Person", "type": "user", "width": 150 },
+            { "id": "col-8", "field": "status", "title": "Status", "type": "single-select", "width": 130, "options": [
+              { "id": "status-1", "label": "Draft", "color": "#6b7280" },
+              { "id": "status-2", "label": "Sent", "color": "#3b82f6" },
+              { "id": "status-3", "label": "Accepted", "color": "#10b981" },
+              { "id": "status-4", "label": "Rejected", "color": "#ef4444" },
+              { "id": "status-5", "label": "Expired", "color": "#f59e0b" }
+            ]},
+            { "id": "col-9", "field": "validUntil", "title": "Valid Until", "type": "date", "width": 120 },
+            { "id": "col-10", "field": "attachments", "title": "Attachments", "type": "attachment", "width": 150 },
+            { "id": "col-11", "field": "notes", "title": "Notes", "type": "textarea", "width": 200 }
+          ],
+          "rows": [
+            {
+              "id": "row-quot-1",
+              "quotationNumber": "QT-2024-001",
+              "company": "row-comp-1",
+              "contactPerson": "row-contact-1",
+              "quotationDate": "2024-10-01",
+              "quotationLines": ["row-ql-1", "row-ql-2"],
+              "salesPerson": "user-1",
+              "status": "status-3",
+              "validUntil": "2024-12-31",
+              "attachments": [
+                { "id": "att-1", "name": "quotation-qt2024001.pdf", "url": "/files/quotation-qt2024001.pdf", "size": 245000, "type": "application/pdf" }
+              ],
+              "notes": "Enterprise license with premium support",
+              "createdAt": "2024-10-01T09:00:00Z",
+              "updatedAt": "2024-10-15T14:30:00Z"
+            },
+            {
+              "id": "row-quot-2",
+              "quotationNumber": "QT-2024-002",
+              "company": "row-comp-2",
+              "contactPerson": "row-contact-3",
+              "quotationDate": "2024-11-05",
+              "quotationLines": ["row-ql-3"],
+              "salesPerson": "user-2",
+              "status": "status-2",
+              "validUntil": "2025-01-05",
+              "attachments": [],
+              "notes": "Waiting for client review",
+              "createdAt": "2024-11-05T10:00:00Z",
+              "updatedAt": "2024-11-10T11:00:00Z"
+            },
+            {
+              "id": "row-quot-3",
+              "quotationNumber": "QT-2024-003",
+              "company": "row-comp-3",
+              "contactPerson": "row-contact-4",
+              "quotationDate": "2024-11-20",
+              "quotationLines": ["row-ql-4", "row-ql-5"],
+              "salesPerson": "user-3",
+              "status": "status-1",
+              "validUntil": "2025-02-20",
+              "attachments": [],
+              "notes": "Startup discount applied",
+              "createdAt": "2024-11-20T14:00:00Z",
+              "updatedAt": "2024-11-25T09:30:00Z"
+            },
+            {
+              "id": "row-quot-4",
+              "quotationNumber": "QT-2024-004",
+              "company": "row-comp-1",
+              "contactPerson": "row-contact-2",
+              "quotationDate": "2024-12-01",
+              "quotationLines": ["row-ql-6"],
+              "salesPerson": "user-1",
+              "status": "status-2",
+              "validUntil": "2025-02-01",
+              "attachments": [],
+              "notes": "Additional services quotation",
+              "createdAt": "2024-12-01T10:00:00Z",
+              "updatedAt": "2024-12-03T11:00:00Z"
+            },
+            {
+              "id": "row-quot-5",
+              "quotationNumber": "QT-2024-005",
+              "company": "row-comp-2",
+              "contactPerson": "row-contact-3",
+              "quotationDate": "2024-12-05",
+              "quotationLines": ["row-ql-7", "row-ql-8"],
+              "salesPerson": "user-1",
+              "status": "status-1",
+              "validUntil": "2025-03-05",
+              "attachments": [],
+              "notes": "Renewal quotation",
+              "createdAt": "2024-12-05T09:00:00Z",
+              "updatedAt": "2024-12-06T10:00:00Z"
+            },
+            {
+              "id": "row-quot-6",
+              "quotationNumber": "QT-2024-006",
+              "company": "row-comp-3",
+              "contactPerson": "row-contact-4",
+              "quotationDate": "2024-12-07",
+              "quotationLines": ["row-ql-9"],
+              "salesPerson": "user-1",
+              "status": "status-3",
+              "validUntil": "2025-03-07",
+              "attachments": [],
+              "notes": "Upgrade package",
+              "createdAt": "2024-12-07T14:00:00Z",
+              "updatedAt": "2024-12-08T09:00:00Z"
+            },
+            {
+              "id": "row-quot-7",
+              "quotationNumber": "QT-2024-007",
+              "company": "row-comp-1",
+              "contactPerson": "row-contact-1",
+              "quotationDate": "2024-12-08",
+              "quotationLines": ["row-ql-10"],
+              "salesPerson": "user-2",
+              "status": "status-2",
+              "validUntil": "2025-03-08",
+              "attachments": [],
+              "notes": "Expansion quotation",
+              "createdAt": "2024-12-08T11:00:00Z",
+              "updatedAt": "2024-12-09T15:00:00Z"
+            },
+            {
+              "id": "row-quot-8",
+              "quotationNumber": "QT-2024-008",
+              "company": "row-comp-4",
+              "contactPerson": "row-contact-5",
+              "quotationDate": "2024-12-09",
+              "quotationLines": ["row-ql-11"],
+              "salesPerson": "user-2",
+              "status": "status-1",
+              "validUntil": "2025-03-09",
+              "attachments": [],
+              "notes": "New department setup",
+              "createdAt": "2024-12-09T08:00:00Z",
+              "updatedAt": "2024-12-10T10:00:00Z"
+            },
+            {
+              "id": "row-quot-9",
+              "quotationNumber": "QT-2024-009",
+              "company": "row-comp-5",
+              "contactPerson": "row-contact-7",
+              "quotationDate": "2024-12-10",
+              "quotationLines": ["row-ql-12", "row-ql-13"],
+              "salesPerson": "user-2",
+              "status": "status-2",
+              "validUntil": "2025-03-10",
+              "attachments": [],
+              "notes": "Government tender",
+              "createdAt": "2024-12-10T13:00:00Z",
+              "updatedAt": "2024-12-11T09:00:00Z"
+            },
+            {
+              "id": "row-quot-10",
+              "quotationNumber": "QT-2024-010",
+              "company": "row-comp-2",
+              "contactPerson": "row-contact-3",
+              "quotationDate": "2024-12-11",
+              "quotationLines": ["row-ql-14"],
+              "salesPerson": "user-3",
+              "status": "status-3",
+              "validUntil": "2025-03-11",
+              "attachments": [],
+              "notes": "Additional licenses",
+              "createdAt": "2024-12-11T10:00:00Z",
+              "updatedAt": "2024-12-12T11:00:00Z"
+            },
+            {
+              "id": "row-quot-11",
+              "quotationNumber": "QT-2024-011",
+              "company": "row-comp-4",
+              "contactPerson": "row-contact-6",
+              "quotationDate": "2024-12-12",
+              "quotationLines": ["row-ql-15"],
+              "salesPerson": "user-3",
+              "status": "status-1",
+              "validUntil": "2025-03-12",
+              "attachments": [],
+              "notes": "Finance department request",
+              "createdAt": "2024-12-12T09:00:00Z",
+              "updatedAt": "2024-12-13T10:00:00Z"
+            },
+            {
+              "id": "row-quot-12",
+              "quotationNumber": "QT-2024-012",
+              "company": "row-comp-1",
+              "contactPerson": "row-contact-2",
+              "quotationDate": "2024-12-13",
+              "quotationLines": ["row-ql-16", "row-ql-17"],
+              "salesPerson": "user-4",
+              "status": "status-2",
+              "validUntil": "2025-03-13",
+              "attachments": [],
+              "notes": "Training package",
+              "createdAt": "2024-12-13T14:00:00Z",
+              "updatedAt": "2024-12-14T09:00:00Z"
+            },
+            {
+              "id": "row-quot-13",
+              "quotationNumber": "QT-2024-013",
+              "company": "row-comp-3",
+              "contactPerson": "row-contact-4",
+              "quotationDate": "2024-12-14",
+              "quotationLines": ["row-ql-18"],
+              "salesPerson": "user-4",
+              "status": "status-4",
+              "validUntil": "2025-01-14",
+              "attachments": [],
+              "notes": "Rejected due to budget",
+              "createdAt": "2024-12-14T11:00:00Z",
+              "updatedAt": "2024-12-15T10:00:00Z"
+            },
+            {
+              "id": "row-quot-14",
+              "quotationNumber": "QT-2024-014",
+              "company": "row-comp-5",
+              "contactPerson": "row-contact-7",
+              "quotationDate": "2024-12-15",
+              "quotationLines": ["row-ql-19", "row-ql-20"],
+              "salesPerson": "user-4",
+              "status": "status-3",
+              "validUntil": "2025-03-15",
+              "attachments": [],
+              "notes": "Government approved",
+              "createdAt": "2024-12-15T08:00:00Z",
+              "updatedAt": "2024-12-16T09:00:00Z"
+            },
+            {
+              "id": "row-quot-15",
+              "quotationNumber": "QT-2024-015",
+              "company": "row-comp-2",
+              "contactPerson": "row-contact-3",
+              "quotationDate": "2024-12-16",
+              "quotationLines": ["row-ql-21"],
+              "salesPerson": "user-1",
+              "status": "status-2",
+              "validUntil": "2025-03-16",
+              "attachments": [],
+              "notes": "Year-end deal",
+              "createdAt": "2024-12-16T10:00:00Z",
+              "updatedAt": "2024-12-17T11:00:00Z"
+            },
+            {
+              "id": "row-quot-16",
+              "quotationNumber": "QT-2024-016",
+              "company": "row-comp-4",
+              "contactPerson": "row-contact-5",
+              "quotationDate": "2024-12-17",
+              "quotationLines": ["row-ql-22", "row-ql-23"],
+              "salesPerson": "user-2",
+              "status": "status-3",
+              "validUntil": "2025-03-17",
+              "attachments": [],
+              "notes": "Bulk license approved",
+              "createdAt": "2024-12-17T09:00:00Z",
+              "updatedAt": "2024-12-18T08:00:00Z"
+            },
+            {
+              "id": "row-quot-17",
+              "quotationNumber": "QT-2024-017",
+              "company": "row-comp-3",
+              "contactPerson": "row-contact-4",
+              "quotationDate": "2024-12-18",
+              "quotationLines": ["row-ql-24"],
+              "salesPerson": "user-3",
+              "status": "status-5",
+              "validUntil": "2024-12-20",
+              "attachments": [],
+              "notes": "Expired - no response",
+              "createdAt": "2024-12-18T13:00:00Z",
+              "updatedAt": "2024-12-18T15:00:00Z"
+            }
+          ]
+        },
+        {
+          "id": "tbl-quotation-line",
+          "name": "Quotation Lines",
+          "icon": "list",
+          "views": [
+            { "id": "view-ql-table", "name": "All Lines", "type": "table", "isDefault": true }
+          ],
+          "columns": [
+            { "id": "col-1", "field": "quotation", "title": "Quotation", "type": "relation", "width": 140, "relationConfig": { "tableId": "tbl-quotation", "displayField": "quotationNumber", "multiple": false }},
+            { "id": "col-2", "field": "product", "title": "Product", "type": "text", "width": 200, "required": true },
+            { "id": "col-3", "field": "quantity", "title": "Quantity", "type": "number", "width": 100 },
+            { "id": "col-4", "field": "unitPrice", "title": "Unit Price", "type": "number", "width": 120, "decimalPlaces": 2 },
+            { "id": "col-5", "field": "discount", "title": "Discount %", "type": "number", "width": 100, "decimalPlaces": 1 },
+            { "id": "col-6", "field": "tax", "title": "Tax %", "type": "number", "width": 80, "decimalPlaces": 1 },
+            { "id": "col-7", "field": "totalPrice", "title": "Total Price", "type": "fx", "width": 130, "fxConfig": { "expression": "quantity * unitPrice * (1 - discount/100) * (1 + tax/100)", "resultType": "number" }}
+          ],
+          "rows": [
+            { "id": "row-ql-1", "quotation": "row-quot-1", "product": "DocPal Enterprise License", "quantity": 100, "unitPrice": 1000, "discount": 10, "tax": 5, "totalPrice": 94500, "createdAt": "2024-10-01T09:30:00Z", "updatedAt": "2024-10-01T09:30:00Z" },
+            { "id": "row-ql-2", "quotation": "row-quot-1", "product": "Premium Support (1 Year)", "quantity": 1, "unitPrice": 30000, "discount": 0, "tax": 5, "totalPrice": 31500, "createdAt": "2024-10-01T09:35:00Z", "updatedAt": "2024-10-01T09:35:00Z" },
+            { "id": "row-ql-3", "quotation": "row-quot-2", "product": "DocPal Business License", "quantity": 50, "unitPrice": 1500, "discount": 5, "tax": 5, "totalPrice": 74812.5, "createdAt": "2024-11-05T10:30:00Z", "updatedAt": "2024-11-05T10:30:00Z" },
+            { "id": "row-ql-4", "quotation": "row-quot-3", "product": "DocPal Startup License", "quantity": 20, "unitPrice": 500, "discount": 30, "tax": 5, "totalPrice": 7350, "createdAt": "2024-11-20T14:30:00Z", "updatedAt": "2024-11-20T14:30:00Z" },
+            { "id": "row-ql-5", "quotation": "row-quot-3", "product": "Basic Support (1 Year)", "quantity": 1, "unitPrice": 10000, "discount": 25, "tax": 5, "totalPrice": 7875, "createdAt": "2024-11-20T14:35:00Z", "updatedAt": "2024-11-20T14:35:00Z" },
+            { "id": "row-ql-6", "quotation": "row-quot-4", "product": "Training Services", "quantity": 5, "unitPrice": 2000, "discount": 0, "tax": 5, "totalPrice": 10500, "createdAt": "2024-12-01T10:30:00Z", "updatedAt": "2024-12-01T10:30:00Z" },
+            { "id": "row-ql-7", "quotation": "row-quot-5", "product": "DocPal Business License", "quantity": 30, "unitPrice": 1500, "discount": 10, "tax": 5, "totalPrice": 42525, "createdAt": "2024-12-05T09:30:00Z", "updatedAt": "2024-12-05T09:30:00Z" },
+            { "id": "row-ql-8", "quotation": "row-quot-5", "product": "Standard Support (1 Year)", "quantity": 1, "unitPrice": 15000, "discount": 10, "tax": 5, "totalPrice": 14175, "createdAt": "2024-12-05T09:35:00Z", "updatedAt": "2024-12-05T09:35:00Z" },
+            { "id": "row-ql-9", "quotation": "row-quot-6", "product": "DocPal Startup License", "quantity": 30, "unitPrice": 500, "discount": 25, "tax": 5, "totalPrice": 11812.5, "createdAt": "2024-12-07T14:30:00Z", "updatedAt": "2024-12-07T14:30:00Z" },
+            { "id": "row-ql-10", "quotation": "row-quot-7", "product": "DocPal Enterprise License", "quantity": 50, "unitPrice": 1000, "discount": 15, "tax": 5, "totalPrice": 44625, "createdAt": "2024-12-08T11:30:00Z", "updatedAt": "2024-12-08T11:30:00Z" },
+            { "id": "row-ql-11", "quotation": "row-quot-8", "product": "DocPal Business License", "quantity": 40, "unitPrice": 1500, "discount": 8, "tax": 5, "totalPrice": 57960, "createdAt": "2024-12-09T08:30:00Z", "updatedAt": "2024-12-09T08:30:00Z" },
+            { "id": "row-ql-12", "quotation": "row-quot-9", "product": "DocPal Government Edition", "quantity": 25, "unitPrice": 1200, "discount": 20, "tax": 0, "totalPrice": 24000, "createdAt": "2024-12-10T13:30:00Z", "updatedAt": "2024-12-10T13:30:00Z" },
+            { "id": "row-ql-13", "quotation": "row-quot-9", "product": "Implementation Services", "quantity": 1, "unitPrice": 50000, "discount": 15, "tax": 0, "totalPrice": 42500, "createdAt": "2024-12-10T13:35:00Z", "updatedAt": "2024-12-10T13:35:00Z" },
+            { "id": "row-ql-14", "quotation": "row-quot-10", "product": "DocPal Business License", "quantity": 25, "unitPrice": 1500, "discount": 5, "tax": 5, "totalPrice": 37406.25, "createdAt": "2024-12-11T10:30:00Z", "updatedAt": "2024-12-11T10:30:00Z" },
+            { "id": "row-ql-15", "quotation": "row-quot-11", "product": "DocPal Business License", "quantity": 15, "unitPrice": 1500, "discount": 5, "tax": 5, "totalPrice": 22443.75, "createdAt": "2024-12-12T09:30:00Z", "updatedAt": "2024-12-12T09:30:00Z" },
+            { "id": "row-ql-16", "quotation": "row-quot-12", "product": "Training Workshop", "quantity": 2, "unitPrice": 5000, "discount": 0, "tax": 5, "totalPrice": 10500, "createdAt": "2024-12-13T14:30:00Z", "updatedAt": "2024-12-13T14:30:00Z" },
+            { "id": "row-ql-17", "quotation": "row-quot-12", "product": "Consulting Services", "quantity": 10, "unitPrice": 2500, "discount": 10, "tax": 5, "totalPrice": 23625, "createdAt": "2024-12-13T14:35:00Z", "updatedAt": "2024-12-13T14:35:00Z" },
+            { "id": "row-ql-18", "quotation": "row-quot-13", "product": "DocPal Startup License", "quantity": 10, "unitPrice": 500, "discount": 20, "tax": 5, "totalPrice": 4200, "createdAt": "2024-12-14T11:30:00Z", "updatedAt": "2024-12-14T11:30:00Z" },
+            { "id": "row-ql-19", "quotation": "row-quot-14", "product": "DocPal Government Edition", "quantity": 50, "unitPrice": 1200, "discount": 15, "tax": 0, "totalPrice": 51000, "createdAt": "2024-12-15T08:30:00Z", "updatedAt": "2024-12-15T08:30:00Z" },
+            { "id": "row-ql-20", "quotation": "row-quot-14", "product": "Premium Support (1 Year)", "quantity": 1, "unitPrice": 30000, "discount": 10, "tax": 0, "totalPrice": 27000, "createdAt": "2024-12-15T08:35:00Z", "updatedAt": "2024-12-15T08:35:00Z" },
+            { "id": "row-ql-21", "quotation": "row-quot-15", "product": "DocPal Business License", "quantity": 35, "unitPrice": 1500, "discount": 12, "tax": 5, "totalPrice": 48510, "createdAt": "2024-12-16T10:30:00Z", "updatedAt": "2024-12-16T10:30:00Z" },
+            { "id": "row-ql-22", "quotation": "row-quot-16", "product": "DocPal Business License", "quantity": 60, "unitPrice": 1500, "discount": 10, "tax": 5, "totalPrice": 85050, "createdAt": "2024-12-17T09:30:00Z", "updatedAt": "2024-12-17T09:30:00Z" },
+            { "id": "row-ql-23", "quotation": "row-quot-16", "product": "Standard Support (1 Year)", "quantity": 1, "unitPrice": 15000, "discount": 0, "tax": 5, "totalPrice": 15750, "createdAt": "2024-12-17T09:35:00Z", "updatedAt": "2024-12-17T09:35:00Z" },
+            { "id": "row-ql-24", "quotation": "row-quot-17", "product": "DocPal Startup License", "quantity": 12, "unitPrice": 500, "discount": 30, "tax": 5, "totalPrice": 4410, "createdAt": "2024-12-18T13:30:00Z", "updatedAt": "2024-12-18T13:30:00Z" }
+          ]
+        },
+        {
+          "id": "tbl-contract",
+          "name": "Contracts",
+          "icon": "file-signature",
+          "views": [
+            { "id": "view-contract-table", "name": "All Contracts", "type": "table", "isDefault": true },
+            { "id": "view-contract-kanban", "name": "By Status", "type": "kanban", "config": { "groupByField": "status" } },
+            { "id": "view-contract-gantt", "name": "Timeline", "type": "gantt", "config": { "startDateField": "startDate", "endDateField": "endDate", "titleField": "contractNumber" } }
+          ],
+          "columns": [
+            { "id": "col-1", "field": "contractNumber", "title": "Contract #", "type": "text", "width": 140, "required": true },
+            { "id": "col-2", "field": "company", "title": "Company", "type": "relation", "width": 180, "relationConfig": { "tableId": "tbl-company", "displayField": "name", "multiple": false }},
+            { "id": "col-3", "field": "quotation", "title": "Quotation", "type": "relation", "width": 140, "relationConfig": { "tableId": "tbl-quotation", "displayField": "quotationNumber", "multiple": false }},
+            { "id": "col-4", "field": "contractDate", "title": "Date", "type": "date", "width": 120, "dateFormat": "YYYY-MM-DD" },
+            { "id": "col-5", "field": "contractLines", "title": "Lines", "type": "relation", "width": 200, "relationConfig": { "tableId": "tbl-contract-line", "displayField": "product", "multiple": true }},
+            { "id": "col-6", "field": "totalAmount", "title": "Total Amount", "type": "number", "width": 140, "decimalPlaces": 2 },
+            { "id": "col-7", "field": "salesPerson", "title": "Sales Person", "type": "user", "width": 150 },
+            { "id": "col-8", "field": "status", "title": "Status", "type": "single-select", "width": 130, "options": [
+              { "id": "cstatus-1", "label": "Draft", "color": "#6b7280" },
+              { "id": "cstatus-2", "label": "Pending Signature", "color": "#f59e0b" },
+              { "id": "cstatus-3", "label": "Active", "color": "#10b981" },
+              { "id": "cstatus-4", "label": "Completed", "color": "#3b82f6" },
+              { "id": "cstatus-5", "label": "Cancelled", "color": "#ef4444" }
+            ]},
+            { "id": "col-9", "field": "startDate", "title": "Start Date", "type": "date", "width": 120 },
+            { "id": "col-10", "field": "endDate", "title": "End Date", "type": "date", "width": 120 },
+            { "id": "col-11", "field": "attachments", "title": "Attachments", "type": "attachment", "width": 150 }
+          ],
+          "rows": [
+            {
+              "id": "row-contract-1",
+              "contractNumber": "CT-2024-001",
+              "company": "row-comp-1",
+              "quotation": "row-quot-1",
+              "contractDate": "2024-10-20",
+              "contractLines": ["row-cl-1", "row-cl-2"],
+              "totalAmount": 126000,
+              "salesPerson": "user-1",
+              "status": "cstatus-3",
+              "startDate": "2024-11-01",
+              "endDate": "2025-10-31",
+              "attachments": [
+                { "id": "att-c1", "name": "contract-ct2024001-signed.pdf", "url": "/files/contract-ct2024001-signed.pdf", "size": 520000, "type": "application/pdf" }
+              ],
+              "createdAt": "2024-10-20T10:00:00Z",
+              "updatedAt": "2024-11-01T09:00:00Z"
+            },
+            {
+              "id": "row-contract-2",
+              "contractNumber": "CT-2024-002",
+              "company": "row-comp-4",
+              "quotation": null,
+              "contractDate": "2024-09-15",
+              "contractLines": ["row-cl-3"],
+              "totalAmount": 50000,
+              "salesPerson": "user-4",
+              "status": "cstatus-3",
+              "startDate": "2024-10-01",
+              "endDate": "2025-09-30",
+              "attachments": [],
+              "createdAt": "2024-09-15T14:00:00Z",
+              "updatedAt": "2024-10-01T08:00:00Z"
+            }
+          ]
+        },
+        {
+          "id": "tbl-contract-line",
+          "name": "Contract Lines",
+          "icon": "list",
+          "views": [
+            { "id": "view-cl-table", "name": "All Lines", "type": "table", "isDefault": true }
+          ],
+          "columns": [
+            { "id": "col-1", "field": "contract", "title": "Contract", "type": "relation", "width": 140, "relationConfig": { "tableId": "tbl-contract", "displayField": "contractNumber", "multiple": false }},
+            { "id": "col-2", "field": "product", "title": "Product", "type": "text", "width": 200, "required": true },
+            { "id": "col-3", "field": "quantity", "title": "Quantity", "type": "number", "width": 100 },
+            { "id": "col-4", "field": "unitPrice", "title": "Unit Price", "type": "number", "width": 120, "decimalPlaces": 2 },
+            { "id": "col-5", "field": "discount", "title": "Discount %", "type": "number", "width": 100, "decimalPlaces": 1 },
+            { "id": "col-6", "field": "tax", "title": "Tax %", "type": "number", "width": 80, "decimalPlaces": 1 },
+            { "id": "col-7", "field": "totalPrice", "title": "Total Price", "type": "fx", "width": 130, "fxConfig": { "expression": "quantity * unitPrice * (1 - discount/100) * (1 + tax/100)", "resultType": "number" }},
+            { "id": "col-8", "field": "grandTotal", "title": "Grand Total", "type": "fx", "width": 130, "fxConfig": { "expression": "totalPrice", "resultType": "number" }}
+          ],
+          "rows": [
+            { "id": "row-cl-1", "contract": "row-contract-1", "product": "DocPal Enterprise License", "quantity": 100, "unitPrice": 1000, "discount": 10, "tax": 5, "totalPrice": 94500, "grandTotal": 94500, "createdAt": "2024-10-20T10:30:00Z", "updatedAt": "2024-10-20T10:30:00Z" },
+            { "id": "row-cl-2", "contract": "row-contract-1", "product": "Premium Support (1 Year)", "quantity": 1, "unitPrice": 30000, "discount": 0, "tax": 5, "totalPrice": 31500, "grandTotal": 31500, "createdAt": "2024-10-20T10:35:00Z", "updatedAt": "2024-10-20T10:35:00Z" },
+            { "id": "row-cl-3", "contract": "row-contract-2", "product": "DocPal Business License", "quantity": 40, "unitPrice": 1250, "discount": 5, "tax": 5, "totalPrice": 49875, "grandTotal": 49875, "createdAt": "2024-09-15T14:30:00Z", "updatedAt": "2024-09-15T14:30:00Z" }
+          ]
+        }
+      ]
+    }
+  ]
+}

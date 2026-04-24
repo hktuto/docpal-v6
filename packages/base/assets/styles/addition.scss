@@ -21,6 +21,14 @@ h1, h2, h3, h4, h5, h6 {
 .vxe-modal--box{
   background-color: var(--app-paper) !important;
 }
+.vxe-pager .vxe-pager--sizes{
+    width: 10.5rem !important;
+}
+.vxe-select{
+    .vxe-select--panel{
+        background-color: var(--app-paper) !important;;
+    }
+}
 // // vxe table context menu
 // .vxe-table--context-menu-wrapper{
 //   border-radius: var(--app-border-radius-m);

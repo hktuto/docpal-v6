@@ -1,0 +1,79 @@
+import type { ColumnConfig } from '../../types/column-context'
+import { ColumnFieldType } from '../../types/column-types'
+
+export interface MDKanbanProps {
+  tableId: string
+  editable?: boolean
+  extraColumnConfig?: {
+    columns: Ref<ColumnConfig[]>
+    deleteColumn: (column: ColumnConfig) => void
+    updateColumn: (column: ColumnConfig) => void
+    addColumn: (column: ColumnConfig) => void
+    tableFields: Ref<any[]>
+    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    saveColumnOrder: (columnId: string, position: number) => void
+    columnFilterRules: Ref<any[]>
+    columnGroupRules: Ref<any[]>
+    columnSortRules: Ref<any[]>
+    viewStyleConfig?: Ref<Record<string, any>>
+    updateViewFilterSortGroup?: (
+      fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style',
+      value: any
+    ) => Promise<void>
+  }
+}
+
+export const MDKanbanContextKey = Symbol('MDCardContextKey')
+
+export function useMDKanban(props: MDKanbanProps) {
+  const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
+  const cardRef = ref<any>()
+  const {
+    loading,
+    loadingMore,
+    tableData,
+    hasMore,
+    refresh: refreshTableData,
+    addRow,
+    updateRow,
+    deleteRow,
+    getTableData,
+    loadMore,
+    getAggChildData
+  } = useTableData(props.tableId, cardRef)
+
+
+  provide(MDCardContextKey, {
+    tableId: props.tableId,
+    updateRow,
+    tableData,
+    hasMore,
+    loadingMore,
+    systemFieldsTypes,
+    ...props.extraColumnConfig
+  })
+  onMounted(async () => {
+    await getTableData()
+    console.log('tableData', tableData)
+  })
+  return {
+    columns: props.extraColumnConfig?.columns,
+    systemFieldsTypes,
+    tableData,
+    cardRef,
+    getTableData,
+    loadMore,
+    hasMore,
+    loadingMore,
+    addRow,
+    updateRow,
+    deleteRow,
+  }
+}
+export const useMDKanbanInject = () => {
+  const injectKey = inject(MDCardContextKey)
+  if (!injectKey) {
+    throw new Error('MDCardContext not found')
+  }
+  return injectKey
+}

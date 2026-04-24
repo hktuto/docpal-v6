@@ -1,7 +1,7 @@
 <template>
   <el-dialog v-model="state.visible" :title="state.title" class="scroll-dialog" append-to-body
              :close-on-click-modal="false" destroy-on-close @close="handleClose">
-    <WorkflowDetailFormRender v-if="isWorkflowForm" ref="FromVariablesRendererRef" />
+    <ContextFormRender v-if="isWorkflowForm" ref="FromVariablesRendererRef" />
     <MasterTableVariableForm v-else ref="MasterTableVariableFormRef" :ignoreList="ignoreList" />
     <template #footer>
       <div class="footer-grid">

@@ -10,8 +10,8 @@ const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const { id, isEdit } = defineProps<{
   id: string
-  name: string,
-  isEdit: boolean,
+  name: string
+  isEdit: boolean
 }>()
 const state = reactive<any>({
   info: {
@@ -48,20 +48,23 @@ const wordEditCheckingDialogRef = ref()
 const templateViewerRef = ref()
 
 async function getInfo() {
-  state.info = await newAdminApi.getDmsTemplateDocumentId(id).then(r => r.data)
+  state.info = await newAdminApi.getDmsTemplateDocumentId(id).then((r) => r.data)
 }
 
 async function getPreviewFile() {
   console.log('getPreviewFile', state.info.documentId)
   state.previewFile.loading = true
   try {
-    state.previewFile.blob = await newAdminApi.postDmsDocumentPreview({ idOrPath: state.info.documentId }, {
-      format: 'blob',
-      timeout: 0,
-      headers: {
-        key: 'preview'
+    state.previewFile.blob = await newAdminApi.postDmsDocumentPreview(
+      { idOrPath: state.info.documentId },
+      {
+        format: 'blob',
+        timeout: 0,
+        headers: {
+          key: 'preview'
+        }
       }
-    })
+    )
   } catch (error) {
     console.log(error)
   }
@@ -72,7 +75,7 @@ async function getVariables() {
   console.log('getVariables', id)
   try {
     // const date = new Date().valueOf()
-    const res = await newAdminApi.getDmsTemplateDocumentRefreshId(id).then(r => r.data)
+    const res = await newAdminApi.getDmsTemplateDocumentRefreshId(id).then((r) => r.data)
     if (!res.templateVariable) return
     const templateVariable = [...new Set(JSON.parse(res.templateVariable))]
     state.variables = []
@@ -97,9 +100,7 @@ async function getVariables() {
     nextTick(() => {
       templateVariablesRendererRef.value.setVariables(deepCopy(state.variables))
     })
-
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 
 async function handleTest(fileType: string) {
@@ -144,17 +145,20 @@ async function handleTest(fileType: string) {
     } else {
       const data = await templateVariablesRendererRef.value.getData(state.fileType)
       if (!data) return
-      blob = await newAdminApi.postDmsTemplateDocumentGenerateFile({
-        id: state.info.id,
-        variables: data
-      }, {
-        format: 'blob',
-        timeout: 0,
-        onDownloadProgress: (e: any) => {
-          const el = document.getElementById(id)
-          if (el) el.innerHTML = Math.round((e.loaded / e.total) * 100) + '%'
+      blob = await newAdminApi.postDmsTemplateDocumentGenerateFile(
+        {
+          id: state.info.id,
+          variables: data
+        },
+        {
+          format: 'blob',
+          timeout: 0,
+          onDownloadProgress: (e: any) => {
+            const el = document.getElementById(id)
+            if (el) el.innerHTML = Math.round((e.loaded / e.total) * 100) + '%'
+          }
         }
-      })
+      )
       downloadBlob(blob, state.info.name)
     }
 
@@ -176,7 +180,7 @@ function handleEdit() {
   TemplateAddStep1DialogRef.value.handleOpen({ ...state.info, isEdit: true })
 }
 
-function handleRefresh(state: any) {
+function handleRefresh(state?: any) {
   if (!state || state.info) getInfo()
   if (!state || state.variables) getVariables()
   if (!state || state.preview) getPreviewFile()
@@ -268,9 +272,12 @@ async function updateVariables(newData: any) {
 }
 
 async function getWordJsonFile() {
-  const blob = await newAdminApi.postDmsDocumentPreview({ idOrPath: state.info.documentId }, {
-    format: 'blob'
-  })
+  const blob = await newAdminApi.postDmsDocumentPreview(
+    { idOrPath: state.info.documentId },
+    {
+      format: 'blob'
+    }
+  )
 
   // check dataJson is json or old docx
   try {
@@ -328,7 +335,9 @@ async function init() {
     case 'Word':
       state.openWordDialog = true
       break
-    case 'Excel' || 'PPT':
+    case 'Excel':
+      break
+    case 'PPT':
       break
     default:
   }
@@ -351,56 +360,46 @@ onBeforeMount(async () => {
       <div class="flex-x-between">
         <div class="flex-x-between">
           <span class="template-title"> {{ state.info.name }} </span>
-          <SvgIcon src="/icons/file/edit.svg" class="el-icon--right"
-                   round :content="t('tip.editTemplateInfo')"
-                   @click="handleEdit"></SvgIcon>
+          <SvgIcon src="/icons/file/edit.svg" class="el-icon--right" round :content="t('tip.editTemplateInfo')" @click="handleEdit"></SvgIcon>
         </div>
         <div class="flex-x-between">
-          <SvgIcon v-if="state.info.fileType !== 'Word'" class="el-icon--left" src="/icons/file/file-refresh.svg"
-                   round :content="t('common_refresh')" @click="handleRefresh" />
+          <SvgIcon
+            v-if="state.info.fileType !== 'Word'"
+            class="el-icon--left"
+            src="/icons/file/file-refresh.svg"
+            round
+            :content="t('common_refresh')"
+            @click="handleRefresh"
+          />
 
           <template v-if="state.info.fileType === 'Word'">
-            <SvgIcon v-if="!state.isEdit" src="/icons/file/edit.svg" class="el-icon--right" round
-                     :content="t('Edit Word')" @click="handleEditEditor" />
+            <SvgIcon v-if="!state.isEdit" src="/icons/file/edit.svg" class="el-icon--right" round :content="t('Edit Word')" @click="handleEditEditor" />
             <div v-if="state.isEdit" class="save-or-exit-icon-container">
-              <el-tooltip
-                class="box-item"
-                effect="dark"
-                :content="t('button.save')"
-                placement="bottom"
-              >
-                <Icon style="width:1.2em; height:1.2em;" name="lucide:save" @click="handleSaveWord" />
+              <el-tooltip class="box-item" effect="dark" :content="t('button.save')" placement="bottom">
+                <Icon style="width: 1.2em; height: 1.2em" name="lucide:save" @click="handleSaveWord" />
               </el-tooltip>
             </div>
             <div v-if="state.isEdit" class="save-or-exit-icon-container">
-              <el-tooltip
-                class="box-item"
-                effect="dark"
-                :content="t('button.saveAndClose')"
-                placement="bottom"
-              >
-                <Icon style="width:1.2em; height:1.2em;" name="lucide:save-all" @click="handleSaveWordAndClose" />
+              <el-tooltip class="box-item" effect="dark" :content="t('button.saveAndClose')" placement="bottom">
+                <Icon style="width: 1.2em; height: 1.2em" name="lucide:save-all" @click="handleSaveWordAndClose" />
               </el-tooltip>
             </div>
             <div v-if="state.isEdit" class="save-or-exit-icon-container">
-              <el-popconfirm
-                class="box-item"
-                :title="t('button.saveOff')"
-                placement="top"
-                @confirm="handleCloseWordEditor"
-              >
+              <el-popconfirm class="box-item" :title="t('button.saveOff')" placement="top" @confirm="handleCloseWordEditor">
                 <template #reference>
-                  <SvgIcon style="width: 18px; " src="https://api.iconify.design/lucide:save-off.svg?color=%23333333"
-                           :content="t('button.saveOff')" />
+                  <SvgIcon style="width: 18px" src="https://api.iconify.design/lucide:save-off.svg?color=%23333333" :content="t('button.saveOff')" />
                 </template>
               </el-popconfirm>
             </div>
           </template>
 
-          <BrowseActionsOffice v-if="state.info.fileType !== 'Word'" :doc="{...state.info, id: state.info.documentId}"
-                               @refresh="handleRefresh()" />
-          <TemplateReplaceButton v-if="state.info.fileType !== 'Word'" :templateInfo="state.info"
-                                 class="el-icon--right" @refresh="handleRefresh({ variables: true, preview: true })" />
+          <BrowseActionsOffice v-if="state.info.fileType !== 'Word'" :doc="{ ...state.info, id: state.info.documentId }" @refresh="handleRefresh()" />
+          <TemplateReplaceButton
+            v-if="state.info.fileType !== 'Word'"
+            :templateInfo="state.info"
+            class="el-icon--right"
+            @refresh="handleRefresh({ variables: true, preview: true })"
+          />
         </div>
       </div>
 
@@ -409,11 +408,16 @@ onBeforeMount(async () => {
       <div v-if="state.pageLoading" class="reader-container">
         <template v-if="state.info.fileType === 'Word'">
           <div class="doc-template-viewer-container" v-loading="state.saveLoading">
-            <DocTemplateViewer ref="templateViewerRef" v-if="!state.isEdit" :options="documentOptions"
-                               :json="jsonData" />
-            <DocTemplateEditor ref="docTemplateEditorRef" v-if="state.isEdit" :editorOptions="documentOptions"
-                               :json="jsonData" :user="{}" :variables="variables"
-                               @update:variables="updateVariables($event)" />
+            <DocTemplateViewer ref="templateViewerRef" v-if="!state.isEdit" :options="documentOptions" :json="jsonData" />
+            <DocTemplateEditor
+              ref="docTemplateEditorRef"
+              v-if="state.isEdit"
+              :editorOptions="documentOptions"
+              :json="jsonData"
+              :user="{}"
+              :variables="variables"
+              @update:variables="updateVariables($event)"
+            />
           </div>
         </template>
         <template v-else>
@@ -421,13 +425,11 @@ onBeforeMount(async () => {
         </template>
       </div>
     </div>
-    <InteractDrawer ref="InteractDrawerRef" class="template-interact-drawer" :min-width="200" :defaultOpen="true"
-                    :showClose="false">
+    <InteractDrawer ref="InteractDrawerRef" class="template-interact-drawer" :min-width="200" :defaultOpen="true" :showClose="false">
       <div class="template-title">{{ t('template.variable') }}</div>
       <DocTemplateVariablesRenderer ref="templateVariablesRendererRef" @update="handleTestVariable" />
 
-      <el-dropdown v-if="state.info.fileType === 'Word'" style="width: 100%"
-                   id="DocumentTemplate__PreviewDocument__TestTemplateDownload">
+      <el-dropdown v-if="state.info.fileType === 'Word'" style="width: 100%" id="DocumentTemplate__PreviewDocument__TestTemplateDownload">
         <el-button class="template-test-button" style="width: 100%">
           {{ t('template.test') }}
         </el-button>
@@ -445,15 +447,25 @@ onBeforeMount(async () => {
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <el-button v-else class="template-test-button" id="DocumentTemplate__PreviewDocument__TestTemplateDownload"
-                 :loading="state.downloadLoading" @click="handleTest">{{ t('template.test') }}
+      <el-button
+        v-else
+        class="template-test-button"
+        id="DocumentTemplate__PreviewDocument__TestTemplateDownload"
+        :loading="state.downloadLoading"
+        @click="handleTest"
+        >{{ t('template.test') }}
       </el-button>
     </InteractDrawer>
   </div>
   <TemplateAddStep1Dialog ref="TemplateAddStep1DialogRef" @update="getInfo()"></TemplateAddStep1Dialog>
 
-  <DocTemplateNewDocumentDialog ref="wordEditDialog" v-model="state.openWordDialog" :title="state.info.name"
-                                :defaultOpened="state.openWordDialog" @submit="createWordEdit" />
+  <DocTemplateNewDocumentDialog
+    ref="wordEditDialog"
+    v-model="state.openWordDialog"
+    :title="state.info.name"
+    :defaultOpened="state.openWordDialog"
+    @submit="createWordEdit"
+  />
 
   <InitWordEditCheckingDialog ref="wordEditCheckingDialogRef" @convertJson="updateEditorData" />
 </template>

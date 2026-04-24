@@ -121,7 +121,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
       class: params.id,
       columns: (columns || []).map((col) => {
         if (!col.width && !col.minWidth) {
-          col.minWidth = '200px'
+          col.minWidth = '100px'
         }
         return col
       }),
@@ -231,7 +231,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
               }
             })
           })
-          
+
           return options
         }
       },
