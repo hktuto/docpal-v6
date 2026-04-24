@@ -1,16 +1,15 @@
 <script lang="ts" setup>
 import { MenuRouterKey } from '#imports'
 import { newClientApi } from 'api'
+import { ElMessage } from 'element-plus'
 
-const { userTaskId, processKey, versionId } = defineProps<{
-  userTaskId: string,
-  processKey: string,
-  versionId: string,
+const { definition_id } = defineProps<{
+  definition_id: string
 }>()
 defineOptions({
   name: 'WorkflowStartFullPageDead'
 })
-
+const userId = useUserId()
 const loading = ref(false)
 const vFormRef = ref()
 const routerProvider = inject(MenuRouterKey)
@@ -23,18 +22,19 @@ function formDataGet(propList: any = []) {
 }
 
 async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  const response: any = await newClientApi.getDmsFormPropertiesQuery({
-    userTaskId,
-    processKey,
-    versionId
-  }).then(res => res.data)
-  if (!response[0] ||
-    response[0] && !response[0].jsonValue) return {}
+  const response: any = await newClientApi
+    .getDmsFormPropertiesQuery({
+      userTaskId,
+      processKey,
+      versionId
+    })
+    .then((res) => res.data)
+  if (!response[0] || (response[0] && !response[0].jsonValue)) return {}
   return JSON.parse(response[0].jsonValue)
 }
 
 async function init() {
-  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then(res => res.data)
+  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then((res) => res.data)
   const formData = formDataGet(props)
   const formJson = await formJsonGet('start', processKey, versionId)
   const xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(versionId)
@@ -46,8 +46,8 @@ async function init() {
 }
 
 type AdditionalButton = {
-  props: any,
-  component: string,
+  props: any
+  component: string
 }
 const additionalButton = ref<AdditionalButton[]>([])
 const additionalButtonRef = ref<any[]>([])
@@ -55,7 +55,7 @@ const pageButtonSetting = ref<any>(null)
 async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any) {
   const { buttons, components, buttonSetting } = await getBpmnAdditionalElement(xml, userTaskId, taskDetail, formData)
   additionalButton.value = buttons
-  if(buttonSetting) {
+  if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
   }
 }
@@ -63,13 +63,13 @@ async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any)
 async function handleSubmit() {
   try {
     loading.value = true
-    let data = await vFormRef.value.getFormData(true, false)
-    if (!data) throw new Error(`${t('incompleteData')}`)
+    let formData = await vFormRef.value.getFormData(true, false)
+    if (!formData) throw new Error(`${t('incompleteData')}`)
 
-    // check additional button 
+    // check additional button
     // if additional button has expose "beforeSubmit" method, call it
     const additionButtonActions: any = []
-    additionalButtonRef.value.forEach(item => {
+    additionalButtonRef.value.forEach((item) => {
       if (item && item.beforeSubmit) {
         additionButtonActions.push(item.beforeSubmit())
       }
@@ -79,26 +79,33 @@ async function handleSubmit() {
     // after check all actions, if any addtional data need to set to from data, set it
     buttonResults.forEach((item: any) => {
       if (item && typeof item === 'object') {
-        data = { ...data, ...item }
+        formData = { ...formData, ...item }
       }
     })
     // end addtional button actions
-    Object.keys(data).forEach((key) => {
-      if (typeof data[key] === 'object') {
-        data[key] = JSON.stringify(data[key])
+    Object.keys(formData).forEach((key) => {
+      if (typeof formData[key] === 'object') {
+        formData[key] = JSON.stringify(formData[key])
       }
     })
 
-    const form = {
-      processKey,
-      businessKey: data.businessKey || '',
-      properties: Object.entries(data).reduce((newObj, [key, val]) => {
-        if (val || val === false || val == '0') newObj[key] = val
-        return newObj
-      }, {})
+    const formParams = {
+      start_user_id: userId.value,
+      definition_id: definition_id,
+      variables: {
+        ...formData
+      }
     }
-    console.log('form', form)
-    await newClientApi.postDocpalWorkflowProcessStart(form).then(res => res.data)
+
+    const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
+
+    setTimeout(async () => {
+      // Check workflow running status
+      const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.id}`).then((r: any) => r.data)
+      if (newVar.state === 'running') {
+        ElMessage.success('Workflow created')
+      }
+    }, 100)
 
     routerProvider?.message.success('Workflow created')
     cancel()
@@ -118,11 +125,10 @@ async function addtionalSubmit(formData: any) {
       return newObj
     }, {})
   }
-  await newClientApi.postDocpalWorkflowProcessStart(form).then(res => res.data)
+  await newClientApi.postDocpalWorkflowProcessStart(form).then((res) => res.data)
   routerProvider?.message.success('Workflow created')
   cancel()
 }
-
 
 function cancel() {
   const fallbackPageItem = {
@@ -144,13 +150,12 @@ onMounted(() => {
 })
 </script>
 
-
 <template>
   <div class="pageContainer">
     <ContextFormRender ref="vFormRef">
       <template #action>
         <div class="workflow-actions">
-          <template v-for="(item,index) in additionalButton" :key="index">
+          <template v-for="(item, index) in additionalButton" :key="index">
             <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addtionalSubmit" />
           </template>
           <el-button id="Workflow__NewWorkflow__StartFullPageDead__Cancel" @click="cancel">
@@ -158,8 +163,11 @@ onMounted(() => {
           </el-button>
           <el-button
             v-if="!pageButtonSetting || pageButtonSetting.showSubmitButton"
-            id="Workflow__NewWorkflow__StartFullPageDead__Submit" type="primary"
-            :disabled="loading" @click="handleSubmit">
+            id="Workflow__NewWorkflow__StartFullPageDead__Submit"
+            type="primary"
+            :disabled="loading"
+            @click="handleSubmit"
+          >
             <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
               {{ pageButtonSetting.submitButtonLabel }}
             </template>

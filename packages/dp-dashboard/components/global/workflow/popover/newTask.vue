@@ -3,6 +3,7 @@ import { ElMessage } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import { getButtonAdditionalElement, getWorkflowList } from '@packages/workflow/utils/workflowHelper'
+import { newWorkflowStartPage } from '../../../../../../pages/client-new-workflow/utils/routerHelper'
 
 const vFormRef = ref()
 const workflowEditorRef = ref()
@@ -54,7 +55,10 @@ async function workflowClickHandler(item: any) {
 
   // Open in new page
   if (startTask.metadata.openInNewPage) {
-    // TODO: open new page
+    state.loading = false
+    console.log(22, item)
+    const link = newWorkflowStartPage(data.name, state.selectedWorkflow.id)
+    routerProvider?.navigateTo(link)
     return
   }
 
