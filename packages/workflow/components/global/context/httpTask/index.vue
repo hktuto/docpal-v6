@@ -134,6 +134,9 @@ function handleUpdateParams(visible: any) {
     }
   } else {
     state.requestParams = ''
+    const urlArray = formData.value.url.split('?')
+    if (!urlArray || urlArray[0] === '') return
+    formData.value.url = urlArray[0]
   }
   updateData()
 }
