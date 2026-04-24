@@ -12,6 +12,16 @@ export default defineAppConfig({
       component: "LazyWorkflowManagePage",
       feature: "WORKFLOW",
       props:{},
+    },
+    "admin-new-workflow-edit-manage":{
+      id:"admin-new-workflow-edit-manage",
+      name: 'admin-new-workflow-edit-manage',
+      label: "adminMenu.workflowEditor",
+      icon: "dp-icon:flow-outline",
+      hoverIcon: "dp-icon:flow-fill",
+      component: "LazyWorkflowEditManagePage",
+      feature: "WORKFLOW",
+      props:{},
     }
   }
 })

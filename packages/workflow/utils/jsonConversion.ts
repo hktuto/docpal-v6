@@ -21,7 +21,8 @@ interface Config {
 
 /**
  * node Style
- * @const tags 類型
+ * @const type 類型
+ * @const tags 標簽
  * @const x X坐標
  * @const y Y坐標
  * @const width graph的寬度
@@ -29,12 +30,18 @@ interface Config {
  * @const icon graph的包含的Icon
  */
 interface Metadata {
-  tags?: string
+  type: string
+  tags: WorkflowElementType
   x: number
   y: number
   width: number
   height: number
   icon?: string
+  formKey?: string
+  buttonSetting?: any
+  signature?: any
+  rules?: any
+  maxOutgoing?: number
 }
 
 /**
@@ -229,7 +236,6 @@ function joinType(type: string) {
     case CellType.parallelGateway:
       return 'AND'
     case CellType.inclusiveGateway:
-      // return 'OR'
       return 'XOR'
     default:
       return 'XOR'

@@ -24,6 +24,15 @@ function setupNode() {
 
   graphProvider?.graph.value?.on('node:mouseenter', ({ cell }: any) => {
     if (graphProvider?.readonly.value) return
+
+    if (cell.getData().metadata.type === CellType.conditionTask) {
+      const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(cell).filter((connectedEdge: any) => {
+        return connectedEdge.source.cell === cell.id
+      })
+      // 當超出node設定的最大連出綫，該節點不在顯示節點標識符
+      if (allNodeConnected.length === cell.getData().metadata.maxOutgoing) return
+    }
+
     // 获取该节点下的所有连接桩
     const ports = cell.getPorts() || []
     ports.forEach((port: any) => {
@@ -93,6 +102,11 @@ onClickOutside(rightClickEl, () => {
 
 function handleNodeClick({ node }: any) {
   const type = node.data.metadata.tags as WorkflowElementType
+  if (type === WorkflowElementType.Gateway) {
+    graphProvider?.closeSidebar()
+    return
+  }
+
   if (type) {
     const workflowElementType = workflowElement[type]
     if (workflowElementType.contextMenuComponent) {

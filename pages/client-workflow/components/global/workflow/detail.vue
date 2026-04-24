@@ -489,7 +489,7 @@ onMounted(() => {
               <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20"
                     @click="toggleFullScreenForm" />
             </div>
-            <WorkflowDetailFormRender
+            <ContextFormRender
               ref="vFormRef"
               :taskDetail="state.taskDetail"
               @formChange="handleFormChange"
@@ -526,7 +526,7 @@ onMounted(() => {
 
                 </div>
               </template>
-            </WorkflowDetailFormRender>
+            </ContextFormRender>
           </div>
           <template v-if="displayMode === 'signature'">
             <!-- template viewer -->

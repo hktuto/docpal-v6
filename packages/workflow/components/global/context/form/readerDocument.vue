@@ -1,6 +1,6 @@
 <template>
   <div class="workflowReader" v-loading="previewFile.loading">
-    <Reader ref="ReaderRef" v-bind="previewFile"></Reader>
+    <Reader ref="ReaderRef" v-bind="previewFile" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -20,9 +20,12 @@ const previewFile = reactive<any>({
 async function init(fileId: string) {
   previewFile.loading = true
   try {
-    previewFile.blob = await newClientApi.getWorkflowTaskAttachmentPreview({ attachmentId: fileId }, {
-      format: 'blob'
-    })
+    previewFile.blob = await newClientApi.getWorkflowTaskAttachmentPreview(
+      { attachmentId: fileId },
+      {
+        format: 'blob'
+      }
+    )
   } catch (error) {
     console.log(error)
   }

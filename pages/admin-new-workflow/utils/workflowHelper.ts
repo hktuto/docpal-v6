@@ -4,7 +4,7 @@ export const routeWorkflowManageEditor = function (params: any) {
     name: 'workflow-edit-' + params.id,
     icon: 'dp-icon:flow-outline',
     label: params.name,
-    component: 'LazyWorkflowManageEditor',
+    component: 'LazyWorkflowEditManageEditor',
     props: {
       id: params.id
     }

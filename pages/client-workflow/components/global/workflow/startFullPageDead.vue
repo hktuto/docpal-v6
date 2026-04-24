@@ -147,7 +147,7 @@ onMounted(() => {
 
 <template>
   <div class="pageContainer">
-    <WorkflowDetailFormRender ref="vFormRef">
+    <ContextFormRender ref="vFormRef">
       <template #action>
         <div class="workflow-actions">
           <template v-for="(item,index) in additionalButton" :key="index">
@@ -157,7 +157,7 @@ onMounted(() => {
             {{ $t('cancelText') }}
           </el-button>
           <el-button
-            v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
+            v-if="!pageButtonSetting || pageButtonSetting.showSubmitButton"
             id="Workflow__NewWorkflow__StartFullPageDead__Submit" type="primary"
             :disabled="loading" @click="handleSubmit">
             <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
@@ -169,7 +169,7 @@ onMounted(() => {
           </el-button>
         </div>
       </template>
-    </WorkflowDetailFormRender>
+    </ContextFormRender>
   </div>
 </template>
 

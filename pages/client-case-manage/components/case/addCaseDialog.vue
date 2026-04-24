@@ -132,7 +132,7 @@ defineExpose({ handleOpen })
         <Icon name="mdi:fullscreen" class="cursor-pointer" @click="isFullScreen = !isFullScreen" />
       </div>
     </template>
-    <WorkflowDetailFormRender v-if="isWorkflowForm" ref="FromVariablesRendererRef" />
+    <ContextFormRender v-if="isWorkflowForm" ref="FromVariablesRendererRef" />
     <MasterTableVariableForm v-else ref="MasterTableVariableFormRef" :ignoreList="ignoreList" />
     <template #footer>
       <div class="footer-grid">

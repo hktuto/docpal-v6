@@ -51,14 +51,14 @@ function handleCreate() {
   const key = createMapping.value.key.trim()
   if (!key || key === '') return
 
-  const find = tableData.value.find((item: any) => item.key === `${key}_budget`)
+  const find = tableData.value.find((item: any) => item.key === key)
   if (!!find) {
     routerProvider?.message.error('Key already exists')
     return
   }
 
   tableData.value.push({
-    key: `${key}_budget`,
+    key: key,
     value: '',
     // type: createMapping.value.type
   })
@@ -85,10 +85,6 @@ function handleSubmit() {
   dialogVisible.value = false
 }
 
-function handleKey(key: string) {
-  return key.replace(/_budget$/, '')
-}
-
 defineExpose({ open })
 </script>
 
@@ -109,7 +105,7 @@ defineExpose({ open })
       <el-table :data="tableData" stripe style="width: 100%">
         <el-table-column :label="t('Key')" prop="key">
           <template #default="{ row, $index }">
-            {{ handleKey(row.key) }}
+            {{ row.key }}
           </template>
         </el-table-column>
 <!--        <el-table-column :label="t('Type')" prop="type">-->

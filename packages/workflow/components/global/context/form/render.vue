@@ -1,32 +1,3 @@
-<template>
-  <div class="workflowFormContainer">
-    <FormRenderer
-      :class="{ vformReadonly: state.readonly, workflowForm: true }"
-      ref="FormRendererRef"
-      :formJson="formJson"
-      :data="formData"
-      @previewFileInit="handlePreviewFileInit"
-      @formChange="$emit('formChange')"
-    >
-      <template v-slot:previewFile="{ data }">
-        <LazyContextFormReaderDocument class="WorkflowDetailReader" ref="WorkflowReaderDocumentRef"/>
-      </template>
-      <template v-for="item in formRenderSlots" :key="item.name" v-slot:[item.name]="{ data }">
-        <component
-          :is="item.component"
-          :ref="(el: any) => (formRenderSlotsRef[item.name] = el)"
-          :disabled="state.readonly"
-          :formData="state.formData"
-          :options="data.options?.dynamicConfig"
-          :vformOptions="data.options"
-          :taskDetail="props.taskDetail"
-        />
-      </template>
-    </FormRenderer>
-    <slot name="action" />
-  </div>
-</template>
-
 <script lang="ts" setup>
 import { newClientApi } from 'api'
 
@@ -160,7 +131,7 @@ const formRenderSlotsRef = ref<any>({})
 
 async function getFormData(needValidation = true, onlyWritable = false) {
   try {
-    let formData = {}
+    let formData
     if (!needValidation) formData = await FormRendererRef.value.getFormData(false)
     else {
       formData = await FormRendererRef.value
@@ -169,14 +140,13 @@ async function getFormData(needValidation = true, onlyWritable = false) {
           return res
         })
         .catch((error: any) => {
+          console.log(error)
           return false
         })
     }
     if (!formData) return false
     let resultFormData = onlyWritable ? writableDataDeArray(deepCopy(formData)) : dataDeArray(deepCopy(formData))
     const slotData = await getSlotData(formRenderSlotsRef.value, needValidation)
-
-    // throw new Error("slotData", result)
     return {
       ...resultFormData,
       ...slotData
@@ -296,6 +266,35 @@ provide('workflowFormRender', {
   getFormData
 })
 </script>
+
+<template>
+  <div class="workflowFormContainer">
+    <FormRenderer
+      :class="{ vformReadonly: state.readonly, workflowForm: true }"
+      ref="FormRendererRef"
+      :formJson="formJson"
+      :data="formData"
+      @previewFileInit="handlePreviewFileInit"
+      @formChange="$emit('formChange')"
+    >
+      <template v-slot:previewFile="{ data }">
+        <LazyContextFormReaderDocument class="WorkflowDetailReader" ref="WorkflowReaderDocumentRef" />
+      </template>
+      <template v-for="item in formRenderSlots" :key="item.name" v-slot:[item.name]="{ data }">
+        <component
+          :is="item.component"
+          :ref="(el: any) => (formRenderSlotsRef[item.name] = el)"
+          :disabled="state.readonly"
+          :formData="state.formData"
+          :options="data.options?.dynamicConfig"
+          :vformOptions="data.options"
+          :taskDetail="props.taskDetail"
+        />
+      </template>
+    </FormRenderer>
+    <slot name="action" />
+  </div>
+</template>
 
 <style lang="scss" scoped>
 .workflowForm {

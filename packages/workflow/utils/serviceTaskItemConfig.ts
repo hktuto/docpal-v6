@@ -1,4 +1,8 @@
 export const getServiceTaskItemConfig = {
+  ConditionTask: {
+    relation: 'AND',
+    conditions: []
+  },
   SubProcess: {
     processDefinitionId: ''
   },
@@ -54,20 +58,15 @@ export const getServiceTaskItemConfig = {
     url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
     headers: generatorHTTPRequestTaskHeaders(),
     body: {
-      templateId: '01KG66ARVKJGEFS4FVDV4QFT1Y',
-      variables: {
-        name: '${username}'
-      }
+      templateId: '',
+      variables: {}
     },
-    output_mapping: {
-      create_status: 'success',
-      document_number: '${data}'
-    }
+    output_mapping: {}
   },
   FilingDocuments: {
-    implementation: 'document_generation',
+    implementation: 'filing_document',
     method: 'POST',
-    url: `${getUrlOrigin()}/api/dms/facade/generate/folder-cabinet/documents`,
+    url: `${getUrlOrigin()}/api/dms/facade/filing-document`,
     headers: generatorHTTPRequestTaskHeaders(),
     body: {
       folderCabinetId: '',

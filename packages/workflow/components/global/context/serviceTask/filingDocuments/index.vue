@@ -73,6 +73,7 @@ async function getCabinetDetail() {
       id: item.id,
       parentId: item.parentId,
       documentId: '',
+      documentFileId: '',
       name: item.label,
       level: item.level,
       isFolder: item.folder,
@@ -82,8 +83,6 @@ async function getCabinetDetail() {
 
     if (formData.value.body.folderCabinet.length > 0) {
       const fc: any = formData.value.body.folderCabinet.find((fItem: any) => fItem.id === item.id)
-      if (!fc) return record
-
       field = item.displayMeta.reduce((allMeta: any, meta: any) => {
         if (!!fc && !!fc.mapping) {
           allMeta.push({
@@ -101,7 +100,10 @@ async function getCabinetDetail() {
         return allMeta
       }, [])
 
-      record.documentId = fc.documentId || ''
+      if (!!fc) {
+        record.documentId = fc.documentId
+        record.documentFileId = fc.documentFileId
+      }
     } else {
       field = item.displayMeta.map((meta: any) => ({
         formProperty: '',
@@ -109,7 +111,6 @@ async function getCabinetDetail() {
         metaDataType: meta.type
       }))
     }
-
     record.mapping = field
     return record
   })
@@ -186,7 +187,7 @@ watch(
 <template>
   <el-form label-position="top" @native.enter="() => {}">
     <el-form-item label="Folder Cabinet">
-      <el-select v-model="formData.body.folderCabinetId" :disabled="graphProvider.readonly.value" @change="getCabinetDetail" clearable>
+      <el-select v-model="formData.body.folderCabinetId" :disabled="graphProvider.readonly.value" @change="getCabinetDetail" clearable filterable>
         <el-option v-for="item in cabinetOptions" :key="item.id" :label="item.label" :value="item.id" />
       </el-select>
     </el-form-item>

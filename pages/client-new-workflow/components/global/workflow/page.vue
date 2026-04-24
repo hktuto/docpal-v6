@@ -1,32 +1,33 @@
 <script lang="ts" setup>
-const state = reactive<any>({
-  activeTab: 'allTask',
-  loading: false
-})
+const activeTab = ref('allTask')
 const workflowRef = ref()
+
+function reload() {
+  // workflowRef.value.reloadTable()
+}
 </script>
 
 <template>
   <div class="pageContainer--padding workflow-page">
     <div class="buttons--absolute">
       <WorkflowPopoverPersonal />
-      <WorkflowPopoverNewTask />
+      <WorkflowPopoverNewTask @reload="reload" />
     </div>
-    <el-tabs v-model="state.activeTab" class="tag-container dp-tabs--auto">
+    <el-tabs v-model="activeTab" class="tag-container dp-tabs--auto">
       <el-tab-pane :label="$t('workflow_allTask')" name="allTask">
-        <WorkflowAllTask v-if="state.activeTab === 'allTask'" ref="workflowRef" />
+        <WorkflowAllTask v-if="activeTab === 'allTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_myTask')" name="myTask">
-        <WorkflowMyTask v-if="state.activeTab === 'myTask'" ref="workflowRef" />
+        <WorkflowMyTask v-if="activeTab === 'myTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_completedTask')" name="completeTask">
-        <WorkflowCompleteTask v-if="state.activeTab === 'completeTask'" ref="workflowRef" />
+        <WorkflowCompleteTask v-if="activeTab === 'completeTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_activeTask')" name="activeTask">
-        <WorkflowActiveTask v-if="state.activeTab === 'activeTask'" ref="workflowRef" />
+        <WorkflowActiveTask v-if="activeTab === 'activeTask'" ref="workflowRef" />
       </el-tab-pane>
-      <el-tab-pane :label="$t('workflow_adhocTask')" name="adhocTask">
-        <WorkflowAdhocTask v-if="state.activeTab === 'adhocTask'" ref="workflowRef" />
+      <el-tab-pane :label="$t('Resolved Task')" name="resolvedTask">
+        <WorkflowResolvedTask v-if="activeTab === 'resolvedTask'" ref="workflowRef" />
       </el-tab-pane>
     </el-tabs>
   </div>

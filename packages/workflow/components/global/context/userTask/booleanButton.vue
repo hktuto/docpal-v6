@@ -13,15 +13,26 @@ if (!graphProvider) {
 }
 const { getVariablesByType } = useVariablesProvide()
 const buttonStyle = ['primary', 'success', 'warning', 'danger', 'info', 'text']
+type buttonItem = {
+  booleanValue: string
+  buttonStyle: string
+  buttonText: string
+  applyState: true
+}
 
-const buttonSetting = ref({
-  showSumBitButton: true,
+const buttonSetting = ref<{
+  showSubmitButton: boolean
+  submitButtonLabel: string
+  showSaveDraft: boolean
+  saveDraftLabel: string
+  booleanButton: buttonItem[]
+}>({
+  showSubmitButton: true,
   submitButtonLabel: 'Submit',
   showSaveDraft: true,
-  saveDraftLabel: 'Save Draft'
+  saveDraftLabel: 'Save Draft',
+  booleanButton: []
 })
-const form = ref()
-
 const allBooleanInfo = computed(() => {
   return getVariablesByType(['boolean'])
 })
@@ -33,24 +44,41 @@ function init() {
   }
 }
 
-function setForm() {
-  graphProvider?.graph.value?.startBatch('update-startTask-data')
+function updateData() {
+  graphProvider?.graph.value?.startBatch('update-boolean-button-data')
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
     metadata: {
       ...nodeData.metadata,
-      buttonSetting: {
-        ...buttonSetting.value
-      }
+      buttonSetting: buttonSetting.value
     },
-    version: nodeData.version + 1 || 0
+    version: nodeData.version + 1 || 1
   }
   node.setData(newData, { overwrite: true, deep: true, silent: false })
-  graphProvider?.graph.value?.stopBatch('update-startTask-data')
+  graphProvider?.graph.value?.stopBatch('update-boolean-button-data')
 }
 
-function addButton() {}
+const defaultForm: buttonItem = {
+  booleanValue: '',
+  buttonStyle: 'primary',
+  buttonText: 'Submit',
+  applyState: true
+}
+function addButton() {
+  if (!buttonSetting.value.booleanButton) {
+    buttonSetting.value.booleanButton = []
+  }
+
+  buttonSetting.value.booleanButton.push({
+    ...defaultForm
+  })
+}
+
+function handleRemoveBooleanItem(index: number) {
+  buttonSetting.value.booleanButton.splice(index, 1)
+  updateData()
+}
 
 watch(
   () => node,
@@ -76,18 +104,18 @@ onMounted(() => {
     <div>
       <span>Button Setting</span>
       <el-form label-position="top">
-        <el-form-item label="Show Submit Button">
-          <el-switch v-model="buttonSetting.showSumBitButton" @change="setForm" />
+        <el-form-item v-if="node.data.type !== 'StartEvent'" label="Show Submit Button">
+          <el-switch v-model="buttonSetting.showSubmitButton" @change="updateData" />
         </el-form-item>
         <el-form-item label="Submit Button Label">
-          <el-input v-model="buttonSetting.submitButtonLabel" @change="setForm" />
+          <el-input v-model="buttonSetting.submitButtonLabel" @change="updateData" />
         </el-form-item>
-        <template v-if="node.data.type !== 'StartEvent'">
+        <template v-if="node.data.metadata.type === 'UserTask'">
           <el-form-item label="Show Save Draft Button">
-            <el-switch v-model="buttonSetting.showSaveDraft" @change="setForm" />
+            <el-switch v-model="buttonSetting.showSaveDraft" @change="updateData" />
           </el-form-item>
           <el-form-item label="Save Draft Button Label">
-            <el-input v-model="buttonSetting.saveDraftLabel" @change="setForm" />
+            <el-input v-model="buttonSetting.saveDraftLabel" @change="updateData" />
           </el-form-item>
         </template>
       </el-form>
@@ -95,19 +123,19 @@ onMounted(() => {
 
     <template v-if="allBooleanInfo.length === 0">No Boolean Field to set</template>
     <div v-else class="listContainer">
-      <template v-for="(item, index) in form">
+      <template v-for="(item, index) in buttonSetting.booleanButton">
         <el-form :model="item" label-position="top" class="listItem">
           <el-form-item label="Which field to set when clicked">
-            <el-select v-model="item.booleanValue" placeholder="Document Step" filterable>
+            <el-select v-model="item.booleanValue" placeholder="Document Step" filterable @change="updateData">
               <el-option v-for="item in allBooleanInfo" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
           <el-form-item label="What State to apply">
-            <el-switch v-model="item.applyState" active-text="True" inactive-text="False" />
+            <el-switch v-model="item.applyState" active-text="True" inactive-text="False" @change="updateData" />
           </el-form-item>
           <el-form-item label="Button Color">
             <el-select v-model="item.buttonStyle" placeholder="Button Style" filterable>
-              <el-option v-for="item in buttonStyle" :key="item" :label="item" :value="item">
+              <el-option v-for="item in buttonStyle" :key="item" :label="item" :value="item" @change="updateData">
                 <div class="flex items-center">
                   <el-button :type="item" size="small">{{ item }}</el-button>
                 </div>
@@ -115,15 +143,15 @@ onMounted(() => {
             </el-select>
           </el-form-item>
           <el-form-item label="Button Text">
-            <el-input v-model="item.buttonText" placeholder="Button Text" />
+            <el-input v-model="item.buttonText" placeholder="Button Text" @change="updateData" />
           </el-form-item>
           <el-form-item>
-            <el-button type="danger" @click="form.splice(index, 1)">Remove</el-button>
+            <el-button type="danger" @click="handleRemoveBooleanItem(index)">Remove</el-button>
           </el-form-item>
         </el-form>
       </template>
       <div class="actions">
-        <el-button text @click="addButton">Add</el-button>
+        <el-button v-if="node.data.type !== 'StartEvent'" text @click="addButton">Add</el-button>
       </div>
     </div>
   </div>

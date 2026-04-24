@@ -20,7 +20,7 @@ const formData = ref<{
 
 function init() {
   const data = node.getData()
-  const type = data.type as keyof typeof getServiceTaskItemConfig
+  const type = data.metadata.type as keyof typeof getServiceTaskItemConfig
   if (!(type in contextMenuComponentType)) {
     editComponent.value = null
     selectedServiceConfig.value = null

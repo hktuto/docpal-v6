@@ -1,35 +1,47 @@
 <script setup lang="ts">
-import { globalApi } from 'api'
+import { globalApi, newAdminApi } from 'api'
 
-const appPlatform = useAppPlatform()
 const props = defineProps<{
-  path?: string,
-  size?: 'large' | 'default' | 'small',
-  disabled?: boolean,
-  showAllLevels?: boolean,
+  modelValue: string[]
+  path?: string
+  size?: 'large' | 'default' | 'small'
+  disabled?: boolean
+  showAllLevels?: boolean
   clearable?: boolean
 }>()
-const idOrPath = ref('')
+const emits = defineEmits(['update:modelValue', 'id'])
+
+const selectedPath = computed({
+  get() {
+    return props.modelValue
+  },
+  set(newValue) {
+    emits('update:modelValue', newValue)
+  }
+})
+
 const options = ref([])
 const setting = computed(() => ({
   showPrefix: true,
   checkStrictly: true,
   checkOnClickNode: true
 }))
-const emit = defineEmits(['id'])
 
 async function getBrowseList(idOrPath: string) {
-  const data = await globalApi.postDmsDocumentChildrenThumbnail({
-    idOrPath: idOrPath,
-    pageSize: 10000
-  }).then(res => res.data)
+  const data: any = await globalApi
+    .postDmsDocumentChildrenThumbnail({
+      idOrPath: idOrPath,
+      pageSize: 10000
+    })
+    .then((res) => res.data)
 
   return data.entryList.reduce((prev: any[], item: any) => {
-    if (item.isFolder) prev.push({
-      value: item.id,
-      label: item.name,
-      children: [{}]
-    })
+    if (item.isFolder)
+      prev.push({
+        value: item.id,
+        label: item.name,
+        children: [{}]
+      })
     return prev
   }, [])
 }
@@ -40,6 +52,7 @@ async function getNodes(id: any) {
   }
   try {
     const targetId = id[id.length - 1]
+    emits('id', targetId)
     const targetNode = findNodeById(options.value, targetId)
     if (targetNode.children.length > 1) {
       return
@@ -70,24 +83,25 @@ function findNodeById(nodes: any[], targetId: string): any | null {
   return null
 }
 
-onMounted(async () => {
-  let path = '/'
-  if (props.path && props.path !== '') {
-    path = props.path
+watch(
+  () => props.path,
+  async () => {
+    let path = '/'
+    if (!!props.path && props.path !== '') {
+      path = props.path
+    }
+    options.value = await getBrowseList(path)
+  },
+  {
+    immediate: true,
+    deep: true
   }
-  options.value = await getBrowseList(path)
-})
-
-watch(() => idOrPath.value, async (newVal) => {
-  if (!!newVal && newVal != '' && newVal.length > 0) {
-    emit('id', newVal[newVal.length - 1])
-  }
-})
+)
 </script>
 
 <template>
   <el-cascader
-    v-model="idOrPath"
+    v-model="selectedPath"
     style="width: 100%"
     :size="size"
     :disabled="disabled"
@@ -95,9 +109,8 @@ watch(() => idOrPath.value, async (newVal) => {
     :props="setting"
     @change="getNodes"
     :show-all-levels="showAllLevels"
-    :clearable="clearable" />
+    :clearable="clearable"
+  />
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

@@ -11,6 +11,7 @@ const loading = ref(false)
 const signatures = ref<any[]>([])
 const signaturePreview = ref<any[]>([])
 const currenUserDetail = useUserState()
+const signatureCanvasRef = ref()
 
 function ensureUserId(): string {
   const userId = currenUserDetail.value?.userId
@@ -20,45 +21,48 @@ function ensureUserId(): string {
   return userId
 }
 
-const signatureCanvasRef = ref<any>(null)
-
 async function getUserSignature() {
-  const signature = await newClientApi.getDmsUserprofileUseridSignature(ensureUserId(), {
-    format: 'blob', headers: {
-      'noThrowError': true
+  const signature = (await newClientApi.getDmsUserprofileUseridSignature(ensureUserId(), {
+    format: 'blob',
+    headers: {
+      noThrowError: true
     }
-  }) as unknown as Blob
+  })) as unknown as Blob
 
   if (!signature || signature.size === 0) {
     signaturePreview.value.push({
-      type: 'user', img: ''
+      type: 'user',
+      img: ''
     })
     return
   }
   const reader = new FileReader()
   reader.readAsDataURL(signature)
-  reader.onloadend = function() {
-    var base64data = reader.result
+  reader.onloadend = function () {
+    const base64data = reader.result
     signatures.value.push(base64data)
     signaturePreview.value.push({
-      type: 'user', img: base64data
+      type: 'user',
+      img: base64data
     })
   }
 }
 
 async function getCompanyChop(chopId: string) {
-  const signature = await newClientApi.getDmsCompanyprofilesChopsCompanychopidFile(chopId, {
-    format: 'blob', headers: {
-      'noThrowError': true
+  const signature = (await newClientApi.getDmsCompanyprofilesChopsCompanychopidFile(chopId, {
+    format: 'blob',
+    headers: {
+      noThrowError: true
     }
-  }) as unknown as Blob
+  })) as unknown as Blob
   const reader = new FileReader()
   reader.readAsDataURL(signature)
-  reader.onloadend = function() {
-    var base64data = reader.result
+  reader.onloadend = function () {
+    const base64data = reader.result
     signatures.value.push(base64data)
     signaturePreview.value.push({
-      type: 'company', img: base64data
+      type: 'company',
+      img: base64data
     })
   }
 }
@@ -70,6 +74,7 @@ async function open() {
   signaturePreview.value = []
   // check if signatureVariableSetting is personal or company
   const type = props.signatureSetting.signatureVariableSetting.value.type
+
   if (type === 'personal' || type === 'both') {
     await getUserSignature()
   }
@@ -101,15 +106,12 @@ async function handleSubmitSignature(signature: string) {
 
   const userSignature = signaturePreview.value.find((item: any) => item.type === 'user')
 
-  // TODO: swagger APi 文檔需要移除 query 參數
   if (!userSignature || !userSignature.img) {
     await newClientApi.postDmsUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
   } else {
     await newClientApi.putDmsUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
   }
-  // step 1 save user signature, and call open again to draw new signature
-  // signaturePreview.value.push(signature)
-  open()
+  await open()
 }
 
 function confirmApplySignature() {
@@ -137,29 +139,24 @@ const canDrawNewSignature = computed(() => {
   return props.signatureSetting.signatureVariableSetting.value.type === 'personal' || props.signatureSetting.signatureVariableSetting.value.type === 'both'
 })
 
-defineExpose({
-  open,
-  close
-})
+defineExpose({ open, close })
 </script>
+
 <template>
-  <el-dialog v-model="opened" v-loading="loading" append-to-body>
-    <h3>Apply Signature</h3>
-    <div class="signatureContainer">
-      <div class="signatureItem" v-for="signature in signaturePreview" :key="signature">
-        <div class="signatureType">
-          {{ toTitleCase(signature.type) }}
-        </div>
-        <div class="signatureImageContainer">
-          <template v-if="signature.img">
-            <img class="signatureImage" :src="signature.img" alt="signature" />
-          </template>
-          <template v-else>
-            <el-icon class="cursor-pointer" @click="openSignatureCanvas">
-              <Plus />
-            </el-icon>
-          </template>
-        </div>
+  <el-dialog v-model="opened" v-loading="loading" append-to-body title="Apply Signature">
+    <div class="signatureItem" v-for="signature in signaturePreview" :key="signature">
+      <div class="signatureType">
+        {{ toTitleCase(signature.type) }}
+      </div>
+      <div class="signatureImageContainer">
+        <template v-if="signature.img">
+          <img class="signatureImage" :src="signature.img" alt="signature" />
+        </template>
+        <template v-else>
+          <el-icon class="cursor-pointer" @click="openSignatureCanvas">
+            <Plus />
+          </el-icon>
+        </template>
       </div>
     </div>
 
@@ -171,13 +168,8 @@ defineExpose({
   </el-dialog>
   <SignatureCanvas ref="signatureCanvasRef" @submit="handleSubmitSignature" />
 </template>
-<style scoped>
-.signatureContainer {
-  display: flex;
-  flex-direction: row wrap;
-  gap: var(--app-space-s);
-}
 
+<style scoped>
 .signatureItem {
   display: flex;
   flex-direction: column;

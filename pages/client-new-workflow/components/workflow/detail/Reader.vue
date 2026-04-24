@@ -1,6 +1,6 @@
 <template>
   <div class="workflowReader" v-loading="previewFile.loading">
-    <Reader ref="ReaderRef" v-bind="previewFile"></Reader>
+    <Reader ref="ReaderRef" v-bind="previewFile"/>
   </div>
 </template>
 <script lang="ts" setup>

@@ -26,9 +26,8 @@ async function getWorkflowData() {
     }
     openWorkflowEdit.value = true
     const data: any = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${props.id}`).then((r: any) => r.data)
-    if (!data) {
-      throw Error('workflow Data is null')
-    }
+    if (!data) return
+
     workflowId.value = data.id
     workflowData.value = data.draft_content
     workflowReadonly.value = false
@@ -41,6 +40,7 @@ async function getWorkflowData() {
     })
   } catch (e) {
     console.log(e)
+    throw new Error(e)
   }
 }
 

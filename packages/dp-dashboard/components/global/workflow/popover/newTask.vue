@@ -2,13 +2,12 @@
 import { ElMessage } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
-import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
+import { getButtonAdditionalElement, getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 
 const vFormRef = ref()
 const workflowEditorRef = ref()
 const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
-const graphEl = ref()
 const activeName = ref('Form')
 const state = reactive({
   availableWorkflow: [],
@@ -17,23 +16,10 @@ const state = reactive({
   bpmnXml: null,
   loading: false
 })
-type AdditionalButton = {
-  props: any
-  component: string
-}
-const additionalButton = ref<AdditionalButton[]>([])
+const emits = defineEmits(['reload'])
 const pageButtonSetting = ref<any>(null)
 const openWorkflowEdit = ref(false)
-
-function tabChangeHandler() {
-  if (activeName.value === 'Graph') {
-    // @ts-ignore
-    nextTick(async () => {
-      console.log(state.selectedWorkflow)
-      graphEl.value.init(state.bpmnXml)
-    })
-  }
-}
+const userId = useUserId()
 
 const { workflowList } = await getWorkflowList()
 
@@ -43,7 +29,7 @@ async function workflowClickHandler(item: any) {
   openWorkflowEdit.value = true
   const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${item.id}`).then((r: any) => r.data)
   if (!data) return
-  if (data.status === 'D') {
+  if (data.published_version < 1) {
     state.loading = false
     routerProvider?.message.error('Workflow has not been released.')
     return
@@ -63,6 +49,7 @@ async function workflowClickHandler(item: any) {
     return
   }
 
+  console.log(123, data)
   state.selectedWorkflow = deepCopy(data)
 
   // Open in new page
@@ -72,7 +59,22 @@ async function workflowClickHandler(item: any) {
   }
 
   // start Task has no set E-Form
-  if (!startTask.metadata.formKey || startTask.metadata.formKey === '') return
+  if (!startTask.metadata.formKey || startTask.metadata.formKey === '') {
+    // Directly Submit form
+    try {
+      const formParams = {
+        start_user_id: userId.value,
+        definition_id: state.selectedWorkflow.id,
+        variables: {}
+      }
+
+      await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
+    } catch (e) {
+      console.log(e)
+    }
+
+    return
+  }
 
   state.formDialogVisible = true
   await initForm(startTask)
@@ -97,8 +99,7 @@ async function initForm(startTask: any) {
 }
 
 async function handleAdditionalSetting(metadata: any) {
-  const { buttons, components, signatureSetting, buttonSetting } = await getBpmnAdditionalElement(metadata)
-  additionalButton.value = buttons
+  const { buttonSetting, signatureSetting } = await getButtonAdditionalElement([], metadata, {})
   if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
   }
@@ -107,7 +108,6 @@ async function handleAdditionalSetting(metadata: any) {
 async function checkAndSubmit() {
   state.loading = true
   const formData = await vFormRef.value.getFormData()
-  const userId = useUserId()
 
   if (!!formData) {
     const formParams = {
@@ -134,6 +134,7 @@ async function checkAndSubmit() {
     }
   }
   state.loading = false
+  emits('reload')
 }
 
 onMounted(() => {})
@@ -175,19 +176,20 @@ defineExpose({ workflowClickHandler })
         </div>
       </div>
     </template>
-    <ElTabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading" @tab-change="tabChangeHandler">
-      <ElTabPane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
-        <WorkflowDetailFormRender ref="vFormRef" />
-      </ElTabPane>
-      <ElTabPane :label="$t('workflow_graph')" name="Graph">
+    <el-tabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading">
+      <el-tab-pane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
+        <ContextFormRender ref="vFormRef" />
+      </el-tab-pane>
+      <el-tab-pane :label="$t('workflow_graph')" name="Graph">
         <div v-if="openWorkflowEdit" class="pageContainer">
           <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :showSidebar="false" />
         </div>
-      </ElTabPane>
-    </ElTabs>
+      </el-tab-pane>
+    </el-tabs>
+
     <template #footer>
       <el-button
-        v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
+        v-if="!pageButtonSetting || pageButtonSetting.showSubmitButton"
         id="Workflow__NewWorkflow__StartWorkflow"
         type="primary"
         :disabled="state.loading"

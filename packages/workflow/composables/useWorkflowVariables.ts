@@ -4,6 +4,12 @@ import type { Graph } from '@antv/x6'
  * 動態變量的數據類型
  */
 export type VariableItemType = 'string' | 'number' | 'boolean' | 'date'
+export const VariableItemTag = {
+  string: ['string', 'user', 'file'],
+  number: ['number'],
+  boolean: ['boolean'],
+  date: ['date']
+}
 
 export const VariableTypeOptions = [
   {
@@ -12,36 +18,54 @@ export const VariableTypeOptions = [
       {
         label: 'Text',
         type: 'string',
+        tag: 'string',
         validation: {
           maxLength: 255
         },
-        component: 'DataTypeText'
+        component: 'ContextVariableDataTypeString'
+      },
+      {
+        label: 'User',
+        type: 'string',
+        tag: 'user',
+        validation: {},
+        component: 'ContextVariableDataTypeString'
+      },
+      {
+        label: 'File',
+        type: 'string',
+        tag: 'file',
+        validation: {},
+        component: 'ContextVariableDataTypeString'
       },
       {
         label: 'Number',
         type: 'number',
+        tag: 'number',
         validation: {
           minimum: -999999,
           maximum: 999999,
           multipleOf: 0
         },
-        component: 'DataTypeNumber'
+        component: 'ContextVariableDataTypeNumber'
       },
       {
         label: 'Boolean',
         type: 'boolean',
+        tag: 'boolean',
         validation: {},
-        component: 'DataTypeBoolean'
+        component: 'ContextVariableDataTypeBoolean'
       },
       {
         label: 'Date',
         type: 'date',
+        tag: 'date',
         validation: {
           dateOrDateTime: 'date',
           format: 'YYYY-MM-DD',
           isMultiple: false
         },
-        component: 'DataTypeDate'
+        component: 'ContextVariableDataTypeDate'
       }
     ]
   }
@@ -51,6 +75,7 @@ export type VariableItem = {
   id: string
   name: string
   type: VariableItemType
+  tag: string
   required: boolean
   maxLength?: number
   pattern?: string
@@ -62,7 +87,8 @@ export type VariableItem = {
 export type VariableSelectItem = {
   id: string
   name: string
-  type: string
+  type: VariableItemType
+  tag: string
 }
 
 export type WorkflowVariablesObj = Record<string, Omit<VariableItem, 'id'>>
@@ -144,15 +170,15 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
 
   /**
    * 根據數據類型返回對應的數據類型
-   * @param typeList 變量的數據類型
+   * @param typeList 變量的數據類型 VariableItemTag 的子類型
    * @param status 是否是變量
    */
-  function getVariablesByType(typeList?: VariableItemType[], status = false): VariableSelectItem[] {
-    let list: any = []
-    if (!typeList) {
-      list = variables.value
-    } else if (typeList.length > 0) {
+  function getVariablesByType(typeList?: string[], status = false): VariableSelectItem[] {
+    let list: any
+    if (!!typeList && typeList.length > 0) {
       list = variables.value.filter((item: VariableItem) => typeList.includes(item.type))
+    } else {
+      list = variables.value
     }
 
     return list.map((item: VariableItem) => ({

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { newAdminApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 import { JsonSchemaToJsonData } from 'docpal-document-editor/src/client'
 
 const { t } = useI18n()
@@ -31,23 +31,23 @@ const { getVariablesByType } = useVariablesProvide()
 const stringVariablesList = computed(() => {
   return getVariablesByType(['string'], true)
 })
-const allVariablesList = computed(() => {
-  return getVariablesByType([], true)
+const storeVariablesList = computed(() => {
+  return getVariablesByType(['string'])
 })
+
+const documentTypeList = ref<any[]>([])
 const allDocumentTemplates = ref<{ id: string; name: string; value: any }[]>([])
 const formData = ref<{
   body: any
+  output_mapping: any
 }>({
-  body: {}
+  body: {},
+  output_mapping: {}
 })
-const rules = {
-  templateId: [{ required: true, message: t('common_selectedIsRequiredMsg'), trigger: 'change' }],
-  parentPath: [{ required: true, message: t('common_selectedIsRequiredMsg'), trigger: 'change' }],
-  name: [{ required: true, message: t('common_selectedIsRequiredMsg'), trigger: 'change' }],
-  creator: [{ required: true, message: t('common_selectedIsRequiredMsg'), trigger: 'change' }]
-}
-
+const storeValue = ref('')
 const variables = ref<any[]>([])
+const path = ref<string[]>([])
+const parentPathDisplay = ref('')
 
 async function initForm() {
   formData.value = config
@@ -55,6 +55,11 @@ async function initForm() {
   if (formData.value.body.templateId === '') {
     variables.value = []
     return
+  }
+
+  const keys = Object.keys(formData.value.output_mapping)
+  if (keys.length > 0) {
+    storeValue.value = keys[0]
   }
 
   loading.value = true
@@ -67,7 +72,32 @@ async function initForm() {
   }
 }
 
+async function updateParentPathDisplay(pathId: string) {
+  if (!pathId || pathId === '') return ''
+  try {
+    const newVar = await newClientApi.getDmsDocument({ idOrPath: pathId }).then((r) => r.data)
+    if (!newVar) return pathId
+
+    parentPathDisplay.value = newVar?.path || ''
+  } catch (e) {
+    console.log(e)
+    return pathId
+  }
+}
+
 function updateData() {
+  formData.value.body.variables = variables.value.reduce(
+    (acc: Record<string, any>, { id, value }: any) => {
+      acc[id] = value
+      return acc
+    },
+    {} as Record<string, any>
+  )
+
+  const mapping = {}
+  mapping[storeValue.value] = '${generateDocumentId}'
+  formData.value.output_mapping = mapping
+
   emits('update', {
     name: 'update-document-generation-data',
     config: formData.value
@@ -84,7 +114,16 @@ async function getTemplateVariableList() {
     if (!variable) {
       return
     }
-    variables.value = variable
+
+    variables.value = variable.map((item: any) => {
+      Object.keys(fields).forEach((key: string) => {
+        if (item.id === key) {
+          item.value = fields[key]
+        }
+      })
+      return item
+    })
+
     return
   }
 
@@ -99,7 +138,10 @@ async function getTemplateVariableList() {
   })
 }
 
-async function getDocList() {
+async function getConfig() {
+  const documentTypeData: any = await newClientApi.getDmsDocpalTypeActive().then((res) => res.data)
+  documentTypeList.value = documentTypeData.filter((item: any) => !item.isFolder)
+
   const documentData: any = await newAdminApi.getDmsTemplateDocument().then((r: any) => r.data)
   allDocumentTemplates.value = documentData.map((item: any): { id: string; name: string; value: any } => {
     return {
@@ -122,18 +164,34 @@ async function handleChangeTemplateId() {
   }
 }
 
+function setPath(path: string) {
+  formData.value.body.parentPath = path || ''
+  updateData()
+}
+
 onMounted(async () => {
-  await getDocList()
+  await getConfig()
 })
 
 watch(
   () => config,
   () => {
+    if (config == formData.value) return
     initForm()
   },
   {
     immediate: true,
     deep: true
+  }
+)
+
+watch(
+  () => formData.value.body?.parentPath,
+  async (newPath) => {
+    await updateParentPathDisplay(newPath || '')
+  },
+  {
+    immediate: true
   }
 )
 </script>
@@ -145,35 +203,58 @@ watch(
         <el-option v-for="item in allDocumentTemplates" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-    <el-form-item label="Store Value" prop="parentPath">
-      <el-select v-model="formData.body.parentPath" :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
-        <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+
+    <el-form-item label="Parent Path" prop="parentPath">
+      <div class="parent-path-row">
+        <el-input :model-value="parentPathDisplay" disabled />
+        <el-popover placement="right" trigger="click">
+          <template #reference>
+            <el-button>Set Path</el-button>
+          </template>
+          <BrowsePathSelect v-model="path" @id="setPath" />
+        </el-popover>
+      </div>
+    </el-form-item>
+    <el-form-item label="Store Value" prop="storeValue">
+      <el-select v-model="storeValue" @change="updateData" filterable>
+        <el-option v-for="item in storeVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
+    <el-form-item label="Document Type">
+      <el-select v-model="formData.body.type" :placeholder="t('common_selectedIsRequiredMsg')" filterable @change="updateData">
+        <el-option v-for="item in documentTypeList" :key="item.name" :label="item.name" :value="item.name" />
       </el-select>
     </el-form-item>
     <el-form-item label="Document Name" prop="name">
-      <el-select v-model="formData.body.name" :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
+      <el-select v-model="formData.body.name" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item label="Creator" prop="creator">
-      <el-select v-model="formData.body.creator" :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
+      <el-select v-model="formData.body.creator" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
 
     <div v-if="variables.length > 0">
       <el-divider />
-      <p>Template Variable</p>
+      <p>{{ $t('Template Variable') }}</p>
     </div>
 
     <template v-loading="loading" v-for="variable in variables" :key="variable.id">
       <el-form-item :label="variable.name">
-        <el-select v-model="variable.value" @change="updateData">
-          <el-option v-for="item in allVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+        <el-select v-model="variable.value" @change="updateData" clearable filterable>
+          <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
     </template>
   </el-form>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.parent-path-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+</style>

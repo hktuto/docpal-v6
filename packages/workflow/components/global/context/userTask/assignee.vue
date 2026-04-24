@@ -11,6 +11,8 @@ if (!graphProvider) {
 }
 const { getVariablesByType } = useVariablesProvide()
 const autoAssignField = ref<string>('')
+const assignFieldList = ref<any[]>([])
+
 function refreshData() {
   const data = node.getData()
   if (!!data.config.assignee) {
@@ -21,6 +23,7 @@ function refreshData() {
 }
 
 function assigneeChanged(newVal: string) {
+  graphProvider?.graph.value?.startBatch('update-form-assignee-data')
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
@@ -32,17 +35,30 @@ function assigneeChanged(newVal: string) {
   }
 
   node.setData(newData, { overwrite: true, deep: true })
+  graphProvider?.graph.value?.stopBatch('update-form-assignee-data')
 }
 
-const allFields = computed(() => {
-  return getVariablesByType(['string'])
-})
+async function getAssignFieldList() {
+  const stringVariables = getVariablesByType(['string'], true)
+  const userList = await getUserSelectOption()
 
-const userList = ref([])
+  assignFieldList.value = [
+    {
+      label: 'Variables',
+      options: stringVariables
+    },
+    {
+      label: 'User',
+      options: userList.map((item: any) => ({
+        id: item.value,
+        name: item.label
+      }))
+    }
+  ]
+}
+
 onMounted(async () => {
-  if (userList.value.length == 0) {
-    userList.value = await getUserSelectOption()
-  }
+  await getAssignFieldList()
   // useWorkflowAdditionalContext(refreshData)
 })
 
@@ -61,11 +77,13 @@ watch(
 </script>
 
 <template>
-  <ElForm label-position="top" label-width="100px" size="small">
-    <ElFormItem label="Auto Assignee">
-      <ElSelect v-model="autoAssignField" placeholder="Select Field" filterable clearable :disabled="graphProvider.readonly.value" @change="assigneeChanged">
-        <ElOption v-for="item in userList" :key="item.value" :label="item.label" :value="item.value" />
-      </ElSelect>
-    </ElFormItem>
-  </ElForm>
+  <el-form label-position="top" label-width="100px" size="small">
+    <el-form-item label="Auto Assignee">
+      <el-select v-model="autoAssignField" placeholder="Select Field" filterable clearable :disabled="graphProvider.readonly.value" @change="assigneeChanged">
+        <el-option-group v-for="group in assignFieldList" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+        </el-option-group>
+      </el-select>
+    </el-form-item>
+  </el-form>
 </template>

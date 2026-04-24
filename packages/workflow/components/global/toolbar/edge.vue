@@ -11,15 +11,16 @@ type EdgeData = {
   source_node_id: string
   target_node_id: string
   flow_control: {
-    type: 'sequence' | 'conditional' | 'default'
+    type: 'sequence' | 'conditional'
     condition?: string
   }
   label?: string
+  metadata: any
 }
 
 function setupEdge() {
-  graphProvider?.graph.value?.on('edge:dblclick', ({ edge }: any) => {
-    graphProvider?.openSidebar('LazyContextGateway', edge)
+  graphProvider?.graph.value?.on('edge:dblclick', ({ edge, e }: any) => {
+    if (edge.metadata.sourceType !== CellType.conditionTask) return
   })
 
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
@@ -27,7 +28,6 @@ function setupEdge() {
     // cell.setRouter('normal')
 
     cell.addTools([
-      ...getGatewayButton(cell),
       {
         name: 'vertices',
         args: {
@@ -82,14 +82,20 @@ function setupEdge() {
         ...data,
         id: `edge-${edge.id}`,
         source_node_id: source.id,
-        target_node_id: target.id
+        target_node_id: target.id,
+        metadata: {
+          ...data.metadata,
+          sourceType: source.getData().metadata.type,
+          targetType: target.getData().metadata.type,
+          sourcePort: edge.source.port,
+          targetPort: edge.target.port
+        }
       }
       edge.setData(newData, { overwrite: true, deep: true })
       return
     }
 
     // create new edge
-    // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
     const newEdgeData: EdgeData = {
       id: `edge-${edge.id}`,
       source_node_id: edge.source.cell,
@@ -97,65 +103,44 @@ function setupEdge() {
       flow_control: {
         type: 'sequence'
       },
-      label: ''
+      metadata: {
+        label: '',
+        sourceType: source.getData().metadata.type,
+        targetType: target.getData().metadata.type,
+        sourcePort: edge.source.port,
+        targetPort: edge.target.port
+      }
     }
 
     // type is Gateway
-    // TODO: 無法從source區分是那個子節點連接到不同規則
-    if (source.data.type === WorkflowElementType.Gateway) {
+    if (source.data.metadata.tags === WorkflowElementType.Gateway) {
+      const metadata = source.data.metadata
       newEdgeData.flow_control.condition = ''
 
       // Exclusive or Inclusive Gateway 的出綫必須是 'conditional',
-      if (newEdgeData.source_node_id.includes('ExclusiveGateway_') || newEdgeData.source_node_id.includes('InclusiveGateway_')) {
+      if (metadata.type === CellType.exclusiveGateway || metadata.type === CellType.inclusiveGateway) {
         newEdgeData.flow_control.type = 'conditional'
       }
-      // if (newEdgeData.source_node_id.includes('ParallelGateway_') || newEdgeData.target_node_id.includes('ParallelGateway_')) {
-      //   // 進出綫是 'parallel'
-      //   newEdgeData.flow_control.type = 'parallel'
-      // }
     }
+
+    const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge: any) => {
+      return connectedEdge.id !== edge.id && connectedEdge.source.cell === source.id
+    })
+
+    // Set Label to condition edge
+    if (newEdgeData.metadata.sourceType === CellType.conditionTask) {
+      newEdgeData.metadata.label = 'Success'
+      if (isNew) {
+        if (allNodeConnected.length > 0) {
+          newEdgeData.metadata.label = 'Failure'
+        }
+        edge.setLabels(newEdgeData.metadata.label)
+      }
+    }
+
     edge.data = newEdgeData
     edge.setRouter('manhattan')
   })
-}
-
-function getGatewayButton(cell: any) {
-  if (cell.data?.target_node_id?.includes('ParallelGateway_') || cell.data?.source_node_id?.includes('Gateway_')) {
-    return [
-      {
-        name: 'button',
-        args: {
-          markup: [
-            {
-              tagName: 'circle',
-              selector: 'button',
-              attrs: {
-                r: 18,
-                stroke: '#fe854f',
-                strokeWidth: 2,
-                fill: 'white',
-                cursor: 'pointer'
-              }
-            },
-            {
-              tagName: 'text',
-              textContent: 'Gateway',
-              selector: 'icon',
-              attrs: {
-                fill: '#fe854f',
-                fontSize: 8,
-                textAnchor: 'middle',
-                pointerEvents: 'none',
-                y: '0.3em'
-              }
-            }
-          ],
-          distance: 50
-        }
-      }
-    ]
-  }
-  return []
 }
 
 onMounted(() => {

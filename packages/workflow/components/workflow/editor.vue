@@ -12,7 +12,8 @@ import {
   workflowCellElement,
   workflowElement,
   type WorkflowJson,
-  WorkflowElementType
+  WorkflowElementType,
+  CellType
 } from '#imports'
 import { newAdminApi } from 'api'
 
@@ -25,7 +26,7 @@ const props = defineProps<{
   workflowData: any
   readonly: boolean
   showSidebar: boolean
-  isActivate: boolean
+  isActivate?: boolean
 }>()
 const { workflowData: workflowJsonObject, readonly, showSidebar, isActivate } = toRefs(props)
 
@@ -51,7 +52,7 @@ const dropActionsItems = computed(() => {
 })
 const isReady = ref(false)
 
-const GATEWAY_NODE_TYPES = new Set<string>([WorkflowElementType.Gateway, 'ExclusiveGateway', 'ParallelGateway', 'InclusiveGateway'])
+const NODE_TYPES = new Set<string>([WorkflowElementType.Gateway, CellType.conditionTask, 'ExclusiveGateway', 'ParallelGateway', 'InclusiveGateway'])
 
 function init() {
   try {
@@ -97,9 +98,10 @@ function init() {
             return false
           }
 
-          // 限制 gateway 類型的 node 出綫
-          if (GATEWAY_NODE_TYPES.has(cell.getData().type)) {
-            const outgoingEdges = this.model.getConnectedEdges(cell, { outgoing: true })
+          const nodeType = cell.getData().metadata.type
+          // 限制特定類型的 node 出綫
+          if (NODE_TYPES.has(nodeType)) {
+            const outgoingEdges = graph.value?.getConnectedEdges(cell, { outgoing: true })
             if (outgoingEdges.length === cell.getData().metadata.maxOutgoing) {
               return false
             }
@@ -184,11 +186,11 @@ function init() {
         edge.removeTools()
       })
 
+      // Set Edges Setting to X6Edge
       workflowJsonObject.value.edges.forEach((edge: any) => {
-        // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
         graph.value?.addEdge({
-          source: { cell: edge.source_node_id, port: 'to' },
-          target: { cell: edge.target_node_id, port: 'from' },
+          source: { cell: edge.source_node_id, port: edge.metadata.sourcePort || 'top' },
+          target: { cell: edge.target_node_id, port: edge.metadata.targetPort || 'from' },
           attrs: {
             line: {
               stroke: '#000000',
@@ -196,6 +198,7 @@ function init() {
               strokeDasharray: 0
             }
           },
+          label: edge.metadata.label || null,
           data: edge,
           router: {
             name: 'manhattan'

@@ -136,6 +136,7 @@ export enum CellType {
   documentGenerationTask = 'DocumentGenerationTask',
 
   // Service
+  conditionTask = 'ConditionTask',
   serviceTask = 'ServiceTask',
   messageTask = 'MessageTask',
   uploadFile = 'UploadFile',
@@ -149,6 +150,7 @@ export enum contextMenuComponentType {
   StartEvent = 'LazyContextStartEvent',
   EndEvent = 'LazyContextEndEvent',
   UserTask = 'LazyContextUserTask',
+  signatureTask = 'LazyContextSignature',
   // Gateway
   ExclusiveGateway = 'LazyContextExclusiveGateway',
   ParallelGateway = 'LazyContextParallelGateway',
@@ -158,6 +160,7 @@ export enum contextMenuComponentType {
   TransformTask = 'LazyContextTransformTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
+  ConditionTask = 'LazyContextServiceTaskCondition',
   ValidateTask = 'LazyContextServiceTaskValidate',
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
@@ -200,6 +203,7 @@ export type CellTypeItem = {
       }
       input_mapping?: any
       metadata: {
+        type: CellType
         tags: WorkflowElementType
         icon: string
         formKey?: string
@@ -208,6 +212,7 @@ export type CellTypeItem = {
         booleanButton?: any[]
         rules?: any
         maxOutgoing?: number
+        signature?: any
       }
       celCondition?: string
     }
@@ -402,29 +407,30 @@ function graphItemFromWorkflowNode(
   workflowNodeItem: NodeItem,
   title: string,
   options?: {
-    defaultWidth?: number
-    defaultHeight?: number
     ports?: { items: portsItems[] }
     dataExtra?: Record<string, unknown>
   }
 ): GraphItem {
-  const meta = workflowNodeItem.metadata
-  const dw = options?.defaultWidth ?? 120
-  const dh = options?.defaultHeight ?? 64
+  const metadata = workflowNodeItem.metadata
+  const dw = metadata.width || 120
+  const dh = metadata.height || 64
+  const bgColor = metadata.bgColor || '#fff'
+  const textColor = metadata.textColor || '#000'
+
   return {
     id: workflowNodeItem.id,
     markup: GRAPH_NODE_MARKUP,
-    attrs: GenAttrs(title, workflowNodeItem.label, workflowNodeItem.metadata.icon),
+    attrs: GenAttrs(title, workflowNodeItem.label, metadata.icon, bgColor, textColor),
     shape: 'bpmn-node',
     zIndex: 1,
     visible: true,
     position: {
-      x: meta.x || 60,
-      y: meta.y || 60
+      x: metadata.x || 60,
+      y: metadata.y || 60
     },
     size: {
-      width: meta.width || dw,
-      height: meta.height || dh
+      width: dw,
+      height: dh
     },
     data: options?.dataExtra ? { ...workflowNodeItem, ...options.dataExtra } : { ...workflowNodeItem },
     ports: options?.ports ?? GenDefPorts(),
@@ -468,25 +474,25 @@ export const workflowElement: WorkflowElement = {
         label: 'User Form',
         group: '',
         order: 0
+      },
+      {
+        id: CellType.signatureTask,
+        label: 'User Signature Task',
+        icon: 'lucide:user-round-pen',
+        group: '',
+        order: 0
       }
-      // {
-      //   id: CellType.signatureTask,
-      //   label: 'User Signature Task',
-      //   icon: 'lucide:user-round-pen',
-      //   group: '',
-      //   order: 0
-      // }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const title = workflowNodeItem.type === CellType.signatureTask ? 'User Signature Task' : 'User Task'
+      const title = workflowNodeItem.metadata.type === CellType.signatureTask ? 'User Signature Task' : 'User Task'
       return graphItemFromWorkflowNode(workflowNodeItem, title)
     },
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      if (workflowNodeItem.metadata.tags === CellType.signatureTask) {
-        return 'LazyContextSignature'
+      if (workflowNodeItem.metadata.type === CellType.signatureTask) {
+        return contextMenuComponentType.signatureTask
       }
-      return 'LazyContextUserTask'
+      return contextMenuComponentType.UserTask
     }
   },
   Gateway: {
@@ -514,16 +520,20 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
-      graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name, {
-        defaultWidth: workflowNodeItem.metadata.width
-      }),
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
     contextMenuComponent: () => {}
   },
   ServiceTask: {
     embed: false,
     toolbar: [
+      {
+        id: CellType.conditionTask,
+        icon: '/icons/condition.svg',
+        label: 'Condition Task',
+        group: '',
+        order: 0
+      },
       {
         id: CellType.subProcess,
         icon: 'pixelarticons:forwardburger',
@@ -533,7 +543,7 @@ export const workflowElement: WorkflowElement = {
       },
       {
         id: CellType.validateTask,
-        icon: 'material-symbols-light:list-alt-check-outline',
+        icon: 'material-symbols:list-alt-check-outline',
         label: 'Validate Task',
         group: '',
         order: 0
@@ -601,8 +611,8 @@ export const workflowElement: WorkflowElement = {
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      if (workflowNodeItem.type in contextMenuComponentType) {
-        return contextMenuComponentType[workflowNodeItem.type as keyof typeof contextMenuComponentType]
+      if (workflowNodeItem.metadata.type in contextMenuComponentType) {
+        return contextMenuComponentType[workflowNodeItem.metadata.type as keyof typeof contextMenuComponentType]
       }
     }
   }
@@ -611,38 +621,23 @@ export const workflowElement: WorkflowElement = {
 const DEFAULT_TASK_EXECUTION = { async: false, timeout_ms: 1000, priority: 0 }
 const LONG_RUNNING_EXECUTION = { async: false, timeout_ms: 6000, priority: 1 }
 
-interface ShellOpts {
-  id: string
-  paletteLabel: string
-  title?: string
-  icon: string
-  width?: number
-  height?: number
-}
-
-function createNodeShell(opts: ShellOpts) {
-  const { id, paletteLabel, title = paletteLabel, icon, width = 200, height = 64 } = opts
+function createNodeShell(
+  id: string,
+  title: string,
+  paletteLabel: string,
+  icon: string,
+  width?: number,
+  height?: number,
+  bgColor? = '#fff',
+  textColor? = '#000'
+) {
   return {
     id: `${id}_${Date.now()}`,
     label: paletteLabel,
-    width,
-    height,
-    shape: 'bpmn-node',
-    attrs: GenAttrs(title, title, icon),
-    markup: GRAPH_NODE_MARKUP,
-    ports: GenDefPorts()
-  }
-}
-
-function createGatewayShell(id: string, title: string, icon: string, width?: number, height?: number) {
-  return {
-    id: `${id}${Date.now()}`,
-    label: title,
     width: width || 200,
     height: height || 64,
-    // shape: 'custom-polygon',
     shape: 'bpmn-node',
-    attrs: GenAttrs(title, title, icon, '#0F2037', '#fff'),
+    attrs: GenAttrs(title, title, icon, bgColor, textColor),
     markup: GRAPH_NODE_MARKUP,
     ports: GenDefPorts()
   }
@@ -653,7 +648,7 @@ function createGatewayShell(id: string, title: string, icon: string, width?: num
  */
 const workflowCellElementTemplate: CellTypeItem = {
   UserTask: {
-    ...createNodeShell({ id: 'New_UserTask', paletteLabel: 'User Task', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_UserTask', 'User Task', 'New User Task', '/icons/form.svg'),
     data: {
       id: '',
       name: 'User Task',
@@ -672,49 +667,60 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.userTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
         formKey: '',
         buttonSetting: {
-          showSumBitButton: true,
+          showSubmitButton: true,
           submitButtonLabel: 'Submit',
           showSaveDraft: false,
-          saveDraftLabel: 'Save Draft'
-        },
-        booleanButton: []
+          saveDraftLabel: 'Save Draft',
+          booleanButton: []
+        }
       }
     }
   },
   SignatureTask: {
-    ...createNodeShell({ id: 'New_SignatureTask', paletteLabel: 'Signature Task', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_SignatureTask', 'Signature Task', 'Signature Task', '/icons/form.svg'),
     data: {
       id: '',
       name: 'Signature Task',
       label: 'New Signature Task',
       documentation: '',
-      type: CellType.signatureTask,
+      type: CellType.userTask,
       inputSchema: '',
       outputSchema: '',
       config: {
         assignee: '',
         candidate_roles: [],
-        candidate_groups: [],
-        due_date: '',
-        input_mapping: {},
-        output_mapping: {}
+        candidate_groups: []
+        // due_date: '',
+        // input_mapping: {},
+        // output_mapping: {}
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.signatureTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
         formKey: '',
-        buttonSetting: {},
-        booleanButton: []
+        buttonSetting: {
+          showSubmitButton: true,
+          submitButtonLabel: 'Submit',
+          showSaveDraft: false,
+          saveDraftLabel: 'Save Draft',
+          booleanButton: []
+        },
+        signature: {
+          documentTemplateId: '',
+          signatureValue: ''
+        }
       }
     }
   },
   ExclusiveGateway: {
-    ...createGatewayShell('New_ExclusiveGateway', 'New Exclusive Gateway', '/icons/condition.svg', 260),
+    ...createNodeShell('New_ExclusiveGateway', 'Exclusive Gateway', 'New Exclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Exclusive Gateway',
@@ -723,27 +729,18 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: CellType.exclusiveGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.exclusiveGateway,
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
-        rules: {
-          success: {
-            label: 'success',
-            condition: {},
-            style: ''
-          },
-          failure: {
-            label: 'failure',
-            condition: {},
-            style: ''
-          }
-        },
+        bgColor: '#c9ffb3',
+        textColor: '#fff',
         maxOutgoing: 2
       }
     }
   },
   ParallelGateway: {
-    ...createGatewayShell('New_ParallelGateway', 'Parallel Gateway', '/icons/condition.svg', 260),
+    ...createNodeShell('New_ParallelGateway', 'Parallel Gateway', 'New Parallel Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Parallel Gateway',
@@ -752,15 +749,18 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: CellType.parallelGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.parallelGateway,
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
+        bgColor: '#c9ffb3',
+        textColor: '#fff',
         maxOutgoing: 50
       }
     }
   },
   InclusiveGateway: {
-    ...createGatewayShell('New_InclusiveGateway', 'Inclusive Gateway', '/icons/condition.svg', 260),
+    ...createNodeShell('New_InclusiveGateway', 'Inclusive Gateway', 'New Inclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
     data: {
       id: '',
       name: 'Inclusive Gateway',
@@ -769,16 +769,19 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: CellType.inclusiveGateway,
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.inclusiveGateway,
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
+        bgColor: '#c9ffb3',
+        textColor: '#fff',
         maxOutgoing: 50
       }
     }
   },
   // Http Task
   HTTPTask: {
-    ...createNodeShell({ id: 'New_HTTPTask', title: 'HTTP Task', paletteLabel: 'HTTP Task', icon: '/icons/http-task.svg' }),
+    ...createNodeShell('New_HTTPTask', 'HTTP Task', 'New HTTP Task', '/icons/http-task.svg'),
     data: {
       id: '',
       name: 'HTTP Task',
@@ -794,6 +797,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         output_mapping: {}
       },
       metadata: {
+        type: CellType.HTTPTask,
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/http-task.svg'
       },
@@ -803,7 +807,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   UniqueIdGenerator: {
-    ...createNodeShell({ id: 'New_UniqueIdGenerator', title: 'Unique Id Generator', paletteLabel: 'New Unique Id Generator', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_UniqueIdGenerator', 'Unique Id Generator', 'New Unique Id Generator', '/icons/numeric.svg'),
     data: {
       id: '',
       name: 'Unique Id Generator',
@@ -811,25 +815,17 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.uniqueIdGenerator,
       execution: { ...DEFAULT_TASK_EXECUTION },
-      config: {
-        method: 'POST',
-        url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
-        headers: generatorHTTPRequestTaskHeaders(),
-        body: {
-          templateId: '',
-          variables: {}
-        },
-        output_mapping: {}
-      },
+      config: getServiceTaskItemConfig[CellType.uniqueIdGenerator],
       metadata: {
+        type: CellType.uniqueIdGenerator,
         tags: WorkflowElementType.HTTPRequestTask,
-        icon: '/icons/transform.svg'
+        icon: '/icons/numeric.svg'
       }
     }
   },
   // Service Task
   SubProcess: {
-    ...createNodeShell({ id: 'New_SubProcess', title: 'Sub Process', paletteLabel: 'New Sub Process', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_SubProcess', 'Sub Process', 'New Sub Process', '/icons/forwardburger.svg'),
     data: {
       id: '',
       name: 'New Sub Process',
@@ -839,13 +835,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: getServiceTaskItemConfig[CellType.subProcess],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
+        type: CellType.subProcess,
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/transform.svg'
+        icon: '/icons/forwardburger.svg'
       }
     }
   },
   ValidateTask: {
-    ...createNodeShell({ id: 'New_ValidateTask', title: 'Validate Task', paletteLabel: 'Validate Task', icon: '/icons/form.svg' }),
+    ...createNodeShell('New_ValidateTask', 'Validate Task', 'Validate Task', '/icons/list-alt-check-outline.svg'),
     data: {
       id: '',
       name: 'Validate Task',
@@ -855,13 +852,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: getServiceTaskItemConfig[CellType.validateTask],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
+        type: CellType.validateTask,
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/form.svg'
+        icon: '/icons/list-alt-check-outline.svg'
       }
     }
   },
   TransformTask: {
-    ...createNodeShell({ id: 'New_TransformTask', title: 'Transform Task', paletteLabel: 'New Transform Task', icon: '/icons/transform.svg' }),
+    ...createNodeShell('New_TransformTask', 'Transform Task', 'New Transform Task', '/icons/transform.svg'),
     data: {
       id: '',
       name: 'Transform Task',
@@ -874,13 +872,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       },
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.transformTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/transform.svg'
       }
     }
   },
   MessageTask: {
-    ...createNodeShell({ id: 'New_MessageTask', title: 'Message Task', paletteLabel: 'New Message Task', icon: '/icons/message.svg' }),
+    ...createNodeShell('New_MessageTask', 'Message Task', 'New Message Task', '/icons/message.svg'),
     data: {
       id: '',
       name: 'Message Task',
@@ -890,13 +889,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: getServiceTaskItemConfig[CellType.messageTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.messageTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/message.svg'
       }
     }
   },
   UploadFile: {
-    ...createNodeShell({ id: 'New_UploadFileTask', title: 'Upload File', paletteLabel: 'New Upload File', icon: '/icons/uploadFile.svg' }),
+    ...createNodeShell('New_UploadFileTask', 'Upload File', 'New Upload File', '/icons/uploadFile.svg'),
     data: {
       id: '',
       name: 'Upload File',
@@ -906,19 +906,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: getServiceTaskItemConfig[CellType.uploadFile],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.uploadFile,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/uploadFile.svg'
       }
     }
   },
   DocumentGenerationTask: {
-    ...createNodeShell({
-      id: 'New_DocumentGenerationTask',
-      title: 'Document Generation Task',
-      paletteLabel: 'New Document Generation Task',
-      icon: '/icons/document.svg',
-      width: 260
-    }),
+    ...createNodeShell('New_DocumentGenerationTask', 'Document Generation Task', 'New Document Generation Task', '/icons/document.svg', 260),
     data: {
       id: '',
       name: 'Document Generation Task',
@@ -929,6 +924,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       input_mapping: {},
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.documentGenerationTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/document.svg',
         width: 250
@@ -936,30 +932,25 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   FilingDocuments: {
-    ...createNodeShell({
-      id: 'New_FilingDocuments',
-      title: 'Filing Documents Task',
-      paletteLabel: 'New Filing Documents Task',
-      icon: '/icons/form.svg',
-      width: 260
-    }),
+    ...createNodeShell('New_FilingDocuments', 'Filing Documents Task', 'New Filing Documents Task', '/icons/cabinet-filing.svg', 260),
     data: {
       id: '',
       name: 'Filing Documents Task',
       label: 'New Filing Documents Task',
       documentation: '',
-      type: CellType.filingDocuments,
+      type: CellType.serviceTask,
       config: getServiceTaskItemConfig[CellType.filingDocuments],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
+        type: CellType.filingDocuments,
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/form.svg',
-        width: 250
+        icon: '/icons/cabinet-filing.svg',
+        width: 260
       }
     }
   },
   ServiceTask: {
-    ...createNodeShell({ id: 'New_ServiceTask', paletteLabel: 'New Service Task', icon: '/icons/form.svg', width: 260 }),
+    ...createNodeShell('New_ServiceTask', 'Service Task', 'New Service Task', '/icons/form.svg', 260),
     data: {
       id: '',
       name: 'Service Task',
@@ -968,8 +959,33 @@ const workflowCellElementTemplate: CellTypeItem = {
       type: CellType.serviceTask,
       config: {},
       metadata: {
+        type: CellType.serviceTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/form.svg'
+      }
+    }
+  },
+  ConditionTask: {
+    ...createNodeShell('New_ConditionTask', 'Condition Task', 'New Condition Task', '/icons/condition.svg', 200, 64, '#0F2037', '#fff'),
+    data: {
+      id: '',
+      name: 'Condition Task',
+      label: 'New Condition Task',
+      documentation: '',
+      type: CellType.conditionTask,
+      config: getServiceTaskItemConfig[CellType.conditionTask],
+      metadata: {
+        type: CellType.conditionTask,
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/condition.svg',
+        maxOutgoing: 2,
+        width: 200,
+        bgColor: '#0F2037',
+        textColor: '#fff',
+        graphLabel: {
+          successLabel: 'Success',
+          failureLabel: 'Failure'
+        }
       }
     }
   }
@@ -990,15 +1006,5 @@ export const workflowCellElement = {
         id: id
       }
     } as CellTypeItem[K]
-  }
-}
-
-// TODO get config setting
-function generatorHTTPRequestTaskHeaders() {
-  return {
-    ServerName: 'docpal-api',
-    ServerKey: '14ecdf56081AGSDghw',
-    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
-    'Content-Type': 'application/json'
   }
 }
