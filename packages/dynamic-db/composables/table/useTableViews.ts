@@ -1,6 +1,6 @@
 import type { ViewConfig, FilterInfo } from '../../utils/databaseType'
 
-import { kanbanStyleDefault, cardStyleDefault } from '../../utils/databaseType';
+import { kanbanStyleDefault, cardStyleDefault } from '../../utils/databaseType'
 import {
   parseViewConfigList,
   serializeViewConfigList,
@@ -19,7 +19,6 @@ import { ElMessage } from 'element-plus'
 import { newClientApi } from 'api'
 import type { ResultCfUserTableConfigResponseDTO } from 'api/src/generate/newClient'
 
-
 /**
  * View Context for view management
  */
@@ -32,7 +31,6 @@ export interface ViewContext {
   columnGroupRules: Ref<any[]>
   viewStyleConfig: Ref<any>
   getViews: () => Promise<void>
-  getViewsOnly: () => Promise<void>
   createView: (view: Partial<ViewConfig>) => Promise<ViewConfig>
   updateView: (viewId: string, updates: Partial<ViewConfig>) => Promise<void>
   deleteView: (viewId: string) => Promise<void>
@@ -65,15 +63,14 @@ export function useTableViews(options: UseTableViewsOptions) {
   const columnSortRules = ref<any[]>([])
   const columnGroupRules = ref<any[]>([])
 
-  const viewStyleConfig = ref<any>({
-  })
-  async function getViewsOnly() {
+  const viewStyleConfig = ref<any>({})
+  async function getViews() {
     columnFilterRules.value = null
     columnSortRules.value = []
     columnGroupRules.value = []
     const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
       tableId: tableId.value,
-      userId: "master"
+      userId: 'master'
     })
     let views = parseViewConfigList(data?.data?.tableConfig)
 
@@ -87,12 +84,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     tableFields.value = data.data?.tableFields ?? []
     tableViews.value = views
-
-  }
-  async function getViews() {
-    await getViewsOnly()
-    // only set current view if on current view is set, otherwise addField will trigger chagne view
-    setCurrentView(tableViews.value[0].id)
+    const currentViewId = currentView.value?.id ?? tableViews.value[0].id
+    setCurrentView(currentViewId)
   }
   function setCurrentView(view: ViewConfig | string) {
     if (typeof view === 'string') {
@@ -112,10 +105,10 @@ export function useTableViews(options: UseTableViewsOptions) {
       columnGroupRules.value = currentView.value.groupInfo ?? []
       // add default style to different view types
       if (currentView.value.type === 'card') {
-        currentView.value.style  ||= cardStyleDefault
+        currentView.value.style ||= cardStyleDefault
       }
-      if(currentView.value.type === 'kanban') {
-        currentView.value.style  ||= kanbanStyleDefault
+      if (currentView.value.type === 'kanban') {
+        currentView.value.style ||= kanbanStyleDefault
       }
       // set current view style back to viewStyleConfig
       if (currentView.value.type !== 'table') {
@@ -127,7 +120,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     await newClientApi.postDocpalMasterTableUserConfig({
       tableId: tableId.value,
       tableConfig: serializeViewConfigList(views),
-        userId: "master"
+      userId: 'master'
     })
   }
 
@@ -167,7 +160,7 @@ export function useTableViews(options: UseTableViewsOptions) {
   async function addField(newColumns: any[], targetFieldId: string, dragPos?: 'left' | 'right') {
     const oldFields = JSON.parse(JSON.stringify(tableFields.value))
     await newClientApi.postDynamicDbTableTableidFields(tableId.value, { fields: newColumns })
-    await getViewsOnly()
+    await getViews()
     if (!dragPos) return
     // insert new field to the target field
     const newFields = JSON.parse(JSON.stringify(tableFields.value))
@@ -237,7 +230,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     columnSortRules,
     columnGroupRules,
     getViews,
-    getViewsOnly,
     createView,
     updateView,
     deleteView,
@@ -260,7 +252,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     columnSortRules,
     columnGroupRules,
     getViews,
-    getViewsOnly,
     createView,
     updateView,
     deleteView,
