@@ -65,8 +65,6 @@ async function handleSubmit() {
       }
     }
 
-    console.log(12,formParams)
-    return
     const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
 
     setTimeout(async () => {
