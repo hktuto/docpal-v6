@@ -3,8 +3,9 @@ import { MenuRouterKey } from '#imports'
 import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
-const { definition_id } = defineProps<{
+const { definition_id, formKey } = defineProps<{
   definition_id: string
+  formKey: string | number
 }>()
 defineOptions({
   name: 'WorkflowStartFullPageDead'
@@ -14,30 +15,16 @@ const loading = ref(false)
 const vFormRef = ref()
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-function formDataGet(propList: any = []) {
-  return propList.reduce((prev: any, item: any) => {
-    if (item.value) prev[item.id] = item.value
-    return prev
-  }, {})
-}
-
-async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  const response: any = await newClientApi
-    .getDmsFormPropertiesQuery({
-      userTaskId,
-      processKey,
-      versionId
-    })
-    .then((res) => res.data)
-  if (!response[0] || (response[0] && !response[0].jsonValue)) return {}
-  return JSON.parse(response[0].jsonValue)
-}
 
 async function init() {
-  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then((res) => res.data)
-  const formData = formDataGet(props)
-  const formJson = await formJsonGet('start', processKey, versionId)
-  const xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(versionId)
+  if (!formKey || formKey === '' || formKey === 0) {
+    // form不存在
+    routerProvider?.message.error('Form does not exist')
+
+    return
+  }
+  const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
+
   handleAdditionalSetting(xml, {}, formData)
 
   nextTick(() => {

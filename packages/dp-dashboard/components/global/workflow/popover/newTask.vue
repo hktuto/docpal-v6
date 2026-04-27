@@ -46,19 +46,17 @@ async function workflowClickHandler(item: any) {
   const startTask = data.content.nodes.find((item: any) => item.id === 'system_start_event')
   if (!startTask) {
     state.loading = false
-    routerProvider?.message.error('缺少Start Task')
+    routerProvider?.message.error('Start Task missing')
     return
   }
 
-  console.log(123, data)
   state.selectedWorkflow = deepCopy(data)
 
   // Open in new page
   if (startTask.metadata.openInNewPage) {
     state.loading = false
-    console.log(22, item)
-    const link = newWorkflowStartPage(data.name, state.selectedWorkflow.id)
-    routerProvider?.navigateTo(link)
+    const link = newWorkflowStartPage(data.name, state.selectedWorkflow.id, startTask.metadata.formKey)
+    routerProvider?.navigateTo(link, true)
     return
   }
 
