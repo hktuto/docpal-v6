@@ -20,10 +20,11 @@
               >
                 <el-input v-model="form.userId" type="text" @keyup.enter.native="handleSubmit" />
               </el-form-item>
-              <el-button class="fullSize" type="primary" size="large" :block="true" @click="handleSubmit"
-                         :loading="loading">
-                {{ $t('dpButtom_confirm') }}
-              </el-button>
+              <div class="box">
+                <el-button type="primary" size="large" :block="true" @click="handleSubmit" :loading="loading">
+                  {{ $t('dpButtom_confirm') }}
+                </el-button>
+              </div>
             </template>
           </el-form>
         </template>
@@ -72,12 +73,11 @@ async function handleSubmit() {
 
   loading.value = true
   try {
-    const data = await newClientApi.postUcenterPasswordForgetPassword({ userId: form.value.userId }).then(r => r.data)
+    const data = await newClientApi.postUcenterPasswordForgetPassword({ userId: form.value.userId }).then((r) => r.data)
     if (!!data) status.value = 'submitted'
     ElMessage.success(t('dpMsg_success'))
     returnLogin()
-  } catch (error) {
-  }
+  } catch (error) {}
   loading.value = false
 }
 
@@ -113,6 +113,12 @@ onMounted(async () => {
   padding: var(--el-component-size-small);
 }
 
+.box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .fromContainer {
   min-width: 300px;
   max-width: 600px;
@@ -133,7 +139,7 @@ onMounted(async () => {
   padding: var(--app-space-xs);
   font-size: 1.2rem;
   text-align: center;
-  color: var(--app-grey-950);
+  color: #000000;
 }
 
 .card {

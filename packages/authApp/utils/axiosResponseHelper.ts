@@ -7,7 +7,7 @@ import { useEventBus, EventType, emitBus } from 'eventbus'
  */
 function getBaseUrl(baseURL: string) {
   const {
-    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, WORKFLOW_PROXY }
+    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DOCPAL_GATEWAY_PROXY }
   } = useRuntimeConfig()
   if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY
   if (baseURL === '/client') baseURL = CLIENT_PROXY
@@ -17,7 +17,7 @@ function getBaseUrl(baseURL: string) {
   if (baseURL === '/docpalApi') baseURL = PROXY
   if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
   if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
-  if (baseURL === '/oniflow') baseURL = WORKFLOW_PROXY as string
+  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string
   return baseURL
 }
 
@@ -31,9 +31,21 @@ export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) 
     config.headers['accept-language'] = locale
   }
   if (process.env.NODE_ENV !== 'development') {
-    config.baseURL = getBaseUrl(config.baseURL)
+    const {
+      public: { DOCPAL_GATEWAY_PROXY }
+    } = useRuntimeConfig()
+    const pathOnly = typeof config.url === 'string' ? config.url.split('?')[0] : ''
+    const hitsDynamicActions =
+      pathOnly === '/gateway' || config.baseURL === '/gateway'
+    if (hitsDynamicActions && DOCPAL_GATEWAY_PROXY) {
+      config.baseURL = DOCPAL_GATEWAY_PROXY as string
+      if (!config.url) {
+        config.url = '/gateway'
+      }
+    } else if (config.baseURL) {
+      config.baseURL = getBaseUrl(config.baseURL)
+    }
   }
-  //
   return config
 }
 export const requestErrorHelper = (error: any, axiosInstance: AxiosInstance) => {
@@ -122,7 +134,9 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     }
   } else {
     // 如果没有 refresh token，则直接退出登录
-    logout()
+    if (error.response.status === 401 && !refreshToken) {
+      logout()
+    }
   }
 
   return Promise.reject(error)

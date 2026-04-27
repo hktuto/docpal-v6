@@ -8,9 +8,9 @@ export interface MenuItem extends DroppableItem {
     hoverIcon?: string, // 如果是 inlineRender 會忽略
     isList?:boolean, // 如果是 true 則直接在 menu 中渲染component, 多用於 children 裡的列表
     inlineRender?:boolean, // 如果是 true 則直接在 menu 中渲染component, 多用於 children 裡的列表
-    children?: MenuItem[], 
+    children?: MenuItem[],
     component?: string,
-    inlineComponent?: string, // 
+    inlineComponent?: string, //
     canDrop: (args:any) => boolean,
     onDropItself?:(args:any) => void,
     // 如果 isList 是 true 時必填
@@ -28,8 +28,9 @@ interface MenuProvider {
     routerContainer: Ref<HTMLElement | null>,
     back: (fallbackItem?:TabItem) => void,
     getHistory:() => RouterParams[],
-    refeshActions: Ref<Function[]>,
-    addToHistory:(param:RouterParams) => void,
+    refeshActions: Ref<any[]>,
+  addToHistory: (param: RouterParams) => void,
+  reloadComponent: () => void,
     message:{
         success: (...args) => void,
         error: (...args) => void,

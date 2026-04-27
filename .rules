@@ -1,0 +1,123 @@
+---
+description: 
+globs: *.vue,*.ts
+alwaysApply: false
+---
+# DocPal V5 Project Rules & Conventions
+
+## Project Overview
+DocPal V5 is a modern, modular document management platform designed for enterprise workflows. Built with Vue 3 and Nuxt 3, it features a robust monorepo architecture supporting multiple applications (client, admin, desktop) and a rich set of reusable packages. DocPal V5 streamlines document creation, collaboration, sharing, and workflow automation, making it easy to manage complex document lifecycles securely and efficiently.
+
+---
+
+## Project Structure
+- `apps/` — Deployable applications (client, admin, desktop)
+- `packages/` — Shared code and components
+- `pages/` — Shared pages used across apps
+- `libraries/` — External libraries (API, PDF.js, etc.)
+
+### i18n Locales
+- `libraries/deployment/src/en-US.json`
+- `libraries/deployment/src/zh-HK.json`
+- `libraries/deployment/src/zh-CN.json`
+
+### CSS Variables
+- All CSS variables must be defined in `packages/base/assets/styles/main.scss`.
+- Use the naming convention: `--app-variable-name`.
+- Document new variables with comments for clarity.
+- Example:
+  ```scss
+  // Primary brand color
+  --app-primary-color: #409eff;
+  ```
+
+---
+
+## Unit Testing
+- Place unit test files in the same directory as the component file.
+- Use [Vitest](mdc:https:/vitest.dev) as the testing framework.
+- Mock all component-exposed functions and props as needed for isolation.
+- Example test file: `MyComponent.spec.ts` next to `MyComponent.vue`.
+
+---
+
+## BRD (Business Requirement Document) Rule
+- Place BRD files in the root `/brd` folder.
+- Name files as `{gitUserName}-{YYYYMMDD}-{task-name}.md`.
+- Example: `SeanTsang-20250602-generate-random-number.md`
+
+---
+
+## Task Management
+- Place task files in the root `/tasks` folder.
+- Name files as `{gitUserName}-{YYYYMMDD}-{task-name}.md`.
+- Use numbered lists for tasks and subtasks. Subtasks should be prefixed with their parent task number.
+- Always create a task list for each task and mark tasks as done when completed.
+- Example:
+  ```md
+  [ ] 1 Main Task
+    - [ ] 1.1 Subtask
+    - [ ] 1.2 Subtask
+  [ ] 2 Another Task
+  ```
+
+---
+
+## General Rules
+- You are a Senior Frontend Developer and an expert in Vue 3, Nuxt 3, JavaScript, TypeScript, HTML, and CSS.
+- Always write correct, best practice, DRY, bug-free, fully functional, and working code.
+- Prioritize easy-to-read code over performance.
+- Use early returns for readability.
+- Always use SCSS for styling.
+- Always use `<script setup lang="ts">` for Vue components.
+- Use descriptive variable and function names. Event handlers should be prefixed with `handle`, e.g., `handleClick`.
+- Implement accessibility features (e.g., `tabindex="0"`, `aria-label`, `@click`, `@keydown`). Example:
+  ```vue
+  <a
+    tabindex="0"
+    aria-label="Open document"
+    @click="handleClick"
+    @keydown.enter="handleClick"
+  >Open</a>
+  ```
+- Prefer function declarations over arrow function consts for top-level functions.
+- Always use `v-tooltip` for tooltips when a tooltip is needed.
+- Always review i18n option in page if any thing updated.
+- in .vue file always keep in these order script -> template -> style
+- Always use the `useVxeTable` composable for all table/grid implementations. Do not use Element Plus or other table components directly; wrap all table logic and configuration in `useVxeTable` for consistency, maintainability, and access to advanced features.
+
+---
+
+## Backend API
+- All available backend APIs are defined in `/libraries/api/src/index.ts`.
+- Centralize API calls here for consistency and maintainability.
+
+---
+
+## Forms
+- Use Element Plus form components for all forms unless using FormRenderer.
+- Always set label position to top in ElForm /el-form.
+- If using FormRenderer, refer to [vform3 documentation](mdc:https:/www.yuque.com/visualdev/vform3).
+
+---
+
+## Code Style
+- Use 2 spaces for indentation.
+- Use camelCase for variable and function names.
+- Use PascalCase for component and class names.
+- Use kebab-case for file names.
+
+### Key Points:
+1. Use ResponsiveFilter component for all table filtering
+2. Initialize filters in onMounted hook
+3. Handle filter changes through form-change event
+4. Use proper filter configuration with labels, keys, and options
+5. Support both single and multiple select filters
+6. Include search functionality with inputKey
+
+### Benefits:
+- Consistent UI/UX across the application
+- Responsive design that adapts to available space
+- Built-in support for multiple filter types
+- Automatic handling of filter overflow
+- Integrated search functionality

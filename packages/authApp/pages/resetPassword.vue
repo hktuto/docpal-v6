@@ -84,7 +84,7 @@ async function onSubmit() {
     let res
     if (!!tokenRef.value && tokenRef.value !== '') {
       res = await newClientApi
-        .postDmsUserResetpassword({
+        .postUcenterPasswordResetPassword({
           token: tokenRef.value,
           newPassword: form.newPassword
         })

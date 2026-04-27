@@ -62,8 +62,8 @@ export default defineAppConfig({
     //   name: 'client-workflow'
     // },
     {
-      name: 'client-new-workflow'
-    },
+         name: 'client-new-workflow'
+       },
     {
       label: 'client_retention_item',
       icon: 'ic:outline-lock-clock',
@@ -97,6 +97,9 @@ export default defineAppConfig({
     },
     {
       name: 'contact-book'
+    },
+    {
+      name: 'client-scan'
     }
   ],
   adminMenu: [
@@ -198,13 +201,13 @@ export default defineAppConfig({
     //   ]
     // },
     {
-      label: 'New Workflow',
-      icon: 'dp-icon:flow-outline',
-      children: [
-        { name: 'admin-new-workflow-manage' },
-        { name: 'admin-new-workflow-edit-manage'}
-      ]
-    },
+         label: 'New Workflow',
+         icon: 'dp-icon:flow-outline',
+         children: [
+           { name: 'admin-new-workflow-manage' },
+           { name: 'admin-new-workflow-edit-manage'}
+         ]
+       },
 
     {
       label: 'adminMenu.templateManagement',
@@ -283,6 +286,9 @@ export default defineAppConfig({
     },
     {
       name: 'admin-calendar-setting'
+    },
+    {
+      name: 'admin-scan'
     }
   ]
 })

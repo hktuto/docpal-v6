@@ -10,6 +10,8 @@ export default defineNuxtConfig({
     '../../packages/icon',
     '../../packages/authApp',
     '../../packages/rbac',
+    "../../packages/dp-scan",
+
     '../../pages/client-browse',
     '../../pages/client-search',
     '../../pages/client-master-table',
@@ -27,7 +29,7 @@ export default defineNuxtConfig({
     '../../pages/client-easy-form',
     '../../pages/client-rbac',
     '../../pages/client-user-setting',
-
+    "../../pages/client-scan",
     // '../../pages/admin-workflow-editor',
     '../../pages/admin-user',
     '../../pages/admin-acl',
@@ -62,14 +64,16 @@ export default defineNuxtConfig({
     '../../pages/admin-company-profile',
     '../../pages/admin-external-storage',
     '../../pages/admin-import-jobs',
-
+    "../../pages/admin-scan",
     // public pages
     '../../pages/public-share',
     '../../pages/public-upload',
     '../../pages/public-easy-form',
-    '../../packages/dp-contact'
+    '../../packages/dp-contact',
 
     // demo packages
+    // "../../demo/database",
+    "../../demo/workspaces"
   ],
   features: {
     inlineStyles: true
@@ -77,6 +81,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       platform: 'client',
+      /** 根应用显式声明，确保客户端 useRuntimeConfig() 能拿到（仅靠 layers 合并时可能缺失） */
+      DOCPAL_GATEWAY_PROXY: process.env.DOCPAL_GATEWAY_PROXY,
       defaultTab: {
         id: 'client-work-panel',
         name: 'client-work-panel',

@@ -6,7 +6,7 @@ const currentDir = dirname(fileURLToPath(import.meta.url))
 
 const config = {
   compatibilityDate: '2024-04-03',
-  devtools: { 
+  devtools: {
     enabled: true,
   },
   modules: [
@@ -20,7 +20,7 @@ const config = {
   extends:[
     "../sql-store"
   ],
-  
+
   runtimeConfig:{
     public:{
       isProduction: process.env.NODE_ENV === 'production',
@@ -30,6 +30,7 @@ const config = {
       ADMIN_PROXY: process.env.ADMIN_PROXY,
       PROXY: process.env.PROXY,
       DASHBOARD_PROXY: process.env.DASHBOARD_PROXY,
+      DOCPAL_GATEWAY_PROXY: process.env.DOCPAL_GATEWAY_PROXY,
       OFFICE_END_POINT: process.env.OFFICE_END_POINT,
       UPLOAD_END_POINT: process.env.UPLOAD_END_POINT,
       ADMIN_END_POINT: process.env.ADMIN_END_POINT,
@@ -135,6 +136,14 @@ const config = {
             'accept-encoding': 'identity'
           }
         },
+        '/gateway':{
+          target: process.env.DOCPAL_GATEWAY_PROXY,
+          changeOrigin: true,
+          prependPath: true,
+          headers: {
+            'accept-encoding': 'identity'
+          }
+        },
         '/oniflow':{
           target: process.env.WORKFLOW_PROXY,
           changeOrigin: true,
@@ -171,7 +180,7 @@ const config = {
       script:{
         defineModel:true
       },
-    }    
+    }
   },
 } as any
 

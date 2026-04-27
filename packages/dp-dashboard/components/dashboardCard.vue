@@ -1,17 +1,18 @@
 <script lang="ts" setup>
-import { getCurrentInstance } from 'vue'
 import { ElMessageBox } from 'element-plus'
 const emits = defineEmits(['delete', 'refreshSetting', 'openSetting', 'refresh', 'resize'])
 const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{
-    showSkeleton?: boolean,
-    hideSetting?: boolean,
-    title?: string,
-    settingRef?: any,
-    setting?: any,
-    mode?: 'mock' | 'real',
+    showSkeleton?: boolean
+    hideSetting?: boolean
+    title?: string
+    settingRef?: any
+    setting?: any
+    mode?: 'mock' | 'real'
+    showRefreshIcon?: boolean
+    showFullscreenIcon?: boolean
     extraParams?: any[] // add extra params to setting handleOpen function, and it use spread operator
   }>(),
   {
@@ -19,7 +20,9 @@ const props = withDefaults(
     hideSetting: false,
     title: '',
     extraParams: [],
-    mode: 'real'
+    mode: 'real',
+    showRefreshIcon: true,
+    showFullscreenIcon: true
   }
 )
 const cardRef = ref<any>()
@@ -27,10 +30,10 @@ const fullscreen = ref(false)
 const fullscreenTransform = ref('none')
 
 function openFullscreen() {
-  // get parent element and found if there any transform 
-  const cardElement = cardRef.value?.$el  as HTMLElement
+  // get parent element and found if there any transform
+  const cardElement = cardRef.value?.$el as HTMLElement
   const parentElement = cardElement.parentElement as HTMLElement
-  if(!cardElement) return
+  if (!cardElement) return
   const transform = getComputedStyle(parentElement).transform
   fullscreenTransform.value = transform
   parentElement.style.transform = ''
@@ -38,14 +41,14 @@ function openFullscreen() {
   cardElement.dispatchEvent(ev)
 }
 function exitFullscreen() {
-  const cardElement = cardRef.value?.$el  as HTMLElement
+  const cardElement = cardRef.value?.$el as HTMLElement
   const parentElement = cardElement.parentElement as HTMLElement
   parentElement.style.transform = fullscreenTransform.value
   const ev: any = new CustomEvent('fullscreenchange')
   cardElement.dispatchEvent(ev)
 }
 function toggleFullscreen() {
-  if(fullscreen.value) {
+  if (fullscreen.value) {
     exitFullscreen()
     fullscreen.value = false
   } else {
@@ -53,9 +56,7 @@ function toggleFullscreen() {
     fullscreen.value = true
   }
 }
-function resize() {
-
-}
+function resize() {}
 
 function openSetting() {
   console.log(props.settingRef, props.setting)
@@ -71,7 +72,7 @@ async function handleDelete() {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
     emits('delete')
-  } catch(error) {
+  } catch (error) {
     console.error(error)
   }
 }
@@ -82,7 +83,7 @@ defineExpose({
 </script>
 
 <template>
-  <ElCard ref="cardRef" :class="['dp-dashboard--card', { 'fullscreen': fullscreen }]">
+  <ElCard ref="cardRef" :class="['dp-dashboard--card', { fullscreen: fullscreen }]">
     <template #header>
       <slot name="header">
         <h4 class="dp-dashboard--card__title">
@@ -93,8 +94,12 @@ defineExpose({
         <div class="flex-x-end">
           <slot name="action_prefix"></slot>
           <!-- FUll screen toggle button -->
-          <SvgIcon id="refresh" src="/icons/refresh.svg" @click="handleRefresh" />
-          <Icon :name="fullscreen ? 'material-symbols:fullscreen-exit-rounded' : 'material-symbols:fullscreen'" @click="toggleFullscreen" />
+          <SvgIcon v-if="showRefreshIcon" id="refresh" src="/icons/refresh.svg" @click="handleRefresh" />
+          <Icon
+            v-if="showFullscreenIcon"
+            :name="fullscreen ? 'material-symbols:fullscreen-exit-rounded' : 'material-symbols:fullscreen'"
+            @click="toggleFullscreen"
+          />
           <SvgIcon v-if="!hideSetting && settingRef && mode === 'real'" class="" id="setting" src="/icons/setting.svg" @click="openSetting" />
           <SvgIcon v-if="!hideSetting && !fullscreen && mode === 'real'" class="setting--icon" id="delete" src="/icons/delete.svg" @click="handleDelete" />
         </div>
@@ -106,8 +111,8 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
-.fullscreen{
-  position: fixed !important; 
+.fullscreen {
+  position: fixed !important;
   top: 0;
   left: 0;
   width: 100% !important;

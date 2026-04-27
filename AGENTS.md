@@ -3,41 +3,88 @@
 ## Critical Rules (MUST FOLLOW)
 
 ### 1. Documentation Rule
-**ALL documentation MUST go in the Obsidian vault (`/docs/`).**
+**ALL documentation MUST go in the Obsidian vault (`docpal-documentation/docpal-document/`).**
 
-- ✅ Use existing docs structure
-- ✅ Update module/feature/task files in `/docs/`
-- ❌ NEVER create new markdown files outside `/docs/`
+- ✅ Use existing docs structure in `docpal-documentation/docpal-document/`
+- ✅ Update module/feature/task files via CLI or directly in vault
+- ❌ NEVER create new markdown files outside `docpal-documentation/`
 - ❌ NEVER create README files, notes, or docs in code folders
+
+**Documentation CLI:**
+```bash
+cd docpal-documentation/skills/docpal-docs/bin
+node docpal.js module create name="Module Name"
+node docpal.js feature create name="Feature Name" module=MOD-XXX
+node docpal.js task create feature=FEAT-XXX name="Task Name" step=10
+node docpal.js task edit id=TK-XXXX status=in-progress assignee="[[Name]]"
+```
 
 **If you need to document something that doesn't fit the Obsidian structure → ASK first.**
 
-### 2. Obsidian Writing Guidelines
-When writing in `/docs/`:
+### 2. Agent Rules
+All development rules and guidelines are in:
+```
+docpal-documentation/docpal-document/98-agent-rules/
+```
+
+**Key rule files:**
+- `98-agent-rules/00-index.md` - Rules dashboard and index
+- `98-agent-rules/frontend/` - Frontend development rules
+- `98-agent-rules/agent/documentation.md` - Documentation guidelines
+- `98-agent-rules/agent/communication.md` - Communication style
+
+**Always check relevant rules before starting work.**
+
+### 3. Obsidian Writing Guidelines
+When writing in `docpal-documentation/docpal-document/`:
 
 - Use `[[Wiki Links]]` to connect related documents
 - Follow existing metadata format in module files
-- Use templates from `00-templates/` for new features/tasks
+- Module files are in `01-modules/`
+- Feature folders are in `02-features/{FEAT-XXX - Name}/{FEAT-XXX}.md`
+- Task files are in `02-features/{FEAT-XXX - Name}/04-tasks/TK-XXXX - Name.md`
 - Keep daily notes in `04-journal/` with date prefix: `YYYY-MM-DD - Description.md`
 
-### 3. Failure Stop Rule
+### 4. Failure Stop Rule
 **If the same feature/bug fix fails 2 times → STOP and ASK.**
 
 - First failure: Try alternate approach
 - Second failure: Stop, document what you tried in `04-journal/`, ask for help
 - Do not attempt a third time without discussion
 
-### 4. Module Dependency Rule
+### 5. Module Dependency Rule
 Before working on add-ons, check their `depend-on` metadata.
 
 If core dependency is not stable → focus on core first or ask.
 
 ## Quick Start
 
-1. Read `docs/00-meta/Dashboard.md` for current status
-2. Read `docs/00-meta/Documentation Guide.md` for structure & naming rules
+1. Read `98-agent-rules/00-index.md` for development rules
+2. Read `docpal-documentation/docpal-document/00-meta/Dashboard.md` for project status
 3. Check module dependencies before proposing changes
-4. Update module status when completing work
+4. Use CLI tools for creating/updating documentation
+5. Update module/feature/task status when completing work
+
+## Documentation Structure
+
+```
+docpal-document/
+├── 98-agent-rules/        ← Development rules and guidelines
+│   ├── 00-index.md
+│   ├── frontend/
+│   ├── agent/
+│   └── backend/
+├── 00-meta/               ← Dashboard and guides
+├── 01-modules/            ← Module files: MOD-XXX - Name.md
+├── 02-features/           ← Feature folders
+│   └── FEAT-XXX - Name/
+│       ├── FEAT-XXX.md
+│       └── 04-tasks/
+│           └── TK-XXXX - Name.md
+├── 03-orphan-tasks/       ← Tasks without features
+├── 04-journal/            ← Daily notes
+└── 12-team/               ← Team member profiles
+```
 
 ## Git Workflow
 
@@ -47,6 +94,7 @@ If core dependency is not stable → focus on core first or ask.
 | `master` | Production-ready, stable releases |
 | `dev` | Integration branch, active development |
 | `feature/*` | Individual feature development |
+| `project/*` | Project-specific branches (e.g., project/HKHS) |
 
 ### Sprint Workflow
 
@@ -63,7 +111,7 @@ git checkout -b feature/FEAT-001-name
 **2. During Sprint - Develop & Commit**
 - Work on your feature branch
 - Make regular commits
-- Keep docs updated in `/docs/`
+- Keep docs updated via CLI or directly in `docpal-documentation/`
 
 **3. Sprint End - Merge to Dev**
 ```bash

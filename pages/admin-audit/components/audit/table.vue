@@ -6,24 +6,29 @@ if (!auditProvider) {
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'auditListTableSetting',
-  api: (pageParams: any) => auditProvider?.getListApi({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => {
+    const p = {
+      page_size: pageParams.pageSize,
+      page_num: pageParams.pageNum
+    }
+    return auditProvider?.getListApi({ ...p, ...extraParams })
+  },
   columns: [
     {
-      field: 'principalName',
+      field: 'user_id',
       title: 'User',
       fixed: 'left'
     },
     {
-      field: 'currentPath',
-      title: 'table_path',
-      slots: {
-        default: 'currentPath'
-      }
+      field: 'event_category',
+      title: 'Category'
     },
-    { field: 'eventCategory', title: 'category' },
-    { field: 'label', title: 'log_auditEvent' },
     {
-      field: 'eventDate', title: 'log_auditFilterDate',
+      field:'source_id', title:'Source Id'
+    },
+    { field: 'event_type', title: 'Type' },
+    {
+      field: 'timestamp', title: 'log_auditFilterDate',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       }
@@ -63,31 +68,14 @@ function getFilter() {
   ResponsiveFilterRef.value?.init(data)
 }
 
-function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-  extraParams = formModel
-  reload()
-}
-
-onMounted(() => {
-  getFilter()
-})
 </script>
 
 
 <template>
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons>
-      <ResponsiveFilter
-        ref="ResponsiveFilterRef"
-        @form-change="handleFilterFormChange"
-      />
-      <slot name="toolbar_buttons" />
+
     </template>
-    <template #currentPath="{row}">
-      <span v-if="row.currentPath" class="pathButton"
-            @click="auditProvider.goClientPath(row.currentPath)">{{ row.logicalPath }}</span>
-    </template>
+
   </VxeGrid>
 </template>
