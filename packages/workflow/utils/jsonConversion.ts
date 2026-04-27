@@ -37,6 +37,8 @@ interface Metadata {
   width: number
   height: number
   icon?: string
+  bgColor?: string
+  textColor?: string
   formKey?: string
   buttonSetting?: any
   signature?: any
@@ -226,12 +228,12 @@ function addFlowForChildNodes(x6Nodes: any[], edges: any[]) {
       // 處理 conditionTask 的特殊排序邏輯
       if (meta.type === CellType.conditionTask && flows.rawEdges.length > 0) {
         finalOutgoing = flows.rawEdges
-          .sort((a, b) => {
+          .sort((a: any, b: any) => {
             const aSuccess = a.metadata?.conditionStatus === 'success' ? 1 : 0
             const bSuccess = b.metadata?.conditionStatus === 'success' ? 1 : 0
             return bSuccess - aSuccess // success 排在前面
           })
-          .map((edge) => edge.target_node_id)
+          .map((edge: any) => edge.target_node_id)
       }
 
       node.updateData({

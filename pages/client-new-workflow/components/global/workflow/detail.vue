@@ -14,10 +14,17 @@ const { detail, workflowType, backItem } = defineProps<{
     process_instance_id: string
     definition_id: string
     node_id: string
-    status: string
     node_name: string
+    task_type: {
+      type: string
+      Alias: number
+    }
+    status: string
     assignee: string
-    variables: any
+    variables: number
+    priority: number
+    created_at: string
+    updated_at: string
   }
   workflowType: string
   backItem?: any
