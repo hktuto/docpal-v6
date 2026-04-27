@@ -55,7 +55,7 @@ async function workflowClickHandler(item: any) {
   // Open in new page
   if (startTask.metadata.openInNewPage) {
     state.loading = false
-    const link = newWorkflowStartPage(data.name, state.selectedWorkflow.id, startTask.metadata.formKey)
+    const link = newWorkflowStartPage(data.name, state.selectedWorkflow.id, startTask.metadata)
     routerProvider?.navigateTo(link, true)
     return
   }
@@ -68,7 +68,7 @@ async function workflowClickHandler(item: any) {
         start_user_id: userId.value,
         definition_id: state.selectedWorkflow.id,
         variables: {
-          __system__user_creator_id: userId
+          __system__user_creator_id: userId.value
         }
       }
 
@@ -119,7 +119,7 @@ async function checkAndSubmit() {
       definition_id: state.selectedWorkflow.id,
       variables: {
         ...formData,
-        __system__user_creator_id: userId
+        __system__user_creator_id: userId.value
       }
     }
 

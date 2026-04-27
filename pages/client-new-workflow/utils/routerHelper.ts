@@ -1,3 +1,5 @@
+import { WorkflowNewTabStarterPage } from '#components'
+
 export const routeWorkflowDetail = function (params: any) {
   return {
     id: 'workflow-detail-versions-' + new Date().getTime(),
@@ -25,16 +27,16 @@ export const routeWorkflowPage = function (params: any) {
   } as TabItem
 }
 
-export function newWorkflowStartPage(label: string, definition_id: string, formKey: string) {
+export function newWorkflowStartPage(label: string, definition_id: string, metadata: any) {
   return {
     id: 'workflow-detail-versions-' + new Date().getTime(),
     name: 'workflow-start-versions-' + definition_id,
     icon: 'dp-icon:flow-outline',
     label: label,
-    component: 'LazyNewTabStarterPage',
+    component: 'LazyWorkflowNewTabStarterPage',
     props: {
       definition_id,
-      formKey
+      metadata
     }
   }
 }

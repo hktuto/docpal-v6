@@ -3,9 +3,9 @@ import { getButtonAdditionalElement, MenuRouterKey } from '#imports'
 import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
-const { definition_id, formKey } = defineProps<{
+const { definition_id, metadata } = defineProps<{
   definition_id: string
-  formKey: number
+  metadata: any
 }>()
 defineOptions({
   name: 'WorkflowStartFullPageDead'
@@ -17,6 +17,7 @@ const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 
 async function init() {
+  const formKey = metadata.formKey
   if (!formKey || formKey === 0) {
     // form不存在
     routerProvider?.message.error('Form does not exist')
@@ -31,28 +32,23 @@ async function init() {
       return
     }
 
+    await handleAdditionalSetting(metadata)
+
     nextTick(() => {
-      vFormRef.value.setForm(formJson)
+      vFormRef.value.setForm(formJson.jsonValue)
     })
   } catch (e) {
     console.log(e)
   }
 }
 
-const pageButtonSetting = ref<any>(null)
+const pageButtonSetting = ref<any>()
 async function handleAdditionalSetting(metadata: any) {
-  const { buttonSetting, signatureSetting } = await getButtonAdditionalElement([], metadata, {})
+  const { buttons, buttonSetting, signatureSetting } = await getButtonAdditionalElement([], metadata, {})
   if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
   }
 }
-
-type AdditionalButton = {
-  props: any
-  component: string
-}
-const additionalButton = ref<AdditionalButton[]>([])
-const additionalButtonRef = ref<any[]>([])
 
 async function handleSubmit() {
   try {
@@ -60,38 +56,17 @@ async function handleSubmit() {
     let formData = await vFormRef.value.getFormData(true, false)
     if (!formData) throw new Error(`${t('incompleteData')}`)
 
-    // check additional button
-    // if additional button has expose "beforeSubmit" method, call it
-    const additionButtonActions: any = []
-    additionalButtonRef.value.forEach((item) => {
-      if (item && item.beforeSubmit) {
-        additionButtonActions.push(item.beforeSubmit())
-      }
-    })
-    const buttonResults = await Promise.all(additionButtonActions)
-    console.log('additionButtonActions', buttonResults)
-    // after check all actions, if any addtional data need to set to from data, set it
-    buttonResults.forEach((item: any) => {
-      if (item && typeof item === 'object') {
-        formData = { ...formData, ...item }
-      }
-    })
-    // end addtional button actions
-    Object.keys(formData).forEach((key) => {
-      if (typeof formData[key] === 'object') {
-        formData[key] = JSON.stringify(formData[key])
-      }
-    })
-
     const formParams = {
       start_user_id: userId.value,
       definition_id: definition_id,
       variables: {
         ...formData,
-        __system__user_creator_id: userId
+        __system__user_creator_id: userId.value
       }
     }
 
+    console.log(12,formParams)
+    return
     const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
 
     setTimeout(async () => {
@@ -111,16 +86,19 @@ async function handleSubmit() {
   }
 }
 
-async function addtionalSubmit(formData: any) {
-  const form = {
-    processKey,
-    businessKey: formData.businessKey || '',
-    properties: Object.entries(formData).reduce((newObj, [key, val]) => {
-      if (val || val === false || val == '0') newObj[key] = val
-      return newObj
-    }, {})
+async function additionalSubmit() {
+  let formData = await vFormRef.value.getFormData(true, false)
+  if (!formData) throw new Error(`${t('incompleteData')}`)
+
+  const formParams = {
+    start_user_id: userId.value,
+    definition_id: definition_id,
+    variables: {
+      ...formData,
+      __system__user_creator_id: userId.value
+    }
   }
-  await newClientApi.postDocpalWorkflowProcessStart(form).then((res) => res.data)
+  const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
   routerProvider?.message.success('Workflow created')
   cancel()
 }
@@ -150,9 +128,9 @@ onMounted(() => {
     <ContextFormRender ref="vFormRef">
       <template #action>
         <div class="workflow-actions">
-          <template v-for="(item, index) in additionalButton" :key="index">
-            <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addtionalSubmit" />
-          </template>
+          <!--          <template v-for="(item, index) in additionalButton" :key="index">-->
+          <!--            <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="additionalSubmit" />-->
+          <!--          </template>-->
           <el-button id="Workflow__NewWorkflow__StartFullPageDead__Cancel" @click="cancel">
             {{ $t('cancelText') }}
           </el-button>
