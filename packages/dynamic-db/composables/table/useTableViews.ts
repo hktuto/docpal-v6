@@ -1,6 +1,6 @@
 import type { ViewConfig, FilterInfo } from '../../utils/databaseType'
 
-import { kanbanStyleDefault, cardStyleDefault } from '../../utils/databaseType'
+import { kanbanStyleDefault, cardStyleDefault, ganttStyleDefault, calendarStyleDefault } from '../../utils/databaseType'
 import {
   parseViewConfigList,
   serializeViewConfigList,
@@ -109,6 +109,12 @@ export function useTableViews(options: UseTableViewsOptions) {
       }
       if (currentView.value.type === 'kanban') {
         currentView.value.style ||= kanbanStyleDefault
+      }
+      if (currentView.value.type === 'gantt') {
+        currentView.value.style ||= ganttStyleDefault
+      }
+      if (currentView.value.type === 'calendar') {
+        currentView.value.style ||= calendarStyleDefault
       }
       // set current view style back to viewStyleConfig
       if (currentView.value.type !== 'table') {
