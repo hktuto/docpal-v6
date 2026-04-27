@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { MenuRouterKey } from '#imports'
+import { getButtonAdditionalElement, MenuRouterKey } from '#imports'
 import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { definition_id, formKey } = defineProps<{
   definition_id: string
-  formKey: string | number
+  formKey: number
 }>()
 defineOptions({
   name: 'WorkflowStartFullPageDead'
@@ -17,19 +17,34 @@ const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 
 async function init() {
-  if (!formKey || formKey === '' || formKey === 0) {
+  if (!formKey || formKey === 0) {
     // form不存在
     routerProvider?.message.error('Form does not exist')
-
+    cancel()
     return
   }
-  const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
 
-  handleAdditionalSetting(xml, {}, formData)
+  try {
+    const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
+    if (!formJson) {
+      routerProvider?.message.error('Form does not exist')
+      return
+    }
 
-  nextTick(() => {
-    vFormRef.value.setForm(formJson, formData, props)
-  })
+    nextTick(() => {
+      vFormRef.value.setForm(formJson)
+    })
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+const pageButtonSetting = ref<any>(null)
+async function handleAdditionalSetting(metadata: any) {
+  const { buttonSetting, signatureSetting } = await getButtonAdditionalElement([], metadata, {})
+  if (buttonSetting) {
+    pageButtonSetting.value = buttonSetting
+  }
 }
 
 type AdditionalButton = {
@@ -38,14 +53,6 @@ type AdditionalButton = {
 }
 const additionalButton = ref<AdditionalButton[]>([])
 const additionalButtonRef = ref<any[]>([])
-const pageButtonSetting = ref<any>(null)
-async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any) {
-  const { buttons, components, buttonSetting } = await getBpmnAdditionalElement(xml, userTaskId, taskDetail, formData)
-  additionalButton.value = buttons
-  if (buttonSetting) {
-    pageButtonSetting.value = buttonSetting
-  }
-}
 
 async function handleSubmit() {
   try {
@@ -80,7 +87,8 @@ async function handleSubmit() {
       start_user_id: userId.value,
       definition_id: definition_id,
       variables: {
-        ...formData
+        ...formData,
+        __system__user_creator_id: userId
       }
     }
 

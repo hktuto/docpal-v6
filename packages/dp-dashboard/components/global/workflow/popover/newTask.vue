@@ -67,7 +67,9 @@ async function workflowClickHandler(item: any) {
       const formParams = {
         start_user_id: userId.value,
         definition_id: state.selectedWorkflow.id,
-        variables: {}
+        variables: {
+          __system__user_creator_id: userId
+        }
       }
 
       await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
@@ -116,7 +118,8 @@ async function checkAndSubmit() {
       start_user_id: userId.value,
       definition_id: state.selectedWorkflow.id,
       variables: {
-        ...formData
+        ...formData,
+        __system__user_creator_id: userId
       }
     }
 
