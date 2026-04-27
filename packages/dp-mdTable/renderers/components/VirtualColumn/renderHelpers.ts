@@ -8,17 +8,16 @@ import { h } from 'vue'
 import { ElTag } from 'element-plus'
 import dayjs from 'dayjs'
 import type { TargetFieldConfig } from '../../../types/column-types'
-
 /**
- * Render values as SingleSelect tags with colors
+ * Render values as MultiSelect tags with colors
  */
-export function renderAsSingleSelect(values: any[], targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
-  const options = targetConfig.properties?.options || []
-
+export function renderAsSingleSelect(values: any[], targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+  const options = targetConfig.properties?.options || targetConfig.options || []
   if (values.length === 0) {
     return h('div', { class: 'virtual-column-view empty' }, '-')
   }
-
+  // Flatten nested arrays (each value might be an array of selections)
+  const flatValues: any[] = Array.isArray(values) ? values : [values]
   return h(
     'div',
     {
@@ -29,10 +28,9 @@ export function renderAsSingleSelect(values: any[], targetConfig: TargetFieldCon
         flexWrap: 'wrap'
       }
     },
-    values.map((val: any, index: number) => {
-      // Find matching option by id or value
-      const option = options.find((o: any) => o.id === val || o.value === val || o.label === val)
-
+    flatValues.map((val: any, index: number) => {
+      let option = options.find((o: any) => o.id === val || o.value === val || o.label === val)
+      if (!option) option = { label: '-', color: '#dddddd' }
       return h(
         'div',
         {
@@ -45,27 +43,16 @@ export function renderAsSingleSelect(values: any[], targetConfig: TargetFieldCon
     })
   )
 }
-
 /**
  * Render values as MultiSelect tags with colors
  */
-export function renderAsMultiSelect(values: any[], targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
-  const options = targetConfig.properties?.options || []
-
+export function renderAsMultiSelect(values: any[], targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+  const options = targetConfig.properties?.options || targetConfig.options || []
   if (values.length === 0) {
     return h('div', { class: 'virtual-column-view empty' }, '-')
   }
-
   // Flatten nested arrays (each value might be an array of selections)
-  const flatValues: any[] = []
-  for (const val of values) {
-    if (Array.isArray(val)) {
-      flatValues.push(...val)
-    } else {
-      flatValues.push(val)
-    }
-  }
-
+  const flatValues: any[] = Array.isArray(values) ? values : [values]
   return h(
     'div',
     {
@@ -77,16 +64,19 @@ export function renderAsMultiSelect(values: any[], targetConfig: TargetFieldConf
       }
     },
     flatValues.map((val: any, index: number) => {
-      const option = options.find((o: any) => o.id === val || o.value === val || o.label === val)
-
+      const vals = Array.isArray(val) ? val : [val]
+      const result = vals.map((v: any) => {
+        let option = options.find((o: any) => o.id === v || o.value === v || o.label === v)
+        return option?.label || '-'
+      })
       return h(
         'div',
         {
           key: index,
           class: 'table-tag',
-          style: option?.color ? `--color: ${option.color}` : undefined
+          style: `--color: #dddddd`
         },
-        option?.label || String(val ?? '')
+        result.join(separator)
       )
     })
   )

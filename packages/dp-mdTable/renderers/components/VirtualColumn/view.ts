@@ -22,6 +22,17 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
   const viewTools: any = inject('viewTools')
   const relationFieldConfig = viewTools?.getRelationFieldConfig(props.relation_table_id, props.display_field_id)
   const relationArray = buildRelationArray(row, props.relation_field_name, relationFieldConfig.field_name)
+  // console.log('relationFieldConfig', relationFieldConfig, ColumnFieldType.MultiSelect, ColumnFieldType.MultiSelect === relationFieldConfig.business_type)
+  console.log('relationArray', relationArray)
+  const values = relationArray.map((item: any) => item[relationFieldConfig.field_name])
+  switch (relationFieldConfig.business_type) {
+    case ColumnFieldType.SingleSelect:
+      return renderAsSingleSelect(values, relationFieldConfig)
+    case ColumnFieldType.MultiSelect:
+      return renderAsMultiSelect(values, relationFieldConfig)
+    default:
+  }
+
   const tags: ReturnType<typeof h>[] = []
   for (let i = 0; i < relationArray.length; i++) {
     tags.push(

@@ -5,6 +5,7 @@ import { findPath } from './useVirtualColumn'
 export const useRelation = (relationTableId: string) => {
   const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
   const { tableFields } = inject<any>('viewTools')
+  const relationFields = [ColumnFieldType.Relation, ColumnFieldType.VirtualColumn, ColumnFieldType.AggVirtualColumn]
   const menus = ref([])
   const menuIdPaths = ref<string[]>([])
   function getRelationTableIds() {
@@ -41,7 +42,7 @@ export const useRelation = (relationTableId: string) => {
     } else {
       result = visibleFields
     }
-    return result.slice(0, 5)
+    return result.filter((field: any) => !relationFields.includes(field.business_type)).slice(0, 5)
   }
   onMounted(async () => {
     await getMenuFromDb()
