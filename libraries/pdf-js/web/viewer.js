@@ -211,6 +211,9 @@ document.onreadystatechange = function () {
     window.addEventListener("message", messageFromParent, false);
     sendMessageToParent("ready");
     window.pdfReady = true;
+    window.addEventListener('afterprint', () => {
+      sendMessageToParent("print", { pageNumber: PDFViewerApplication.page });
+    })
   } else {
     // document.addEventListener("DOMContentLoaded", webViewerLoad, true);
   }
@@ -230,7 +233,7 @@ function messageFromParent(ev) {
   if (colorMode === "dark") {
     document.getElementsByTagName("html")[0].classList.add("dark");
   }
-  
+
   // check if annotations is Map or not
   if (annotations instanceof Map) {
     window.annotations = annotations;
@@ -250,7 +253,7 @@ function messageFromParent(ev) {
     els.forEach(el => el.classList.remove("hidden"));
   }
 
-  
+
 
   window.PDFViewerApplicationOptions.set("locale", newLocal);
   webViewerLoad(url);
@@ -272,7 +275,7 @@ function messageFromParent(ev) {
     hiddenEL.forEach(el => el.classList.add("hidden"));
     saveAnnotationButton.forEach(el => el.classList.add("hidden"));
   } else {
-    
+
     saveAnnotationButton.forEach(el => {
       el.removeEventListener("click", saveAnnotation);
       el.addEventListener("click", saveAnnotation);
@@ -288,6 +291,7 @@ function saveAnnotation() {
 function sendMessageToParent(type, data) {
   parent.postMessage({ type, data }, "*");
 }
+
 
 export {
   PDFViewerApplication,

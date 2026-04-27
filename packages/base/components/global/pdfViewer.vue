@@ -83,14 +83,19 @@ function gotMessageFromIframe(message:MessageEvent) {
     const { data:{ data, type} } = message;
     if(!data && !type ) return;
     switch(type) {
-        case 'ready':
-            sendPdfAndAnnotation()
-            break;
-        case 'annotation':
-            saveAnnotation(data)
-            break;
-        default:
-            break;
+      case 'ready':
+        console.log("PDF viewer is ready")
+        sendPdfAndAnnotation()
+        break;
+      case 'annotation':
+        saveAnnotation(data)
+        break;
+      case 'print':
+        console.log('print from pdf')
+        // TODO: handle print event
+        break;
+      default:
+        break;
     }
 
 }
