@@ -51,6 +51,7 @@ async function getAnnotation():Promise<Object> {
     return annotationMap;
 }
 async function sendPdfAndAnnotation() {
+  console.log("correct pdf ")
     if(!props.blob) return;
     const frame = iframe.value?.contentWindow;
     const blob = structuredClone(toRaw(props.blob))
@@ -61,7 +62,7 @@ async function sendPdfAndAnnotation() {
         blob,
         filename: props.name,
         annotations,
-        locale: locale.value, 
+        locale: locale.value,
         options
     }, '*');
 }
@@ -102,13 +103,17 @@ function gotMessageFromIframe(message:MessageEvent) {
                     break;
                 case 'annotation':
                     saveAnnotation(data)
+                break;
+              case 'print':
+                console.log('print from pdf')
+                    // TODO :　 add print handler
                     break;
                 default:
                     break;
             }
         }
     }, 500)
-    
+
 }
 useEventListener(window, 'message', gotMessageFromIframe)
 </script>

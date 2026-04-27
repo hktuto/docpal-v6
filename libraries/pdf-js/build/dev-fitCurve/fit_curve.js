@@ -345,7 +345,7 @@ module.exports.createTangent = createTangent;
 /******/ 
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
 var exports = __webpack_exports__;
 
@@ -354,10 +354,9 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.fitCurve = void 0;
-const fitCurve = __webpack_require__(1);
-exports.fitCurve = fitCurve;
+const fitCurve = exports.fitCurve = __webpack_require__(1);
 })();
 
-var __webpack_exports___esModule = __webpack_exports__.__esModule;
-var __webpack_exports__fitCurve = __webpack_exports__.fitCurve;
-export { __webpack_exports___esModule as __esModule, __webpack_exports__fitCurve as fitCurve };
+const __webpack_exports___esModule = __webpack_exports__.__esModule;
+const __webpack_exports__fitCurve = __webpack_exports__.fitCurve;
+export { __webpack_exports___esModule as __esModule, __webpack_exports__fitCurve as fitCurve, __webpack_exports__ as default };
