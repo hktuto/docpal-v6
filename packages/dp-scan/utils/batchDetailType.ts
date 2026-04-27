@@ -80,7 +80,7 @@ export type BatchDetailContext = {
   isLockedByOther: Ref<boolean>
   lockedByUser: Ref<string | undefined>
   selectSection: (section: any) => void
-  selectField: (field: any) => void
+  selectField: (field: any, section?:any) => void
   changePage: (pageNumber: number) => Promise<void>
   updateFieldValue: (sectionId: string, fieldKey: string, value: any, rowIndex?: number) => void
   addTableRow: (sectionId: string) => void

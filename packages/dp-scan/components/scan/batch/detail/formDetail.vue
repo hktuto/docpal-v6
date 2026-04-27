@@ -11,6 +11,7 @@ if (!context) {
   throw new Error('BatchDetailContext not found')
 }
 const allSectionsRef  = ref()
+const sectionsListRef = ref<HTMLDivElement>()
 // Destructure for easier access
 const {
   documentLoading,
@@ -77,7 +78,7 @@ function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowI
     selectedDocDetail.value.detail.familyClass = classification.familyClass;
     selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
     selectedDocDetail.value.detail.statePerson = classification.statePerson;
-     console.log(classification)
+
   })
 }
 
@@ -116,7 +117,7 @@ function handleRemoveRow(sectionId: string, rowIndex: number) {
     selectedDocDetail.value.detail.familyClass = classification.familyClass;
     selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
     selectedDocDetail.value.detail.statePerson = classification.statePerson;
-    console.log(classification)
+
   })
 }
 
@@ -243,6 +244,22 @@ watch(hasError,(bool)=>{
   immediate: true,
 })
 
+// Reset scroll and focus first section when document changes
+watch(currentSelectedDoc, () => {
+  if(!currentSelectedDoc.value) return
+  nextTick(() => {
+    if (sectionsListRef.value) {
+      sectionsListRef.value.scrollTop = 0
+    }
+    if (allSectionsRef.value?.length > 0) {
+      const firstSection = allSectionsRef.value[0]
+      if (typeof firstSection?.focusSection === 'function') {
+        firstSection.focusSection()
+      }
+    }
+  })
+}, { immediate: true })
+
 </script>
 
 <template>
@@ -290,11 +307,11 @@ watch(hasError,(bool)=>{
       </div>
 
       <!-- Scrollable sections list -->
-      <div class="sectionsList" :class="{ 'withWarning': isLockedByOther }">
+      <div ref="sectionsListRef" class="sectionsList" :class="{ 'withWarning': isLockedByOther }">
         <ScanBatchDetailSection
           v-for="section in sectionsWithValues"
           ref="allSectionsRef"
-          :key="section.section_id"
+          :key="section.section_id +　section.id"
           :section="section"
           :allData="sectionsWithValues"
           :readonly="isReadonly"

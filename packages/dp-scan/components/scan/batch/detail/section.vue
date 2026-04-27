@@ -55,17 +55,18 @@ function handleSectionMouseEnter() {
 
   selectSection(props.section)
   // Clear field highlight when selecting a new section
-  selectField(null)
+  // selectField(null)
   }
 }
 
 // Handle field mouse enter - highlight persists until another is hovered
 function handleFieldMouseEnter(field: FieldWithValue) {
-
+  selectSection(props.section)
   selectField(field)
 }
 
 function handleTableFieldMouseEnter(field: FieldWithValue){
+
   selectField(field, props.section)
 }
 
@@ -200,7 +201,7 @@ const previewImg = ref()
 const previewImgLoading = ref(false)
 
 async function getSectionImage(){
-  console.log("getSectionImage")
+
   previewImgLoading.value = true;
   previewImg.value = null;
   try{
@@ -213,7 +214,27 @@ async function getSectionImage(){
 }
 //
 function focusSection(){
-  sectionContainerRef.value?.focus()
+  nextTick(() => {
+    const firstInput = sectionContainerRef.value?.querySelector('input, select, textarea')
+    if (firstInput) {
+      firstInput.focus()
+    } else {
+      sectionContainerRef.value?.focus()
+    }
+    // Highlight the first field in file preview
+    if (props.section.section_type === 'table') {
+      const firstField = props.section.rows?.[0]?.fields?.[0]
+      if (firstField) {
+        handleTableFieldMouseEnter(firstField)
+      }
+    } else {
+      const fields = props.section.fields ? displayField(props.section.fields) : []
+      const firstField = fields[0]
+      if (firstField) {
+        handleFieldMouseEnter(firstField)
+      }
+    }
+  })
 }
 function displayField(fields: FieldWithValues) {
   return fields.filter((f) => !f.hidden )
@@ -221,11 +242,10 @@ function displayField(fields: FieldWithValues) {
 watch(() => props.section,()=>{
 
   nextTick(() => {
-    console.log("currentSelectedDoc change")
     validateForm()
     if(props.section.save_to_result) {
       getSectionImage()
-      focusSection()
+      // focusSection()
     }
   })
 },{
@@ -235,14 +255,15 @@ watch(() => props.section,()=>{
 
 
 defineExpose({
-  validateForm
+  validateForm,
+  focusSection
 })
 
 
 </script>
 
 <template>
-<div :class="{sectionHeader:true, highlighted: isHighlighted, error: !noError}">
+<div :class="{sectionHeader:true, highlighted: isHighlighted, error: !noError}" >
   <Icon name="lucide:layout-template" class="sectionIcon" />
   <span class="sectionName">{{ splitByCamelCase(section.section_name) }}</span>
 
@@ -257,6 +278,7 @@ defineExpose({
     :size="formSize"
     circle
     class="addRowBtn"
+    tabindex="9999"
     @click.stop="handleAddRow"
   >
     <Icon name="lucide:plus" />
@@ -265,7 +287,7 @@ defineExpose({
   <div
   ref="sectionContainerRef"
     :class="{ sectionContainer: true, highlighted: isHighlighted, error: !noError }"
-    tabindex="0"
+    :tabindex="!section.save_to_result ? 999 : 0"
     @focus="handleSectionMouseEnter"
     @mouseenter="handleSectionMouseEnter"
   >
@@ -376,7 +398,7 @@ defineExpose({
       >
         <div class="rowHeader">
           <Icon name="lucide:rows-3" class="rowIcon" />
-          <span>Row {{ rowIndex + 1 }}</span>
+          <span>Member {{ rowIndex + 1 }}</span>
           <!-- Remove row button - only show when not readonly -->
           <ElButton
             v-if="!readonly"
@@ -384,6 +406,7 @@ defineExpose({
             :size="formSize"
             circle
             class="removeRowBtn"
+            tabindex="9999"
             @click.stop="handleRemoveRow(rowIndex)"
           >
             <Icon name="lucide:minus" />
@@ -428,7 +451,7 @@ defineExpose({
                   filterable
                   clearable
                   :disabled="readonly"
-                  @focus="handleFieldMouseEnter(field)"
+                  @focus="handleTableFieldMouseEnter(field)"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 >
                   <ElOption
@@ -450,7 +473,7 @@ defineExpose({
                     :format="field.format || 'DD/MM/YYYY'"
                     :value-format="field.format || 'DD/MM/YYYY'"
                     :disabled-date="(d) => checkDateisDOB(field, d)"
-                    @focus="handleFieldMouseEnter(field)"
+                    @focus="handleTableFieldMouseEnter(field)"
                     @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                   />
                   <!-- currentValue:{{field.currentValue}} -->
@@ -463,7 +486,7 @@ defineExpose({
                   :class="{fieldInput:true, warning: field.warning}"
                   :type="getInputType(field.type)"
                   :disabled="readonly"
-                  @focus="handleFieldMouseEnter(field)"
+                  @focus="handleTableFieldMouseEnter(field)"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 />
                 <div v-if="field.warning" class="warningText">{{ field.warning }}</div>

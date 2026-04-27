@@ -110,7 +110,6 @@ export const useBatchDetail = (batchId: string) => {
       ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options, true)
       : rawValue
     if (fieldLabel === "FamilyMemberMaritalStatus") {
-      console.log("normalizedValue", normalizedValue, rawValue)
     }
     const normalizeOldValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
       ? normalizeValue(oldData?.[fieldLabel], field.field_setting.options, field.normalize_options)
@@ -265,7 +264,7 @@ export const useBatchDetail = (batchId: string) => {
       const response = await clientApi.api.getCaptureBatchBatchidDetail(currentBatchId.value)
       batchDetail.value = response.data
       batchDetail.value.documents = batchDetail.value.documents.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename))
-
+      previewImgUrl.value = null
       currentSelectedDoc.value = response.data.documents[selectIndex || 0]
       currentPageNumber.value = 1;
       // Handle batch locking
@@ -343,8 +342,8 @@ export const useBatchDetail = (batchId: string) => {
     currentPageNumber.value = pageNumber
 
     // Clear highlights when changing page
-    highlightedSection.value = undefined
-    highlightedField.value = undefined
+    // highlightedSection.value = undefined
+    // highlightedField.value = undefined
 
     await renderPage(pageNumber)
   }
@@ -585,6 +584,7 @@ export const useBatchDetail = (batchId: string) => {
       return
     }
     if (section) {
+
       if (section.section_type === 'table') {
         const newHightlight = {
           section_type: section.section_type,
@@ -762,7 +762,7 @@ export const useBatchDetail = (batchId: string) => {
       // TODO : Select Next Document, and reload page
       // TODO:　calculate selected document index
       const index = batchDetail.value.documents.findIndex((b) => b.id === currentSelectedDoc.value.id)
-      console.log("try to get next index", index, currentSelectedDoc.value, batchDetail.value.documents)
+
       if (index !== -1 ) {
         if (index === batchDetail.value.documents.length - 1) {
           // is last page
@@ -855,8 +855,8 @@ export const useBatchDetail = (batchId: string) => {
   watch(currentSelectedDoc, () => {
     if (currentSelectedDoc.value) {
       // Clear highlights when switching documents
-      highlightedSection.value = undefined
-      highlightedField.value = undefined
+      // highlightedSection.value = undefined
+      // highlightedField.value = undefined
       getDocumentDetail(currentSelectedDoc.value.id)
     }
   })
@@ -907,11 +907,41 @@ export function normalizeDocumentData(detail: any, setting: any): void {
 
               item[fieldKey] = item[fieldKey].replaceAll('(', '').replaceAll(')', '')
             }
+            // check if value is a DOB
+            if(fieldKey.includes('DOB')) {
+              // check if is a valid DD/MM/YYYY , if not make it YYYY-MM-DD
+              const dateStr = item[fieldKey]
+              const dateParts = dateStr.split('/')
+              // check if dateParts length is 3
+              if (dateParts.length !== 3) {
+                item[fieldKey] = ''
+              }
+              //check if MM　is equal or small than 12
+              if (parseInt(dateParts[1]) > 12) {
+                item[fieldKey] = ''
+              }
+
+            }
           })
         })
       } else {
 
         Object.keys(section).forEach((fieldKey) => {
+          // check if value is a DOB
+          if(fieldKey.includes('DOB')) {
+            // check if is a valid DD/MM/YYYY , if not make it YYYY-MM-DD
+            const dateStr = detail.newResultJson[sectionKey][fieldKey]
+            const dateParts = dateStr.split('/')
+            // check if dateParts length is 3
+            if (dateParts.length !== 3) {
+              detail.newResultJson[sectionKey][fieldKey] = ''
+            }
+            //check if MM　is equal or small than 12
+            if (parseInt(dateParts[1]) > 12) {
+              detail.newResultJson[sectionKey][fieldKey] = ''
+            }
+
+          }
           if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName'  || fieldKey === 'FamilyMemberChineseName') {
 
             detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
@@ -1229,31 +1259,7 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
 
 
 
-  console.log("Calculate", {
-    result: {
-      familyCategory: FamilyCategory,
-      familyClass: FamilyClass,
-      priorityIndicator: PriorityIndicator,
-      formSource: FormSource,
-      statePerson: Person
-    },
-    org: {
-      emms,
-      pplCount,
-      hasFamilyMember,
-      PrioritySchemeForElderly,
-      PrioritySchemeForNewborns,
-      YouthScheme,
-      babyCount,
-      CleareesCat,
-      HKHS,
-      HA,
-      EFAS_COT,
-      EFAS,
-      formTypeCode: detail.formTypeCode,
-      detail
-    }
-  })
+
   return {
     familyCategory: FamilyCategory,
     familyClass: FamilyClass,

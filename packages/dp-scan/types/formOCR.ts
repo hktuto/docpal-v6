@@ -492,7 +492,6 @@ export function normalizeValue(
 
   if (!value) {
     if (!normalizeOptions) {
-      console.log("return value", value )
       return value
     } else {
 
@@ -502,7 +501,6 @@ export function normalizeValue(
         console.log("no default found",)
         return " ";
       }
-      console.log("return defaultPattern[0]", defaultPattern[0] )
       return defaultPattern[0] || ""
     }
   } else {
