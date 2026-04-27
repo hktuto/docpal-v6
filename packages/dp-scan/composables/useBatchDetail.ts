@@ -125,7 +125,7 @@ export const useBatchDetail = (batchId: string) => {
       originalValue: normalizeOldValue,
       options: field.field_setting?.options?.map((opt: Record<string, string>) => {
         const [value, label] = Object.entries(opt)[0] || ['', '']
-        return { value, label }
+        return { value: value === 'none' ? '' : value, label }
       }),
       normalize_options: field.normalize_options,
       validation_function: field.validation_function
@@ -191,7 +191,7 @@ export const useBatchDetail = (batchId: string) => {
             originalValue: '',
             options: field.field_setting?.options?.map((opt: Record<string, string>) => {
               const [value, label] = Object.entries(opt)[0] || ['', '']
-              return { value, label }
+              return { value: value === 'none' ? '' : value, label }
             }),
             normalize_options: field.normalize_options,
             validation_function: field.validation_function

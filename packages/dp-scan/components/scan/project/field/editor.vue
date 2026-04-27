@@ -73,7 +73,6 @@ function saveOptionsToField() {
   }
 
   localValue.value.field_setting.options = optionRows.value
-    .filter(row => row.key.trim() !== '')
     .map(row => ({
       [row.key.trim()]: row.value.trim() || row.key.trim()
     }))
