@@ -21,7 +21,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string[] | string | null): void
 }>()
 
-const mdTableContext = useMDTableInject()
+const mdTableContext = useTableDataInject()
 const viewTools: any = inject('viewTools')
 const currentValue = computed(() => {
   const v = props.modelValue
@@ -33,21 +33,28 @@ const currentValue = computed(() => {
     return []
   }
 })
-
-const relationPickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
-const dispalyFieldName = computed(() => {
-  const displayFieldId = props.display_field_ids[0]
-  const displayField = viewTools?.getRelationFieldConfig(props.relation_table_id, displayFieldId)
-  return displayField?.field_name
+const curFieldName = computed(() => {
+  return props.column.field
 })
+const relationPickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
+
 /** 当前选中 ID 对应的关联展示字段值，用于批量显示 */
+const fields = computed(() => {
+  return props.display_field_ids.reduce((acc: FieldInfo[], id: string) => {
+    const fieldConfig = viewTools?.getRelationFieldConfig(props.relation_table_id, id)
+    if (fieldConfig) {
+      acc.push(fieldConfig)
+    }
+    return acc
+  }, [])
+})
 const displayValues = computed(() => {
   if (props.display_field_ids.length === 0) {
     return []
   }
-  const fieldName = props.column.field
+  const fieldNames = fields.value.map((field) => field.field_name)
 
-  const relationArray = buildRelationArray(props.row, fieldName, dispalyFieldName.value)
+  const relationArray = buildRelationArray(props.row, curFieldName.value, fieldNames)
   return relationArray
 })
 
@@ -56,7 +63,6 @@ function handleAdd() {
 }
 
 function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
-  console.log({ selectedRows })
   const normalizedValue = Array.isArray(value) ? value : value ? [value] : []
   const joinedValue = normalizedValue.filter((item: any) => item !== '[]')
   const fieldName = props.column.field
@@ -66,10 +72,20 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
   }
   const basicFieldNames = ['id', 'created_at', 'updated_at', 'updated_by', 'status', 'master_table_id']
   const basicRow = selectedRows.length > 0 ? selectedRows[0] : props.row
+  const allSelectedRows = normalizedValue.reduce((acc, rowId) => {
+    let row = selectedRows.find((sItem) => sItem.id === rowId)
+    if (!row) {
+      row = displayValues.value.find((sItem) => sItem.id === rowId)
+    }
+    if (row) {
+      acc.push(row)
+    }
+    return acc
+  }, [])
   Object.keys(basicRow).forEach((key) => {
     if (!basicFieldNames.includes(key)) {
       const fullKey = fieldName + '.' + key
-      const relatedValue = selectedRows.reduce((acc, sItem) => {
+      const relatedValue = allSelectedRows.reduce((acc, sItem) => {
         if (sItem[key]) {
           acc.push(sItem[key])
         }
@@ -104,7 +120,7 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
       </template>
     </MdFormFieldRelationPicker>
     <div v-if="displayValues && displayValues.length" class="relation-tags">
-      <el-tag v-for="(item, index) in displayValues" type="info" :key="index" size="small">{{ item[dispalyFieldName] }}</el-tag>
+      <el-tag v-for="(item, index) in displayValues" type="info" :key="index" size="small">{{ item[fields[0].field_name] }}</el-tag>
     </div>
     <!-- {{ displayRecords }} -->
   </div>
