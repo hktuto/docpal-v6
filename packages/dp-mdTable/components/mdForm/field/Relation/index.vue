@@ -12,14 +12,14 @@
         show-selected
         @update:model-value="handleUpdate"
       />
-      <template v-for="record in selectedRecords" :key="record.id">
+      <template v-for="id in formData[curFieldName]" :key="id">
         <MdFormFieldRelationCard
           v-loading="loading"
           :fields="fields"
-          :data="record"
+          :data="selectedRecords[id]"
           :show-remove="true"
           @original-click="handleClick"
-          @remove="handleRemove(record.id)"
+          @remove="handleRemove(id)"
         />
       </template>
     </template>
@@ -72,11 +72,13 @@ const fields = computed(() => {
   }, [])
 })
 const selectedRecords = computed(() => {
-  console.log('selectedRecords', props.formData, curFieldName.value)
   if (!currentValue.value) return []
   const displayFieldNames = fields.value.map((field) => field.field_name)
   const relationArray = buildRelationArray(props.formData, curFieldName.value, displayFieldNames)
-  return relationArray
+  return relationArray.reduce((acc: any[], item: any) => {
+    acc[item.id] = item
+    return acc
+  }, {})
 })
 
 function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
@@ -86,7 +88,7 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
   const allSelectedRows = value.reduce((acc, rowId) => {
     let row = selectedRows.find((sItem) => sItem.id === rowId)
     if (!row) {
-      row = selectedRecords.value.find((sItem) => sItem.id === rowId)
+      row = selectedRecords.value[rowId]
     }
     if (row) {
       acc.push(row)
@@ -139,7 +141,7 @@ async function handleClick(data: any) {
 }
 async function handleSubmit(data: any, id: string) {
   await updateRow(id, data, relationTableId.value)
-  const row = selectedRecords.value.find((sItem) => sItem.id === id)
+  const row = selectedRecords.value[id]
   if (!row) return
   const newFormData: any = {}
   Object.keys(row).forEach((key) => {
@@ -154,6 +156,9 @@ async function handleSubmit(data: any, id: string) {
     relationRowId: id,
     relationField: curFieldName.value
   })
+}
+function handleRemove(id: string) {
+  props.formData[curFieldName.value] = props.formData[curFieldName.value].filter((item: string) => item !== id)
 }
 </script>
 
