@@ -196,6 +196,71 @@ function checkDateisDOB(field:any, date:Date){
   return false
 }
 
+function getConstraintDate(constraint?: string): Date | null {
+  if (!constraint) return null
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  switch (constraint) {
+    case 'today':
+      return today
+    case 'yesterday': {
+      const d = new Date(today)
+      d.setDate(d.getDate() - 1)
+      return d
+    }
+    case 'one_week_ago': {
+      const d = new Date(today)
+      d.setDate(d.getDate() - 7)
+      return d
+    }
+    default:
+      return null
+  }
+}
+
+function getDisabledDate(field: FieldWithValue, date: Date): boolean {
+  if (checkDateisDOB(field, date)) return true
+
+  const minDate = getConstraintDate(field.min_date)
+  if (minDate && date < minDate) return true
+
+  const maxDate = getConstraintDate(field.max_date || (field as any).mix_date)
+  if (maxDate && date > maxDate) return true
+
+  return false
+}
+
+function getInputFormatter(format?: string): ((value: string) => string) | undefined {
+  switch (format) {
+    case 'ALL_CAP':
+      return (val: string) => val?.toUpperCase?.() || val
+    case 'SMALL_CASE':
+      return (val: string) => val?.toLowerCase?.() || val
+    case 'TITLE_CASE':
+      return (val: string) => val?.replace?.(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()) || val
+    case 'NUMBER_ONLY':
+      return (val: string) => val?.replace?.(/[^0-9]/g, '') || val
+    default:
+      return undefined
+  }
+}
+
+function getInputParser(format?: string): ((value: string) => string) | undefined {
+  switch (format) {
+    case 'ALL_CAP':
+      return (val: string) => val?.toUpperCase?.() || val
+    case 'SMALL_CASE':
+      return (val: string) => val?.toLowerCase?.() || val
+    case 'TITLE_CASE':
+      return (val: string) => val?.replace?.(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()) || val
+    case 'NUMBER_ONLY':
+      return (val: string) => val?.replace?.(/[^0-9]/g, '') || val
+    default:
+      return undefined
+  }
+}
+
 // preview image logic
 const previewImg = ref()
 const previewImgLoading = ref(false)
@@ -353,7 +418,7 @@ defineExpose({
                 :disabled="readonly"
                 :format="field.format || 'DD/MM/YYYY'"
                 :value-format="field.format || 'DD/MM/YYYY'"
-                 :disabled-date="(d) => checkDateisDOB(field, d)"
+                 :disabled-date="(d) => getDisabledDate(field, d)"
                 clearable
 
                 @focus="handleFieldMouseEnter(field)"
@@ -368,7 +433,8 @@ defineExpose({
               :size="formSize"
               :class="{fieldInput: true, edited: isFieldModified(field), warning: field.warning }"
               :type="getInputType(field.type)"
-
+              :formatter="getInputFormatter(field.format)"
+              :parser="getInputParser(field.format)"
               :disabled="readonly"
               @focus="handleFieldMouseEnter(field)"
               @update:model-value="(val) => handleFieldChange(field, val)"
@@ -472,7 +538,7 @@ defineExpose({
                     :disabled="readonly"
                     :format="field.format || 'DD/MM/YYYY'"
                     :value-format="field.format || 'DD/MM/YYYY'"
-                    :disabled-date="(d) => checkDateisDOB(field, d)"
+                    :disabled-date="(d) => getDisabledDate(field, d)"
                     @focus="handleTableFieldMouseEnter(field)"
                     @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                   />
@@ -485,6 +551,8 @@ defineExpose({
                   :size="formSize"
                   :class="{fieldInput:true, warning: field.warning}"
                   :type="getInputType(field.type)"
+                  :formatter="getInputFormatter(field.format)"
+                  :parser="getInputParser(field.format)"
                   :disabled="readonly"
                   @focus="handleTableFieldMouseEnter(field)"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"

@@ -31,6 +31,8 @@ export type FieldWithValue = {
     options: Record<string, string>[]
   }
   format?: string // e.g. 'DD/MM/YYYY' for date formatting
+  min_date?: string // e.g. 'today', 'yesterday', 'one_week_ago'
+  max_date?: string // e.g. 'today', 'yesterday', 'one_week_ago'
   page?: number // for table type if field is from other page then section
   // Added values from result JSON
   currentValue: any

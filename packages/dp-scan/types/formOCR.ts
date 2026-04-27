@@ -112,6 +112,10 @@ export interface Field {
   field_setting?: FieldSetting
   /** Date format for date fields (e.g., "DD/MM/YYYY") */
   format?: string
+  /** Min date constraint for date fields (e.g., "today", "yesterday", "one_week_ago") */
+  min_date?: string
+  /** Max date constraint for date fields (e.g., "today", "yesterday", "one_week_ago") */
+  max_date?: string
   /** Whether to support Simplified to Traditional Chinese conversion */
   support_chs_to_cht?: boolean
   /** Normalization options for mapping input values to option values */
