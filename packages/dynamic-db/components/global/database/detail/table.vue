@@ -29,6 +29,7 @@
             <el-dropdown-item :command="{ name: 'Table', type: 'table' }"> Table </el-dropdown-item>
             <el-dropdown-item :command="{ name: 'Kanban', type: 'kanban' }"> Kanban </el-dropdown-item>
             <el-dropdown-item :command="{ name: 'Card', type: 'card' }"> Card </el-dropdown-item>
+            <el-dropdown-item :command="{ name: 'Calendar', type: 'calendar' }"> Calendar </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -116,7 +117,7 @@ watch(
   async (newVal) => {
     if (newVal.item_id) {
       isReady.value = false
-      currentView.value = null
+      currentView.value = null;
       await getViews()
       setRelationConfig(tableFields.value)
       setTimeout(() => {

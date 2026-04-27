@@ -96,3 +96,14 @@ export const cardStyleDefault:ViewStyle = {
 export const kanbanStyleDefault:ViewStyle = {
   selectedColumnId: null,
 }
+
+export const ganttStyleDefault:ViewStyle = {
+  startField: null,
+  endField: null,
+  percentField: null
+}
+
+export const calendarStyleDefault:ViewStyle = {
+  startField: null,
+  endField: null
+}
