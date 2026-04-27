@@ -56,7 +56,7 @@ async function workflowClickHandler(item: any) {
   if (startTask.metadata.openInNewPage) {
     state.loading = false
     const link = newWorkflowStartPage(data.name, state.selectedWorkflow.id, startTask.metadata)
-    routerProvider?.navigateTo(link, true)
+    routerProvider?.navigateTo(link)
     return
   }
 
