@@ -29,6 +29,20 @@ const props = defineProps<{
   fieldName: string
 }>()
 
+const modelField = computed(() => props.column?.[props.fieldName])
+// 确保传出去的是数字类型
+watchEffect(() => {
+  if (!props.formData || !modelField.value) {
+    return
+  }
+
+  const currentValue = props.formData[modelField.value]
+  if (typeof currentValue === 'string') {
+    const n = Number(currentValue.trim())
+    props.formData[modelField.value] = Number.isFinite(n) ? n : undefined
+  }
+})
+
 /** 数字列配置（columnProperties），与 NumberConfig 一致 */
 const properties = computed((): NumberConfig => {
   const p = props.column?.display_structure ?? {}
@@ -40,6 +54,7 @@ const properties = computed((): NumberConfig => {
     showThouComma: p.showThouComma ?? true
   }
 })
+
 </script>
 
 <style lang="scss" scoped>

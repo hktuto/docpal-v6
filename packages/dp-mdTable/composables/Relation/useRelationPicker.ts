@@ -6,7 +6,7 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
   const searchKeyword = ref('')
   const pageParams = ref<any>({
     pageSize: 100,
-    pageNum: 1
+    pageNum: 0
   })
   const noMore = ref(false)
   const loading = ref(false)
@@ -47,12 +47,13 @@ export const useRelationPicker = (tableId: string, displayFieldIds: string[]) =>
   }
   function refresh() {
     options.value = []
+    pageParams.value.pageNum = 0
     getRelationPickerOptions()
   }
   onMounted(async () => {
     options.value = []
     fields.value = getFields(tableId)
-    pageParams.value.pageNum = 1
+    pageParams.value.pageNum = 0
     noMore.value = false
     loading.value = false
     console.log('fields', fields.value)
