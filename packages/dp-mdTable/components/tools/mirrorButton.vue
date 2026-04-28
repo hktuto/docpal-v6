@@ -6,6 +6,7 @@
   <UiPopoverDialog ref="popoverRef" :width="260">
     <div class="mirror-list">
       <div v-for="item in mirrorList" :key="item.id" class="mirror-item" @click="handleSelectMirror(item)">
+        <Icon name="material-symbols:text-compare-rounded" class="empty-icon el-icon--left" />
         {{ item.label || item.name || item.metadata?.name || item.id }}
       </div>
       <el-button text type="info" @click="handleAddMirror"> Add Mirror </el-button>
@@ -56,7 +57,9 @@ const handleSelectMirror = (item: any) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xs);
   &:hover {
     background: var(--app-primary-alpha-30);
     color: var(--app-primary);
