@@ -6,10 +6,10 @@
           <el-icon><Search /></el-icon>
         </template>
       </el-input> -->
-      <ToolsColumnVisibilityPopover />
-      <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="(v) => handleRefresh('groupInfo', v)" />
-      <ToolsFilterButton :available-columns="groupableColumns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
-      <ToolsSortButton :available-columns="groupableColumns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
+      <ToolsColumnVisibilityPopover :disabled="disabled" />
+      <ToolsGroupingButton :disabled="disabled" :groupableColumns="groupableColumns" @grouping-change="(v) => handleRefresh('groupInfo', v)" />
+      <ToolsFilterButton :disabled="disabled" :available-columns="groupableColumns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
+      <ToolsSortButton :disabled="disabled" :available-columns="groupableColumns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
         <el-button type="primary" @click="handleAddRow">
           <el-icon><Plus /></el-icon>
@@ -53,6 +53,7 @@ interface Props {
   showImport?: boolean
   groupableColumns?: ColumnConfig[]
   activeGroupFields?: string[]
+  disabled?: boolean
 }
 
 interface Emits {
@@ -76,7 +77,8 @@ const props = withDefaults(defineProps<Props>(), {
   showExport: true,
   showImport: true,
   groupableColumns: () => [],
-  activeGroupFields: () => []
+  activeGroupFields: () => [],
+  disabled: false
 })
 
 const emit = defineEmits<Emits>()

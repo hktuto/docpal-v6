@@ -1,6 +1,6 @@
 <template>
   <MdFormItem v-if="formData && column[fieldName]" v-bind="props">
-    <el-select v-model="formData[column[fieldName]]" :multiple="isMulti" :placeholder="column.placeholder" filterable clearable>
+    <el-select v-model="formData[column[fieldName]]" default-first-option :multiple="isMulti" :placeholder="column.placeholder" filterable clearable>
       <el-option v-for="option in column.display_structure.options" :key="option.id" :label="option.label" :value="option.id">
         <div class="flex items-center">
           <el-tag :color="option.color" style="margin-right: 8px" size="small" />

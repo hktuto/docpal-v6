@@ -1,6 +1,6 @@
 <template>
   <div class="workspace-table-views">
-    <div class="workspace-table-views__tabs">
+    <div class="workspace-table-views__tabs" v-if="!isMirror">
       <draggable v-model="localViews" item-key="id" tag="div" class="workspace-table-views__tab-list" :animation="150" handle=".handler" @end="handleDragEnd">
         <template #item="{ element: view }">
           <div
@@ -35,7 +35,7 @@
       </el-dropdown>
     </div>
     <div class="workspace-table-views__content">
-      <DatabaseTableView v-if="isReady" :data-table-id="tableId" />
+      <DatabaseTableView v-if="isReady" :is-mirror="isMirror" :data-table-id="tableId" />
       <template v-else>
         <el-skeleton :rows="10" animated />
       </template>
@@ -53,9 +53,10 @@ import draggable from 'vuedraggable'
 
 const { databaseMenuRouteParams, database } = useSingleDatabaseContext()
 const { setRelationConfig } = useRelationConfig()
-const tableId = computed(() => databaseMenuRouteParams.value.item_id)
+const tableId = computed(() => databaseMenuRouteParams.value.tableId ?? databaseMenuRouteParams.value.item_id)
 const reference_entity_id = computed(() => database.value.id)
 const isReady = ref(false)
+const isMirror = computed(() => databaseMenuRouteParams.value.detailType === 'view')
 const { getViews, currentView, tableViews, createView, setCurrentView, reorderViews, tableFields } = useTableViews({
   tableId,
   reference_entity_id
@@ -115,10 +116,11 @@ async function handleDragEnd(event: any) {
 watch(
   databaseMenuRouteParams,
   async (newVal) => {
+    console.log('databaseMenuRouteParams', newVal)
     if (newVal.item_id) {
       isReady.value = false
       currentView.value = null;
-      await getViews()
+      await getViews(newVal.viewId)
       setRelationConfig(tableFields.value)
       setTimeout(() => {
         isReady.value = true

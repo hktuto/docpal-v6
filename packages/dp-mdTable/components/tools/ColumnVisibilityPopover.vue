@@ -1,7 +1,7 @@
 <template>
   <el-popover ref="popoverRef" :width="320" trigger="click" popper-class="column-visibility-popover">
     <template #reference>
-      <el-button type="default" @click="handleOpen">
+      <el-button :disabled="disabled" type="default" @click="handleOpen">
         <el-icon><View /></el-icon>
         隐藏列
       </el-button>
@@ -31,7 +31,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { View, Search } from '@element-plus/icons-vue'
-
+interface Props {
+  disabled?: boolean
+}
+const props = defineProps<Props>()
 export interface ColumnVisibilityItem {
   id: string
   title: string

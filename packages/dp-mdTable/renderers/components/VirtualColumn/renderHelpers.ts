@@ -48,6 +48,7 @@ export function renderAsSingleSelect(values: any[], targetConfig: any, separator
  */
 export function renderAsMultiSelect(values: any[], targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
   const options = targetConfig.properties?.options || targetConfig.options || []
+  console.log('options', values)
   if (values.length === 0) {
     return h('div', { class: 'virtual-column-view empty' }, '-')
   }
@@ -69,6 +70,9 @@ export function renderAsMultiSelect(values: any[], targetConfig: any, separator:
         let option = options.find((o: any) => o.id === v || o.value === v || o.label === v)
         return option?.label || '-'
       })
+      if(result.length === 0) {
+        result.push('-')
+      }
       return h(
         'div',
         {

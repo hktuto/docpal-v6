@@ -64,7 +64,7 @@ export function useTableViews(options: UseTableViewsOptions) {
   const columnGroupRules = ref<any[]>([])
 
   const viewStyleConfig = ref<any>({})
-  async function getViews() {
+  async function getViews(viewId?: string) {
     columnFilterRules.value = null
     columnSortRules.value = []
     columnGroupRules.value = []
@@ -84,7 +84,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     tableFields.value = data.data?.tableFields ?? []
     tableViews.value = views
-    const currentViewId = currentView.value?.id ?? tableViews.value[0].id
+
+    const currentViewId = viewId ?? currentView.value?.id ?? tableViews.value[0].id
     setCurrentView(currentViewId)
   }
   function setCurrentView(view: ViewConfig | string) {

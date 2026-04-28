@@ -7,6 +7,11 @@ export interface MenuState {
   editingItemId: string | null
   isDragging: boolean
 }
+export interface ViewCreationData {
+  name: string
+  tableId: string
+  viewId: string
+}
 
 export interface SingleDatabaseCopntext {
   database: Ref<DatabaseItem | null>
@@ -33,9 +38,7 @@ export interface SingleDatabaseCopntext {
   buildTreeFromFlat: (flatItems: CaseTreeRecord[]) => TreeItem[]
 }
 
-
 export const useSingleDatabase = () => {
-
   const database = ref<CaseTypeRecord | null>(null)
 
   // menu action logic
@@ -44,7 +47,8 @@ export const useSingleDatabase = () => {
   const databaseMenuRouteParams = ref<DatabaseMenuRouteParams>({
     detailId: null,
     pageType: 'detail',
-    detailType: 'root'
+    detailType: 'root',
+    parentId: null
   })
 
   const menuState = ref<MenuState>({
@@ -66,7 +70,7 @@ export const useSingleDatabase = () => {
     database.value = data as CaseTypeRecord
   }
 
-  async function updateDatabase(newDatabaseData:DatabaseItem) {
+  async function updateDatabase(newDatabaseData: DatabaseItem) {
     if (!newDatabaseData && !database.value) return
     newDatabaseData ||= database.value as DatabaseItem
     const { name, description, icon, id } = newDatabaseData
@@ -79,7 +83,6 @@ export const useSingleDatabase = () => {
 
     database.value = data as DatabaseItem
   }
-
 
   /**
    * Build hierarchical tree structure from flat database records
@@ -129,7 +132,6 @@ export const useSingleDatabase = () => {
         id: item.id,
         reference_entity_id: database.value?.id,
         label: item.label,
-        slug: item.slug,
         description: item.description,
         item_type: item.item_type,
         itemId: item.itemId,
@@ -215,24 +217,26 @@ export const useSingleDatabase = () => {
   }
 
   async function addItem(parent_id: string | null, type: CaseTreeItemType, viewData?: ViewCreationData): Promise<TreeItem> {
-    console.log('addItem', parent_id, type, viewData)
-    const now = new Date()
-    let label = `New ${type}`
-    const slug = `new-${type}-${Date.now()}`
+    let label = viewData?.name || `New ${type}`
     const newItem: any = {
       name: label,
       reference_entity_type: 'case',
       reference_entity_id: database.value?.id || null,
-      slug,
       description: null,
       item_type: type,
       parent_id: parent_id,
       order: 0
     }
-
-    // Save to database
+    if (type === 'view') {
+      newItem.view_base_table_id = viewData?.tableId
+      const viewSettings = {
+        viewId: viewData?.viewId,
+        tableId: viewData?.tableId
+      }
+      newItem.metadata = viewSettings
+      newItem.view_condition = {}
+    }
     const { data }: any = await newClientApi.postDynamicDbMenus(newItem)
-
 
     // Update local state
     if (parent_id) {
@@ -252,7 +256,8 @@ export const useSingleDatabase = () => {
     return data
   }
 
-  function navigateToItem(item?: TreeItem, pageType: 'setting' | 'detail' = 'detail') {
+  async function navigateToItem(item?: TreeItem, pageType: 'setting' | 'detail' = 'detail') {
+    databaseMenuRouteParams.value.parentId = item?.parent_id || null
     if (!item) {
       databaseMenuRouteParams.value.detailId = null
       databaseMenuRouteParams.value.detailType = 'root'
@@ -263,16 +268,13 @@ export const useSingleDatabase = () => {
         databaseMenuRouteParams.value.detailId = item.id
         databaseMenuRouteParams.value.detailType = MenuType.folder
         break
-      case MenuType.table:
-        console.log('navigateToItem', item)
-        databaseMenuRouteParams.value.detailId = item.id
-        databaseMenuRouteParams.value.detailType = MenuType.table
-        databaseMenuRouteParams.value.item_id = item.item_id
-        databaseMenuRouteParams.value.pageType = pageType
-        break
       case MenuType.view:
+        databaseMenuRouteParams.value.viewId = item.metadata?.viewId
+        databaseMenuRouteParams.value.tableId = item.metadata?.tableId
+      case MenuType.table:
         databaseMenuRouteParams.value.detailId = item.id
-        databaseMenuRouteParams.value.detailType = MenuType.view
+        databaseMenuRouteParams.value.detailType = item.item_type
+        databaseMenuRouteParams.value.item_id = item.item_id
         databaseMenuRouteParams.value.pageType = pageType
         break
       case MenuType.dashboard:
@@ -346,8 +348,6 @@ export const useSingleDatabase = () => {
     }
   }
 
-
-
   const context: SingleDatabaseCopntext = {
     database,
     menuActionsRef,
@@ -377,7 +377,6 @@ export const useSingleDatabase = () => {
 }
 
 export const SingleDatabaseContextKey: InjectionKey<SingleDatabaseCopntext> = Symbol('SingleDatabaseContext')
-
 
 export function useSingleDatabaseContext() {
   const context = inject(SingleDatabaseContextKey)

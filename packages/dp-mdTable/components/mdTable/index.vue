@@ -4,6 +4,7 @@
     <Toolbar
       v-if="columns && columns.length > 0"
       :groupable-columns="columns"
+      :disabled="isMirror"
       @refresh="handleRefresh"
       @search="handleSearch"
       @save-view="handleSaveView"
@@ -14,6 +15,7 @@
         <slot name="toolbar-left" />
       </template>
       <template #toolbar-right>
+        <ToolsMirrorButton :show="!isMirror" />
         <slot name="toolbar-right" />
       </template>
     </Toolbar>
@@ -85,6 +87,7 @@ interface ColumnVisibilityItem {
 interface Props {
   tableId?: string
   editable?: boolean
+  isMirror?: boolean
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void
@@ -102,6 +105,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   tableId: '',
   editable: false,
+  isMirror: false,
   extraColumnConfig: () => ({
     columns: [],
     deleteColumn: () => {},
@@ -130,6 +134,7 @@ const emit = defineEmits<{
   import: []
   'add-row': []
   'add-row-submit': [data: any]
+  'add-mirror': []
 }>()
 
 // 引用
@@ -299,6 +304,7 @@ const handleVirtualColumnSelect = async (relationFieldName: string, displayField
     console.warn('addVirtualColumn not available in context')
   }
 }
+
 // 暴露方法
 defineExpose({
   gridRef,

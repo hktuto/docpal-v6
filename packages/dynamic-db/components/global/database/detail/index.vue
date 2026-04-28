@@ -1,14 +1,10 @@
-
 <script lang="ts" setup>
-
-
 const props = defineProps<{
   id: string
   detailId: string | null
   detailType: 'root' | 'folder' | 'master_table' | 'view' | 'dashboard'
 }>()
-const { database, menuActionsRef, getDatabaseById, databaseMenuRouteParams  } = useSingleDatabase()
-
+const { database, menuActionsRef, getDatabaseById, databaseMenuRouteParams } = useSingleDatabase()
 
 // Responsive sidebar state
 const pageContainerRef = ref<HTMLElement | null>(null)
@@ -62,8 +58,6 @@ function closeSidebarOnMobile() {
   }
 }
 
-
-
 function openSetting() {
   databaseMenuRouteParams.value.pageType = 'setting'
 }
@@ -83,16 +77,12 @@ const detailComponent = computed(() => {
       }
     case 'folder':
       return 'LazyDatabaseDetailFolder'
+    case 'view':
     case 'master_table':
       if (databaseMenuRouteParams.value.pageType === 'setting') {
         return 'LazyDatabaseSettingTable'
       }
       return 'LazyDatabaseDetailTable'
-    case 'view':
-      if (databaseMenuRouteParams.value.pageType === 'setting') {
-        return 'LazyDatabaseSettingView'
-      }
-      return 'LazyDatabaseDetailView'
     case 'dashboard':
       if (databaseMenuRouteParams.value.pageType === 'setting') {
         return 'LazyDatabaseSettingDashboard'
@@ -146,68 +136,66 @@ watch(
       <NuxtLoadingIndicator />
     </template>
     <template v-else>
-    <el-splitter v-if="!isMobileView">
-         <el-splitter-panel size="220">
-             <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
-               <DatabaseMenuHeader />
-               <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="true" />
-             </aside>
-         </el-splitter-panel>
-          <el-splitter-panel >
-              <main class="main-content">
-                <DatabaseDetailHeader>
-                  <template #left>
-                    <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
-                      <Icon name="lucide:menu" size="20" />
-                    </button>
-                  </template>
-                  <template #right>
-                    <div id="database-table-header-right" />
-                    <template v-if="databaseMenuRouteParams.pageType !== 'setting'">
-                      <Icon name="lucide:settings" class="header-action" @click="openSetting" />
-                    </template>
-                    <template v-if="databaseMenuRouteParams.pageType === 'setting'">
-                      <Icon name="lucide:table" class="header-action" @click="openDetail" />
-                    </template>
-                  </template>
-                </DatabaseDetailHeader>
-                <div class="content-area">
-                  <component :is="detailComponent" :is-admin="true" />
-                </div>
-              </main>
-
-          </el-splitter-panel>
-    </el-splitter>
-    <template v-else>
-    <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
-      <DatabaseMenuHeader />
-      <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="true" />
-    </aside>
-    <main class="main-content">
-      <DatabaseDetailHeader>
-        <template #left>
-          <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
-            <Icon name="lucide:menu" size="20" />
-          </button>
-        </template>
-        <template #right>
-          <div id="database-table-header-right" />
-          <template v-if="databaseMenuRouteParams.pageType !== 'setting'">
-            <Icon name="lucide:settings" class="header-action" @click="openSetting" />
-          </template>
-          <template v-if="databaseMenuRouteParams.pageType === 'setting'">
-            <Icon name="lucide:table" class="header-action" @click="openDetail" />
-          </template>
-        </template>
-      </DatabaseDetailHeader>
-      <div class="content-area">
-        <component :is="detailComponent" :is-admin="true" />
-      </div>
-    </main>
-     <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />
-    </template>
+      <el-splitter v-if="!isMobileView">
+        <el-splitter-panel size="220">
+          <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
+            <DatabaseMenuHeader />
+            <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="true" />
+          </aside>
+        </el-splitter-panel>
+        <el-splitter-panel>
+          <main class="main-content">
+            <DatabaseDetailHeader>
+              <template #left>
+                <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
+                  <Icon name="lucide:menu" size="20" />
+                </button>
+              </template>
+              <template #right>
+                <div id="database-table-header-right" />
+                <template v-if="databaseMenuRouteParams.pageType !== 'setting'">
+                  <Icon name="lucide:settings" class="header-action" @click="openSetting" />
+                </template>
+                <template v-if="databaseMenuRouteParams.pageType === 'setting'">
+                  <Icon name="lucide:table" class="header-action" @click="openDetail" />
+                </template>
+              </template>
+            </DatabaseDetailHeader>
+            <div class="content-area">
+              <component :is="detailComponent" :is-admin="true" />
+            </div>
+          </main>
+        </el-splitter-panel>
+      </el-splitter>
+      <template v-else>
+        <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
+          <DatabaseMenuHeader />
+          <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="true" />
+        </aside>
+        <main class="main-content">
+          <DatabaseDetailHeader>
+            <template #left>
+              <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
+                <Icon name="lucide:menu" size="20" />
+              </button>
+            </template>
+            <template #right>
+              <div id="database-table-header-right" />
+              <template v-if="databaseMenuRouteParams.pageType !== 'setting'">
+                <Icon name="lucide:settings" class="header-action" @click="openSetting" />
+              </template>
+              <template v-if="databaseMenuRouteParams.pageType === 'setting'">
+                <Icon name="lucide:table" class="header-action" @click="openDetail" />
+              </template>
+            </template>
+          </DatabaseDetailHeader>
+          <div class="content-area">
+            <component :is="detailComponent" :is-admin="true" />
+          </div>
+        </main>
+        <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />
+      </template>
       <!-- Single layout structure - CSS handles responsive behavior -->
-
 
       <DatabaseMenuActions ref="menuActionsRef" />
     </template>
@@ -339,7 +327,7 @@ watch(
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
 
     &.is-open {
-        width: 220px;
+      width: 220px;
       transform: translateX(0);
     }
   }

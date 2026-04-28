@@ -1,6 +1,6 @@
 <template>
   <div class="filter-button-wrapper">
-    <el-button ref="buttonRef" type="primary" @click="handleButtonClick">
+    <el-button ref="buttonRef" :disabled="disabled" type="primary" @click="handleButtonClick">
       {{ columnFilterRules && columnFilterRules?.conditions?.length > 0 ? `${columnFilterRules?.conditions?.length}个筛选` : '筛选' }}
     </el-button>
     <ToolsFilterConfigPopover ref="popoverRef" :available-columns="canFilterColumns" width="600" placement="bottom-start" @filter-change="handleFilterChange" />
@@ -14,6 +14,7 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 interface Props {
   availableColumns: ColumnConfig[]
+  disabled?: boolean
 }
 const canFilterColumns = computed(() => {
   if (!props.availableColumns) return []

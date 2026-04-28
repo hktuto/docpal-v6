@@ -1,6 +1,6 @@
 <template>
   <div class="sort-button-wrapper" v-if="sortRules">
-    <el-button ref="buttonRef" type="primary" @click="handleButtonClick">
+    <el-button ref="buttonRef" :disabled="disabled" type="primary" @click="handleButtonClick">
       <el-icon class="sort-icon">
         <Sort />
       </el-icon>
@@ -24,6 +24,7 @@ import type { ColumnConfig } from '../../types/column-context'
 
 interface Props {
   availableColumns: ColumnConfig[]
+  disabled?: boolean
 }
 const gridRef = useMDTableInject()
 const props = defineProps<Props>()
