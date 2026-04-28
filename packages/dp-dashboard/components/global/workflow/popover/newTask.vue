@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { ArrowDown } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import { getButtonAdditionalElement, getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { newWorkflowStartPage } from '../../../../../../pages/client-new-workflow/utils/routerHelper'
+import { conversionFormDataByVariables } from '#imports'
 
 const vFormRef = ref()
 const workflowEditorRef = ref()
@@ -11,17 +11,14 @@ const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
 const activeName = ref('Form')
 const state = reactive({
-  availableWorkflow: [],
   formDialogVisible: false,
   selectedWorkflow: {},
-  bpmnXml: null,
   loading: false
 })
 const emits = defineEmits(['reload'])
 const pageButtonSetting = ref<any>(null)
 const openWorkflowEdit = ref(false)
 const userId = useUserId()
-
 const { workflowList } = await getWorkflowList()
 
 async function workflowClickHandler(item: any) {
@@ -55,7 +52,7 @@ async function workflowClickHandler(item: any) {
   // Open in new page
   if (startTask.metadata.openInNewPage) {
     state.loading = false
-    const link = newWorkflowStartPage(data.name, state.selectedWorkflow.id, startTask.metadata)
+    const link = newWorkflowStartPage(data.name, data.id, startTask.metadata, data.content.variables)
     routerProvider?.navigateTo(link)
     return
   }
@@ -66,7 +63,7 @@ async function workflowClickHandler(item: any) {
     try {
       const formParams = {
         start_user_id: userId.value,
-        definition_id: state.selectedWorkflow.id,
+        definition_id: data.id,
         variables: {
           __system__user_creator_id: userId.value
         }
@@ -114,11 +111,14 @@ async function checkAndSubmit() {
   const formData = await vFormRef.value.getFormData()
 
   if (!!formData) {
+    // conversion FormData
+    const cFormData = conversionFormDataByVariables(formData, state.selectedWorkflow.content.variables)
+
     const formParams = {
       start_user_id: userId.value,
       definition_id: state.selectedWorkflow.id,
       variables: {
-        ...formData,
+        ...cFormData,
         __system__user_creator_id: userId.value
       }
     }

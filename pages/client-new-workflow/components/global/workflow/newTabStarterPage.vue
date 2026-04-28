@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import { getButtonAdditionalElement, MenuRouterKey } from '#imports'
+import { conversionFormDataByVariables, getButtonAdditionalElement, MenuRouterKey } from '#imports'
 import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
-const { definition_id, metadata } = defineProps<{
+const { definition_id, metadata, variables } = defineProps<{
   definition_id: string
   metadata: any
+  variables: any
 }>()
 defineOptions({
   name: 'WorkflowStartFullPageDead'
@@ -56,11 +57,13 @@ async function handleSubmit() {
     let formData = await vFormRef.value.getFormData(true, false)
     if (!formData) throw new Error(`${t('incompleteData')}`)
 
+    const cFormData = conversionFormDataByVariables(formData, variables)
+
     const formParams = {
       start_user_id: userId.value,
       definition_id: definition_id,
       variables: {
-        ...formData,
+        ...cFormData,
         __system__user_creator_id: userId.value
       }
     }
