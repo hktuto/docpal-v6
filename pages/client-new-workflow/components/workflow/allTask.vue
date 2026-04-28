@@ -33,7 +33,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
         updated_at: ''
       }))
       const list = [...map, ...data.task]
-      console.log(123, list)
 
       return {
         data: {

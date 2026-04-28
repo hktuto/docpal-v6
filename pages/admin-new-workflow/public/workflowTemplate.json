@@ -77,6 +77,7 @@
     "__system__user_creator_id": {
       "name": "Creator",
       "type": "string",
+      "tag": "string",
       "required": false
     }
   },

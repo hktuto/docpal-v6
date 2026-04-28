@@ -52,7 +52,6 @@ async function pasteForm() {
 }
 
 async function handleOpenForm() {
-  console.log(123123, newClientApi)
   const formJson = await getFormJson()
   formDialogRef.value.openDialog(formJson)
 }

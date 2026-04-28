@@ -169,8 +169,8 @@ export enum contextMenuComponentType {
   SubProcess = 'LazyContextServiceTaskSubProcess',
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration',
   FilingDocuments = 'LazyContextServiceTaskFilingDocuments',
-  InsertDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseInsert',
-  UpdateDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseInsert'
+  InsertDynamicDatabase = 'LazyContextDynamicDatabaseInsert',
+  UpdateDynamicDatabase = 'LazyContextDynamicDatabaseUpdate'
 }
 
 interface portsItems {
@@ -619,7 +619,7 @@ export const workflowElement: WorkflowElement = {
         label: 'Insert Dynamic Database',
         group: '',
         order: 0
-      },
+      }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
@@ -1005,13 +1005,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Insert Dynamic Database',
       label: 'New Insert Dynamic Database',
       documentation: '',
-      type: CellType.insertDynamicDatabase,
-      config: {},
+      type: WorkflowElementType.HTTPRequestTask,
+      config: getServiceTaskItemConfig[CellType.insertDynamicDatabase],
       metadata: {
         type: CellType.insertDynamicDatabase,
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/database.svg',
-        width: 260
+        width: 260,
+        databaseId: ''
       }
     }
   },
@@ -1023,12 +1024,13 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Update Dynamic Database',
       documentation: '',
       type: CellType.updateDynamicDatabase,
-      config: {},
+      config: getServiceTaskItemConfig[CellType.updateDynamicDatabase],
       metadata: {
         type: CellType.updateDynamicDatabase,
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/database.svg',
-        width: 260
+        width: 260,
+        databaseId: ''
       }
     }
   }

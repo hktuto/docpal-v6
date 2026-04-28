@@ -12,7 +12,7 @@ const { node } = toRefs(props)
 const { t } = useI18n()
 const opened = ref(false)
 const FormDialogRef = ref()
-const { getVariablesByType, deleteVariableItem } = useVariablesProvide()
+const { variables, deleteVariableItem } = useVariablesProvide()
 
 function open() {
   opened.value = true
@@ -31,7 +31,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   zoom: false,
   virtualScroll: true,
   api: () => {
-    return getVariablesByType()
+    return variables.value
   },
   columns: [
     { title: 'Name', field: 'name' },

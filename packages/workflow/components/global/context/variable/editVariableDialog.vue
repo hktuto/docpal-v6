@@ -5,7 +5,7 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { addVariableItem, updateVariableItem, getVariablesByType } = useVariablesProvide()
+const { variables, addVariableItem, updateVariableItem } = useVariablesProvide()
 const comRef = ref()
 const opened = ref(false)
 const emits = defineEmits(['reload'])
@@ -13,7 +13,7 @@ const initData = {
   id: '',
   name: '',
   type: 'string',
-  tag: 'text',
+  tag: 'string',
   required: false,
   maxLength: 200
 }
@@ -45,14 +45,13 @@ const newFieldRules = reactive({
 function handleOpen(variable?: VariableSelectItem) {
   opened.value = true
   if (!!variable) {
-    formData.value = { ...initData, ...variable }
+    formData.value = variable
     isEdit.value = true
   } else {
     formData.value = { ...initData }
     isEdit.value = false
   }
-
-  exitRules.value = isEdit.value ? getVariablesByType().filter((item: any) => item.id !== variable?.id) : getVariablesByType()
+  exitRules.value = isEdit.value ? variables.value.filter((item: any) => item.id !== variable?.id) : variables.value
   typeChanged(formData.value.tag)
   setTimeout(() => {
     if (idFieldRef.value) {
@@ -76,7 +75,7 @@ function idChanged(rule: any, value: any, callback: any) {
   }
 
   if (!isEdit.value) {
-    const isDuplicatedItem = getVariablesByType().find((item: any) => item.id === value)
+    const isDuplicatedItem = variables.value.find((item: any) => item.id === value)
     if (isDuplicatedItem) {
       return callback(new Error('Id is duplicated'))
     }
