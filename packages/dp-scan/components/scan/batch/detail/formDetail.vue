@@ -337,7 +337,7 @@ watch(currentSelectedDoc, () => {
           <ElButton
             type="warning"
             size="default"
-            :disabled="!currentSelectedDoc ||　isReadonly"
+            :disabled="!currentSelectedDoc ||　isReadonly || currentSelectedDoc.status === 'export-ready' || currentSelectedDoc.status === 'verified'"
             @click="triggerFileReplace"
           >
             <Icon name="lucide:refresh-ccw" />
