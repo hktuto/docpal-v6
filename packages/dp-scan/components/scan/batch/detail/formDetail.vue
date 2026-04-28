@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useBatchDetailContext, useScanClient } from '#imports'
-import { clientApi } from 'api'
+import ReplaceFormDialog from './ReplaceFormDialog.vue'
 
 const props = defineProps<{
   isReadonly:boolean
@@ -61,6 +61,9 @@ const uploading = ref(false)
 
 // File input ref
 const fileInputRef = ref<HTMLInputElement>()
+
+// Replace form dialog
+const replaceDialogVisible = ref(false)
 
 // Update field value handler
 function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowIndex?: number) {
@@ -169,6 +172,14 @@ async function handleConfirm() {
 // Trigger file input click
 function triggerFileUpload() {
   fileInputRef.value?.click()
+}
+
+function triggerFileReplace() {
+  replaceDialogVisible.value = true
+}
+
+async function handleReplaceSuccess() {
+  await reload()
 }
 
 // Handle file upload for replace and retry
@@ -323,6 +334,15 @@ watch(currentSelectedDoc, () => {
 
       <!-- Sticky action buttons - only visible to verifiers and not locked -->
       <div v-if="canVerify && !isLockedByOther" class="actionButtons">
+          <ElButton
+            type="warning"
+            size="default"
+            :disabled="!currentSelectedDoc ||　isReadonly"
+            @click="triggerFileReplace"
+          >
+            <Icon name="lucide:refresh-ccw" />
+            Replace Form
+          </ElButton>
         <ElButton
           type="primary"
           size="default"
@@ -346,6 +366,14 @@ watch(currentSelectedDoc, () => {
       </div>
     </template>
   </div>
+
+  <ReplaceFormDialog
+    v-model:visible="replaceDialogVisible"
+    :original-filename="currentSelectedDoc?.originalFilename || ''"
+    :batch-id="selectedDocDetail?.detail?.batchId || ''"
+    :doc-id="selectedDocDetail?.detail?.id || ''"
+    @success="handleReplaceSuccess"
+  />
 </template>
 
 <style lang="scss" scoped>
@@ -372,11 +400,14 @@ watch(currentSelectedDoc, () => {
 .actionButtons {
   display: flex;
   justify-content: flex-end;
-  gap: var(--app-space-s);
+  gap: var(--app-space-xs);
   padding: var(--app-space-m);
   background-color: var(--app-bg-color);
   border-top: 1px solid var(--app-border-color);
   flex-shrink: 0;
+  :deep(.el-button + .el-button){
+      margin-left: 0px !important;
+  }
 }
 
 .errorContainer {
