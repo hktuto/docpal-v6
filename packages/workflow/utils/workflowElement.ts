@@ -615,8 +615,15 @@ export const workflowElement: WorkflowElement = {
       },
       {
         id: CellType.insertDynamicDatabase,
-        icon: 'material-symbols:database-upload',
+        icon: 'mdi:database-arrow-left',
         label: 'Insert Dynamic Database',
+        group: '',
+        order: 0
+      },
+      {
+        id: CellType.updateDynamicDatabase,
+        icon: 'mdi:database-edit',
+        label: 'Update Dynamic Database',
         group: '',
         order: 0
       }
@@ -999,7 +1006,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   InsertDynamicDatabase: {
-    ...createNodeShell('New_DynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/database.svg', 260),
+    ...createNodeShell('New_DynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/insertDatabase.svg', 260),
     data: {
       id: '',
       name: 'Insert Dynamic Database',
@@ -1010,14 +1017,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.insertDynamicDatabase,
         tags: WorkflowElementType.HTTPRequestTask,
-        icon: '/icons/database.svg',
+        icon: '/icons/insertDatabase.svg',
         width: 260,
         databaseId: ''
       }
     }
   },
   UpdateDynamicDatabase: {
-    ...createNodeShell('New_DynamicDatabase', 'Update Dynamic Database', 'New Update Dynamic Database', '/icons/database.svg', 260),
+    ...createNodeShell('New_DynamicDatabase', 'Update Dynamic Database', 'New Update Dynamic Database', '/icons/updateDatabase.svg', 260),
     data: {
       id: '',
       name: 'Update Dynamic Database',
@@ -1028,7 +1035,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.updateDynamicDatabase,
         tags: WorkflowElementType.HTTPRequestTask,
-        icon: '/icons/database.svg',
+        icon: '/icons/updateDatabase.svg',
         width: 260,
         databaseId: ''
       }
