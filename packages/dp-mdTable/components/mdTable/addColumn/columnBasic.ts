@@ -169,7 +169,6 @@ export function getColumnFieldOptions() {
       item.order = fieldSetting.order || 999
       basicOptions.push(item)
     } else {
-      console.log('fieldSetting', fieldSetting, value)
       const item: any = {
         label: fieldSetting?.label || reverseColumnFieldType[value],
         disableCreate: fieldSetting?.disableCreate || false,

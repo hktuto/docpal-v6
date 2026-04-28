@@ -258,6 +258,8 @@ export const useSingleDatabase = () => {
 
   async function navigateToItem(item?: TreeItem, pageType: 'setting' | 'detail' = 'detail') {
     databaseMenuRouteParams.value.parentId = item?.parent_id || null
+    databaseMenuRouteParams.value.viewId = null
+    databaseMenuRouteParams.value.tableId = null
     if (!item) {
       databaseMenuRouteParams.value.detailId = null
       databaseMenuRouteParams.value.detailType = 'root'
