@@ -1121,7 +1121,13 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
       // column S - AA
       if (totalFamilySize === 1) {
         // column Y - AA
-        if (isCat('2')) {
+        if(isCat('1') || isCat('3')) {
+          // column AA
+          FamilyCategory = "GS - Green Single";
+          FamilyClass = "";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        } else if (isCat('2')) {
           // column Y
           FamilyCategory = "GS - Green Single";
           FamilyClass = "10 - GS 1st Absolute Priority";
@@ -1144,7 +1150,12 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
         // END column Y- AA
       } else {
         // column S - X
-        if (isCat('1')) {
+        if (isCat('2') || isCat('4')) {
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        }else if (isCat('1')) {
           // column S
           FamilyCategory = "GF - Green Family";
           FamilyClass = "9 - GF 1st Absolute Priority";
