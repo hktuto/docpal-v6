@@ -133,46 +133,28 @@ defineExpose({
 
 <template>
   <div class="md-card-list">
-    <div v-if="tableData?.length > 0">
-      <div
-        ref="dragContainerRef"
-        class="md-card-list-scroll"
-        @scroll="handleDragScroll"
+    <div v-if="tableData?.length > 0" ref="dragContainerRef" class="md-card-list-scroll" @scroll="handleDragScroll">
+      <draggable
+        v-model="localRows"
+        item-key="id"
+        handle=".drag-handle"
+        ghost-class="md-card-ghost-item"
+        :animation="200"
+        tag="div"
+        class="card-grid card-grid--draggable"
+        :style="gridStyle"
+        @start="handleDragStart"
+        @end="handleDragEnd"
       >
-        <draggable
-          v-model="localRows"
-          item-key="id"
-          handle=".drag-handle"
-          ghost-class="md-card-ghost-item"
-          :animation="200"
-          tag="div"
-          class="card-grid card-grid--draggable"
-          :style="gridStyle"
-          @start="handleDragStart"
-          @end="handleDragEnd"
-        >
-          <template #item="{ element }">
-            <div class="md-card-draggable-item">
-              <MdCardWidget
-                :row="element"
-                :fields="columns"
-                :style-config="cardWidgetStyle"
-                :draggable="true"
-                @open-record="handleOpenRecord"
-              />
-            </div>
-          </template>
-        </draggable>
-      </div>
+        <template #item="{ element }">
+          <div class="md-card-draggable-item">
+            <MdCardWidget :row="element" :fields="columns" :style-config="cardWidgetStyle" :draggable="true" @open-record="handleOpenRecord" />
+          </div>
+        </template>
+      </draggable>
     </div>
     <el-empty v-else description="暂无记录" />
-    <MdFormPopover
-      ref="recordCardDialogRef"
-      :columns="columns"
-      :systemFieldsTypes="systemFieldsTypes"
-      showMoveButtons
-      @submit="handleEditRecord"
-    />
+    <MdFormPopover ref="recordCardDialogRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleEditRecord" />
   </div>
 </template>
 
@@ -188,6 +170,7 @@ defineExpose({
   flex: 1;
   min-height: 0;
   padding: var(--app-space-s);
+  overflow: auto;
 }
 
 .card-grid {

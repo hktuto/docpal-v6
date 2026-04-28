@@ -104,6 +104,7 @@ async function handleAddRowSubmit(data: any) {
   display: flex;
   flex-direction: column;
   background: #fff;
+  overflow: hidden;
 }
 
 .md-card-toolbar {
