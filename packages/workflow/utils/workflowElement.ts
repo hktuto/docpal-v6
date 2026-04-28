@@ -1012,6 +1012,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Insert Dynamic Database',
       label: 'New Insert Dynamic Database',
       documentation: '',
+      execution: { ...DEFAULT_TASK_EXECUTION },
       type: WorkflowElementType.HTTPRequestTask,
       config: getServiceTaskItemConfig[CellType.insertDynamicDatabase],
       metadata: {
@@ -1030,6 +1031,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Update Dynamic Database',
       label: 'New Update Dynamic Database',
       documentation: '',
+      execution: { ...DEFAULT_TASK_EXECUTION },
       type: CellType.updateDynamicDatabase,
       config: getServiceTaskItemConfig[CellType.updateDynamicDatabase],
       metadata: {

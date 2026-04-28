@@ -32,11 +32,10 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
         created_at: item.failed_at,
         updated_at: ''
       }))
-      const list = [...map, ...data.task]
 
       return {
         data: {
-          entryList: list || []
+          entryList: data.task || []
           // pageNum: data.page_num || 0,
           // pageCount: data.page_size || 1,
           // totalSize: data.total || 0
@@ -88,6 +87,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
+  if (!row.id || row.id === '') return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -98,7 +98,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  if (row.status==="") return
+  if (row.status === '') return
 
   await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`, parms).then((res: any) => res.data)
   reload()
@@ -125,7 +125,14 @@ defineExpose({ reloadTable })
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button v-else-if="row.status !== 'failed'" :id="`Workflow__AvaliableTask__Detail__ClaimTask__${row.id}`" type="primary" size="small" round @click="claimTask(row)">
+        <el-button
+          v-else-if="row.status !== 'failed'"
+          :id="`Workflow__AvaliableTask__Detail__ClaimTask__${row.id}`"
+          type="primary"
+          size="small"
+          round
+          @click="claimTask(row)"
+        >
           {{ $t('workflow_claim') }}
         </el-button>
       </template>
