@@ -39,6 +39,7 @@ export const useDatabases = () => {
     }
     const dto: any = {
       name: workspace.name,
+      type: 'case_type',
       description: workspace.description ?? undefined,
     }
     if (workspace.icon) {

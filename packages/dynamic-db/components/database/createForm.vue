@@ -29,7 +29,7 @@ const form = ref({
   icon: ''
 })
 
-const { createWorkspace } = useDatabases()
+const { createDatabase } = useDatabases()
 const rules = reactive<FormRules>({
   name: [{ required: true, message: 'Please enter Database name', trigger: 'blur' }]
 })
@@ -49,7 +49,7 @@ async function handleCreateWorkspace() {
     const name = form.value.name.trim()
     const description = form.value.description.trim()
     const icon = form.value.icon.trim()
-    const data: any = await createWorkspace({ name, description, icon })
+    const data: any = await createDatabase({ name, description, icon })
     if(!data || !data.id) {
       throw new Error('Failed to create database')
     }
