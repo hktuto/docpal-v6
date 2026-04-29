@@ -80,7 +80,7 @@ const getFormData = async () => {
     const newFormData = props.columns
       .filter((column: any) => !props.systemFieldsTypes.includes(column.business_type) && !unEditableFields.includes(column.business_type))
       .reduce((acc: any, column: any) => {
-        acc[column.field_name] = props.formData[column.field_name]
+        acc[column.field_name] = props.formData[column.field_name] || ''
         return acc
       }, {})
     return newFormData
