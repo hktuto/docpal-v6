@@ -13,15 +13,11 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'my_task',
   api: async (pageParams: any) => {
-    try {
-      const data = await $api.get(`/oniflow/api/v1/task/overview/all/${userId}`).then((r) => r.data)
-      return {
-        data: {
-          entryList: data.items || [],
-        }
+    const data = await $api.get(`/oniflow/api/v1/task/overview/all/${userId}`).then((r) => r.data)
+    return {
+      data: {
+        entryList: data || []
       }
-    } catch (e) {
-      console.log(e)
     }
   },
   columns: [
@@ -59,7 +55,7 @@ function handleDblclick(row: any) {
   )
 }
 
-function reloadTable(){
+function reloadTable() {
   reload()
 }
 
