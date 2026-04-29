@@ -16,7 +16,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'all_task',
   api: async (pageParams: any) => {
     try {
-      const data = await $api.get(`/task/overview/available/${userId}`).then((r: any) => r.data)
+      const data = await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data)
       return {
         data: {
           entryList: data.task || []
