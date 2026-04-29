@@ -42,7 +42,7 @@ function handleCreateWorkspaceSuccess(workspace: any) {
     name: 'workspace-detail',
     icon: 'lucide:grid-3x2',
     label: 'Workspace Detail',
-    component: 'LazyWorkspacesDetail',
+    component: 'LazyDatabaseDetail',
     props: {
       id: workspace.id
     }
