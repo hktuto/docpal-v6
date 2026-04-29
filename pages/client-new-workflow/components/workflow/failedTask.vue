@@ -10,7 +10,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'failed_task',
   api: async (pageParams: any) => {
     try {
-      const data = await $api.get(`/oniflow/api/v1/task/overview/all`).then((r: any) => r.data)
+      const data = await $api.get(`/oniflow/api/v1/task/overview/all/${userId}`).then((r: any) => r.data)
 
       const map = data.failed.map((item: any) => ({
         id: item.id,
