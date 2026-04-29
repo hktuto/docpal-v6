@@ -273,6 +273,12 @@ export const useSingleDatabase = () => {
       case MenuType.view:
         databaseMenuRouteParams.value.viewId = item.metadata?.viewId
         databaseMenuRouteParams.value.tableId = item.metadata?.tableId
+        databaseMenuRouteParams.value.detailId = item.id
+        databaseMenuRouteParams.value.detailType = item.item_type
+        databaseMenuRouteParams.value.item_id = item.item_id
+        databaseMenuRouteParams.value.pageType = pageType
+        console.log('navigateToItem', databaseMenuRouteParams.value)
+        break
       case MenuType.table:
         databaseMenuRouteParams.value.detailId = item.id
         databaseMenuRouteParams.value.detailType = item.item_type

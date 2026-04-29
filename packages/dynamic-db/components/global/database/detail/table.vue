@@ -120,7 +120,7 @@ watch(
     if (newVal.item_id) {
       isReady.value = false
       currentView.value = null;
-      await getViews()
+      await getViews(newVal.viewId)
       setRelationConfig(tableFields.value)
       setTimeout(() => {
         isReady.value = true
