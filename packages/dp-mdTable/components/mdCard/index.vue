@@ -25,12 +25,16 @@ const emit = defineEmits<{
   search: [value: string]
   'add-row': []
 }>()
-
+const refreshLoading = ref(false)
 const { columns, cardRef, getTableData, addRow, systemFieldsTypes } = useMDCard(props)
 
 async function handleRefresh() {
-  await getTableData({ pageNum: 1 })
+  refreshLoading.value = true
+  await getTableData({ pageNum: 0 })
   emit('refresh')
+  setTimeout(() => {
+    refreshLoading.value = false
+  }, 300)
 }
 
 function handleSearch(value: string) {
@@ -73,7 +77,7 @@ async function handleAddRowSubmit(data: any) {
       </div>
 
       <div class="toolbar-right">
-        <el-button @click="handleRefresh">
+        <el-button :loading="refreshLoading" @click="handleRefresh">
           <el-icon><Refresh /></el-icon>
           刷新
         </el-button>

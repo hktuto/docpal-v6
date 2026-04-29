@@ -152,7 +152,7 @@ onMounted(() => {
   }
 
   .drag-handle:active {
-    cursor: grabbing;
+    cursor: move;
   }
 
   .column-item-ghost {
