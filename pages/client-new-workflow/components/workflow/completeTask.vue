@@ -17,10 +17,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     const data = $api.get(`'/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
     return {
       data: {
-        entryList: data.items || [],
-        pageNum: data.page_num || 0,
-        pageCount: data.page_size || 1,
-        totalSize: data.total || 0
+        entryList: data || []
       }
     }
   },
@@ -77,7 +74,7 @@ function handleFilterFormChange(formModel: any) {
   reload()
 }
 
-function reloadTable(){
+function reloadTable() {
   reload()
 }
 
