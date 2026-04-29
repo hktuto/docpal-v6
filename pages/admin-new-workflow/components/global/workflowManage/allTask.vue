@@ -10,18 +10,11 @@ const { t } = useI18n()
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'manage_all_task',
   api: async (pageParams: any) => {
-    const params = {
-      page_num: pageParams.pageNum,
-      page_size: pageParams.pageSize
-    }
     try {
       const data = await $api.get('/oniflow/api/v1/task/overview/all').then((r: any) => r.data)
       return {
         data: {
-          entryList: data.items || [],
-          pageNum: data.page_num || 0,
-          pageCount: data.page_size || 1,
-          totalSize: data.total || 0
+          entryList: data.task || [],
         }
       }
     } catch (e) {

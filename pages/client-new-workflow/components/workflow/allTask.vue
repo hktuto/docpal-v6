@@ -15,10 +15,11 @@ const extraParams = ref({
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
   api: async (pageParams: any) => {
-    const data = await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data)
+    // const data = await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data)
+    const data = await $api.get(`/oniflow/api/v1/task/overview/all`).then((r: any) => r.data)
     return {
       data: {
-        entryList: data || []
+        entryList: data.task || []
       }
     }
   },

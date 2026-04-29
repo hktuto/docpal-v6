@@ -6,7 +6,7 @@ export default defineAppConfig({
     "admin-new-workflow-manage":{
       id:"admin-new-workflow-manage",
       name: 'admin-new-workflow-manage',
-      label: "adminMenu.runningWorkflow",
+      label: "adminMenu.workflow",
       icon: "icon-park-outline:writing-fluently",
       hoverIcon: "icon-park-outline:writing-fluently",
       component: "LazyWorkflowManagePage",
