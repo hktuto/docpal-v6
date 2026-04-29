@@ -2,7 +2,7 @@
 import { newClientApi } from 'api'
 import { routeWorkflowPage } from '~/utils/routerHelper'
 import { generateData, replaceVariables } from 'docpal-document-editor/src/utils'
-import { CellType, getButtonAdditionalElement } from '#imports'
+import { CellType, conversionFormDataByVariables, getButtonAdditionalElement } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -50,21 +50,26 @@ const nodeType = ref<'UserTask' | 'SignatureTask'>()
 const isAssigneeUser = computed(() => {
   return !detail?.assignee || detail?.assignee === userId
 })
+const variablesData = ref({})
 
 async function getDetail() {
   taskDetail.value = detail
+  if (!detail.id || detail.id === '') {
+    state.error = 'node Id not exist'
+    return
+  }
+
   try {
     state.loading = true
     state.error = null
     const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r: any) => r.data)
     workflowJson.value = workflowTaskInstance.content
 
-    const data = await $api.get(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}`).then((r: any) => r.data)
-    // if (!data.nodes) return
-    // const findNode = data.nodes.find((node: any) => node.id == detail.node_id)
-    const findNode = workflowJson.value.nodes.find((node: any) => node.name == detail.node_name)
+    const data = await $api.get(`/oniflow/api/v1/tasks/instance/${detail.id}`).then((r: any) => r.data)
+    if (!data) return
 
-    // const findNode = workflowJson.value.nodes.find((node: any) => node.id == detail.node_id)
+    variablesData.value = data.input_variables
+    const findNode = workflowJson.value.nodes.find((node: any) => node.id == data.node_id)
     if (!!findNode) {
       nodeType.value = findNode.metadata.type
       switch (nodeType.value) {
@@ -99,8 +104,7 @@ async function initForm(node: any) {
   }
 
   // Get Form Data
-  let formData = detail.variables
-  fromRenderRef.value.setForm(formJsonData.jsonValue, formData)
+  fromRenderRef.value.setForm(formJsonData.jsonValue, variablesData.value)
   handleDisabledForm()
 }
 
@@ -252,11 +256,13 @@ async function handleSubmitUserTask() {
       fromData[key] = JSON.stringify(fromData[key])
     }
   })
+  // conversion FormData
+  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
 
   const data = $api
     .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
       user_id: userId,
-      variables: fromData
+      variables: cFormData
     })
     .then((r: any) => r.data)
   console.log('--- handleSubmitUserTask: ', data)
@@ -361,11 +367,13 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
       formData = { ...formData, ...item }
     }
   })
+  // conversion FormData
+  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
 
-  const res = $api
+  $api
     .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
       user_id: userId,
-      variables: { ...formData }
+      variables: { ...cFormData }
     })
     .then((r: any) => r.data)
 
@@ -384,15 +392,15 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
 const handleTaskInfoChange = async (taskDetailRes: any, isClaim: boolean) => {
   try {
     state.taskDetail = { ...taskDetailRes }
-    // await handleGetActivity()
     if (!isAssigneeUser.value) {
       state.loading = true
       await handleFormDataGet()
     } else {
       fromRenderRef.value.disableForm()
     }
-  } catch (error) {}
-  // state.loading = false
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 function handleBack() {
