@@ -14,7 +14,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
   api: (pageParams: any) => {
-    const data = $api.get(`'/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
+    const data = $api.get(`/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
     return {
       data: {
         entryList: data || []
