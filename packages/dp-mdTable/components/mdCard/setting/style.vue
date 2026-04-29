@@ -95,7 +95,7 @@ function handleCoverFieldChange(value: string) {
         @change="(v) => updatePartial({ cardShadow: v as 'none' | 'small' | 'hover' })"
       />
     </div>
-    <MdCardSettingColumn />
+    <ToolsColumnConfig />
   </div>
 </template>
 

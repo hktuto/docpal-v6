@@ -36,7 +36,7 @@ const emit = defineEmits<{
 }>()
 
 const previewFields = computed(() => {
-  return props.fields.slice(0, 6)
+  return props.fields.filter((field: any) => !field.hidden).slice(0, 6)
 })
 
 const cardClass = computed(() => {
@@ -119,7 +119,7 @@ function handleOpenRecord() {
       <div v-else class="cover-placeholder">No Cover</div>
     </div>
 
-    <div class="card-content" >
+    <div class="card-content">
       <div v-for="(field, index) in previewFields" :key="field.field_name" :class="{ 'card-row': true, 'is-title': index === 0 }">
         <span v-if="styleConfig.showFieldName !== false && index > 0" class="field-name">{{ field.field_name_alias || field.field_name }}</span>
         <span class="field-value">{{ formatValue(row?.[field.field_name]) }}</span>

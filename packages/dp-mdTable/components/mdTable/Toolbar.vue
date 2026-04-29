@@ -6,7 +6,7 @@
           <el-icon><Search /></el-icon>
         </template>
       </el-input> -->
-      <ToolsColumnVisibilityPopover :disabled="disabled" />
+      <ToolsColumnConfigPopover :disabled="disabled" />
       <ToolsGroupingButton :disabled="disabled" :groupableColumns="groupableColumns" @grouping-change="(v) => handleRefresh('groupInfo', v)" />
       <ToolsFilterButton :disabled="disabled" :available-columns="groupableColumns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
       <ToolsSortButton :disabled="disabled" :available-columns="groupableColumns" @sort-change="(v) => handleRefresh('sortInfo', v)" />

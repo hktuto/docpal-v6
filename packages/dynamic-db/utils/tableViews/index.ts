@@ -134,7 +134,6 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
       const idStr = String(fieldId)
       if (seenIds.has(idStr)) continue
       seenIds.add(idStr)
-      if (col.hidden === true) continue
       const field = tableFields.find((f) => f.id === fieldId)
       if (!field) continue
       ordered.push({ ...field, ...col })
@@ -160,7 +159,7 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
 /**
  * 根据列显隐配置更新 view.columns 中对应 column 的 hidden（display: true => hidden: false，display: false => hidden: true）
  */
-export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; display: boolean }>, tableFields: any[]): ViewColumn[] {
+export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; hidden: boolean }>, tableFields: any[]): ViewColumn[] {
   const fieldsById = new Map<string, any>()
   for (const f of tableFields ?? []) {
     if (f?.id == null) continue
@@ -170,7 +169,7 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
   const updatesById = new Map<string, boolean>()
   for (const u of updates ?? []) {
     if (u?.id == null) continue
-    updatesById.set(String(u.id), Boolean(u.display))
+    updatesById.set(String(u.id), Boolean(u.hidden))
   }
   const seen = new Set<string>()
   const nextColumns: ViewColumn[] = []
@@ -185,13 +184,13 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     if (!tableField) continue
     seen.add(key)
 
-    const display = updatesById.get(key)
+    const hidden = updatesById.get(key)
     const hasKey = updatesById.has(key)
     const tableFieldItem = tableFields.find((f: any) => f.id === fieldId)
     const item = {
       title: tableFieldItem.field_name_alias,
       id: String(tableField.id),
-      hidden: hasKey ? (display === false ? true : false) : col.hidden
+      hidden: hasKey ? (hidden === true ? true : false) : col.hidden
     }
     nextColumns.push(item)
   }
@@ -203,10 +202,10 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     if (seen.has(key)) continue
     seen.add(key)
 
-    const display = updatesById.get(key)
+    const hidden = updatesById.get(key)
     nextColumns.push({
       id: String(f.id),
-      hidden: display === false ? true : false
+      hidden: hidden === true ? true : false
     })
   }
   return nextColumns

@@ -103,7 +103,16 @@ watch(
   },
   { immediate: true }
 )
-provide('viewTools', { getPageParams, columns, tableFields, navigateToTableMenu, getRelationFieldConfig, mirrorList })
+provide('viewTools', {
+  getPageParams,
+  columns,
+  tableFields,
+  navigateToTableMenu,
+  getRelationFieldConfig,
+  mirrorList,
+  updatedViewColumnsConfig,
+  saveColumnOrder
+})
 </script>
 
 <style lang="scss" scoped></style>
