@@ -2,22 +2,20 @@
 import { Refresh, Plus, Grid, Brush } from '@element-plus/icons-vue'
 import MdCardList from './list.vue'
 import type { MDCardProps } from '../../composables/mdCard/useMDCard'
-
-const props = withDefaults(defineProps<MDCardProps>(), {
+type Props = {
+  tableId: string
+  editable: boolean
+  isMirror: boolean
+  extraColumnConfig: {
+    columns: ColumnConfig[]
+  }
+}
+const props = withDefaults(defineProps<Props>(), {
   tableId: '',
   editable: false,
   isMirror: false,
   extraColumnConfig: () => ({
-    columns: [],
-    deleteColumn: () => {},
-    updateColumn: () => {},
-    addColumn: () => {},
-    tableFields: [],
-    updatedViewColumnsConfig: () => {},
-    saveColumnOrder: () => {},
-    columnFilterRules: [],
-    columnGroupRules: [],
-    columnSortRules: []
+    columns: []
   })
 })
 
@@ -54,12 +52,11 @@ async function handleAddRowSubmit(data: any) {
 
 <template>
   <div class="md-card-view">
-    {{isMirror}}
     <ToolsBar :showMirrorButton="!isMirror" :disabled="isMirror" :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
       <template #toolbar-left-before>
         <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button>
+            <el-button :disabled="isMirror">
               <el-icon><Grid /></el-icon>
               布局
             </el-button>
@@ -68,7 +65,7 @@ async function handleAddRowSubmit(data: any) {
         </el-popover>
         <el-popover placement="bottom-start" :width="320" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button style="margin-left: 0px">
+            <el-button style="margin-left: 0px" :disabled="isMirror">
               <el-icon><Brush /></el-icon>
               样式
             </el-button>
