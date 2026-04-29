@@ -230,7 +230,9 @@ async function getAllForms(){
 
   const projectId = context?.projectId.value
   const f = await clientApi.api.postCaptureProjformsettingPage({ projectId })
-  forms.value = f.data.filter(f =>　f.status === 'A')
+  forms.value = f.data.filter(f => f.status === 'A')
+
+
 }
 
 async function triggerCustomForm(){
@@ -269,6 +271,19 @@ watch(currentSelectedDoc, () => {
       }
     }
   })
+  setTimeout(() => {
+    const newResultJson = context?.buildResultJson()
+    const newDetail = {
+      ...selectedDocDetail.value.detail,
+      newResultJson
+    }
+    const classification = familyClassCalulation(newDetail);
+    selectedDocDetail.value.detail.formSource = classification.formSource;
+    selectedDocDetail.value.detail.familyCategory = classification.familyCategory;
+    selectedDocDetail.value.detail.familyClass = classification.familyClass;
+    selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
+    selectedDocDetail.value.detail.statePerson = classification.statePerson;
+  },100)
 }, { immediate: true })
 
 </script>

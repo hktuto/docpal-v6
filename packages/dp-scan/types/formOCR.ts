@@ -116,6 +116,8 @@ export interface Field {
   min_date?: string
   /** Max date constraint for date fields (e.g., "today", "yesterday", "one_week_ago") */
   max_date?: string
+  /** Default value for the field when no OCR data is present */
+  default_value?: string
   /** Whether to support Simplified to Traditional Chinese conversion */
   support_chs_to_cht?: boolean
   /** Normalization options for mapping input values to option values */

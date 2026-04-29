@@ -104,12 +104,14 @@ export const useBatchDetail = (batchId: string) => {
 
   function convertFieldToWithValues(field:any, newData: Record<string, any>, oldData: Record<string, any> | undefined) :FieldWithValue {
     const fieldLabel = field.lable || field.label
-    const rawValue = newData?.[fieldLabel] ?? ''
 
-    const normalizedValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
+    const rawValue = newData?.[fieldLabel] ?? field.default_value ?? ''
+
+    let normalizedValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
       ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options, true)
       : rawValue
-    if (fieldLabel === "FamilyMemberMaritalStatus") {
+    if (!normalizedValue && field.default_value) {
+      normalizedValue = field.default_value
     }
     const normalizeOldValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
       ? normalizeValue(oldData?.[fieldLabel], field.field_setting.options, field.normalize_options)
@@ -118,6 +120,9 @@ export const useBatchDetail = (batchId: string) => {
     if (field.type === 'hkic') {
       const isValue = checkHKID(rawValue)
       field.warning = isValue ? isValue.message : undefined
+    }
+    if (field.default_value) {
+      console.log("default value", field.default_value, normalizedValue, normalizeOldValue)
     }
     const result = {
       ...field,
@@ -187,7 +192,7 @@ export const useBatchDetail = (batchId: string) => {
           originalValue: oldSectionData,
           fields: section.fields?.map((field: any): FieldWithValue => ({
             ...field,
-            currentValue: '',
+            currentValue: field.default_value ?? '',
             originalValue: '',
             options: field.field_setting?.options?.map((opt: Record<string, string>) => {
               const [value, label] = Object.entries(opt)[0] || ['', '']
@@ -994,8 +999,9 @@ export type FamilyClassReturn = {
   statePerson: string
 }
 export function familyClassCalulation(detail: any): FamilyClassReturn {
+  console.log("familyClassCalulation run", detail)
   // get all params needed.
-  const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
+  let { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
     'N', YouthScheme = 'N' } = detail.newResultJson?.PriorityScheme || {}
   const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat, 'EMMS Code': emms } = detail.newResultJson?.SpecificField || {}
   const formType: "G" | "W" = detail.formTypeCode
@@ -1029,7 +1035,6 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
     if (!EFAS_date.isValid()) return false;
     return EFAS_date.isAfter(Target_date);
   };
-
   // Helper to check if Clearees category matches
   const isCat = (cat: string): boolean => CleareesCat === `Cat ${cat}` || CleareesCat === cat;
 
@@ -1268,16 +1273,16 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
     // END GReen From
   }
 
-
-
-
-  return {
+  const result = {
     familyCategory: FamilyCategory,
     familyClass: FamilyClass,
     priorityIndicator: PriorityIndicator,
     formSource: FormSource,
     statePerson: Person
-  };
+  }
+
+  console.log("familyClassCalulation result", result)
+  return result;
 }
 
 

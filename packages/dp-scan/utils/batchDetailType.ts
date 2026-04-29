@@ -33,6 +33,7 @@ export type FieldWithValue = {
   format?: string // e.g. 'DD/MM/YYYY' for date formatting
   min_date?: string // e.g. 'today', 'yesterday', 'one_week_ago'
   max_date?: string // e.g. 'today', 'yesterday', 'one_week_ago'
+  default_value?: string // default value when no OCR data is present
   page?: number // for table type if field is from other page then section
   // Added values from result JSON
   currentValue: any

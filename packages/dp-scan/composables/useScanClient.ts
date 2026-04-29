@@ -96,7 +96,6 @@ export const useScanClient = () => {
       })
     })
     projects.value = Array.from(allProjects.values()) as any[]
-    console.log("filter.value.projectId", filter.value.projectId)
     if (!filter.value.projectId ||　!filter.value.projectId.length && projects.value.length) {
       filter.value.projectId = projects.value[0].id
       // set default status filter base on project permission

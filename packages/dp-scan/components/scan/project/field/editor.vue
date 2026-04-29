@@ -342,6 +342,13 @@ const validationPlaceholder = `// Example: Validate ID with other field
           </ElFormItem>
         </ElCol>
       </ElRow>
+      <ElRow :gutter="12">
+        <ElCol :span="24">
+          <ElFormItem label="Default Value">
+            <ElInput v-model="localValue.default_value" placeholder="Default value when no OCR data" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
       <!-- Row 4: Options for select/radio -->
       <ElFormItem v-if="hasOptions" label="Options">
         <div class="options-list">
