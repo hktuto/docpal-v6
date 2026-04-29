@@ -6,6 +6,7 @@ import type { MDCardProps } from '../../composables/mdCard/useMDCard'
 const props = withDefaults(defineProps<MDCardProps>(), {
   tableId: '',
   editable: false,
+  isMirror: false,
   extraColumnConfig: () => ({
     columns: [],
     deleteColumn: () => {},
@@ -53,7 +54,8 @@ async function handleAddRowSubmit(data: any) {
 
 <template>
   <div class="md-card-view">
-    <ToolsBar :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
+    {{isMirror}}
+    <ToolsBar :showMirrorButton="!isMirror" :disabled="isMirror" :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
       <template #toolbar-left-before>
         <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
