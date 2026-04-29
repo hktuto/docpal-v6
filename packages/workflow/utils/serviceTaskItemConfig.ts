@@ -74,6 +74,13 @@ export const getServiceTaskItemConfig = {
     },
     input_mapping: {},
     output_mapping: {}
+  },
+  InsertDynamicDatabase:{
+    method: 'POST',
+    url: `${getUrlOrigin()}/api/dynamic-db/table//data`,
+    headers: generatorHTTPRequestTaskHeaders(),
+    body: { },
+    output_mapping: { }
   }
 }
 
@@ -87,6 +94,7 @@ function generatorHTTPRequestTaskHeaders() {
   return {
     ServerName: 'docpal-api',
     ServerKey: '14ecdf56081AGSDghw',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c'
   }
 }

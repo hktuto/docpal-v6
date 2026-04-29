@@ -1,39 +1,24 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
+import { createError } from '#imports'
 const { node } = defineProps<{
   node: Node
 }>()
 
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-if (!editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const fieldEditorRef = ref()
 
 async function pasteForm() {
-  editorProvider?.pasteForm(node)
-}
-
-function editCompleteForm() {
-  // get all form field
+  graphProvider?.pasteForm(node)
 }
 </script>
 
 <template>
   <div class="fromContainer">
-    <ElButton type="primary" @click="editorProvider.openForm(node)" :disabled="editorProvider.readonly.value">Edit Form</ElButton>
-    <ElButton type="primary" @click="editorProvider.previewForm(node)">Preview Form</ElButton>
-    <div class="actionsContainer">
-      <ElButton
-        v-if="editorProvider.copyKey.value && editorProvider.copyKey.value !== 'end'"
-        type="link"
-        size="small"
-        :disabled="editorProvider.readonly.value"
-        @click="pasteForm"
-      >
-        Paste Form
-      </ElButton>
-    </div>
+    <!--    <el-button type="primary" @click="graphProvider.openForm(node)" :disabled="editorProvider.readonly.value">Edit Form</el-button>-->
+    <!--    <el-button type="primary" @click="graphProvider.previewForm(node)">Preview Form</el-button>-->
   </div>
 </template>
 

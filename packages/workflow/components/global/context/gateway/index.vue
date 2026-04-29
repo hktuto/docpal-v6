@@ -47,7 +47,8 @@ function updateData() {
 
   const newData = {
     ...data,
-    flow_control: formData.value
+    flow_control: formData.value,
+    version: (nodeData.version || 0) + 1
   }
 
   // TODO 存在無法更新的情況

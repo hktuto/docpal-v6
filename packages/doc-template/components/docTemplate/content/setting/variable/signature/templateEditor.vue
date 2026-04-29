@@ -26,7 +26,6 @@ async function getCompanyChopList(companyId: string) {
 }
 
 function handleCompanyChange(newCompany: string) {
-  console.log(123, newCompany)
   if (newCompany) {
     getCompanyChopList(newCompany)
   }

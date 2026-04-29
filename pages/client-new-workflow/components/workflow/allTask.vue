@@ -21,14 +21,24 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       page_size: pageParams.pageSize
     }
     try {
-      const data = await $api.post(`/oniflow/api/v1/tasks/page`, params).then((r: any) => r.data)
-      // const data = await $api.get(`/oniflow/api/v1/task/overview/all/${userId}`).then((r:any) => r.data)
+      const data = await $api.get(`/oniflow/api/v1/task/overview/all`).then((r: any) => r.data)
+
+      const map = data.failed.map((item: any) => ({
+        id: item.id,
+        node_name: '',
+        assignee: '',
+        node_type: item.node_type,
+        status: 'failed',
+        created_at: item.failed_at,
+        updated_at: ''
+      }))
+
       return {
         data: {
-          entryList: data.items || [],
-          pageNum: data.page_num || 0,
-          pageCount: data.page_size || 1,
-          totalSize: data.total || 0
+          entryList: data.task || []
+          // pageNum: data.page_num || 0,
+          // pageCount: data.page_size || 1,
+          // totalSize: data.total || 0
         }
       }
     } catch (e) {
@@ -77,6 +87,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
+  if (!row.id || row.id === '') return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -87,6 +98,8 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
+  if (row.status === '') return
+
   await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`, parms).then((res: any) => res.data)
   reload()
 }
@@ -112,7 +125,14 @@ defineExpose({ reloadTable })
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button :id="`Workflow__AvaliableTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small" round @click="claimTask(row)">
+        <el-button
+          v-else-if="row.status !== 'failed'"
+          :id="`Workflow__AvaliableTask__Detail__ClaimTask__${row.id}`"
+          type="primary"
+          size="small"
+          round
+          @click="claimTask(row)"
+        >
           {{ $t('workflow_claim') }}
         </el-button>
       </template>

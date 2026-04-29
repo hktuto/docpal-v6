@@ -142,7 +142,9 @@ export enum CellType {
   uploadFile = 'UploadFile',
   subProcess = 'SubProcess',
   validateTask = 'ValidateTask',
-  filingDocuments = 'FilingDocuments'
+  filingDocuments = 'FilingDocuments',
+  insertDynamicDatabase = 'InsertDynamicDatabase',
+  updateDynamicDatabase = 'UpdateDynamicDatabase'
 }
 
 // 組件Map
@@ -166,7 +168,9 @@ export enum contextMenuComponentType {
   UploadFile = 'LazyContextServiceTaskUploadFile',
   SubProcess = 'LazyContextServiceTaskSubProcess',
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration',
-  FilingDocuments = 'LazyContextServiceTaskFilingDocuments'
+  FilingDocuments = 'LazyContextServiceTaskFilingDocuments',
+  InsertDynamicDatabase = 'LazyContextDynamicDatabaseInsert',
+  UpdateDynamicDatabase = 'LazyContextDynamicDatabaseUpdate'
 }
 
 interface portsItems {
@@ -208,8 +212,10 @@ export type CellTypeItem = {
         icon: string
         formKey?: string
         width?: number
+        height?: number
+        bgColor?: string
+        textColor?: string
         buttonSetting?: any
-        booleanButton?: any[]
         rules?: any
         maxOutgoing?: number
         signature?: any
@@ -529,7 +535,7 @@ export const workflowElement: WorkflowElement = {
     toolbar: [
       {
         id: CellType.conditionTask,
-        icon: '/icons/condition.svg',
+        icon: 'material-symbols:call-split',
         label: 'Condition Task',
         group: '',
         order: 0
@@ -606,6 +612,20 @@ export const workflowElement: WorkflowElement = {
         label: 'Unique Id Generator',
         group: '',
         order: 0
+      },
+      {
+        id: CellType.insertDynamicDatabase,
+        icon: 'mdi:database-arrow-left',
+        label: 'Insert Dynamic Database',
+        group: '',
+        order: 0
+      },
+      {
+        id: CellType.updateDynamicDatabase,
+        icon: 'mdi:database-edit',
+        label: 'Update Dynamic Database',
+        group: '',
+        order: 0
       }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
@@ -628,8 +648,8 @@ function createNodeShell(
   icon: string,
   width?: number,
   height?: number,
-  bgColor? = '#fff',
-  textColor? = '#000'
+  bgColor: string = '#fff',
+  textColor: string = '#000'
 ) {
   return {
     id: `${id}_${Date.now()}`,
@@ -981,11 +1001,45 @@ const workflowCellElementTemplate: CellTypeItem = {
         maxOutgoing: 2,
         width: 200,
         bgColor: '#0F2037',
-        textColor: '#fff',
-        graphLabel: {
-          successLabel: 'Success',
-          failureLabel: 'Failure'
-        }
+        textColor: '#fff'
+      }
+    }
+  },
+  InsertDynamicDatabase: {
+    ...createNodeShell('New_DynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/insertDatabase.svg', 260),
+    data: {
+      id: '',
+      name: 'Insert Dynamic Database',
+      label: 'New Insert Dynamic Database',
+      documentation: '',
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      type: WorkflowElementType.HTTPRequestTask,
+      config: getServiceTaskItemConfig[CellType.insertDynamicDatabase],
+      metadata: {
+        type: CellType.insertDynamicDatabase,
+        tags: WorkflowElementType.HTTPRequestTask,
+        icon: '/icons/insertDatabase.svg',
+        width: 260,
+        databaseId: ''
+      }
+    }
+  },
+  UpdateDynamicDatabase: {
+    ...createNodeShell('New_DynamicDatabase', 'Update Dynamic Database', 'New Update Dynamic Database', '/icons/updateDatabase.svg', 260),
+    data: {
+      id: '',
+      name: 'Update Dynamic Database',
+      label: 'New Update Dynamic Database',
+      documentation: '',
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      type: CellType.updateDynamicDatabase,
+      config: getServiceTaskItemConfig[CellType.updateDynamicDatabase],
+      metadata: {
+        type: CellType.updateDynamicDatabase,
+        tags: WorkflowElementType.HTTPRequestTask,
+        icon: '/icons/updateDatabase.svg',
+        width: 260,
+        databaseId: ''
       }
     }
   }

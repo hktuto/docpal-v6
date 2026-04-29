@@ -29,6 +29,9 @@ function reload() {
       <el-tab-pane :label="$t('Resolved Task')" name="resolvedTask">
         <WorkflowResolvedTask v-if="activeTab === 'resolvedTask'" ref="workflowRef" />
       </el-tab-pane>
+      <el-tab-pane :label="$t('Failed Task')" name="failedTask">
+        <WorkflowFailedTask v-if="activeTab === 'failedTask'" ref="workflowRef" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>

@@ -14,7 +14,7 @@ const variables = computed(() => {
   return {
     labelKey: 'name',
     nameKey: 'id',
-    data: variableList
+    data: variableList.filter((item) => !item.id.startsWith('__system__'))
   }
 })
 const formDialogVisible = ref(false)

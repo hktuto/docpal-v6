@@ -101,6 +101,55 @@ export type WorkflowVariablesProvideContext = {
   getVariablesByType: (typeList?: VariableItemType[], status?: boolean) => VariableSelectItem[]
 }
 
+/**
+ * When submitting data, the data format of formData is forced to be converted according to the data type of Variables.
+ *
+ * @param formData formData original data
+ * @param variables variables object
+ */
+export function conversionFormDataByVariables(formData: any, variables: any) {
+  try {
+    const variableSchema = Object.entries(variables).reduce((acc, [key, value]) => {
+      acc[key] = { type: value.type }
+      return acc
+    }, {})
+
+    const formattedVariables = {}
+
+    for (const key in formData) {
+      const value = formData[key]
+      const definition = variableSchema[key]
+
+      if (!definition) {
+        formattedVariables[key] = value
+        continue
+      }
+
+      switch (definition.type) {
+        case 'number':
+          const num = Number(value)
+          formattedVariables[key] = isNaN(num) ? 0 : num
+          break
+        case 'boolean':
+          if (typeof value === 'string') {
+            formattedVariables[key] = value.toLowerCase() === 'true'
+          } else {
+            formattedVariables[key] = Boolean(value)
+          }
+          break
+        case 'string':
+          formattedVariables[key] = value !== null ? String(value) : ''
+          break
+        default:
+          formattedVariables[key] = value
+      }
+    }
+    return formattedVariables
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 export const useVariablesProvide = () => {
   const ctx = inject<WorkflowVariablesProvideContext>('WorkflowVariablesProvide')
   if (!ctx) {
