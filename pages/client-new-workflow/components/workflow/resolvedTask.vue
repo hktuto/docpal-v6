@@ -9,7 +9,6 @@ const userId: string = useUserId().value
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'resolved_task',
   api: async (pageParams: any) => {
-    console.log(1123)
     const data = await $api.get(`/oniflow/api/v1/task/overview/resolved/${userId}`).then((r: any) => r.data)
     return {
       data: {
