@@ -73,7 +73,7 @@ export default defineNuxtConfig({
 
     // demo packages
     // "../../demo/database",
-    "../../demo/workspaces"
+    // "../../demo/workspaces"
   ],
   features: {
     inlineStyles: true
