@@ -1,24 +1,16 @@
 <template>
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
-    <Toolbar
-      v-if="columns && columns.length > 0"
-      :groupable-columns="columns"
+    <ToolsBar
       :disabled="isMirror"
+      :showMirrorButton="!isMirror"
       @refresh="handleRefresh"
-      @search="handleSearch"
-      @save-view="handleSaveView"
-      @import="handleImport"
       @add-row="handleAddRow"
     >
       <template #toolbar-left>
         <slot name="toolbar-left" />
       </template>
-      <template #toolbar-right>
-        <ToolsMirrorButton :show="!isMirror" />
-        <slot name="toolbar-right" />
-      </template>
-    </Toolbar>
+    </ToolsBar>
     <!-- 表格内容区域 -->
     <div class="table-content">
       <!-- 主表格 -->
@@ -67,7 +59,6 @@
 import type { VxeGridProps, VxeGridListeners, VxeGridInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import Toolbar from './Toolbar.vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import RecordCardDialog from './RecordCardDialog.vue'
 import { onClickOutside } from '@vueuse/core'
@@ -240,18 +231,6 @@ const filteredSlots = computed(() => {
 const handleRefresh = async () => {
   await refreshTableData()
   emit('refresh')
-}
-
-const handleSearch = (value: string) => {
-  emit('search', value)
-}
-
-const handleSaveView = () => {
-  emit('save-view')
-}
-
-const handleImport = () => {
-  emit('import')
 }
 
 const handleAddRow = () => {

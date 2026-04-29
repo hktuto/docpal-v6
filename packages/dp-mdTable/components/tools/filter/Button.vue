@@ -30,8 +30,7 @@ const emits = defineEmits<{
 const buttonRef = ref<InstanceType<typeof ElButton>>()
 const popoverRef = ref<InstanceType<typeof FilterConfigPopover>>()
 
-const { columnFilterRules } = useMDTableInject()
-
+const { columnFilterRules } = inject('viewTools')
 // 处理按钮点击（传 $el 给 popover，因 ref 绑在组件上拿到的是组件实例不是 DOM）
 const handleButtonClick = () => {
   if (popoverRef.value) {

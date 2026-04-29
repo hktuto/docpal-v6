@@ -85,7 +85,8 @@ const emit = defineEmits<{
 }>()
 
 const popoverRef = ref()
-const { columnSortRules } = useMDTableInject() as { columnSortRules: Ref<SortRule[]> }
+const { columnSortRules } = inject('viewTools')
+
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 

@@ -132,9 +132,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     const { relationRowId, relationField, relationTableId, data } = payload
     tableData.value.forEach((row) => {
       updateRelationFields(relationRowId, data, row, relationField)
-    })
-    rawData.value.forEach((row) => {
-      updateRelationFields(relationRowId, data, row, relationField)
+      if (row[relationField]?.includes(relationRowId)) {
+        row[relationField] = data[relationField]
+      }
     })
   })
 

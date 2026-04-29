@@ -89,9 +89,14 @@ async function handleShowAllColumns() {
   const updates = (tableFields.value || []).map((field: any) => ({ id: field.id, hidden: false }))
   await updatedViewColumnsConfig(updates)
 }
-onMounted(() => {
-  columnVisibilityList.value = buildColumnVisibilityList()
-})
+
+watch(
+  () => tableFields.value,
+  () => {
+    columnVisibilityList.value = buildColumnVisibilityList()
+  },
+  { deep: true, immediate: true }
+)
 </script>
 
 <template>
@@ -103,7 +108,12 @@ onMounted(() => {
           <div class="column-item">
             <span class="drag-handle" aria-label="拖拽排序">⋮⋮</span>
             <span class="column-name">{{ element.title }}</span>
-            <el-switch v-model="element.hidden" :active-value="false" :inactive-value="true" @change="handleColumnVisibilityChange(element.id, element.hidden)" />
+            <el-switch
+              v-model="element.hidden"
+              :active-value="false"
+              :inactive-value="true"
+              @change="handleColumnVisibilityChange(element.id, element.hidden)"
+            />
           </div>
         </template>
       </draggable>

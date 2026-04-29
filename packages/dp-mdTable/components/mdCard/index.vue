@@ -53,8 +53,8 @@ async function handleAddRowSubmit(data: any) {
 
 <template>
   <div class="md-card-view">
-    <div class="md-card-toolbar">
-      <div class="toolbar-left">
+    <ToolsBar :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
+      <template #toolbar-left-before>
         <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
             <el-button>
@@ -64,41 +64,20 @@ async function handleAddRowSubmit(data: any) {
           </template>
           <MdCardSettingLayout />
         </el-popover>
-
         <el-popover placement="bottom-start" :width="320" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button>
+            <el-button style="margin-left: 0px">
               <el-icon><Brush /></el-icon>
               样式
             </el-button>
           </template>
           <MdCardSettingStyle />
         </el-popover>
-      </div>
+      </template>
+    </ToolsBar>
 
-      <div class="toolbar-right">
-        <el-button :loading="refreshLoading" @click="handleRefresh">
-          <el-icon><Refresh /></el-icon>
-          刷新
-        </el-button>
-        <el-button type="primary" @click="handleAddRow">
-          <el-icon><Plus /></el-icon>
-          新增记录
-        </el-button>
-      </div>
-    </div>
-
-    <MdCardList
-      :ref="cardRef"
-      :draggable="props.editable"
-    />
-    <MdFormPopover
-      ref="MdFormPopoverRef"
-      :columns="columns"
-      :systemFieldsTypes="systemFieldsTypes"
-      showMoveButtons
-      @submit="handleAddRowSubmit"
-    />
+    <MdCardList :ref="cardRef" :draggable="props.editable" />
+    <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
   </div>
 </template>
 
@@ -110,26 +89,6 @@ async function handleAddRowSubmit(data: any) {
   background: #fff;
   overflow: hidden;
 }
-
-.md-card-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--app-space-s);
-  border-bottom: 1px solid #ebeef5;
-
-  .toolbar-left,
-  .toolbar-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .search-input {
-    width: 240px;
-  }
-}
-
 </style>
 <style>
 .md-card-setting-popover {

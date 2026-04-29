@@ -135,7 +135,8 @@ const emit = defineEmits<{
 }>()
 
 const popoverRef = ref()
-const { columnFilterRules } = useMDTableInject()
+const { columnFilterRules } = inject('viewTools')
+
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 

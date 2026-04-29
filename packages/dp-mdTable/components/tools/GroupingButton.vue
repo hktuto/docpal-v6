@@ -38,7 +38,8 @@ const emits = defineEmits<{
 }>()
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref<InstanceType<typeof GroupingConfigPopover>>()
-const { columnGroupRules: groupingRules } = useMDTableInject()
+const { columnGroupRules: groupingRules } = inject('viewTools')
+
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {

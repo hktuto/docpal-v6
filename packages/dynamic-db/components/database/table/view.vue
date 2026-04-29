@@ -103,7 +103,12 @@ watch(
   },
   { immediate: true }
 )
+const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
 provide('viewTools', {
+  columnFilterRules,
+  columnSortRules,
+  columnGroupRules,
+  viewStyleConfig,
   getPageParams,
   columns,
   tableFields,
@@ -111,7 +116,9 @@ provide('viewTools', {
   getRelationFieldConfig,
   mirrorList,
   updatedViewColumnsConfig,
-  saveColumnOrder
+  saveColumnOrder,
+  updateViewFilterSortGroup,
+  systemFieldsTypes
 })
 </script>
 
