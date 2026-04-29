@@ -1,167 +1,85 @@
 <script lang="ts" setup>
-type PermissionKey = 'isSuperAdmin' | 'canManage' | 'canEdit' | 'canRead'
+type DbPermissionKey = 'member' | 'manage'
 
-type PermissionGuideRow = {
+type DbPermissionRow = {
   feature: string
-  isSuperAdmin: boolean
-  canManage: boolean
-  canEdit: boolean
-  canRead: boolean
-}
-type PermissionGuideItem = {
-  label: string
-  value: string
-  children: PermissionGuideRow[]
-}
-type PermissionDef = {
-  key: PermissionKey
-  label: string
-  color: string
+  member: boolean
+  manage: boolean
 }
 
-const columnDefinitions: PermissionDef[] = [
-  { key: 'isSuperAdmin', label: 'Workspace/File admin', color: '#3b82f6' },
-  { key: 'canManage', label: 'Can Manage', color: '#6366f1' },
-  { key: 'canEdit', label: 'Can Edit', color: '#10b981' },
-  { key: 'canRead', label: 'Read Only', color: '#f59e0b' }
+type ItemPermissionKey = 'view' | 'edit' | 'manage'
+
+type ItemPermissionRow = {
+  feature: string
+  view: boolean
+  edit: boolean
+  manage: boolean
+}
+
+type PermissionGuideSection =
+  | {
+      label: string
+      value: string
+      level: 'database'
+      columns: { key: DbPermissionKey; label: string; color: string }[]
+      children: DbPermissionRow[]
+    }
+  | {
+      label: string
+      value: string
+      level: 'menuItem'
+      columns: { key: ItemPermissionKey; label: string; color: string }[]
+      children: ItemPermissionRow[]
+    }
+
+const dbColumns = [
+  { key: 'member' as const, label: 'Member', color: '#0ea5e9' },
+  { key: 'manage' as const, label: 'Manage', color: '#6366f1' }
 ]
-const LIST: PermissionGuideItem[] = [
+
+const itemColumns = [
+  { key: 'view' as const, label: 'View', color: '#f59e0b' },
+  { key: 'edit' as const, label: 'Edit', color: '#10b981' },
+  { key: 'manage' as const, label: 'Manage', color: '#6366f1' }
+]
+
+const SECTIONS: PermissionGuideSection[] = [
   {
-    label: 'Table Operation Permissions',
-    value: 'table',
+    label: 'Database Permissions',
+    value: 'database',
+    level: 'database',
+    columns: dbColumns,
     children: [
-      {
-        feature: 'Edit view list',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: true,
-        canRead: false
-      },
-      {
-        feature: 'Export view data',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Edit records (create and update)',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: true,
-        canRead: false
-      },
-      {
-        feature: 'Delete records',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Post comments',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: true,
-        canRead: false
-      },
-      {
-        feature: 'View records',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: true,
-        canRead: true
-      }
+      { feature: 'Access database', member: true, manage: true },
+      { feature: 'View database menu items', member: true, manage: true },
+      { feature: 'View database settings', member: true, manage: true },
+      { feature: 'Edit database settings', member: false, manage: true },
+      { feature: 'Manage workspace members & permissions', member: false, manage: true }
     ]
   },
   {
-    label: 'File/Folder Operation Permissions',
-    value: 'file',
+    label: 'Database Menu Item Permissions (Table, Dashboard, etc.)',
+    value: 'menuItem',
+    level: 'menuItem',
+    columns: itemColumns,
     children: [
-      {
-        feature: 'Set file/folder permissions',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Create file/folder',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Import file',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Export file',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Copy file (requires current and parent folder permissions)',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Move file (requires current and target folder permissions)',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Rename file/folder',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Delete file/folder',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Share file/folder',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: true,
-        canRead: false
-      },
-      {
-        feature: 'Edit file/folder description',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      },
-      {
-        feature: 'Save as template',
-        isSuperAdmin: true,
-        canManage: true,
-        canEdit: false,
-        canRead: false
-      }
+      { feature: 'Access item', view: true, edit: true, manage: true },
+      { feature: 'View records / content', view: true, edit: true, manage: true },
+      { feature: 'Edit records (create & update)', view: false, edit: true, manage: true },
+      { feature: 'Delete records', view: false, edit: true, manage: true },
+      { feature: 'Export data', view: false, edit: true, manage: true },
+      { feature: 'Post comments', view: false, edit: true, manage: true },
+      { feature: 'Edit view list (create, update, delete views)', view: false, edit: false, manage: true },
+      { feature: 'Manage item permissions', view: false, edit: false, manage: true },
+      { feature: 'Delete item', view: false, edit: false, manage: true }
     ]
   }
 ]
-const expandList = ref<string[]>(['table', 'file'])
-function getPermissionColor(permission: boolean, columnColor: string) {
-  if (permission) return columnColor
-  return 'var(--app-grey-400)'
+
+const expandList = ref<string[]>(['database', 'menuItem'])
+
+function getPermissionColor(allowed: boolean, columnColor: string) {
+  return allowed ? columnColor : 'var(--app-grey-400)'
 }
 </script>
 
@@ -173,33 +91,55 @@ function getPermissionColor(permission: boolean, columnColor: string) {
       </div>
     </template>
 
-    <p class="description">View permission boundaries for each role in this workspace to configure access quickly.</p>
+    <p class="description">
+      View permission boundaries for each role in this workspace to configure access quickly.
+    </p>
 
     <el-collapse v-model="expandList" class="guide-collapse">
-      <el-collapse-item v-for="item in LIST" :key="item.label" :name="item.value">
+      <el-collapse-item
+        v-for="section in SECTIONS"
+        :key="section.value"
+        :name="section.value"
+      >
         <template #title>
-          <span class="group-title">{{ item.label }}</span>
+          <span class="group-title">{{ section.label }}</span>
         </template>
-        <div>
-          <el-row :gutter="20" class="header-row">
-            <el-col :span="7">Feature</el-col>
-            <el-col :span="3" v-for="column in columnDefinitions" :key="column.key">
-              <span :style="{ color: column.color }">{{ column.label }}</span>
-            </el-col>
-          </el-row>
 
-          <el-row :gutter="20" v-for="row in item.children" :key="row.feature">
-            <el-col :span="7">{{ row.feature }}</el-col>
-            <el-col :span="3" v-for="column in columnDefinitions" :key="`${row.feature}-${column.key}`">
+        <div class="permission-table">
+          <!-- Header -->
+          <div class="table-row header-row">
+            <div class="cell feature-cell">Feature</div>
+            <div
+              v-for="col in section.columns"
+              :key="col.key"
+              class="cell permission-cell"
+              :style="{ color: col.color }"
+            >
+              {{ col.label }}
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div
+            v-for="row in section.children"
+            :key="row.feature"
+            class="table-row body-row"
+          >
+            <div class="cell feature-cell">{{ row.feature }}</div>
+            <div
+              v-for="col in section.columns"
+              :key="`${row.feature}-${col.key}`"
+              class="cell permission-cell"
+            >
               <Icon
                 name="lucide:check"
                 class="permission-icon"
-                :style="{ color: getPermissionColor(row[column.key], column.color) }"
-                :class="{ denied: !row[column.key] }"
-                :aria-label="row[column.key] ? 'allowed' : 'denied'"
+                :class="{ denied: !(row as any)[col.key] }"
+                :style="{ color: getPermissionColor((row as any)[col.key], col.color) }"
+                :aria-label="(row as any)[col.key] ? 'allowed' : 'denied'"
               />
-            </el-col>
-          </el-row>
+            </div>
+          </div>
         </div>
       </el-collapse-item>
     </el-collapse>
@@ -236,19 +176,44 @@ function getPermissionColor(permission: boolean, columnColor: string) {
   color: var(--app-grey-800);
 }
 
-.permission-icon {
-  font-size: 20px;
+.permission-table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
 }
-.el-row {
-  padding: var(--app-space-s);
-  &:hover {
+
+.table-row {
+  display: table-row;
+
+  &.header-row {
+    font-weight: 700;
+    border-bottom: 1px solid var(--app-grey-800);
+  }
+
+  &.body-row:hover {
     background-color: var(--app-grey-800);
   }
 }
 
-.header-row {
-  font-weight: 700;
+.cell {
+  display: table-cell;
+  padding: var(--app-space-s) var(--app-space-m);
+  vertical-align: middle;
 }
+
+.feature-cell {
+  width: 55%;
+}
+
+.permission-cell {
+  width: 15%;
+  text-align: center;
+}
+
+.permission-icon {
+  font-size: 20px;
+}
+
 .denied {
   opacity: 0.2;
 }
