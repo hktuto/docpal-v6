@@ -17,7 +17,7 @@ function getBaseUrl(baseURL: string) {
   if (baseURL === '/docpalApi') baseURL = PROXY
   if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
   if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
-  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string
+  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY  as string
   return baseURL
 }
 
@@ -69,7 +69,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     return
   }
 
-  if (error.response.status >= 500) {
+  if (error.response.status >= 500 || error.response.status <= 400) {
     if (error.config.headers.noThrowError) return
 
     if (error.config.headers.noErrorMessage) return Promise.reject(error)
@@ -134,9 +134,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     }
   } else {
     // 如果没有 refresh token，则直接退出登录
-    if (error.response.status === 401 && !refreshToken) {
-      logout()
-    }
+    logout()
   }
 
   return Promise.reject(error)

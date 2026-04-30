@@ -19,6 +19,8 @@ export enum EventType {
   FILE_CLEAN_SELECTED_ROWS = 'file-clean-selected-rows',
   FULLSCREEN_OPEN = 'fullscreen-open',
   FULLSCREEN_CLOSE = 'fullscreen-close',
+  RELATION_NEED_REFRESH = 'relation-need-refresh',
+  ADD_MIRROR = 'add-mirror',
 }
 
 export enum GlobalPasteEvent {

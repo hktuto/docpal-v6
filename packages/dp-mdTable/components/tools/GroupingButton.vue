@@ -3,6 +3,7 @@
     <el-button
       ref="buttonRef"
       type="primary"
+      :disabled="disabled"
       @click="handleButtonClick"
     >
       {{ groupingRules.length > 0 ? `${groupingRules.length}个分组` : '分组' }}
@@ -28,6 +29,7 @@ import type { ColumnConfig } from '../../types/column-context'
 
 interface Props {
   groupableColumns: ColumnConfig[]
+  disabled?: boolean
 }
 
 const props = defineProps<Props>()
@@ -36,7 +38,8 @@ const emits = defineEmits<{
 }>()
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref<InstanceType<typeof GroupingConfigPopover>>()
-const { columnGroupRules: groupingRules } = useMDTableInject()
+const { columnGroupRules: groupingRules } = inject('viewTools')
+
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {

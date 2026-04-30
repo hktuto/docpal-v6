@@ -1,48 +1,65 @@
 import type { ViewRenderFunctionParams } from '../../../types/column-types'
 import { ElTag } from 'element-plus'
-
+import { buildRelationArray } from '../../../utils/relationHelper'
 export const RelationView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $table, $grid, row, column } = params
   const relationOptions = options?.props
-  const displayFieldName = relationOptions.display_field_names[0]
+  const viewTools: any = inject('viewTools')
+  const displayFieldId = relationOptions.display_field_ids[0]
+  const displayField = viewTools?.getRelationFieldConfig(relationOptions.relation_table_id, displayFieldId)
+  if (!displayField) return h('span', '-')
   let fieldName = column.field
-  let displayFieldNameSpl = fieldName + '.' + displayFieldName
-  let displayValues = Array.isArray(row[displayFieldNameSpl])
-    ? row[displayFieldNameSpl]
-    : row[displayFieldNameSpl]?.split(',').filter((val: any) => val !== '') || []
-
+  const relationArray = buildRelationArray(row, fieldName, displayField.field_name)
   // Multiple items: display as tags
   return h(
     'div',
-    {
-      class: 'relation-view multiple',
-      style: {
-        display: 'flex',
-        gap: '4px',
-        flexWrap: 'wrap'
-      }
-    },
-    displayValues.map((val: any, index: number) =>
+    relationArray.map((val: any, index: number) =>
       h(
         ElTag,
         {
-          key: displayValues[index] || index,
+          key: 'relation-' + index,
           size: 'small',
           type: 'info',
+          class: 'relation-tag el-icon--right',
           onClick: (e: MouseEvent) => {
             e.stopPropagation()
-            $grid.dispatchEvent('relation-cell-click', {
-              event: e,
-              targetElement: e.currentTarget,
-              targetTableId: relationOptions?.relationTableId,
-              recordId: displayValues[index],
-              displayValue: val,
-              row
-            })
           }
         },
-        () => val || displayValues[index]
+        val[displayField.field_name]
       )
     )
   )
+  // return h(
+  //   'div',
+  //   {
+  //     class: 'relation-view multiple',
+  //     style: {
+  //       display: 'flex',
+  //       gap: '4px',
+  //       flexWrap: 'wrap'
+  //     }
+  //   },
+  //   relationArray.map((val: any, index: number) =>
+  //     h(
+  //       ElTag,
+  //       {
+  //         key: 'relation-' + index,
+  //         size: 'small',
+  //         type: 'info',
+  //         onClick: (e: MouseEvent) => {
+  //           e.stopPropagation()
+  //           $grid.dispatchEvent('relation-cell-click', {
+  //             event: e,
+  //             targetElement: e.currentTarget,
+  //             targetTableId: relationOptions?.relationTableId,
+  //             recordId: val.displayFieldName || index,
+  //             displayValue: val,
+  //             row
+  //           })
+  //         }
+  //       },
+  //       () => val || val.displayFieldName || index
+  //     )
+  //   )
+  // )
 }

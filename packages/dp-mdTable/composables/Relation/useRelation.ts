@@ -1,10 +1,13 @@
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '../../types/column-types'
+import { findPath } from './useVirtualColumn'
 // For table's relation config
-export const useRelation = () => {
-  const { workspace, workspaceRouteParams } = useSingleWorkspaceContext()
+export const useRelation = (relationTableId: string) => {
+  const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
   const { tableFields } = inject<any>('viewTools')
+  const relationFields = [ColumnFieldType.Relation, ColumnFieldType.VirtualColumn, ColumnFieldType.AggVirtualColumn]
   const menus = ref([])
+  const menuIdPaths = ref<string[]>([])
   function getRelationTableIds() {
     return tableFields.value
       .filter((field: any) => field.business_type === ColumnFieldType.Relation)
@@ -14,27 +17,40 @@ export const useRelation = () => {
     const relationTableIds = getRelationTableIds()
     const res: any = await newClientApi.getDynamicDbMenusTree({
       referenceEntityType: 'case',
-      referenceEntityId: workspace.value.id
+      referenceEntityId: database.value.id
     })
     let list = res.data ?? []
-    if (workspaceRouteParams.value.detailId) {
-      list = getRelationTree(list, workspaceRouteParams.value.detailId, relationTableIds)
+    if (databaseMenuRouteParams.value.detailId) {
+      list = getRelationTree(list, databaseMenuRouteParams.value.detailId, relationTableIds)
     }
     menus.value = list
   }
   async function getTop5Fields(tableId: string) {
-    const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: "master" })
+    const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: 'master' })
     const configStr = res.data.tableConfig
     const config = configStr ? JSON.parse(configStr) : []
-    const displayFieldsInFirstView = config.length > 0 ? config[0].columns : res.data.tableFields
+    const displayFieldsInFirstView = config.length > 0 ? (config[0].columns.length > 0 ? config[0].columns : res.data.tableFields) : res.data.tableFields
+    let result = []
     const visibleFields = displayFieldsInFirstView.filter((field: any) => field.hidden !== true)
-    return visibleFields.slice(0, 5)
+    if (config.length > 0 && config[0].columns.length > 0) {
+      visibleFields.forEach((field: any) => {
+        const fieldItem = res.data.tableFields.find((item: any) => item.id === field.id)
+        if (fieldItem) {
+          result.push({ ...fieldItem, ...field })
+        }
+      })
+    } else {
+      result = visibleFields
+    }
+    return result.filter((field: any) => !relationFields.includes(field.business_type)).slice(0, 5)
   }
-  onMounted(() => {
-    getMenuFromDb()
+  onMounted(async () => {
+    await getMenuFromDb()
+    if (relationTableId) menuIdPaths.value = findPath(menus.value, relationTableId)
   })
   return {
     menus,
+    menuIdPaths,
     getTop5Fields
   }
 }

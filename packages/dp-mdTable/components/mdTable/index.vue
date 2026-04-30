@@ -1,22 +1,16 @@
 <template>
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
-    <Toolbar
-      v-if="columns && columns.length > 0"
-      :groupable-columns="columns"
+    <ToolsBar
+      :disabled="isMirror"
+      :showMirrorButton="!isMirror"
       @refresh="handleRefresh"
-      @search="handleSearch"
-      @save-view="handleSaveView"
-      @import="handleImport"
       @add-row="handleAddRow"
     >
       <template #toolbar-left>
         <slot name="toolbar-left" />
       </template>
-      <template #toolbar-right>
-        <slot name="toolbar-right" />
-      </template>
-    </Toolbar>
+    </ToolsBar>
     <!-- 表格内容区域 -->
     <div class="table-content">
       <!-- 主表格 -->
@@ -51,7 +45,7 @@
           </slot>
         </div>
       </div>
-      <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" />
+      <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @refresh="handleRefresh" />
       <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
@@ -65,7 +59,6 @@
 import type { VxeGridProps, VxeGridListeners, VxeGridInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import Toolbar from './Toolbar.vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import RecordCardDialog from './RecordCardDialog.vue'
 import { onClickOutside } from '@vueuse/core'
@@ -85,6 +78,7 @@ interface ColumnVisibilityItem {
 interface Props {
   tableId?: string
   editable?: boolean
+  isMirror?: boolean
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void
@@ -102,6 +96,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   tableId: '',
   editable: false,
+  isMirror: false,
   extraColumnConfig: () => ({
     columns: [],
     deleteColumn: () => {},
@@ -130,12 +125,14 @@ const emit = defineEmits<{
   import: []
   'add-row': []
   'add-row-submit': [data: any]
+  'add-mirror': []
 }>()
 
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow, systemFieldsTypes } = useMDTable(props)
+const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow, systemFieldsTypes } =
+  useMDTable(props)
 
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -234,29 +231,17 @@ const filteredSlots = computed(() => {
 const handleRefresh = async () => {
   await refreshTableData()
   emit('refresh')
-  ElMessage.success('刷新成功')
-}
-
-const handleSearch = (value: string) => {
-  emit('search', value)
-}
-
-const handleSaveView = () => {
-  emit('save-view')
-}
-
-const handleImport = () => {
-  emit('import')
 }
 
 const handleAddRow = () => {
   MdFormPopoverRef.value.open({})
 }
-const handleAddRowSubmit = (data: any, id: string) => {
+const handleAddRowSubmit = async (data: any, id: string) => {
   if (id) {
-    updateRow(id, data)
+    await updateRow(id, data)
+    await handleRefresh()
   } else {
-    addRow(data)
+    await addRow(data)
   }
 }
 // Handle expand click from checkbox column
@@ -298,6 +283,7 @@ const handleVirtualColumnSelect = async (relationFieldName: string, displayField
     console.warn('addVirtualColumn not available in context')
   }
 }
+
 // 暴露方法
 defineExpose({
   gridRef,

@@ -101,6 +101,7 @@ const handleClick = (type: string) => {
     case 'hide':
       break
     case 'delete':
+      if (!fullColumn?.id) break
       try {
         deleteColumn(fullColumn.id as string)
       } catch (error) {

@@ -132,8 +132,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       }
       return colConfig
     })
-    console.log('data', data)
-    return data
+    return data.filter((col: any) => !col.hidden)
   })
   const processedEditRules = computed(() => {
     if (!columns.value) {

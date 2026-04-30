@@ -1,85 +1,79 @@
 <template>
-  <div class="relation-picker">
+  <div class="relation-picker" @mousedown.stop @click.stop>
     <!-- 添加按钮 + 弹层 -->
-    <ElPopover
-      v-model:visible="popoverVisible"
+    <UiPopoverDialog
+      ref="popoverDialogRef"
       :width="520"
       placement="bottom-start"
-      trigger="click"
-      :popper-class="`relation-picker-popover ${showSelected ? '' : 'vxe-table--ignore-clear'}`"
-      @show="handlePopoverShow"
+      :close-on-click-outside="false"
+      :offset="showSelected ? 400 : 0"
+      @open="handlePopoverOpen"
+      @close="handlePopoverClose"
     >
-      <template #default>
-        <div class="relation-picker-dropdown">
-          <div class="dropdown-header">
-            <span class="dropdown-title">{{ $t('mdTable.relationPicker.recordsOfTable', { tableLabel: displayTableLabel }) }}</span>
-          </div>
-          <div class="dropdown-search">
-            <ElInput
-              v-model="searchKeyword"
-              :placeholder="$t('mdTable.relationPicker.searchPlaceholder')"
-              clearable
-              class="search-input"
-              @input="handleSearchInput"
-            >
-              <template #prefix>
-                <Icon name="lucide:search" size="16" />
-              </template>
-            </ElInput>
-            <!-- 只看已选记录 -->
-            <div class="filter-row">
-              <span class="filter-label">{{ $t('mdTable.relationPicker.onlySelected') }}</span>
-              <ElSwitch v-model="onlySelected" />
-            </div>
-          </div>
-          <div v-loading="listLoading" class="dropdown-list">
-            <div
-              v-for="row in displayOptions"
-              :key="row.id"
-              class="record-card-item"
-              :class="{ selected: selectedIds.includes(row.id) }"
-              @click="toggleRecord(row.id)"
-            >
-              <MdFormFieldRelationCard :fields="fields" :data="row" />
-            </div>
-            <div v-if="displayOptions.length === 0 && !listLoading" class="list-empty">{{ $t('mdTable.relationPicker.noRecords') }}</div>
-          </div>
-          <div class="dropdown-footer">
-            <ElButton type="primary" class="add-btn" @click="handleAddRelationRecord">
-              <Icon name="lucide:plus" size="16" />
-              {{ $t('mdTable.relationPicker.addRecords') }}
-            </ElButton>
-          </div>
+      <div class="relation-picker-dropdown" @mousedown.stop @click.stop>
+        <div class="dropdown-header">
+          <span class="dropdown-title">{{ $t('mdTable.relationPicker.recordsOfTable', { tableLabel: displayTableLabel }) }}</span>
         </div>
-      </template>
-      <template #reference>
-        <slot name="title">
-          <div class="relation-add-trigger">
-            <Icon name="lucide:plus" />
-            <div style="height: 1rem">{{ $t('mdTable.relationPicker.addFromTable', { tableLabel: displayTableLabel }) }}</div>
-          </div>
-        </slot>
-      </template>
-    </ElPopover>
-
-    <!-- 已选卡片列表 -->
-    <div v-if="selectedIds.length > 0 && showSelected" class="selected-cards">
-      <div v-for="id in selectedIds" :key="id" class="selected-card-body">
-        <template v-if="selectedRecordsMap[id]">
-          <MdFormFieldRelationCard class="record-card-item" :fields="fields" :data="selectedRecordsMap[id]" :show-remove="true" @remove="handleRemove(id)" />
-        </template>
-        <div v-else-if="id" class="selected-card-loading">
-          <el-icon class="is-loading"><Loading /></el-icon>
-          <span>{{ $t('mdTable.relationPicker.loading') }}</span>
+        <div class="dropdown-search">
+          <ElInput
+            v-model="searchKeyword"
+            :placeholder="$t('mdTable.relationPicker.searchPlaceholder')"
+            clearable
+            class="search-input"
+            @input="handleSearchInput"
+          >
+            <template #prefix>
+              <Icon name="lucide:search" size="16" />
+            </template>
+          </ElInput>
+          <!-- 只看已选记录 -->
+          <!-- <div class="filter-row">
+            <span class="filter-label">{{ $t('mdTable.relationPicker.onlySelected') }}</span>
+            <ElSwitch v-model="onlySelected" />
+          </div> -->
         </div>
+        <div v-infinite-scroll="getRelationPickerOptions" :infinite-scroll-disabled="loading || noMore" class="dropdown-list">
+          <div
+            v-for="row in displayOptions"
+            :key="row.id"
+            class="record-card-item"
+            :class="{ selected: selectedIds.includes(row.id) }"
+            @click="toggleRecord(row.id)"
+          >
+            <MdFormFieldRelationCard :fields="fields" :data="row" @remove="toggleRecord(row.id)" />
+          </div>
+          <div v-if="!loading && noMore" class="list-empty">{{ $t('noMore') }}</div>
+        </div>
+        <!-- <div class="dropdown-footer">
+          <ElButton type="primary" class="add-btn" @click="handleAddRelationRecord">
+            <Icon name="lucide:plus" size="16" />
+            {{ $t('mdTable.relationPicker.addRecords') }}
+          </ElButton>
+        </div> -->
       </div>
+    </UiPopoverDialog>
+    <div
+      ref="triggerRef"
+      tabindex="0"
+      aria-label="open relation picker"
+      @mousedown.capture.stop.prevent
+      @mousedown.prevent.stop
+      @click.stop="handleTriggerClick"
+      @keydown.enter.prevent="handleTriggerClick"
+    >
+      <slot name="title">
+        <div class="relation-add-trigger">
+          <Icon name="lucide:plus" />
+          <div style="height: 1rem">{{ $t('mdTable.relationPicker.addFromTable', { tableLabel: displayTableLabel }) }}</div>
+        </div>
+      </slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { ElPopover, ElInput, ElSwitch, ElCheckbox, ElButton, ElSkeleton } from 'element-plus'
+import { ElInput, ElSwitch, ElButton } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import type { CardViewConfig, FieldInfo } from '@packages/dp-mdTable/types/view-config'
 import { generateDefaultCardConfig } from '@packages/dp-mdTable/types/view-config'
@@ -104,10 +98,12 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { options, fields, searchKeyword } = useRelationPicker(props.relationTableId, props.displayFieldIds)
+const { options, fields, searchKeyword, refresh, loading, noMore, getRelationPickerOptions } = useRelationPicker(props.relationTableId, props.displayFieldIds)
 
 const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
 
+const popoverDialogRef = ref()
+const triggerRef = ref<HTMLElement | null>(null)
 const popoverVisible = ref(false)
 const onlySelected = ref(false)
 const selectedIds = computed(() => {
@@ -144,11 +140,29 @@ function toggleRecord(id: string) {
 }
 function handleSearchInput() {
   // TODO: implement search
+  refresh()
 }
 
 function handlePopoverShow() {
   searchKeyword.value = ''
   onlySelected.value = false
+}
+function handlePopoverOpen() {
+  popoverVisible.value = true
+  handlePopoverShow()
+}
+function handlePopoverClose() {
+  popoverVisible.value = false
+}
+function handleTriggerClick(event?: MouseEvent | KeyboardEvent) {
+  event?.stopPropagation?.()
+  if (popoverVisible.value) {
+    popoverDialogRef.value?.close?.()
+    return
+  }
+  requestAnimationFrame(() => {
+    popoverDialogRef.value?.open?.()
+  })
 }
 function handleRemove(id: string) {
   toggleRecord(id)
@@ -190,12 +204,10 @@ defineExpose({
 </style>
 
 <style lang="scss">
-.relation-picker-popover {
-  .relation-picker-dropdown {
-    display: flex;
-    flex-direction: column;
-    max-height: 480px;
-  }
+.relation-picker-dropdown {
+  display: flex;
+  flex-direction: column;
+  height: 480px;
 
   .dropdown-header {
     padding: 8px 0 12px;
@@ -234,7 +246,7 @@ defineExpose({
   .dropdown-list {
     flex: 1;
     overflow-y: auto;
-    max-height: 320px;
+    height: 320px;
     padding-right: 4px;
   }
 
@@ -259,20 +271,9 @@ defineExpose({
   }
 }
 .record-card-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 8px;
-  background: var(--el-fill-color-light);
-  border-radius: var(--app-border-radius-s);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-
   position: relative;
   overflow: hidden;
+  border-radius: var(--app-border-radius-s);
   &.selected {
     border-color: var(--el-color-primary);
     &:after {

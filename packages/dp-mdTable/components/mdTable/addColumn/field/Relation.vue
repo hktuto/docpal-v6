@@ -1,7 +1,7 @@
 <template>
-  <el-form-item label="Relation Table" prop="tableIdPaths">
+  <el-form-item label="Relation Table" prop="relation_table_id">
     <el-cascader
-      v-model="formData.tableIdPaths"
+      v-model="menuIdPaths"
       show-checked-strategy="parent"
       placement="left-start"
       :options="menus"
@@ -39,13 +39,19 @@ const cascaderProps = {
   label: 'name',
   value: 'id'
 }
-const { menus, getTop5Fields } = useRelation()
+const { menus,menuIdPaths, getTop5Fields } = useRelation(props.formData.relation_table_id)
 
 async function handleRTChange(value: string[]) {
-  props.formData.relation_table_id = value[value.length - 1]
-  const top5Fields = await getTop5Fields(props.formData.relation_table_id)
-  props.formData.display_field_ids = top5Fields.map((field: any) => field.id)
-  props.formData.display_field_names = top5Fields.map((field: any) => field.field_name)
+  try {
+    props.formData.relation_table_id = value[value.length - 1]
+    const top5Fields = await getTop5Fields(props.formData.relation_table_id)
+    console.log('top5Fields', top5Fields)
+    props.formData.display_field_ids = top5Fields.map((field: any) => field.id)
+    props.formData.is_array = true
+  } catch (error) {
+    props.formData.relation_table_id = ''
+    props.formData.display_field_ids = []
+  }
 }
 </script>
 

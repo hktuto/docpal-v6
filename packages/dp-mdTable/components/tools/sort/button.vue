@@ -1,6 +1,6 @@
 <template>
   <div class="sort-button-wrapper" v-if="sortRules">
-    <el-button ref="buttonRef" type="primary" @click="handleButtonClick">
+    <el-button ref="buttonRef" :disabled="disabled" type="primary" @click="handleButtonClick">
       <el-icon class="sort-icon">
         <Sort />
       </el-icon>
@@ -24,6 +24,7 @@ import type { ColumnConfig } from '../../types/column-context'
 
 interface Props {
   availableColumns: ColumnConfig[]
+  disabled?: boolean
 }
 const gridRef = useMDTableInject()
 const props = defineProps<Props>()
@@ -33,11 +34,11 @@ const emits = defineEmits<{
 
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref()
-const { columnSortRules: sortRules } = useMDTableInject()
+const { columnSortRules: sortRules } = inject('viewTools')
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
-  if (props.availableColumns) {
+  if (props.availableColumns ) {
     const availableColumns = props.availableColumns.filter((column) => sortRules.value.some((sort) => sort.field === column.field))
     return props.availableColumns
   }

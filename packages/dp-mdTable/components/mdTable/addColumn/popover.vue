@@ -50,7 +50,7 @@ interface Props {
   placement?: string
   popperClass?: string
 }
-const { deleteColumn, updateColumn, addColumn } = useMDTableInject()
+const { deleteColumn, updateColumn, addColumn, tableFields } = useMDTableInject()
 const columnFieldOptions = getColumnFieldOptions()
 const displayColumnFieldOptions = computed(() => {
   return state.isEdit ? columnFieldOptions : columnFieldOptions.filter((item: any) => !item.disableCreate)
@@ -64,6 +64,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   submit: [column: ColumnConfig]
   cancel: []
+  refresh: []
 }>()
 const state = reactive({
   column: null,
@@ -154,7 +155,7 @@ const handleSubmit = async () => {
   try {
     await formRef.value.validate()
     // 基本字段
-    const basicFields = ['field_name', 'business_type', 'relation_table_id', 'display_field_ids']
+    const basicFields = ['field_name', 'business_type', 'relation_table_id', 'display_field_ids', 'is_array', 'aggregation_field_name', 'aggregation_method']
     const display_structure_fields = ['relation_table_id', 'display_field_ids']
     const columnConfig: ColumnConfig = {}
     // 将其他字段保存到 display_structure 中
@@ -191,20 +192,40 @@ const handleSubmit = async () => {
           return
         }
       }
-      console.log('state.column', state.column)
       // Let useTableView handle type changes properly (including relation columns)
       // This preserves relation data when only changing display field
-      updateColumn(state.column?.field, columnConfig as any)
+      await updateColumn(state.column?.field, columnConfig as any)
     } else {
-      addColumn([columnConfig])
+      await addColumn([columnConfig])
+    }
+    if ([ColumnFieldType.AggVirtualColumn, ColumnFieldType.virtualColumn].includes(columnConfig.business_type)) {
+      updateRelationDisplayFields(columnConfig)
     }
     resetForm()
     handleClose()
+    emit('refresh')
   } catch (error) {
     console.error('表单验证失败:', error)
   }
 }
-
+async function updateRelationDisplayFields(column: ColumnConfig) {
+  const relationFields = tableFields.value.find((item: any) => item.display_structure?.relation_table_id === column.relation_table_id)
+  if (relationFields && column.display_structure?.display_field_id) {
+    const existColumn = relationFields.display_structure.display_field_ids.includes(column.display_structure?.display_field_id)
+    if (!existColumn) {
+      relationFields.display_structure.display_field_ids.push(column.display_structure?.display_field_id)
+      await updateColumn(relationFields.field_name, {
+        business_type: relationFields.business_type,
+        display_field_ids: relationFields.display_structure.display_field_ids,
+        relation_table_id: relationFields.display_structure.relation_table_id,
+        display_structure: {
+          ...relationFields.display_structure,
+          display_field_ids: relationFields.display_structure.display_field_ids
+        }
+      })
+    }
+  }
+}
 // 取消
 const handleCancel = () => {
   resetForm()

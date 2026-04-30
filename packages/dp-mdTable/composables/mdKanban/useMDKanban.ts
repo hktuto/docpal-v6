@@ -15,7 +15,7 @@ export interface MDKanbanProps {
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
-    viewStyleConfig?: Ref<Record<string, any>>
+    viewStyleConfig?: any
     updateViewFilterSortGroup?: (
       fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style',
       value: any
@@ -23,7 +23,7 @@ export interface MDKanbanProps {
   }
 }
 
-export const MDKanbanContextKey = Symbol('MDCardContextKey')
+export const MDKanbanContextKey = Symbol('MDKanbanContextKey')
 
 export function useMDKanban(props: MDKanbanProps) {
   const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
@@ -43,7 +43,7 @@ export function useMDKanban(props: MDKanbanProps) {
   } = useTableData(props.tableId, cardRef)
 
 
-  provide(MDCardContextKey, {
+  provide(MDKanbanContextKey, {
     tableId: props.tableId,
     updateRow,
     tableData,
@@ -52,10 +52,7 @@ export function useMDKanban(props: MDKanbanProps) {
     systemFieldsTypes,
     ...props.extraColumnConfig
   })
-  onMounted(async () => {
-    await getTableData()
-    console.log('tableData', tableData)
-  })
+
   return {
     columns: props.extraColumnConfig?.columns,
     systemFieldsTypes,
@@ -68,12 +65,13 @@ export function useMDKanban(props: MDKanbanProps) {
     addRow,
     updateRow,
     deleteRow,
+    viewStyleConfig: props.extraColumnConfig?.viewStyleConfig,
   }
 }
 export const useMDKanbanInject = () => {
-  const injectKey = inject(MDCardContextKey)
+  const injectKey = inject(MDKanbanContextKey)
   if (!injectKey) {
-    throw new Error('MDCardContext not found')
+    throw new Error('MDKanbanContext not found')
   }
   return injectKey
 }

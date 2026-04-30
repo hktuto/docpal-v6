@@ -28,6 +28,7 @@ export function useMDTable(props: any) {
   const editable = ref(props.editable)
   const gridRef = ref<any>()
   const addColumnPopoverRef = ref()
+  console.log("props.extraColumnConfig", props.extraColumnConfig)
   if(!props.extraColumnConfig.columnFilterRules) {
     props.extraColumnConfig.columnFilterRules = ref({
       conditions: [],
@@ -38,7 +39,7 @@ export function useMDTable(props: any) {
     props.extraColumnConfig.columnGroupRules = ref([])
   }
   if(!props.extraColumnConfig.columnSortRules) {
-    props.extraColumnConfig.columnSortRules = ref([]) 
+    props.extraColumnConfig.columnSortRules = ref([])
   }
   const {
     loading,
@@ -105,13 +106,20 @@ export function useMDTable(props: any) {
     const options = new Set()
     tableData.value.forEach((row: any) => {
       const value = row[column.field]
-      if (value) {
+      if (typeof value === 'string' && value) {
         options.add(value)
+        return
+      }
+      if (Array.isArray(value)) {
+        value.forEach((item: any) => {
+          if (typeof item === 'string' && item) {
+            options.add(item)
+          }
+        })
       }
     })
     return Array.from(options).filter(Boolean)
   }
-  console.log(props.extraColumnConfig, 'props.extraColumnConfig')
   provide(MdTableContextKey, {
     ...props.extraColumnConfig,
     tableData,

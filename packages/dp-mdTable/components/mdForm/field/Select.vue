@@ -1,13 +1,13 @@
 <template>
   <MdFormItem v-if="formData && column[fieldName]" v-bind="props">
-    <el-select v-model="formData[column[fieldName]]" :multiple="column.type === ColumnFieldType.MultiSelect" :placeholder="column.placeholder" filterable clearable>
+    <el-select v-model="formData[column[fieldName]]" default-first-option :multiple="isMulti" :placeholder="column.placeholder" filterable clearable>
       <el-option v-for="option in column.display_structure.options" :key="option.id" :label="option.label" :value="option.id">
         <div class="flex items-center">
           <el-tag :color="option.color" style="margin-right: 8px" size="small" />
           <span :style="{ color: option.color }">{{ option.label }}</span>
         </div>
       </el-option>
-      <template v-if="column.type === ColumnFieldType.MultiSelect" #tag>
+      <template v-if="isMulti" #tag>
         <el-tag v-for="optId in formData[column[fieldName]]" :key="optId" effect="dark" :color="getOptionColor(optId)" closable @close="handleClose(optId)">
           {{ getOptionLabel(optId) }}
         </el-tag>
@@ -31,11 +31,15 @@ function getOptionColor(id: string) {
 function getOptionLabel(id: string) {
   return props.column.display_structure.options.find((option: any) => option.id === id)?.label
 }
+const isMulti = computed(() => {
+  return props.column.business_type === ColumnFieldType.MultiSelect
+})
 function handleClose(id: string) {
-  if (props.column.type === ColumnFieldType.MultiSelect) {
-    props.formData[props.column[fieldName]] = props.formData[props.column[fieldName]].filter((item: any) => item !== id)
+  const name = props.column[props.fieldName]
+  if (isMulti.value) {
+    props.formData[name] = props.formData[name].filter((item: any) => item !== id)
   } else {
-    props.formData[props.column[fieldName]] = ''
+    props.formData[name] = ''
   }
 }
 </script>

@@ -76,10 +76,10 @@ async function loadAvailableFields(column: ColumnConfig) {
     availableFields.value = []
     return
   }
-  
+  console.log('displayFieldNames', columnContext)
   // Check which display fields are already added as virtual columns
   const existingVirtualColumns = columnContext?.columns.value
-    .filter(col => col.field.startsWith(`${relationFieldName}.`))
+    .filter((col) => col.field && relationFieldName && col.field.startsWith(`${relationFieldName}.`))
     .map(col => col.field.split('.')[1]) || []
   
   // Get field labels from target table if possible

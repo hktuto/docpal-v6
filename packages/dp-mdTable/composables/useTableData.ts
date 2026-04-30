@@ -1,6 +1,8 @@
 // composables/useTableData.ts
-import { ref, computed, provide, inject, type Ref, type InjectionKey, type ComputedRef } from 'vue'
+import { ref, computed, provide, inject, onBeforeUnmount, type Ref, type InjectionKey, type ComputedRef } from 'vue'
 import { newClientApi, postDynamicActions } from 'api'
+import { EventType, useEventBus } from 'eventbus'
+import { updateRelationFields } from '../utils/relationHelper'
 // import { createGroupTree } from '../utils/treeDataHelper'
 export interface UseTableDataOptions {
   /** 是否自动加载数据 */
@@ -64,7 +66,7 @@ export interface TableDataContext {
   loadMore: () => Promise<void>
   refresh: () => Promise<void>
   addRow: (row: any) => void
-  updateRow: (rowId: string, data: any) => Promise<boolean>
+  updateRow: (rowId: string, data: any, mdTableId?: string) => Promise<boolean>
   deleteRow: (rowid: string) => Promise<boolean>
   getAggChildData: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
   queryRecordById: (id: string) => any
@@ -115,12 +117,29 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const viewTools: any = inject('viewTools')
   /** 翻页时复用的查询条件（不含 pageNum） */
   const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
+  const relationRefreshBus = useEventBus(EventType.RELATION_NEED_REFRESH)
 
   const hasMore = computed(() => {
     if (!totalSize.value) {
       return false
     }
     return tableData.value.length < totalSize.value
+  })
+
+  const stopRelationRefresh = relationRefreshBus.on((payload: any) => {
+    console.log('relationRefresh', payload)
+    if (!payload?.data || !payload?.relationRowId || !payload?.relationField || !payload?.relationTableId) return
+    const { relationRowId, relationField, relationTableId, data } = payload
+    tableData.value.forEach((row) => {
+      updateRelationFields(relationRowId, data, row, relationField)
+      if (row[relationField]?.includes(relationRowId)) {
+        row[relationField] = data[relationField]
+      }
+    })
+  })
+
+  onBeforeUnmount(() => {
+    stopRelationRefresh()
   })
 
   /**
@@ -144,12 +163,15 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
       }
+      if (params.pageSize) {
+        tableQueryBase.value.pageSize = params.pageSize
+      }
       const { data } = await postDynamicActions({
         tableId,
         columns: [],
         ...additionalParams,
         pagination: {
-          pageSize: params.pageSize ?? tableQueryBase.value.pageSize ?? 100,
+          pageSize: tableQueryBase.value.pageSize ?? 100,
           pageNum: params.pageNum ? params.pageNum + 1 : 1
         }
       })
@@ -176,16 +198,26 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     try {
       const pageSizeVal = tableQueryBase.value.pageSize ?? 100
       const nextPage = currentPage.value + 1
-      const requestBody = { ...tableQueryBase.value, pageNum: nextPage, pageSize: pageSizeVal }
-      const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, requestBody)
-      const mapped = data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? []
-      const newRows = transform ? transform(mapped) : mapped
-      if (newRows.length === 0) {
+      let additionalParams = {}
+      if (viewTools?.getPageParams) {
+        additionalParams = viewTools?.getPageParams()
+      }
+      const { data } = await postDynamicActions({
+        tableId,
+        columns: [],
+        ...additionalParams,
+        pagination: {
+          pageSize: pageSizeVal,
+          pageNum: nextPage
+        }
+      })
+      console.log("load more data", data)
+      if (data?.entryList?.length === 0) {
         totalSize.value = tableData.value.length
         return
       }
-      tableData.value = [...tableData.value, ...newRows]
-      
+      tableData.value.push(...data.data)
+
       currentPage.value = nextPage
       if (data?.totalSize != null) {
         totalSize.value = data.totalSize
@@ -196,6 +228,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       loadingMore.value = false
     }
   }
+
 
   function getAggregateData(params?: any) {
     return createMockAggregateData(params, tableId)
@@ -228,9 +261,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
    * 更新行数据：根据每行的 id 在 tableData/rawData 中查找并合并更新
    * @param rows - 要更新的行（可含部分字段），至少需包含 id
    */
-  const updateRow = async (rowId: string, data: any) => {
+  const updateRow = async (rowId: string, data: any, mdTableId?: string) => {
     try {
-      await newClientApi.putDynamicDbTableTableidDataDataid(tableId, rowId, { data })
+      if (!mdTableId) mdTableId = tableId
+      await newClientApi.putDynamicDbTableTableidDataDataid(mdTableId, rowId, { data })
       const row = tableData.value.find((item) => item.id === rowId)
       if (row) {
         Object.assign(row, data)
