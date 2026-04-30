@@ -234,30 +234,60 @@ function getDisabledDate(field: FieldWithValue, date: Date): boolean {
 function getInputFormatter(format?: string): ((value: string) => string) | undefined {
   switch (format) {
     case 'ALL_CAP':
-      return (val: string) => val?.toUpperCase?.() || val
+      return (val: string) => {
+        const v = val?.toUpperCase?.() || val
+        return typeof v === 'string' ? v.trim() : v
+      }
     case 'SMALL_CASE':
-      return (val: string) => val?.toLowerCase?.() || val
+      return (val: string) => {
+        const v = val?.toLowerCase?.() || val
+        return typeof v === 'string' ? v.trim() : v
+      }
     case 'TITLE_CASE':
-      return (val: string) => val?.replace?.(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()) || val
+      return (val: string) => {
+        const v = val?.replace?.(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()) || val
+        return typeof v === 'string' ? v.trim() : v
+      }
     case 'NUMBER_ONLY':
-      return (val: string) => val?.replace?.(/[^0-9]/g, '') || val
+      return (val: string) => {
+        const v = val?.replace?.(/[^0-9]/g, '') || val
+        return typeof v === 'string' ? v.trim() : v
+      }
     default:
-      return undefined
+      return (val: string) => {
+        const v = val
+        return typeof v === 'string' ? v.trim() : v
+      }
   }
 }
 
 function getInputParser(format?: string): ((value: string) => string) | undefined {
   switch (format) {
     case 'ALL_CAP':
-      return (val: string) => val?.toUpperCase?.() || val
+      return (val: string) => {
+        const v = val?.toUpperCase?.() || val
+        return typeof v === 'string' ? v.trim() : v
+      }
     case 'SMALL_CASE':
-      return (val: string) => val?.toLowerCase?.() || val
+      return (val: string) => {
+        const v = val?.toLowerCase?.() || val
+        return typeof v === 'string' ? v.trim() : v
+      }
     case 'TITLE_CASE':
-      return (val: string) => val?.replace?.(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()) || val
+      return (val: string) => {
+        const v = val?.replace?.(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()) || val
+        return typeof v === 'string' ? v.trim() : v
+      }
     case 'NUMBER_ONLY':
-      return (val: string) => val?.replace?.(/[^0-9]/g, '') || val
+      return (val: string) => {
+        const v = val?.replace?.(/[^0-9]/g, '') || val
+        return typeof v === 'string' ? v.trim() : v
+      }
     default:
-      return undefined
+      return (val: string) => {
+        const v = val
+        return typeof v === 'string' ? v.trim() : v
+      }
   }
 }
 
