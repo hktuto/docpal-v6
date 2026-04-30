@@ -503,7 +503,7 @@ defineExpose({
                 @mouseenter="handleTableFieldMouseEnter(field)"
               >
                 <div class="fieldLabel">
-                  <span class="labelText">{{ field.lable || field.label }}</span>
+                  <span class="labelText">{{ field.lable || field.label }} ({{rowIndex + 1}})</span>
                   <ElTag v-if="field.required" :size="formSize" type="danger" effect="plain" class="requiredTag">
                     *
                   </ElTag>
