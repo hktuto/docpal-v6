@@ -21,6 +21,7 @@
       :disabled="disabled"
       :placeholder="placeholder"
       :clearable="clearable"
+      maxlength="10"
       class="custom-date-picker__overlay"
       @click="handleClick"
       @focus="handleFocus"
@@ -226,7 +227,34 @@ function handleFocus(e: FocusEvent) {
 
 function handleBlur(e: FocusEvent) {
   emit('blur', e)
-  applyInput()
+
+  const d = parseDateInput(displayValue.value)
+  if (d) {
+    // Valid → commit
+    const vf = props.valueFormat || props.format
+    const newValue = d.format(vf)
+    if (newValue !== props.modelValue) {
+      pickerValue.value = newValue
+      emit('update:modelValue', newValue)
+      emit('change', newValue)
+    }
+    displayValue.value = d.format(props.format)
+  } else if (!displayValue.value.trim()) {
+    // Empty → clear
+    if (props.modelValue) {
+      pickerValue.value = null
+      emit('update:modelValue', null)
+      emit('change', null)
+    }
+  } else {
+    // INVALID → reset back to current modelValue
+    const current = props.modelValue
+      ? dayjs(props.modelValue, props.valueFormat || props.format, true)
+      : null
+    displayValue.value = current?.isValid()
+      ? current.format(props.format)
+      : ''
+  }
 
   // Give the panel time to process a click before closing
   setTimeout(() => {
