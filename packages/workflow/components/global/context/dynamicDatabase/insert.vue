@@ -16,8 +16,9 @@ const dataId = ref<string>('')
 const dataBaseList = ref([])
 const tableList = ref([])
 const tableFieldList = ref([])
-const outputMapping = ref({
-  [dataId.value]: '${data}'
+
+const stringVariables = computed(() => {
+  return getVariablesByType(['string'])
 })
 
 function getVariables(status: string) {
@@ -60,8 +61,15 @@ async function init() {
     })
   }
 
-  if (!!data.config.output_mapping) {
-    outputMapping.value = Object.fromEntries(Object.entries(data.config?.output_mapping).map(([k, v]) => [v, k]))
+  const keys = Object.keys(data.config.output_mapping)
+  if (keys.length > 0) {
+    keys.forEach((key:string)=>{
+      if (data.config.output_mapping[key] == '${data.id}'){
+        dataId.value = key
+      }
+    })
+  } else {
+    dataId.value = ''
   }
 }
 
@@ -85,13 +93,19 @@ function update() {
       ...nodeData.config,
       url: newUrl,
       body: { data: data },
-      output_mapping: Object.fromEntries(Object.entries(outputMapping.value).map(([k, v]) => [v, k]))
+      output_mapping: {}
     },
     metadata: {
       ...nodeData.metadata,
       databaseId: databaseId.value
     },
     version: (nodeData.version || 0) + 1
+  }
+
+  if (!!dataId.value && dataId.value !== '') {
+    newData.config.output_mapping = {
+      [dataId.value]: '${data.id}'
+    }
   }
 
   node.setData(newData, { overwrite: true, deep: true, silent: false })
@@ -134,8 +148,7 @@ async function getTableList() {
       pageNum: 0,
       pageSize: 1000
     }
-    const data = await newAdminApi.postDynamicDbTablePage(pageParams).then((r: any) => r.data)
-    tableList.value = data.entryList
+    tableList.value = await newClientApi.getDynamicDbTableList(pageParams).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
   }
@@ -195,8 +208,8 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="Return Recorde Id">
-      <el-select v-model="dataId" filterable clearable>
-        <el-option v-for="item in getVariables('string')" :key="item.id" :label="item.name" :value="item.id" />
+      <el-select v-model="dataId" filterable clearable @change="update">
+        <el-option v-for="item in stringVariables" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-divider />

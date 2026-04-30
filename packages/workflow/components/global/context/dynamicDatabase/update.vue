@@ -139,12 +139,7 @@ async function getTableList() {
       pageNum: 0,
       pageSize: 1000
     }
-    const data = await newAdminApi
-      .postDynamicDbTablePage(pageParams, {
-        headers: generatorHTTPRequestTaskHeaders()
-      })
-      .then((r: any) => r.data)
-    tableList.value = data.entryList
+    tableList.value = await newClientApi.getDynamicDbTableList(pageParams).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
   }

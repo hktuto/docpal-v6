@@ -88,8 +88,7 @@ export const getServiceTaskItemConfig = {
     method: 'PUT',
     url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
     headers: generatorHTTPRequestTaskHeaders(),
-    body: {},
-    output_mapping: {}
+    body: {}
   }
 }
 
