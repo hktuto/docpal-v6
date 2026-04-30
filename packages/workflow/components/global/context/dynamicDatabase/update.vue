@@ -201,7 +201,7 @@ watch(
 
     <el-divider />
 
-    <el-form-item label="Recorde Id">
+    <el-form-item label="Record Id">
       <el-select v-model="dataId" filterable @change="update">
         <el-option v-for="item in getVariables('string')" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>

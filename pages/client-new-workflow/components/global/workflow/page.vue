@@ -2,9 +2,19 @@
 const activeTab = ref('allTask')
 const workflowRef = ref()
 
+const { workflowType } = defineProps<{
+  workflowType: string
+}>()
+
 function reload() {
   // workflowRef.value.reloadTable()
 }
+
+onMounted(() => {
+  if (!!workflowType) {
+    activeTab.value = workflowType
+  }
+})
 </script>
 
 <template>

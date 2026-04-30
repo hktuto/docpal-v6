@@ -1,5 +1,3 @@
-import { WorkflowNewTabStarterPage } from '#components'
-
 export const routeWorkflowDetail = function (params: any) {
   return {
     id: 'workflow-detail-versions-' + new Date().getTime(),

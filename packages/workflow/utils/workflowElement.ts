@@ -675,8 +675,6 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New User Task',
       documentation: '',
       type: CellType.userTask,
-      inputSchema: '',
-      outputSchema: '',
       config: {
         assignee: '',
         candidate_roles: [],
@@ -709,8 +707,6 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Signature Task',
       documentation: '',
       type: CellType.userTask,
-      inputSchema: '',
-      outputSchema: '',
       config: {
         assignee: '',
         candidate_roles: [],
@@ -821,9 +817,6 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/http-task.svg'
       },
-      celCondition: '',
-      inputSchema: '',
-      outputSchema: ''
     }
   },
   UniqueIdGenerator: {

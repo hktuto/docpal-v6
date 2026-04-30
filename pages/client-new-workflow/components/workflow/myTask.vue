@@ -23,7 +23,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   columns: [
     { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status', title: 'dpTable_status', slots: { default: 'assignee' } },
+    { field: 'status', title: 'dpTable_status' },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -48,7 +48,6 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      name: row.taskInstance.businessKey,
       workflowType: 'myTask'
     }),
     false
@@ -63,15 +62,12 @@ defineExpose({ reloadTable })
 </script>
 
 <template>
-  <div>
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons> </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
-      </template>
-    </VxeGrid>
-  </div>
+  <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+    <template #toolbar_buttons></template>
+    <template #assignee="{ row }">
+      <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
+    </template>
+  </VxeGrid>
 </template>
 
 <style lang="scss" scoped>

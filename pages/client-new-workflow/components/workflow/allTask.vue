@@ -68,7 +68,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
-  if (!row.id || row.id === '') return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -116,10 +115,6 @@ defineExpose({ reloadTable })
         >
           {{ $t('workflow_claim') }}
         </el-button>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.status === 'created'" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
       </template>
     </VxeGrid>
   </div>

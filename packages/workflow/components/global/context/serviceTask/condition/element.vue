@@ -12,7 +12,7 @@ const formData = ref<{
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
   val_type: 'is_null' | 'string' | 'number' | 'boolean'
   field: string
-  condition: 'contains' | 'is' | 'eq' | 'gt'
+  condition: '==' | '>' | '>=' | '<' | '<='
   value: string | number | boolean
 }>()
 const selectedType = computed(() => {
@@ -28,16 +28,28 @@ const allVariables = computed(() => {
 
   return getVariablesByType(typeList)
 })
-const defCondition = [{ label: 'Contains', value: 'contains' }]
 const typeOptions = ref([
-  { label: 'Is Empty', value: 'is_null', condition: defCondition },
-  { label: 'String Validation', value: 'string_validation', condition: defCondition },
+  { label: 'Is Empty', value: 'is_null', condition: [{ label: 'Equal', value: '==' }] },
+  {
+    label: 'String Validation',
+    value: 'string_validation',
+    condition: [
+      { label: 'Contains', value: 'contains' },
+      { label: 'Equal', value: '==' }
+    ]
+  },
   {
     label: 'Numbering Validation',
     value: 'numbering_validation',
-    condition: [...defCondition, { label: 'Is Greater Than', value: 'eq' }, { label: 'Is Less Than', value: 'gt' }]
+    condition: [
+      { label: 'Equal', value: '==' },
+      { label: 'Is Greater Than', value: '>' },
+      { label: 'Greater Than Or Equal', value: '>=' },
+      { label: 'Is Less Than', value: '<' },
+      { label: 'Less Than Or Equal', value: '<=' }
+    ]
   },
-  { label: 'Boolean Validation', value: 'bool_validation', condition: defCondition }
+  { label: 'Boolean Validation', value: 'bool_validation', condition: [{ label: 'Equal', value: '==' }] }
 ])
 const conditionOption = computed(() => {
   return typeOptions.value.find((item: any) => item.value === formData.value?.type)?.condition || []
@@ -45,7 +57,7 @@ const conditionOption = computed(() => {
 
 function typeChange() {
   formData.value.field = ''
-  formData.value.condition = 'contains'
+  formData.value.condition = '=='
   switch (selectedType.value) {
     case 'is_null':
       formData.value.val_type = 'is_null'

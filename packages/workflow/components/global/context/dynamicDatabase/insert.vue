@@ -207,7 +207,7 @@ watch(
         <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-    <el-form-item label="Return Recorde Id">
+    <el-form-item label="Return Record Id">
       <el-select v-model="dataId" filterable clearable @change="update">
         <el-option v-for="item in stringVariables" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
