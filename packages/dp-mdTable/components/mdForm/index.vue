@@ -2,13 +2,28 @@
   <ElForm ref="formRef" :model="formData" label-position="top">
     <component
       :is="getComponent(column.business_type)"
-      v-for="column in normalizedColumns"
+      v-for="column in displayColumns"
       :key="column.id || column.field_name"
       :form-data="formData"
       :column="column"
       :disabled="mode === 'edit' && systemFieldsTypes.includes(column.business_type)"
       field-name="field_name"
     />
+    <el-button v-if="hiddenColumns.length > 0" class="hidden-columns-button" plain text :icon="CaretRight" :class="{ 'is-rotate': showHiddenColumns }" @click="showHiddenColumns = !showHiddenColumns">
+      Hidden Columns({{ hiddenColumns.length }})
+    </el-button>
+    <template v-if="showHiddenColumns">
+      <el-divider border-style="dashed" />
+      <component
+        :is="getComponent(column.business_type)"
+        v-for="column in hiddenColumns"
+        :key="column.id || column.field_name"
+        :form-data="formData"
+        :column="column"
+        :disabled="mode === 'edit' && systemFieldsTypes.includes(column.business_type)"
+        field-name="field_name"
+      />
+    </template>
   </ElForm>
   <MdFormPopover
     v-if="originalShow"
@@ -22,6 +37,7 @@
 
 <script setup lang="ts">
 import { resolveComponent } from 'vue'
+import { CaretRight } from '@element-plus/icons-vue'
 import { ColumnFieldType, reverseColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
@@ -29,6 +45,7 @@ const props = defineProps<{
   columns: any[]
   systemFieldsTypes: any[]
 }>()
+const showHiddenColumns = ref(false)
 const originalShow = ref(false)
 const componentMap = {
   Text: resolveComponent('LazyMdFormFieldText'),
@@ -58,16 +75,9 @@ const getComponent = (type: string) => {
   const s_type = reverseColumnFieldType[type]
   return componentMap[s_type] || resolveComponent('LazyMdFormFieldDisabled')
 }
-const normalizedColumns = computed(() => {
-  if (!props.columns) return []
-  return props.columns.map((column: any) => {
-    return {
-      ...column,
-      field: column.field ?? column.field_name,
-      title: column.title ?? column.field_name_alias ?? column.field_name
-    }
-  })
-})
+const hiddenColumns = ref([])
+const displayColumns = ref([])
+
 const unEditableFields = [ColumnFieldType.VirtualColumn, ColumnFieldType.Formula, ColumnFieldType.AggVirtualColumn]
 const formRef = ref()
 const getFormData = async () => {
@@ -99,9 +109,35 @@ function handleOriginalClick(id: any) {
 function handleOriginalSubmit(data: any) {
   console.log('handleOriginalSubmit', data)
 }
+watch(
+  () => props.columns,
+  (newVal) => {
+    if (!props.columns) return []
+    const normalizedColumns = props.columns.map((column: any) => {
+      return {
+        ...column,
+        field: column.field ?? column.field_name,
+        title: column.title ?? column.field_name_alias ?? column.field_name
+      }
+    })
+    hiddenColumns.value = normalizedColumns.filter((column: any) => column.hidden)
+    displayColumns.value = normalizedColumns.filter((column: any) => !column.hidden)
+  },
+  {
+    immediate: true
+  }
+)
 defineExpose({
   getFormData
 })
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.hidden-columns-button {
+  padding: 0 var(--app-space-xs);
+}
+.is-rotate :deep(.el-icon) {
+  transform: rotate(90deg);
+  transition: transform 0.3s ease-in-out;
+}
+</style>
