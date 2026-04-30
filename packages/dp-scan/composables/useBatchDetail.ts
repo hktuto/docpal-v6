@@ -913,7 +913,9 @@ export function normalizeDocumentData(detail: any, setting: any): void {
               item[fieldKey] = item[fieldKey].replaceAll('(', '').replaceAll(')', '')
             }
             // check if value is a DOB
-            if(fieldKey.includes('DOB')) {
+
+            if (fieldKey.includes('DOB')) {
+               console.log("DOB", fieldKey, item)
               // check if is a valid DD/MM/YYYY , if not make it YYYY-MM-DD
               const dateStr = item[fieldKey]
               const dateParts = dateStr.split('/')
@@ -924,6 +926,7 @@ export function normalizeDocumentData(detail: any, setting: any): void {
               //check if MM　is equal or small than 12
               if (parseInt(dateParts[1]) > 12) {
                 item[fieldKey] = ''
+
               }
 
             }
@@ -933,7 +936,7 @@ export function normalizeDocumentData(detail: any, setting: any): void {
 
         Object.keys(section).forEach((fieldKey) => {
           // check if value is a DOB
-          if(fieldKey.includes('DOB')) {
+          if (fieldKey.includes('DOB')) {
             // check if is a valid DD/MM/YYYY , if not make it YYYY-MM-DD
             const dateStr = detail.newResultJson[sectionKey][fieldKey]
             const dateParts = dateStr.split('/')
@@ -1281,7 +1284,6 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
     statePerson: Person
   }
 
-  console.log("familyClassCalulation result", result)
   return result;
 }
 

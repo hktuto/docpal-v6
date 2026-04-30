@@ -409,13 +409,24 @@ defineExpose({
               />
             </ElSelect>
             <template v-else-if="field.type === 'date'">
-
-              <ElDatePicker
+            <FormCustomDatePicker
+                v-model="field.currentValue"
+                 :class="{fieldInput: true, edited: isFieldModified(field)}"
+                 :disabled="readonly"
+                :format="field.format || 'DD/MM/YYYY'"
+                :value-format="field.format || 'DD/MM/YYYY'"
+                :disabled-date="(d) => getDisabledDate(field, d)"
+                clearable
+                placeholder="Enter date"
+                @focus="handleFieldMouseEnter(field)"
+                @update:model-value="(val) => handleFieldChange(field, val)"
+            />
+              <!-- <ElDatePicker
                 :modelValue="field.currentValue"
                 :size="formSize"
-                :class="{fieldInput: true, edited: isFieldModified(field)}"
 
-                :disabled="readonly"
+
+
                 :format="field.format || 'DD/MM/YYYY'"
                 :value-format="field.format || 'DD/MM/YYYY'"
                  :disabled-date="(d) => getDisabledDate(field, d)"
@@ -423,7 +434,7 @@ defineExpose({
 
                 @focus="handleFieldMouseEnter(field)"
                 @update:model-value="(val) => handleFieldChange(field, val)"
-              />
+              /> -->
               <!-- currentValue:{{field.currentValue}} -->
             </template>
             <!-- Regular text input -->
@@ -529,8 +540,16 @@ defineExpose({
                 </ElSelect>
 
                 <template v-else-if="field.type === 'date'">
-
-                  <ElDatePicker
+                    <FormCustomDatePicker
+                    :modelValue="field.currentValue"
+                    :format="field.format || 'DD/MM/YYYY'"
+                    :value-format="field.format || 'DD/MM/YYYY'"
+                    :disabled="readonly"
+                    :disabled-date="(d) => getDisabledDate(field, d)"
+                    placeholder="Enter date"
+                    @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
+                  />
+                  <!-- <ElDatePicker
                     :modelValue="field.currentValue"
                     :size="formSize"
                     :class="{fieldInput: true, edited: isFieldModified(field)}"
@@ -541,7 +560,7 @@ defineExpose({
                     :disabled-date="(d) => getDisabledDate(field, d)"
                     @focus="handleTableFieldMouseEnter(field)"
                     @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
-                  />
+                  /> -->
                   <!-- currentValue:{{field.currentValue}} -->
                 </template>
 
