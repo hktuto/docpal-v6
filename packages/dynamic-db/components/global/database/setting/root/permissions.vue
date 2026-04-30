@@ -2,9 +2,16 @@
 import { clientApi } from 'api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useSingleDatabaseContext } from '../../../../../composables/useSignleDatabase'
+import { useUserId } from '../../../../../../authApp/composables/useAuth'
 import AddDatabasePermissionDialog from '../../../../database/permission/AddDatabasePermissionDialog.vue'
+import type { PermissionRow, PermissionLevel } from '../../../../../composables/useSignleDatabase'
 
-const { database } = useSingleDatabaseContext()
+const { database, permissions, permissionsLoading, getPermissions } = useSingleDatabaseContext()
+const currentUserId = useUserId()
+
+function isCurrentUser(row: PermissionRow): boolean {
+  return row.targetType === 1 && row.targetId === currentUserId.value
+}
 
 /* ─── Permission ID reference ───
  * 47 : database:read   (Member)
@@ -20,25 +27,6 @@ const PERMISSION_IDS = {
   Member: [47],
   Manage: [47, 48, 49]
 } as const
-
-type PermissionLevel = 'Member' | 'Manage'
-
-interface PermissionRow {
-  id: string
-  targetId: string
-  targetName: string
-  targetType: number        // 1 = user, 2 = role, 3 = group
-  permissionLevel: PermissionLevel
-  permissionIds: number[]
-  isInherit: boolean
-  inheritFrom: string
-  loading: boolean
-}
-
-const permissionState = reactive({
-  loading: false,
-  tableData: [] as PermissionRow[]
-})
 
 const addPermissionDialogRef = ref()
 
@@ -61,30 +49,26 @@ function getTargetLabel(targetType: number): string {
 }
 
 async function handleAddPermission() {
-  // TODO: populate user/role/group lists before opening
-  // await loadUsers()
-  // await loadRoles()
-  // await loadGroups()
-  //
-  // addPermissionDialogRef.value.users.value = usersFromApi
-  // addPermissionDialogRef.value.roles.value = rolesFromApi
-  // addPermissionDialogRef.value.groups.value = groupsFromApi
-
   addPermissionDialogRef.value?.open()
 }
 
-function handleDialogSubmit(data: {
+async function handleDialogSubmit(data: {
   targetType: number
   targetId: string
   targetName: string
-  permissionLevel: 'Member' | 'Manage'
+  permissionLevel: PermissionLevel
   permissionIds: number[]
 }) {
-  // TODO: call create permission API
   console.log('Create permission payload:', data)
-
-  // After successful creation, refresh the list
-  // getPermissions()
+  const response = await clientApi.instance.post('/v2/acl/resource-permissions', {
+    ...data,
+    resourceId: database.value.id,
+    resourceType: 2
+  }, {
+    baseURL: '/gateway',
+  })
+  console.log('handleDialogSubmit', response)
+  await getPermissions()
 }
 
 async function handleRemovePermission(row: PermissionRow) {
@@ -103,12 +87,11 @@ async function handleRemovePermission(row: PermissionRow) {
         type: 'warning'
       }
     )
-
-    // TODO: call delete API
-    // const index = permissionState.tableData.indexOf(row)
-    // if (index > -1) permissionState.tableData.splice(index, 1)
-
+    await clientApi.instance.delete('/v2/acl/resource-permissions/' + row.id, {
+      baseURL: '/gateway'
+    })
     ElMessage.success('Permission removed successfully')
+    await getPermissions()
   } catch {
     // User cancelled
   }
@@ -130,10 +113,10 @@ async function handlePermissionChange(level: PermissionLevel, row: PermissionRow
       permissionIds: PERMISSION_IDS[level]
     }
 
-    // TODO: call update API with payload
-    console.log('Update permission payload:', payload)
-
-    // Optimistically update local state
+    const response = await clientApi.instance.put('/v2/acl/resource-permissions/' + row.id, payload, {
+      baseURL: '/gateway'
+    })
+    console.log('update response', response)
     row.permissionLevel = level
     row.permissionIds = [...PERMISSION_IDS[level]]
 
@@ -145,40 +128,10 @@ async function handlePermissionChange(level: PermissionLevel, row: PermissionRow
     row.loading = false
   }
 }
-
-async function getPermissions() {
-  permissionState.loading = true
-  try {
-    const { data } = await clientApi.instance.get(
-      `/v2/acl/resource-permissions/resource/${database.value.id}?resourceType=2`,
-      { baseURL: '/gateway' }
-    ).then(res => res.data)
-    permissionState.tableData = data.map((item: any) => ({
-      id: item.id,
-      targetId: item.targetId,
-      targetName: item.targetName || item.targetId,
-      targetType: item.targetType ?? 1,
-      permissionLevel: item.permissionLevel === 'Manage' ? 'Manage' : 'Member',
-      permissionIds: item.permissionIds || [],
-      isInherit: !!item.isInherit,
-      inheritFrom: item.inheritFrom || '-',
-      loading: false
-    }))
-  } catch (error) {
-    console.error('Failed to load permissions:', error)
-    ElMessage.error('Failed to load permissions')
-  } finally {
-    permissionState.loading = false
-  }
-}
-
-onMounted(() => {
-  getPermissions()
-})
 </script>
 
 <template>
-  <el-card class="setting-section" v-loading="permissionState.loading">
+  <el-card class="setting-section" v-loading="permissionsLoading">
     <template #header>
       <div class="card-header">
         <h3>Permissions</h3>
@@ -193,7 +146,7 @@ onMounted(() => {
     </div>
 
     <div class="table-container">
-      <el-table :data="permissionState.tableData" style="width: 100%">
+      <el-table :data="permissions" style="width: 100%">
         <el-table-column label="Target" min-width="220">
           <template #default="{ row }">
             <div class="user-cell">
@@ -227,7 +180,7 @@ onMounted(() => {
             <el-radio-group
               v-model="row.permissionLevel"
               size="small"
-              :disabled="row.isInherit || row.loading"
+              :disabled="row.isInherit || row.loading || isCurrentUser(row)"
               @change="(level: any) => handlePermissionChange(level, row)"
             >
               <el-radio-button label="Member">Member</el-radio-button>
@@ -259,7 +212,7 @@ onMounted(() => {
               type="danger"
               plain
               :loading="row.loading"
-              :disabled="row.isInherit"
+              :disabled="row.isInherit || isCurrentUser(row)"
               @click="handleRemovePermission(row)"
             >
               Remove
@@ -272,6 +225,7 @@ onMounted(() => {
 
   <AddDatabasePermissionDialog
     ref="addPermissionDialogRef"
+    :exist-list="permissions"
     @submit="handleDialogSubmit"
   />
 </template>

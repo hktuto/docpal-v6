@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { openMenuItemActions: openActions, database, navigateToItem, updateDatabase, databaseMenuRouteParams } = useSingleDatabaseContext()
+const { openMenuItemActions: openActions, database, navigateToItem, updateDatabase, databaseMenuRouteParams, currentUserPermission } = useSingleDatabaseContext()
+
+const canManageDatabase = computed(() => currentUserPermission.value === 'Manage')
 const editIconRef = ref<HTMLElement>()
 const routerProvider = inject(MenuRouterKey)
 function handleOpenActions() {
@@ -14,8 +16,8 @@ function handleIconSelected(icon: string) {
 
 function openDatabaseSetting() {
   databaseMenuRouteParams.value = {
-    detailType: 'root',
-    detailId: 'setting'
+    pageType: 'setting',
+    detailType: 'root'
   }
 }
 
@@ -43,10 +45,10 @@ function goBackList() {
     </div>
     <h3 @click="navigateToItem()">{{ database?.name }}</h3>
     <div class="actions">
-      <div class="actionIcon" ref="editIconRef" @click="openDatabaseSetting">
+      <div v-if="canManageDatabase" class="actionIcon" ref="editIconRef" @click="openDatabaseSetting">
         <Icon name="material-symbols:edit" />
       </div>
-      <div class="actionIcon" ref="editIconRef" @click="handleOpenActions">
+      <div  v-if="canManageDatabase" class="actionIcon" ref="editIconRef" @click="handleOpenActions">
         <Icon name="material-symbols:add" />
       </div>
     </div>
@@ -57,6 +59,9 @@ function goBackList() {
 .backIcon {
   font-size: var(--app-font-size-l);
   cursor: pointer;
+}
+.actionIcon{
+    cursor: pointer;
 }
 .iconContainer {
   --icon-size: var(--app-font-size-m);

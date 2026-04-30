@@ -1,6 +1,21 @@
 import type { DatabaseItem, DatabaseMenuRouteParams } from '../../../utils/databaseType'
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
+import { useUserId } from '../../authApp/composables/useAuth'
 import { MenuType } from '@packages/dp-mdTable/types/menu-type'
+
+export type PermissionLevel = 'Member' | 'Manage'
+
+export interface PermissionRow {
+  id: string
+  targetId: string
+  targetName: string
+  targetType: number
+  permissionLevel: PermissionLevel
+  permissionIds: number[]
+  isInherit: boolean
+  inheritFrom: string
+  loading: boolean
+}
 // Menu state for component
 export interface MenuState {
   items: MenuDTO[]
@@ -18,8 +33,12 @@ export interface SingleDatabaseCopntext {
   menuActionsRef: Ref<any | null>
   menuState: Ref<MenuState>
   databaseMenuRouteParams: Ref<DatabaseMenuRouteParams>
+  permissions: Ref<PermissionRow[]>
+  permissionsLoading: Ref<boolean>
+  currentUserPermission: Ref<PermissionLevel | null>
   getDatabaseById: (id: string) => Promise<void>
   updateDatabase: (database?: CaseTypeRecord) => Promise<void>
+  getPermissions: () => Promise<void>
   openMenuItemActions: (data: { item: TreeItem | null; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) => void
   // Menu functions
   startEdit: (id: string) => void
@@ -40,6 +59,12 @@ export interface SingleDatabaseCopntext {
 
 export const useSingleDatabase = () => {
   const database = ref<CaseTypeRecord | null>(null)
+  const currentUserId = useUserId()
+
+  // Permissions
+  const permissions = ref<PermissionRow[]>([])
+  const permissionsLoading = ref(false)
+  const currentUserPermission = ref<PermissionLevel | null>(null)
 
   // menu action logic
   const menuActionsRef = ref()
@@ -68,6 +93,42 @@ export const useSingleDatabase = () => {
       return
     }
     database.value = data as CaseTypeRecord
+    await getPermissions()
+  }
+
+  async function getPermissions() {
+    if (!database.value?.id) return
+    permissionsLoading.value = true
+    try {
+      const { data } = await clientApi.instance.get(
+        `/v2/acl/resource-permissions/resource/${database.value.id}?resourceType=2`,
+        { baseURL: '/gateway' }
+      ).then(res => res.data)
+
+      permissions.value = data.map((item: any) => ({
+        id: item.id,
+        targetId: item.targetId,
+        targetName: item.targetName || item.targetId,
+        targetType: item.targetType ?? 1,
+        permissionLevel: item.permissionLevel === 'Manage' ? 'Manage' : 'Member',
+        permissionIds: item.permissionIds || [],
+        isInherit: !!item.isInherit,
+        inheritFrom: item.inheritFrom || '-',
+        loading: false
+      }))
+
+      // Find current user's permission level
+      const userPerm = permissions.value.find(
+        (p) => p.targetType === 1 && p.targetId === currentUserId.value
+      )
+      currentUserPermission.value = userPerm?.permissionLevel || null
+    } catch (error) {
+      console.error('Failed to load permissions:', error)
+      permissions.value = []
+      currentUserPermission.value = null
+    } finally {
+      permissionsLoading.value = false
+    }
   }
 
   async function updateDatabase(newDatabaseData: DatabaseItem) {
@@ -361,8 +422,12 @@ export const useSingleDatabase = () => {
     menuActionsRef,
     menuState,
     databaseMenuRouteParams,
+    permissions,
+    permissionsLoading,
+    currentUserPermission,
     getDatabaseById,
     updateDatabase,
+    getPermissions,
     openMenuItemActions,
     startEdit,
     saveEdit,

@@ -1,10 +1,23 @@
 <script lang="ts" setup>
+import { ElMessage } from 'element-plus'
 const props = defineProps<{
   id: string
   detailId: string | null
   detailType: 'root' | 'folder' | 'master_table' | 'view' | 'dashboard'
 }>()
-const { database, menuActionsRef, getDatabaseById, databaseMenuRouteParams } = useSingleDatabase()
+const { database, menuActionsRef, getDatabaseById, databaseMenuRouteParams, currentUserPermission } = useSingleDatabase()
+
+const canManageDatabase = computed(() => currentUserPermission.value === 'Manage')
+
+// Redirect away from setting pages if user lacks Manage permission
+watch(
+  () => databaseMenuRouteParams.value.pageType,
+  (pageType) => {
+    if (pageType === 'setting' && !canManageDatabase.value) {
+      databaseMenuRouteParams.value.pageType = 'detail'
+    }
+  }
+)
 
 // Responsive sidebar state
 const pageContainerRef = ref<HTMLElement | null>(null)
@@ -59,6 +72,10 @@ function closeSidebarOnMobile() {
 }
 
 function openSetting() {
+  if (!canManageDatabase.value) {
+    ElMessage.warning('You do not have permission to access settings')
+    return
+  }
   databaseMenuRouteParams.value.pageType = 'setting'
 }
 
@@ -153,7 +170,7 @@ watch(
               </template>
               <template #right>
                 <div id="database-table-header-right" />
-                <template v-if="databaseMenuRouteParams.pageType !== 'setting'">
+                <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canManageDatabase">
                   <Icon name="lucide:settings" class="header-action" @click="openSetting" />
                 </template>
                 <template v-if="databaseMenuRouteParams.pageType === 'setting'">
@@ -181,7 +198,7 @@ watch(
             </template>
             <template #right>
               <div id="database-table-header-right" />
-              <template v-if="databaseMenuRouteParams.pageType !== 'setting'">
+              <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canManageDatabase">
                 <Icon name="lucide:settings" class="header-action" @click="openSetting" />
               </template>
               <template v-if="databaseMenuRouteParams.pageType === 'setting'">

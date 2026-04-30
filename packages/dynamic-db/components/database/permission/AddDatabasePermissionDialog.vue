@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-
+import { clientApi } from 'api'
 /* ─── Permission ID reference ───
  * 47 : database:read   (Member)
  * 48 : database:manage (Manage)
@@ -15,28 +15,80 @@ type PermissionLevel = 'Member' | 'Manage'
 
 interface TargetOption {
   id: string
-  name: string
+  name?: string        // role / group name
+  username?: string    // user login name
 }
 
 interface PermissionFormData {
   targetType: number
   targetId: string
-  targetName: string
   permissionLevel: PermissionLevel
   permissionIds: number[]
 }
+const props = defineProps<{
+  existList: { targetType: number; targetId: string }[]
+}>()
 
+// Check if a target already has a permission entry
+function isExistingTarget(targetType: number, targetId: string): boolean {
+  return props.existList.some(
+    (item) => item.targetType === targetType && item.targetId === targetId
+  )
+}
 const emit = defineEmits<{
   submit: [data: PermissionFormData]
 }>()
 
 const dialogVisible = ref(false)
 const submitting = ref(false)
+const targetsLoading = ref(false)
 
 // ─── Target lists (populate via API) ───
 const users = ref<TargetOption[]>([])
 const roles = ref<TargetOption[]>([])
 const groups = ref<TargetOption[]>([])
+
+// ─── Load targets (called when dialog opens) ───
+async function loadTargets() {
+  targetsLoading.value = true
+  try {
+    await Promise.all([
+      loadUsers(),
+      loadRoles(),
+      loadGroups()
+    ])
+  } finally {
+    targetsLoading.value = false
+  }
+}
+
+async function loadUsers() {
+  const { data } = await clientApi.admin.postUcenterGetKeycloakAllUsers()
+  users.value = (data || []).map((u: any) => ({
+    id: u.userId,
+    username: u.username,
+    name: u.name || u.email || u.username
+  }))
+}
+
+async function loadRoles() {
+  const { data } = await clientApi.api.postDocpalAclRolePage({
+    pageNum: 0,
+    pageSize: 1000
+  })
+  roles.value = (data?.entryList || []).map((r: any) => ({
+    id: r.id,
+    name: r.name
+  }))
+}
+
+async function loadGroups() {
+  const { data } = await clientApi.admin.postUcenterGroups()
+  groups.value = (data || []).map((g: any) => ({
+    id: g.id,
+    name: g.name
+  }))
+}
 
 const selectedTarget = ref('')
 const targetName = ref('')
@@ -52,9 +104,16 @@ watch(selectedTarget, (val) => {
   const type = parseInt(typeStr, 10)
   const id = idParts.join(':')
 
-  if (type === 1) targetName.value = users.value.find((u) => u.id === id)?.name || id
-  else if (type === 2) targetName.value = roles.value.find((r) => r.id === id)?.name || id
-  else if (type === 3) targetName.value = groups.value.find((g) => g.id === id)?.name || id
+  if (type === 1) {
+    const u = users.value.find((x) => x.id === id)
+    targetName.value = u?.username || u?.name || id
+  } else if (type === 2) {
+    const r = roles.value.find((x) => x.id === id)
+    targetName.value = r?.name || id
+  } else if (type === 3) {
+    const g = groups.value.find((x) => x.id === id)
+    targetName.value = g?.name || id
+  }
 })
 
 // ─── Dropdown options ───
@@ -70,19 +129,25 @@ const selectGroups = computed<SelectGroup[]>(() => [
     label: 'Users',
     type: 1,
     icon: 'lucide:user',
-    options: users.value.map((u) => ({ value: `1:${u.id}`, label: u.name }))
+    options: users.value
+      .filter((u) => !isExistingTarget(1, u.id))
+      .map((u) => ({ value: `1:${u.id}`, label: u.username || u.name || u.id }))
   },
   {
     label: 'Roles',
     type: 2,
     icon: 'lucide:shield',
-    options: roles.value.map((r) => ({ value: `2:${r.id}`, label: r.name }))
+    options: roles.value
+      .filter((r) => !isExistingTarget(2, r.id))
+      .map((r) => ({ value: `2:${r.id}`, label: r.name || r.id }))
   },
   {
     label: 'Groups',
     type: 3,
     icon: 'lucide:users',
-    options: groups.value.map((g) => ({ value: `3:${g.id}`, label: g.name }))
+    options: groups.value
+      .filter((g) => !isExistingTarget(3, g.id))
+      .map((g) => ({ value: `3:${g.id}`, label: g.name || g.id }))
   }
 ].filter((g) => g.options.length > 0))
 
@@ -93,17 +158,25 @@ const parsedTarget = computed(() => {
   const type = parseInt(typeStr, 10)
   const id = idParts.join(':')
 
-  let name = ''
-  if (type === 1) name = users.value.find((u) => u.id === id)?.name || id
-  else if (type === 2) name = roles.value.find((r) => r.id === id)?.name || id
-  else if (type === 3) name = groups.value.find((g) => g.id === id)?.name || id
+  let displayName = ''
+  if (type === 1) {
+    const u = users.value.find((x) => x.id === id)
+    displayName = u?.username || u?.name || id
+  } else if (type === 2) {
+    const r = roles.value.find((x) => x.id === id)
+    displayName = r?.name || id
+  } else if (type === 3) {
+    const g = groups.value.find((x) => x.id === id)
+    displayName = g?.name || id
+  }
 
-  return { type, id, name }
+  return { type, id, name: displayName }
 })
 
 // ─── Dialog control ───
-function open() {
+async function open() {
   resetForm()
+  await loadTargets()
   dialogVisible.value = true
 }
 
@@ -132,7 +205,6 @@ async function handleSubmit() {
   const payload: PermissionFormData = {
     targetType: type,
     targetId: id,
-    targetName: targetName.value || id,
     permissionLevel: level,
     permissionIds: [...PERMISSION_IDS[level]]
   }
@@ -172,6 +244,7 @@ defineExpose({
           placeholder="Search and select user, role or group"
           filterable
           clearable
+          :loading="targetsLoading"
           style="width: 100%"
         >
           <el-option-group
