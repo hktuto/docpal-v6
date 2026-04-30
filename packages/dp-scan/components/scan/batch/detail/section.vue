@@ -310,7 +310,7 @@ watch(() => props.section,()=>{
     validateForm()
     if(props.section.save_to_result) {
       getSectionImage()
-      // focusSection()
+      focusSection()
     }
   })
 },{
