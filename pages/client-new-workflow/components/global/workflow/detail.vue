@@ -72,14 +72,20 @@ async function getDetail() {
     const findNode = workflowJson.value.nodes.find((node: any) => node.id == data.node_id)
     if (!!findNode) {
       nodeType.value = findNode.metadata.type
-      switch (nodeType.value) {
-        case CellType.userTask:
-          break
-        case CellType.signatureTask:
-          await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
-          break
-        default:
+
+      // assignee
+      if (userId === data.assignee) {
+        switch (nodeType.value) {
+          case CellType.userTask:
+            await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
+            break
+          case CellType.signatureTask:
+            await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
+            break
+          default:
+        }
       }
+
       await initForm(findNode)
     }
   } catch (error) {

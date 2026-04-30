@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { newAdminApi, newClientApi } from 'api'
 import type { Node } from '@antv/x6'
-import { generatorHTTPRequestTaskHeaders } from '#imports'
 
 const { t } = useI18n()
 const { node } = defineProps<{
@@ -46,14 +45,13 @@ async function init() {
   }
 
   const { pathname } = new URL(data.config.url)
-  const tableIdMatch = pathname.match(/\/table\/([^/]+)\/record\/?$/)
-  tableId.value = tableIdMatch ? tableIdMatch[1] : ''
+  const match = pathname.match(/\/dynamic-db\/table\/([^/]+)\/record\/([^/]+)/)
+  tableId.value = match ? match[1] : ''
   if (tableId.value != '') {
     await getTableConfig()
   }
-
-  const dataIdMatch = pathname.match(/\/record\/([^/]+)$/)
-  dataId.value = dataIdMatch ? dataIdMatch[1] : ''
+  const recordRaw = match ? match[2] : ''
+  dataId.value = recordRaw ? decodeURIComponent(recordRaw) : ''
 
   // Set updateFieldsList data
   if (tableId.value !== '') {
@@ -175,6 +173,7 @@ watch(
   () => node,
   async () => {
     if (node) {
+      fieldsList.value = []
       await init()
     }
   },
