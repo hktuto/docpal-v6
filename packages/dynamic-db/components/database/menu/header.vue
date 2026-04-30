@@ -26,7 +26,7 @@ function goBackList() {
     label: 'Demo Workspaces',
     icon: 'icon-park-outline:database-forbid',
     hoverIcon: 'icon-park-outline:database-forbid',
-    component: 'LazyWorkspacesList',
+    component: 'LazyDatabaseList',
     props: {}
   }
   routerProvider?.navigateTo(item)
