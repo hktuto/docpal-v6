@@ -62,8 +62,8 @@ export default defineAppConfig({
     //   name: 'client-workflow'
     // },
     {
-         name: 'client-new-workflow'
-       },
+      name: 'client-new-workflow'
+    },
     {
       label: 'client_retention_item',
       icon: 'ic:outline-lock-clock',
@@ -201,14 +201,13 @@ export default defineAppConfig({
     //   ]
     // },
     {
-         label: 'New Workflow',
-         icon: 'dp-icon:flow-outline',
-         children: [
-           { name: 'admin-new-workflow-manage' },
-           { name: 'admin-new-workflow-edit-manage'}
-         ]
-       },
-
+      label: 'adminMenu.workflow',
+      icon: 'dp-icon:flow-outline',
+      children: [
+        { name: 'admin-new-workflow-manage' },
+        { name: 'admin-new-workflow-edit-manage' }
+      ]
+    },
     {
       label: 'adminMenu.templateManagement',
       icon: 'lucide:layout-template',

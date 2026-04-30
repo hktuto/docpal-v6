@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { newClientApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 import type { Node } from '@antv/x6'
 
 const { node } = defineProps<{
@@ -10,15 +10,30 @@ if (!graphProvider) {
   throw createError('graph provider not found')
 }
 const { getVariablesByType } = useVariablesProvide()
-const databaseId = ref()
-const tableId = ref()
-
+const databaseId = ref<string>('')
+const tableId = ref<string>('')
+const dataId = ref<string>('')
 const dataBaseList = ref([])
 const tableList = ref([])
 const tableFieldList = ref([])
 
+const stringVariables = computed(() => {
+  return getVariablesByType(['string'])
+})
+
 function getVariables(status: string) {
-  return getVariablesByType([status], true)
+  let type: VariableItemType
+  switch (status) {
+    case 'integer':
+      type = 'number'
+      break
+    case 'number':
+      type = 'number'
+      break
+    default:
+      type = 'string'
+  }
+  return getVariablesByType([type], true)
 }
 
 async function init() {
@@ -29,7 +44,7 @@ async function init() {
   }
 
   const { pathname } = new URL(data.config.url)
-  const match = pathname.match(/\/table\/([^/]+)\/data\/?$/)
+  const match = pathname.match(/\/table\/([^/]+)\/record\/?$/)
   tableId.value = match ? match[1] : ''
   if (tableId.value != '') {
     await getTableConfig()
@@ -39,18 +54,29 @@ async function init() {
   if (tableId.value !== '') {
     const dataVariable = data.config.body.data
     tableFieldList.value = tableFieldList.value.map((item: any) => {
-      if (item.name in dataVariable) {
-        item.value = dataVariable[item.name]
+      if (item.id in dataVariable) {
+        item.value = dataVariable[item.id]
       }
       return item
     })
   }
+
+  const keys = Object.keys(data.config.output_mapping)
+  if (keys.length > 0) {
+    keys.forEach((key:string)=>{
+      if (data.config.output_mapping[key] == '${data.id}'){
+        dataId.value = key
+      }
+    })
+  } else {
+    dataId.value = ''
+  }
 }
 
-const path = ref('/api/dynamic-db/table/{tableID}/data')
+const path = ref('/apis/v1/dynamic-db/table/{tableID}/record')
 
 function update() {
-  graphProvider?.graph.value?.startBatch('update-dynamic-database-data')
+  graphProvider?.graph.value?.startBatch('update-insert-dynamic-database-data')
   const nodeData = node.getData()
   const origin = new URL(nodeData.config.url).origin
   const newUrl = origin + path.value.replace('{tableID}', tableId.value)
@@ -58,7 +84,7 @@ function update() {
   const data: any = {}
 
   tableFieldList.value.forEach((item: any) => {
-    data[item.name] = item.value
+    data[item.id] = item.value
   })
 
   const newData = {
@@ -66,7 +92,8 @@ function update() {
     config: {
       ...nodeData.config,
       url: newUrl,
-      body: { data: data }
+      body: { data: data },
+      output_mapping: {}
     },
     metadata: {
       ...nodeData.metadata,
@@ -75,8 +102,14 @@ function update() {
     version: (nodeData.version || 0) + 1
   }
 
+  if (!!dataId.value && dataId.value !== '') {
+    newData.config.output_mapping = {
+      [dataId.value]: '${data.id}'
+    }
+  }
+
   node.setData(newData, { overwrite: true, deep: true, silent: false })
-  graphProvider?.graph.value?.stopBatch('update-dynamic-database-data')
+  graphProvider?.graph.value?.stopBatch('update-insert-dynamic-database-data')
 }
 
 async function changeDataBase() {
@@ -94,10 +127,11 @@ async function changeTable() {
 async function getDataBaseList() {
   try {
     const parms = {
+      status: 'A',
       pageNum: 0,
       pageSize: 1000
     }
-    const data = await newClientApi.postDynamicDbCaseTypesPage(parms).then((r: any) => r.data)
+    const data = await newAdminApi.postDynamicDbCaseTypesPage(parms).then((r: any) => r.data)
     dataBaseList.value = data.entryList
   } catch (e) {
     console.log(e)
@@ -107,15 +141,14 @@ async function getDataBaseList() {
 async function getTableList() {
   try {
     const pageParams = {
-      filters: {
-        databaseId: databaseId.value
-      },
       status: 'A',
+      filters: {
+        entity_id: databaseId.value
+      },
       pageNum: 0,
       pageSize: 1000
     }
-    const data = await newClientApi.postDynamicDbTablePage(pageParams).then((r: any) => r.data)
-    tableList.value = data.entryList
+    tableList.value = await newClientApi.getDynamicDbTableList(pageParams).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
   }
@@ -159,32 +192,6 @@ watch(
     deep: true
   }
 )
-//
-// watch(
-//   () => databaseId.value,
-//   async (newVal, oldVal) => {
-//     if (oldVal === newVal || newVal !== '') return
-//
-//     await getTableList()
-//   },
-//   {
-//     immediate: true,
-//     deep: true
-//   }
-// )
-//
-// watch(
-//   () => tableId.value,
-//   async (newVal, oldVal) => {
-//     if (oldVal === newVal || newVal !== '') return
-//
-//     await getTableConfig()
-//   },
-//   {
-//     immediate: true,
-//     deep: true
-//   }
-// )
 </script>
 
 <template>
@@ -200,7 +207,11 @@ watch(
         <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-
+    <el-form-item label="Return Recorde Id">
+      <el-select v-model="dataId" filterable clearable @change="update">
+        <el-option v-for="item in stringVariables" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
     <el-divider />
 
     <template v-for="item in tableFieldList">

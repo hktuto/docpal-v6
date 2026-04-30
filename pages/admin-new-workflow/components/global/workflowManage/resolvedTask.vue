@@ -8,18 +8,11 @@ if (!routerProvider) {
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'manage_resolved_task',
   api: async (pageParams: any) => {
-    const params = {
-      page_num: pageParams.pageNum,
-      page_size: pageParams.pageSize
-    }
     try {
       const data = await $api.get(`/oniflow/api/v1/task/overview/resolved`).then((r: any) => r.data)
       return {
         data: {
-          entryList: data.items || [],
-          pageNum: data.page_num || 0,
-          pageCount: data.page_size || 1,
-          totalSize: data.total || 0
+          entryList: data || [],
         }
       }
     } catch (e) {

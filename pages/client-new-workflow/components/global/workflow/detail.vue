@@ -72,14 +72,20 @@ async function getDetail() {
     const findNode = workflowJson.value.nodes.find((node: any) => node.id == data.node_id)
     if (!!findNode) {
       nodeType.value = findNode.metadata.type
-      switch (nodeType.value) {
-        case CellType.userTask:
-          break
-        case CellType.signatureTask:
-          await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
-          break
-        default:
+
+      // assignee
+      if (userId === data.assignee) {
+        switch (nodeType.value) {
+          case CellType.userTask:
+            await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
+            break
+          case CellType.signatureTask:
+            await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
+            break
+          default:
+        }
       }
+
       await initForm(findNode)
     }
   } catch (error) {
@@ -226,13 +232,13 @@ async function handleSubmit() {
 }
 
 async function handleSubmitUserTask() {
-  // get form fromData
-  let fromData = await fromRenderRef.value.getFormData(true, false)
+  // get form formData
+  let formData = await fromRenderRef.value.getFormData(true, false)
   if (signSubmitStage.value === 'afterSubmit') {
-    fromData[signatureDetail.value.workflowKeyToStoreSignature] = temSignatureData.value
+    formData[signatureDetail.value.workflowKeyToStoreSignature] = temSignatureData.value
   }
 
-  if (!fromData) throw new Error(`${t('incompleteData')}`)
+  if (!formData) throw new Error(`${t('incompleteData')}`)
 
   // check additional button
   // if additional button has expose "beforeSubmit" method, call it
@@ -244,18 +250,13 @@ async function handleSubmitUserTask() {
   })
 
   const buttonResults = await Promise.all(additionButtonActions)
-  // after check all actions, if any additional fromData need to set to from fromData, set it
+  // after check all actions, if any additional formData need to set to from formData, set it
   buttonResults.forEach((item: any) => {
     if (item && typeof item === 'object') {
-      fromData = { ...fromData, ...item }
+      formData = { ...formData, ...item }
     }
   })
 
-  Object.keys(fromData).forEach((key) => {
-    if (typeof fromData[key] === 'object') {
-      fromData[key] = JSON.stringify(fromData[key])
-    }
-  })
   // conversion FormData
   const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
 

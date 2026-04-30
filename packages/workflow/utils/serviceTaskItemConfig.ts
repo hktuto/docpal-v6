@@ -75,12 +75,20 @@ export const getServiceTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
-  InsertDynamicDatabase:{
+  InsertDynamicDatabase: {
     method: 'POST',
-    url: `${getUrlOrigin()}/api/dynamic-db/table//data`,
+    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
     headers: generatorHTTPRequestTaskHeaders(),
-    body: { },
-    output_mapping: { }
+    body: {},
+    output_mapping: {
+
+    }
+  },
+  UpdateDynamicDatabase:{
+    method: 'PUT',
+    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
+    headers: generatorHTTPRequestTaskHeaders(),
+    body: {}
   }
 }
 
@@ -90,7 +98,7 @@ export function getUrlOrigin() {
 }
 
 // TODO get config setting
-function generatorHTTPRequestTaskHeaders() {
+export function generatorHTTPRequestTaskHeaders() {
   return {
     ServerName: 'docpal-api',
     ServerKey: '14ecdf56081AGSDghw',
