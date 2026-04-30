@@ -23,13 +23,27 @@ const menuContext = useSingleDatabaseContext()
 const popoverRef = ref()
 const importExcelDialogRef = ref()
 const createViewDialogRef = ref()
-const permissionPopoverRef = ref()
+const permissionDialogRef = ref()
+
+const canManageCurrentItem = computed(() => {
+  if (!menuItem.value) return false
+  return menuContext.checkMenuItemPermission(menuItem.value.id, 'Manage')
+})
+
+const canEditCurrentItem = computed(() => {
+  if (!menuItem.value) return false
+  return menuContext.checkMenuItemPermission(menuItem.value.id, 'Edit')
+})
 function close() {
   popoverRef.value?.close()
   setTimeout(() => {
     menuItem.value = null
     isAdmin.value = false
   }, 100)
+}
+
+function openItem() {
+  menuContext.navigateToItem(menuItem.value)
 }
 
 async function handleEdit() {
@@ -123,10 +137,10 @@ function handlePermission(event: MouseEvent) {
   const currentItem = menuItem.value
 
   close()
-  // Open permission popover
+  // Open permission dialog
   nextTick(() => {
     // Pass the saved item data directly to ensure it's available
-    permissionPopoverRef.value?.open(targetRef.value, currentItem)
+    permissionDialogRef.value?.open(targetRef.value, currentItem)
   })
 }
 
@@ -160,13 +174,17 @@ defineExpose({ open, close })
         </div>
       </template>
       <template v-else>
-        <div class="action-item" @click="handleEdit">
+      <div class="action-item" @click="openItem">
+          <Icon :name="menuContext.getMenuIcon(menuItem)" />
+          <span>Open</span>
+      </div>
+        <div v-if="canManageCurrentItem" class="action-item" @click="handleEdit">
           <Icon name="material-symbols:edit-outline" />
           <span>Rename</span>
         </div>
 
         <!-- Permission Action -->
-        <div class="action-item" @click="handlePermission">
+        <div v-if="canManageCurrentItem" class="action-item" @click="handlePermission">
           <Icon name="material-symbols:shield-outline" />
           <span>Permissions</span>
         </div>
@@ -196,14 +214,14 @@ defineExpose({ open, close })
           </div>
         </template>
         <template v-if="menuItem.item_type === 'master_table'">
-          <div class="action-item" @click="handleEditSetting('master_table')">
+          <div v-if="canManageCurrentItem" class="action-item" @click="handleEditSetting('master_table')">
             <Icon name="material-symbols:settings-outline" />
             <span>Table Settings</span>
           </div>
         </template>
         <!-- Delete -->
-        <div class="action-divider" />
-        <div class="action-item danger" @click="handleDelete">
+        <div v-if="canManageCurrentItem" class="action-divider" />
+        <div v-if="canManageCurrentItem" class="action-item danger" @click="handleDelete">
           <Icon name="material-symbols:delete-outline" />
           <span>Delete</span>
         </div>
@@ -217,9 +235,9 @@ defineExpose({ open, close })
   <!-- Create View Dialog -->
   <!-- <WorkspacesDialogsCreateViewDialog ref="createViewDialogRef" @created="handleViewCreated" /> -->
 
-  <!-- Permission Popover -->
-  <WorkspacesPermissionPopover
-    ref="permissionPopoverRef"
+  <!-- Permission Dialog -->
+  <DatabasePermissionMenuItemPermissionDialog
+    ref="permissionDialogRef"
     :item-id="menuItem?.id || ''"
     :item-label="menuItem?.label || ''"
     :item-type="menuItem?.item_type || 'folder'"

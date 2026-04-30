@@ -139,11 +139,7 @@ async function handleRemovePermission(row: PermissionWithUser) {
   }
 }
 
-// Check if current user can manage permissions
-const canManage = computed(() => {
-  const currentUserPermission = permissions.value.find((p) => p.userId === getCurrentUserId())
-  return currentUserPermission?.role === 'manage'
-})
+
 
 // Load on mount
 onMounted(() => {

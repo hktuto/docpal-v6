@@ -14,11 +14,11 @@
             <div class="workspace-table-views__tab-label">
               {{ view.name }}
             </div>
-            <el-button text size="small" :icon="MoreFilled" class="workspace-table-views__tab-more-btn" @click.stop="handleMoreView(view.id, $event)" />
+            <el-button v-if="canManageTable" text size="small" :icon="MoreFilled" class="workspace-table-views__tab-more-btn" @click.stop="handleMoreView(view.id, $event)" />
           </div>
         </template>
       </draggable>
-      <el-dropdown trigger="click" @command="handleAddView">
+      <el-dropdown v-if="canManageTable" trigger="click" @command="handleAddView">
         <button class="workspace-table-views__add-btn el-icon--right" type="button">
           <el-icon :size="16">
             <Plus />
@@ -51,8 +51,10 @@ import { useRelationConfig } from '../../../../composables/table/useRelationConf
 import { Plus, MoreFilled } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 
-const { databaseMenuRouteParams, database } = useSingleDatabaseContext()
+const { databaseMenuRouteParams, database, checkMenuItemPermission } = useSingleDatabaseContext()
 const { setRelationConfig } = useRelationConfig()
+const canManageTable = computed(() => databaseMenuRouteParams.value.detailId && checkMenuItemPermission(databaseMenuRouteParams.value.detailId, 'Manage'))
+
 const tableId = computed(() => databaseMenuRouteParams.value.tableId ?? databaseMenuRouteParams.value.item_id)
 const reference_entity_id = computed(() => database.value.id)
 const isReady = ref(false)

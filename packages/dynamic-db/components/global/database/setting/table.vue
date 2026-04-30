@@ -71,7 +71,7 @@ const sectionComponent = computed(() => {
     case 'automation':
       return 'LazyDatabaseSettingTableAutomation'
     case 'permissions':
-      return 'LazyDatabaseSettingTablePermissions'
+      return 'LazyDatabaseSettingMenuPermission'
     case 'settings':
       return 'LazyDatabaseSettingTableSettings'
     default:
@@ -166,6 +166,7 @@ onMounted(() => {
           :is="sectionComponent"
           :active-sub-section="activeSection"
           :menu-item="currentMenuItem"
+          :id="databaseMenuRouteParams.detailId"
         />
       </main>
 
