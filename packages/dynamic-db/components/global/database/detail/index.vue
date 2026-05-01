@@ -3,7 +3,11 @@ import { ElMessage } from 'element-plus'
 const props = defineProps<{
   id: string
   detailId: string | null
-  detailType: 'root' | 'folder' | 'master_table' | 'view' | 'dashboard'
+  detailType: 'root' | 'folder' | 'master_table' | 'view' | 'dashboard',
+  item_id: string
+  pageType: string
+  viewId: string
+  tableId: string
 }>()
 const { database, menuActionsRef, getDatabaseById, databaseMenuRouteParams, currentUserPermission, checkMenuItemPermission } = useSingleDatabase()
 
@@ -14,16 +18,6 @@ const canOpenSetting = computed(() => {
   if (databaseMenuRouteParams.value.detailType === 'root') return canManageDatabase.value
   return canManageTable.value
 })
-
-// Redirect away from setting pages if user lacks Manage permission
-watch(
-  () => databaseMenuRouteParams.value.pageType,
-  (pageType) => {
-    if (pageType === 'setting' && !canManageDatabase.value) {
-      databaseMenuRouteParams.value.pageType = 'detail'
-    }
-  }
-)
 
 // Responsive sidebar state
 const pageContainerRef = ref<HTMLElement | null>(null)
@@ -53,6 +47,7 @@ onMounted(() => {
   nextTick(() => {
     checkContainerSize()
   })
+
 
   // Use ResizeObserver to detect container size changes
   if (pageContainerRef.value) {
@@ -140,6 +135,10 @@ watch(
     if (props.detailId) {
       databaseMenuRouteParams.value.detailId = props.detailId
       databaseMenuRouteParams.value.detailType = props.detailType
+      databaseMenuRouteParams.value.item_id = props.item_id
+      databaseMenuRouteParams.value.pageType = props.pageType
+      databaseMenuRouteParams.value.viewId = props.viewId
+      databaseMenuRouteParams.value.tableId = props.tableId
     }
   },
   { immediate: true, deep: true }

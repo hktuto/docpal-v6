@@ -459,6 +459,9 @@ export const useSingleDatabase = () => {
     return data
   }
 
+  // add router Provider here to sync naviate item to routerProvider
+  const routerProvider = inject(MenuRouterKey)
+
   async function navigateToItem(item?: TreeItem, pageType: 'setting' | 'detail' = 'detail') {
     databaseMenuRouteParams.value.parentId = item?.parent_id || null
     databaseMenuRouteParams.value.viewId = null
@@ -496,6 +499,14 @@ export const useSingleDatabase = () => {
       default:
         console.warn('Unknown item type:', item.item_type)
     }
+    routerProvider?.updateProps({
+      detailId: databaseMenuRouteParams.value.detailId,
+      detailType: databaseMenuRouteParams.value.detailType,
+      item_id: databaseMenuRouteParams.value.item_id,
+      pageType: databaseMenuRouteParams.value.pageType,
+      viewId: databaseMenuRouteParams.value.viewId,
+      tableId:databaseMenuRouteParams.value.tableId
+    })
   }
 
   /**
