@@ -3,11 +3,11 @@
     <div class="toolbar-left">
       <slot name="toolbar-left-before" />
       <ToolsColumnConfigPopover v-if="showColumnConfig" :disabled="disabled" />
-      <ToolsGroupingButton :disabled="disabled" :groupableColumns="columns" @grouping-change="(v) => handleRefresh('groupInfo', v)" />
+      <ToolsGroupingButton v-if="showGroupingButton" :disabled="disabled" :groupableColumns="columns" @grouping-change="(v) => handleRefresh('groupInfo', v)" />
       <ToolsFilterButton :disabled="disabled" :available-columns="columns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
       <ToolsSortButton :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
-        <el-button type="primary" @click="handleAddRow">
+        <el-button v-if="showAddRowButton" type="primary" @click="handleAddRow">
           <el-icon><Plus /></el-icon>
           Add Row
         </el-button>
@@ -38,6 +38,8 @@ interface Props {
   disabled?: boolean
   showColumnConfig?: boolean
   showMirrorButton?: boolean
+  showAddRowButton?: boolean
+  showGroupingButton?: boolean
 }
 
 interface Emits {
@@ -53,7 +55,9 @@ const props = withDefaults(defineProps<Props>(), {
   showToolbar: true,
   disabled: false,
   showColumnConfig: true,
-  showMirrorButton: true
+  showMirrorButton: true,
+  showAddRowButton: true,
+  showGroupingButton: true
 })
 
 const emit = defineEmits<Emits>()

@@ -13,6 +13,7 @@ import {
   type CalendarEventExternal
 } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/index.css'
+import { useMDCalendarInject } from '../../composables/mdCalendar/useMDCalendar'
 
 const props = defineProps<{
   tableId: string
@@ -32,8 +33,45 @@ const showCalendar = ref(false)
 const eventsServicePlugin = createEventsServicePlugin()
 const calendarControls = createCalendarControlsPlugin()
 
-// Inject viewTools from parent
-const viewTools: any = inject('viewTools')
+// Inject calendar context from parent
+const { columns, systemFieldsTypes } = useMDCalendarInject()
+
+const dateRange = ref({ start: 0, end: 0 })
+
+const extraParams = computed(() => {
+  const conditions: any[] = []
+  if (dateRange.value.start && dateRange.value.end && props.startField) {
+    conditions.push({
+      column: props.startField,
+      type: 'LT',
+      value: dateRange.value.end
+    })
+    if (props.endField) {
+      conditions.push({
+        column: props.endField,
+        type: 'GT',
+        value: dateRange.value.start
+      })
+    } else {
+      conditions.push({
+        column: props.startField,
+        type: 'GT',
+        value: dateRange.value.start
+      })
+    }
+  }
+  if (conditions.length) {
+    return {
+      conditions: [
+        {
+          type: 'AND',
+          value: conditions
+        }
+      ]
+    }
+  }
+  return {}
+})
 
 // Use table data like groupList.vue
 const { tableData, getTableData, updateRow, addRow } = useTableData(props.tableId, viewerRef)
@@ -66,7 +104,7 @@ function parseScheduleXDate(dateStr: string): number {
 }
 
 function isDateTimeField(fieldName: string): boolean {
-  const field = viewTools?.columns?.value?.find((f: any) => f.field_name === fieldName)
+  const field = columns.value?.find((f: any) => f.field_name === fieldName)
   if (!field) return false
   const ds = field.display_structure
   return ds?.type === 'datetime' || ds?.includeTime === true
@@ -164,11 +202,9 @@ function setupCalendar() {
 }
 
 function updateDateRange(start: Date, end: Date) {
-  if (viewTools?.dateRange) {
-    viewTools.dateRange.value = {
-      start: start.getTime(),
-      end: end.getTime()
-    }
+  dateRange.value = {
+    start: start.getTime(),
+    end: end.getTime()
   }
 }
 
@@ -186,7 +222,7 @@ function getDayEnd(date: Date): Date {
 async function refresh() {
   tableData.value = []
   nextTick(async () => {
-    await getTableData({ pageSize: 1000 })
+    await getTableData({ pageSize: 1000 }, extraParams.value)
     syncEvents()
   })
 }
@@ -244,9 +280,9 @@ defineExpose({
     <ScheduleXCalendar v-if="showCalendar" :calendar-app="calendarApp" />
     <MdFormPopover
       ref="MdFormPopoverRef"
-      :columns="viewTools?.columns"
+      :columns="columns"
       :table-id="props.tableId"
-      :systemFieldsTypes="viewTools?.systemFieldsTypes"
+      :systemFieldsTypes="systemFieldsTypes"
       :showMoveButtons="false"
       :showSourceButton="false"
       @submit="handleAddRowSubmit"

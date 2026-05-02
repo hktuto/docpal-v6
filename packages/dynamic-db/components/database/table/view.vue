@@ -2,7 +2,6 @@
   <div style="height: 100%" v-if="tableId">
     <MdCard v-if="currentView?.type === 'card'" :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" :editable="true" />
     <MdKanban v-else-if="currentView?.type === 'kanban'" :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" />
-    <MdGantt v-else-if="currentView?.type === 'gantt'" :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" />
     <MdCalendar v-else-if="currentView?.type === 'calendar'" :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" />
     <MdTable v-else :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" />
   </div>
