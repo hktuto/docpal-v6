@@ -98,6 +98,9 @@ h3 {
   margin: 0;
   flex: 1 0 auto;
   font-weight: 900;
+  white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .actions {
   display: flex;
