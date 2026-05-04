@@ -1,39 +1,41 @@
 <template>
   <div class="workspace-table-views">
-    <div class="workspace-table-views__tabs" v-if="!isMirror">
-      <draggable v-model="localViews" item-key="id" tag="div" class="workspace-table-views__tab-list" :animation="150" handle=".handler" @end="handleDragEnd">
-        <template #item="{ element: view }">
-          <div
-            class="workspace-table-views__tab"
-            :class="{ 'workspace-table-views__tab--active': view.id === activeViewId }"
-            @click="handleSelectView(view.id)"
-          >
-            <div class="handler" style="cursor: grab">
-              <Icon name="meteor-icons:grip-dots-vertical" />
+      <Teleport to="#dashboard_detail_header">
+        <div class="workspace-table-views__tabs" v-if="!isMirror">
+        <draggable v-model="localViews" item-key="id" tag="div" class="workspace-table-views__tab-list" :animation="150" handle=".handler" @end="handleDragEnd">
+            <template #item="{ element: view }">
+            <div
+                class="workspace-table-views__tab"
+                :class="{ 'workspace-table-views__tab--active': view.id === activeViewId }"
+                @click="handleSelectView(view.id)"
+            >
+                <div class="handler" style="cursor: grab">
+                <Icon name="meteor-icons:grip-dots-vertical" />
+                </div>
+                <div class="workspace-table-views__tab-label">
+                {{ view.name }}
+                </div>
+                <el-button v-if="canManageTable" text size="small" :icon="MoreFilled" class="workspace-table-views__tab-more-btn" @click.stop="handleMoreView(view.id, $event)" />
             </div>
-            <div class="workspace-table-views__tab-label">
-              {{ view.name }}
-            </div>
-            <el-button v-if="canManageTable" text size="small" :icon="MoreFilled" class="workspace-table-views__tab-more-btn" @click.stop="handleMoreView(view.id, $event)" />
-          </div>
-        </template>
-      </draggable>
-      <el-dropdown v-if="canManageTable" trigger="click" @command="handleAddView">
-        <button class="workspace-table-views__add-btn el-icon--right" type="button">
-          <el-icon :size="16">
-            <Plus />
-          </el-icon>
-        </button>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item :command="{ name: 'Table', type: 'table' }"> Table </el-dropdown-item>
-            <el-dropdown-item :command="{ name: 'Kanban', type: 'kanban' }"> Kanban </el-dropdown-item>
-            <el-dropdown-item :command="{ name: 'Card', type: 'card' }"> Card </el-dropdown-item>
-            <el-dropdown-item :command="{ name: 'Calendar', type: 'calendar' }"> Calendar </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-    </div>
+            </template>
+        </draggable>
+        <el-dropdown v-if="canManageTable" trigger="click" @command="handleAddView">
+            <button class="workspace-table-views__add-btn el-icon--right" type="button">
+            <el-icon :size="16">
+                <Plus />
+            </el-icon>
+            </button>
+            <template #dropdown>
+            <el-dropdown-menu>
+                <el-dropdown-item :command="{ name: 'Table', type: 'table' }"> Table </el-dropdown-item>
+                <el-dropdown-item :command="{ name: 'Kanban', type: 'kanban' }"> Kanban </el-dropdown-item>
+                <el-dropdown-item :command="{ name: 'Card', type: 'card' }"> Card </el-dropdown-item>
+                <el-dropdown-item :command="{ name: 'Calendar', type: 'calendar' }"> Calendar </el-dropdown-item>
+            </el-dropdown-menu>
+            </template>
+        </el-dropdown>
+        </div>
+      </Teleport>
     <div class="workspace-table-views__content">
       <DatabaseTableView v-if="isReady" :is-mirror="isMirror" :canManageTable="canManageTable" :canEditTable="canEditTable" :data-table-id="tableId" />
       <template v-else>
@@ -145,8 +147,10 @@ watch(
 
   &__tabs {
     width: 100%;
-    display: grid;
-    grid-template-columns: 1fr min-content;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content:flex-start;
+    align-items:center;
     gap: 0;
     align-items: center;
     ::-webkit-scrollbar {
@@ -188,7 +192,6 @@ watch(
     border-bottom: none;
     background-color: var(--app-grey-950);
     border: 1px solid transparent;
-    border-bottom: 1px solid var(--app-grey-900);
 
     transition:
       background-color 0.15s ease,
