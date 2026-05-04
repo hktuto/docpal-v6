@@ -2,8 +2,9 @@
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
     <ToolsBar
-      :disabled="isMirror"
-      :showMirrorButton="!isMirror"
+      :disabled="isMirror || !canManageTable"
+      :showMirrorButton="!isMirror && canManageTable"
+      :showAddRowButton="canEditTable"
       @refresh="handleRefresh"
       @add-row="handleAddRow"
     >
@@ -79,6 +80,8 @@ interface Props {
   tableId?: string
   editable?: boolean
   isMirror?: boolean
+  canEditTable: boolean,
+  canManageTable: boolean,
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void
@@ -97,6 +100,8 @@ const props = withDefaults(defineProps<Props>(), {
   tableId: '',
   editable: false,
   isMirror: false,
+  canEditTable: false,
+  canManageTable: false,
   extraColumnConfig: () => ({
     columns: [],
     deleteColumn: () => {},

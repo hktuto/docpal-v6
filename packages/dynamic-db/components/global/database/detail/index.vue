@@ -13,7 +13,7 @@ const { database, menuActionsRef, getDatabaseById, databaseMenuRouteParams, curr
 
 const canManageDatabase = computed(() => currentUserPermission.value === 'Manage')
 const canManageTable = computed(() => databaseMenuRouteParams.value.detailId && checkMenuItemPermission(databaseMenuRouteParams.value.detailId, 'Manage'))
-
+const canEditTable = computed(() => databaseMenuRouteParams.value.detailId && checkMenuItemPermission(databaseMenuRouteParams.value.detailId, 'Edit') )
 const canOpenSetting = computed(() => {
   if (databaseMenuRouteParams.value.detailType === 'root') return canManageDatabase.value
   return canManageTable.value

@@ -6,6 +6,9 @@ import CalendarViewer from './calendarViewer.vue'
 const props = withDefaults(defineProps<MDCalendarProps>(), {
   tableId: '',
   editable: false,
+  isMirror: false,
+  canEditTable: false,
+  canManageTable: false,
   extraColumnConfig: () => ({
     columns: ref([]),
     deleteColumn: () => {},
@@ -23,6 +26,7 @@ const props = withDefaults(defineProps<MDCalendarProps>(), {
 const emit = defineEmits<{
   refresh: []
   search: [value: string]
+
 }>()
 
 const { columns, systemFieldsTypes, viewStyleConfig } = useMDCalendar(props)
@@ -73,14 +77,15 @@ onMounted(() => {
   <div class="calendarViewContainer">
     <ToolsBar
      v-if="viewStyleConfig?.startField && viewStyleConfig?.endField"
+     :showMirrorButton="!isMirror && canManageTable"
+     :showAddRowButton="canEditTable"
       :showGroupingButton="false"
       @refresh="handleRefresh"
     >
       <template #toolbar-right>
-        <el-button text :icon="Setting" @click="openSetting">
+        <el-button v-if="!isMirror" text :icon="Setting" @click="openSetting">
           Setting
         </el-button>
-        <slot name="toolbar-right" />
       </template>
     </ToolsBar>
     <div v-if="viewStyleConfig?.startField && viewStyleConfig?.endField" class="calendar-wrapper">

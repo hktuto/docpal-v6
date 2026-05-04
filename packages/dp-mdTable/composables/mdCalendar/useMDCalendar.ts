@@ -4,6 +4,9 @@ import { ColumnFieldType } from '../../types/column-types'
 export interface MDCalendarProps {
   tableId: string
   editable?: boolean
+  isMirror: boolean
+  canEditTable: boolean,
+  canManageTable: boolean,
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void

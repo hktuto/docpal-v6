@@ -7,6 +7,9 @@ import { Plus, Setting } from '@element-plus/icons-vue'
 const props = withDefaults(defineProps<MDKanbanProps>(), {
   tableId: '',
   editable: false,
+  isMirror:false,
+  canEditTable: false,
+  canManageTable: false,
   extraColumnConfig: () => ({
     columns: [],
     deleteColumn: () => {},
@@ -335,12 +338,13 @@ onBeforeUnmount(() => {
 <div ref="kanbanContainerRef" class="kanbanViewContainer">
     <ToolsBar
       v-if="showToolbar"
+       :showMirrorButton="!isMirror && canManageTable"
       :showAddRowButton="false"
       :showGroupingButton="false"
       @refresh="handleRefresh"
     >
       <template #toolbar-right>
-        <el-button text :icon="Setting" @click="openSetting">
+        <el-button  v-if="!isMirror" text :icon="Setting" @click="openSetting">
           Setting
         </el-button>
         <slot name="toolbar-right" />

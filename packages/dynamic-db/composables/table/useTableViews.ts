@@ -64,6 +64,15 @@ export function useTableViews(options: UseTableViewsOptions) {
   const columnGroupRules = ref<any[]>([])
 
   const viewStyleConfig = ref<any>({})
+
+  async function getTableDetailDasbboard() {
+    const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
+      tableId: tableId.value,
+      userId: 'master',
+      type:"detail"
+    })
+    console.log("getTableDetailDasbboard", data)
+  }
   async function getViews(viewId?: string) {
     columnFilterRules.value = null
     columnSortRules.value = []
@@ -87,6 +96,7 @@ export function useTableViews(options: UseTableViewsOptions) {
 
     const currentViewId = viewId ?? currentView.value?.id ?? tableViews.value[0].id
     setCurrentView(currentViewId)
+    getTableDetailDasbboard()
   }
   function setCurrentView(view: ViewConfig | string) {
     if (typeof view === 'string') {

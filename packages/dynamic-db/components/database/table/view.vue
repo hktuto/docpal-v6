@@ -1,9 +1,33 @@
 <template>
   <div style="height: 100%" v-if="tableId">
-    <MdCard v-if="currentView?.type === 'card'" :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" :editable="true" />
-    <MdKanban v-else-if="currentView?.type === 'kanban'" :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" />
-    <MdCalendar v-else-if="currentView?.type === 'calendar'" :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" />
-    <MdTable v-else :is-mirror="isMirror" :table-id="tableId" :extra-column-config="extraColumnConfig" />
+    <MdCard
+        v-if="currentView?.type === 'card'"
+        :canManageTable="canManageTable"
+        :canEditTable="canEditTable"
+        :is-mirror="isMirror"
+        :table-id="tableId"
+        :extra-column-config="extraColumnConfig"
+        :editable="true" />
+    <MdKanban
+        v-else-if="currentView?.type === 'kanban'"
+        :canManageTable="canManageTable"
+        :canEditTable="canEditTable"
+        :is-mirror="isMirror"
+        :table-id="tableId"
+        :extra-column-config="extraColumnConfig" />
+    <MdCalendar
+        v-else-if="currentView?.type === 'calendar'"
+        :canManageTable="canManageTable"
+        :canEditTable="canEditTable"
+        :is-mirror="isMirror"
+        :table-id="tableId"
+        :extra-column-config="extraColumnConfig" />
+    <MdTable v-else
+        :canManageTable="canManageTable"
+        :canEditTable="canEditTable"
+        :is-mirror="isMirror"
+        :table-id="tableId"
+        :extra-column-config="extraColumnConfig" />
   </div>
 </template>
 
@@ -17,6 +41,8 @@ import { useRelationConfigInject } from '../../../composables/table/useRelationC
 const props = defineProps<{
   dataTableId: string
   isMirror: boolean
+  canEditTable: boolean,
+  canManageTable: boolean,
 }>()
 const tableId = computed(() => props.dataTableId)
 const {

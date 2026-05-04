@@ -35,7 +35,7 @@
       </el-dropdown>
     </div>
     <div class="workspace-table-views__content">
-      <DatabaseTableView v-if="isReady" :is-mirror="isMirror" :data-table-id="tableId" />
+      <DatabaseTableView v-if="isReady" :is-mirror="isMirror" :canManageTable="canManageTable" :canEditTable="canEditTable" :data-table-id="tableId" />
       <template v-else>
         <el-skeleton :rows="10" animated />
       </template>
@@ -54,7 +54,7 @@ import draggable from 'vuedraggable'
 const { databaseMenuRouteParams, database, checkMenuItemPermission } = useSingleDatabaseContext()
 const { setRelationConfig } = useRelationConfig()
 const canManageTable = computed(() => databaseMenuRouteParams.value.detailId && checkMenuItemPermission(databaseMenuRouteParams.value.detailId, 'Manage'))
-
+const canEditTable = computed(() => databaseMenuRouteParams.value.detailId && checkMenuItemPermission(databaseMenuRouteParams.value.detailId, 'Edit'))
 const tableId = computed(() => databaseMenuRouteParams.value.tableId ?? databaseMenuRouteParams.value.item_id)
 const reference_entity_id = computed(() => database.value.id)
 const isReady = ref(false)

@@ -344,7 +344,6 @@ export const useSingleDatabase = () => {
 
   function checkMenuItemPermission(id: string, right: MenuItemPermissionLevel): boolean {
     const level = getCurrentUserMenuItemPermission(id)
-    console.log(level)
     switch (right) {
       case 'View':
         return level === 'View' || level === 'Edit' || level === 'Manage'
