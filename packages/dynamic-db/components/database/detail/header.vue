@@ -84,10 +84,11 @@ function handleInfoInput(description: string) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--app-space-m);
+  padding: 0 var(--app-space-s);
   height: var(--app-header-height);
   border-bottom: 1px solid var(--app-grey-900);
   background: var(--app-grey-950);
+  min-height: 45px;
 }
 
 .headerLeft {
