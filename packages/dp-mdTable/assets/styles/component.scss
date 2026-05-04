@@ -30,8 +30,8 @@
 .table-tag {
   padding: var(--app-space-xs) var(--app-space-s);
   border-radius: var(--app-border-radius-m);
-  background-color: oklch(from var(--color) max(l, 0.6) c h);
-  border: 1px solid oklch(from var(--color) l c h);
+  background-color: oklch(from var(--color) max(l, 0.9) calc(c / 2) h);
+  border: 1px solid oklch(from var(--color) 0.6 c h);
   color: oklch(from var(--color) 0.2 c h);
   font-size: var(--app-font-size-s);
   font-weight: 500;
