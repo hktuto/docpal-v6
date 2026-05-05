@@ -8,57 +8,79 @@ const props = defineProps<{
   masterTableId: string
 }>()
 
-type ViewMode = 'list' | 'form' | 'test'
+type DrawerMode = 'form' | 'test' | null
 
-const viewMode = ref<ViewMode>('list')
+const drawerMode = ref<DrawerMode>(null)
 const selectedTrigger = ref<TriggerSettingDTO | undefined>(undefined)
 const listRef = ref<InstanceType<typeof TriggerList> | null>(null)
 
+const drawerVisible = computed({
+  get: () => drawerMode.value !== null,
+  set: (val) => {
+    if (!val) drawerMode.value = null
+  }
+})
+
+const drawerTitle = computed(() => {
+  if (drawerMode.value === 'form') {
+    return selectedTrigger.value ? 'Edit Trigger' : 'Add Trigger'
+  }
+  if (drawerMode.value === 'test') {
+    return 'Test Trigger'
+  }
+  return ''
+})
+
 function handleAdd() {
   selectedTrigger.value = undefined
-  viewMode.value = 'form'
+  drawerMode.value = 'form'
 }
 
 function handleEdit(trigger: TriggerSettingDTO) {
   selectedTrigger.value = trigger
-  viewMode.value = 'form'
+  drawerMode.value = 'form'
 }
 
 function handleTest(trigger: TriggerSettingDTO) {
   selectedTrigger.value = trigger
-  viewMode.value = 'test'
+  drawerMode.value = 'test'
 }
 
 function handleSaved() {
-  viewMode.value = 'list'
+  drawerVisible.value = false
   nextTick(() => {
     listRef.value?.reload()
   })
 }
 
 function handleCancel() {
-  viewMode.value = 'list'
+  drawerVisible.value = false
 }
 
 function handleBack() {
-  viewMode.value = 'list'
+  drawerVisible.value = false
 }
 </script>
 
 <template>
   <div class="automation-root">
-    <Transition name="fade" mode="out-in">
-      <TriggerList
-        v-if="viewMode === 'list'"
-        ref="listRef"
-        :master-table-id="masterTableId"
-        @add="handleAdd"
-        @edit="handleEdit"
-        @test="handleTest"
-      />
+    <TriggerList
+      ref="listRef"
+      :master-table-id="masterTableId"
+      @add="handleAdd"
+      @edit="handleEdit"
+      @test="handleTest"
+    />
 
+    <el-drawer
+      v-model="drawerVisible"
+      :title="drawerTitle"
+      size="520px"
+      :destroy-on-close="true"
+      :append-to-body="true"
+    >
       <TriggerForm
-        v-else-if="viewMode === 'form'"
+        v-if="drawerMode === 'form'"
         :master-table-id="masterTableId"
         :trigger="selectedTrigger"
         @saved="handleSaved"
@@ -66,27 +88,17 @@ function handleBack() {
       />
 
       <TriggerTest
-        v-else-if="viewMode === 'test' && selectedTrigger"
+        v-else-if="drawerMode === 'test' && selectedTrigger"
         :master-table-id="masterTableId"
         :trigger="selectedTrigger"
         @back="handleBack"
       />
-    </Transition>
+    </el-drawer>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .automation-root {
   height: 100%;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>

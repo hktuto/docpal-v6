@@ -78,6 +78,7 @@ onMounted(() => {
     <ToolsBar
      v-if="viewStyleConfig?.startField && viewStyleConfig?.endField"
      :showMirrorButton="!isMirror && canManageTable"
+     :showAutomationButton="!isMirror && canManageTable"
      :showAddRowButton="canEditTable"
       :showGroupingButton="false"
       @refresh="handleRefresh"

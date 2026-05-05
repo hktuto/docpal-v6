@@ -1,39 +1,57 @@
 <template>
-  <div style="height: 100%" v-if="tableId">
-    <MdCard
-        v-if="currentView?.type === 'card'"
-        :canManageTable="canManageTable"
-        :canEditTable="canEditTable"
-        :is-mirror="isMirror"
-        :table-id="tableId"
-        :extra-column-config="extraColumnConfig"
-        :editable="true" />
-    <MdKanban
-        v-else-if="currentView?.type === 'kanban'"
-        :canManageTable="canManageTable"
-        :canEditTable="canEditTable"
-        :is-mirror="isMirror"
-        :table-id="tableId"
-        :extra-column-config="extraColumnConfig" />
-    <MdCalendar
-        v-else-if="currentView?.type === 'calendar'"
-        :canManageTable="canManageTable"
-        :canEditTable="canEditTable"
-        :is-mirror="isMirror"
-        :table-id="tableId"
-        :extra-column-config="extraColumnConfig" />
-    <MdTable v-else
-        :canManageTable="canManageTable"
-        :canEditTable="canEditTable"
-        :is-mirror="isMirror"
-        :table-id="tableId"
-        :extra-column-config="extraColumnConfig" />
+  <div class="table-view-root" v-if="tableId">
+    <div class="table-view-main">
+      <MdCard
+          v-if="currentView?.type === 'card'"
+          :canManageTable="canManageTable"
+          :canEditTable="canEditTable"
+          :is-mirror="isMirror"
+          :table-id="tableId"
+          :extra-column-config="extraColumnConfig"
+          :editable="true" />
+      <MdKanban
+          v-else-if="currentView?.type === 'kanban'"
+          :canManageTable="canManageTable"
+          :canEditTable="canEditTable"
+          :is-mirror="isMirror"
+          :table-id="tableId"
+          :extra-column-config="extraColumnConfig" />
+      <MdCalendar
+          v-else-if="currentView?.type === 'calendar'"
+          :canManageTable="canManageTable"
+          :canEditTable="canEditTable"
+          :is-mirror="isMirror"
+          :table-id="tableId"
+          :extra-column-config="extraColumnConfig" />
+      <MdTable v-else
+          :canManageTable="canManageTable"
+          :canEditTable="canEditTable"
+          :is-mirror="isMirror"
+          :table-id="tableId"
+          :extra-column-config="extraColumnConfig" />
+    </div>
+
+    <div v-if="panelVisible" class="table-view-panel">
+      <div class="panel-header">
+        <span class="panel-title">{{ panelTitle }}</span>
+        <button class="panel-close" tabindex="0" @click="handleClosePanel" @keydown.enter="handleClosePanel">
+          <Icon name="lucide:x" size="16" />
+        </button>
+      </div>
+      <div class="panel-body">
+        <DatabaseSettingAutomation
+          v-if="panelType === 'automation'"
+          :master-table-id="tableId"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { EventType, useEventBus } from 'eventbus'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { useTableViewsInject } from '../../../composables/table/useTableViews'
 import { useDBParams } from '../../../composables/table/useDBParams'
 import { useRelationConfigInject } from '../../../composables/table/useRelationConfig'
@@ -142,8 +160,103 @@ provide('viewTools', {
   updatedViewColumnsConfig,
   saveColumnOrder,
   updateViewFilterSortGroup,
-  systemFieldsTypes
+  systemFieldsTypes,
+  tableId
+})
+
+// Side panel state
+const panelVisible = ref(false)
+const panelType = ref<string | null>(null)
+
+const panelTitle = computed(() => {
+  const titles: Record<string, string> = {
+    automation: 'Automation'
+  }
+  return titles[panelType.value || ''] || 'Panel'
+})
+
+const openSidePanelBus = useEventBus(EventType.OPEN_SIDE_PANEL)
+const closeSidePanelBus = useEventBus(EventType.CLOSE_SIDE_PANEL)
+
+const stopOpenSidePanel = openSidePanelBus.on((payload: any) => {
+  panelType.value = payload?.type || null
+  panelVisible.value = true
+})
+
+const stopCloseSidePanel = closeSidePanelBus.on(() => {
+  panelVisible.value = false
+})
+
+function handleClosePanel() {
+  panelVisible.value = false
+}
+
+onBeforeUnmount(() => {
+  stopOpenSidePanel()
+  stopCloseSidePanel()
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.table-view-root {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.table-view-main {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.table-view-panel {
+  width: 380px;
+  min-width: 380px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-paper);
+  border-left: 1px solid var(--app-grey-200);
+  overflow: hidden;
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--app-space-m);
+    border-bottom: 1px solid var(--app-grey-200);
+
+    .panel-title {
+      font-size: var(--app-font-size-m);
+      font-weight: 600;
+    }
+
+    .panel-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: var(--app-grey-500);
+      cursor: pointer;
+      border-radius: var(--app-border-radius);
+      transition: all 0.2s;
+
+      &:hover {
+        background: var(--app-grey-100);
+        color: var(--app-grey-900);
+      }
+    }
+  }
+
+  .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--app-space-m);
+  }
+}
+</style>

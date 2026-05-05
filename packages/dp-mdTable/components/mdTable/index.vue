@@ -4,6 +4,7 @@
     <ToolsBar
       :disabled="isMirror || !canManageTable"
       :showMirrorButton="!isMirror && canManageTable"
+      :showAutomationButton="!isMirror && canManageTable"
       :showAddRowButton="canEditTable"
       @refresh="handleRefresh"
       @add-row="handleAddRow"

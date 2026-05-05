@@ -56,7 +56,7 @@ async function handleAddRowSubmit(data: any) {
 
 <template>
   <div class="md-card-view">
-    <ToolsBar :showMirrorButton="!isMirror" :disabled="isMirror" :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
+    <ToolsBar :showMirrorButton="!isMirror" :showAutomationButton="!isMirror && canManageTable" :disabled="isMirror" :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
       <template #toolbar-left-before>
         <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>

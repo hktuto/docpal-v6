@@ -21,6 +21,8 @@ export enum EventType {
   FULLSCREEN_CLOSE = 'fullscreen-close',
   RELATION_NEED_REFRESH = 'relation-need-refresh',
   ADD_MIRROR = 'add-mirror',
+  OPEN_SIDE_PANEL = 'open-side-panel',
+  CLOSE_SIDE_PANEL = 'close-side-panel',
 }
 
 export enum GlobalPasteEvent {

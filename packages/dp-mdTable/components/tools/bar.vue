@@ -14,6 +14,7 @@
       </slot>
     </div>
     <div class="toolbar-right">
+      <ToolsAutomationButton :show="showAutomationButton" />
       <ToolsMirrorButton :show="showMirrorButton" />
       <slot name="toolbar-right"> </slot>
     </div>
@@ -40,6 +41,7 @@ interface Props {
   showMirrorButton?: boolean
   showAddRowButton?: boolean
   showGroupingButton?: boolean
+  showAutomationButton?: boolean
 }
 
 interface Emits {
@@ -57,7 +59,8 @@ const props = withDefaults(defineProps<Props>(), {
   showColumnConfig: true,
   showMirrorButton: true,
   showAddRowButton: true,
-  showGroupingButton: true
+  showGroupingButton: true,
+  showAutomationButton: true
 })
 
 const emit = defineEmits<Emits>()
