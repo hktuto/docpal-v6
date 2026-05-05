@@ -1,0 +1,499 @@
+<script setup lang="ts">
+import { clientApi } from 'api'
+import type { TriggerSettingDTO, TableFieldDTO } from 'api'
+import { ElMessage } from 'element-plus'
+
+const props = defineProps<{
+  masterTableId: string
+  trigger?: TriggerSettingDTO
+}>()
+
+const emit = defineEmits<{
+  saved: []
+  cancel: []
+}>()
+
+const isEdit = computed(() => !!props.trigger?.id)
+
+const state = reactive({
+  loading: false,
+  saving: false,
+  fields: [] as TableFieldDTO[]
+})
+
+const form = reactive({
+  trigger_name: '',
+  description: '',
+  event_type: 'record_created',
+  watch_field: '',
+  match_type: 'all',
+  workflow_id: '',
+  status: 'A',
+  conditions: [] as Array<{
+    id: string
+    field_name: string
+    operator: string
+    value: string
+  }>
+})
+
+const eventTypeOptions = [
+  { label: 'Record is created', value: 'record_created', desc: 'When a new record is added to this table.' },
+  { label: 'Record is updated', value: 'record_updated', desc: 'When any field of an existing record is modified.' },
+  { label: 'Record is deleted', value: 'record_deleted', desc: 'When a record is removed from this table.' },
+  { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' }
+]
+
+const operatorOptions = [
+  { label: 'Equals', value: 'eq' },
+  { label: 'Not equals', value: 'ne' },
+  { label: 'Greater than', value: 'gt' },
+  { label: 'Less than', value: 'lt' },
+  { label: 'Contains', value: 'contains' },
+  { label: 'Is empty', value: 'is_empty' },
+  { label: 'Is not empty', value: 'is_not_empty' }
+]
+
+const fieldOptions = computed(() => {
+  return state.fields.map(f => ({
+    label: f.field_name_alias || f.field_name,
+    value: f.field_name
+  }))
+})
+
+const showWatchField = computed(() => form.event_type === 'field_changed')
+
+const currentEvent = computed(() => eventTypeOptions.find(o => o.value === form.event_type))
+
+function generateId() {
+  return Math.random().toString(36).substring(2, 9)
+}
+
+function handleAddCondition() {
+  form.conditions.push({
+    id: generateId(),
+    field_name: '',
+    operator: 'eq',
+    value: ''
+  })
+}
+
+function handleRemoveCondition(index: number) {
+  form.conditions.splice(index, 1)
+}
+
+async function handleLoadFields() {
+  try {
+    const { data } = await clientApi.api.getDynamicDbTableTableidFields(props.masterTableId)
+    state.fields = data?.data || []
+  } catch (error) {
+    // silent fail
+  }
+}
+
+function resetForm() {
+  form.trigger_name = ''
+  form.description = ''
+  form.event_type = 'record_created'
+  form.watch_field = ''
+  form.match_type = 'all'
+  form.workflow_id = ''
+  form.status = 'A'
+  form.conditions = []
+}
+
+function hydrateForm() {
+  const t = props.trigger
+  if (!t) {
+    resetForm()
+    return
+  }
+  form.trigger_name = t.trigger_name || ''
+  form.description = t.description || ''
+  form.event_type = t.event_type || 'record_created'
+  form.watch_field = t.watch_field || ''
+  form.match_type = t.match_type || 'all'
+  form.workflow_id = t.workflow_id || ''
+  form.status = t.status || 'A'
+
+  const rawConditions = t.conditions?.trigger_rule || []
+  if (Array.isArray(rawConditions)) {
+    form.conditions = rawConditions.map((c: any) => ({
+      id: c.id || generateId(),
+      field_name: c.field_name || '',
+      operator: c.operator || 'eq',
+      value: c.value || ''
+    }))
+  } else {
+    form.conditions = []
+  }
+}
+
+async function handleSave() {
+  if (!form.trigger_name.trim()) {
+    ElMessage.warning('Trigger name is required')
+    return
+  }
+  if (showWatchField.value && !form.watch_field) {
+    ElMessage.warning('Watch field is required for Field Changed event')
+    return
+  }
+
+  const payload = {
+    trigger_name: form.trigger_name,
+    description: form.description,
+    event_type: form.event_type,
+    watch_field: showWatchField.value ? form.watch_field : undefined,
+    match_type: form.match_type,
+    workflow_id: form.workflow_id,
+    status: form.status,
+    conditions: {
+      trigger_rule: form.conditions.map(c => ({
+        id: c.id,
+        field_name: c.field_name,
+        operator: c.operator,
+        value: c.value
+      }))
+    }
+  }
+
+  state.saving = true
+  try {
+    if (isEdit.value && props.trigger?.id) {
+      const { data } = await clientApi.api.patchDynamicDbTableMastertableidTriggerSettingsId(props.masterTableId, props.trigger.id, payload)
+      if (data?.result !== false) {
+        ElMessage.success('Trigger updated')
+        emit('saved')
+      } else {
+        ElMessage.error(data?.message || 'Update failed')
+      }
+    } else {
+      const { data } = await clientApi.api.postDynamicDbTableMastertableidTriggerSettings(props.masterTableId, payload)
+      if (data?.result !== false) {
+        ElMessage.success('Trigger created')
+        emit('saved')
+      } else {
+        ElMessage.error(data?.message || 'Create failed')
+      }
+    }
+  } catch (error: any) {
+    ElMessage.error(error?.message || 'Save failed')
+  } finally {
+    state.saving = false
+  }
+}
+
+function handleCancel() {
+  emit('cancel')
+}
+
+onMounted(() => {
+  handleLoadFields()
+  hydrateForm()
+})
+
+watch(() => props.trigger, hydrateForm, { deep: true })
+</script>
+
+<template>
+  <div v-loading="state.loading" class="trigger-editor">
+    <!-- When preview card -->
+    <div class="section-title">When</div>
+    <div class="preview-card">
+      <div class="preview-badge">
+        <Icon name="lucide:zap" size="16" />
+        <span>Trigger</span>
+      </div>
+      <div class="preview-name">
+        {{ isEdit ? '1.' : 'New' }} {{ currentEvent?.label || 'Trigger' }}
+      </div>
+      <div class="preview-desc">
+        {{ currentEvent?.desc }}
+      </div>
+    </div>
+
+    <!-- Config form -->
+    <div class="config-panel">
+      <div class="field-group">
+        <label class="field-label">Trigger name <span class="required">*</span></label>
+        <el-input v-model="form.trigger_name" placeholder="Enter trigger name" size="small" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Event type <span class="required">*</span></label>
+        <el-select v-model="form.event_type" placeholder="Select event type" size="small" style="width: 100%">
+          <el-option
+            v-for="opt in eventTypeOptions"
+            :key="opt.value"
+            :label="opt.label"
+            :value="opt.value"
+          />
+        </el-select>
+        <div class="field-hint">{{ currentEvent?.desc }}</div>
+      </div>
+
+      <div v-if="showWatchField" class="field-group">
+        <label class="field-label">Watch field <span class="required">*</span></label>
+        <el-select v-model="form.watch_field" placeholder="Select field" size="small" style="width: 100%">
+          <el-option
+            v-for="opt in fieldOptions"
+            :key="opt.value"
+            :label="opt.label"
+            :value="opt.value"
+          />
+        </el-select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Match conditions</label>
+        <div class="match-type-row">
+          <el-radio-group v-model="form.match_type" size="small">
+            <el-radio-button label="all">All conditions</el-radio-button>
+            <el-radio-button label="any">Any condition</el-radio-button>
+          </el-radio-group>
+        </div>
+
+        <div class="conditions-stack">
+          <div
+            v-for="(condition, index) in form.conditions"
+            :key="condition.id"
+            class="condition-line"
+          >
+            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2">
+              <el-option
+                v-for="opt in fieldOptions"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
+              />
+            </el-select>
+            <el-select v-model="condition.operator" placeholder="Operator" size="small" style="flex: 1">
+              <el-option
+                v-for="opt in operatorOptions"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
+              />
+            </el-select>
+            <el-input
+              v-if="!['is_empty', 'is_not_empty'].includes(condition.operator)"
+              v-model="condition.value"
+              placeholder="Value"
+              size="small"
+              style="flex: 1.2"
+            />
+            <button class="icon-btn" @click="handleRemoveCondition(index)">
+              <Icon name="lucide:x" size="14" />
+            </button>
+          </div>
+
+          <button class="ghost-btn" @click="handleAddCondition">
+            <Icon name="lucide:plus" size="14" />
+            New match condition
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Then section -->
+    <div class="section-title">Then</div>
+    <div class="then-card">
+      <div class="then-badge">
+        <Icon name="lucide:arrow-right" size="14" />
+        <span>Action</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Run workflow</label>
+        <el-input v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" />
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="editor-footer">
+      <div class="status-toggle">
+        <el-radio-group v-model="form.status" size="small">
+          <el-radio-button label="A">Active</el-radio-button>
+          <el-radio-button label="I">Inactive</el-radio-button>
+        </el-radio-group>
+      </div>
+      <div class="actions">
+        <el-button size="small" @click="handleCancel">Cancel</el-button>
+        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave">
+          Save
+        </el-button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.trigger-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-m);
+}
+
+.section-title {
+  font-size: var(--app-font-size-l);
+  font-weight: 600;
+  color: var(--app-grey-900);
+}
+
+.preview-card {
+  padding: var(--app-space-m);
+  background: var(--app-paper);
+  border: 1px solid var(--app-grey-200);
+  border-radius: var(--app-border-radius);
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-xs);
+
+  .preview-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-xs);
+    font-size: var(--app-font-size-xs);
+    color: var(--app-grey-500);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .preview-name {
+    font-size: var(--app-font-size-m);
+    font-weight: 500;
+    color: var(--app-grey-900);
+  }
+
+  .preview-desc {
+    font-size: var(--app-font-size-s);
+    color: var(--app-grey-500);
+    line-height: 1.4;
+  }
+}
+
+.config-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-m);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-xs);
+
+  .field-label {
+    font-size: var(--app-font-size-s);
+    font-weight: 500;
+    color: var(--app-grey-700);
+
+    .required {
+      color: var(--el-color-danger);
+    }
+  }
+
+  .field-hint {
+    font-size: var(--app-font-size-s);
+    color: var(--app-grey-500);
+    line-height: 1.4;
+  }
+}
+
+.match-type-row {
+  display: flex;
+  align-items: center;
+}
+
+.conditions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-s);
+}
+
+.condition-line {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xs);
+  padding: var(--app-space-xs);
+  background: var(--app-grey-50);
+  border: 1px solid var(--app-grey-200);
+  border-radius: var(--app-border-radius);
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--app-grey-400);
+  cursor: pointer;
+  border-radius: var(--app-border-radius);
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--el-color-danger);
+    background: var(--el-color-danger-light-9);
+  }
+}
+
+.ghost-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-space-xs);
+  width: 100%;
+  padding: var(--app-space-s);
+  background: transparent;
+  border: 1px dashed var(--app-grey-300);
+  border-radius: var(--app-border-radius);
+  color: var(--app-grey-600);
+  font-size: var(--app-font-size-s);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--el-color-primary);
+    color: var(--el-color-primary);
+    background: var(--el-color-primary-light-9);
+  }
+}
+
+.then-card {
+  padding: var(--app-space-m);
+  background: var(--app-grey-50);
+  border: 1px solid var(--app-grey-200);
+  border-radius: var(--app-border-radius);
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-m);
+
+  .then-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-xs);
+    font-size: var(--app-font-size-xs);
+    color: var(--app-grey-500);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--app-space-m);
+  border-top: 1px solid var(--app-grey-200);
+
+  .actions {
+    display: flex;
+    gap: var(--app-space-s);
+  }
+}
+</style>

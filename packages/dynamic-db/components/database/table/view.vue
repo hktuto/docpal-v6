@@ -34,7 +34,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { EventType, useEventBus } from 'eventbus'
-import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { useTableViewsInject } from '../../../composables/table/useTableViews'
 import { useDBParams } from '../../../composables/table/useDBParams'
 import { useRelationConfigInject } from '../../../composables/table/useRelationConfig'
