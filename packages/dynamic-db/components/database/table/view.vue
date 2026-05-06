@@ -78,7 +78,7 @@ const {
 } = useTableViewsInject()
 const { navigateToItem, findItemById, menuState, databaseMenuRouteParams, addItem } = useSingleDatabaseContext()
 const { getPageParams, columns } = useDBParams()
-const { getRelationFieldConfig } = useRelationConfigInject()
+const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 
 const extraColumnConfig = computed(() => {
@@ -156,6 +156,7 @@ provide('viewTools', {
   tableFields,
   navigateToTableMenu,
   getRelationFieldConfig,
+  setSingleRelationConfig,
   mirrorList,
   updatedViewColumnsConfig,
   saveColumnOrder,
