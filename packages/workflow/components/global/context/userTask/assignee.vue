@@ -18,7 +18,7 @@ function initData() {
   if (!!data.config?.human_task?.assignee) {
     autoAssignField.value = data.config?.human_task?.assignee
   } else {
-    autoAssignField.value = ''
+    autoAssignField.value = '${__system__user_creator_id}'
   }
 }
 
@@ -81,8 +81,8 @@ watch(
 
 <template>
   <el-form label-position="top" label-width="100px" size="small">
-    <el-form-item label="Auto Assignee">
-      <el-select v-model="autoAssignField" placeholder="Select Field" filterable clearable :disabled="graphProvider.readonly.value" @change="assigneeChanged">
+    <el-form-item label="Auto Assignee" required>
+      <el-select v-model="autoAssignField" placeholder="Select Field" filterable :disabled="graphProvider.readonly.value" @change="assigneeChanged">
         <el-option-group v-for="group in assignFieldList" :key="group.label" :label="group.label">
           <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
         </el-option-group>
