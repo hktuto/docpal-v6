@@ -1,5 +1,5 @@
 export const getTaskItemConfig = {
-  UserTask:{
+  UserTask: {
     human_task: {
       assignee: '',
       candidate_users: [],
@@ -12,10 +12,11 @@ export const getTaskItemConfig = {
         escalation_action: '',
         escalation_target: ''
       },
+      form_key: '',
       form_fields: []
     },
     input_mapping: {},
-    output_mapping: {},
+    output_mapping: {}
   },
   ConditionTask: {
     relation: 'AND',
@@ -26,7 +27,7 @@ export const getTaskItemConfig = {
   },
   ValidateTask: {
     rules: [],
-    input_mapping:{},
+    input_mapping: {},
     output_mapping: {}
   },
   MessageTask: {
@@ -38,7 +39,7 @@ export const getTaskItemConfig = {
     cc: [],
     subject: '',
     body: '',
-    input_mapping:{},
+    input_mapping: {},
     output_mapping: {}
   },
   UploadFile: {
@@ -81,35 +82,47 @@ export const getTaskItemConfig = {
       templateId: '',
       variables: {}
     },
-    input_mapping:{},
+    input_mapping: {},
     output_mapping: {}
   },
   FilingDocuments: {
     implementation: 'filing_document',
-    method: 'POST',
-    url: `${getUrlOrigin()}/api/dms/facade/filing-document`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {
-      folderCabinetId: '',
-      folderCabinet: []
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/api/dms/facade/filing-document`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      query_params: {},
+      body: {
+        folderCabinetId: '',
+        folderCabinet: []
+      },
+      timeout: 5000
     },
     input_mapping: {},
     output_mapping: {}
   },
   InsertDynamicDatabase: {
-    method: 'POST',
-    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {},
-    input_mapping:{},
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      query_params: {},
+      body: {},
+      timeout: 5000
+    },
+    input_mapping: {},
     output_mapping: {}
   },
   UpdateDynamicDatabase: {
-    method: 'PUT',
-    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {},
-    input_mapping:{},
+    http_request: {
+      method: 'PUT',
+      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      query_params: {},
+      body: {},
+      timeout: 5000
+    },
+    input_mapping: {},
     output_mapping: {}
   }
 }

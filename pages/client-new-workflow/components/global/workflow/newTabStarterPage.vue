@@ -3,9 +3,9 @@ import { conversionFormDataByVariables, getButtonAdditionalElement, MenuRouterKe
 import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
-const { definition_id, metadata, variables } = defineProps<{
+const { definition_id, nextTaskNode, variables } = defineProps<{
   definition_id: string
-  metadata: any
+  nextTaskNode: any
   variables: any
 }>()
 defineOptions({
@@ -18,7 +18,7 @@ const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 
 async function init() {
-  const formKey = metadata.formKey
+  const formKey = nextTaskNode.config.human_task.form_key
   if (!formKey || formKey === 0) {
     // form不存在
     routerProvider?.message.error('Form does not exist')
@@ -33,7 +33,7 @@ async function init() {
       return
     }
 
-    await handleAdditionalSetting(metadata)
+    await handleAdditionalSetting(nextTaskNode.metadata)
 
     nextTick(() => {
       vFormRef.value.setForm(formJson.jsonValue)
@@ -87,23 +87,6 @@ async function handleSubmit() {
   }
 }
 
-async function additionalSubmit() {
-  let formData = await vFormRef.value.getFormData(true, false)
-  if (!formData) throw new Error(`${t('incompleteData')}`)
-
-  const formParams = {
-    start_user_id: userId.value,
-    definition_id: definition_id,
-    variables: {
-      ...formData,
-      __system__user_creator_id: userId.value
-    }
-  }
-  const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
-  routerProvider?.message.success('Workflow created')
-  cancel()
-}
-
 function cancel() {
   const fallbackPageItem = {
     id: 'client-workflow',
@@ -129,9 +112,6 @@ onMounted(() => {
     <ContextFormRender ref="vFormRef">
       <template #action>
         <div class="workflow-actions">
-          <!--          <template v-for="(item, index) in additionalButton" :key="index">-->
-          <!--            <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="additionalSubmit" />-->
-          <!--          </template>-->
           <el-button id="Workflow__NewWorkflow__StartFullPageDead__Cancel" @click="cancel">
             {{ $t('cancelText') }}
           </el-button>

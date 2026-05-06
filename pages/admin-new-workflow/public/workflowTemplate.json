@@ -33,15 +33,8 @@
         "width": 140,
         "height": 64,
         "icon": "/icons/form.svg",
-        "formKey": 0,
         "openInNewPage": false,
-        "buttonSetting": {
-          "showSubmitButton": true,
-          "submitButtonLabel": "Submit",
-          "showSaveDraft": false,
-          "saveDraftLabel": "Save Draft",
-          "booleanButton": []
-        }
+        "maxOutgoing": 1
       }
     },
     {

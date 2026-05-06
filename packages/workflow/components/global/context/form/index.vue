@@ -29,7 +29,7 @@ const formKey = ref<number>(0)
 
 function initData() {
   const data = node.getData()
-  formKey.value = Number(data.metadata.formKey)
+  formKey.value = Number(newData.human_task.form_key)
   formTitle.value = data.metadata.form_title || ''
 }
 
@@ -69,7 +69,7 @@ function update() {
     version: nodeData.version + 1 || 1
   }
   if (!!formKey.value && formKey.value !== 0) {
-    newData.metadata.formKey = Number(formKey.value)
+    newData.human_task.form_key = Number(formKey.value)
   }
 
   node.setData(newData, { overwrite: true, deep: true })

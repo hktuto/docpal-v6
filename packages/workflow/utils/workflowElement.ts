@@ -210,7 +210,6 @@ export type CellTypeItem = {
         type: CellType
         tags: WorkflowElementType
         icon: string
-        formKey?: string
         form_title?: string
         width?: number
         height?: number
@@ -683,7 +682,6 @@ const workflowCellElementTemplate: CellTypeItem = {
         type: CellType.userTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
-        formKey: '',
         form_title: '',
         buttonSetting: {
           showSubmitButton: true,
@@ -709,7 +707,6 @@ const workflowCellElementTemplate: CellTypeItem = {
         type: CellType.signatureTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
-        formKey: '',
         form_title: '',
         buttonSetting: {
           showSubmitButton: true,

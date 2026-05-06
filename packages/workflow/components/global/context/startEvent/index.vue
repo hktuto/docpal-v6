@@ -12,9 +12,6 @@ const emits = defineEmits(['openForm'])
     <SidebarLabel :node="node" />
     <ContextStartEventCandidate :node="node" />
     <ContextStartEventAdditionLogic :node="node" />
-    <ContextForm :node="node" />
-    <ContextPreviewDocument v-if="node.data.type !== 'StartEvent'" :node="node" />
-    <ContextUserTaskBooleanButton :node="node" />
   </div>
 </template>
 
