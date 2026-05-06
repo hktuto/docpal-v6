@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
-import { createError, getGroupsSelectOption, getRoleSelectOption, useWorkflowAdditionalContext, type BaseOption } from '#imports'
+import { createError, getUserSelectOption, getGroupsSelectOption, getRoleSelectOption, type BaseOption } from '#imports'
 
 const { t } = useI18n()
 const { node } = defineProps<{
@@ -17,19 +17,29 @@ const formData = ref({
   candidateGroup: []
 })
 
+const allUser = ref<BaseOption[]>([])
 const allUserRole = ref<BaseOption[]>([])
 const allUserGroup = ref<BaseOption[]>([])
 async function getSelect() {
-  if (allUserRole.value.length == 0) {
-    allUserRole.value = await getRoleSelectOption()
+  allUser.value = await getUserSelectOption()
+  allUserRole.value = await getRoleSelectOption()
+  allUserGroup.value = await getGroupsSelectOption()
+}
+
+function initData() {
+  const data = node.getData()
+  if (data.config?.human_task?.candidate_roles.length > 0) {
+    formData.value.sw = false
+    formData.value.candidateRoles = data.config?.human_task?.candidate_roles
   }
-  if (allUserGroup.value.length == 0) {
-    allUserGroup.value = await getGroupsSelectOption()
+  if (data.config?.human_task?.candidate_groups.length > 0) {
+    formData.value.sw = true
+    formData.value.candidateGroup = data.config?.human_task?.candidate_groups
   }
 }
 
 function handelChanged() {
-  graphProvider.graph.value?.startBatch('update-user-task-permissions-data')
+  graphProvider?.graph.value?.startBatch('update-user-task-permissions-data')
   if (formData.value.sw) {
     formData.value.candidateRoles = []
   } else {
@@ -41,38 +51,28 @@ function handelChanged() {
     ...nodeData,
     config: {
       ...nodeData.config,
-      candidate_roles: formData.value.candidateRoles,
-      candidate_groups: formData.value.candidateGroup
+      human_task:{
+        ...nodeData.config.human_task,
+        candidate_roles: formData.value.candidateRoles,
+        candidate_groups: formData.value.candidateGroup
+      }
     }
   }
 
   node.setData(newData, { overwrite: true, deep: true })
-  graphProvider.graph.value?.stopBatch('update-user-task-permissions-data')
-}
-
-function refreshData() {
-  const data = node.getData()
-  if (data.config.candidate_roles.length > 0) {
-    formData.value.sw = false
-    formData.value.candidateRoles = data.config.candidate_roles
-  }
-  if (data.config.candidate_groups.length > 0) {
-    formData.value.sw = true
-    formData.value.candidateGroup = data.config.candidate_groups
-  }
+  graphProvider?.graph.value?.stopBatch('update-user-task-permissions-data')
 }
 
 onMounted(async () => {
   await getSelect()
-  refreshData()
-  // useWorkflowAdditionalContext(refreshData)
+  // useWorkflowAdditionalContext(initData)
 })
 
 watch(
   () => node,
   () => {
     if (node) {
-      refreshData()
+      initData()
     }
   },
   {

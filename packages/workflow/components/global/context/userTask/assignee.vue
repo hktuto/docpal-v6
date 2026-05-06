@@ -13,10 +13,10 @@ const { getVariablesByType } = useVariablesProvide()
 const autoAssignField = ref<string>('')
 const assignFieldList = ref<any[]>([])
 
-function refreshData() {
+function initData() {
   const data = node.getData()
-  if (!!data.config.assignee) {
-    autoAssignField.value = data.config.assignee
+  if (!!data.config?.human_task?.assignee) {
+    autoAssignField.value = data.config?.human_task?.assignee
   } else {
     autoAssignField.value = ''
   }
@@ -29,7 +29,10 @@ function assigneeChanged(newVal: string) {
     ...nodeData,
     config: {
       ...nodeData.config,
-      assignee: newVal
+      human_task: {
+        ...nodeData.config.human_task,
+        assignee: newVal
+      }
     },
     version: node.data.version + 1 || 0
   }
@@ -59,14 +62,14 @@ async function getAssignFieldList() {
 
 onMounted(async () => {
   await getAssignFieldList()
-  // useWorkflowAdditionalContext(refreshData)
+  // useWorkflowAdditionalContext(initData)
 })
 
 watch(
   () => node,
   () => {
     if (node) {
-      refreshData()
+      initData()
     }
   },
   {
@@ -87,3 +90,5 @@ watch(
     </el-form-item>
   </el-form>
 </template>
+
+<style lang="scss" scoped></style>

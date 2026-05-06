@@ -77,7 +77,7 @@ onMounted(async () => {
 
 <template>
   <div v-if="openWorkflowEdit" v-loading="loading" class="pageContainer">
-    <LazyWorkflowEditor
+    <WorkflowEditor
       ref="workflowEditorRef"
       :workflow-data="workflowData"
       :readonly="workflowReadonly"
@@ -93,7 +93,7 @@ onMounted(async () => {
         <!--          {{ $t('Open The Release Version') }}-->
         <!--        </el-button>-->
       </template>
-    </LazyWorkflowEditor>
+    </WorkflowEditor>
   </div>
 </template>
 

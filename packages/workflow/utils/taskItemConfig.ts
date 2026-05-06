@@ -1,4 +1,22 @@
-export const getServiceTaskItemConfig = {
+export const getTaskItemConfig = {
+  UserTask:{
+    human_task: {
+      assignee: '',
+      candidate_users: [],
+      candidate_roles: [],
+      candidate_groups: [],
+      due_date: '',
+      priority: 5,
+      escalation: {
+        escalation_time: '',
+        escalation_action: '',
+        escalation_target: ''
+      },
+      form_fields: []
+    },
+    input_mapping: {},
+    output_mapping: {},
+  },
   ConditionTask: {
     relation: 'AND',
     conditions: []
@@ -8,6 +26,7 @@ export const getServiceTaskItemConfig = {
   },
   ValidateTask: {
     rules: [],
+    input_mapping:{},
     output_mapping: {}
   },
   MessageTask: {
@@ -19,7 +38,8 @@ export const getServiceTaskItemConfig = {
     cc: [],
     subject: '',
     body: '',
-    input_mapping: {}
+    input_mapping:{},
+    output_mapping: {}
   },
   UploadFile: {
     implementation: 'upload_document',
@@ -61,6 +81,7 @@ export const getServiceTaskItemConfig = {
       templateId: '',
       variables: {}
     },
+    input_mapping:{},
     output_mapping: {}
   },
   FilingDocuments: {
@@ -80,13 +101,16 @@ export const getServiceTaskItemConfig = {
     url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
     headers: generatorHTTPRequestTaskHeaders(),
     body: {},
+    input_mapping:{},
     output_mapping: {}
   },
   UpdateDynamicDatabase: {
     method: 'PUT',
     url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
     headers: generatorHTTPRequestTaskHeaders(),
-    body: {}
+    body: {},
+    input_mapping:{},
+    output_mapping: {}
   }
 }
 

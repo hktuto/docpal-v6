@@ -1,6 +1,6 @@
 import { Cell, CellView, Graph } from '@antv/x6'
 import type { NodeItem } from './jsonConversion'
-import { getServiceTaskItemConfig } from '@packages/workflow/utils/serviceTaskItemConfig'
+import { getTaskItemConfig } from '@packages/workflow/utils/taskItemConfig'
 
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
@@ -193,7 +193,7 @@ export type CellTypeItem = {
     data: {
       id: string
       name: string
-      type: CellType
+      type: string
       label: string
       documentation: string
       inputSchema?: string
@@ -211,6 +211,7 @@ export type CellTypeItem = {
         tags: WorkflowElementType
         icon: string
         formKey?: string
+        form_title?: string
         width?: number
         height?: number
         bgColor?: string
@@ -219,6 +220,7 @@ export type CellTypeItem = {
         rules?: any
         maxOutgoing?: number
         signature?: any
+        databaseId?: string
       }
       celCondition?: string
     }
@@ -675,20 +677,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New User Task',
       documentation: '',
       type: CellType.userTask,
-      config: {
-        assignee: '',
-        candidate_roles: [],
-        candidate_groups: []
-        // due_date: '',
-        // input_mapping: {},
-        // output_mapping: {}
-      },
+      config: getTaskItemConfig[CellType.userTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.userTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
         formKey: '',
+        form_title: '',
         buttonSetting: {
           showSubmitButton: true,
           submitButtonLabel: 'Submit',
@@ -707,20 +703,14 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Signature Task',
       documentation: '',
       type: CellType.userTask,
-      config: {
-        assignee: '',
-        candidate_roles: [],
-        candidate_groups: []
-        // due_date: '',
-        // input_mapping: {},
-        // output_mapping: {}
-      },
+      config: getTaskItemConfig[CellType.userTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.signatureTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
         formKey: '',
+        form_title: '',
         buttonSetting: {
           showSubmitButton: true,
           submitButtonLabel: 'Submit',
@@ -810,13 +800,14 @@ const workflowCellElementTemplate: CellTypeItem = {
         url: '',
         headers: {},
         body: {},
+        input_mapping: {},
         output_mapping: {}
       },
       metadata: {
         type: CellType.HTTPTask,
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/http-task.svg'
-      },
+      }
     }
   },
   UniqueIdGenerator: {
@@ -828,7 +819,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.uniqueIdGenerator,
       execution: { ...DEFAULT_TASK_EXECUTION },
-      config: getServiceTaskItemConfig[CellType.uniqueIdGenerator],
+      config: getTaskItemConfig[CellType.uniqueIdGenerator],
       metadata: {
         type: CellType.uniqueIdGenerator,
         tags: WorkflowElementType.HTTPRequestTask,
@@ -845,7 +836,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Sub Process',
       documentation: '',
       type: CellType.subProcess,
-      config: getServiceTaskItemConfig[CellType.subProcess],
+      config: getTaskItemConfig[CellType.subProcess],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.subProcess,
@@ -862,7 +853,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Validate Task',
       documentation: '',
       type: CellType.validateTask,
-      config: getServiceTaskItemConfig[CellType.validateTask],
+      config: getTaskItemConfig[CellType.validateTask],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.validateTask,
@@ -899,7 +890,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Message Task',
       documentation: '',
       type: CellType.messageTask,
-      config: getServiceTaskItemConfig[CellType.messageTask],
+      config: getTaskItemConfig[CellType.messageTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.messageTask,
@@ -916,7 +907,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Upload File',
       documentation: '',
       type: CellType.uploadFile,
-      config: getServiceTaskItemConfig[CellType.uploadFile],
+      config: getTaskItemConfig[CellType.uploadFile],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.uploadFile,
@@ -933,7 +924,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Document Generation Task',
       documentation: '',
       type: CellType.documentGenerationTask,
-      config: getServiceTaskItemConfig[CellType.documentGenerationTask],
+      config: getTaskItemConfig[CellType.documentGenerationTask],
       input_mapping: {},
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
@@ -952,7 +943,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Filing Documents Task',
       documentation: '',
       type: CellType.serviceTask,
-      config: getServiceTaskItemConfig[CellType.filingDocuments],
+      config: getTaskItemConfig[CellType.filingDocuments],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.filingDocuments,
@@ -986,7 +977,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Condition Task',
       documentation: '',
       type: CellType.conditionTask,
-      config: getServiceTaskItemConfig[CellType.conditionTask],
+      config: getTaskItemConfig[CellType.conditionTask],
       metadata: {
         type: CellType.conditionTask,
         tags: WorkflowElementType.ServiceTask,
@@ -1007,7 +998,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       execution: { ...DEFAULT_TASK_EXECUTION },
       type: WorkflowElementType.HTTPRequestTask,
-      config: getServiceTaskItemConfig[CellType.insertDynamicDatabase],
+      config: getTaskItemConfig[CellType.insertDynamicDatabase],
       metadata: {
         type: CellType.insertDynamicDatabase,
         tags: WorkflowElementType.HTTPRequestTask,
@@ -1026,7 +1017,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       execution: { ...DEFAULT_TASK_EXECUTION },
       type: CellType.updateDynamicDatabase,
-      config: getServiceTaskItemConfig[CellType.updateDynamicDatabase],
+      config: getTaskItemConfig[CellType.updateDynamicDatabase],
       metadata: {
         type: CellType.updateDynamicDatabase,
         tags: WorkflowElementType.HTTPRequestTask,

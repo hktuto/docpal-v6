@@ -28,7 +28,6 @@ watch(
     <ContextUserTaskPermissions :node="node" />
     <ContextSignatureDetail :node="node" />
     <ContextForm :node="node" />
-    <ContextUserTaskPreviewDocument :node="node" />
     <ContextUserTaskBooleanButton :node="node" />
   </div>
 </template>

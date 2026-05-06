@@ -99,6 +99,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <el-divider />
   <div class="formContainer">
     <h4>Boolean Button</h4>
     <div>
@@ -107,14 +108,14 @@ onMounted(() => {
         <el-form-item v-if="node.data.type !== 'StartEvent'" label="Show Submit Button">
           <el-switch v-model="buttonSetting.showSubmitButton" @change="updateData" />
         </el-form-item>
-        <el-form-item label="Submit Button Label">
+        <el-form-item v-if="buttonSetting.showSubmitButton" label="Submit Button Label">
           <el-input v-model="buttonSetting.submitButtonLabel" @change="updateData" />
         </el-form-item>
         <template v-if="node.data.metadata.type === 'UserTask'">
           <el-form-item label="Show Save Draft Button">
             <el-switch v-model="buttonSetting.showSaveDraft" @change="updateData" />
           </el-form-item>
-          <el-form-item label="Save Draft Button Label">
+          <el-form-item v-if="buttonSetting.showSaveDraft" label="Save Draft Button Label">
             <el-input v-model="buttonSetting.saveDraftLabel" @change="updateData" />
           </el-form-item>
         </template>

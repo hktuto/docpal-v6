@@ -10,26 +10,24 @@ if (!graphProvider) {
   throw createError('graph provider not found')
 }
 
-watch(
-  () => node,
-  () => {
-    if (node) {
-    }
-  },
-  {
-    immediate: true,
-    deep: true
-  }
-)
+// watch(
+//   () => node,
+//   () => {
+//   },
+//   {
+//     immediate: true,
+//     deep: true
+//   }
+// )
 </script>
 
 <template>
   <div class="fromContainer">
     <SidebarLabel :node="node" />
     <ContextUserTaskAssignee :node="node" />
-    <ContextUserTaskPermissions :node="node"/>
+    <ContextUserTaskPermissions :node="node" />
+    <ContextUserTaskAdditional :node="node" />
     <ContextForm :node="node" />
-    <ContextUserTaskPreviewDocument :node="node" />
     <ContextUserTaskBooleanButton :node="node" />
   </div>
 </template>
