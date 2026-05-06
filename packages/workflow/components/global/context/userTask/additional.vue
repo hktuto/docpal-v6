@@ -32,7 +32,8 @@ function update() {
         ...nodeData.config.human_task,
         priority: priority.value
       }
-    }
+    },
+    version: nodeData.version + 1 || 1
   }
 
   if (!!dueDate.value && dueDate.value !== '') {
@@ -56,20 +57,12 @@ watch(
 </script>
 
 <template>
-  <el-form label-position="top">
+  <el-form label-position="top" size="small">
     <el-form-item :label="t('Due Date')">
-      <el-date-picker
-        size="small"
-        style="width: 100%"
-        v-model="dueDate"
-        type="datetime"
-        format="YYYY-MM-DD HH:mm:ss"
-        date-format="YYYY-MM-DD"
-        @change="update"
-      />
+      <el-date-picker style="width: 100%" v-model="dueDate" type="datetime" format="YYYY-MM-DD HH:mm:ss" date-format="YYYY-MM-DD" @change="update" />
     </el-form-item>
     <el-form-item :label="t('Priority')">
-      <el-input-number size="small" style="width: 100%" v-model="priority" :min="1" :max="5" @change="update" />
+      <el-input-number style="width: 100%" v-model="priority" :min="1" :max="5" @change="update" />
     </el-form-item>
   </el-form>
 </template>

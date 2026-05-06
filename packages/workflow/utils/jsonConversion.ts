@@ -180,6 +180,10 @@ function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
   x6Nodes.forEach((x6Node: any) => {
     if (x6Node.data.type === 'process') return
 
+    if ('version' in x6Node.data) {
+      delete x6Node.data.version
+    }
+
     const { x, y } = x6Node.getPosition()
     const { width, height } = x6Node.getSize()
     nodes.push({

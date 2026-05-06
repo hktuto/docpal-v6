@@ -51,12 +51,13 @@ function handelChanged() {
     ...nodeData,
     config: {
       ...nodeData.config,
-      human_task:{
+      human_task: {
         ...nodeData.config.human_task,
         candidate_roles: formData.value.candidateRoles,
         candidate_groups: formData.value.candidateGroup
       }
-    }
+    },
+    version: nodeData.version + 1 || 1
   }
 
   node.setData(newData, { overwrite: true, deep: true })
@@ -84,15 +85,15 @@ watch(
 
 <template>
   <div>
-    <el-form :disabled="graphProvider.readonly.value" label-position="top">
-      <el-switch v-model="formData.sw" size="small" active-text="Group" inactive-text="Roles" @change="handelChanged" />
+    <el-form :disabled="graphProvider.readonly.value" label-position="top" size="small">
+      <el-switch v-model="formData.sw" active-text="Group" inactive-text="Roles" @change="handelChanged" />
       <el-form-item v-if="!formData.sw" :label="t('Candidate Role')">
-        <el-select size="small" v-model="formData.candidateRoles" placeholder="Select Role" filterable clearable multiple @change="handelChanged">
+        <el-select v-model="formData.candidateRoles" placeholder="Select Role" filterable clearable multiple @change="handelChanged">
           <el-option v-for="item in allUserRole" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
       <el-form-item v-else label="Candidate Group">
-        <el-select size="small" v-model="formData.candidateGroup" placeholder="Select Group" filterable clearable multiple @change="handelChanged">
+        <el-select v-model="formData.candidateGroup" placeholder="Select Group" filterable clearable multiple @change="handelChanged">
           <el-option v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>

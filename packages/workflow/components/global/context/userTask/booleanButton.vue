@@ -55,7 +55,7 @@ function updateData() {
     },
     version: nodeData.version + 1 || 1
   }
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-boolean-button-data')
 }
 
@@ -105,19 +105,18 @@ onMounted(() => {
     <div>
       <span>Button Setting</span>
       <el-form label-position="top">
-        <el-form-item v-if="node.data.type !== 'StartEvent'" label="Show Submit Button">
-          <el-switch v-model="buttonSetting.showSubmitButton" @change="updateData" />
-        </el-form-item>
-        <el-form-item v-if="buttonSetting.showSubmitButton" label="Submit Button Label">
-          <el-input v-model="buttonSetting.submitButtonLabel" @change="updateData" />
-        </el-form-item>
+        <div style="display: flex; width: 100%; justify-content: space-between; align-items: center">
+          <p>Submit Button</p>
+          <el-switch size="small" v-model="buttonSetting.showSubmitButton" active-text="Show" inactive-text="Disabled" @change="updateData" />
+        </div>
+        <el-input v-if="buttonSetting.showSubmitButton" v-model="buttonSetting.submitButtonLabel" @change="updateData" />
+
         <template v-if="node.data.metadata.type === 'UserTask'">
-          <el-form-item label="Show Save Draft Button">
-            <el-switch v-model="buttonSetting.showSaveDraft" @change="updateData" />
-          </el-form-item>
-          <el-form-item v-if="buttonSetting.showSaveDraft" label="Save Draft Button Label">
-            <el-input v-model="buttonSetting.saveDraftLabel" @change="updateData" />
-          </el-form-item>
+          <div style="display: flex; width: 100%; justify-content: space-between; align-items: center">
+            <p>Show Save Draft Button</p>
+            <el-switch size="small" v-model="buttonSetting.showSaveDraft" active-text="Show" inactive-text="Disabled" @change="updateData" />
+          </div>
+          <el-input v-if="buttonSetting.showSaveDraft" v-model="buttonSetting.saveDraftLabel" @change="updateData" />
         </template>
       </el-form>
     </div>

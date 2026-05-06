@@ -6,7 +6,7 @@ import { useWorkflowAdditionalContext } from '#imports'
 const { node } = defineProps<{
   node: Node
 }>()
-
+const { t } = useI18n()
 const emits = defineEmits(['openForm'])
 const formDialogRef = ref()
 const formRenderVisible = ref()
@@ -21,15 +21,16 @@ if (!routerProvider) {
 }
 
 const { workflowKey } = graphProvider
-
+const formTitle = ref<string>('')
 const formItems = ref<any[]>([])
 const RuleManageDialogRef = ref()
 
 const formKey = ref<number>(0)
 
-function refreshData() {
+function initData() {
   const data = node.getData()
   formKey.value = Number(data.metadata.formKey)
+  formTitle.value = data.metadata.form_title || ''
 }
 
 function editField() {
@@ -46,9 +47,9 @@ async function copyFormAndFieldSetting() {
   })
 }
 
-async function pasteForm() {
-  await graphProvider?.pasteForm(node)
-  refreshData()
+function pasteForm() {
+  graphProvider?.pasteForm(node)
+  initData()
 }
 
 async function handleOpenForm() {
@@ -56,19 +57,28 @@ async function handleOpenForm() {
   formDialogRef.value.openDialog(formJson)
 }
 
-function handelSubmitForm(id: string) {
-  graphProvider?.graph.value?.startBatch('update-fromKey-data')
+function update() {
+  graphProvider?.graph.value?.startBatch('update-form-setting-data')
   const data = node.getData()
   const newData = {
     ...data,
     metadata: {
       ...data.metadata,
-      formKey: Number(id)
-    }
+      form_title: formTitle.value
+    },
+    version: nodeData.version + 1 || 1
   }
+  if (!!formKey.value && formKey.value !== 0) {
+    newData.metadata.formKey = Number(formKey.value)
+  }
+
   node.setData(newData, { overwrite: true, deep: true })
+  graphProvider?.graph.value?.stopBatch('update-form-setting-data')
+}
+
+function handelSubmitForm(id: string) {
   formKey.value = Number(id)
-  graphProvider?.graph.value?.stopBatch('update-fromKey-data')
+  update()
 }
 
 async function previewForm() {
@@ -104,14 +114,14 @@ const processNode = computed(() => {
 })
 
 onMounted(() => {
-  useWorkflowAdditionalContext(refreshData)
+  useWorkflowAdditionalContext(initData)
 })
 
 watch(
   () => node,
   () => {
     if (node) {
-      refreshData()
+      initData()
     }
   },
   {
@@ -122,19 +132,21 @@ watch(
 </script>
 
 <template>
-  <div class="formComponentContainer">
-    <div class="title">{{ $t('workflowEdior.formField') }}</div>
+  <el-form label-position="top" :disabled="graphProvider.readonly.value">
+    <div class="title">{{ $t('Form Setting') }}</div>
+    <el-form-item :label="t('Form Title')">
+      <el-input v-model="formTitle" @change="update" />
+    </el-form-item>
     <div class="actionsContainer">
-      <ElButton type="primary" id="Workflow__UserTask__EditField" :disabled="graphProvider.readonly.value" @click="editField">Edit Field</ElButton>
+      <ElButton type="primary" id="Workflow__UserTask__EditField" @click="editField">Edit Field</ElButton>
       <ElButton type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</ElButton>
       <ElButton type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</ElButton>
     </div>
-
     <div class="actionsContainer">
-      <ElButton size="small" @click="copyFormAndFieldSetting" :disabled="graphProvider.readonly.value">Copy Form and Field setting</ElButton>
-      <ElButton v-if="graphProvider.copyKey.value" size="small" :disabled="graphProvider.readonly.value" @click="pasteForm"> Paste Form </ElButton>
+      <ElButton size="small" @click="copyFormAndFieldSetting">Copy Form and Field setting</ElButton>
+      <ElButton v-if="graphProvider.copyKey.value" size="small" @click="pasteForm"> Paste Form </ElButton>
     </div>
-  </div>
+  </el-form>
 
   <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="processNode" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" @submit="handelSubmitForm" />
@@ -144,14 +156,6 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-.actions {
-  cursor: pointer;
-}
-
-.mover {
-  cursor: move;
-}
-
 .actionsContainer {
   display: flex;
   flex-flow: column nowrap;
@@ -169,18 +173,5 @@ watch(
   :deep(.el-button + .el-button) {
     margin-left: 0;
   }
-}
-
-.flip-list-move {
-  transition: transform 0.5s;
-}
-
-.no-move {
-  transition: transform 0s;
-}
-
-.ghost {
-  opacity: 0.5;
-  background: #c8ebfb;
 }
 </style>
