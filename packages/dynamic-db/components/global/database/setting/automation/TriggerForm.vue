@@ -2,6 +2,7 @@
 import { clientApi } from 'api'
 import type { TriggerSettingDTO, TableFieldDTO } from 'api'
 import { ElMessage } from 'element-plus'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 const props = defineProps<{
   masterTableId: string
@@ -44,15 +45,56 @@ const eventTypeOptions = [
   { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' }
 ]
 
-const operatorOptions = [
-  { label: 'Equals', value: 'eq' },
-  { label: 'Not equals', value: 'ne' },
-  { label: 'Greater than', value: 'gt' },
-  { label: 'Less than', value: 'lt' },
-  { label: 'Contains', value: 'contains' },
-  { label: 'Is empty', value: 'is_empty' },
-  { label: 'Is not empty', value: 'is_not_empty' }
-]
+function isNumericField(fieldName: string): boolean {
+  const field = state.fields.find(f => f.field_name === fieldName)
+  if (!field) return false
+  const bt = field.business_type
+  return bt === ColumnFieldType.Number || bt === ColumnFieldType.Rating
+}
+
+function isDateField(fieldName: string): boolean {
+  const field = state.fields.find(f => f.field_name === fieldName)
+  if (!field) return false
+  const bt = field.business_type
+  return bt === ColumnFieldType.DateTime || bt === ColumnFieldType.CreatedTime || bt === ColumnFieldType.LastModifiedTime
+}
+
+function getOperatorsForField(fieldName: string): Array<{ label: string; value: string }> {
+  if (!fieldName) return []
+  if (isDateField(fieldName)) {
+    return [
+      { label: 'Equals', value: 'eq' },
+      { label: 'After', value: 'gt' },
+      { label: 'After or equals', value: 'gte' },
+      { label: 'Before', value: 'lt' },
+      { label: 'Before or equals', value: 'lte' },
+      { label: 'Is empty', value: 'is_empty' },
+      { label: 'Is not empty', value: 'is_not_empty' }
+    ]
+  }
+  if (isNumericField(fieldName)) {
+    return [
+      { label: '=', value: 'eq' },
+      { label: '≠', value: 'ne' },
+      { label: '>', value: 'gt' },
+      { label: '≥', value: 'gte' },
+      { label: '<', value: 'lt' },
+      { label: '≤', value: 'lte' },
+      { label: 'Is empty', value: 'is_empty' }
+    ]
+  }
+  return [
+    { label: 'Contains', value: 'contains' },
+    { label: 'Equals', value: 'eq' },
+    { label: 'Not equals', value: 'ne' },
+    { label: 'Is empty', value: 'is_empty' },
+    { label: 'Is not empty', value: 'is_not_empty' }
+  ]
+}
+
+function isValueEmptyOperator(operator: string): boolean {
+  return ['is_empty', 'is_not_empty'].includes(operator)
+}
 
 const fieldOptions = computed(() => {
   return state.fields.map(f => ({
@@ -67,6 +109,13 @@ const currentEvent = computed(() => eventTypeOptions.find(o => o.value === form.
 
 function generateId() {
   return Math.random().toString(36).substring(2, 9)
+}
+
+function handleFieldChange(condition: any) {
+  if (!condition.field_name) return
+  const ops = getOperatorsForField(condition.field_name)
+  condition.operator = ops.length > 0 ? ops[0].value : 'eq'
+  condition.value = ''
 }
 
 function handleAddCondition() {
@@ -85,7 +134,8 @@ function handleRemoveCondition(index: number) {
 async function handleLoadFields() {
   try {
     const { data } = await clientApi.api.getDynamicDbTableTableidFields(props.masterTableId)
-    state.fields = data?.data || []
+    console.log("handleLoadFields", data)
+    state.fields = data || []
   } catch (error) {
     // silent fail
   }
@@ -259,7 +309,17 @@ watch(() => props.trigger, hydrateForm, { deep: true })
             :key="condition.id"
             class="condition-line"
           >
-            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2">
+            <div class="connector-label">
+              <span v-if="index === 0">When</span>
+              <span v-else>{{ form.match_type === 'all' ? 'And' : 'Or' }}</span>
+            </div>
+            <el-select
+              v-model="condition.field_name"
+              placeholder="Field"
+              size="small"
+              style="flex: 1.2"
+              @change="handleFieldChange(condition)"
+            >
               <el-option
                 v-for="opt in fieldOptions"
                 :key="opt.value"
@@ -269,14 +329,27 @@ watch(() => props.trigger, hydrateForm, { deep: true })
             </el-select>
             <el-select v-model="condition.operator" placeholder="Operator" size="small" style="flex: 1">
               <el-option
-                v-for="opt in operatorOptions"
+                v-for="opt in getOperatorsForField(condition.field_name)"
                 :key="opt.value"
                 :label="opt.label"
                 :value="opt.value"
               />
             </el-select>
+            <el-date-picker
+              v-if="isDateField(condition.field_name)"
+              v-model="condition.value"
+              placeholder="Select date"
+              size="small"
+              style="flex: 1.2"
+              value-format="x"
+            />
+            <div
+              v-else-if="isValueEmptyOperator(condition.operator)"
+              class="placeholder-input"
+              style="flex: 1.2"
+            />
             <el-input
-              v-if="!['is_empty', 'is_not_empty'].includes(condition.operator)"
+              v-else
               v-model="condition.value"
               placeholder="Value"
               size="small"
@@ -342,7 +415,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
 .preview-card {
   padding: var(--app-space-m);
   background: var(--app-paper);
-  border: 1px solid var(--app-grey-200);
+  border: 1px solid var(--app-grey-800);
   border-radius: var(--app-border-radius);
   display: flex;
   flex-direction: column;
@@ -353,7 +426,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
     align-items: center;
     gap: var(--app-space-xs);
     font-size: var(--app-font-size-xs);
-    color: var(--app-grey-500);
+    color: var(--app-grey-8500);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -367,7 +440,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
 
   .preview-desc {
     font-size: var(--app-font-size-s);
-    color: var(--app-grey-500);
+    color: var(--app-grey-8500);
     line-height: 1.4;
   }
 }
@@ -395,7 +468,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
 
   .field-hint {
     font-size: var(--app-font-size-s);
-    color: var(--app-grey-500);
+    color: var(--app-grey-8500);
     line-height: 1.4;
   }
 }
@@ -416,9 +489,22 @@ watch(() => props.trigger, hydrateForm, { deep: true })
   align-items: center;
   gap: var(--app-space-xs);
   padding: var(--app-space-xs);
-  background: var(--app-grey-50);
-  border: 1px solid var(--app-grey-200);
+  background: var(--app-grey-850);
+  border: 1px solid var(--app-grey-800);
   border-radius: var(--app-border-radius);
+
+  .connector-label {
+    width: 3rem;
+    flex-shrink: 0;
+    font-size: var(--app-font-size-s);
+    font-weight: 500;
+    color: var(--app-grey-8500);
+    text-align: center;
+  }
+
+  .placeholder-input {
+    min-height: 2.4rem;
+  }
 }
 
 .icon-btn {
@@ -465,8 +551,8 @@ watch(() => props.trigger, hydrateForm, { deep: true })
 
 .then-card {
   padding: var(--app-space-m);
-  background: var(--app-grey-50);
-  border: 1px solid var(--app-grey-200);
+  background: var(--app-grey-850);
+  border: 1px solid var(--app-grey-800);
   border-radius: var(--app-border-radius);
   display: flex;
   flex-direction: column;
@@ -477,7 +563,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
     align-items: center;
     gap: var(--app-space-xs);
     font-size: var(--app-font-size-xs);
-    color: var(--app-grey-500);
+    color: var(--app-grey-8500);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -489,7 +575,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
   justify-content: space-between;
   align-items: center;
   padding-top: var(--app-space-m);
-  border-top: 1px solid var(--app-grey-200);
+  border-top: 1px solid var(--app-grey-800);
 
   .actions {
     display: flex;
