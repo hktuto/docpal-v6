@@ -313,7 +313,9 @@ export const useSingleDatabase = () => {
    * Fetch current user's permissions for all menu items
    */
   async function getAllMenuItemPermissions() {
+
     const allItems = menuState.value.items
+    console.log("getAllMenuItemPermissions allItems", allItems)
     if (!allItems.length) return
 
     const ids = flattenMenuItemIds(allItems)
@@ -333,8 +335,8 @@ export const useSingleDatabase = () => {
         }
       })
     )
-
     menuItemPermissionMap.value = map
+    console.log("getAllMenuItemPermissions", map)
   }
 
   /**
@@ -463,6 +465,7 @@ export const useSingleDatabase = () => {
     if (type !== 'view') {
       startEdit(data.id)
     }
+    getAllMenuItemPermissions()
     return data
   }
 

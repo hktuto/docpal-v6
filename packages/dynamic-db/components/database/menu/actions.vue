@@ -88,6 +88,7 @@ async function handleEditSetting(type: CaseTreeItemType) {
 async function handleAddItem(type: CaseTreeItemType) {
   await menuContext.addItem(menuItem.value?.id || null, type)
   close()
+
   // if(type ==='folder'){
 
   //   return
