@@ -7,11 +7,11 @@ export const getTaskItemConfig = {
       candidate_groups: [],
       due_date: '',
       priority: 5,
-      escalation: {
-        escalation_time: '',
-        escalation_action: '',
-        escalation_target: ''
-      },
+      // escalation: {
+      //   escalation_time: '',
+      //   escalation_action: '',
+      //   escalation_target: ''
+      // },
       form_key: '',
       form_fields: []
     },
