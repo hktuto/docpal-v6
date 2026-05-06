@@ -217,7 +217,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   background: var(--app-paper);
-  border-left: 1px solid var(--app-grey-200);
+  border-left: 1px solid var(--app-grey-850);
   overflow: hidden;
 
   .panel-header {
@@ -225,7 +225,7 @@ onBeforeUnmount(() => {
     justify-content: space-between;
     align-items: center;
     padding: var(--app-space-m);
-    border-bottom: 1px solid var(--app-grey-200);
+    border-bottom: 1px solid var(--app-grey-850);
 
     .panel-title {
       font-size: var(--app-font-size-m);
