@@ -29,7 +29,6 @@ const formKey = ref<number>(0)
 
 function initData() {
   const data = node.getData()
-  console.log(123, data)
   formKey.value = Number(data.config.human_task.form_key)
   formTitle.value = data.metadata.form_title || ''
 }
@@ -41,7 +40,6 @@ function editField() {
 async function copyFormAndFieldSetting() {
   const fields = JSON.parse(JSON.stringify(formItems.value))
   const form = await graphProvider?.getFormByNode(node)
-  console.log('copyFormAndFieldSetting', fields, form)
   graphProvider?.copyForm(node, {
     fields,
     form
