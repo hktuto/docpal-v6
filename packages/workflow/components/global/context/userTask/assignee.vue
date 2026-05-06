@@ -34,7 +34,7 @@ function assigneeChanged(newVal: string) {
         assignee: newVal
       }
     },
-    version: node.data.version + 1 || 0
+    version: nodeData.data.version + 1 || 0
   }
 
   node.setData(newData, { overwrite: true, deep: true })
