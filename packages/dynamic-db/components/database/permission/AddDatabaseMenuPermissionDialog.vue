@@ -1,20 +1,7 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
-
-/* ─── Permission ID reference ───
- * 50 : menu-item:view  (View)
- * 51 : menu-item:edit  (Edit)
- * 52 : menu-item:update (Edit)
- * 53 : menu-item:manage (Manage)
- * 54 : menu-item:delete (Manage)
- * 61 : menu-item:member-manage (Manage)
- */
-const PERMISSION_IDS = {
-  View: [50],
-  Edit: [51, 52],
-  Manage: [53, 54, 61]
-} as const
+import { newClientApi } from 'api'
+import { useSingleDatabaseContext } from '../../../composables/useSignleDatabase'
 
 type MenuItemPermissionLevel = 'View' | 'Edit' | 'Manage'
 
@@ -28,13 +15,12 @@ interface PermissionFormData {
   targetType: number
   targetId: string
   permissionLevel: MenuItemPermissionLevel
-  permissionIds: number[]
 }
 
 const props = defineProps<{
   existList: { targetType: number; targetId: string }[]
 }>()
-
+const { permissions } = useSingleDatabaseContext()
 function isExistingTarget(targetType: number, targetId: string): boolean {
   return props.existList.some(
     (item) => item.targetType === targetType && item.targetId === targetId
@@ -67,30 +53,50 @@ async function loadTargets() {
 }
 
 async function loadUsers() {
-  const { data } = await clientApi.admin.postUcenterGetKeycloakAllUsers()
-  users.value = (data || []).map((u: any) => ({
-    id: u.userId,
-    username: u.username,
-    name: u.name || u.email || u.username
+  const result = permissions.value.filter((r: any) => r.targetType === 1).map((r: any) => ({
+    id: r.targetId,
+    name: r.targetName
   }))
+  const groups = permissions.value.filter((r: any) => r.targetType === 3)
+  const roles = permissions.value.filter((r: any) => r.targetType === 2)
+  if (groups.length) {
+    const groupPromise = await Promise.all([
+      ...groups.map((g: any) => newClientApi.postUcenterMember({ groupId: g.targetId }))
+    ])
+    groupPromise.forEach((g: any) => result.push(...g.data.map((u: any) => ({ id: u.userId, name: u.username || u.name }))))
+  }
+  if (roles.length) {
+    const rolePromises = await Promise.all(
+      roles.map((r: any) => newClientApi.postDocpalAclRoleUsersPage({
+        pageNum: 1,
+        pageSize: 100,
+        conditions: [{ column: 'acRoleId', type: 'EQ', values: r.targetId }]
+      }))
+    )
+    rolePromises.forEach((r: any) => result.push(...r.data.entryList.map((u: any) => ({ id: u.userId, name: u.username }))))
+  }
+
+  // De-duplicate by user id
+  const userMap = new Map<string, TargetOption>()
+  result.forEach((u) => {
+    if (!userMap.has(u.id)) {
+      userMap.set(u.id, u)
+    }
+  })
+  users.value = Array.from(userMap.values())
 }
 
 async function loadRoles() {
-  const { data } = await clientApi.api.postDocpalAclRolePage({
-    pageNum: 0,
-    pageSize: 1000
-  })
-  roles.value = (data?.entryList || []).map((r: any) => ({
-    id: r.id,
-    name: r.name
+  roles.value = permissions.value.filter((r:any) => r.targetType === 2).map((r:any) => ({
+    id: r.targetId,
+    name: r.targetName
   }))
 }
 
 async function loadGroups() {
-  const { data } = await clientApi.admin.postUcenterGroups()
-  groups.value = (data || []).map((g: any) => ({
-    id: g.id,
-    name: g.name
+  groups.value = permissions.value.filter((r:any) => r.targetType === 3).map((r:any) => ({
+    id: r.targetId,
+    name: r.targetName
   }))
 }
 
@@ -204,8 +210,7 @@ async function handleSubmit() {
   const payload: PermissionFormData = {
     targetType: type,
     targetId: id,
-    permissionLevel: level,
-    permissionIds: [...PERMISSION_IDS[level]]
+    permissionLevel: level
   }
 
   submitting.value = true
