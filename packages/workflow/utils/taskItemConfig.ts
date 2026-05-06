@@ -19,8 +19,12 @@ export const getTaskItemConfig = {
     output_mapping: {}
   },
   ConditionTask: {
-    relation: 'AND',
-    conditions: []
+    condition:{
+      relation: 'AND',
+      conditions: []
+    },
+    input_mapping: {},
+    output_mapping: {}
   },
   SubProcess: {
     processDefinitionId: ''
@@ -30,63 +34,77 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
+  HTTPTask:{
+    http_request: {
+      method: 'GET',
+      url: '',
+      headers: {},
+      body: {},
+    },
+    input_mapping: {},
+    output_mapping: {}
+  },
   MessageTask: {
-    implementation: 'email',
-    method: 'POST',
-    url: `${getUrlOrigin()}/api/dms/facade/email/send`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    to: [],
-    cc: [],
-    subject: '',
-    body: '',
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/api/dms/facade/email/send`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      to: [],
+      cc: [],
+      subject: '',
+      body: '',
+    },
     input_mapping: {},
     output_mapping: {}
   },
   UploadFile: {
-    implementation: 'upload_document',
-    method: 'POST',
-    url: `${getUrlOrigin()}/api/dms/facade/document/creation`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {
-      parentPath: '',
-      name: '',
-      type: '',
-      fileContentId: '',
-      creator: '',
-      properties: {}
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/api/dms/facade/document/creation`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {
+        parentPath: '',
+        name: '',
+        type: '',
+        fileContentId: '',
+        creator: '',
+        properties: {}
+      },
     },
     input_mapping: {},
     output_mapping: {}
   },
   DocumentGenerationTask: {
-    implementation: 'upload_document',
-    method: 'POST',
-    url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {
-      templateId: '',
-      parentPath: '',
-      name: '',
-      type: 'File',
-      creator: '',
-      variables: {}
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {
+        templateId: '',
+        parentPath: '',
+        name: '',
+        type: 'File',
+        creator: '',
+        variables: {}
+      },
     },
     input_mapping: {},
     output_mapping: {}
   },
   UniqueIdGenerator: {
-    method: 'POST',
-    url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {
-      templateId: '',
-      variables: {}
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/api/dms/facade/id-template/generate`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {
+        templateId: '',
+        variables: {}
+      }
     },
     input_mapping: {},
     output_mapping: {}
   },
   FilingDocuments: {
-    implementation: 'filing_document',
     http_request: {
       method: 'POST',
       url: `${getUrlOrigin()}/api/dms/facade/filing-document`,

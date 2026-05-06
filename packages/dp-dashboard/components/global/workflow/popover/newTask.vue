@@ -56,7 +56,7 @@ async function workflowClickHandler(item: any) {
   // Check if the next node of the start task is a user task
   const nextTaskId = startTask.flow.outgoing[0]
   const nextTaskNode = data.content.nodes.find((item: any) => item.id === nextTaskId)
-  if (nextTaskNode.type !== CellType.userTask) {
+  if (!nextTaskNode || nextTaskNode.type !== CellType.userTask) {
     state.loading = false
     return
   }

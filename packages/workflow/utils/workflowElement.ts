@@ -792,14 +792,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.HTTPTask,
       execution: { ...DEFAULT_TASK_EXECUTION },
-      config: {
-        method: 'GET',
-        url: '',
-        headers: {},
-        body: {},
-        input_mapping: {},
-        output_mapping: {}
-      },
+      config: getTaskItemConfig[CellType.HTTPTask],
       metadata: {
         type: CellType.HTTPTask,
         tags: WorkflowElementType.HTTPRequestTask,
@@ -922,7 +915,6 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.documentGenerationTask,
       config: getTaskItemConfig[CellType.documentGenerationTask],
-      input_mapping: {},
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.documentGenerationTask,

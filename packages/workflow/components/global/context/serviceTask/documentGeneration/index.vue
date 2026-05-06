@@ -10,17 +10,19 @@ if (!graphProvider) {
 const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
-    implementation: string
-    method: string
-    url: string
-    headers: any
-    body: {
-      templateId: string
-      parentPath: string
-      name: string
-      type: string
-      creator: string
-      variables: {}
+    http_request: {
+      implementation: string
+      method: string
+      url: string
+      headers: any
+      body: {
+        templateId: string
+        parentPath: string
+        name: string
+        type: string
+        creator: string
+        variables: {}
+      }
     }
     input_mapping: any
     output_mapping: any
@@ -50,7 +52,7 @@ const path = ref<string[]>([])
 const parentPathDisplay = ref('')
 
 async function initForm() {
-  formData.value = config
+  formData.value = config.http_request
 
   if (formData.value.body.templateId === '') {
     variables.value = []
@@ -100,7 +102,11 @@ function updateData() {
 
   emits('update', {
     name: 'update-document-generation-data',
-    config: formData.value
+    config: {
+      http_request: formData.value
+    },
+    input_mapping: {},
+    output_mapping: {}
   })
 }
 

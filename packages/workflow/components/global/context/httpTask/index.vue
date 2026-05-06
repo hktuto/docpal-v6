@@ -41,7 +41,7 @@ const formData = ref({
 
 function initForm() {
   const data = node.getData()
-  const config = data.config
+  const config = data.config.http_request
 
   formData.value = {
     method: config.method || 'GET',
@@ -195,7 +195,7 @@ function updateData() {
     ...nodeData,
     config: {
       ...nodeData.config,
-      ...formData.value
+      http_request: formData.value
     },
     version: (nodeData.version || 0) + 1
   }

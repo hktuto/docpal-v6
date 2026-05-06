@@ -8,17 +8,19 @@ if (!graphProvider) {
 const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
-    implementation: string
-    method: string
-    url: string
-    headers: any
-    body: {
-      parentPath: string
-      name: string
-      type: string
-      fileContentId: string
-      creator: string
-      properties: any
+    http_request: {
+      implementation: string
+      method: string
+      url: string
+      headers: any
+      body: {
+        parentPath: string
+        name: string
+        type: string
+        fileContentId: string
+        creator: string
+        properties: any
+      }
     }
     input_mapping: any
     output_mapping: any
@@ -34,13 +36,15 @@ const formData = ref<{
 })
 
 function initForm() {
-  formData.value = config
+  formData.value = config.http_request
 }
 
 function updateData() {
   emits('update', {
     name: 'update-upload-file-data',
-    config: formData.value
+    config: {
+      http_request: formData.value
+    }
   })
 }
 
@@ -59,7 +63,7 @@ watch(
 <template>
   <el-form label-position="top">
     <el-form-item :label="t('Parent Path')">
-      <el-input v-model="formData.body.parentPath" @change="updateData"/>
+      <el-input v-model="formData.body.parentPath" @change="updateData" />
     </el-form-item>
     <el-form-item :label="t('Document Name')">
       <el-select v-model="formData.body.name" filterable @change="updateData">

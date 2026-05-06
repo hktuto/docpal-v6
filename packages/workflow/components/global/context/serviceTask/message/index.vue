@@ -3,15 +3,18 @@ const { getVariablesByType } = useVariablesProvide()
 
 const { config } = defineProps<{
   config: {
-    implementation: 'email' | 'sms' | 'notification' | 'whatsapp'
-    method: string
-    url: string
-    headers: any
-    to: string[]
-    cc: string[]
-    subject: string
-    body: string
-    input_mapping: {}
+    http_request: {
+      implementation: 'email' | 'sms' | 'notification' | 'whatsapp'
+      method: string
+      url: string
+      headers: any
+      to: string[]
+      cc: string[]
+      subject: string
+      body: string
+    }
+    input_mapping: any
+    output_mapping: any
   }
 }>()
 const emits = defineEmits(['update'])
@@ -37,7 +40,7 @@ const formData = ref()
 const stringVariablesList = ref()
 
 function init() {
-  formData.value = deepCopy(config)
+  formData.value = deepCopy(config.http_request)
 }
 
 function update() {
