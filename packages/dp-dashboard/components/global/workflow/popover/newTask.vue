@@ -56,7 +56,10 @@ async function workflowClickHandler(item: any) {
   // Check if the next node of the start task is a user task
   const nextTaskId = startTask.flow.outgoing[0]
   const nextTaskNode = data.content.nodes.find((item: any) => item.id === nextTaskId)
-  if (nextTaskNode.type !== CellType.userTask) return
+  if (nextTaskNode.type !== CellType.userTask) {
+    state.loading = false
+    return
+  }
 
   // nextTaskNode Task has no set E-Form
   if (!nextTaskNode.config.human_task.form_key || nextTaskNode.config.human_task.form_key === '') {
@@ -74,6 +77,7 @@ async function workflowClickHandler(item: any) {
     } catch (e) {
       console.log(e)
     }
+    state.loading = false
     return
   }
 
