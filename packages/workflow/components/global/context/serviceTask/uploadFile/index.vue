@@ -43,7 +43,9 @@ function updateData() {
   emits('update', {
     name: 'update-upload-file-data',
     config: {
-      http_request: formData.value
+      http_request: formData.value,
+      input_mapping: {},
+      output_mapping: {}
     }
   })
 }

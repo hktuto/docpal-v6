@@ -45,7 +45,14 @@ function init() {
 
 function update() {
   if (formData.value === config) return
-  emits('update', { name: 'update-message-data', config: formData.value })
+  emits('update', {
+    name: 'update-message-data',
+    config: {
+      http_request:formData.value,
+      input_mapping: {},
+      output_mapping: {}
+    }
+  })
 }
 
 watch(

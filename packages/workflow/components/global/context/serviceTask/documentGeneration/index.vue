@@ -52,7 +52,8 @@ const path = ref<string[]>([])
 const parentPathDisplay = ref('')
 
 async function initForm() {
-  formData.value = config.http_request
+  formData.value.body = config.http_request
+  formData.value.output_mapping = config.output_mapping
 
   if (formData.value.body.templateId === '') {
     variables.value = []
@@ -103,10 +104,10 @@ function updateData() {
   emits('update', {
     name: 'update-document-generation-data',
     config: {
-      http_request: formData.value
-    },
-    input_mapping: {},
-    output_mapping: {}
+      http_request: formData.value.body,
+      input_mapping: {},
+      output_mapping: formData.value.output_mapping
+    }
   })
 }
 
