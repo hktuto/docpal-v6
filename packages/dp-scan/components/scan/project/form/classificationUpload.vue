@@ -77,6 +77,8 @@ async function uploadFile(file: File) {
       file: file,
       projectId: props.formDetail?.projectId || '',
       formId: props.formDetail?.id || ''
+    }, {
+      timeout: 0
     })
 
     if (response.result) {
