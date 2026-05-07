@@ -33,10 +33,10 @@ async function handleLoadTriggers() {
   state.loading = true
   try {
     const { data } = await clientApi.api.postDynamicDbTableMastertableidTriggerSettingsPage(props.masterTableId, {
-      pageNum: 1,
+      pageNum: 0,
       pageSize: 200
     })
-    state.triggers = data?.data?.entryList || []
+    state.triggers = data?.entryList || []
   } catch (error) {
     ElMessage.error('Failed to load triggers')
   } finally {
@@ -155,13 +155,13 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   padding: var(--app-space-m);
-  border: 1px solid var(--app-grey-200);
-  border-radius: var(--app-border-radius);
+  border: 1px solid var(--app-grey-800);
+  border-radius: var(--app-border-radius-s);
   transition: all 0.2s;
 
   &:hover {
     border-color: var(--app-primary-color);
-    background: var(--app-grey-50);
+    background: var(--app-grey-950);
   }
 
   .trigger-info {
@@ -181,7 +181,7 @@ defineExpose({
 
     .trigger-meta {
       font-size: var(--app-font-size-s);
-      color: var(--app-grey-500);
+      color: var(--app-grey-9500);
     }
   }
 
