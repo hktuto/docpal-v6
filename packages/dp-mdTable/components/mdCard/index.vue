@@ -6,6 +6,8 @@ type Props = {
   tableId: string
   editable: boolean
   isMirror: boolean
+  canEditTable: boolean,
+  canManageTable: boolean,
   extraColumnConfig: {
     columns: ColumnConfig[]
   }
@@ -14,6 +16,8 @@ const props = withDefaults(defineProps<Props>(), {
   tableId: '',
   editable: false,
   isMirror: false,
+  canEditTable: false,
+  canManageTable: false,
   extraColumnConfig: () => ({
     columns: []
   })
@@ -52,11 +56,11 @@ async function handleAddRowSubmit(data: any) {
 
 <template>
   <div class="md-card-view">
-    <ToolsBar :showMirrorButton="!isMirror" :disabled="isMirror" :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
+    <ToolsBar :showMirrorButton="!isMirror" :showAutomationButton="!isMirror && canManageTable" :disabled="isMirror" :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
       <template #toolbar-left-before>
         <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button :disabled="isMirror">
+            <el-button v-if="!isMirror && canManageTable">
               <el-icon><Grid /></el-icon>
               布局
             </el-button>
@@ -65,7 +69,7 @@ async function handleAddRowSubmit(data: any) {
         </el-popover>
         <el-popover placement="bottom-start" :width="320" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button style="margin-left: 0px" :disabled="isMirror">
+            <el-button style="margin-left: 0px" v-if="!isMirror && canManageTable">
               <el-icon><Brush /></el-icon>
               样式
             </el-button>

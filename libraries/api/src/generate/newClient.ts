@@ -285,9 +285,9 @@ export interface ContactGroupRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -645,9 +645,9 @@ export interface TableDataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Master Table ID */
     master_table_id?: string;
@@ -1003,9 +1003,9 @@ export interface CaseTypeRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Case schema definition (JSON) */
     case_schema?: Record<string, any>;
@@ -1156,9 +1156,9 @@ export interface PersonalDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1660,9 +1660,9 @@ export interface MTRecordRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1862,9 +1862,9 @@ export interface CompanyChopRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2053,9 +2053,9 @@ export interface CmmnDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2260,9 +2260,9 @@ export interface DocumentTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2374,9 +2374,9 @@ export interface RetentionPolicyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2473,9 +2473,9 @@ export interface HoldPolicyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2981,13 +2981,13 @@ export interface DocumentDTO {
     originalPath?: string;
     /** @format int64 */
     fileContentLength?: number;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
+    fileContentName?: string;
+    fileContentMimeType?: string;
     fileContentDigest?: string;
     fileContentData?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
     fileContentExtension?: string;
-    fileContentMimeType?: string;
-    fileContentName?: string;
 }
 
 export interface FileContentDTO {
@@ -3281,9 +3281,9 @@ export interface QueryWorkflowJobRequest {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3501,9 +3501,9 @@ export interface ProcessVersionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3619,9 +3619,9 @@ export interface ProcessDefinitionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4267,12 +4267,12 @@ export interface PageNotificationRecord {
 }
 
 export interface PageableObject {
+    unpaged?: boolean;
     paged?: boolean;
     /** @format int32 */
     pageNumber?: number;
     /** @format int32 */
     pageSize?: number;
-    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -4313,9 +4313,9 @@ export interface QueryNotificationRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4378,9 +4378,9 @@ export interface QueryFileOverviewRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4622,9 +4622,9 @@ export interface ExternalProfileRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
@@ -4691,9 +4691,9 @@ export interface ExternalStorageRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
@@ -4744,9 +4744,9 @@ export interface ExternalStorageImportJobRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4802,11 +4802,11 @@ export interface WhatsAppMessageRequestDTO {
     languageCode?: string;
     components?: {
         /** @deprecated */
+        relatedArray?: any;
+        /** @deprecated */
         componentType?: {
             typeName?: string;
         };
-        /** @deprecated */
-        relatedArray?: any;
         empty?: boolean;
         first?: any;
         last?: any;
@@ -4827,6 +4827,147 @@ export interface ResultSendMessageResponseDTO {
 export interface SendMessageResponseDTO {
     successCallWhatsAppApi?: boolean;
     messageId?: string;
+}
+
+/** Create Trigger Setting Request */
+export interface CreateTriggerSettingRequestDTO {
+    /** Description */
+    description?: string;
+    /** Trigger conditions: { "trigger_rule": [ { id, field_name, operator, value } ] } */
+    conditions?: Record<string, any>;
+    /** Status: A-Active, I-Inactive (default A) */
+    status?: string;
+    /**
+     * Trigger name
+     * @minLength 1
+     */
+    trigger_name: string;
+    /**
+     * Event type: record_created | record_updated | record_deleted | field_changed
+     * @minLength 1
+     */
+    event_type: string;
+    /** Watch field name (required when event_type is field_changed) */
+    watch_field?: string;
+    /**
+     * Match type: all or any
+     * @minLength 1
+     */
+    match_type: string;
+    /** Workflow ID */
+    workflow_id?: string;
+    /** Workflow parameter mapping: { workflowVar: masterTableField } */
+    map_workflow_parameters?: Record<string, any>;
+}
+
+export interface ResultTriggerSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Trigger Setting DTO */
+    data?: TriggerSettingDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Trigger Setting DTO */
+export interface TriggerSettingDTO {
+    /** Trigger Setting ID (UUID) */
+    id?: string;
+    /** Description */
+    description?: string;
+    /** Trigger conditions (JSON): { trigger_rule: [...] } */
+    conditions?: any;
+    /** Status: A-Active, I-Inactive */
+    status?: string;
+    /** Master Table ID */
+    master_table_id?: string;
+    /** Trigger name */
+    trigger_name?: string;
+    /** Event type: record_created, record_updated, record_deleted, field_changed */
+    event_type?: string;
+    /** Watch field name (required when event_type is field_changed) */
+    watch_field?: string;
+    /** Match type: all or any */
+    match_type?: string;
+    /** Workflow ID */
+    workflow_id?: string;
+    /** Workflow parameter mapping (JSON) */
+    map_workflow_parameters?: any;
+    /** Created by user ID */
+    created_by?: string;
+    /** Updated by user ID */
+    updated_by?: string;
+    /** Created at (ISO 8601) */
+    created_at?: string;
+    /** Updated at (ISO 8601) */
+    updated_at?: string;
+}
+
+/** Test Trigger Setting Request */
+export interface TestTriggerSettingRequestDTO {
+    /** Master table record data for testing */
+    data: Record<string, any>;
+    /**
+     * Event type: record_created | record_updated | record_deleted | field_changed
+     * @minLength 1
+     */
+    event_type: string;
+}
+
+/** List Trigger Settings Request */
+export interface ListTriggerSettingsRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Filter by status: A-Active, I-Inactive */
+    status?: string;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
+    desc?: boolean;
+    sort?: SortObject;
+    /** Filter by event type: record_created, record_updated, record_deleted, field_changed */
+    event_type?: string;
+}
+
+export interface PaginationDTOTriggerSettingDTO {
+    entryList?: TriggerSettingDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOTriggerSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOTriggerSettingDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 /** Table Request DTO */
@@ -4868,9 +5009,9 @@ export interface TableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** URL name (unique per entity_id) */
     url_name?: string;
@@ -5125,9 +5266,9 @@ export interface WorkflowJobRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5253,9 +5394,9 @@ export interface UserDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5326,9 +5467,9 @@ export interface PluginRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5438,9 +5579,9 @@ export interface OcrTransactionLogRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5858,6 +5999,8 @@ export interface CfUserTableConfigRequestDTO {
     tableId?: string;
     /** User id (optional, default current user) */
     userId?: string;
+    /** Config type */
+    type?: string;
     /** Column config JSON string */
     tableConfig?: string;
 }
@@ -5867,6 +6010,7 @@ export interface CfUserTableConfigResponseDTO {
     id?: string;
     tableId?: string;
     userId?: string;
+    type?: string;
     tableConfig?: string;
     createdBy?: string;
     modifiedBy?: string;
@@ -5945,9 +6089,9 @@ export interface IdTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6219,9 +6363,9 @@ export interface CmmnProcessRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6742,9 +6886,9 @@ export interface EmailTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6823,9 +6967,9 @@ export interface EmailLayoutRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6952,9 +7096,9 @@ export interface SmartFolderRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7029,12 +7173,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
+    watermarkedLocalPath?: string;
+    watermarkStatus?: string;
+    watermarkFile?: string;
+    previewFile?: string;
     watermarkTemplateId?: string;
     conversionId?: string;
-    watermarkFile?: string;
-    watermarkStatus?: string;
-    previewFile?: string;
-    watermarkedLocalPath?: string;
 }
 
 /** EasyShare (Request) */
@@ -7276,9 +7420,9 @@ export interface BasePageRequest {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7338,8 +7482,8 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    updateChildName?: boolean;
     ocr?: boolean;
+    updateChildName?: boolean;
     folder?: boolean;
     be_index?: boolean;
     create_by?: string;
@@ -7407,9 +7551,9 @@ export interface RetentionPolicyDocumentRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7520,9 +7664,9 @@ export interface HoldDocumentRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7637,9 +7781,9 @@ export interface MasterTableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7658,10 +7802,10 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
-    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
+    enable?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -7731,9 +7875,9 @@ export interface MTAuditLogRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7805,10 +7949,10 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
-    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
+    enable?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -8250,8 +8394,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 /** Document (Request) */
@@ -8332,9 +8476,9 @@ export interface ContactRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8382,9 +8526,9 @@ export interface CaseInstanceRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8481,9 +8625,9 @@ export interface FormDesignRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8584,9 +8728,9 @@ export interface EasyFormResultRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8665,9 +8809,9 @@ export interface EasyFormEmailQueryRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8761,8 +8905,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 /** Versioning (Request) */
@@ -8808,9 +8952,9 @@ export interface TrashRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9065,13 +9209,13 @@ export interface DocumentResponseDTO {
     retentionDocument?: RetentionDocument;
     /** @format int64 */
     fileContentLength?: number;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
+    fileContentName?: string;
+    fileContentMimeType?: string;
     fileContentDigest?: string;
     fileContentData?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
     fileContentExtension?: string;
-    fileContentMimeType?: string;
-    fileContentName?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9320,9 +9464,9 @@ export interface CompanyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9515,9 +9659,9 @@ export interface FolderCabinetRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9737,9 +9881,9 @@ export interface DocFolderCabinetRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9793,8 +9937,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -10045,9 +10189,9 @@ export interface CmmnVersionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10124,9 +10268,9 @@ export interface CaseTableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10332,9 +10476,9 @@ export interface PlanItemInstanceRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10710,9 +10854,9 @@ export interface CaptureProjFormSettingRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10800,9 +10944,9 @@ export interface CaptureProjRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11006,9 +11150,9 @@ export interface CaptureQueryBatchListRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11554,9 +11698,9 @@ export interface MessageTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11884,9 +12028,9 @@ export interface QueryMetadataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11961,9 +12105,9 @@ export interface MetadataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12090,9 +12234,9 @@ export interface DocPalTypeRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
     desc?: boolean;
-    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12266,6 +12410,28 @@ export interface ExternalProfileOutputDTO {
     outputFileName?: string;
     txtSetting?: Record<string, any>;
     imageSetting?: Record<string, any>;
+}
+
+/** Update Trigger Setting Request */
+export interface UpdateTriggerSettingRequestDTO {
+    /** Description */
+    description?: string;
+    /** Trigger conditions: { "trigger_rule": [ { id, field_name, operator, value } ] } */
+    conditions?: Record<string, any>;
+    /** Status: A-Active, I-Inactive */
+    status?: string;
+    /** Trigger name */
+    trigger_name?: string;
+    /** Event type: record_created | record_updated | record_deleted | field_changed */
+    event_type?: string;
+    /** Watch field name (required when event_type is field_changed) */
+    watch_field?: string;
+    /** Match type: all or any */
+    match_type?: string;
+    /** Workflow ID */
+    workflow_id?: string;
+    /** Workflow parameter mapping: { workflowVar: masterTableField } */
+    map_workflow_parameters?: Record<string, any>;
 }
 
 /** ResetEasyShare (Request) */
@@ -12640,16 +12806,6 @@ export interface ResultListMessageTemplateDTO {
     locale?: string;
 }
 
-export interface ResultListTableFieldDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: TableFieldDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultTableStructureDTO {
     result?: boolean;
     /** @format int32 */
@@ -12669,6 +12825,16 @@ export interface TableStructureDTO {
     table_info?: TableDTO;
     /** Relation display field configurations */
     relation_display_fields?: Record<string, any>[];
+}
+
+export interface ResultListTableFieldDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: TableFieldDTO[];
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface ResultListTableDTO {
@@ -14088,11 +14254,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
+    finish?: number;
+    error?: number;
     create?: number;
     pending?: number;
     completed?: number;
-    finish?: number;
-    error?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -14397,6 +14563,16 @@ export interface ResultListHistoricProcessInstanceEntityImpl {
     data?: HistoricProcessInstanceEntityImpl[];
     messageKey?: string;
     locale?: string;
+}
+
+/** Batch delete request */
+export interface BatchDeleteRequestDTO {
+    /**
+     * List of IDs to delete
+     * @minItems 1
+     * @example ["e88194e0-4925-11f1-b951-d9e4c770afba","3663a180-4926-11f1-b951-d9e4c770afba"]
+     */
+    ids: string[];
 }
 
 export interface ResultIdentityRequestDTO {
@@ -20531,6 +20707,69 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTriggerSettingController
+         * @name PostDynamicDbTableMastertableidTriggerSettings
+         * @summary Create Trigger Setting for a Master Table
+         * @request POST:/api/dynamic-db/table/{masterTableId}/trigger-settings
+         */
+        postDynamicDbTableMastertableidTriggerSettings: (
+            masterTableId: string,
+            data: CreateTriggerSettingRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTriggerSettingDTO, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTriggerSettingController
+         * @name PostDynamicDbTableMastertableidTriggerSettingsTest
+         * @summary Test Trigger Setting conditions with a message
+         * @request POST:/api/dynamic-db/table/{masterTableId}/trigger-settings/test
+         */
+        postDynamicDbTableMastertableidTriggerSettingsTest: (
+            masterTableId: string,
+            data: TestTriggerSettingRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/test`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTriggerSettingController
+         * @name PostDynamicDbTableMastertableidTriggerSettingsPage
+         * @summary Paginated query for Trigger Settings
+         * @request POST:/api/dynamic-db/table/{masterTableId}/trigger-settings/page
+         */
+        postDynamicDbTableMastertableidTriggerSettingsPage: (
+            masterTableId: string,
+            data: ListTriggerSettingsRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOTriggerSettingDTO, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags DynamicDBTableController
          * @name PostDynamicDbTablePage
          * @summary Paginated query for Table list
@@ -22902,6 +23141,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             query: {
                 tableId: string;
                 userId?: string;
+                type?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -29747,6 +29987,66 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTriggerSettingController
+         * @name GetDynamicDbTableMastertableidTriggerSettingsId
+         * @summary Get Trigger Setting by ID
+         * @request GET:/api/dynamic-db/table/{masterTableId}/trigger-settings/{id}
+         */
+        getDynamicDbTableMastertableidTriggerSettingsId: (
+            masterTableId: string,
+            id: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTriggerSettingDTO, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTriggerSettingController
+         * @name DeleteDynamicDbTableMastertableidTriggerSettingsId
+         * @summary Delete Trigger Setting (physical delete)
+         * @request DELETE:/api/dynamic-db/table/{masterTableId}/trigger-settings/{id}
+         */
+        deleteDynamicDbTableMastertableidTriggerSettingsId: (
+            masterTableId: string,
+            id: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTriggerSettingController
+         * @name PatchDynamicDbTableMastertableidTriggerSettingsId
+         * @summary Update Trigger Setting
+         * @request PATCH:/api/dynamic-db/table/{masterTableId}/trigger-settings/{id}
+         */
+        patchDynamicDbTableMastertableidTriggerSettingsId: (
+            masterTableId: string,
+            id: string,
+            data: UpdateTriggerSettingRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTriggerSettingDTO, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/${id}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags UserDashboardController
          * @name PatchDsbUserDashboardsIdStatusStatus
          * @summary Update status through id
@@ -31886,13 +32186,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DynamicDBTableController
-         * @name GetDynamicDbTableId
+         * @name GetDynamicDbTableTableid
          * @summary Get Table structure (table info + fields + relations)
-         * @request GET:/api/dynamic-db/table/{id}
+         * @request GET:/api/dynamic-db/table/{tableId}
          */
-        getDynamicDbTableId: (id: string, params: RequestParams = {}) =>
+        getDynamicDbTableTableid: (tableId: string, params: RequestParams = {}) =>
             this.request<ResultTableStructureDTO, any>({
-                path: `/api/dynamic-db/table/${id}`,
+                path: `/api/dynamic-db/table/${tableId}`,
                 method: "GET",
                 ...params,
             }),
@@ -34984,6 +35284,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Document
+         * @name GetDmsDocumentDocumentidPrint
+         * @summary Print document
+         * @request GET:/api/dms/document/{documentId}/print
+         */
+        getDmsDocumentDocumentidPrint: (documentId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/document/${documentId}/print`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
          * @name GetDmsDocumentDocumentidPreview
          * @summary Preview document content file with not permission
          * @request GET:/api/dms/document/{documentId}/preview
@@ -37539,6 +37854,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTableController
+         * @name DeleteDynamicDbTableTableidDataBatch
+         * @summary Batch Delete Data Records
+         * @request DELETE:/api/dynamic-db/table/{tableId}/data/batch
+         */
+        deleteDynamicDbTableTableidDataBatch: (
+            tableId: string,
+            data: BatchDeleteRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/${tableId}/data/batch`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags DynamicDBPermissionController
          * @name DeleteDynamicDbPermissionsMenuMenuidRevokePermissionid
          * @summary Remove permission from Menu node
@@ -38562,6 +38898,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         putExt3rdmessageWhatsappSettings: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/settings`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PutDynamicDbTableTableidRecordDataid
+         * @request PUT:/admin/api/dynamic-db/table/{tableId}/record/{dataId}
+         */
+        putDynamicDbTableTableidRecordDataid: (
+            tableId: string,
+            dataId: string,
+            data: TableDataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/record/${dataId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -41685,6 +42042,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postExt3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWhatsAppLogDTO, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/logs/query`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PostDynamicDbTableTableidRecord
+         * @request POST:/admin/api/dynamic-db/table/{tableId}/record
+         */
+        postDynamicDbTableTableidRecord: (tableId: string, data: TableDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/record`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -47709,14 +48082,35 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDynamicDBTableController
-         * @name GetDynamicDbTableId
+         * @name GetDynamicDbTableTableid
          * @summary Get Table structure (table info + fields + relations)
-         * @request GET:/admin/api/dynamic-db/table/{id}
+         * @request GET:/admin/api/dynamic-db/table/{tableId}
          */
-        getDynamicDbTableId: (id: string, params: RequestParams = {}) =>
+        getDynamicDbTableTableid: (tableId: string, params: RequestParams = {}) =>
             this.request<ResultTableStructureDTO, any>({
-                path: `/admin/api/dynamic-db/table/${id}`,
+                path: `/admin/api/dynamic-db/table/${tableId}`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name GetDynamicDbTableList
+         * @request GET:/admin/api/dynamic-db/table/list
+         */
+        getDynamicDbTableList: (
+            query: {
+                /** Table Request DTO */
+                request: TableRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListTableDTO, any>({
+                path: `/admin/api/dynamic-db/table/list`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 
@@ -51240,6 +51634,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/definition/remove/${draftId}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name DeleteDynamicDbTableTableidDataBatch
+         * @summary Batch Delete Data Records
+         * @request DELETE:/admin/api/dynamic-db/table/{tableId}/data/batch
+         */
+        deleteDynamicDbTableTableidDataBatch: (
+            tableId: string,
+            data: BatchDeleteRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/data/batch`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 

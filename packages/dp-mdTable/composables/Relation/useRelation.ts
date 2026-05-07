@@ -4,7 +4,7 @@ import { findPath } from './useVirtualColumn'
 // For table's relation config
 export const useRelation = (relationTableId: string) => {
   const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
-  const { tableFields } = inject<any>('viewTools')
+  const { tableFields, setSingleRelationConfig } = inject<any>('viewTools')
   const relationFields = [ColumnFieldType.Relation, ColumnFieldType.VirtualColumn, ColumnFieldType.AggVirtualColumn]
   const menus = ref([])
   const menuIdPaths = ref<string[]>([])
@@ -29,6 +29,7 @@ export const useRelation = (relationTableId: string) => {
     const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: 'master' })
     const configStr = res.data.tableConfig
     const config = configStr ? JSON.parse(configStr) : []
+    setSingleRelationConfig(tableId, res.data.tableFields)
     const displayFieldsInFirstView = config.length > 0 ? (config[0].columns.length > 0 ? config[0].columns : res.data.tableFields) : res.data.tableFields
     let result = []
     const visibleFields = displayFieldsInFirstView.filter((field: any) => field.hidden !== true)

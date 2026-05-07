@@ -1,12 +1,15 @@
 <script lang="ts" setup>
-import  { useMDKanban, type MDKanbanProps } from '../../composables/mdKanban/useMDKanban'
+import { useMDKanban, type MDKanbanProps } from '../../composables/mdKanban/useMDKanban'
 import Sortable from 'sortablejs'
-import Toolbar from './toolbar.vue'
-import {useTableViewsInject } from '../../../dynamic-db/composables/table/useTableViews'
-import { Plus } from '@element-plus/icons-vue'
+import ToolsBar from '../tools/bar.vue'
+import { useTableViewsInject } from '../../../dynamic-db/composables/table/useTableViews'
+import { Plus, Setting } from '@element-plus/icons-vue'
 const props = withDefaults(defineProps<MDKanbanProps>(), {
   tableId: '',
   editable: false,
+  isMirror:false,
+  canEditTable: false,
+  canManageTable: false,
   extraColumnConfig: () => ({
     columns: [],
     deleteColumn: () => {},
@@ -228,7 +231,8 @@ watch(viewStyleConfig ,(style) => {
 const groupRef = ref<Record<string, any>>({})
 const allGroupRef = ref()
 function handleNeedRefresh(groupId: string = 'all') {
-  if (groupId === 'all') {
+
+  if (groupId === 'all' || !groupId) {
     allGroupRef.value?.refresh()
     return
   }
@@ -309,20 +313,12 @@ function handleRemove(e: { id: string }) {
   }
 }
 
-function handleFilterChange(rules: any) {
-  props.extraColumnConfig?.updateViewFilterSortGroup?.('filterInfo', rules)
+function handleRefresh() {
+  emit('refresh')
   allGroupRef.value?.refresh()
-  groupRef.value.forEach((el: any) => {
-    console.log("el",el)
-    el.refresh()
-  })
-}
-
-function handleSortChange(rules: any) {
-  props.extraColumnConfig?.updateViewFilterSortGroup?.('sortInfo', rules)
-  allGroupRef.value?.refresh()
-  groupRef.value.forEach((el: any) => {
-    el.refresh()
+  const items = Array.isArray(groupRef.value) ? groupRef.value : groupRef.value ? [groupRef.value] : []
+  items.forEach((el: any) => {
+    el?.refresh?.()
   })
 }
 
@@ -340,22 +336,21 @@ onBeforeUnmount(() => {
 
 <template>
 <div ref="kanbanContainerRef" class="kanbanViewContainer">
-    <Toolbar
+    <ToolsBar
       v-if="showToolbar"
-      :available-columns="columns"
-      @refresh="emit('refresh')"
-      @search="emit('search', $event)"
-      @open-settings="openSetting"
-      @filter-change="handleFilterChange"
-      @sort-change="handleSortChange"
+       :showMirrorButton="!isMirror && canManageTable"
+      :showAutomationButton="!isMirror && canManageTable"
+      :showAddRowButton="false"
+      :showGroupingButton="false"
+      @refresh="handleRefresh"
     >
-      <template #toolbar-left>
-        <slot name="toolbar-left" />
-      </template>
       <template #toolbar-right>
+        <el-button  v-if="!isMirror" text :icon="Setting" @click="openSetting">
+          Setting
+        </el-button>
         <slot name="toolbar-right" />
       </template>
-    </Toolbar>
+    </ToolsBar>
     <div v-if="viewStyleConfig.selectedColumnId" class="kanban-groups">
         <MdKanbanGroup
             class="allData"

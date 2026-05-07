@@ -240,7 +240,6 @@ watch(
 // ============================================
 .sidebar {
   width: 100%;
-  min-width: var(--sidebar-width);
   height: 100%;
   display: grid;
   grid-template-rows: min-content 1fr;

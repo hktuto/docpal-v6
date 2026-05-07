@@ -4,6 +4,9 @@ import { ColumnFieldType } from '../../types/column-types'
 export interface MDCalendarProps {
   tableId: string
   editable?: boolean
+  isMirror: boolean
+  canEditTable: boolean,
+  canManageTable: boolean,
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void
@@ -27,6 +30,20 @@ export const MDCalendarContextKey = Symbol('MDCalendarContextKey')
 
 export function useMDCalendar(props: MDCalendarProps) {
   const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
+  const cardRef = ref<any>()
+  const {
+    loading,
+    loadingMore,
+    tableData,
+    hasMore,
+    refresh: refreshTableData,
+    addRow,
+    updateRow,
+    deleteRow,
+    getTableData,
+    loadMore,
+    getAggChildData
+  } = useTableData(props.tableId, cardRef)
 
   provide(MDCalendarContextKey, {
     tableId: props.tableId,

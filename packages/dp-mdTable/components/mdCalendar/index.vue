@@ -1,11 +1,14 @@
 <script lang="ts" setup>
 import { useMDCalendar, type MDCalendarProps } from '../../composables/mdCalendar/useMDCalendar'
-import Toolbar from './toolbar.vue'
-import { useDBParams } from '../../../dynamic-db/composables/table/useDBParams'
+
+import { Setting } from '@element-plus/icons-vue'
 import CalendarViewer from './calendarViewer.vue'
 const props = withDefaults(defineProps<MDCalendarProps>(), {
   tableId: '',
   editable: false,
+  isMirror: false,
+  canEditTable: false,
+  canManageTable: false,
   extraColumnConfig: () => ({
     columns: ref([]),
     deleteColumn: () => {},
@@ -23,10 +26,10 @@ const props = withDefaults(defineProps<MDCalendarProps>(), {
 const emit = defineEmits<{
   refresh: []
   search: [value: string]
+
 }>()
 
-const { columns, systemFieldsTypes, tableFields, viewStyleConfig } = useMDCalendar(props)
-const { getPageParams: globalGetPageParams } = useDBParams()
+const { columns, systemFieldsTypes, viewStyleConfig } = useMDCalendar(props)
 
 const calendarSettingRef = ref()
 const viewerRef = ref()
@@ -35,59 +38,6 @@ const startField = computed(() => viewStyleConfig.value?.startField || '')
 const endField = computed(() => viewStyleConfig.value?.endField || '')
 const titleField = computed(() => viewStyleConfig.value?.titleField || '')
 const isFullDayField = computed(() => viewStyleConfig.value?.isFullDayField || '')
-
-// Shared date range ref — updated by calendarViewer, read by getPageParams
-// Stores timestamps (milliseconds) for API filter conditions
-const dateRange = ref({ start: 0, end: 0 })
-
-function getPageParams() {
-  const globalParams = globalGetPageParams()
-  const params: any = globalParams
-
-  if (!params.conditions || !params.conditions.length) {
-    params.conditions = [{ type: 'AND', value: [] }]
-  }
-
-  // Add date range filter if available
-  // FIXME: Backend has a bug with GTE/LTE operators. Temporarily using GT/LT as workaround.
-  if (dateRange.value.start && dateRange.value.end && startField.value) {
-    const rangeConditions = []
-
-    rangeConditions.push({
-      column: startField.value,
-      type: 'LT',
-      value: dateRange.value.end
-    })
-
-    if (endField.value) {
-      rangeConditions.push({
-        column: endField.value,
-        type: 'GT',
-        value: dateRange.value.start
-      })
-    } else {
-      rangeConditions.push({
-        column: startField.value,
-        type: 'GT',
-        value: dateRange.value.start
-      })
-    }
-
-    if (params.conditions[0].type === 'AND') {
-      params.conditions[0].value.push(...rangeConditions)
-    } else {
-      params.conditions = [{
-        type: 'AND',
-        value: [...rangeConditions, params.conditions]
-      }]
-    }
-  }
-
-  params.columns = [{ name: '*' }]
-  return params
-}
-
-provide('viewTools', { getPageParams, columns, tableFields, dateRange, systemFieldsTypes })
 
 function initSetting() {
   const style = viewStyleConfig.value
@@ -102,13 +52,8 @@ function openSetting() {
   calendarSettingRef.value?.open()
 }
 
-function handleFilterChange(rules: any) {
-  props.extraColumnConfig?.updateViewFilterSortGroup?.('filterInfo', rules)
-  viewerRef.value?.refresh()
-}
-
-function handleSortChange(rules: any) {
-  props.extraColumnConfig?.updateViewFilterSortGroup?.('sortInfo', rules)
+function handleRefresh() {
+  emit('refresh')
   viewerRef.value?.refresh()
 }
 
@@ -123,10 +68,6 @@ function handleDateClick(date: string) {
   })
 }
 
-function handleAddRow() {
-  viewerRef.value?.openCreate()
-}
-
 onMounted(() => {
   initSetting()
 })
@@ -134,15 +75,20 @@ onMounted(() => {
 
 <template>
   <div class="calendarViewContainer">
-    <Toolbar
-      :available-columns="columns"
-      @refresh="emit('refresh')"
-      @search="emit('search', $event)"
-      @open-settings="openSetting"
-      @filter-change="handleFilterChange"
-      @sort-change="handleSortChange"
-      @add-row="handleAddRow"
-    />
+    <ToolsBar
+     v-if="viewStyleConfig?.startField && viewStyleConfig?.endField"
+     :showMirrorButton="!isMirror && canManageTable"
+     :showAutomationButton="!isMirror && canManageTable"
+     :showAddRowButton="canEditTable"
+      :showGroupingButton="false"
+      @refresh="handleRefresh"
+    >
+      <template #toolbar-right>
+        <el-button v-if="!isMirror" text :icon="Setting" @click="openSetting">
+          Setting
+        </el-button>
+      </template>
+    </ToolsBar>
     <div v-if="viewStyleConfig?.startField && viewStyleConfig?.endField" class="calendar-wrapper">
       <CalendarViewer
         ref="viewerRef"

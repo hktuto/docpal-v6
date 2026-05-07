@@ -29,6 +29,23 @@ const emits = defineEmits(['select', 'itemMoved'])
 const loadMoreRef = ref()
 const isDragOver = ref(false)
 const pageSize = 20
+const extraParams = computed(() => {
+  const groupCondition = props.group.id || ''
+  return {
+    conditions: [
+      {
+        type: 'AND',
+        value: [
+          {
+            column: props.field,
+            type: 'EQ',
+            value: groupCondition
+          }
+        ]
+      }
+    ]
+  }
+})
 const { tableData, totalSize, loading,  hasMore, updateRow,  addRow, getTableData, loadMore } = useTableData(props.tableId, listRef)
 const localKey = ref(1)
 async function refresh(){
@@ -38,7 +55,7 @@ async function refresh(){
   nextTick(async() => {
     await getTableData({
        pageSize: pageSize,
-   })
+   }, extraParams.value)
   })
 }
 
@@ -65,7 +82,7 @@ const { stop: stopLoadMore } = useIntersectionObserver(
   loadMoreRef,
   ([{ isIntersecting }]) => {
     if (isIntersecting && hasMore.value && hasMore.value) {
-      loadMore()
+      loadMore(extraParams.value)
     }
   },
   {

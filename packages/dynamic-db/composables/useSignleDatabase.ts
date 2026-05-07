@@ -115,6 +115,23 @@ export const useSingleDatabase = () => {
     isDragging: false
   })
 
+  function getDatabasePermissionIds(level: PermissionLevel): number[] {
+    switch (level) {
+      case 'Manage': return [47, 48, 49]
+      case 'Member': return [47]
+      default: return [47]
+    }
+  }
+
+  function getMenuItemPermissionIds(level: MenuItemPermissionLevel): number[] {
+    switch (level) {
+      case 'Manage': return [53, 54, 61]
+      case 'Edit': return [51, 52]
+      case 'View': return [50]
+      default: return [50]
+    }
+  }
+
   function openMenuItemActions(data: { item: TreeItem | null; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) {
     menuActionsRef.value?.open(data, target, highlight)
   }
@@ -133,18 +150,15 @@ export const useSingleDatabase = () => {
     if (!database.value?.id) return
     permissionsLoading.value = true
     try {
-      const { data } = await clientApi.instance.get(
-        `/v2/acl/resource-permissions/resource/${database.value.id}?resourceType=2`,
-        { baseURL: '/gateway' }
-      ).then(res => res.data)
+      const { data }: any = await newClientApi.getDynamicDbPermissionsDatabaseDatabaseidMembers(database.value.id)
 
       permissions.value = data.map((item: any) => ({
-        id: item.id,
+        id: item.permissionRecordId || item.id,
         targetId: item.targetId,
         targetName: item.targetName || item.targetId,
         targetType: item.targetType ?? 1,
         permissionLevel: item.permissionLevel === 'Manage' ? 'Manage' : 'Member',
-        permissionIds: item.permissionIds || [],
+        permissionIds: item.permissionIds || getDatabasePermissionIds(item.permissionLevel),
         isInherit: !!item.isInherit,
         inheritFrom: item.inheritFrom || '-',
         loading: false
@@ -169,18 +183,15 @@ export const useSingleDatabase = () => {
     if (!id) return
     menuItemPermissionsLoading.value = true
     try {
-      const { data } = await clientApi.instance.get(
-        `/v2/acl/resource-permissions/resource/${id}?resourceType=21`,
-        { baseURL: '/gateway' }
-      ).then(res => res.data)
+      const { data }: any = await newClientApi.getDynamicDbPermissionsMenuMenuidPermissions(id)
 
       menuItemPermissions.value = data.map((item: any) => ({
-        id: item.id,
+        id: item.permissionRecordId || item.id,
         targetId: item.targetId,
         targetName: item.targetName || item.targetId,
         targetType: item.targetType ?? 1,
         permissionLevel: item.permissionLevel === 'Manage' ? 'Manage' : item.permissionLevel === 'Edit' ? 'Edit' : 'View',
-        permissionIds: item.permissionIds || [],
+        permissionIds: item.permissionIds || getMenuItemPermissionIds(item.permissionLevel),
         isInherit: !!item.isInherit,
         inheritFrom: item.inheritFrom || '-',
         loading: false
@@ -302,7 +313,9 @@ export const useSingleDatabase = () => {
    * Fetch current user's permissions for all menu items
    */
   async function getAllMenuItemPermissions() {
+
     const allItems = menuState.value.items
+    console.log("getAllMenuItemPermissions allItems", allItems)
     if (!allItems.length) return
 
     const ids = flattenMenuItemIds(allItems)
@@ -311,10 +324,7 @@ export const useSingleDatabase = () => {
     await Promise.allSettled(
       ids.map(async (id) => {
         try {
-          const { data } = await clientApi.instance.get(
-            `/v2/acl/resource-permissions/resource/${id}?resourceType=21`,
-            { baseURL: '/gateway' }
-          ).then(res => res.data)
+          const { data }: any = await newClientApi.getDynamicDbPermissionsMenuMenuidPermissions(id)
 
           const userPerm = data.find(
             (p: any) => p.targetType === 1 && p.targetId === currentUserId.value
@@ -325,8 +335,8 @@ export const useSingleDatabase = () => {
         }
       })
     )
-
     menuItemPermissionMap.value = map
+    console.log("getAllMenuItemPermissions", map)
   }
 
   /**
@@ -344,7 +354,6 @@ export const useSingleDatabase = () => {
 
   function checkMenuItemPermission(id: string, right: MenuItemPermissionLevel): boolean {
     const level = getCurrentUserMenuItemPermission(id)
-    console.log(level)
     switch (right) {
       case 'View':
         return level === 'View' || level === 'Edit' || level === 'Manage'
@@ -456,8 +465,12 @@ export const useSingleDatabase = () => {
     if (type !== 'view') {
       startEdit(data.id)
     }
+    getAllMenuItemPermissions()
     return data
   }
+
+  // add router Provider here to sync naviate item to routerProvider
+  const routerProvider = inject(MenuRouterKey)
 
   async function navigateToItem(item?: TreeItem, pageType: 'setting' | 'detail' = 'detail') {
     databaseMenuRouteParams.value.parentId = item?.parent_id || null
@@ -496,6 +509,14 @@ export const useSingleDatabase = () => {
       default:
         console.warn('Unknown item type:', item.item_type)
     }
+    routerProvider?.updateProps({
+      detailId: databaseMenuRouteParams.value.detailId,
+      detailType: databaseMenuRouteParams.value.detailType,
+      item_id: databaseMenuRouteParams.value.item_id,
+      pageType: databaseMenuRouteParams.value.pageType,
+      viewId: databaseMenuRouteParams.value.viewId,
+      tableId:databaseMenuRouteParams.value.tableId
+    })
   }
 
   /**

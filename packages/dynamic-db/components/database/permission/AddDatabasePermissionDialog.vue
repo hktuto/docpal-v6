@@ -1,16 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import { clientApi } from 'api'
-/* ─── Permission ID reference ───
- * 47 : database:read   (Member)
- * 48 : database:manage (Manage)
- * 49 : member:manage   (Manage)
- */
-const PERMISSION_IDS = {
-  Member: [47],
-  Manage: [47, 48, 49]
-} as const
-
 type PermissionLevel = 'Member' | 'Manage'
 
 interface TargetOption {
@@ -23,7 +13,6 @@ interface PermissionFormData {
   targetType: number
   targetId: string
   permissionLevel: PermissionLevel
-  permissionIds: number[]
 }
 const props = defineProps<{
   existList: { targetType: number; targetId: string }[]
@@ -205,8 +194,7 @@ async function handleSubmit() {
   const payload: PermissionFormData = {
     targetType: type,
     targetId: id,
-    permissionLevel: level,
-    permissionIds: [...PERMISSION_IDS[level]]
+    permissionLevel: level
   }
 
   submitting.value = true

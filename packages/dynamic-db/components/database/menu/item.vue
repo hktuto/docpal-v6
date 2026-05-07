@@ -190,6 +190,8 @@ async function onFolderDrop(event: DragEvent) {
   flex: 1;
   min-width: 0;
   font-size: var(--app-font-size-m);
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .label-text {

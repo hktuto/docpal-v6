@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useSingleDatabaseContext } from '../../../../../composables/useSignleDatabase'
 import { useUserId } from '../../../../../../authApp/composables/useAuth'
@@ -55,19 +55,13 @@ async function handleAddPermission() {
 async function handleDialogSubmit(data: {
   targetType: number
   targetId: string
-  targetName: string
   permissionLevel: PermissionLevel
-  permissionIds: number[]
 }) {
-  console.log('Create permission payload:', data)
-  const response = await clientApi.instance.post('/v2/acl/resource-permissions', {
-    ...data,
-    resourceId: database.value.id,
-    resourceType: 2
-  }, {
-    baseURL: '/gateway',
+  await newClientApi.postDynamicDbPermissionsDatabaseDatabaseidGrant(database.value.id, {
+    targetType: data.targetType,
+    targetId: data.targetId,
+    permissionLevel: data.permissionLevel
   })
-  console.log('handleDialogSubmit', response)
   await getPermissions()
 }
 
@@ -87,9 +81,7 @@ async function handleRemovePermission(row: PermissionRow) {
         type: 'warning'
       }
     )
-    await clientApi.instance.delete('/v2/acl/resource-permissions/' + row.id, {
-      baseURL: '/gateway'
-    })
+    await newClientApi.deleteDynamicDbPermissionsDatabaseDatabaseidRevokePermissionid(database.value.id, row.id)
     ElMessage.success('Permission removed successfully')
     await getPermissions()
   } catch {
@@ -103,20 +95,10 @@ async function handlePermissionChange(level: PermissionLevel, row: PermissionRow
 
   row.loading = true
   try {
-    const payload = {
-      id: row.id,
-      resourceId: database.value.id,
-      resourceType: 2,
-      targetType: row.targetType,
-      targetId: row.targetId,
-      permissionLevel: level,
-      permissionIds: PERMISSION_IDS[level]
-    }
-
-    const response = await clientApi.instance.put('/v2/acl/resource-permissions/' + row.id, payload, {
-      baseURL: '/gateway'
+    const { data }: any = await newClientApi.putDynamicDbPermissionsDatabaseDatabaseidUpdatePermissionPermissionid(database.value.id, row.id, {
+      permissionLevel: level
     })
-    console.log('update response', response)
+    console.log('update response', data)
     row.permissionLevel = level
     row.permissionIds = [...PERMISSION_IDS[level]]
 

@@ -2,7 +2,6 @@
 
 import { useMDKanbanInject } from '../../composables/mdKanban/useMDKanban'
 import { MoreFilled } from '@element-plus/icons-vue'
-import {useDBParams} from '../../../dynamic-db/composables/table/useDBParams'
 import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
@@ -20,51 +19,10 @@ const groupRef = ref<HTMLDivElement>()
 const loadMoreRef = ref<HTMLDivElement>()
 const hasLoaded = ref(false)
 const loadingMore = ref(false)
-const { updateViewFilterSortGroup, columns, tableFields, systemFieldsTypes, columnFilterRules, columnSortRules } = useMDKanbanInject()
-const { getPageParams: globalGetPageParams } = useDBParams()
+const { columns, tableFields, systemFieldsTypes } = useMDKanbanInject()
 const emit = defineEmits(['needRefresh', 'update-label', 'update-color', 'remove'])
 
-function getPageParams(){
-  const globalParams  = globalGetPageParams()
-  const params:any = globalParams
-  if(!params.conditions || !params.conditions.length ){
-    params.conditions = [
-      {
-        type: 'AND',
-        value:[]
-      }
-    ]
-  }
-  const groupCondition = props.group.id || ''
-  if(params.conditions[0].type === 'AND'){
-    params.conditions[0].value.push({
-      column: props.field,
-      type: "EQ",
-      value: groupCondition
-    })
-  } else {
-    params.conditions = [{
-      type: 'AND',
-      value: [
-        {
-          column: props.field,
-          type: "EQ",
-          value: groupCondition
-        },
-        params.conditions
-      ]
-    }]
-  }
-  params.columns = [
-    {
-      name: '*'
-    }
-  ]
-  console.log("getPageParams", params)
-  return params
-}
 const MdFormPopoverRef = ref()
-provide('viewTools', { getPageParams, columns, tableFields })
 function openAddRow() {
   MdFormPopoverRef.value?.open({
     [props.field]: props.group.id,

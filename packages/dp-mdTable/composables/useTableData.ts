@@ -4,6 +4,31 @@ import { newClientApi, postDynamicActions } from 'api'
 import { EventType, useEventBus } from 'eventbus'
 import { updateRelationFields } from '../utils/relationHelper'
 // import { createGroupTree } from '../utils/treeDataHelper'
+function mergeParams(base: any, extra: any) {
+  if (!extra) return base
+  const result = { ...base }
+  for (const key of Object.keys(extra)) {
+    if (key === 'conditions') {
+      const baseConditions = base?.conditions || []
+      const extraConditions = extra.conditions || []
+      if (baseConditions.length && extraConditions.length) {
+        result.conditions = [
+          {
+            type: 'AND',
+            value: [...extraConditions, ...baseConditions]
+          }
+        ]
+      } else {
+        result.conditions = [...extraConditions, ...baseConditions]
+      }
+    } else if (key === 'orderBy') {
+      result.orderBy = [...(base?.orderBy || []), ...(extra.orderBy || [])]
+    } else {
+      result[key] = extra[key]
+    }
+  }
+  return result
+}
 export interface UseTableDataOptions {
   /** 是否自动加载数据 */
   autoLoad?: boolean
@@ -62,8 +87,8 @@ export interface TableDataContext {
   totalSize: Ref<number>
   hasMore: ComputedRef<boolean>
   // 方法
-  getTableData: (params?: any) => Promise<{ entryList: any[]; totalSize: number } | undefined>
-  loadMore: () => Promise<void>
+  getTableData: (params?: any, extraParams?: any) => Promise<{ entryList: any[]; totalSize: number } | undefined>
+  loadMore: (extraParams?: any) => Promise<void>
   refresh: () => Promise<void>
   addRow: (row: any) => void
   updateRow: (rowId: string, data: any, mdTableId?: string) => Promise<boolean>
@@ -148,7 +173,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const getTableData = async (
     params: any = {
       pageSize: 100
-    }
+    },
+    extraParams?: any
   ): Promise<{ entryList: any[]; totalSize: number } | undefined> => {
     // if (columnGroupRules.value?.length > 0) {
     //   tableData.value = getAggregateData(params)
@@ -162,6 +188,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       let additionalParams = {}
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
+      }
+      if (extraParams) {
+        additionalParams = mergeParams(additionalParams, extraParams)
       }
       if (params.pageSize) {
         tableQueryBase.value.pageSize = params.pageSize
@@ -190,7 +219,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
   }
 
-  const loadMore = async () => {
+  const loadMore = async (extraParams?: any) => {
     if (!tableId || loading.value || loadingMore.value || !hasMore.value) {
       return
     }
@@ -202,6 +231,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
       }
+      if (extraParams) {
+        additionalParams = mergeParams(additionalParams, extraParams)
+      }
       const { data } = await postDynamicActions({
         tableId,
         columns: [],
@@ -211,7 +243,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
           pageNum: nextPage
         }
       })
-      console.log("load more data", data)
       if (data?.entryList?.length === 0) {
         totalSize.value = tableData.value.length
         return
@@ -228,7 +259,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       loadingMore.value = false
     }
   }
-
 
   function getAggregateData(params?: any) {
     return createMockAggregateData(params, tableId)
@@ -280,9 +310,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
    * 删除行数据：与接口对齐，支持 string | string[]，内部统一转为数组后按 id 删除
    * @param ids - 行 id，支持单个或数组
    */
-  const deleteRow = async (rowid: string) => {
+  const deleteRow = async (rowid: string | string[]) => {
     try {
-      await newClientApi.deleteDynamicDbTableTableidDataDataid(tableId, rowid)
+      const ids = Array.isArray(rowid) ? rowid : [rowid]
+      await newClientApi.deleteDynamicDbTableTableidDataBatch(tableId, { ids })
       gridRef.value?.commitProxy('reload')
       return true
     } catch (error) {
