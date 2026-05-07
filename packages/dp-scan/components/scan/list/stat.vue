@@ -3,7 +3,7 @@ import { clientApi } from 'api'
 import { StatusMap } from '#imports'
 const { projects, filter } = useScanClient()
 const stat = ref()
-const loading = ref(true)
+const loading = ref(false)
 const getStats = async () => {
   loading.value = true
   try {
