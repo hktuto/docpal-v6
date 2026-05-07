@@ -48,7 +48,7 @@ function init() {
 
 function updateData() {
   graphProvider?.graph.value?.startBatch('update-transform-data')
-
+  const outputMapping = Object.fromEntries(Object.entries(dataMapping.value).map(([key]) => [key, '${' + key + '}']))
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
@@ -56,11 +56,12 @@ function updateData() {
       ...nodeData.config,
       mappings: {
         ...dataMapping.value
-      }
+      },
+      output_mapping: outputMapping
     },
     version: (nodeData.version || 0) + 1
   }
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-transform-data')
 }
 
