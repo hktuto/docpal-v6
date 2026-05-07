@@ -243,7 +243,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
           pageNum: nextPage
         }
       })
-      console.log("load more data", data)
       if (data?.entryList?.length === 0) {
         totalSize.value = tableData.value.length
         return
@@ -260,7 +259,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       loadingMore.value = false
     }
   }
-
 
   function getAggregateData(params?: any) {
     return createMockAggregateData(params, tableId)
@@ -312,9 +310,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
    * 删除行数据：与接口对齐，支持 string | string[]，内部统一转为数组后按 id 删除
    * @param ids - 行 id，支持单个或数组
    */
-  const deleteRow = async (rowid: string) => {
+  const deleteRow = async (rowid: string | string[]) => {
     try {
-      await newClientApi.deleteDynamicDbTableTableidDataDataid(tableId, rowid)
+      const ids = Array.isArray(rowid) ? rowid : [rowid]
+      await newClientApi.deleteDynamicDbTableTableidDataBatch(tableId, { ids })
       gridRef.value?.commitProxy('reload')
       return true
     } catch (error) {

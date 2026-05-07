@@ -298,8 +298,8 @@ export interface Permission {
 }
 
 export interface SortObject {
-    unsorted?: boolean;
     sorted?: boolean;
+    unsorted?: boolean;
     empty?: boolean;
 }
 
@@ -2979,15 +2979,15 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentExtension?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentName?: string;
     fileContentMimeType?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentExtension?: string;
 }
 
 export interface FileContentDTO {
@@ -4268,11 +4268,11 @@ export interface PageNotificationRecord {
 
 export interface PageableObject {
     unpaged?: boolean;
+    paged?: boolean;
     /** @format int32 */
     pageNumber?: number;
     /** @format int32 */
     pageSize?: number;
-    paged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -4802,11 +4802,11 @@ export interface WhatsAppMessageRequestDTO {
     languageCode?: string;
     components?: {
         /** @deprecated */
+        relatedArray?: any;
+        /** @deprecated */
         componentType?: {
             typeName?: string;
         };
-        /** @deprecated */
-        relatedArray?: any;
         empty?: boolean;
         first?: any;
         last?: any;
@@ -7482,8 +7482,8 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    updateChildName?: boolean;
     ocr?: boolean;
+    updateChildName?: boolean;
     folder?: boolean;
     be_index?: boolean;
     create_by?: string;
@@ -9207,15 +9207,15 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentExtension?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentName?: string;
     fileContentMimeType?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentExtension?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9653,9 +9653,9 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
+    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
-    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
@@ -14254,11 +14254,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
+    finish?: number;
+    error?: number;
     create?: number;
     pending?: number;
     completed?: number;
-    finish?: number;
-    error?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -14563,6 +14563,16 @@ export interface ResultListHistoricProcessInstanceEntityImpl {
     data?: HistoricProcessInstanceEntityImpl[];
     messageKey?: string;
     locale?: string;
+}
+
+/** Batch delete request */
+export interface BatchDeleteRequestDTO {
+    /**
+     * List of IDs to delete
+     * @minItems 1
+     * @example ["e88194e0-4925-11f1-b951-d9e4c770afba","3663a180-4926-11f1-b951-d9e4c770afba"]
+     */
+    ids: string[];
 }
 
 export interface ResultIdentityRequestDTO {
@@ -37844,6 +37854,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTableController
+         * @name DeleteDynamicDbTableTableidDataBatch
+         * @summary Batch Delete Data Records
+         * @request DELETE:/api/dynamic-db/table/{tableId}/data/batch
+         */
+        deleteDynamicDbTableTableidDataBatch: (
+            tableId: string,
+            data: BatchDeleteRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/${tableId}/data/batch`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags DynamicDBPermissionController
          * @name DeleteDynamicDbPermissionsMenuMenuidRevokePermissionid
          * @summary Remove permission from Menu node
@@ -51603,6 +51634,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/definition/remove/${draftId}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name DeleteDynamicDbTableTableidDataBatch
+         * @summary Batch Delete Data Records
+         * @request DELETE:/admin/api/dynamic-db/table/{tableId}/data/batch
+         */
+        deleteDynamicDbTableTableidDataBatch: (
+            tableId: string,
+            data: BatchDeleteRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/data/batch`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
