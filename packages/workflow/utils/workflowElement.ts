@@ -860,7 +860,6 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Transform Task',
       documentation: '',
       type: CellType.transformTask,
-      implementation: 'data.transform',
       config: {
         mapping: {}
       },

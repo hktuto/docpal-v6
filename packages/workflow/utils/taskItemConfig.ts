@@ -45,7 +45,7 @@ export const getTaskItemConfig = {
     output_mapping: {}
   },
   MessageTask: {
-    http_request: {
+    email: {
       method: 'POST',
       url: `${getUrlOrigin()}/api/dms/facade/email/send`,
       headers: generatorHTTPRequestTaskHeaders(),
@@ -122,6 +122,7 @@ export const getTaskItemConfig = {
   InsertDynamicDatabase: {
     http_request: {
       method: 'POST',
+
       url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
       headers: generatorHTTPRequestTaskHeaders(),
       query_params: {},

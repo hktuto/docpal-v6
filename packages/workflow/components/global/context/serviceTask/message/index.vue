@@ -3,8 +3,7 @@ const { getVariablesByType } = useVariablesProvide()
 
 const { config } = defineProps<{
   config: {
-    http_request: {
-      implementation: 'email' | 'sms' | 'notification' | 'whatsapp'
+    email: {
       method: string
       url: string
       headers: any
@@ -18,29 +17,11 @@ const { config } = defineProps<{
   }
 }>()
 const emits = defineEmits(['update'])
-const messageTypeList = ref([
-  {
-    label: 'Notification',
-    value: 'notification'
-  },
-  {
-    label: 'Email',
-    value: 'email'
-  },
-  {
-    label: 'SMS',
-    value: 'sms'
-  },
-  {
-    label: 'WhatsApp',
-    value: 'whatsapp'
-  }
-])
 const formData = ref()
 const stringVariablesList = ref()
 
 function init() {
-  formData.value = deepCopy(config.http_request)
+  formData.value = deepCopy(config.email)
 }
 
 function update() {
@@ -48,7 +29,7 @@ function update() {
   emits('update', {
     name: 'update-message-data',
     config: {
-      http_request:formData.value,
+      email:formData.value,
       input_mapping: {},
       output_mapping: {}
     }
@@ -73,12 +54,6 @@ onMounted(async () => {
 
 <template>
   <el-form label-position="top">
-    <el-form-item label="MessageType">
-      <el-select v-model="formData.implementation" @change="update">
-        <el-option v-for="item in messageTypeList" :key="item.value" :label="item.label" :value="item.value" />
-      </el-select>
-    </el-form-item>
-
     <el-form-item label="To">
       <el-select v-model="formData.to" filterable multiple @change="update">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />

@@ -11,7 +11,6 @@ const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
     http_request: {
-      implementation: string
       method: string
       url: string
       headers: any
