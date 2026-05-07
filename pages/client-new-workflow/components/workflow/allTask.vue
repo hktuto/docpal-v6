@@ -16,11 +16,16 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'all_task',
   api: async (pageParams: any) => {
     const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data)) as any[]
+    // 只保留 waiting 狀態的數據
+    let list = data.filter((item: any) => item.status === 'waiting')
+
+    if (extraParams.value.definition_id !== '') {
+      list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)
+    }
 
     return {
       data: {
-        // 只保留 waiting 狀態的數據
-        entryList: data.filter((item: any) => item.status === 'waiting') || []
+        entryList: list || []
       }
     }
   },
@@ -63,7 +68,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
-  if (!row.id || row.id === '') return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -111,10 +115,6 @@ defineExpose({ reloadTable })
         >
           {{ $t('workflow_claim') }}
         </el-button>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.status === 'created'" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
       </template>
     </VxeGrid>
   </div>

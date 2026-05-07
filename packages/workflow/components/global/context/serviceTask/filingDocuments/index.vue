@@ -9,10 +9,14 @@ if (!graphProvider) {
 const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
-    body: {
-      folderCabinetId: string
-      folderCabinet: []
+    http_request: {
+      body: {
+        folderCabinetId: string
+        folderCabinet: []
+      }
     }
+    input_mapping: any
+    output_mapping: any
   }
 }>()
 const formData = ref<{
@@ -31,7 +35,7 @@ const elementsIdList = ref()
 
 async function initForm() {
   cabinetOptions.value = (await newAdminApi.getDmsCabinetList().then((res) => res.data)) || []
-  formData.value = config
+  formData.value = config.http_request
 
   // 已使用的節點
   elementsIdList.value = formData.value.body.folderCabinet.map((item) => item.id)
@@ -41,7 +45,11 @@ async function initForm() {
 function updateData() {
   emits('update', {
     name: 'update-upload-file-data',
-    config: formData.value
+    config: {
+      http_request: formData.value,
+      input_mapping: {},
+      output_mapping: {}
+    }
   })
 }
 

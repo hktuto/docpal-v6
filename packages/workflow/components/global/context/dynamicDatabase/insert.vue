@@ -13,9 +13,24 @@ const { getVariablesByType } = useVariablesProvide()
 const databaseId = ref<string>('')
 const tableId = ref<string>('')
 const dataId = ref<string>('')
-const dataBaseList = ref([])
-const tableList = ref([])
-const tableFieldList = ref([])
+const dataBaseList = ref<
+  {
+    id: string
+    name: string
+  }[]
+>([])
+const tableList = ref<
+  {
+    id: string
+    name: string
+  }[]
+>([])
+const tableFieldList = ref<
+  {
+    name: string
+    value: string
+  }[]
+>([])
 
 const stringVariables = computed(() => {
   return getVariablesByType(['string'])
@@ -43,7 +58,7 @@ async function init() {
     await getTableList()
   }
 
-  const { pathname } = new URL(data.config.url)
+  const { pathname } = new URL(data.config.http_request.url)
   const match = pathname.match(/\/table\/([^/]+)\/record\/?$/)
   tableId.value = match ? match[1] : ''
   if (tableId.value != '') {
@@ -52,7 +67,7 @@ async function init() {
 
   // Set tableFieldList data
   if (tableId.value !== '') {
-    const dataVariable = data.config.body.data
+    const dataVariable = data.config.http_request.body.data
     tableFieldList.value = tableFieldList.value.map((item: any) => {
       if (item.id in dataVariable) {
         item.value = dataVariable[item.id]
@@ -63,8 +78,8 @@ async function init() {
 
   const keys = Object.keys(data.config.output_mapping)
   if (keys.length > 0) {
-    keys.forEach((key:string)=>{
-      if (data.config.output_mapping[key] == '${data.id}'){
+    keys.forEach((key: string) => {
+      if (data.config.output_mapping[key] == '${data.id}') {
         dataId.value = key
       }
     })
@@ -78,7 +93,7 @@ const path = ref('/apis/v1/dynamic-db/table/{tableID}/record')
 function update() {
   graphProvider?.graph.value?.startBatch('update-insert-dynamic-database-data')
   const nodeData = node.getData()
-  const origin = new URL(nodeData.config.url).origin
+  const origin = new URL(nodeData.config.http_request.url).origin
   const newUrl = origin + path.value.replace('{tableID}', tableId.value)
 
   const data: any = {}
@@ -91,8 +106,12 @@ function update() {
     ...nodeData,
     config: {
       ...nodeData.config,
-      url: newUrl,
-      body: { data: data },
+      http_request: {
+        ...nodeData.config.http_request,
+        url: newUrl,
+        body: { data: data }
+      },
+      input_mapping: {},
       output_mapping: {}
     },
     metadata: {
@@ -130,7 +149,7 @@ async function getDataBaseList() {
       status: 'A',
       pageNum: 0,
       pageSize: 1000
-    }
+    } as CaseTypeRequestDTO
     const data = await newAdminApi.postDynamicDbCaseTypesPage(parms).then((r: any) => r.data)
     dataBaseList.value = data.entryList
   } catch (e) {
@@ -147,7 +166,7 @@ async function getTableList() {
       },
       pageNum: 0,
       pageSize: 1000
-    }
+    } as CaseTypeRequestDTO
     tableList.value = await newClientApi.getDynamicDbTableList(pageParams).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
@@ -207,7 +226,7 @@ watch(
         <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-    <el-form-item label="Return Recorde Id">
+    <el-form-item label="Return Record Id">
       <el-select v-model="dataId" filterable clearable @change="update">
         <el-option v-for="item in stringVariables" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>

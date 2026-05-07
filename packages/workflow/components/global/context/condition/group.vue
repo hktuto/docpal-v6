@@ -38,7 +38,7 @@ function deleteItem(ruleIndex: number) {
 <template>
   <div class="conditionContainer">
     <div v-for="(ruleItem, ruleIndex) in rule" :key="ruleIndex" class="elementsContainer">
-      <ContextServiceTaskConditionElement :element="ruleItem" @delete="deleteItem(ruleIndex)" @update="(newVal: any) => updateItem(newVal, ruleIndex)" />
+      <ContextConditionElement :element="ruleItem" @delete="deleteItem(ruleIndex)" @update="(newVal: any) => updateItem(newVal, ruleIndex)" />
       <div v-if="ruleIndex === rule.length - 1" :class="{ moreButtonContainer: true, readonly: graphProvider.readonly.value }" @click="addNewElement">
         <Icon name="lucide:plus" />
         <div class="label">OR</div>

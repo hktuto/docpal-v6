@@ -46,7 +46,7 @@ function getVariables(variableList: any) {
 
 function init() {
   const data = node.getData()
-  formData.value.templateId = data.config?.body?.templateId || ''
+  formData.value.templateId = data.config?.http_request?.body?.templateId || ''
   const om: any = Object.keys(data.config.output_mapping)
   if (om.length > 0) {
     formData.value.responseId = om[0]
@@ -54,8 +54,8 @@ function init() {
     formData.value.responseId = ''
   }
 
-  if (!!data.config?.body?.variables) {
-    formData.value.variables = Object.entries(data.config?.body?.variables).map(([label, value]) => ({
+  if (!!data.config?.http_request?.body?.variables) {
+    formData.value.variables = Object.entries(data.config?.http_request?.body?.variables).map(([label, value]) => ({
       label,
       value
     }))
@@ -90,10 +90,14 @@ function updateData() {
     ...nodeData,
     config: {
       ...nodeData.config,
-      body: {
-        templateId: formData.value.templateId,
-        variables: jsonObject
+      http_request:{
+        ...nodeData.config.http_request,
+        body: {
+          templateId: formData.value.templateId,
+          variables: jsonObject
+        }
       },
+      input_mapping: {},
       output_mapping: outputMapping
     },
     version: (nodeData.version || 0) + 1

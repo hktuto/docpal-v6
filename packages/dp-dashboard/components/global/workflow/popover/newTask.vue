@@ -49,16 +49,20 @@ async function workflowClickHandler(item: any) {
 
   state.selectedWorkflow = deepCopy(data)
 
-  // Open in new page
-  if (startTask.metadata.openInNewPage) {
+  if (startTask.flow.outgoing.length === 0) {
+    routerProvider?.message.error('Workflow No process')
+    return
+  }
+  // Check if the next node of the start task is a user task
+  const nextTaskId = startTask.flow.outgoing[0]
+  const nextTaskNode = data.content.nodes.find((item: any) => item.id === nextTaskId)
+  if (!nextTaskNode || nextTaskNode.type !== CellType.userTask) {
     state.loading = false
-    const link = newWorkflowStartPage(data.name, data.id, startTask.metadata, data.content.variables)
-    routerProvider?.navigateTo(link)
     return
   }
 
-  // start Task has no set E-Form
-  if (!startTask.metadata.formKey || startTask.metadata.formKey === '') {
+  // nextTaskNode Task has no set E-Form
+  if (!nextTaskNode.config.human_task.form_key || nextTaskNode.config.human_task.form_key === '') {
     // Directly Submit form
     try {
       const formParams = {
@@ -73,16 +77,24 @@ async function workflowClickHandler(item: any) {
     } catch (e) {
       console.log(e)
     }
+    state.loading = false
+    return
+  }
 
+  // Open in new page
+  if (startTask.metadata.openInNewPage) {
+    state.loading = false
+    const link = newWorkflowStartPage(data.name, data.id, nextTaskNode, data.content.variables)
+    routerProvider?.navigateTo(link)
     return
   }
 
   state.formDialogVisible = true
-  await initForm(startTask)
+  await initForm(nextTaskNode)
 }
 
-async function initForm(startTask: any) {
-  const formKey = startTask.metadata?.formKey
+async function initForm(nextTaskNode: any) {
+  const formKey = nextTaskNode.config.human_task.form_key
   if (!formKey) {
     state.loading = false
     state.formDialogVisible = false
@@ -92,7 +104,7 @@ async function initForm(startTask: any) {
   const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
   if (!formJson || !formJson.jsonValue) return {}
   state.loading = false
-  await handleAdditionalSetting(startTask.metadata)
+  await handleAdditionalSetting(nextTaskNode.metadata)
   // @ts-ignore
   nextTick(() => {
     vFormRef.value.setForm(formJson.jsonValue)

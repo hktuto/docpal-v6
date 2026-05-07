@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { newClientApi } from 'api'
+
 const { t } = useI18n()
 const { getVariablesByType } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
@@ -8,17 +10,18 @@ if (!graphProvider) {
 const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
-    implementation: string
-    method: string
-    url: string
-    headers: any
-    body: {
-      parentPath: string
-      name: string
-      type: string
-      fileContentId: string
-      creator: string
-      properties: any
+    http_request: {
+      method: string
+      url: string
+      headers: any
+      body: {
+        parentPath: string
+        name: string
+        type: string
+        fileContentId: string
+        creator: string
+        properties: any
+      }
     }
     input_mapping: any
     output_mapping: any
@@ -32,16 +35,26 @@ const formData = ref<{
 }>({
   body: {}
 })
+const parentPathDisplay = ref('')
 
 function initForm() {
-  formData.value = config
+  formData.value = config.http_request
 }
 
 function updateData() {
   emits('update', {
     name: 'update-upload-file-data',
-    config: formData.value
+    config: {
+      http_request: formData.value,
+      input_mapping: {},
+      output_mapping: {}
+    }
   })
+}
+
+function setPath(path: string) {
+  formData.value.body.parentPath = path || ''
+  updateData()
 }
 
 watch(
@@ -54,12 +67,43 @@ watch(
     deep: true
   }
 )
+
+async function updateParentPathDisplay(pathId: string) {
+  if (!pathId || pathId === '') return ''
+  try {
+    const newVar = await newClientApi.getDmsDocument({ idOrPath: pathId }).then((r) => r.data)
+    if (!newVar) return pathId
+
+    parentPathDisplay.value = newVar?.path || ''
+  } catch (e) {
+    console.log(e)
+    return pathId
+  }
+}
+
+watch(
+  () => formData.value.body?.parentPath,
+  async (newPath) => {
+    await updateParentPathDisplay(newPath || '')
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 
 <template>
   <el-form label-position="top">
-    <el-form-item :label="t('Parent Path')">
-      <el-input v-model="formData.body.parentPath" @change="updateData"/>
+    <el-form-item label="Parent Path" prop="parentPath">
+      <div class="parent-path-row">
+        <el-input :model-value="parentPathDisplay" disabled />
+        <el-popover placement="right" trigger="click">
+          <template #reference>
+            <el-button>Set Path</el-button>
+          </template>
+          <BrowsePathSelect v-model="formData.body.parentPath" @id="setPath" />
+        </el-popover>
+      </div>
     </el-form-item>
     <el-form-item :label="t('Document Name')">
       <el-select v-model="formData.body.name" filterable @change="updateData">
@@ -84,4 +128,10 @@ watch(
   </el-form>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.parent-path-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+</style>

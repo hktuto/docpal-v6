@@ -14,21 +14,30 @@ type ruleItemType = {
 const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
-    relation: 'AND' | 'OR'
-    conditions: any[]
+    condition: {
+      relation: 'AND' | 'OR'
+      conditions: any[]
+    }
+    input_mapping: any
+    output_mapping: any
   }
 }>()
 
 const form = ref([])
 
 function init() {
-  form.value = config.conditions || []
+  form.value = config.condition.conditions || []
 }
 
 function updateNode() {
   const data = {
     ...config,
-    conditions: form.value
+    condition: {
+      ...config.condition,
+      conditions: form.value
+    },
+    input_mapping: {},
+    output_mapping: {}
   }
   emits('update', { name: 'update-condition-data', config: data })
 }
@@ -75,7 +84,7 @@ watch(
   <p>Conditions</p>
   <div class="conditions">
     <div v-for="(conditionsElement, index) in form" :key="index">
-      <ContextServiceTaskConditionGroup :rule="conditionsElement.rule" :index="index" @delete="deleteCondition" @update="updateCondition" />
+      <ContextConditionGroup :rule="conditionsElement.rule" :index="index" @delete="deleteCondition" @update="updateCondition" />
     </div>
     <div :class="{ addNewContainer: true, readonly: graphProvider.readonly.value }" @click="addNewCondition">
       <Icon name="lucide:circle-plus" />

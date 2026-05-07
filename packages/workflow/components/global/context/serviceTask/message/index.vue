@@ -3,46 +3,37 @@ const { getVariablesByType } = useVariablesProvide()
 
 const { config } = defineProps<{
   config: {
-    implementation: 'email' | 'sms' | 'notification' | 'whatsapp'
-    method: string
-    url: string
-    headers: any
-    to: string[]
-    cc: string[]
-    subject: string
-    body: string
-    input_mapping: {}
+    email: {
+      method: string
+      url: string
+      headers: any
+      to: string[]
+      cc: string[]
+      subject: string
+      body: string
+    }
+    input_mapping: any
+    output_mapping: any
   }
 }>()
 const emits = defineEmits(['update'])
-const messageTypeList = ref([
-  {
-    label: 'Notification',
-    value: 'notification'
-  },
-  {
-    label: 'Email',
-    value: 'email'
-  },
-  {
-    label: 'SMS',
-    value: 'sms'
-  },
-  {
-    label: 'WhatsApp',
-    value: 'whatsapp'
-  }
-])
 const formData = ref()
 const stringVariablesList = ref()
 
 function init() {
-  formData.value = deepCopy(config)
+  formData.value = deepCopy(config.email)
 }
 
 function update() {
   if (formData.value === config) return
-  emits('update', { name: 'update-message-data', config: formData.value })
+  emits('update', {
+    name: 'update-message-data',
+    config: {
+      email:formData.value,
+      input_mapping: {},
+      output_mapping: {}
+    }
+  })
 }
 
 watch(
@@ -63,12 +54,6 @@ onMounted(async () => {
 
 <template>
   <el-form label-position="top">
-    <el-form-item label="MessageType">
-      <el-select v-model="formData.implementation" @change="update">
-        <el-option v-for="item in messageTypeList" :key="item.value" :label="item.label" :value="item.value" />
-      </el-select>
-    </el-form-item>
-
     <el-form-item label="To">
       <el-select v-model="formData.to" filterable multiple @change="update">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />

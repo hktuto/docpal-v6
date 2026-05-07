@@ -1,6 +1,6 @@
 import { Cell, CellView, Graph } from '@antv/x6'
 import type { NodeItem } from './jsonConversion'
-import { getServiceTaskItemConfig } from '@packages/workflow/utils/serviceTaskItemConfig'
+import { getTaskItemConfig } from '@packages/workflow/utils/taskItemConfig'
 
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
@@ -8,7 +8,10 @@ export enum WorkflowElementType {
   UserTask = 'UserTask',
   Gateway = 'Gateway',
   ServiceTask = 'ServiceTask',
-  HTTPRequestTask = 'HTTPRequestTask'
+  HTTPRequestTask = 'HTTPRequestTask',
+  TransformTask = 'TransformTask',
+  MessageTask = 'MessageTask',
+  ConditionTask = 'ConditionTask'
 }
 
 Graph.registerNode(
@@ -159,10 +162,9 @@ export enum contextMenuComponentType {
   InclusiveGateway = 'LazyContextInclusiveGateway',
   // Http Task
   HTTPTask = 'LazyContextHttpTask',
-  TransformTask = 'LazyContextTransformTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
-  ConditionTask = 'LazyContextServiceTaskCondition',
+
   ValidateTask = 'LazyContextServiceTaskValidate',
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
@@ -170,7 +172,12 @@ export enum contextMenuComponentType {
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration',
   FilingDocuments = 'LazyContextServiceTaskFilingDocuments',
   InsertDynamicDatabase = 'LazyContextDynamicDatabaseInsert',
-  UpdateDynamicDatabase = 'LazyContextDynamicDatabaseUpdate'
+  UpdateDynamicDatabase = 'LazyContextDynamicDatabaseUpdate',
+
+  // Condition
+  ConditionTask = 'LazyContextCondition',
+  // Transform
+  TransformTask = 'LazyContextTransform'
 }
 
 interface portsItems {
@@ -193,7 +200,7 @@ export type CellTypeItem = {
     data: {
       id: string
       name: string
-      type: CellType
+      type: string
       label: string
       documentation: string
       inputSchema?: string
@@ -210,7 +217,7 @@ export type CellTypeItem = {
         type: CellType
         tags: WorkflowElementType
         icon: string
-        formKey?: string
+        form_title?: string
         width?: number
         height?: number
         bgColor?: string
@@ -219,6 +226,7 @@ export type CellTypeItem = {
         rules?: any
         maxOutgoing?: number
         signature?: any
+        databaseId?: string
       }
       celCondition?: string
     }
@@ -530,7 +538,7 @@ export const workflowElement: WorkflowElement = {
     clickHandler: () => {},
     contextMenuComponent: () => {}
   },
-  ServiceTask: {
+  ConditionTask: {
     embed: false,
     toolbar: [
       {
@@ -539,7 +547,34 @@ export const workflowElement: WorkflowElement = {
         label: 'Condition Task',
         group: '',
         order: 0
-      },
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      return 'LazyContextServiceTask'
+    }
+  },
+  TransformTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.transformTask,
+        icon: 'tabler:transform',
+        label: 'Transform Task',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      return contextMenuComponentType.TransformTask
+    }
+  },
+  ServiceTask: {
+    embed: false,
+    toolbar: [
       {
         id: CellType.subProcess,
         icon: 'pixelarticons:forwardburger',
@@ -551,13 +586,6 @@ export const workflowElement: WorkflowElement = {
         id: CellType.validateTask,
         icon: 'material-symbols:list-alt-check-outline',
         label: 'Validate Task',
-        group: '',
-        order: 0
-      },
-      {
-        id: CellType.transformTask,
-        icon: 'tabler:transform',
-        label: 'Transform Task',
         group: '',
         order: 0
       },
@@ -675,22 +703,13 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New User Task',
       documentation: '',
       type: CellType.userTask,
-      inputSchema: '',
-      outputSchema: '',
-      config: {
-        assignee: '',
-        candidate_roles: [],
-        candidate_groups: []
-        // due_date: '',
-        // input_mapping: {},
-        // output_mapping: {}
-      },
+      config: getTaskItemConfig[CellType.userTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.userTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
-        formKey: '',
+        form_title: '',
         buttonSetting: {
           showSubmitButton: true,
           submitButtonLabel: 'Submit',
@@ -709,22 +728,13 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Signature Task',
       documentation: '',
       type: CellType.userTask,
-      inputSchema: '',
-      outputSchema: '',
-      config: {
-        assignee: '',
-        candidate_roles: [],
-        candidate_groups: []
-        // due_date: '',
-        // input_mapping: {},
-        // output_mapping: {}
-      },
+      config: getTaskItemConfig[CellType.userTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.signatureTask,
         tags: WorkflowElementType.UserTask,
         icon: '/icons/form.svg',
-        formKey: '',
+        form_title: '',
         buttonSetting: {
           showSubmitButton: true,
           submitButtonLabel: 'Submit',
@@ -809,21 +819,12 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.HTTPTask,
       execution: { ...DEFAULT_TASK_EXECUTION },
-      config: {
-        method: 'GET',
-        url: '',
-        headers: {},
-        body: {},
-        output_mapping: {}
-      },
+      config: getTaskItemConfig[CellType.HTTPTask],
       metadata: {
         type: CellType.HTTPTask,
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/http-task.svg'
-      },
-      celCondition: '',
-      inputSchema: '',
-      outputSchema: ''
+      }
     }
   },
   UniqueIdGenerator: {
@@ -835,11 +836,50 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.uniqueIdGenerator,
       execution: { ...DEFAULT_TASK_EXECUTION },
-      config: getServiceTaskItemConfig[CellType.uniqueIdGenerator],
+      config: getTaskItemConfig[CellType.uniqueIdGenerator],
       metadata: {
         type: CellType.uniqueIdGenerator,
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/numeric.svg'
+      }
+    }
+  },
+  // condition Task
+  ConditionTask: {
+    ...createNodeShell('New_ConditionTask', 'Condition Task', 'New Condition Task', '/icons/condition.svg', 200, 64, '#0F2037', '#fff'),
+    data: {
+      id: '',
+      name: 'Condition Task',
+      label: 'New Condition Task',
+      documentation: '',
+      type: CellType.conditionTask,
+      config: getTaskItemConfig[CellType.conditionTask],
+      metadata: {
+        type: CellType.conditionTask,
+        tags: WorkflowElementType.ConditionTask,
+        icon: '/icons/condition.svg',
+        maxOutgoing: 2,
+        width: 200,
+        bgColor: '#0F2037',
+        textColor: '#fff'
+      }
+    }
+  },
+  // Trans form Task
+  TransformTask: {
+    ...createNodeShell('New_TransformTask', 'Transform Task', 'New Transform Task', '/icons/transform.svg'),
+    data: {
+      id: '',
+      name: 'Transform Task',
+      label: 'New Transform Task',
+      documentation: '',
+      type: CellType.transformTask,
+      config: getTaskItemConfig[CellType.transformTask],
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        type: CellType.transformTask,
+        tags: WorkflowElementType.TransformTask,
+        icon: '/icons/transform.svg'
       }
     }
   },
@@ -852,7 +892,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Sub Process',
       documentation: '',
       type: CellType.subProcess,
-      config: getServiceTaskItemConfig[CellType.subProcess],
+      config: getTaskItemConfig[CellType.subProcess],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.subProcess,
@@ -869,32 +909,12 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Validate Task',
       documentation: '',
       type: CellType.validateTask,
-      config: getServiceTaskItemConfig[CellType.validateTask],
+      config: getTaskItemConfig[CellType.validateTask],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.validateTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/list-alt-check-outline.svg'
-      }
-    }
-  },
-  TransformTask: {
-    ...createNodeShell('New_TransformTask', 'Transform Task', 'New Transform Task', '/icons/transform.svg'),
-    data: {
-      id: '',
-      name: 'Transform Task',
-      label: 'New Transform Task',
-      documentation: '',
-      type: CellType.transformTask,
-      implementation: 'data.transform',
-      config: {
-        mapping: {}
-      },
-      execution: { ...DEFAULT_TASK_EXECUTION },
-      metadata: {
-        type: CellType.transformTask,
-        tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/transform.svg'
       }
     }
   },
@@ -906,7 +926,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Message Task',
       documentation: '',
       type: CellType.messageTask,
-      config: getServiceTaskItemConfig[CellType.messageTask],
+      config: getTaskItemConfig[CellType.messageTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.messageTask,
@@ -923,7 +943,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Upload File',
       documentation: '',
       type: CellType.uploadFile,
-      config: getServiceTaskItemConfig[CellType.uploadFile],
+      config: getTaskItemConfig[CellType.uploadFile],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.uploadFile,
@@ -939,9 +959,8 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Document Generation Task',
       label: 'New Document Generation Task',
       documentation: '',
-      type: CellType.documentGenerationTask,
-      config: getServiceTaskItemConfig[CellType.documentGenerationTask],
-      input_mapping: {},
+      type: CellType.serviceTask,
+      config: getTaskItemConfig[CellType.documentGenerationTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.documentGenerationTask,
@@ -959,7 +978,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Filing Documents Task',
       documentation: '',
       type: CellType.serviceTask,
-      config: getServiceTaskItemConfig[CellType.filingDocuments],
+      config: getTaskItemConfig[CellType.filingDocuments],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.filingDocuments,
@@ -985,26 +1004,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  ConditionTask: {
-    ...createNodeShell('New_ConditionTask', 'Condition Task', 'New Condition Task', '/icons/condition.svg', 200, 64, '#0F2037', '#fff'),
-    data: {
-      id: '',
-      name: 'Condition Task',
-      label: 'New Condition Task',
-      documentation: '',
-      type: CellType.conditionTask,
-      config: getServiceTaskItemConfig[CellType.conditionTask],
-      metadata: {
-        type: CellType.conditionTask,
-        tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/condition.svg',
-        maxOutgoing: 2,
-        width: 200,
-        bgColor: '#0F2037',
-        textColor: '#fff'
-      }
-    }
-  },
+
   InsertDynamicDatabase: {
     ...createNodeShell('New_DynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/insertDatabase.svg', 260),
     data: {
@@ -1014,7 +1014,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       execution: { ...DEFAULT_TASK_EXECUTION },
       type: WorkflowElementType.HTTPRequestTask,
-      config: getServiceTaskItemConfig[CellType.insertDynamicDatabase],
+      config: getTaskItemConfig[CellType.insertDynamicDatabase],
       metadata: {
         type: CellType.insertDynamicDatabase,
         tags: WorkflowElementType.HTTPRequestTask,
@@ -1033,7 +1033,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       execution: { ...DEFAULT_TASK_EXECUTION },
       type: CellType.updateDynamicDatabase,
-      config: getServiceTaskItemConfig[CellType.updateDynamicDatabase],
+      config: getTaskItemConfig[CellType.updateDynamicDatabase],
       metadata: {
         type: CellType.updateDynamicDatabase,
         tags: WorkflowElementType.HTTPRequestTask,

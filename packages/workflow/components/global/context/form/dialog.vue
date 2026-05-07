@@ -3,7 +3,7 @@ import type { Node } from '@antv/x6'
 import { newClientApi } from 'api'
 
 const { getVariablesByType } = useVariablesProvide()
-const props = defineProps<{
+const { node, processKey } = defineProps<{
   node: Node
   processKey: string
 }>()
@@ -30,13 +30,13 @@ async function handleFormSubmit() {
   const json = FormDesignRef.value.getFormJson()
   //  save e-form
   const params = {
-    processKey: props.processKey,
-    userTaskId: props.node.id,
+    processKey: processKey,
+    userTaskId: node.id,
     jsonValue: JSON.stringify(json),
     versionId: '0'
   }
-  // if (props.node.data.metadata.formKey !== '' && props.node.data.metadata.formKey !== 0) {
-  //   params.id = props.node.data.metadata.formKey
+  // if (node.data.metadata.formKey !== '' && node.data.metadata.formKey !== 0) {
+  //   params.id = node.data.metadata.formKey
   // }
 
   const data: any = await newClientApi.postDmsFormPropertiesSave(params).then((r) => r.data)

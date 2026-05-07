@@ -103,7 +103,7 @@ watch(
 </script>
 
 <template>
-  <el-form :model="form" label-position="top" class="listItem">
+  <el-form :model="form" size="small" label-position="top" class="listItem">
     <el-form-item label="Document Generate Step">
       <el-select v-model="form.documentStepId" placeholder="Document Step" filterable clearable @change="updateDocumentId">
         <el-option v-for="item in allDocumentStep" :key="item.value" :label="item.label" :value="item.value" />

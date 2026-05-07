@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
-import { contextMenuComponentType, getServiceTaskItemConfig } from '#imports'
+import { contextMenuComponentType, getTaskItemConfig } from '#imports'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
@@ -20,7 +20,7 @@ const formData = ref<{
 
 function init() {
   const data = node.getData()
-  const type = data.metadata.type as keyof typeof getServiceTaskItemConfig
+  const type = data.metadata.type as keyof typeof getTaskItemConfig
   if (!(type in contextMenuComponentType)) {
     editComponent.value = null
     selectedServiceConfig.value = null

@@ -48,18 +48,14 @@ function addButton() {
 function setForm() {
   const nodeData = node.getData()
 
-  // TODO: set to metadata
   const newData = {
     ...nodeData,
-    version: nodeData.version + 1 || 1,
     metadata: {
       ...nodeData.metadata
-    }
+    },
+    version: (nodeData.version || 0) + 1
   }
-  node.setData(newData, {
-    deep: true,
-    overwrite: true
-  })
+  node.setData(newData, { deep: true, overwrite: true })
 }
 
 function getForm() {
@@ -91,7 +87,7 @@ watch(
 </script>
 
 <template>
-  <div v-if="node.data.metadata.tags === 'signature'" class="formContainer">
+  <div class="formContainer">
     <h4>Preview Document</h4>
     <!--    <template v-if="allDocumentStep.length === 0">No Document Generate step found</template>-->
     <!--    <div v-else class="listContainer">-->

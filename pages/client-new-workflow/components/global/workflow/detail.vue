@@ -65,7 +65,7 @@ async function getDetail() {
     const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r: any) => r.data)
     workflowJson.value = workflowTaskInstance.content
 
-    const data = await $api.get(`/oniflow/api/v1/tasks/instance/${detail.id}`).then((r: any) => r.data)
+    const data = await $api.get(`/oniflow/api/v1/processes/instance-task/${detail.id}`).then((r: any) => r.data)
     if (!data) return
 
     variablesData.value = data.input_variables
@@ -261,7 +261,8 @@ async function handleSubmitUserTask() {
   const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
 
   const data = $api
-    .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
+    .post(`/oniflow//api/v1/processes/instance-task/${taskDetail.value.id}/complete`, {
+      process_id: detail.process_instance_id,
       user_id: userId,
       variables: cFormData
     })
@@ -270,10 +271,12 @@ async function handleSubmitUserTask() {
 }
 
 async function handleSubmitServiceTask() {
-  const fromData = await fromRenderRef.value.getFormData(true, false)
+  const formData = await fromRenderRef.value.getFormData(true, false)
+  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
   const data = $api
-    .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/execute`, {
-      variables: fromData
+    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.id}/execute`, {
+      process_id: detail.process_instance_id,
+      variables: cFormData
     })
     .then((r: any) => r.data)
   console.log('--handleSubmitServiceTask: ', data)
@@ -382,15 +385,16 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
   if (backItem) {
     routerProvider?.back(backItem)
   } else {
-    const fallbackRoute = routeWorkflowPage({
-      workflowType: workflowType
-    })
-    routerProvider?.back(fallbackRoute)
+    routerProvider?.back(
+      routeWorkflowPage({
+        workflowType: workflowType
+      })
+    )
   }
   state.loading = false
 }
 
-const handleTaskInfoChange = async (taskDetailRes: any, isClaim: boolean) => {
+const handleTaskInfoChange = async (taskDetailRes: any) => {
   try {
     state.taskDetail = { ...taskDetailRes }
     if (!isAssigneeUser.value) {
@@ -408,8 +412,7 @@ function handleBack() {
   routerProvider?.navigateTo(
     routeWorkflowPage({
       workflowType: workflowType
-    }),
-    false
+    })
   )
 }
 
@@ -430,6 +433,7 @@ onMounted(() => {
 <template>
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
+      {{workflowJson}}
       <h3>{{ workflowJson.name }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">

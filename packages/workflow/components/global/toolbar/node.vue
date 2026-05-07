@@ -25,10 +25,10 @@ function setupNode() {
   graphProvider?.graph.value?.on('node:mouseenter', ({ cell }: any) => {
     if (graphProvider?.readonly.value) return
 
-    if (cell.getData().metadata.type === CellType.conditionTask) {
-      const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(cell).filter((connectedEdge: any) => {
-        return connectedEdge.source.cell === cell.id
-      })
+    const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(cell).filter((connectedEdge: any) => {
+      return connectedEdge.source.cell === cell.id
+    })
+    if (!!cell.getData().metadata.maxOutgoing){
       // 當超出node設定的最大連出綫，該節點不在顯示節點標識符
       if (allNodeConnected.length === cell.getData().metadata.maxOutgoing) return
     }
@@ -60,7 +60,6 @@ function setupNode() {
   graphProvider?.graph.value?.on('node:contextmenu', contextMenuHandler)
 }
 
-// #region context menu
 const position = ref({ x: 0, y: 0 })
 const contextMenuOpened = ref(false)
 const contextSelectedNode = ref()
@@ -98,7 +97,6 @@ function editItem() {
 onClickOutside(rightClickEl, () => {
   contextMenuOpened.value = false
 })
-// #endregion
 
 function handleNodeClick({ node }: any) {
   const type = node.data.metadata.tags as WorkflowElementType
