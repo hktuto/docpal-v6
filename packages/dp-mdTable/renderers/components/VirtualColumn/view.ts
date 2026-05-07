@@ -20,15 +20,18 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
   const { row, column } = params
   const props: any = options?.props || {}
   const viewTools: any = inject('viewTools')
-  const relationFieldConfig = viewTools?.getRelationFieldConfig(props.relation_table_id, props.display_field_id)
-  const relationArray = buildRelationArray(row, props.relation_field_name, relationFieldConfig.field_name)
-  // console.log('relationFieldConfig', relationFieldConfig, ColumnFieldType.MultiSelect, ColumnFieldType.MultiSelect === relationFieldConfig.business_type)
-  const values = relationArray.map((item: any) => item[relationFieldConfig.field_name])
-  switch (relationFieldConfig.business_type) {
+  const fieldName = props.display_field_name
+  const relationArray = buildRelationArray(row, props.relation_field_name, fieldName)
+  const values = relationArray.map((item: any) => item[fieldName])
+  switch (props.display_field_type) {
+    case ColumnFieldType.DateTime:
+      return renderAsDateTime(values, props)
+    case ColumnFieldType.Number:
+      return renderAsNumber(values, props)
     case ColumnFieldType.SingleSelect:
-      return renderAsSingleSelect(values, relationFieldConfig)
+      return renderAsSingleSelect(values, props)
     case ColumnFieldType.MultiSelect:
-      return renderAsMultiSelect(values, relationFieldConfig)
+      return renderAsMultiSelect(values, props)
     default:
   }
 
@@ -38,11 +41,11 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
       h(
         ElTag,
         {
-          key: `${relationFieldConfig.field_name}-${i}`,
+          key: `${fieldName}-${i}`,
           size: 'small',
           type: 'info'
         },
-        () => String(relationArray[i][relationFieldConfig.field_name] || '-')
+        () => String(relationArray[i][fieldName] || '-')
       )
     )
   }

@@ -120,10 +120,24 @@ export function renderAsNumber(values: any[], targetConfig: TargetFieldConfig, s
   return h(
     'div',
     {
-      class: 'virtual-column-view number',
-      'data-title': formattedValues.join(separator)
+      class: 'virtual-column-view select-tags',
+      'data-title': formattedValues.join(separator),
+      style: {
+        display: 'flex',
+        gap: '4px',
+        flexWrap: 'wrap'
+      }
     },
-    formattedValues.join(separator)
+    formattedValues.map((val: string, index: number) =>
+      h(
+        'div',
+        {
+          key: index,
+          class: 'el-tag el-tag--info el-tag--light el-tag--small',
+        },
+        val
+      )
+    )
   )
 }
 
@@ -131,11 +145,10 @@ export function renderAsNumber(values: any[], targetConfig: TargetFieldConfig, s
  * Render values as formatted dates/times
  */
 export function renderAsDateTime(values: any[], targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
-  const props = targetConfig.properties || {}
+  const props = targetConfig.properties || targetConfig || {}
   const dateFormat = props.dateFormat || 'YYYY-MM-DD'
   const includeTime = props.includeTime || false
   const dateTimeFormat = props.dateTimeFormat || 'HH:mm'
-
   if (values.length === 0) {
     return h('div', { class: 'virtual-column-view empty' }, '-')
   }
@@ -144,16 +157,31 @@ export function renderAsDateTime(values: any[], targetConfig: TargetFieldConfig,
 
   const formattedValues = values.map((val: any) => {
     if (!val) return '-'
-    return dayjs(val).format(format)
+    const parseVal = isNaN(Number(val)) ? val : Number(val)
+    return dayjs(parseVal).format(format)
   })
 
   return h(
     'div',
     {
-      class: 'virtual-column-view datetime',
-      title: formattedValues.join(separator)
+      class: 'virtual-column-view select-tags',
+      'data-title': formattedValues.join(separator),
+      style: {
+        display: 'flex',
+        gap: '4px',
+        flexWrap: 'wrap'  
+      }
     },
-    formattedValues.join(separator)
+    formattedValues.map((val: string, index: number) =>
+      h(
+        'div',
+        {
+          key: index,
+          class: 'el-tag el-tag--info el-tag--light el-tag--small',
+        },
+        val
+      )
+    )
   )
 }
 

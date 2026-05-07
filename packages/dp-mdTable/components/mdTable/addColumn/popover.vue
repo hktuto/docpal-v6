@@ -192,13 +192,11 @@ const handleSubmit = async () => {
           return
         }
       }
-      // Let useTableView handle type changes properly (including relation columns)
-      // This preserves relation data when only changing display field
       await updateColumn(state.column?.field, columnConfig as any)
     } else {
       await addColumn([columnConfig])
     }
-    if ([ColumnFieldType.AggVirtualColumn, ColumnFieldType.virtualColumn].includes(columnConfig.business_type)) {
+    if ([ColumnFieldType.AggVirtualColumn, ColumnFieldType.VirtualColumn].includes(columnConfig.business_type)) {
       updateRelationDisplayFields(columnConfig)
     }
     resetForm()

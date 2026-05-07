@@ -22,21 +22,46 @@
       <el-option v-for="field in tableFields" :key="field.id" :label="field.field_name_alias" :value="field.field_name" />
     </el-select>
   </el-form-item>
+  <component :is="AsyncComponent" v-if="AsyncComponent" :form-data="formData" />
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, defineAsyncComponent } from 'vue'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
 }>()
+const AsyncComponent = ref<null | any>(null)
 const cascaderProps = {
   label: 'name',
   value: 'id'
 }
 const tableFields = ref([])
-const { menus, menuIdPaths, isAgg, getTableFields, relationTables, updateRelationField } = useVirtualColumn(props.formData.relation_table_id, props.formData.business_type)
-const placeholder = computed(() => isAgg.value ? 'Select a number field' : 'Select Display Field')
+const { menus, menuIdPaths, isAgg, getTableFields, relationTables, updateRelationField } = useVirtualColumn(
+  props.formData.relation_table_id,
+  props.formData.business_type
+)
+const componentMap: Record<number, string> = {
+  [ColumnFieldType.Number]: 'Number',
+  [ColumnFieldType.DateTime]: 'DateTime',
+  [ColumnFieldType.SingleSelect]: 'Select',
+  [ColumnFieldType.MultiSelect]: 'Select',
+  [ColumnFieldType.Checkbox]: 'Checkbox',
+  [ColumnFieldType.Rating]: 'Rating'
+}
+
+function loadFieldComponent(fieldType: ColumnFieldType) {
+  const componentName = componentMap[fieldType]
+  AsyncComponent.value = componentName ? defineAsyncComponent(() => import(`./${componentName}.vue`)) : null
+}
+
+function buildInitialFieldSettings(selectedField: any) {
+  const sourceProps = selectedField?.display_structure || {}
+  if (componentMap[selectedField.business_type]) {
+    return sourceProps
+  }
+  return {}
+}
 // Relation Table Change
 async function handleRTChange(value: string[]) {
   try {
@@ -49,12 +74,20 @@ async function handleRTChange(value: string[]) {
     props.formData.relation_table_id = ''
     props.formData.relation_field_name = ''
     props.formData.display_field_name = ''
-    props.formData.relation_field_name = ''
   }
 }
 function handleDisplayFieldChange(value: string) {
   const selectedField = tableFields.value.find((field: any) => field.field_name === value)
+  if (!selectedField) {
+    AsyncComponent.value = null
+    return
+  }
+  console.log('selectedField', selectedField)
   props.formData.display_field_id = selectedField.id
+  props.formData.display_field_name = selectedField.field_name
+  props.formData.display_field_type = selectedField.business_type
+  Object.assign(props.formData, buildInitialFieldSettings(selectedField))
+  loadFieldComponent(selectedField.business_type)
   if (isAgg.value) {
     props.formData.aggregation_field_name = selectedField.field_name
     props.formData.aggregation_method = 'sum'
@@ -64,6 +97,9 @@ function handleDisplayFieldChange(value: string) {
 onMounted(() => {
   if (props.formData.relation_table_id) {
     handleRTChange([props.formData.relation_table_id])
+  }
+  if (props.formData.display_field_type) {
+    loadFieldComponent(props.formData.display_field_type)
   }
 })
 </script>

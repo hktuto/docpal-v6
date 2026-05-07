@@ -1,5 +1,6 @@
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '../../types/column-types'
+import { useSingleDatabaseContext } from '@packages/dynamic-db/composables/useSignleDatabase'
 // For table's relation config
 export const useVirtualColumn = (relationTableId: string, businessType: ColumnFieldType) => {
   const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
@@ -35,8 +36,6 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
     const relationTableId = formData.relation_table_id
     const relationTable = relationTables.value.find((table: any) => table.display_structure?.relation_table_id === relationTableId)
     formData.relation_field_name = relationTable.field_name
-    // formData.relation_field_name = relationTable.field_name
-    console.log('formData', formData,relationTable)
     // 重新获取relationTable中的displayFields
     const displayFieldIds = JSON.parse(JSON.stringify(relationTable.display_structure?.display_field_ids))
     const virtualColumns = tableFields.value.filter((field: any) => field.business_type === ColumnFieldType.VirtualColumn)
@@ -47,17 +46,17 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
       }
     })
 
-    if (!areArraysEqualIgnoreOrder(displayFieldIds, relationTable.display_structure?.display_field_ids)) {
-      updateColumn(relationTable.field_name, {
-        display_field_ids: displayFieldIds,
-        relation_table_id: relationTableId,
-        business_type: relationTable.business_type,
-        display_structure: {
-          ...relationTable.display_structure,
-          display_field_ids: displayFieldIds
-        }
-      })
-    }
+    // if (!areArraysEqualIgnoreOrder(displayFieldIds, relationTable.display_structure?.display_field_ids)) {
+    //   updateColumn(relationTable.field_name, {
+    //     display_field_ids: displayFieldIds,
+    //     relation_table_id: relationTableId,
+    //     business_type: relationTable.business_type,
+    //     display_structure: {
+    //       ...relationTable.display_structure,
+    //       display_field_ids: displayFieldIds
+    //     }
+    //   })
+    // }
   }
   onMounted(async () => {
     console.log('relationTableId', relationTableId)

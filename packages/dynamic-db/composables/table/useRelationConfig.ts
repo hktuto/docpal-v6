@@ -21,6 +21,8 @@ export function useRelationConfig() {
     })
   }
   async function setSingleRelationConfig(tableId: string, fields: any[]) {
+    console.log('tableId', tableId)
+    console.log('fields', fields)
     if (!tableId) return
     if (!fields) {
       const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({

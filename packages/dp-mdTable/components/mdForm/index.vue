@@ -60,7 +60,7 @@ const componentMap = {
   Phone: resolveComponent('LazyMdFormFieldText'),
   Checkbox: resolveComponent('LazyMdFormFieldCheckbox'),
   Member: resolveComponent('LazyMdFormFieldMember'),
-  // VirtualColumn: resolveComponent('LazyMdFormFieldVirtualColumn'),
+  VirtualColumn: resolveComponent('LazyMdFormFieldVirtualColumn'),
   Relation: resolveComponent('LazyMdFormFieldRelation'),
   // 'Formula': resolveComponent('LazyMdFormFieldFormula'),
   CreatedTime: resolveComponent('LazyMdFormFieldDateTime'),
@@ -113,6 +113,7 @@ watch(
   () => props.columns,
   (newVal) => {
     if (!props.columns) return []
+    // 在这里那relation的配置
     const normalizedColumns = props.columns.map((column: any) => {
       return {
         ...column,
