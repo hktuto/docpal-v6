@@ -16,14 +16,14 @@ export const useHomePage = () => {
     if (homeList.value.length > 0 && !force) return
     loading.value = true
     try {
-      // let personal: any = await newClientApi.getDocpalPersonalLanding().then((res) => res.data)
+      let personal: any = await newClientApi.getDocpalPersonalLanding().then((res) => res.data)
       let dashboardList: any = await newClientApi.getDocpalPersonalLandingDashboardList().then((res: any) => res.data)
-      // if (!personal) personal = {}
+      if (!personal) personal = {}
       if (!dashboardList) dashboardList = []
-      // personal.id = 'PERSONAL'
-      // personal.name = 'PERSONAL'
+      personal.id = 'PERSONAL'
+      personal.name = 'PERSONAL'
       homeList.value = [ ...dashboardList]
-      let storageHomeList = preference.value.userStoreHome
+      let storageHomeList = preference.value.userStoreHome || 'PERSONAL'
       console.log('storageHomeList', storageHomeList, dashboardList)
       // TODO : remove PERSONAL
       if (!storageHomeList || storageHomeList === 'PERSONAL' && dashboardList[0] ) {
