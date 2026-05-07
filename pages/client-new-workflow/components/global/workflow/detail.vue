@@ -41,7 +41,8 @@ const state = reactive<any>({
   activityList: [],
   loading: true,
   submitShow: false,
-  error: null
+  error: null,
+  title: ''
 })
 const fromRenderRef = ref()
 const taskDetail = ref({})
@@ -71,6 +72,7 @@ async function getDetail() {
     variablesData.value = data.input_variables
     const findNode = workflowJson.value.nodes.find((node: any) => node.id == data.node_id)
     if (!!findNode) {
+      state.title = findNode.config.human_task.form_title
       nodeType.value = findNode.metadata.type
 
       // assignee
@@ -433,7 +435,7 @@ onMounted(() => {
 <template>
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
-      <h3>{{ workflowJson.name }}</h3>
+      <h3>{{ state.title ? state.title : workflowJson.name }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
           <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="state.taskDetail" :state="workflowType" />
