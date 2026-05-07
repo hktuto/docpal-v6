@@ -972,7 +972,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Document Generation Task',
       label: 'New Document Generation Task',
       documentation: '',
-      type: CellType.serviceTask,
+      type: CellType.documentGenerationTask,
       config: getTaskItemConfig[CellType.documentGenerationTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
@@ -1044,7 +1044,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Update Dynamic Database',
       documentation: '',
       execution: { ...DEFAULT_TASK_EXECUTION },
-      type: CellType.updateDynamicDatabase,
+      type: WorkflowElementType.HTTPRequestTask,
       config: getTaskItemConfig[CellType.updateDynamicDatabase],
       metadata: {
         type: CellType.updateDynamicDatabase,

@@ -41,12 +41,10 @@ export const getTaskItemConfig = {
     output_mapping: {}
   },
   HTTPTask: {
-    http_request: {
-      method: 'GET',
-      url: '',
-      headers: {},
-      body: {}
-    },
+    method: 'GET',
+    url: '',
+    headers: {},
+    body: {},
     input_mapping: {},
     output_mapping: {}
   },
