@@ -19,10 +19,16 @@ export const getTaskItemConfig = {
     output_mapping: {}
   },
   ConditionTask: {
-    condition:{
+    condition: {
       relation: 'AND',
       conditions: []
     },
+    input_mapping: {},
+    output_mapping: {}
+  },
+  TransformTask: {
+    mappings: {},
+    operations: [],
     input_mapping: {},
     output_mapping: {}
   },
@@ -34,12 +40,12 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
-  HTTPTask:{
+  HTTPTask: {
     http_request: {
       method: 'GET',
       url: '',
       headers: {},
-      body: {},
+      body: {}
     },
     input_mapping: {},
     output_mapping: {}
@@ -52,7 +58,7 @@ export const getTaskItemConfig = {
       to: [],
       cc: [],
       subject: '',
-      body: '',
+      body: ''
     },
     input_mapping: {},
     output_mapping: {}
@@ -69,7 +75,7 @@ export const getTaskItemConfig = {
         fileContentId: '',
         creator: '',
         properties: {}
-      },
+      }
     },
     input_mapping: {},
     output_mapping: {}
@@ -86,7 +92,7 @@ export const getTaskItemConfig = {
         type: 'File',
         creator: '',
         variables: {}
-      },
+      }
     },
     input_mapping: {},
     output_mapping: {}

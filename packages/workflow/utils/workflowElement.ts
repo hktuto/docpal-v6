@@ -8,7 +8,10 @@ export enum WorkflowElementType {
   UserTask = 'UserTask',
   Gateway = 'Gateway',
   ServiceTask = 'ServiceTask',
-  HTTPRequestTask = 'HTTPRequestTask'
+  HTTPRequestTask = 'HTTPRequestTask',
+  TransformTask = 'TransformTask',
+  MessageTask = 'MessageTask',
+  ConditionTask = 'ConditionTask'
 }
 
 Graph.registerNode(
@@ -159,10 +162,9 @@ export enum contextMenuComponentType {
   InclusiveGateway = 'LazyContextInclusiveGateway',
   // Http Task
   HTTPTask = 'LazyContextHttpTask',
-  TransformTask = 'LazyContextTransformTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
-  ConditionTask = 'LazyContextServiceTaskCondition',
+
   ValidateTask = 'LazyContextServiceTaskValidate',
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
@@ -170,7 +172,12 @@ export enum contextMenuComponentType {
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration',
   FilingDocuments = 'LazyContextServiceTaskFilingDocuments',
   InsertDynamicDatabase = 'LazyContextDynamicDatabaseInsert',
-  UpdateDynamicDatabase = 'LazyContextDynamicDatabaseUpdate'
+  UpdateDynamicDatabase = 'LazyContextDynamicDatabaseUpdate',
+
+  // Condition
+  ConditionTask = 'LazyContextCondition',
+  // Transform
+  TransformTask = 'LazyContextTransform'
 }
 
 interface portsItems {
@@ -531,7 +538,7 @@ export const workflowElement: WorkflowElement = {
     clickHandler: () => {},
     contextMenuComponent: () => {}
   },
-  ServiceTask: {
+  ConditionTask: {
     embed: false,
     toolbar: [
       {
@@ -540,7 +547,34 @@ export const workflowElement: WorkflowElement = {
         label: 'Condition Task',
         group: '',
         order: 0
-      },
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      return 'LazyContextServiceTask'
+    }
+  },
+  TransformTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.transformTask,
+        icon: 'tabler:transform',
+        label: 'Transform Task',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      return contextMenuComponentType.TransformTask
+    }
+  },
+  ServiceTask: {
+    embed: false,
+    toolbar: [
       {
         id: CellType.subProcess,
         icon: 'pixelarticons:forwardburger',
@@ -552,13 +586,6 @@ export const workflowElement: WorkflowElement = {
         id: CellType.validateTask,
         icon: 'material-symbols:list-alt-check-outline',
         label: 'Validate Task',
-        group: '',
-        order: 0
-      },
-      {
-        id: CellType.transformTask,
-        icon: 'tabler:transform',
-        label: 'Transform Task',
         group: '',
         order: 0
       },
@@ -817,6 +844,45 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
+  // condition Task
+  ConditionTask: {
+    ...createNodeShell('New_ConditionTask', 'Condition Task', 'New Condition Task', '/icons/condition.svg', 200, 64, '#0F2037', '#fff'),
+    data: {
+      id: '',
+      name: 'Condition Task',
+      label: 'New Condition Task',
+      documentation: '',
+      type: CellType.conditionTask,
+      config: getTaskItemConfig[CellType.conditionTask],
+      metadata: {
+        type: CellType.conditionTask,
+        tags: WorkflowElementType.ConditionTask,
+        icon: '/icons/condition.svg',
+        maxOutgoing: 2,
+        width: 200,
+        bgColor: '#0F2037',
+        textColor: '#fff'
+      }
+    }
+  },
+  // Trans form Task
+  TransformTask: {
+    ...createNodeShell('New_TransformTask', 'Transform Task', 'New Transform Task', '/icons/transform.svg'),
+    data: {
+      id: '',
+      name: 'Transform Task',
+      label: 'New Transform Task',
+      documentation: '',
+      type: CellType.transformTask,
+      config: getTaskItemConfig[CellType.transformTask],
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        type: CellType.transformTask,
+        tags: WorkflowElementType.TransformTask,
+        icon: '/icons/transform.svg'
+      }
+    }
+  },
   // Service Task
   SubProcess: {
     ...createNodeShell('New_SubProcess', 'Sub Process', 'New Sub Process', '/icons/forwardburger.svg'),
@@ -849,25 +915,6 @@ const workflowCellElementTemplate: CellTypeItem = {
         type: CellType.validateTask,
         tags: WorkflowElementType.ServiceTask,
         icon: '/icons/list-alt-check-outline.svg'
-      }
-    }
-  },
-  TransformTask: {
-    ...createNodeShell('New_TransformTask', 'Transform Task', 'New Transform Task', '/icons/transform.svg'),
-    data: {
-      id: '',
-      name: 'Transform Task',
-      label: 'New Transform Task',
-      documentation: '',
-      type: CellType.transformTask,
-      config: {
-        mapping: {}
-      },
-      execution: { ...DEFAULT_TASK_EXECUTION },
-      metadata: {
-        type: CellType.transformTask,
-        tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/transform.svg'
       }
     }
   },
@@ -912,7 +959,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Document Generation Task',
       label: 'New Document Generation Task',
       documentation: '',
-      type: CellType.documentGenerationTask,
+      type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.documentGenerationTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
@@ -957,26 +1004,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  ConditionTask: {
-    ...createNodeShell('New_ConditionTask', 'Condition Task', 'New Condition Task', '/icons/condition.svg', 200, 64, '#0F2037', '#fff'),
-    data: {
-      id: '',
-      name: 'Condition Task',
-      label: 'New Condition Task',
-      documentation: '',
-      type: CellType.conditionTask,
-      config: getTaskItemConfig[CellType.conditionTask],
-      metadata: {
-        type: CellType.conditionTask,
-        tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/condition.svg',
-        maxOutgoing: 2,
-        width: 200,
-        bgColor: '#0F2037',
-        textColor: '#fff'
-      }
-    }
-  },
+
   InsertDynamicDatabase: {
     ...createNodeShell('New_DynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/insertDatabase.svg', 260),
     data: {

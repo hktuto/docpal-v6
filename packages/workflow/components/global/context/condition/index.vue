@@ -84,7 +84,7 @@ watch(
   <p>Conditions</p>
   <div class="conditions">
     <div v-for="(conditionsElement, index) in form" :key="index">
-      <ContextServiceTaskConditionGroup :rule="conditionsElement.rule" :index="index" @delete="deleteCondition" @update="updateCondition" />
+      <ContextConditionGroup :rule="conditionsElement.rule" :index="index" @delete="deleteCondition" @update="updateCondition" />
     </div>
     <div :class="{ addNewContainer: true, readonly: graphProvider.readonly.value }" @click="addNewCondition">
       <Icon name="lucide:circle-plus" />

@@ -65,7 +65,7 @@ async function getDetail() {
     const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r: any) => r.data)
     workflowJson.value = workflowTaskInstance.content
 
-    const data = await $api.get(`/oniflow/api/v1/tasks/instance/${detail.id}`).then((r: any) => r.data)
+    const data = await $api.get(`/oniflow/api/v1/processes/instance-task/${detail.id}`).then((r: any) => r.data)
     if (!data) return
 
     variablesData.value = data.input_variables
@@ -433,6 +433,7 @@ onMounted(() => {
 <template>
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
+      {{workflowJson}}
       <h3>{{ workflowJson.name }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">

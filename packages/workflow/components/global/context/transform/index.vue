@@ -17,6 +17,7 @@ const variableList = computed(() => {
 const contextTransformDialogRef = ref()
 const dataMapping = ref<Record<string, string>>({})
 const dataMappingList = computed(() => {
+  if (!dataMapping.value) return
   return Object.entries(dataMapping.value).map(([key, value]) => ({
     id: key,
     label: variableList.value.find((item: any) => item.id === key)?.name,
@@ -42,7 +43,7 @@ function handleDeleteMapping(id: string) {
 
 function init() {
   const data = node.getData()
-  dataMapping.value = data.config?.mapping
+  dataMapping.value = data.config?.mappings
 }
 
 function updateData() {
@@ -53,7 +54,7 @@ function updateData() {
     ...nodeData,
     config: {
       ...nodeData.config,
-      mapping: {
+      mappings: {
         ...dataMapping.value
       }
     },

@@ -25,11 +25,11 @@ const formTitle = ref<string>('')
 const formItems = ref<any[]>([])
 const RuleManageDialogRef = ref()
 
-const formKey = ref<number>(0)
+const formKey = ref<string>('')
 
 function initData() {
   const data = node.getData()
-  formKey.value = Number(data.config.human_task.form_key)
+  formKey.value = data.config.human_task.form_key
   formTitle.value = data.metadata.form_title || ''
 }
 
@@ -67,8 +67,8 @@ function update() {
     },
     version: data.version + 1 || 1
   }
-  if (!!formKey.value && formKey.value !== 0) {
-    newData.config.human_task.form_key = Number(formKey.value)
+  if (!!formKey.value && formKey.value !== '') {
+    newData.config.human_task.form_key = formKey.value.toString()
   }
 
   node.setData(newData, { overwrite: true, deep: true })
@@ -76,7 +76,7 @@ function update() {
 }
 
 function handelSubmitForm(id: string) {
-  formKey.value = Number(id)
+  formKey.value = id
   update()
 }
 
