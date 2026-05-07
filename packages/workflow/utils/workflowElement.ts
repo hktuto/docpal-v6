@@ -11,7 +11,8 @@ export enum WorkflowElementType {
   HTTPRequestTask = 'HTTPRequestTask',
   TransformTask = 'TransformTask',
   MessageTask = 'MessageTask',
-  ConditionTask = 'ConditionTask'
+  ConditionTask = 'ConditionTask',
+  ValidateTask = 'ValidateTask'
 }
 
 Graph.registerNode(
@@ -404,7 +405,9 @@ function GenDefPorts() {
   }
 }
 
-/** 畫布節點通用 rect+image+text markup（workflowJson 轉圖與工具欄模板共用） */
+/**
+ * 畫布節點通用 rect+image+text markup（workflowJson 轉圖與工具欄模板共用
+ * */
 const GRAPH_NODE_MARKUP: Markup[] = [
   { tagName: 'rect', selector: 'body' },
   { tagName: 'image', selector: 'image' },
@@ -552,7 +555,7 @@ export const workflowElement: WorkflowElement = {
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      return 'LazyContextServiceTask'
+      return contextMenuComponentType.ConditionTask
     }
   },
   TransformTask: {
@@ -572,6 +575,23 @@ export const workflowElement: WorkflowElement = {
       return contextMenuComponentType.TransformTask
     }
   },
+  ValidateTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.validateTask,
+        icon: 'material-symbols:list-alt-check-outline',
+        label: 'Validate Task',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      return 'LazyContextServiceTask'
+    }
+  },
   ServiceTask: {
     embed: false,
     toolbar: [
@@ -579,13 +599,6 @@ export const workflowElement: WorkflowElement = {
         id: CellType.subProcess,
         icon: 'pixelarticons:forwardburger',
         label: 'Sub Process',
-        group: '',
-        order: 0
-      },
-      {
-        id: CellType.validateTask,
-        icon: 'material-symbols:list-alt-check-outline',
-        label: 'Validate Task',
         group: '',
         order: 0
       },
@@ -1004,7 +1017,6 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-
   InsertDynamicDatabase: {
     ...createNodeShell('New_DynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/insertDatabase.svg', 260),
     data: {

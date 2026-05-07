@@ -1,9 +1,15 @@
 <script setup lang="ts">
-const { t } = useI18n()
+import type { Node } from '@antv/x6'
+
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
+const { node } = defineProps<{
+  node: Node
+}>()
+const { t } = useI18n()
+
 type ruleItemType = {
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
   val_type: 'string' | 'number' | 'boolean'
@@ -11,35 +17,32 @@ type ruleItemType = {
   condition: 'contains' | 'is' | 'eq' | 'gt'
   value: string
 }
-const emits = defineEmits(['update'])
-const { config } = defineProps<{
-  config: {
-    condition: {
-      relation: 'AND' | 'OR'
-      conditions: any[]
-    }
-    input_mapping: any
-    output_mapping: any
-  }
-}>()
-
 const form = ref([])
 
 function init() {
-  form.value = config.condition.conditions || []
+  const data = node.getData()
+  form.value = data.config.condition.conditions || []
 }
 
-function updateNode() {
-  const data = {
-    ...config,
-    condition: {
-      ...config.condition,
-      conditions: form.value
+function update() {
+  graphProvider?.graph.value?.startBatch('update-condition-data')
+  const nodeData = node.getData()
+  const newData = {
+    ...nodeData,
+    config: {
+      ...nodeData.config,
+      condition: {
+        ...nodeData.config.condition,
+        conditions: form.value
+      },
+      input_mapping: {},
+      output_mapping: {}
     },
-    input_mapping: {},
-    output_mapping: {}
+    version: (nodeData.version || 0) + 1
   }
-  emits('update', { name: 'update-condition-data', config: data })
+
+  node.setData(newData, { overwrite: true, deep: true })
+  graphProvider?.graph.value?.stopBatch('update-condition-data')
 }
 
 function addNewCondition() {
@@ -57,7 +60,7 @@ function addNewCondition() {
     relation: 'OR',
     rule: rules
   })
-  updateNode()
+  update()
 }
 
 function deleteCondition(index: number) {
@@ -65,13 +68,15 @@ function deleteCondition(index: number) {
 }
 
 function updateCondition() {
-  updateNode()
+  update()
 }
 
 watch(
-  () => config,
-  async () => {
-    init()
+  () => node,
+  () => {
+    if (!!node) {
+      init()
+    }
   },
   {
     immediate: true,
@@ -81,6 +86,7 @@ watch(
 </script>
 
 <template>
+  <SidebarLabel :node="node" />
   <p>Conditions</p>
   <div class="conditions">
     <div v-for="(conditionsElement, index) in form" :key="index">
