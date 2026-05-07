@@ -12,7 +12,7 @@
             style="width: 100%"
             :options="displayColumnFieldOptions"
             @visible-change="handleSelectVisibleChange"
-            @change="handleSelectChange"
+            @change="handleTypeChange"
             @click.stop
           >
           </el-select-v2>
@@ -117,13 +117,18 @@ const handleClose = () => {
 }
 // 提供给子组件使用，让子组件的select也能控制popover的关闭行为
 provide('handleSelectVisibleChange', handleSelectVisibleChange)
-function handleSelectChange(value: any) {
-  console.log('handleSelectChange', value)
-  formData.value = {
+function handleTypeChange(newValue: any) {
+  const nextFormData: any = {
     field_name: formData.value.field_name,
-    business_type: value
+    business_type: newValue
   }
-  loadComponent(value)
+
+  if (Object.prototype.hasOwnProperty.call(formData.value, 'options') && [ColumnFieldType.SingleSelect, ColumnFieldType.MultiSelect].includes(newValue)) {
+    nextFormData.options = formData.value.options
+  }
+
+  formData.value = nextFormData
+  loadComponent(newValue)
 }
 const AsyncComponent = ref<null | any>(null)
 // 定义加载组件的函数
