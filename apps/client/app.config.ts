@@ -251,9 +251,9 @@ export default defineAppConfig({
         {
           name: 'admin-password-policy'
         },
-        {
-          name: 'admin-log-manage'
-        },
+        // {
+        //   name: 'admin-log-manage'
+        // },
         {
           name: 'admin-audit'
         },
