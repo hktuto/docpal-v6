@@ -5,6 +5,7 @@ import type { ResultCfUserTableConfigResponseDTO } from 'api/src/generate/newCli
 type RelationConfig = {
   setRelationConfig: (config: any) => void
   getRelationFieldConfig: (tableId: string, fieldId: string) => any
+  setSingleRelationConfig: (tableId: string, fields: any[]) => void
 }
 export const RelationConfigKey: InjectionKey<RelationConfig> = Symbol('RelationConfigKey')
 export function useRelationConfig() {
@@ -21,8 +22,6 @@ export function useRelationConfig() {
     })
   }
   async function setSingleRelationConfig(tableId: string, fields: any[]) {
-    console.log('tableId', tableId)
-    console.log('fields', fields)
     if (!tableId) return
     if (!fields) {
       const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
@@ -45,7 +44,7 @@ export function useRelationConfig() {
         }
       : null
   }
-  provide(RelationConfigKey, { setRelationConfig, getRelationFieldConfig })
+  provide(RelationConfigKey, { setRelationConfig, getRelationFieldConfig, setSingleRelationConfig })
   return {
     setRelationConfig,
     getRelationFieldConfig,

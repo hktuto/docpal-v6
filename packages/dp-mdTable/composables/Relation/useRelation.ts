@@ -26,9 +26,9 @@ export const useRelation = (relationTableId: string) => {
     menus.value = list
   }
   async function getTop5Fields(tableId: string) {
-    console.log('tableId', tableId)
     const res: any = await newClientApi.getDocpalMasterTableUserConfig({ tableId, userId: 'master' })
     const configStr = res.data.tableConfig
+    setSingleRelationConfig(tableId, res.data.tableFields || [])
     const config = configStr ? JSON.parse(configStr) : []
     const displayFieldsInFirstView = config.length > 0 ? (config[0].columns.length > 0 ? config[0].columns : res.data.tableFields) : res.data.tableFields
     let result = []
