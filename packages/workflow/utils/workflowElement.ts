@@ -678,7 +678,7 @@ export const workflowElement: WorkflowElement = {
   }
 }
 
-const DEFAULT_TASK_EXECUTION = { async: false, timeout_ms: 1000, priority: 0 }
+const DEFAULT_TASK_EXECUTION = { async: false, timeout_ms: 5000, priority: 0 }
 const LONG_RUNNING_EXECUTION = { async: false, timeout_ms: 6000, priority: 1 }
 
 function createNodeShell(
@@ -903,7 +903,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.subProcess,
       config: getTaskItemConfig[CellType.subProcess],
-      execution: { ...LONG_RUNNING_EXECUTION },
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.subProcess,
         tags: WorkflowElementType.ServiceTask,
@@ -920,7 +920,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.validateTask,
       config: getTaskItemConfig[CellType.validateTask],
-      execution: { ...LONG_RUNNING_EXECUTION },
+      execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {
         type: CellType.validateTask,
         tags: WorkflowElementType.ServiceTask,

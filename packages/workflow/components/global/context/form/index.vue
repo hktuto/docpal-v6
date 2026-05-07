@@ -30,7 +30,7 @@ const formKey = ref<string>('')
 function initData() {
   const data = node.getData()
   formKey.value = data.config.human_task.form_key
-  formTitle.value = data.metadata.form_title || ''
+  formTitle.value = data.config.human_task.form_title || ''
 }
 
 function editField() {

@@ -42,14 +42,6 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
-  HTTPTask: {
-    method: 'GET',
-    url: '',
-    headers: {},
-    body: {},
-    input_mapping: {},
-    output_mapping: {}
-  },
   MessageTask: {
     email: {
       method: 'POST',
@@ -63,6 +55,7 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
+  // Server Task
   UploadFile: {
     http_request: {
       method: 'POST',
@@ -75,23 +68,6 @@ export const getTaskItemConfig = {
         fileContentId: '',
         creator: '',
         properties: {}
-      }
-    },
-    input_mapping: {},
-    output_mapping: {}
-  },
-  DocumentGenerationTask: {
-    http_request: {
-      method: 'POST',
-      url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
-      headers: generatorHTTPRequestTaskHeaders(),
-      body: {
-        templateId: '',
-        parentPath: '',
-        name: '',
-        type: 'File',
-        creator: '',
-        variables: {}
       }
     },
     input_mapping: {},
@@ -122,6 +98,32 @@ export const getTaskItemConfig = {
       },
       timeout: 5000
     },
+    input_mapping: {},
+    output_mapping: {}
+  },
+  DocumentGenerationTask: {
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {
+        templateId: '',
+        parentPath: '',
+        name: '',
+        type: 'File',
+        creator: '',
+        variables: {}
+      }
+    },
+    input_mapping: {},
+    output_mapping: {}
+  },
+  // http task
+  HTTPTask: {
+    method: 'GET',
+    url: '',
+    headers: {},
+    body: {},
     input_mapping: {},
     output_mapping: {}
   },

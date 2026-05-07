@@ -96,7 +96,7 @@ async function getDetail() {
 }
 
 async function initForm(node: any) {
-  const formKey = node.metadata.formKey
+  const formKey = node.config.human_task.form_key
   if (!formKey) {
     routerProvider?.message.error('The form does not exist!')
     return
@@ -261,7 +261,7 @@ async function handleSubmitUserTask() {
   const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
 
   const data = $api
-    .post(`/oniflow//api/v1/processes/instance-task/${taskDetail.value.id}/complete`, {
+    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.id}/complete`, {
       process_id: detail.process_instance_id,
       user_id: userId,
       variables: cFormData
@@ -433,7 +433,6 @@ onMounted(() => {
 <template>
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
-      {{workflowJson}}
       <h3>{{ workflowJson.name }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
