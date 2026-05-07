@@ -6,15 +6,19 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const props = defineProps<{ node: Node }>()
-const { node } = toRefs(props)
-
+const node = ref<Node>()
 const { t } = useI18n()
 const opened = ref(false)
 const FormDialogRef = ref()
 const { variables, deleteVariableItem } = useVariablesProvide()
 
 function open() {
+  node.value = graphProvider?.graph.value?.getNodes().find((node: any) => node.getData().type === 'process')
+  if (!node.value) {
+    routerProvider?.message.error('Process Node not found')
+    return
+  }
+
   opened.value = true
 }
 

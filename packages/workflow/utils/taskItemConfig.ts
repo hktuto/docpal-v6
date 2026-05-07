@@ -7,13 +7,15 @@ export const getTaskItemConfig = {
       candidate_groups: [],
       due_date: '',
       priority: 5,
-      // escalation: {
-      //   escalation_time: '',
-      //   escalation_action: '',
-      //   escalation_target: ''
-      // },
+      escalation: {
+        //   escalation_time: '',
+        //   escalation_action: '',
+        //   escalation_target: ''
+      },
       form_key: '',
-      form_fields: []
+      form_title: '',
+      form_fields: [],
+      ui_schema: {}
     },
     input_mapping: {},
     output_mapping: {}
@@ -124,27 +126,18 @@ export const getTaskItemConfig = {
     output_mapping: {}
   },
   InsertDynamicDatabase: {
-    http_request: {
-      method: 'POST',
-
-      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
-      headers: generatorHTTPRequestTaskHeaders(),
-      query_params: {},
-      body: {},
-      timeout: 5000
-    },
+    method: 'POST',
+    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
+    headers: generatorHTTPRequestTaskHeaders(),
+    body: {},
     input_mapping: {},
     output_mapping: {}
   },
   UpdateDynamicDatabase: {
-    http_request: {
-      method: 'PUT',
-      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
-      headers: generatorHTTPRequestTaskHeaders(),
-      query_params: {},
-      body: {},
-      timeout: 5000
-    },
+    method: 'PUT',
+    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
+    headers: generatorHTTPRequestTaskHeaders(),
+    body: {},
     input_mapping: {},
     output_mapping: {}
   }
