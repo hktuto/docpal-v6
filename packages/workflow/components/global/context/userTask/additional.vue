@@ -33,7 +33,7 @@ function update() {
         priority: priority.value
       }
     },
-    version: nodeData.version + 1 || 1
+    version: (nodeData.version || 0) + 1
   }
 
   if (!!dueDate.value && dueDate.value !== '') {

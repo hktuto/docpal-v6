@@ -57,7 +57,7 @@ function handelChanged() {
         candidate_groups: formData.value.candidateGroup
       }
     },
-    version: nodeData.version + 1 || 1
+    version: (nodeData.version || 0) + 1
   }
 
   node.setData(newData, { overwrite: true, deep: true })

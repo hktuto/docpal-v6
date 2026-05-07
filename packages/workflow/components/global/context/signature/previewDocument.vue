@@ -48,18 +48,14 @@ function addButton() {
 function setForm() {
   const nodeData = node.getData()
 
-  // TODO: set to metadata
   const newData = {
     ...nodeData,
-    version: nodeData.version + 1 || 1,
     metadata: {
       ...nodeData.metadata
-    }
+    },
+    version: (nodeData.version || 0) + 1
   }
-  node.setData(newData, {
-    deep: true,
-    overwrite: true
-  })
+  node.setData(newData, { deep: true, overwrite: true })
 }
 
 function getForm() {

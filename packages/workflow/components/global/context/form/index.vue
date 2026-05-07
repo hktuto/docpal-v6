@@ -65,7 +65,7 @@ function update() {
       ...data.metadata,
       form_title: formTitle.value
     },
-    version: data.version + 1 || 1
+    version: (nodeData.version || 0) + 1
   }
   if (!!formKey.value && formKey.value !== '') {
     newData.config.human_task.form_key = formKey.value.toString()
