@@ -22,7 +22,6 @@ if (!routerProvider) {
 
 const { workflowKey } = graphProvider
 const formTitle = ref<string>('')
-const formItems = ref<any[]>([])
 const RuleManageDialogRef = ref()
 
 const formKey = ref<string>('')
@@ -38,7 +37,6 @@ function editField() {
 }
 
 async function copyFormAndFieldSetting() {
-  const fields = JSON.parse(JSON.stringify(formItems.value))
   const form = await graphProvider?.getFormByNode(node)
   graphProvider?.copyForm(node, {
     fields,

@@ -58,7 +58,6 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      name: row.businessKey,
       workflowType: 'completeTask'
     }),
     false

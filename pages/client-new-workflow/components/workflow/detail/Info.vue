@@ -20,7 +20,7 @@ const isAssigneeUser = computed(() => {
 async function handleUnclaim() {
   try {
     loading.value = true
-    const response = await $api.post(`/oniflow/api/v1/tasks/instance/${userId}/unclaim`).then((r) => r.data)
+    const response = await $api.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`).then((r) => r.data)
     emits('change', response, false)
     taskDetail.assignee = ''
   } catch (error) {
@@ -35,11 +35,10 @@ async function handleClaim() {
   try {
     loading.value = true
     const parms = {
-      user_id: userId,
-      process_id: ''
+      user_id: userId
     }
 
-    await $api.post(`/oniflow/api/v1/tasks/instance/${taskDetail.process_instance_id}/claim`, parms).then((res) => res.data)
+   const response = await $api.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((res) => res.data)
 
     if (!response.errorCode) {
       emits('change', response, true)
@@ -50,19 +49,6 @@ async function handleClaim() {
   setTimeout(() => {
     loading.value = false
   }, 200)
-}
-
-async function handelDelete() {
-  try {
-    loading.value = true
-    await $api.delete(`/oniflow/api/v1/processes/instance/${taskDetail.process_instance_id}`).then((r) => r.data)
-    routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('common_item') }))
-    routerProvider?.back()
-  } catch (e) {
-    console.log(e)
-  } finally {
-    loading.value = false
-  }
 }
 </script>
 
@@ -106,13 +92,6 @@ async function handelDelete() {
       >
         {{ $t('workflow_claim') }}
       </el-button>
-      <el-popconfirm v-if="isStartedUser" class="box-item" :title="t('workflow_delete')" placement="top" @confirm="handelDelete">
-        <template #reference>
-          <el-button type="danger" id="Workflow__AvailableTask__Detail__JobInfo__Delete">
-            {{ $t('common_delete') }}
-          </el-button>
-        </template>
-      </el-popconfirm>
     </div>
   </div>
 </template>

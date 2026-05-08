@@ -97,35 +97,22 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   saveColumnOrder: false
 })
 
-watch(
-  () => node,
-  () => {
-    if (!node) {
-      node.value = graphProvider.graph.value?.getNodes().find((nodeItem: any) => nodeItem.type === 'process')
-      if (!node.value) {
-        throw new Error('find process node does not exist')
-      }
-    }
-  }
-)
-
 defineExpose({
   open
 })
 </script>
 
 <template>
-  <ElDialog v-model="opened" title="Edit Field" draggable append-to-body class="big">
+  <ElDialog v-model="opened" title="Edit Variables" draggable append-to-body class="big">
     <template #default>
       <div class="addFieldRow">
         <el-alert show-icon :title="$t('bpmn.globalRuleTip')" type="info" />
-        <ElButton id="Workflow__EditField__AddField" type="primary" @click="openNewFieldDialog">Add Field</ElButton>
+        <ElButton id="Workflow__EditField__AddField" type="primary" @click="openNewFieldDialog">Add Variable</ElButton>
       </div>
       <ElDivider />
       <div class="tableSection">
         <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
           <template #toolbar_buttons>
-            <div>{{ $t('bpmn.globalRules') }}</div>
           </template>
         </VxeGrid>
       </div>

@@ -82,7 +82,7 @@ onMounted(() => {
     <el-divider />
 
     <h4>
-      {{ $t('bpmn.globalRules') }}
+      {{ $t('Workflow Variables') }}
       <Icon v-if="!graphProvider.readonly.value" name="lucide:plus" @click="handleAdd" />
     </h4>
     <div v-for="(item, index) in variables" :key="item.id" class="formFieldItem">

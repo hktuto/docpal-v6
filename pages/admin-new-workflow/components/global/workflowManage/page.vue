@@ -12,18 +12,6 @@ const workflowRef = ref()
       <el-tab-pane :label="$t('workflow_allTask')" name="allTask">
         <WorkflowManageAllTask v-if="state.activeTab === 'allTask'" ref="workflowRef" />
       </el-tab-pane>
-      <el-tab-pane :label="$t('Available')" name="availableTask">
-        <WorkflowManageAvailableTask v-if="state.activeTab === 'availableTask'" ref="workflowRef" />
-      </el-tab-pane>
-      <el-tab-pane :label="$t('workflow_completedTask')" name="completeTask">
-        <WorkflowManageCompletedTask v-if="state.activeTab === 'completeTask'" ref="workflowRef" />
-      </el-tab-pane>
-      <el-tab-pane :label="$t('workflow_activeTask')" name="activeTask">
-        <WorkflowManageActiveTask v-if="state.activeTab === 'activeTask'" ref="workflowRef" />
-      </el-tab-pane>
-      <el-tab-pane :label="$t('Resolved Task')" name="resolvedTask">
-        <WorkflowManageResolvedTask v-if="state.activeTab === 'resolvedTask'" ref="workflowRef" />
-      </el-tab-pane>
     </el-tabs>
   </div>
 </template>

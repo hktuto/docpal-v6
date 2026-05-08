@@ -9,16 +9,6 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-
-// watch(
-//   () => node,
-//   () => {
-//   },
-//   {
-//     immediate: true,
-//     deep: true
-//   }
-// )
 </script>
 
 <template>
@@ -32,5 +22,4 @@ if (!graphProvider) {
   </div>
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

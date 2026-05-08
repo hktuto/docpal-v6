@@ -8,24 +8,8 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
-const { detail, workflowType, backItem } = defineProps<{
-  detail: {
-    id: string
-    process_instance_id: string
-    definition_id: string
-    node_id: string
-    node_name: string
-    task_type: {
-      type: string
-      Alias: number
-    }
-    status: string
-    assignee: string
-    variables: number
-    priority: number
-    created_at: string
-    updated_at: string
-  }
+const { db_id, workflowType, backItem } = defineProps<{
+  db_id: string
   workflowType: string
   backItem?: any
 }>()
@@ -46,27 +30,47 @@ const state = reactive<any>({
 })
 const fromRenderRef = ref()
 const taskDetail = ref({})
+const variables = ref({})
 const workflowJson = ref({})
 const nodeType = ref<'UserTask' | 'SignatureTask'>()
-const isAssigneeUser = computed(() => {
-  return !detail?.assignee || detail?.assignee === userId
-})
+const isAssigneeUser = ref<boolean>(false)
 const variablesData = ref({})
 
 async function activeTask() {
-  const row = detail
-  if (!!row.config.result) {
-    state.error = row.config.result
+  if (!db_id || db_id === '') {
+    state.error = 'Id not exist'
     return
   }
 
-  if (row.config.assignee === userId) {
-    // isAssigneeUser = true
-    await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
+  try {
+    const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => r.data)
+    // if (!!row.config.result) {
+    //   state.error = row.config.result
+    //   return
+    // }
+    console.log(123, data)
+    if (data.status !== 'assigned') {
+      return
+    }
+
+    // TODO： 需要通過task id 獲取 variables的數據
+    // if (data) {
+    //   variables.value : any = await $api.get(`${db_id}`).then((r: any) => r.data)
+    // }
+
+    if (data.config?.human_task?.assignee === userId) {
+      isAssigneeUser.value = true
+      // TODO nodes 無法通過data獲取
+      await handleAdditionalSetting([], data.metadata, data.variables)
+    }
+    taskDetail.value = data
+    state.title = data.config.human_task.form_title || data.name
+    variablesData.value = data.config.input_mapping || {}
+    await initForm(data)
+  } catch (e) {
+    console.log(e)
+    throw new Error(e)
   }
-  state.title = row.config.human_task.form_title
-  variablesData.value = row.config.input_mapping
-  await initForm(row)
 }
 
 async function getDetail() {
@@ -75,6 +79,7 @@ async function getDetail() {
     return
   }
 
+  // TODO：Delete
   taskDetail.value = detail
   if (!detail.id || detail.id === '') {
     state.error = 'node Id not exist'
@@ -176,7 +181,7 @@ function toggleFullScreenForm() {
 
 async function handleFormDataGet() {
   // Get Form Data
-  await $api.get(`/oniflow/api/v1/processes/variable/${id}/variables`).then((r: any) => r.data)
+  // await $api.get(`/oniflow/api/v1/processes/variable/${id}/variables`).then((r: any) => r.data)
 }
 
 function toggleShowForm() {
@@ -226,11 +231,10 @@ async function handleSubmit() {
 
   state.loading = true
   try {
-    if (detail.assignee !== userId) {
+    if (!isAssigneeUser.value) {
       await $api
-        .post(`/oniflow/api/v1/tasks/instance/${taskDetail.value.id}/claim`, {
-          user_id: userId,
-          process_id: taskDetail.process_instance_id
+        .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, {
+          user_id: userId
         })
         .then((res: any) => res.data)
     }
@@ -281,11 +285,12 @@ async function handleSubmitUserTask() {
   })
 
   // conversion FormData
-  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
+  // const cFormData = conversionFormDataByVariables(formData, variables.value)
+  const cFormData = formData
 
   const data = $api
-    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.id}/complete`, {
-      process_id: detail.process_instance_id,
+    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/complete`, {
+      process_id: taskDetail.value.process_id,
       user_id: userId,
       variables: cFormData
     })
@@ -295,10 +300,10 @@ async function handleSubmitUserTask() {
 
 async function handleSubmitServiceTask() {
   const formData = await fromRenderRef.value.getFormData(true, false)
-  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
+  const cFormData = conversionFormDataByVariables(formData, variables.value)
   const data = $api
     .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.id}/execute`, {
-      process_id: detail.process_instance_id,
+      process_id: taskDetail.value.process_id,
       variables: cFormData
     })
     .then((r: any) => r.data)
@@ -371,11 +376,10 @@ async function handleFormChange() {
 
 async function addTonalSubmit({ formData, booleanValue }: any) {
   state.loading = true
-  if (taskDetail.value?.assignee !== userId) {
+  if (!isAssigneeUser.value) {
     await $api
-      .post(`/oniflow/api/v1/tasks/instance/${taskDetail.value.id}/claim`, {
-        user_id: userId,
-        process_id: taskDetail.process_instance_id
+      .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, {
+        user_id: userId
       })
       .then((res: any) => res.data)
   }
@@ -395,7 +399,7 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
     }
   })
   // conversion FormData
-  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
+  const cFormData = conversionFormDataByVariables(formData, variables.value)
 
   $api
     .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
@@ -456,7 +460,7 @@ onMounted(() => {
 <template>
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
-      <h3>{{ state.title ? state.title : workflowJson.name }}</h3>
+      <h3>{{ state.title }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
           <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="state.taskDetail" :state="workflowType" />
@@ -565,7 +569,7 @@ onMounted(() => {
   </div>
 
   <div v-else>
-    Workflow id not found, workflow id : {{ workflowJson.id }}.
+    Workflow id not found, workflow id : {{ db_id }}.
     <el-button id="Workflow__AvailableTask__Detail__Form__Back" type="primary" @click="handleBack">
       {{ $t('common_back') }}
     </el-button>

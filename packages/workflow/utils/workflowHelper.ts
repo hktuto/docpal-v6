@@ -41,14 +41,13 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
 
       console.log('signatureSetting', signatureSetting)
     }
-  } catch (e) {
-    console.log(e)
-  } finally {
     return {
       buttons,
       buttonSetting,
       signatureSetting
     }
+  } catch (e) {
+    console.log(e)
   }
 }
 

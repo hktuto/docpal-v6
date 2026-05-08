@@ -21,9 +21,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    { field: 'id', title: 'workflow_jobName', fixed: 'left' },
-    { field: 'name', title: 'workflow_taskName' },
-    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    // { field: 'id', title: 'Workflow Instance Name', fixed: 'left' },
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
       field: 'createDate',
       title: 'workflow_createDate',
@@ -49,28 +49,18 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res) => res.data)
+  await $api.post(`/oniflow/api/v1/processes/instance-task/${row.process_instance_id}/claim`).then((res) => res.data)
   query({})
-}
-
-function handleFormChange(data: any) {
-  extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
-    if (data.formModel[key] && data.formModel[key].length > 0) prev[key] = data.formModel[key]
-    return prev
-  }, {})
-  reload()
-}
-
-function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-  extraParams = formModel
-  reload()
 }
 
 const ResponsiveFilterRef = ref()
 function reloadTable() {
   reload()
+}
+
+function handleAssignee(assignee: string) {
+  if (!assignee || assignee === '') return false
+  return !assignee.includes('${')
 }
 
 defineExpose({ reloadTable })
@@ -80,17 +70,12 @@ defineExpose({ reloadTable })
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
       </template>
       <template #assignee="{ row }">
-        <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small" round @click="claimTask(row)">
+        <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>{{ row.config.human_task.assignee || '' }}</el-tag>
+        <el-button v-else :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" type="primary" size="small" round @click="claimTask(row)">
           {{ $t('workflow_claim') }}
         </el-button>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
       </template>
     </VxeGrid>
   </div>
