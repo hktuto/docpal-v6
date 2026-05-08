@@ -91,7 +91,6 @@ async function handleRemovePermission(row: PermissionRow) {
 
 async function handlePermissionChange(level: PermissionLevel, row: PermissionRow) {
   if (row.isInherit) return
-  if (row.permissionLevel === level) return
 
   row.loading = true
   try {
