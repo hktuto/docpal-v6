@@ -292,30 +292,33 @@ function openPermission() {
   sidebarRef.value?.openPermission()
 }
 
-async function getFormByNode(node: Node) {
-  const relation = {
-    processKey: workflowKey.value,
-    userTaskId: node.data.id,
-    versionId: version.value
-  }
-
-  const response = await newAdminApi.getDmsFormPropertiesQuery(relation).then((r) => r.data)
-  if (!response || response.length === 0) {
-    return {}
-  }
-  return JSON.parse(response[0].jsonValue || '{}')
-}
-
 const copyKey = useState('copy-key', () => '')
 const copyObj = useState('copy-obj')
 
-async function copyForm(node: Node, obj: any) {
+async function copyForm(node: Node, formKey: string) {
   copyKey.value = node.data.id
-  copyObj.value = obj
+  copyObj.value = formKey
   routerProvider?.message.success(`${node.data.name || node.data.id} form has copied`)
 }
 
-function pasteForm() {}
+function pasteForm(node: Node) {
+  graph.value?.startBatch('update-from-data')
+  const data = node.getData()
+  const newData = {
+    ...data,
+    config: {
+      ...data.config,
+      human_task: {
+        ...data.config.human_task,
+        form_title: copyObj.value
+      }
+    },
+    version: (data.version || 0) + 1
+  }
+  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  copyObj.value = undefined
+  graph.value?.stopBatch('update-from-data')
+}
 
 function updateActivate() {
   emits('updateActivate')
@@ -331,8 +334,7 @@ provide(WORKFLOW_EDITOR_PROVIDER, {
   openSidebar,
   closeSidebar,
   pasteForm,
-  copyForm,
-  getFormByNode
+  copyForm
 })
 
 watch(
