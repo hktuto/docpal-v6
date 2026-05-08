@@ -1,18 +1,10 @@
 <script lang="ts" setup>
-import { ScheduleXCalendar } from '@schedule-x/vue'
-import { createEventsServicePlugin } from '@schedule-x/events-service'
-import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls'
-import { createResizePlugin } from '@schedule-x/resize'
-import { createCurrentTimePlugin } from '@schedule-x/current-time'
-import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
-import {
-  createCalendar,
-  createViewDay,
-  createViewMonthGrid,
-  createViewWeek,
-  type CalendarEventExternal
-} from '@schedule-x/calendar'
-import '@schedule-x/theme-default/dist/index.css'
+import FullCalendar from '@fullcalendar/vue3'
+import type { CalendarOptions, EventClickArg, DateClickArg, EventDropArg, DatesSetArg } from '@fullcalendar/core'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import listPlugin from '@fullcalendar/list'
+import timeGridPlugin from '@fullcalendar/timegrid'
 import { useMDCalendarInject } from '../../composables/mdCalendar/useMDCalendar'
 
 const props = defineProps<{
@@ -29,11 +21,6 @@ const emit = defineEmits<{
 }>()
 
 const viewerRef = ref()
-const showCalendar = ref(false)
-const eventsServicePlugin = createEventsServicePlugin()
-const calendarControls = createCalendarControlsPlugin()
-
-// Inject calendar context from parent
 const { columns, systemFieldsTypes } = useMDCalendarInject()
 
 const dateRange = ref({ start: 0, end: 0 })
@@ -79,8 +66,6 @@ const { tableData, getTableData, updateRow, addRow } = useTableData(props.tableI
 const MdFormPopoverRef = ref()
 const selectedRow = ref<any>()
 
-let calendarApp: any
-
 function formatDate(date: Date) {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
@@ -97,12 +82,6 @@ function formatDateTime(date: Date) {
   return `${y}-${m}-${d} ${hh}:${mm}`
 }
 
-/** Convert schedule-x date string ('YYYY-MM-DD' or 'YYYY-MM-DD HH:mm') to timestamp (ms) */
-function parseScheduleXDate(dateStr: string): number {
-  // Replace '-' with '/' so Date parses in local time (matching ElDatePicker valueFormat: 'x')
-  return new Date(dateStr.replace(/-/g, '/')).getTime()
-}
-
 function isDateTimeField(fieldName: string): boolean {
   const field = columns.value?.find((f: any) => f.field_name === fieldName)
   if (!field) return false
@@ -114,7 +93,7 @@ const dateFieldsHaveTime = computed(() => {
   return isDateTimeField(props.startField) || isDateTimeField(props.endField)
 })
 
-const calendarEvents = computed<CalendarEventExternal[]>(() => {
+const calendarEvents = computed(() => {
   return tableData.value.map((row: any) => {
     const start = row[props.startField]
     const end = props.endField ? row[props.endField] : start
@@ -145,61 +124,79 @@ const calendarEvents = computed<CalendarEventExternal[]>(() => {
       end: endDate
         ? (isFullDay ? formatDate(endDate) : formatDateTime(endDate))
         : '',
-      raw: row
+      allDay: isFullDay,
+      extendedProps: {
+        raw: row
+      }
     }
   })
 })
 
-function setupCalendar() {
-  showCalendar.value = false
+const calendarOptions = ref<CalendarOptions>({
+  plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
+  initialView: 'dayGridMonth',
+  headerToolbar: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+  },
+  buttonText: {
+    today: 'today',
+    month: 'month',
+    week: 'week',
+    day: 'day',
+    list: 'list'
+  },
+  navLinks: true,
+  editable: true,
+  selectable: true,
+  dayMaxEvents: true,
+  events: [],
+  eventClick: (info: EventClickArg) => {
+    emit('event-click', info.event.extendedProps.raw)
+  },
+  dateClick: (info: DateClickArg) => {
+    emit('date-click', info.dateStr)
+  },
+  eventDrop: async (info: EventDropArg) => {
+    const row = info.event.extendedProps.raw
+    if (!row || !row.id) return
 
-  calendarApp = createCalendar({
-    selectedDate: formatDate(new Date()),
-    firstDayOfWeek: 1,
-    views: [createViewMonthGrid(), createViewWeek(), createViewDay()],
-    events: calendarEvents.value,
-    callbacks: {
-      onEventClick: (args: any) => {
-        emit('event-click', args)
-      },
-      onClickDate: (args: string) => {
-        emit('date-click', args)
-      },
-      onClickDateTime: (args: string) => {
-        emit('date-click', args)
-      },
-      onEventUpdate: async (event: any) => {
-        const row = event.raw
-        if (!row || !row.id) return
+    const payload: Record<string, any> = {}
+    if (props.startField && info.event.start) {
+      payload[props.startField] = info.event.start.getTime()
+    }
+    if (props.endField && info.event.end) {
+      payload[props.endField] = info.event.end.getTime()
+    }
 
-        const payload: Record<string, any> = {}
-        if (props.startField && event.start) {
-          payload[props.startField] = parseScheduleXDate(event.start)
-        }
-        if (props.endField && event.end) {
-          payload[props.endField] = parseScheduleXDate(event.end)
-        }
-
-        await updateRow(row.id, payload, props.tableId)
-        await refresh()
-      },
-      onRangeUpdate: (range: { start: string; end: string }) => {
-        handleRangeUpdate(range)
-      }
-    },
-    plugins: [eventsServicePlugin, calendarControls, createDragAndDropPlugin(), createResizePlugin(), createCurrentTimePlugin()]
-  })
-
-  nextTick(async () => {
-    showCalendar.value = true
-    // Initial data load with current month range
-    const now = new Date()
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    const monthEnd = getDayEnd(new Date(now.getFullYear(), now.getMonth() + 1, 0))
-    updateDateRange(monthStart, monthEnd)
+    await updateRow(row.id, payload, props.tableId)
     await refresh()
-  })
-}
+  },
+  eventResize: async (info: any) => {
+    const row = info.event.extendedProps.raw
+    if (!row || !row.id) return
+
+    const payload: Record<string, any> = {}
+    if (props.startField && info.event.start) {
+      payload[props.startField] = info.event.start.getTime()
+    }
+    if (props.endField && info.event.end) {
+      payload[props.endField] = info.event.end.getTime()
+    }
+
+    await updateRow(row.id, payload, props.tableId)
+    await refresh()
+  },
+  datesSet: async (dateInfo: DatesSetArg) => {
+    updateDateRange(dateInfo.start, dateInfo.end)
+    await refresh()
+  }
+})
+
+watch(calendarEvents, (newEvents) => {
+  calendarOptions.value.events = newEvents
+}, { deep: true })
 
 function updateDateRange(start: Date, end: Date) {
   dateRange.value = {
@@ -208,30 +205,10 @@ function updateDateRange(start: Date, end: Date) {
   }
 }
 
-async function handleRangeUpdate(range: { start: string; end: string }) {
-  updateDateRange(new Date(range.start), new Date(range.end))
-  await refresh()
-}
-
-function getDayEnd(date: Date): Date {
-  const d = new Date(date)
-  d.setHours(23, 59, 59, 999)
-  return d
-}
-
 async function refresh() {
   tableData.value = []
-  nextTick(async () => {
-    await getTableData({ pageSize: 1000 }, extraParams.value)
-    syncEvents()
-  })
-}
-
-function syncEvents() {
-  if (!calendarApp) return
-  const existing = calendarApp.eventsService.getAll()
-  existing.forEach((e: any) => calendarApp.eventsService.remove(e.id))
-  calendarEvents.value.forEach((e: any) => calendarApp.eventsService.add(e))
+  await nextTick()
+  await getTableData({ pageSize: 1000 }, extraParams.value)
 }
 
 // Form popover methods
@@ -255,29 +232,32 @@ async function handleAddRowSubmit(data: any) {
   await refresh()
 }
 
-watch(calendarEvents, () => {
-  syncEvents()
-}, { deep: true })
-
-onMounted(() => {
-  setupCalendar()
+onMounted(async () => {
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const monthEnd = getDayEnd(new Date(now.getFullYear(), now.getMonth() + 1, 0))
+  updateDateRange(monthStart, monthEnd)
+  await refresh()
 })
+
+function getDayEnd(date: Date): Date {
+  const d = new Date(date)
+  d.setHours(23, 59, 59, 999)
+  return d
+}
 
 defineExpose({
   refresh,
   updateRow,
   addRow,
   openDetail,
-  openCreate,
-  calendarControls,
-  calendarApp,
-  eventsServicePlugin
+  openCreate
 })
 </script>
 
 <template>
   <div ref="viewerRef" class="calendar-viewer">
-    <ScheduleXCalendar v-if="showCalendar" :calendar-app="calendarApp" />
+    <FullCalendar :options="calendarOptions" />
     <MdFormPopover
       ref="MdFormPopoverRef"
       :columns="columns"
@@ -295,8 +275,18 @@ defineExpose({
   width: 100%;
   height: 100%;
 
-  :deep(.sx-vue-calendar-wrapper) {
+  :deep(.fc) {
     height: 100%;
+    font-size: 14px;
+  }
+
+  :deep(.fc-toolbar-title) {
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  :deep(.fc-button) {
+    text-transform: capitalize;
   }
 }
 </style>
