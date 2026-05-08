@@ -969,7 +969,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Document Generation Task',
       label: 'New Document Generation Task',
       documentation: '',
-      type: CellType.documentGenerationTask,
+      type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.documentGenerationTask],
       execution: { ...DEFAULT_TASK_EXECUTION },
       metadata: {

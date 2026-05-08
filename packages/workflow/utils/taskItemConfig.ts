@@ -91,7 +91,6 @@ export const getTaskItemConfig = {
       method: 'POST',
       url: `${getUrlOrigin()}/api/dms/facade/filing-document`,
       headers: generatorHTTPRequestTaskHeaders(),
-      query_params: {},
       body: {
         folderCabinetId: '',
         folderCabinet: []
