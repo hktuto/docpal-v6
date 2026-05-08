@@ -123,12 +123,10 @@ function handleNodeClick({ node }: any) {
 
 async function copy() {
   const data = contextSelectedNode.value.data
-
   const nodeSetting = {
     config: data.config,
     metadata: data.metadata
   }
-
   graphProvider?.copyForm(contextSelectedNode.value, nodeSetting)
 }
 

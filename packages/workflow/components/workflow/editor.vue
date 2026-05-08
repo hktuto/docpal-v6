@@ -295,9 +295,9 @@ function openPermission() {
 const copyKey = useState('copy-key', () => '')
 const copyObj = useState('copy-obj')
 
-async function copyForm(node: Node, formKey: string) {
+async function copyForm(node: Node, nodeSetting: any) {
   copyKey.value = node.data.id
-  copyObj.value = formKey
+  copyObj.value = nodeSetting
   routerProvider?.message.success(`${node.data.name || node.data.id} form has copied`)
 }
 
@@ -306,17 +306,11 @@ function pasteForm(node: Node) {
   const data = node.getData()
   const newData = {
     ...data,
-    config: {
-      ...data.config,
-      human_task: {
-        ...data.config.human_task,
-        form_title: copyObj.value
-      }
-    },
+    config: copyObj.value.config,
+    metadata: copyObj.value.metadata,
     version: (data.version || 0) + 1
   }
   node.setData(newData, { overwrite: true, deep: true, silent: false })
-  copyObj.value = undefined
   graph.value?.stopBatch('update-from-data')
 }
 

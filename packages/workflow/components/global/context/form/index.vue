@@ -35,11 +35,10 @@ function editField() {
 }
 
 async function copyFormAndFieldSetting() {
-  if (!formKey.value || formKey.value == '') {
-    routerProvider?.message.error('Form not set')
-    return
-  }
-  graphProvider?.copyForm(node, formKey.value)
+  graphProvider?.copyForm(node, {
+    config: node.getData().config,
+    metadata: node.getData().metadata
+  })
 }
 
 function pasteForm() {
