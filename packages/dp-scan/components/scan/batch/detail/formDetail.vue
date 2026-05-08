@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useBatchDetailContext, useScanClient } from '#imports'
 import ReplaceFormDialog from './ReplaceFormDialog.vue'
-
+import {clientApi} from 'api'
 const props = defineProps<{
   isReadonly:boolean
 }>()
