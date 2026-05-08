@@ -53,7 +53,28 @@ const isAssigneeUser = computed(() => {
 })
 const variablesData = ref({})
 
+async function activeTask() {
+  const row = detail
+  if (!!row.config.result) {
+    state.error = row.config.result
+    return
+  }
+
+  if (row.config.assignee === userId) {
+    // isAssigneeUser = true
+    await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
+  }
+  state.title = row.config.human_task.form_title
+  variablesData.value = row.config.input_mapping
+  await initForm(row)
+}
+
 async function getDetail() {
+  if (workflowType === 'activeTask') {
+    await activeTask()
+    return
+  }
+
   taskDetail.value = detail
   if (!detail.id || detail.id === '') {
     state.error = 'node Id not exist'
