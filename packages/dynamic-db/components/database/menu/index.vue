@@ -12,7 +12,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   workspaceId: '',
   initialMenu: [] as any,
-  isAdmin: true
+  isAdmin: false
 })
 
 const { menuState: state, openMenuItemActions, getMenuFromDb, database } = useSingleDatabaseContext()
@@ -37,6 +37,7 @@ const {
 } = useMenuDrag({
   enabled: computed(() => props.isAdmin),
   onDrop: async (files) => {
+    if(!props.isAdmin) return
     menuLoading.value = true
     try {
 
