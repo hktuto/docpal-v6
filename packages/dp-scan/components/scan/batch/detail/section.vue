@@ -340,7 +340,11 @@ watch(() => props.section,()=>{
     validateForm()
     if(props.section.save_to_result) {
       getSectionImage()
-      focusSection()
+      const activeElement = document.activeElement;
+      if(!activeElement || activeElement.tagName === 'BODY') {
+        focusSection()
+      }
+      // focusSection()
     }
   })
 },{
