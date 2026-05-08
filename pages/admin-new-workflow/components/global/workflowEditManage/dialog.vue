@@ -61,11 +61,12 @@ async function handleSubmit() {
       emits('refresh')
       return
     }
+    const key = formData.value.name.replace(/\s+/g, "_")
 
     // Create Workflow
     const defWorkflowJson = {
       ...json,
-      key: `${formData.value.name}_${Date.now()}`,
+      key: `${key}_${Date.now()}`,
       name: formData.value.name,
       description: formData.value.description
     }
