@@ -283,9 +283,9 @@ export default defineAppConfig({
     {
       name: 'admin-easy-form'
     },
-    {
-      name: 'admin-calendar-setting'
-    },
+    // {
+    //   name: 'admin-calendar-setting'
+    // },
     {
       name: 'admin-scan'
     }
