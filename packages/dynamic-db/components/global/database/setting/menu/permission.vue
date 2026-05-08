@@ -11,9 +11,12 @@ const props = defineProps<{
 }>()
 
 const {
+  database,
+  permissions,
   menuItemPermissions,
   menuItemPermissionsLoading,
-  getMenuItemPermissions
+  getMenuItemPermissions,
+  getPermissions
 } = useSingleDatabaseContext()
 const currentUserId = useUserId()
 
@@ -36,6 +39,44 @@ const PERMISSION_IDS = {
 } as const
 
 const addPermissionDialogRef = ref()
+
+const mergedPermissions = computed<MenuItemPermissionRow[]>(() => {
+  const groups = new Map<string, MenuItemPermissionRow[]>()
+
+  menuItemPermissions.value.forEach((p) => {
+    const key = `${p.targetType}:${p.targetId}`
+    if (!groups.has(key)) {
+      groups.set(key, [])
+    }
+    groups.get(key)!.push(p)
+  })
+
+  return Array.from(groups.values()).map((items) => {
+    const direct = items.find((p) => !p.isInherit)
+    if (direct) return direct
+
+    // All inherited — merge them
+    const first = items[0]
+    const levels = items.map((p) => p.permissionLevel)
+    const highestLevel = levels.includes('Manage')
+      ? 'Manage'
+      : levels.includes('Edit')
+        ? 'Edit'
+        : 'View'
+    const sources = [...new Set(items.map((p) => p.inheritFrom).filter((s) => s && s !== '-'))]
+
+    return {
+      ...first,
+      permissionLevel: highestLevel,
+      permissionIds: [...PERMISSION_IDS[highestLevel]],
+      inheritFrom: sources.length ? sources.join(', ') : first.inheritFrom
+    }
+  })
+})
+
+const displayPermissions = computed<MenuItemPermissionRow[]>(() => {
+  return mergedPermissions.value
+})
 
 function getTargetIcon(targetType: number): string {
   switch (targetType) {
@@ -64,6 +105,19 @@ async function handleDialogSubmit(data: {
   targetId: string
   permissionLevel: MenuItemPermissionLevel
 }) {
+  // If the target is not already a database member, add them as Member first
+  const alreadyMember = permissions.value.some(
+    (p) => p.targetType === data.targetType && p.targetId === data.targetId
+  )
+  if (!alreadyMember && database.value?.id) {
+    await newClientApi.postDynamicDbPermissionsDatabaseDatabaseidGrant(database.value.id, {
+      targetType: data.targetType,
+      targetId: data.targetId,
+      permissionLevel: 'Member'
+    })
+    await getPermissions()
+  }
+
   await newClientApi.postDynamicDbPermissionsMenuMenuidGrant(props.id, {
     targetType: data.targetType,
     targetId: data.targetId,
@@ -148,7 +202,7 @@ watch(() => props.id, (newId) => {
     </div>
 
     <div class="table-container">
-      <el-table :data="menuItemPermissions" style="width: 100%">
+      <el-table :data="mergedPermissions" style="width: 100%">
         <el-table-column label="Target" min-width="220">
           <template #default="{ row }">
             <div class="user-cell">
@@ -192,22 +246,6 @@ watch(() => props.id, (newId) => {
           </template>
         </el-table-column>
 
-        <el-table-column label="Source" width="160">
-          <template #default="{ row }">
-            <el-tag
-              v-if="row.isInherit"
-              size="small"
-              type="warning"
-              effect="light"
-            >
-              {{ row.inheritFrom }}
-            </el-tag>
-            <el-tag v-else size="small" type="success" effect="light">
-              Direct
-            </el-tag>
-          </template>
-        </el-table-column>
-
         <el-table-column label="Actions" align="center" width="120">
           <template #default="{ row }">
             <el-button
@@ -228,7 +266,7 @@ watch(() => props.id, (newId) => {
 
   <AddDatabaseMenuPermissionDialog
     ref="addPermissionDialogRef"
-    :exist-list="menuItemPermissions"
+    :exist-list="displayPermissions"
     @submit="handleDialogSubmit"
   />
 </template>
@@ -289,4 +327,6 @@ watch(() => props.id, (newId) => {
 .inherit-tag {
   width: fit-content;
 }
+
+
 </style>
