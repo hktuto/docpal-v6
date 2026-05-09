@@ -10,11 +10,8 @@ const userId: string = useUserId().value
 const routerProvider = inject(MenuRouterKey)
 const loading = ref(false)
 
-const isStartedUser = computed(() => {
-  return taskDetail.assignee === userId
-})
 const isAssigneeUser = computed(() => {
-  return taskDetail.assignee === userId
+  return taskDetail.config?.human_task?.assignee === userId
 })
 
 async function handleUnclaim() {
@@ -32,14 +29,14 @@ async function handleUnclaim() {
 }
 
 async function handleClaim() {
+  if (taskDetail.status !== 'assigned') return
+
   try {
     loading.value = true
     const parms = {
       user_id: userId
     }
-
     const response = await $api.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((res: any) => res.data)
-
     if (!response.errorCode) {
       emits('change', response, true)
     }
@@ -57,13 +54,13 @@ async function handleClaim() {
     <div class="infoContainer">
       <div class="label">{{ $t('workflow_taskName') }}</div>
       <div class="value">
-        {{ taskDetail.node_name }}
+        {{ taskDetail.name }}
       </div>
     </div>
     <div class="infoContainer">
       <div class="label">{{ $t('workflow_assignee') }}</div>
       <div class="value">
-        {{ taskDetail.assignee }}
+        {{ taskDetail.config?.human_task?.assignee }}
       </div>
     </div>
     <div class="infoContainer">
@@ -83,13 +80,7 @@ async function handleClaim() {
       <el-button id="Workflow__AvailableTask__Detail__JobInfo__UnclaimTask" v-if="isAssigneeUser" type="warning" :loading="loading" @click="handleUnclaim">
         {{ $t('workflow_Unclaim') }}
       </el-button>
-      <el-button
-        id="Workflow__AvailableTask__Detail__JobInfo__ClaimTask"
-        v-else-if="!taskDetail.assignee"
-        type="primary"
-        :loading="loading"
-        @click="handleClaim"
-      >
+      <el-button id="Workflow__AvailableTask__Detail__JobInfo__ClaimTask" v-else-if="!isAssigneeUser" type="primary" :loading="loading" @click="handleClaim">
         {{ $t('workflow_claim') }}
       </el-button>
     </div>

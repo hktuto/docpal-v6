@@ -68,7 +68,12 @@ async function handleSubmit() {
       ...json,
       key: `${key}_${Date.now()}`,
       name: formData.value.name,
-      description: formData.value.description
+      description: formData.value.description,
+      metadata:{
+        ...json.metadata,
+        created_date: Date.now(),
+        author: useUserId().value,
+      }
     }
     const data = await $api.post('/oniflow/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data)
     if (!data) return

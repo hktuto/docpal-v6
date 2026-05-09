@@ -15,16 +15,13 @@ const { db_id, workflowType, backItem } = defineProps<{
 }>()
 // @ts-ignore
 const userId: string = useUserId().value
-const isMobile = false
 const { t } = useI18n()
 const state = reactive<any>({
   processState: {
     completeTask: 'completeTask'
   },
   activeTab: 'form',
-  activityList: [],
   loading: true,
-  submitShow: false,
   error: null,
   title: ''
 })
@@ -32,6 +29,7 @@ const fromRenderRef = ref()
 const taskDetail = ref({})
 const variables = ref({})
 const variablesData = ref({})
+const contentData = ref({})
 const nodeType = ref<'UserTask' | 'SignatureTask'>('UserTask')
 const isAssigneeUser = ref<boolean>(false)
 
@@ -61,12 +59,12 @@ async function getDetail() {
     variablesData.value = data.config.input_mapping || {}
 
     const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
-    const contentData = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data)
-    variables.value = contentData.variables
+    contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data)
+    variables.value = contentData.value.variables
 
     if (data.config?.human_task?.assignee === userId) {
       isAssigneeUser.value = true
-      await handleAdditionalSetting(contentData.nodes, data.metadata, variables.value)
+      await handleAdditionalSetting(contentData.value.nodes, data.metadata, variables.value)
     }
     await initForm(data)
   } catch (error) {
@@ -233,8 +231,7 @@ async function handleSubmitUserTask() {
   })
 
   // conversion FormData
-  // const cFormData = conversionFormDataByVariables(formData, variables.value)
-  const cFormData = formData
+  const cFormData = conversionFormDataByVariables(formData, variables.value)
 
   const data = $api
     .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/complete`, {
@@ -418,7 +415,7 @@ onMounted(() => {
             <div v-if="nodeType === CellType.signatureTask" class="toggleFullScreenButton">
               <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
             </div>
-            <ContextFormRender ref="fromRenderRef" :taskDetail="state.taskDetail" @formChange="handleFormChange">
+            <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" @formChange="handleFormChange">
               <template #action>
                 <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
                   <template v-for="(item, index) in additionalButton" :key="index">
@@ -438,7 +435,6 @@ onMounted(() => {
                       {{ $t('workflow_save') }}
                     </template>
                   </el-button>-->
-
                   <el-button
                     v-if="pageButtonSetting && (nodeType !== CellType.signatureTask || signSubmitStage === 'beforeSubmit')"
                     id="Workflow__AvailableTask__Detail__Form__Submit"
@@ -493,16 +489,15 @@ onMounted(() => {
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
           <WorkflowDetailGraph
             v-if="state.activeTab === 'graph'"
-            :processDefinitionId="taskDetail?.processDefinitionId || taskDetail?.taskInstance?.processDefinitionId"
-            :processDefinitionVersionId="taskDetail?.processDefinitionVersionId"
-            :deploymentId="taskDetail?.deploymentId || taskDetail?.taskInstance?.deploymentId"
-            :steps="state.activityList"
+            :taskDetail="taskDetail"
+            :contentData="contentData"
           />
         </el-tab-pane>
 
-        <el-tab-pane v-if="taskDetail && taskDetail.instanceId && !isMobile" :label="$t('common_discussionChannel')" name="command">
-          <WorkflowDetailDiscussionChannel :id="taskDetail.instanceId" :noToggle="true" />
-        </el-tab-pane>
+        <!--  TODO: 該功能是否要保留      -->
+<!--        <el-tab-pane v-if="taskDetail && taskDetail.process_id" :label="$t('common_discussionChannel')" name="command">-->
+<!--          <WorkflowDetailDiscussionChannel :id="taskDetail.process_id" :noToggle="true" />-->
+<!--        </el-tab-pane>-->
       </el-tabs>
     </div>
   </div>
