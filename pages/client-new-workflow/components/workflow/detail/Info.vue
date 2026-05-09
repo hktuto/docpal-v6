@@ -38,7 +38,7 @@ async function handleClaim() {
       user_id: userId
     }
 
-   const response = await $api.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((res) => res.data)
+    const response = await $api.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((res: any) => res.data)
 
     if (!response.errorCode) {
       emits('change', response, true)

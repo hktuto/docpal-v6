@@ -65,6 +65,7 @@ export async function getWorkflowList() {
 
 export function convertWorkflowVariableToTemplateVariable(variables: any, mapping: any) {
   return Object.keys(mapping).reduce((prev: any, key: string) => {
+    const sourceKey = mapping[key].replace(/^\${|}$/g, '');
     const valueKey = mapping[key].replace('${', '').replace('}', '')
     if (!!valueKey && variables[valueKey]) {
       // variables[valueKey] may be can convert yto json, so we need to convert it to json

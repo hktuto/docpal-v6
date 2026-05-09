@@ -32,7 +32,7 @@ const fromRenderRef = ref()
 const taskDetail = ref({})
 const variables = ref({})
 const workflowJson = ref({})
-const nodeType = ref<'UserTask' | 'SignatureTask'>()
+const nodeType = ref<'UserTask' | 'SignatureTask'>('UserTask')
 const isAssigneeUser = ref<boolean>(false)
 const variablesData = ref({})
 
@@ -179,11 +179,6 @@ function toggleFullScreenForm() {
   }
 }
 
-async function handleFormDataGet() {
-  // Get Form Data
-  // await $api.get(`/oniflow/api/v1/processes/variable/${id}/variables`).then((r: any) => r.data)
-}
-
 function toggleShowForm() {
   showForm.value = !showForm.value
 }
@@ -302,7 +297,7 @@ async function handleSubmitServiceTask() {
   const formData = await fromRenderRef.value.getFormData(true, false)
   const cFormData = conversionFormDataByVariables(formData, variables.value)
   const data = $api
-    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.id}/execute`, {
+    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/execute`, {
       process_id: taskDetail.value.process_id,
       variables: cFormData
     })
@@ -402,7 +397,8 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
   const cFormData = conversionFormDataByVariables(formData, variables.value)
 
   $api
-    .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
+    .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.db_id}/complete`, {
+      process_id: taskDetail.value.process_id,
       user_id: userId,
       variables: { ...cFormData }
     })
@@ -421,18 +417,8 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
   state.loading = false
 }
 
-const handleTaskInfoChange = async (taskDetailRes: any) => {
-  try {
-    state.taskDetail = { ...taskDetailRes }
-    if (!isAssigneeUser.value) {
-      state.loading = true
-      await handleFormDataGet()
-    } else {
-      fromRenderRef.value.disableForm()
-    }
-  } catch (error) {
-    console.log(error)
-  }
+async function handleTaskInfoChange(taskDetailRes: any) {
+  handleDisabledForm()
 }
 
 function handleBack() {
@@ -554,15 +540,15 @@ onMounted(() => {
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
           <WorkflowDetailGraph
             v-if="state.activeTab === 'graph'"
-            :processDefinitionId="state.taskDetail?.processDefinitionId || state.taskDetail?.taskInstance?.processDefinitionId"
-            :processDefinitionVersionId="state.taskDetail?.processDefinitionVersionId"
-            :deploymentId="state.taskDetail?.deploymentId || state.taskDetail?.taskInstance?.deploymentId"
+            :processDefinitionId="taskDetail?.processDefinitionId || taskDetail?.taskInstance?.processDefinitionId"
+            :processDefinitionVersionId="taskDetail?.processDefinitionVersionId"
+            :deploymentId="taskDetail?.deploymentId || taskDetail?.taskInstance?.deploymentId"
             :steps="state.activityList"
           />
         </el-tab-pane>
 
-        <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :label="$t('common_discussionChannel')" name="command">
-          <WorkflowDetailDiscussionChannel :id="state.taskDetail.instanceId" :noToggle="true" />
+        <el-tab-pane v-if="taskDetail && taskDetail.instanceId && !isMobile" :label="$t('common_discussionChannel')" name="command">
+          <WorkflowDetailDiscussionChannel :id="taskDetail.instanceId" :noToggle="true" />
         </el-tab-pane>
       </el-tabs>
     </div>

@@ -60,6 +60,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     handleDblclick(row)
   }
 })
+const userId: string = useUserId().value
 
 function handleDblclick(row: any) {
   routerProvider?.navigateTo(
@@ -73,6 +74,7 @@ function handleDblclick(row: any) {
 
 async function claimTask(row: any) {
   await $api.post(`/oniflow/api/v1/processes/instance-task/${row.process_instance_id}/claim`).then((r: any) => r.data)
+  // await $api.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, { user_id: userId }).then((res: any) => res.data)
   reload()
 }
 </script>
