@@ -31,91 +31,44 @@ const state = reactive<any>({
 const fromRenderRef = ref()
 const taskDetail = ref({})
 const variables = ref({})
-const workflowJson = ref({})
+const variablesData = ref({})
 const nodeType = ref<'UserTask' | 'SignatureTask'>('UserTask')
 const isAssigneeUser = ref<boolean>(false)
-const variablesData = ref({})
 
-async function activeTask() {
+async function getDetail() {
   if (!db_id || db_id === '') {
     state.error = 'Id not exist'
     return
   }
 
   try {
+    state.loading = true
+    state.error = null
     const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => r.data)
+    if (!data) {
+      state.error = 'Get Task Detail Failed'
+      return
+    }
     // if (!!row.config.result) {
     //   state.error = row.config.result
     //   return
     // }
-    console.log(123, data)
     if (data.status !== 'assigned') {
       return
-    }
-
-    // TODO： 需要通過task id 獲取 variables的數據
-    // if (data) {
-    //   variables.value : any = await $api.get(`${db_id}`).then((r: any) => r.data)
-    // }
-
-    if (data.config?.human_task?.assignee === userId) {
-      isAssigneeUser.value = true
-      // TODO nodes 無法通過data獲取
-      await handleAdditionalSetting([], data.metadata, data.variables)
     }
     taskDetail.value = data
     state.title = data.config.human_task.form_title || data.name
     variablesData.value = data.config.input_mapping || {}
-    await initForm(data)
-  } catch (e) {
-    console.log(e)
-    throw new Error(e)
-  }
-}
 
-async function getDetail() {
-  if (workflowType === 'activeTask') {
-    await activeTask()
-    return
-  }
+    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
+    const contentData = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data)
+    variables.value = contentData.variables
 
-  // TODO：Delete
-  taskDetail.value = detail
-  if (!detail.id || detail.id === '') {
-    state.error = 'node Id not exist'
-    return
-  }
-
-  try {
-    state.loading = true
-    state.error = null
-    const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r: any) => r.data)
-    workflowJson.value = workflowTaskInstance.content
-
-    const data = await $api.get(`/oniflow/api/v1/processes/instance-task/${detail.id}`).then((r: any) => r.data)
-    if (!data) return
-
-    variablesData.value = data.input_variables
-    const findNode = workflowJson.value.nodes.find((node: any) => node.id == data.node_id)
-    if (!!findNode) {
-      state.title = findNode.config.human_task.form_title
-      nodeType.value = findNode.metadata.type
-
-      // assignee
-      if (userId === data.assignee) {
-        switch (nodeType.value) {
-          case CellType.userTask:
-            await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
-            break
-          case CellType.signatureTask:
-            await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
-            break
-          default:
-        }
-      }
-
-      await initForm(findNode)
+    if (data.config?.human_task?.assignee === userId) {
+      isAssigneeUser.value = true
+      await handleAdditionalSetting(contentData.nodes, data.metadata, variables.value)
     }
+    await initForm(data)
   } catch (error) {
     console.log(error)
     state.error = error
