@@ -346,7 +346,7 @@ defineExpose({ init })
     <div class="bpmnViewerContainer">
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
-        <div class="group">
+        <div v-if="!readonly"  class="group">
           <ToolbarHistory :workflowId="workflowId" :isActivate="isActivate" @update-activate="updateActivate" />
           <ToolbarInfo @click="openInfo" />
           <!--          <WorkflowToolbarPermission @click="openPermission" />-->

@@ -487,11 +487,7 @@ onMounted(() => {
 
         <el-tab-pane :label="$t('workflow_graph')" name="graph">
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
-          <WorkflowDetailGraph
-            v-if="state.activeTab === 'graph'"
-            :taskDetail="taskDetail"
-            :contentData="contentData"
-          />
+          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail" :content-json="contentData" autoplay />
         </el-tab-pane>
 
         <!--  TODO: 該功能是否要保留      -->

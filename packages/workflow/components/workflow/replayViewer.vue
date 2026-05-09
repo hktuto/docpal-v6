@@ -144,10 +144,18 @@ function handleTableRowHover(row: any) {
 }
 
 defineExpose({
-  // init
   init
 })
 
+watch(
+  () => props.contentJson,
+  () => {
+    nextTick(() => {
+      init()
+    })
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
