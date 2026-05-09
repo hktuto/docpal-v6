@@ -1,7 +1,7 @@
 export const getTaskItemConfig = {
   UserTask: {
     human_task: {
-      assignee: '',
+      assignee: '${__system__user_creator_id}',
       candidate_users: [],
       candidate_roles: [],
       candidate_groups: [],

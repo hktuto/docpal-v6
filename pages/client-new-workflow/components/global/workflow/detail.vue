@@ -402,8 +402,8 @@ onMounted(() => {
       <h3>{{ state.title }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
-          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="state.taskDetail" :state="workflowType" />
-          <WorkflowDetailInfo v-else :taskDetail="detail" @change="handleTaskInfoChange" />
+          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="taskDetail" :state="workflowType" />
+          <WorkflowDetailInfo v-else :taskDetail="taskDetail" @change="handleTaskInfoChange" />
         </el-tab-pane>
 
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
