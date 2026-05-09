@@ -378,7 +378,7 @@ onClickOutside(
     contain: layout style paint;
   }
   .vxe-cell--tree-node {
-    padding-left: var(--app-space-xs) !important;
+    // padding-left: var(--app-space-xs) !important;
   }
   .vxe-table--footer-wrapper {
     .vxe-table--footer {

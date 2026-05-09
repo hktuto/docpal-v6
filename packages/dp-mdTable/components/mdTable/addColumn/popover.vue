@@ -41,8 +41,6 @@ import { defineAsyncComponent } from 'vue'
 import { getColumnFieldOptions } from './columnBasic'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import type { ColumnConfig } from '@packages/dp-mdTable/types/column-types'
-// MagicLink (Relation) type constant
-const RELATION_TYPE = 14
 
 interface Props {
   virtualRef?: HTMLElement | (() => HTMLElement)

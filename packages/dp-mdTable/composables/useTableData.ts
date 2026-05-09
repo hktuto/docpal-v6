@@ -35,50 +35,7 @@ export interface UseTableDataOptions {
   /** 数据转换函数 */
   transform?: (data: any[]) => any[]
 }
-function createMockData({ page }: any, tableId: string) {
-  const mockData = []
-  for (let i = 0; i < 10; i++) {
-    mockData.push({
-      id: i,
-      name: `name${i}`,
-      age: Math.floor(Math.random() * 5) + 10,
-      gender: Math.floor(Math.random() * 2) === 0 ? 'male' : 'female',
-      email: `email${i}@example.com`,
-      phone: `phone${i}`,
-      address: `address${i}`,
-      city: `city${i}`,
-      state: `state${i}`,
-      startDate: 1735708800000, //时间戳 1735708800000
-      singleSelect: [1],
-      multiSelect: [1, 2, 3],
-      country: `country${i}`,
-      rate: Math.floor(Math.random() * 5) + 1,
-      url: [
-        {
-          text: 'http://baidu.com',
-          type: 2,
-          title: '百度一下，你就知道',
-          favicon: 'https://www.baidu.com/favicon.ico'
-        }
-      ]
-    })
-  }
-  return mockData
-}
-function createMockAggregateData({ page }: any, tableId: string) {
-  const mockAggregateData = []
-  for (let i = 0; i < 8; i++) {
-    mockAggregateData.push({
-      id: i,
-      isAggregate: true,
-      title: `Aggregate ${i}`
-    })
-  }
-  return mockAggregateData
-}
-function createMockAggChildData(page: any, tableId: string) {
-  return createMockData(page, tableId)
-}
+
 export interface TableDataContext {
   gridRef: Ref<any>
   tableData: Ref<any[]>
@@ -138,7 +95,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const rawData = ref<any[]>([]) // 原始数据，用于行数据管理
   const loading = ref(false)
   const loadingMore = ref(false)
-  const currentPage = ref(1)
+  const currentPage = ref(0)
   const viewTools: any = inject('viewTools')
   /** 翻页时复用的查询条件（不含 pageNum） */
   const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
@@ -185,26 +142,35 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     // }
     try {
       loading.value = true
-      let additionalParams = {}
+      let additionalParams: any = {}
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
       }
       if (extraParams) {
         additionalParams = mergeParams(additionalParams, extraParams)
       }
-      if (params.pageSize) {
-        tableQueryBase.value.pageSize = params.pageSize
+      if (!additionalParams.groupBy) {
+        if (params.pageSize) {
+          tableQueryBase.value.pageSize = params.pageSize
+        }
+        additionalParams.pagination = {
+          pageSize: tableQueryBase.value.pageSize ?? 100,
+          pageNum: params.pageNum ? params.pageNum + 1 : 0
+        }
       }
+      console.log('additionalParams', additionalParams)
       const { data } = await postDynamicActions({
         tableId,
         columns: [],
-        ...additionalParams,
-        pagination: {
-          pageSize: tableQueryBase.value.pageSize ?? 100,
-          pageNum: params.pageNum ? params.pageNum + 1 : 1
-        }
+        ...additionalParams
       })
       tableData.value = data.data
+      if (additionalParams.groupBy) {
+        tableData.value = data.data.map((item: any) => ({
+          ...item,
+          hasChild: item.count ? item.count > 0 : true
+        }))
+      }
       rawData.value = JSON.parse(JSON.stringify(data.data))
       totalSize.value = data.meta.total
       return {
@@ -227,9 +193,15 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     try {
       const pageSizeVal = tableQueryBase.value.pageSize ?? 100
       const nextPage = currentPage.value + 1
-      let additionalParams = {}
+      let additionalParams: any = {}
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
+        if (!additionalParams.groupBy) {
+          additionalParams.pagination = {
+            pageSize: pageSizeVal,
+            pageNum: nextPage
+          }
+        }
       }
       if (extraParams) {
         additionalParams = mergeParams(additionalParams, extraParams)
@@ -237,11 +209,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       const { data } = await postDynamicActions({
         tableId,
         columns: [],
-        ...additionalParams,
-        pagination: {
-          pageSize: pageSizeVal,
-          pageNum: nextPage
-        }
+        ...additionalParams
       })
       if (data?.entryList?.length === 0) {
         totalSize.value = tableData.value.length
@@ -260,11 +228,62 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
   }
 
-  function getAggregateData(params?: any) {
-    return createMockAggregateData(params, tableId)
-  }
-  async function getAggChildData(params?: any, aggregate?: { id: string; field: string; order: string }) {
-    return createMockAggChildData(params, tableId)
+  async function getAggChildData(row: any) {
+    console.log('viewTools', viewTools)
+    const columnGroupRules = viewTools?.columnGroupRules
+    console.log('columnGroupRules', columnGroupRules)
+    if (!columnGroupRules?.value?.length) {
+      return []
+    }
+    const additionParams: any = {
+      conditions: []
+    }
+    const _level = row.__level
+    const nextColumn = columnGroupRules.value[_level + 1]
+    if (nextColumn) {
+      additionParams.groupBy = {
+        columns: [nextColumn.field]
+      }
+      additionParams.columns = [
+        { name: nextColumn.field },
+        {
+          name: nextColumn.field, // 字段名
+          alias: 'count', // [可选] 别名
+          aggFunc: 'COUNT' // [可选] 聚合函数: COUNT, SUM, MAX, MIN, AVG
+        }
+      ]
+    }
+    for (let i = 0; i < _level + 1; i++) {
+      const column = columnGroupRules.value[i]
+      additionParams.conditions.push({
+        type: 'EQ',
+        column: column.field,
+        value: row[column.field]
+      })
+    }
+    try {
+      const basicParams: any = viewTools?.getPageParams({ getGroup: false })
+      const params = mergeParams(basicParams, additionParams)
+      const { data } = await postDynamicActions({
+        tableId,
+        columns: [],
+        ...params
+      })
+      if (nextColumn) {
+        const extraData = additionParams.conditions.reduce((acc: any, condition: any) => {
+          acc[condition.column] = condition.value
+          return acc
+        }, {})
+        return data.data.map((item: any) => ({
+          ...item,
+          hasChild: !!nextColumn,
+          ...extraData
+        }))
+      }
+      return data.data
+    } catch (error) {
+      console.error('getAggChildData error', error)
+    }
   }
   /**
    * 刷新数据

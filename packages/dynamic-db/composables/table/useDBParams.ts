@@ -83,7 +83,7 @@ export function useDBParams() {
       }
     })
   }
-  function getPageParams() {
+  function getPageParams({ getGroup }: { getGroup?: boolean } = { getGroup: true }) {
     const params: any = {
       // dryRun: true,
     }
@@ -102,6 +102,19 @@ export function useDBParams() {
       if (orderBy.length > 0) {
         params.orderBy = orderBy
       }
+    }
+    if (getGroup && columnGroupRules.value && columnGroupRules.value.length > 0) {
+      params.groupBy = {
+        columns: [columnGroupRules.value[0].field]
+      }
+      params.columns = [
+        { name: columnGroupRules.value[0].field },
+        {
+          name: columnGroupRules.value[0].field, // 字段名
+          alias: 'count', // [可选] 别名
+          aggFunc: 'COUNT' // [可选] 聚合函数: COUNT, SUM, MAX, MIN, AVG
+        }
+      ]
     }
     return params
   }
