@@ -136,8 +136,6 @@ export enum CellType {
   inclusiveGateway = 'InclusiveGateway',
   transformTask = 'TransformTask',
   HTTPTask = 'HTTPTask',
-  uniqueIdGenerator = 'UniqueIdGenerator',
-  documentGenerationTask = 'DocumentGenerationTask',
 
   // Service
   conditionTask = 'ConditionTask',
@@ -148,7 +146,10 @@ export enum CellType {
   validateTask = 'ValidateTask',
   filingDocuments = 'FilingDocuments',
   insertDynamicDatabase = 'InsertDynamicDatabase',
-  updateDynamicDatabase = 'UpdateDynamicDatabase'
+  updateDynamicDatabase = 'UpdateDynamicDatabase',
+  uniqueIdGenerator = 'UniqueIdGenerator',
+  documentGenerationTask = 'DocumentGenerationTask',
+  emailTask = 'EmailTask'
 }
 
 // 組件Map
@@ -165,15 +166,15 @@ export enum contextMenuComponentType {
   HTTPTask = 'LazyContextHttpTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
-
   ValidateTask = 'LazyContextServiceTaskValidate',
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
   SubProcess = 'LazyContextServiceTaskSubProcess',
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration',
   FilingDocuments = 'LazyContextServiceTaskFilingDocuments',
-  InsertDynamicDatabase = 'LazyContextDynamicDatabaseInsert',
-  UpdateDynamicDatabase = 'LazyContextDynamicDatabaseUpdate',
+  InsertDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseInsert',
+  UpdateDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseUpdate',
+  EmailTask = 'LazyContextServiceTaskEmail',
 
   // Condition
   ConditionTask = 'LazyContextCondition',
@@ -601,13 +602,13 @@ export const workflowElement: WorkflowElement = {
         group: '',
         order: 0
       },
-      {
-        id: CellType.messageTask,
-        icon: 'material-symbols:chat-outline',
-        label: 'Message Task',
-        group: '',
-        order: 0
-      },
+      // {
+      //   id: CellType.messageTask,
+      //   icon: 'material-symbols:chat-outline',
+      //   label: 'Message Task',
+      //   group: '',
+      //   order: 0
+      // },
       {
         id: CellType.uploadFile,
         icon: 'material-symbols:upload-file-outline',
@@ -626,6 +627,13 @@ export const workflowElement: WorkflowElement = {
         id: CellType.filingDocuments,
         icon: 'lucide-lab:cabinet-filing',
         label: 'Filing Documents Task',
+        group: '',
+        order: 0
+      },
+      {
+        id: CellType.emailTask,
+        icon: 'ic:outline-email',
+        label: 'Email Task',
         group: '',
         order: 0
       }
@@ -1049,6 +1057,23 @@ const workflowCellElementTemplate: CellTypeItem = {
         icon: '/icons/updateDatabase.svg',
         width: 260,
         databaseId: ''
+      }
+    }
+  },
+  EmailTask: {
+    ...createNodeShell('New_EmailTask', 'Email Task', 'New Email Task', '/icons/email.svg'),
+    data: {
+      id: '',
+      name: 'Email Task',
+      label: 'New Email Task',
+      documentation: '',
+      type: WorkflowElementType.HTTPRequestTask,
+      config: getTaskItemConfig[CellType.emailTask],
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        type: CellType.emailTask,
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/email.svg'
       }
     }
   }

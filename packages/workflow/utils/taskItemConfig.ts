@@ -145,6 +145,23 @@ export const getTaskItemConfig = {
     },
     input_mapping: {},
     output_mapping: {}
+  },
+  EmailTask: {
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/api/dms/facade/email/send`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {
+        tos: [],
+        ccs: [],
+        bcc: [],
+        templateId: '',
+        attachmentsFilePath: '',
+        variables: {}
+      }
+    },
+    input_mapping: {},
+    output_mapping: {}
   }
 }
 
