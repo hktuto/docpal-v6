@@ -28,6 +28,10 @@ async function getSelect() {
 
 function initData() {
   const data = node.getData()
+  formData.value.sw = true
+  formData.value.candidateRoles = []
+  formData.value.candidateGroup = []
+
   if (data.config?.human_task?.candidate_roles.length > 0) {
     formData.value.sw = false
     formData.value.candidateRoles = data.config?.human_task?.candidate_roles

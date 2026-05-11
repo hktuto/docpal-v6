@@ -7,13 +7,15 @@ export const getTaskItemConfig = {
       candidate_groups: [],
       due_date: '',
       priority: 5,
-      // escalation: {
-      //   escalation_time: '',
-      //   escalation_action: '',
-      //   escalation_target: ''
-      // },
+      escalation: {
+        //   escalation_time: '',
+        //   escalation_action: '',
+        //   escalation_target: ''
+      },
       form_key: '',
-      form_fields: []
+      form_title: '',
+      form_fields: [],
+      ui_schema: {}
     },
     input_mapping: {},
     output_mapping: {}
@@ -40,16 +42,6 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
-  HTTPTask: {
-    http_request: {
-      method: 'GET',
-      url: '',
-      headers: {},
-      body: {}
-    },
-    input_mapping: {},
-    output_mapping: {}
-  },
   MessageTask: {
     email: {
       method: 'POST',
@@ -63,6 +55,7 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
+  // Server Task
   UploadFile: {
     http_request: {
       method: 'POST',
@@ -75,23 +68,6 @@ export const getTaskItemConfig = {
         fileContentId: '',
         creator: '',
         properties: {}
-      }
-    },
-    input_mapping: {},
-    output_mapping: {}
-  },
-  DocumentGenerationTask: {
-    http_request: {
-      method: 'POST',
-      url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
-      headers: generatorHTTPRequestTaskHeaders(),
-      body: {
-        templateId: '',
-        parentPath: '',
-        name: '',
-        type: 'File',
-        creator: '',
-        variables: {}
       }
     },
     input_mapping: {},
@@ -115,7 +91,6 @@ export const getTaskItemConfig = {
       method: 'POST',
       url: `${getUrlOrigin()}/api/dms/facade/filing-document`,
       headers: generatorHTTPRequestTaskHeaders(),
-      query_params: {},
       body: {
         folderCabinetId: '',
         folderCabinet: []
@@ -125,28 +100,45 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
-  InsertDynamicDatabase: {
+  DocumentGenerationTask: {
     http_request: {
       method: 'POST',
-
-      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
+      url: `${getUrlOrigin()}/api/dms/facade/document/template/generate`,
       headers: generatorHTTPRequestTaskHeaders(),
-      query_params: {},
-      body: {},
-      timeout: 5000
+      body: {
+        templateId: '',
+        parentPath: '',
+        name: '',
+        type: 'File',
+        creator: '',
+        variables: {}
+      }
     },
     input_mapping: {},
     output_mapping: {}
   },
+  // http task
+  HTTPTask: {
+    method: 'GET',
+    url: '',
+    headers: {},
+    body: {},
+    input_mapping: {},
+    output_mapping: {}
+  },
+  InsertDynamicDatabase: {
+    method: 'POST',
+    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
+    headers: generatorHTTPRequestTaskHeaders(),
+    body: {},
+    input_mapping: {},
+    output_mapping: {}
+  },
   UpdateDynamicDatabase: {
-    http_request: {
-      method: 'PUT',
-      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
-      headers: generatorHTTPRequestTaskHeaders(),
-      query_params: {},
-      body: {},
-      timeout: 5000
-    },
+    method: 'PUT',
+    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
+    headers: generatorHTTPRequestTaskHeaders(),
+    body: {},
     input_mapping: {},
     output_mapping: {}
   }

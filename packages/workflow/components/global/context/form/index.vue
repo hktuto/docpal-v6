@@ -30,7 +30,7 @@ const formKey = ref<string>('')
 function initData() {
   const data = node.getData()
   formKey.value = data.config.human_task.form_key
-  formTitle.value = data.metadata.form_title || ''
+  formTitle.value = data.config.human_task.form_title || ''
 }
 
 function editField() {
@@ -61,11 +61,14 @@ function update() {
   const data = node.getData()
   const newData = {
     ...data,
-    metadata: {
-      ...data.metadata,
-      form_title: formTitle.value
+    config: {
+      ...data.config,
+      human_task: {
+        ...data.config.human_task,
+        form_title: formTitle.value
+      }
     },
-    version: (nodeData.version || 0) + 1
+    version: (data.version || 0) + 1
   }
   if (!!formKey.value && formKey.value !== '') {
     newData.config.human_task.form_key = formKey.value.toString()
@@ -103,15 +106,6 @@ async function getFormJson() {
   }
 }
 
-const processNode = computed(() => {
-  const process: Node = graphProvider?.graph.value?.getNodes().find((node: any) => node.getData().type === 'process')
-  if (!process) {
-    routerProvider?.message.error('Process Node not found')
-    return {}
-  }
-  return process
-})
-
 onMounted(() => {
   useWorkflowAdditionalContext(initData)
 })
@@ -137,17 +131,17 @@ watch(
       <el-input v-model="formTitle" @change="update" />
     </el-form-item>
     <div class="actionsContainer">
-      <ElButton type="primary" id="Workflow__UserTask__EditField" @click="editField">Edit Field</ElButton>
-      <ElButton type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</ElButton>
-      <ElButton type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</ElButton>
+      <el-button type="primary" id="Workflow__UserTask__EditField" @click="editField">Edit Field</el-button>
+      <el-button type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</el-button>
+      <el-button type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
     </div>
     <div class="actionsContainer">
-      <ElButton size="small" @click="copyFormAndFieldSetting">Copy Form and Field setting</ElButton>
-      <ElButton v-if="graphProvider.copyKey.value" size="small" @click="pasteForm"> Paste Form </ElButton>
+      <el-button size="small" @click="copyFormAndFieldSetting">Copy Form and Field setting</el-button>
+      <el-button v-if="graphProvider.copyKey.value" size="small" @click="pasteForm">Paste Form</el-button>
     </div>
   </el-form>
 
-  <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="processNode" />
+  <LazyContextVariableManageDialog ref="RuleManageDialogRef" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" @submit="handelSubmitForm" />
   <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
     <LazyContextFormRender ref="fromRenderRef" />

@@ -41,7 +41,8 @@ const state = reactive<any>({
   activityList: [],
   loading: true,
   submitShow: false,
-  error: null
+  error: null,
+  title: ''
 })
 const fromRenderRef = ref()
 const taskDetail = ref({})
@@ -52,7 +53,28 @@ const isAssigneeUser = computed(() => {
 })
 const variablesData = ref({})
 
+async function activeTask() {
+  const row = detail
+  if (!!row.config.result) {
+    state.error = row.config.result
+    return
+  }
+
+  if (row.config.assignee === userId) {
+    // isAssigneeUser = true
+    await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
+  }
+  state.title = row.config.human_task.form_title
+  variablesData.value = row.config.input_mapping
+  await initForm(row)
+}
+
 async function getDetail() {
+  if (workflowType === 'activeTask') {
+    await activeTask()
+    return
+  }
+
   taskDetail.value = detail
   if (!detail.id || detail.id === '') {
     state.error = 'node Id not exist'
@@ -71,6 +93,7 @@ async function getDetail() {
     variablesData.value = data.input_variables
     const findNode = workflowJson.value.nodes.find((node: any) => node.id == data.node_id)
     if (!!findNode) {
+      state.title = findNode.config.human_task.form_title
       nodeType.value = findNode.metadata.type
 
       // assignee
@@ -96,7 +119,7 @@ async function getDetail() {
 }
 
 async function initForm(node: any) {
-  const formKey = node.metadata.formKey
+  const formKey = node.config.human_task.form_key
   if (!formKey) {
     routerProvider?.message.error('The form does not exist!')
     return
@@ -261,7 +284,7 @@ async function handleSubmitUserTask() {
   const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
 
   const data = $api
-    .post(`/oniflow//api/v1/processes/instance-task/${taskDetail.value.id}/complete`, {
+    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.id}/complete`, {
       process_id: detail.process_instance_id,
       user_id: userId,
       variables: cFormData
@@ -433,8 +456,7 @@ onMounted(() => {
 <template>
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
-      {{workflowJson}}
-      <h3>{{ workflowJson.name }}</h3>
+      <h3>{{ state.title ? state.title : workflowJson.name }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
           <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="state.taskDetail" :state="workflowType" />

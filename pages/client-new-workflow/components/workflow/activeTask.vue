@@ -21,23 +21,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },
-    { field: 'taskInstance.processDefinitionName', title: 'workflow_workflowName' },
-
-    {
-      field: 'name',
-      title: 'workflow_taskName'
-      //   slots: {
-      //     default: "status",
-      //   },
-    },
-    {
-      field: 'assignee',
-      title: 'workflow_assignee',
-      slots: {
-        default: 'assignee'
-      }
-    },
+    { field: 'id', title: 'workflow_jobName', fixed: 'left' },
+    { field: 'name', title: 'workflow_taskName' },
+    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
       field: 'createDate',
       title: 'workflow_createDate',
@@ -53,11 +39,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
-  // router.push(`/easyFormManage/${row.id}`);
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      name: row.taskInstance.businessKey,
       workflowType: 'activeTask'
     }),
     false
@@ -65,10 +49,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await newClientApi.postWorkflowTaskClaim({
-    taskId: row.id,
-    userId
-  })
+  await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res) => res.data)
   query({})
 }
 
