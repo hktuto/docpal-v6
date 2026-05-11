@@ -81,6 +81,12 @@ const { getPageParams, columns } = useDBParams()
 const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 
+// Awareness from parent database context
+const databaseAwareness = inject<{ awarenessStates: Ref<any[]> }>('databaseAwareness', { awarenessStates: ref([]) })
+const tableAwareness = computed(() => {
+  return databaseAwareness.awarenessStates.value.filter((s: any) => s.focus?.tableId === props.dataTableId)
+})
+
 const extraColumnConfig = computed(() => {
   const data = {
     columns,
@@ -162,7 +168,8 @@ provide('viewTools', {
   saveColumnOrder,
   updateViewFilterSortGroup,
   systemFieldsTypes,
-  tableId
+  tableId,
+  tableAwareness
 })
 
 // Side panel state

@@ -19,6 +19,23 @@ const canOpenSetting = computed(() => {
   return canManageTable.value
 })
 
+// Hocuspocus awareness
+const { awarenessStates, setFocus } = useHocuspocusAwareness(() => props.id)
+
+watch(
+  databaseMenuRouteParams,
+  (params) => {
+    setFocus({
+      tableId: params.tableId || undefined,
+      rowId: params.recordId || undefined,
+      cellId: undefined
+    })
+  },
+  { deep: true }
+)
+
+provide('databaseAwareness', { awarenessStates })
+
 // Responsive sidebar state
 const pageContainerRef = ref<HTMLElement | null>(null)
 const isSidebarOpen = ref(true) // Sidebar visibility state (for mobile toggle)
@@ -175,6 +192,24 @@ watch(
               </template>
               <template #right>
                 <div id="database-table-header-right" />
+                <div v-if="awarenessStates.length > 0" class="awareness-avatars">
+                  <el-tooltip
+                    v-for="state in awarenessStates.slice(0, 5)"
+                    :key="state.user?.id"
+                    :content="state.user?.name || 'Unknown'"
+                    placement="bottom"
+                  >
+                    <div
+                      class="awareness-avatar"
+                      :style="{ backgroundColor: state.user?.color || '#999' }"
+                    >
+                      {{ (state.user?.name || '?').charAt(0).toUpperCase() }}
+                    </div>
+                  </el-tooltip>
+                  <div v-if="awarenessStates.length > 5" class="awareness-avatar awareness-avatar--more">
+                    +{{ awarenessStates.length - 5 }}
+                  </div>
+                </div>
                 <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canOpenSetting">
                   <Icon name="lucide:settings" class="header-action" @click="openSetting" />
                 </template>
@@ -203,6 +238,24 @@ watch(
             </template>
             <template #right>
               <div id="database-table-header-right" />
+              <div v-if="awarenessStates.length > 0" class="awareness-avatars">
+                <el-tooltip
+                  v-for="state in awarenessStates.slice(0, 5)"
+                  :key="state.user?.id"
+                  :content="state.user?.name || 'Unknown'"
+                  placement="bottom"
+                >
+                  <div
+                    class="awareness-avatar"
+                    :style="{ backgroundColor: state.user?.color || '#999' }"
+                  >
+                    {{ (state.user?.name || '?').charAt(0).toUpperCase() }}
+                  </div>
+                </el-tooltip>
+                <div v-if="awarenessStates.length > 5" class="awareness-avatar awareness-avatar--more">
+                  +{{ awarenessStates.length - 5 }}
+                </div>
+              </div>
               <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canOpenSetting">
                 <Icon name="lucide:settings" class="header-action" @click="openSetting" />
               </template>
@@ -378,6 +431,38 @@ watch(
 
   .sidebar-backdrop {
     display: none;
+  }
+}
+
+// ============================================
+// Awareness avatars
+// ============================================
+.awareness-avatars {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xxs);
+  margin-right: var(--app-space-s);
+}
+
+.awareness-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  border: 2px solid var(--app-paper);
+  margin-left: -6px;
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &--more {
+    background-color: var(--app-grey-600);
   }
 }
 </style>
