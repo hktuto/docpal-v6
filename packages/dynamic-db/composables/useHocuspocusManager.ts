@@ -155,21 +155,20 @@ export function useHocuspocusManager() {
           roomMeta.value[roomName].connected = false
         }
         emitBus(EventType.HOCUSPOCUS_ROOM_DISCONNECTED, { roomName })
-      }
-    })
-
-    provider.on('awareness', () => {
-      const states: AwarenessState[] = []
-      const localUser = getLocalUser()
-      provider.awareness.getStates().forEach((state: any) => {
-        if (state.user && state.user.id !== localUser?.id) {
-          states.push(state as AwarenessState)
+      },
+      onAwarenessChange: ({ states }) => {
+        const awarenessStates: AwarenessState[] = []
+        const localUser = getLocalUser()
+        states.forEach((state: any) => {
+          if (state.user && state.user.id !== localUser?.id) {
+            awarenessStates.push(state as AwarenessState)
+          }
+        })
+        if (roomMeta.value[roomName]) {
+          roomMeta.value[roomName].awarenessStates = awarenessStates
         }
-      })
-      if (roomMeta.value[roomName]) {
-        roomMeta.value[roomName].awarenessStates = states
+        emitBus(EventType.HOCUSPOCUS_AWARENESS_UPDATE, { roomName, states: awarenessStates })
       }
-      emitBus(EventType.HOCUSPOCUS_AWARENESS_UPDATE, { roomName, states })
     })
 
     providers.set(roomName, provider)
