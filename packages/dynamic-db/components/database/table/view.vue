@@ -81,10 +81,12 @@ const { getPageParams, columns } = useDBParams()
 const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 
-// Awareness from parent database context
-const databaseAwareness = inject<{ awarenessStates: Ref<any[]> }>('databaseAwareness', { awarenessStates: ref([]) })
+// Awareness from global manager
+const hocuspocusManager = useHocuspocusManager()
 const tableAwareness = computed(() => {
-  return databaseAwareness.awarenessStates.value.filter((s: any) => s.focus?.tableId === props.dataTableId)
+  const room = hocuspocusManager.getRoomState(`dynamic-db:${databaseMenuRouteParams.value.detailId}`)
+  if (!room) return []
+  return room.awarenessStates.filter((s: any) => s.focus?.tableId === props.dataTableId)
 })
 
 const extraColumnConfig = computed(() => {

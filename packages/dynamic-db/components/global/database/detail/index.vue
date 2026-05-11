@@ -20,12 +20,26 @@ const canOpenSetting = computed(() => {
 })
 
 // Hocuspocus awareness
-const { awarenessStates, setFocus } = useHocuspocusAwareness(() => props.id)
+const hocuspocusManager = useHocuspocusManager()
+const roomName = computed(() => `dynamic-db:${props.id}`)
+
+watch(
+  roomName,
+  (newRoom, oldRoom) => {
+    if (oldRoom && oldRoom !== newRoom) {
+      hocuspocusManager.leaveRoom(oldRoom)
+    }
+    if (newRoom) {
+      hocuspocusManager.joinRoom(newRoom)
+    }
+  },
+  { immediate: true }
+)
 
 watch(
   databaseMenuRouteParams,
   (params) => {
-    setFocus({
+    hocuspocusManager.setFocus(roomName.value, {
       tableId: params.tableId || undefined,
       rowId: params.recordId || undefined,
       cellId: undefined
@@ -34,7 +48,16 @@ watch(
   { deep: true }
 )
 
-provide('databaseAwareness', { awarenessStates })
+onBeforeUnmount(() => {
+  if (roomName.value) {
+    hocuspocusManager.leaveRoom(roomName.value)
+  }
+})
+
+const awarenessStates = computed(() => {
+  const room = hocuspocusManager.getRoomState(roomName.value)
+  return room?.awarenessStates ?? []
+})
 
 // Responsive sidebar state
 const pageContainerRef = ref<HTMLElement | null>(null)
@@ -194,8 +217,8 @@ watch(
                 <div id="database-table-header-right" />
                 <div v-if="awarenessStates.length > 0" class="awareness-avatars">
                   <el-tooltip
-                    v-for="state in awarenessStates.slice(0, 5)"
-                    :key="state.user?.id"
+                    v-for="(state, idx) in awarenessStates.slice(0, 5)"
+                    :key="state.user?.id || idx"
                     :content="state.user?.name || 'Unknown'"
                     placement="bottom"
                   >
@@ -240,8 +263,8 @@ watch(
               <div id="database-table-header-right" />
               <div v-if="awarenessStates.length > 0" class="awareness-avatars">
                 <el-tooltip
-                  v-for="state in awarenessStates.slice(0, 5)"
-                  :key="state.user?.id"
+                  v-for="(state, idx) in awarenessStates.slice(0, 5)"
+                  :key="state.user?.id || idx"
                   :content="state.user?.name || 'Unknown'"
                   placement="bottom"
                 >
