@@ -23,10 +23,6 @@ export enum EventType {
   ADD_MIRROR = 'add-mirror',
   OPEN_SIDE_PANEL = 'open-side-panel',
   CLOSE_SIDE_PANEL = 'close-side-panel',
-  HOCUSPOCUS_ROOM_CONNECTED = 'hocuspocus-room-connected',
-  HOCUSPOCUS_ROOM_DISCONNECTED = 'hocuspocus-room-disconnected',
-  HOCUSPOCUS_ROOM_EVICTED = 'hocuspocus-room-evicted',
-  HOCUSPOCUS_AWARENESS_UPDATE = 'hocuspocus-awareness-update',
 }
 
 export enum GlobalPasteEvent {

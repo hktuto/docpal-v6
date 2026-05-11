@@ -1,5 +1,4 @@
 import { HocuspocusProvider } from '@hocuspocus/provider'
-import { EventType, useEventBus } from 'eventbus'
 
 interface AwarenessUser {
   id: string
@@ -65,7 +64,6 @@ export function useHocuspocusManager() {
   const config = useRuntimeConfig()
   const hocuspocusUrl = computed(() => (config.public.HOCUSPOCUS_URL as string | undefined) || 'ws://localhost:1234')
 
-  // Store serializable room metadata in useState; provider instances live in a module-level WeakMap
   const roomMeta = useState<Record<string, Omit<RoomState, 'provider'>>>('hocuspocus-rooms', () => ({}))
   const providers = new Map<string, HocuspocusProvider>()
 
@@ -97,7 +95,6 @@ export function useHocuspocusManager() {
       providers.delete(roomName)
     }
     delete roomMeta.value[roomName]
-    emitBus(EventType.HOCUSPOCUS_ROOM_DISCONNECTED, { roomName })
   }
 
   function leaveAllRooms() {
@@ -110,7 +107,6 @@ export function useHocuspocusManager() {
     if (entries.length === 0) return
     const oldest = entries.reduce((a, b) => (a.joinedAt < b.joinedAt ? a : b))
     leaveRoom(oldest.name)
-    emitBus(EventType.HOCUSPOCUS_ROOM_EVICTED, { roomName: oldest.name })
   }
 
   function joinRoom(roomName: string) {
@@ -121,11 +117,9 @@ export function useHocuspocusManager() {
     }
 
     if (roomMeta.value[roomName]) {
-      // Already joined
       return
     }
 
-    // FIFO eviction
     if (Object.keys(roomMeta.value).length >= MAX_CONCURRENT_ROOMS) {
       evictOldestRoom()
     }
@@ -142,7 +136,6 @@ export function useHocuspocusManager() {
           roomMeta.value[roomName].connected = true
           roomMeta.value[roomName].connecting = false
         }
-        emitBus(EventType.HOCUSPOCUS_ROOM_CONNECTED, { roomName })
       },
       onAuthenticationFailed: () => {
         if (roomMeta.value[roomName]) {
@@ -154,7 +147,6 @@ export function useHocuspocusManager() {
         if (roomMeta.value[roomName]) {
           roomMeta.value[roomName].connected = false
         }
-        emitBus(EventType.HOCUSPOCUS_ROOM_DISCONNECTED, { roomName })
       },
       onAwarenessChange: ({ states }) => {
         const awarenessStates: AwarenessState[] = []
@@ -167,7 +159,6 @@ export function useHocuspocusManager() {
         if (roomMeta.value[roomName]) {
           roomMeta.value[roomName].awarenessStates = awarenessStates
         }
-        emitBus(EventType.HOCUSPOCUS_AWARENESS_UPDATE, { roomName, states: awarenessStates })
       }
     })
 
@@ -211,9 +202,4 @@ export function useHocuspocusManager() {
     clearFocus,
     isConnected
   }
-}
-
-function emitBus(key: EventType, payload?: any) {
-  const bus = useEventBus(key)
-  bus.emit(payload)
 }
