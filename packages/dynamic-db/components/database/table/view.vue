@@ -86,7 +86,7 @@ const hocuspocusManager = useHocuspocusManager()
 const tableAwareness = computed(() => {
   const room = hocuspocusManager.getRoomState(`dynamic-db:${databaseMenuRouteParams.value.detailId}`)
   if (!room) return []
-  return room.awarenessStates.filter((s: any) => s.focus?.tableId === props.dataTableId)
+  return room.awarenessStates.filter((s: any) => s.focus?.menuId === databaseMenuRouteParams.value.detailId)
 })
 
 const extraColumnConfig = computed(() => {

@@ -38,9 +38,9 @@ watch(
 )
 
 watch(
-  () => databaseMenuRouteParams.value.tableId,
-  (tableId) => {
-    hocuspocusManager.setFocus(roomName.value, { tableId: tableId || undefined })
+  databaseMenuRouteParams,
+  () => {
+    hocuspocusManager.setFocus(roomName.value, { menuId: databaseMenuRouteParams.value.detailId})
   }
 )
 
@@ -222,24 +222,7 @@ watch(
               </template>
               <template #right>
                 <div id="database-table-header-right" />
-                <div v-if="awarenessStates.length > 0" class="awareness-avatars">
-                  <el-tooltip
-                    v-for="(state, idx) in awarenessStates.slice(0, 5)"
-                    :key="state.user?.id || idx"
-                    :content="state.user?.name || 'Unknown'"
-                    placement="bottom"
-                  >
-                    <div
-                      class="awareness-avatar"
-                      :style="{ backgroundColor: state.user?.color || '#999' }"
-                    >
-                      {{ (state.user?.name || '?').charAt(0).toUpperCase() }}
-                    </div>
-                  </el-tooltip>
-                  <div v-if="awarenessStates.length > 5" class="awareness-avatar awareness-avatar--more">
-                    +{{ awarenessStates.length - 5 }}
-                  </div>
-                </div>
+                <DatabaseAwarenessAvatars />
                 <div class="connection-status" :class="{ 'is-online': connected }">
                   <span class="connection-dot" />
                   <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
@@ -273,24 +256,7 @@ watch(
             </template>
             <template #right>
               <div id="database-table-header-right" />
-              <div v-if="awarenessStates.length > 0" class="awareness-avatars">
-                <el-tooltip
-                  v-for="(state, idx) in awarenessStates.slice(0, 5)"
-                  :key="state.user?.id || idx"
-                  :content="state.user?.name || 'Unknown'"
-                  placement="bottom"
-                >
-                  <div
-                    class="awareness-avatar"
-                    :style="{ backgroundColor: state.user?.color || '#999' }"
-                  >
-                    {{ (state.user?.name || '?').charAt(0).toUpperCase() }}
-                  </div>
-                </el-tooltip>
-                <div v-if="awarenessStates.length > 5" class="awareness-avatar awareness-avatar--more">
-                  +{{ awarenessStates.length - 5 }}
-                </div>
-              </div>
+              <DatabaseAwarenessAvatars />
               <div class="connection-status" :class="{ 'is-online': connected }">
                 <span class="connection-dot" />
                 <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
@@ -471,38 +437,6 @@ watch(
 
   .sidebar-backdrop {
     display: none;
-  }
-}
-
-// ============================================
-// Awareness avatars
-// ============================================
-.awareness-avatars {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-xxs);
-  margin-right: var(--app-space-s);
-}
-
-.awareness-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: white;
-  border: 2px solid var(--app-paper);
-  margin-left: -6px;
-
-  &:first-child {
-    margin-left: 0;
-  }
-
-  &--more {
-    background-color: var(--app-grey-600);
   }
 }
 
