@@ -58,7 +58,7 @@ const awarenessStates = computed(() => {
 })
 
 const connected = computed(() => {
-  return hocuspocusManager.isConnected(roomName.value)
+  return hocuspocusManager.roomMeta.value[roomName.value]?.connected ?? false
 })
 
 function setAwareness(focus: { tableId?: string; rowId?: string; cellId?: string }) {

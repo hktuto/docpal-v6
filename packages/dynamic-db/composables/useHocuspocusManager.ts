@@ -10,6 +10,8 @@ interface AwarenessFocus {
   tableId?: string
   rowId?: string
   cellId?: string
+  editingCell?: boolean
+  editingRow?: boolean
 }
 
 export interface AwarenessState {
@@ -194,6 +196,7 @@ export function useHocuspocusManager() {
 
   return {
     rooms: readonly(rooms),
+    roomMeta,
     joinRoom,
     leaveRoom,
     leaveAllRooms,
