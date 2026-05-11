@@ -2,7 +2,7 @@
 import { newClientApi } from 'api'
 
 const { t } = useI18n()
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
@@ -28,7 +28,7 @@ const { config } = defineProps<{
   }
 }>()
 const stringVariablesList = computed(() => {
-  return getVariablesByType(['string'], true)
+  return getVariablesByTags(['string'], true)
 })
 const formData = ref<{
   body: any

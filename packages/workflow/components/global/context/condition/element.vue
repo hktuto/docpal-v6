@@ -6,7 +6,7 @@ if (!graphProvider) {
 const { element } = defineProps<{
   element: any
 }>()
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const emits = defineEmits(['delete', 'update'])
 const formData = ref<{
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
@@ -26,7 +26,7 @@ const allVariables = computed(() => {
     typeList.push(formData.value?.val_type)
   }
 
-  return getVariablesByType(typeList)
+  return getVariablesByTags(typeList)
 })
 const typeOptions = ref([
   { label: 'Is Empty', value: 'is_null', condition: [{ label: 'Equal', value: '==' }] },

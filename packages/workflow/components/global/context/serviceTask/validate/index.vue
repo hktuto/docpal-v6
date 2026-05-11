@@ -11,9 +11,9 @@ const { config } = defineProps<{
   }
 }>()
 const emits = defineEmits(['update'])
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const variableList = computed(() => {
-  return getVariablesByType(['string'])
+  return getVariablesByTags(['string'])
 })
 
 const outputMapping = ref({

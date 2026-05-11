@@ -10,7 +10,7 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const databaseId = ref('')
 const tableId = ref('')
 const dataId = ref('')
@@ -34,7 +34,7 @@ function getVariables(status: string) {
     default:
       type = 'string'
   }
-  return getVariablesByType([type], true)
+  return getVariablesByTags([type], true)
 }
 
 async function init() {

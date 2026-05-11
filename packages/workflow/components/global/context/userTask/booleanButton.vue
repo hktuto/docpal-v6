@@ -11,7 +11,7 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const buttonStyle = ['primary', 'success', 'warning', 'danger', 'info', 'text']
 type buttonItem = {
   booleanValue: string
@@ -34,7 +34,7 @@ const buttonSetting = ref<{
   booleanButton: []
 })
 const allBooleanInfo = computed(() => {
-  return getVariablesByType(['boolean'])
+  return getVariablesByTags(['boolean'])
 })
 
 function init() {

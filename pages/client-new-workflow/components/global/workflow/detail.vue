@@ -56,9 +56,9 @@ async function getDetail() {
     }
     taskDetail.value = data
     state.title = data.config.human_task.form_title || data.name
-    variablesData.value = data.config.input_mapping || {}
 
     const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
+    variablesData.value = instanceData.initial_variables || {}
     contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data)
     variables.value = contentData.value.variables
 

@@ -39,7 +39,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   },
   columns: [
     { title: 'Name', field: 'name' },
-    { title: 'Type', field: 'type' }
+    { title: 'Type', field: 'tag' }
   ],
   dblClickAction: ({ row, column, event }: any) => {
     console.log('dblClickAction', row, column, event)
@@ -103,7 +103,7 @@ defineExpose({
 </script>
 
 <template>
-  <ElDialog v-model="opened" title="Edit Variables" draggable append-to-body class="big">
+  <ElDialog v-model="opened" title="Edit Variables" append-to-body class="big">
     <template #default>
       <div class="addFieldRow">
         <el-alert show-icon :title="$t('bpmn.globalRuleTip')" type="info" />

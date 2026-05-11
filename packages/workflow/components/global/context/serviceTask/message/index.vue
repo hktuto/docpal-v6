@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 
 const { config } = defineProps<{
   config: {
@@ -48,7 +48,7 @@ watch(
 )
 
 onMounted(async () => {
-  stringVariablesList.value = getVariablesByType(['string'], true)
+  stringVariablesList.value = getVariablesByTags(['string'], true)
 })
 </script>
 

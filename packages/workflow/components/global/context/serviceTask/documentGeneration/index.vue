@@ -28,12 +28,12 @@ const { config } = defineProps<{
   }
 }>()
 const loading = ref(false)
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const stringVariablesList = computed(() => {
-  return getVariablesByType(['string'], true)
+  return getVariablesByTags(['string'], true)
 })
 const storeVariablesList = computed(() => {
-  return getVariablesByType(['string'])
+  return getVariablesByTags(['string'])
 })
 
 const documentTypeList = ref<any[]>([])

@@ -8,10 +8,10 @@ if (!graphProvider) {
 const { node } = defineProps<{
   node: Node
 }>()
-const { getVariablesByType, deleteVariableItem } = useVariablesProvide()
+const { getVariablesByTags, deleteVariableItem } = useVariablesProvide()
 const FormDialogRef = ref()
 const variables = computed(() => {
-  return getVariablesByType()
+  return getVariablesByTags()
 })
 const FormRef = ref()
 const form = ref({

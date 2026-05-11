@@ -3,12 +3,12 @@ import { newAdminApi } from 'api'
 import { getUserSelectOption } from '@packages/base/composables/usePermissionOption'
 
 const emits = defineEmits(['update'])
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const stringVariablesList = computed(() => {
-  return getVariablesByType(['string'], true)
+  return getVariablesByTags(['string'], true)
 })
 const allVariablesList = computed(() => {
-  return getVariablesByType([], true)
+  return getVariablesByTags([], true)
 })
 const emailRecipient = ref<any[]>([])
 const emailTemplateList = ref<any[]>([])
@@ -90,7 +90,7 @@ function updateData() {
 }
 
 async function getEmailRecipient() {
-  const stringVariables = getVariablesByType(['string'], true)
+  const stringVariables = getVariablesByTags(['string'], true)
   const userList = await getUserSelectOption()
   emailRecipient.value = [
     {
