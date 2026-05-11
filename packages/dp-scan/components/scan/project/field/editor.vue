@@ -73,7 +73,6 @@ function saveOptionsToField() {
   }
 
   localValue.value.field_setting.options = optionRows.value
-    .filter(row => row.key.trim() !== '')
     .map(row => ({
       [row.key.trim()]: row.value.trim() || row.key.trim()
     }))
@@ -290,7 +289,30 @@ const validationPlaceholder = `// Example: Validate ID with other field
           <ElFormItem label="Date Format">
             <ElInput v-model="localValue.format" placeholder="DD/MM/YYYY" />
           </ElFormItem>
+
         </ElCol>
+      </ElRow>
+      <ElRow v-if="isDateType" :gutter="12">
+           <ElCol :span="12">
+            <ElFormItem label="Min Date">
+                <ElSelect v-model="localValue.min_date" class="w-full">
+                    <ElOption label="No Min Date" value="" />
+                    <ElOption label="Today" value="today" />
+                    <ElOption label="Yesterday" value="yesterday" />
+                    <ElOption label="One Week Ago" value="one_week_ago" />
+                </ElSelect>
+            </ElFormItem>
+           </ElCol>
+           <ElCol :span="12">
+            <ElFormItem label="Max Date">
+                <ElSelect v-model="localValue.max_date" class="w-full">
+                    <ElOption label="No Max Date" value="" />
+                    <ElOption label="Today" value="today" />
+                    <ElOption label="Yesterday" value="yesterday" />
+                    <ElOption label="One Week Ago" value="one_week_ago" />
+                </ElSelect>
+            </ElFormItem>
+           </ElCol>
       </ElRow>
 
       <!-- Row 3: Checkboxes -->
@@ -306,7 +328,27 @@ const validationPlaceholder = `// Example: Validate ID with other field
           </ElFormItem>
         </ElCol>
       </ElRow>
-
+      <ElRow :gutter="12">
+        <ElCol :span="24" v-if='!isDateType'>
+            <!-- format for non-date fields, like ALL Cap, small cap, number only...etc -->
+          <ElFormItem label="Format">
+            <ElSelect v-model="localValue.format" class="w-full">
+                <ElOption label="None" value="" />
+              <ElOption label="ALL Cap" value="ALL_CAP" />
+              <ElOption label="Small Cap" value="SMALL_CASE" />
+              <ElOption label="Title Case" value="TITLE_CASE" />
+              <ElOption label="Number Only" value="NUMBER_ONLY" />
+            </ElSelect>
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+      <ElRow :gutter="12">
+        <ElCol :span="24">
+          <ElFormItem label="Default Value">
+            <ElInput v-model="localValue.default_value" placeholder="Default value when no OCR data" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
       <!-- Row 4: Options for select/radio -->
       <ElFormItem v-if="hasOptions" label="Options">
         <div class="options-list">
@@ -399,7 +441,7 @@ const validationPlaceholder = `// Example: Validate ID with other field
       </template>
 
       <!-- Row 6: Validation Function -->
-      <div class="section-header" >
+      <div class="section-header" @click="showValidationSection = !showValidationSection">
         <span>Custom Validation</span>
         <ElTag v-if="localValue.validation_function" size="small" type="success">Configured</ElTag>
         <CodeEdit v-model="validationCode" wrapperString="Function signature: (rule, value, callback, allData, SectionWithValues)" />

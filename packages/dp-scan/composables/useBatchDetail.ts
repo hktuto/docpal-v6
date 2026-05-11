@@ -104,13 +104,14 @@ export const useBatchDetail = (batchId: string) => {
 
   function convertFieldToWithValues(field:any, newData: Record<string, any>, oldData: Record<string, any> | undefined) :FieldWithValue {
     const fieldLabel = field.lable || field.label
-    const rawValue = newData?.[fieldLabel] ?? ''
 
-    const normalizedValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
+    const rawValue = newData?.[fieldLabel] ?? field.default_value ?? ''
+
+    let normalizedValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
       ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options, true)
       : rawValue
-    if (fieldLabel === "FamilyMemberMaritalStatus") {
-      console.log("normalizedValue", normalizedValue, rawValue)
+    if (!normalizedValue && field.default_value) {
+      normalizedValue = field.default_value
     }
     const normalizeOldValue = field.normalize_options || ( field.field_setting && field.field_setting.options)
       ? normalizeValue(oldData?.[fieldLabel], field.field_setting.options, field.normalize_options)
@@ -120,13 +121,16 @@ export const useBatchDetail = (batchId: string) => {
       const isValue = checkHKID(rawValue)
       field.warning = isValue ? isValue.message : undefined
     }
+    if (field.default_value) {
+      console.log("default value", field.default_value, normalizedValue, normalizeOldValue)
+    }
     const result = {
       ...field,
       currentValue: normalizedValue,
       originalValue: normalizeOldValue,
       options: field.field_setting?.options?.map((opt: Record<string, string>) => {
         const [value, label] = Object.entries(opt)[0] || ['', '']
-        return { value, label }
+        return { value: value === 'none' ? '' : value, label }
       }),
       normalize_options: field.normalize_options,
       validation_function: field.validation_function
@@ -188,11 +192,11 @@ export const useBatchDetail = (batchId: string) => {
           originalValue: oldSectionData,
           fields: section.fields?.map((field: any): FieldWithValue => ({
             ...field,
-            currentValue: '',
+            currentValue: field.default_value ?? '',
             originalValue: '',
             options: field.field_setting?.options?.map((opt: Record<string, string>) => {
               const [value, label] = Object.entries(opt)[0] || ['', '']
-              return { value, label }
+              return { value: value === 'none' ? '' : value, label }
             }),
             normalize_options: field.normalize_options,
             validation_function: field.validation_function
@@ -265,7 +269,7 @@ export const useBatchDetail = (batchId: string) => {
       const response = await clientApi.api.getCaptureBatchBatchidDetail(currentBatchId.value)
       batchDetail.value = response.data
       batchDetail.value.documents = batchDetail.value.documents.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename))
-
+      previewImgUrl.value = null
       currentSelectedDoc.value = response.data.documents[selectIndex || 0]
       currentPageNumber.value = 1;
       // Handle batch locking
@@ -343,8 +347,8 @@ export const useBatchDetail = (batchId: string) => {
     currentPageNumber.value = pageNumber
 
     // Clear highlights when changing page
-    highlightedSection.value = undefined
-    highlightedField.value = undefined
+    // highlightedSection.value = undefined
+    // highlightedField.value = undefined
 
     await renderPage(pageNumber)
   }
@@ -585,6 +589,7 @@ export const useBatchDetail = (batchId: string) => {
       return
     }
     if (section) {
+
       if (section.section_type === 'table') {
         const newHightlight = {
           section_type: section.section_type,
@@ -762,7 +767,7 @@ export const useBatchDetail = (batchId: string) => {
       // TODO : Select Next Document, and reload page
       // TODO:　calculate selected document index
       const index = batchDetail.value.documents.findIndex((b) => b.id === currentSelectedDoc.value.id)
-      console.log("try to get next index", index, currentSelectedDoc.value, batchDetail.value.documents)
+
       if (index !== -1 ) {
         if (index === batchDetail.value.documents.length - 1) {
           // is last page
@@ -855,8 +860,8 @@ export const useBatchDetail = (batchId: string) => {
   watch(currentSelectedDoc, () => {
     if (currentSelectedDoc.value) {
       // Clear highlights when switching documents
-      highlightedSection.value = undefined
-      highlightedField.value = undefined
+      // highlightedSection.value = undefined
+      // highlightedField.value = undefined
       getDocumentDetail(currentSelectedDoc.value.id)
     }
   })
@@ -907,11 +912,44 @@ export function normalizeDocumentData(detail: any, setting: any): void {
 
               item[fieldKey] = item[fieldKey].replaceAll('(', '').replaceAll(')', '')
             }
+            // check if value is a DOB
+
+            if (fieldKey.includes('DOB')) {
+               console.log("DOB", fieldKey, item)
+              // check if is a valid DD/MM/YYYY , if not make it YYYY-MM-DD
+              const dateStr = item[fieldKey]
+              const dateParts = dateStr.split('/')
+              // check if dateParts length is 3
+              if (dateParts.length !== 3) {
+                item[fieldKey] = ''
+              }
+              //check if MM　is equal or small than 12
+              if (parseInt(dateParts[1]) > 12) {
+                item[fieldKey] = ''
+
+              }
+
+            }
           })
         })
       } else {
 
         Object.keys(section).forEach((fieldKey) => {
+          // check if value is a DOB
+          if (fieldKey.includes('DOB')) {
+            // check if is a valid DD/MM/YYYY , if not make it YYYY-MM-DD
+            const dateStr = detail.newResultJson[sectionKey][fieldKey]
+            const dateParts = dateStr.split('/')
+            // check if dateParts length is 3
+            if (dateParts.length !== 3) {
+              detail.newResultJson[sectionKey][fieldKey] = ''
+            }
+            //check if MM　is equal or small than 12
+            if (parseInt(dateParts[1]) > 12) {
+              detail.newResultJson[sectionKey][fieldKey] = ''
+            }
+
+          }
           if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName'  || fieldKey === 'FamilyMemberChineseName') {
 
             detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
@@ -964,8 +1002,9 @@ export type FamilyClassReturn = {
   statePerson: string
 }
 export function familyClassCalulation(detail: any): FamilyClassReturn {
+  console.log("familyClassCalulation run", detail)
   // get all params needed.
-  const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
+  let { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
     'N', YouthScheme = 'N' } = detail.newResultJson?.PriorityScheme || {}
   const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat, 'EMMS Code': emms } = detail.newResultJson?.SpecificField || {}
   const formType: "G" | "W" = detail.formTypeCode
@@ -999,7 +1038,6 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
     if (!EFAS_date.isValid()) return false;
     return EFAS_date.isAfter(Target_date);
   };
-
   // Helper to check if Clearees category matches
   const isCat = (cat: string): boolean => CleareesCat === `Cat ${cat}` || CleareesCat === cat;
 
@@ -1091,7 +1129,13 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
       // column S - AA
       if (totalFamilySize === 1) {
         // column Y - AA
-        if (isCat('2')) {
+        if(isCat('1') || isCat('3')) {
+          // column AA
+          FamilyCategory = "GS - Green Single";
+          FamilyClass = "";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        } else if (isCat('2')) {
           // column Y
           FamilyCategory = "GS - Green Single";
           FamilyClass = "10 - GS 1st Absolute Priority";
@@ -1114,7 +1158,12 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
         // END column Y- AA
       } else {
         // column S - X
-        if (isCat('1')) {
+        if (isCat('2') || isCat('4')) {
+          FamilyCategory = "GF - Green Family";
+          FamilyClass = "";
+          PriorityIndicator = "";
+          FormSource = 'HS - HS Green';
+        }else if (isCat('1')) {
           // column S
           FamilyCategory = "GF - Green Family";
           FamilyClass = "9 - GF 1st Absolute Priority";
@@ -1227,40 +1276,15 @@ export function familyClassCalulation(detail: any): FamilyClassReturn {
     // END GReen From
   }
 
-
-
-  console.log("Calculate", {
-    result: {
-      familyCategory: FamilyCategory,
-      familyClass: FamilyClass,
-      priorityIndicator: PriorityIndicator,
-      formSource: FormSource,
-      statePerson: Person
-    },
-    org: {
-      emms,
-      pplCount,
-      hasFamilyMember,
-      PrioritySchemeForElderly,
-      PrioritySchemeForNewborns,
-      YouthScheme,
-      babyCount,
-      CleareesCat,
-      HKHS,
-      HA,
-      EFAS_COT,
-      EFAS,
-      formTypeCode: detail.formTypeCode,
-      detail
-    }
-  })
-  return {
+  const result = {
     familyCategory: FamilyCategory,
     familyClass: FamilyClass,
     priorityIndicator: PriorityIndicator,
     formSource: FormSource,
     statePerson: Person
-  };
+  }
+
+  return result;
 }
 
 

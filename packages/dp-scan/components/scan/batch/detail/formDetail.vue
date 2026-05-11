@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useBatchDetailContext, useScanClient } from '#imports'
-import { clientApi } from 'api'
-
+import ReplaceFormDialog from './ReplaceFormDialog.vue'
+import {clientApi} from 'api'
 const props = defineProps<{
   isReadonly:boolean
 }>()
@@ -11,6 +11,7 @@ if (!context) {
   throw new Error('BatchDetailContext not found')
 }
 const allSectionsRef  = ref()
+const sectionsListRef = ref<HTMLDivElement>()
 // Destructure for easier access
 const {
   documentLoading,
@@ -61,6 +62,9 @@ const uploading = ref(false)
 // File input ref
 const fileInputRef = ref<HTMLInputElement>()
 
+// Replace form dialog
+const replaceDialogVisible = ref(false)
+
 // Update field value handler
 function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowIndex?: number) {
   updateFieldValue(sectionId, fieldKey, value, rowIndex)
@@ -77,7 +81,7 @@ function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowI
     selectedDocDetail.value.detail.familyClass = classification.familyClass;
     selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
     selectedDocDetail.value.detail.statePerson = classification.statePerson;
-     console.log(classification)
+
   })
 }
 
@@ -116,7 +120,7 @@ function handleRemoveRow(sectionId: string, rowIndex: number) {
     selectedDocDetail.value.detail.familyClass = classification.familyClass;
     selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
     selectedDocDetail.value.detail.statePerson = classification.statePerson;
-    console.log(classification)
+
   })
 }
 
@@ -170,6 +174,14 @@ function triggerFileUpload() {
   fileInputRef.value?.click()
 }
 
+function triggerFileReplace() {
+  replaceDialogVisible.value = true
+}
+
+async function handleReplaceSuccess() {
+  await reload()
+}
+
 // Handle file upload for replace and retry
 async function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
@@ -218,7 +230,9 @@ async function getAllForms(){
 
   const projectId = context?.projectId.value
   const f = await clientApi.api.postCaptureProjformsettingPage({ projectId })
-  forms.value = f.data.filter(f =>　f.status === 'A')
+  forms.value = f.data.filter(f => f.status === 'A')
+
+
 }
 
 async function triggerCustomForm(){
@@ -242,6 +256,35 @@ watch(hasError,(bool)=>{
 },{
   immediate: true,
 })
+
+// Reset scroll and focus first section when document changes
+watch(currentSelectedDoc, () => {
+  if(!currentSelectedDoc.value) return
+  nextTick(() => {
+    if (sectionsListRef.value) {
+      sectionsListRef.value.scrollTop = 0
+    }
+    if (allSectionsRef.value?.length > 0) {
+      const firstSection = allSectionsRef.value[0]
+      if (typeof firstSection?.focusSection === 'function') {
+        firstSection.focusSection()
+      }
+    }
+  })
+  setTimeout(() => {
+    const newResultJson = context?.buildResultJson()
+    const newDetail = {
+      ...selectedDocDetail.value.detail,
+      newResultJson
+    }
+    const classification = familyClassCalulation(newDetail);
+    selectedDocDetail.value.detail.formSource = classification.formSource;
+    selectedDocDetail.value.detail.familyCategory = classification.familyCategory;
+    selectedDocDetail.value.detail.familyClass = classification.familyClass;
+    selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
+    selectedDocDetail.value.detail.statePerson = classification.statePerson;
+  },100)
+}, { immediate: true })
 
 </script>
 
@@ -290,11 +333,11 @@ watch(hasError,(bool)=>{
       </div>
 
       <!-- Scrollable sections list -->
-      <div class="sectionsList" :class="{ 'withWarning': isLockedByOther }">
+      <div ref="sectionsListRef" class="sectionsList" :class="{ 'withWarning': isLockedByOther }">
         <ScanBatchDetailSection
           v-for="section in sectionsWithValues"
           ref="allSectionsRef"
-          :key="section.section_id"
+          :key="section.section_id +　section.id"
           :section="section"
           :allData="sectionsWithValues"
           :readonly="isReadonly"
@@ -306,6 +349,15 @@ watch(hasError,(bool)=>{
 
       <!-- Sticky action buttons - only visible to verifiers and not locked -->
       <div v-if="canVerify && !isLockedByOther" class="actionButtons">
+          <ElButton
+            type="warning"
+            size="default"
+            :disabled="!currentSelectedDoc ||　isReadonly || currentSelectedDoc.status === 'export-ready' || currentSelectedDoc.status === 'verified'"
+            @click="triggerFileReplace"
+          >
+            <Icon name="lucide:refresh-ccw" />
+            Replace Form
+          </ElButton>
         <ElButton
           type="primary"
           size="default"
@@ -329,6 +381,14 @@ watch(hasError,(bool)=>{
       </div>
     </template>
   </div>
+
+  <ReplaceFormDialog
+    v-model:visible="replaceDialogVisible"
+    :original-filename="currentSelectedDoc?.originalFilename || ''"
+    :batch-id="selectedDocDetail?.detail?.batchId || ''"
+    :doc-id="selectedDocDetail?.detail?.id || ''"
+    @success="handleReplaceSuccess"
+  />
 </template>
 
 <style lang="scss" scoped>
@@ -355,11 +415,14 @@ watch(hasError,(bool)=>{
 .actionButtons {
   display: flex;
   justify-content: flex-end;
-  gap: var(--app-space-s);
+  gap: var(--app-space-xs);
   padding: var(--app-space-m);
   background-color: var(--app-bg-color);
   border-top: 1px solid var(--app-border-color);
   flex-shrink: 0;
+  :deep(.el-button + .el-button){
+      margin-left: 0px !important;
+  }
 }
 
 .errorContainer {

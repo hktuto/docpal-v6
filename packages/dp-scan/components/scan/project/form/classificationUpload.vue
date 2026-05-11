@@ -63,8 +63,8 @@ async function uploadFile(file: File) {
     return
   }
 
-  // Validate file size (max 10MB)
-  const maxSize = 10 * 1024 * 1024
+  // Validate file size (max510MB)
+  const maxSize = 50 * 1024 * 1024
   if (file.size > maxSize) {
     routerProvider?.message.error('File size must be less than 10MB')
     return
@@ -77,6 +77,8 @@ async function uploadFile(file: File) {
       file: file,
       projectId: props.formDetail?.projectId || '',
       formId: props.formDetail?.id || ''
+    }, {
+      timeout: 0
     })
 
     if (response.result) {

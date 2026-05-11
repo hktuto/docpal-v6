@@ -55,17 +55,18 @@ function handleSectionMouseEnter() {
 
   selectSection(props.section)
   // Clear field highlight when selecting a new section
-  selectField(null)
+  // selectField(null)
   }
 }
 
 // Handle field mouse enter - highlight persists until another is hovered
 function handleFieldMouseEnter(field: FieldWithValue) {
-
+  selectSection(props.section)
   selectField(field)
 }
 
 function handleTableFieldMouseEnter(field: FieldWithValue){
+
   selectField(field, props.section)
 }
 
@@ -195,12 +196,107 @@ function checkDateisDOB(field:any, date:Date){
   return false
 }
 
+function getConstraintDate(constraint?: string): Date | null {
+  if (!constraint) return null
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  switch (constraint) {
+    case 'today':
+      return today
+    case 'yesterday': {
+      const d = new Date(today)
+      d.setDate(d.getDate() - 1)
+      return d
+    }
+    case 'one_week_ago': {
+      const d = new Date(today)
+      d.setDate(d.getDate() - 7)
+      return d
+    }
+    default:
+      return null
+  }
+}
+
+function getDisabledDate(field: FieldWithValue, date: Date): boolean {
+  if (checkDateisDOB(field, date)) return true
+
+  const minDate = getConstraintDate(field.min_date)
+  if (minDate && date < minDate) return true
+
+  const maxDate = getConstraintDate(field.max_date || (field as any).mix_date)
+  if (maxDate && date > maxDate) return true
+
+  return false
+}
+
+function getInputFormatter(format?: string): ((value: string) => string) | undefined {
+  switch (format) {
+    case 'ALL_CAP':
+      return (val: string) => {
+        const v = val?.toUpperCase?.() || val
+        return typeof v === 'string' ? v.trim() : v
+      }
+    case 'SMALL_CASE':
+      return (val: string) => {
+        const v = val?.toLowerCase?.() || val
+        return typeof v === 'string' ? v.trim() : v
+      }
+    case 'TITLE_CASE':
+      return (val: string) => {
+        const v = val?.replace?.(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()) || val
+        return typeof v === 'string' ? v.trim() : v
+      }
+    case 'NUMBER_ONLY':
+      return (val: string) => {
+        const v = val?.replace?.(/[^0-9]/g, '') || val
+        return typeof v === 'string' ? v.trim() : v
+      }
+    default:
+      return (val: string) => {
+        const v = val
+        return typeof v === 'string' ? v.trim() : v
+      }
+  }
+}
+
+function getInputParser(format?: string): ((value: string) => string) | undefined {
+  switch (format) {
+    case 'ALL_CAP':
+      return (val: string) => {
+        const v = val?.toUpperCase?.() || val
+        return typeof v === 'string' ? v.trim() : v
+      }
+    case 'SMALL_CASE':
+      return (val: string) => {
+        const v = val?.toLowerCase?.() || val
+        return typeof v === 'string' ? v.trim() : v
+      }
+    case 'TITLE_CASE':
+      return (val: string) => {
+        const v = val?.replace?.(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()) || val
+        return typeof v === 'string' ? v.trim() : v
+      }
+    case 'NUMBER_ONLY':
+      return (val: string) => {
+        const v = val?.replace?.(/[^0-9]/g, '') || val
+        return typeof v === 'string' ? v.trim() : v
+      }
+    default:
+      return (val: string) => {
+        const v = val
+        return typeof v === 'string' ? v.trim() : v
+      }
+  }
+}
+
 // preview image logic
 const previewImg = ref()
 const previewImgLoading = ref(false)
 
 async function getSectionImage(){
-  console.log("getSectionImage")
+
   previewImgLoading.value = true;
   previewImg.value = null;
   try{
@@ -213,7 +309,27 @@ async function getSectionImage(){
 }
 //
 function focusSection(){
-  sectionContainerRef.value?.focus()
+  nextTick(() => {
+    const firstInput = sectionContainerRef.value?.querySelector('input, select, textarea')
+    if (firstInput) {
+      firstInput.focus()
+    } else {
+      sectionContainerRef.value?.focus()
+    }
+    // Highlight the first field in file preview
+    if (props.section.section_type === 'table') {
+      const firstField = props.section.rows?.[0]?.fields?.[0]
+      if (firstField) {
+        handleTableFieldMouseEnter(firstField)
+      }
+    } else {
+      const fields = props.section.fields ? displayField(props.section.fields) : []
+      const firstField = fields[0]
+      if (firstField) {
+        handleFieldMouseEnter(firstField)
+      }
+    }
+  })
 }
 function displayField(fields: FieldWithValues) {
   return fields.filter((f) => !f.hidden )
@@ -221,11 +337,14 @@ function displayField(fields: FieldWithValues) {
 watch(() => props.section,()=>{
 
   nextTick(() => {
-    console.log("currentSelectedDoc change")
     validateForm()
     if(props.section.save_to_result) {
       getSectionImage()
-      focusSection()
+      const activeElement = document.activeElement;
+      if(!activeElement || activeElement.tagName === 'BODY') {
+        focusSection()
+      }
+      // focusSection()
     }
   })
 },{
@@ -235,14 +354,15 @@ watch(() => props.section,()=>{
 
 
 defineExpose({
-  validateForm
+  validateForm,
+  focusSection
 })
 
 
 </script>
 
 <template>
-<div :class="{sectionHeader:true, highlighted: isHighlighted, error: !noError}">
+<div :class="{sectionHeader:true, highlighted: isHighlighted, error: !noError}" >
   <Icon name="lucide:layout-template" class="sectionIcon" />
   <span class="sectionName">{{ splitByCamelCase(section.section_name) }}</span>
 
@@ -257,6 +377,7 @@ defineExpose({
     :size="formSize"
     circle
     class="addRowBtn"
+    tabindex="9999"
     @click.stop="handleAddRow"
   >
     <Icon name="lucide:plus" />
@@ -265,7 +386,7 @@ defineExpose({
   <div
   ref="sectionContainerRef"
     :class="{ sectionContainer: true, highlighted: isHighlighted, error: !noError }"
-    tabindex="0"
+    :tabindex="!section.save_to_result ? 999 : 0"
     @focus="handleSectionMouseEnter"
     @mouseenter="handleSectionMouseEnter"
   >
@@ -322,21 +443,32 @@ defineExpose({
               />
             </ElSelect>
             <template v-else-if="field.type === 'date'">
-
-              <ElDatePicker
-                :modelValue="field.currentValue"
-                :size="formSize"
-                :class="{fieldInput: true, edited: isFieldModified(field)}"
-
-                :disabled="readonly"
+            <FormCustomDatePicker
+                v-model="field.currentValue"
+                 :class="{fieldInput: true, edited: isFieldModified(field)}"
+                 :disabled="readonly"
                 :format="field.format || 'DD/MM/YYYY'"
                 :value-format="field.format || 'DD/MM/YYYY'"
-                 :disabled-date="(d) => checkDateisDOB(field, d)"
+                :disabled-date="(d) => getDisabledDate(field, d)"
+                clearable
+                placeholder="Enter date"
+                @focus="handleFieldMouseEnter(field)"
+                @update:model-value="(val) => handleFieldChange(field, val)"
+            />
+              <!-- <ElDatePicker
+                :modelValue="field.currentValue"
+                :size="formSize"
+
+
+
+                :format="field.format || 'DD/MM/YYYY'"
+                :value-format="field.format || 'DD/MM/YYYY'"
+                 :disabled-date="(d) => getDisabledDate(field, d)"
                 clearable
 
                 @focus="handleFieldMouseEnter(field)"
                 @update:model-value="(val) => handleFieldChange(field, val)"
-              />
+              /> -->
               <!-- currentValue:{{field.currentValue}} -->
             </template>
             <!-- Regular text input -->
@@ -346,7 +478,8 @@ defineExpose({
               :size="formSize"
               :class="{fieldInput: true, edited: isFieldModified(field), warning: field.warning }"
               :type="getInputType(field.type)"
-
+              :formatter="getInputFormatter(field.format)"
+              :parser="getInputParser(field.format)"
               :disabled="readonly"
               @focus="handleFieldMouseEnter(field)"
               @update:model-value="(val) => handleFieldChange(field, val)"
@@ -376,7 +509,7 @@ defineExpose({
       >
         <div class="rowHeader">
           <Icon name="lucide:rows-3" class="rowIcon" />
-          <span>Row {{ rowIndex + 1 }}</span>
+          <span>Member {{ rowIndex + 1 }}</span>
           <!-- Remove row button - only show when not readonly -->
           <ElButton
             v-if="!readonly"
@@ -384,6 +517,7 @@ defineExpose({
             :size="formSize"
             circle
             class="removeRowBtn"
+            tabindex="9999"
             @click.stop="handleRemoveRow(rowIndex)"
           >
             <Icon name="lucide:minus" />
@@ -414,7 +548,7 @@ defineExpose({
                 @mouseenter="handleTableFieldMouseEnter(field)"
               >
                 <div class="fieldLabel">
-                  <span class="labelText">{{ field.lable || field.label }}</span>
+                  <span class="labelText">{{ field.lable || field.label }} ({{rowIndex + 1}})</span>
                   <ElTag v-if="field.required" :size="formSize" type="danger" effect="plain" class="requiredTag">
                     *
                   </ElTag>
@@ -428,7 +562,7 @@ defineExpose({
                   filterable
                   clearable
                   :disabled="readonly"
-                  @focus="handleFieldMouseEnter(field)"
+                  @focus="handleTableFieldMouseEnter(field)"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 >
                   <ElOption
@@ -440,8 +574,16 @@ defineExpose({
                 </ElSelect>
 
                 <template v-else-if="field.type === 'date'">
-
-                  <ElDatePicker
+                    <FormCustomDatePicker
+                    :modelValue="field.currentValue"
+                    :format="field.format || 'DD/MM/YYYY'"
+                    :value-format="field.format || 'DD/MM/YYYY'"
+                    :disabled="readonly"
+                    :disabled-date="(d) => getDisabledDate(field, d)"
+                    placeholder="Enter date"
+                    @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
+                  />
+                  <!-- <ElDatePicker
                     :modelValue="field.currentValue"
                     :size="formSize"
                     :class="{fieldInput: true, edited: isFieldModified(field)}"
@@ -449,10 +591,10 @@ defineExpose({
                     :disabled="readonly"
                     :format="field.format || 'DD/MM/YYYY'"
                     :value-format="field.format || 'DD/MM/YYYY'"
-                    :disabled-date="(d) => checkDateisDOB(field, d)"
-                    @focus="handleFieldMouseEnter(field)"
+                    :disabled-date="(d) => getDisabledDate(field, d)"
+                    @focus="handleTableFieldMouseEnter(field)"
                     @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
-                  />
+                  /> -->
                   <!-- currentValue:{{field.currentValue}} -->
                 </template>
 
@@ -462,8 +604,10 @@ defineExpose({
                   :size="formSize"
                   :class="{fieldInput:true, warning: field.warning}"
                   :type="getInputType(field.type)"
+                  :formatter="getInputFormatter(field.format)"
+                  :parser="getInputParser(field.format)"
                   :disabled="readonly"
-                  @focus="handleFieldMouseEnter(field)"
+                  @focus="handleTableFieldMouseEnter(field)"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 />
                 <div v-if="field.warning" class="warningText">{{ field.warning }}</div>
