@@ -73,9 +73,9 @@ function setupEdge() {
     const target = edge.getTargetCell()
     if (!source || !target) return
 
-    console.log('----edge:connected edge ', isNew, edge)
-    console.log('----edge:connected source ', source)
-    console.log('----edge:connected target ', target)
+    // console.log('----edge:connected edge ', isNew, edge)
+    // console.log('----edge:connected source ', source)
+    // console.log('----edge:connected target ', target)
 
     if (!isNew) {
       // update edge

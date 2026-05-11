@@ -5,7 +5,7 @@ import type { Graph } from '@antv/x6'
  */
 export type VariableItemType = 'string' | 'number' | 'boolean' | 'date'
 export const VariableItemTag = {
-  string: ['string', 'user', 'file'],
+  string: ['string', 'file'],
   number: ['number'],
   boolean: ['boolean'],
   date: ['date']
@@ -22,13 +22,6 @@ export const VariableTypeOptions = [
         validation: {
           maxLength: 255
         },
-        component: 'ContextVariableDataTypeString'
-      },
-      {
-        label: 'User',
-        type: 'string',
-        tag: 'user',
-        validation: {},
         component: 'ContextVariableDataTypeString'
       },
       {
@@ -226,10 +219,8 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
     let list: VariableItem[] = variables.value
 
     if (tagList?.length) {
-      console.log(123,variables.value,tagList)
       list = variables.value.filter((item) => tagList.includes(item.tag))
     }
-    console.log(11111,list)
 
     return list.map((item: VariableItem) => ({
       id: status ? '${' + item.id + '}' : item.id,

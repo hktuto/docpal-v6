@@ -38,8 +38,6 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
       const data: any = await newClientApi.postDmsDocumentPreview({ idOrPath: documentTemplateData.documentId })
       signatureSetting.templateDetail = JSON.parse(JSON.stringify(data))
       signatureSetting.signatureVariableSetting = data.variables.find((item: any) => item.id === metadata.signature.signatureValue)
-
-      console.log('signatureSetting', signatureSetting)
     }
     return {
       buttons,
