@@ -117,6 +117,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
           field: col.field_name,
           title: col.field_name_alias,
           aggFunc: true,
+          colId: col.field_name,
           ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
         }
         colConfig.slots = {

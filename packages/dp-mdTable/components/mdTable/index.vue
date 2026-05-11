@@ -122,6 +122,8 @@ const emit = defineEmits<{
   search: [value: string]
   'edit-closed': [params: any]
   'cell-click': [params: any]
+  'cell-mouseenter': [params: any]
+  'cell-mouseleave': [params: any]
   'row-dblclick': [params: { row: any; rowIndex: number }]
   'expand-click': [params: { row: any; rowIndex: number }]
   'open-record': [params: { tableId: string; recordId: string; row: any }]
@@ -193,6 +195,13 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   'cell-click': (params: any) => {
     emit('cell-click', params)
   },
+  'cell-mouseenter': (params: any) => {
+    emit('cell-mouseenter', params)
+  },
+  'cell-mouseleave': (params: any) => {
+    emit('cell-mouseleave', params)
+  },
+
   // 'cell-dblclick': (params: any) => {
   //   const { row, rowIndex } = params
   //   emit('row-dblclick', { row, rowIndex })

@@ -294,6 +294,33 @@ watch(
   </div>
 </template>
 
+<style lang="scss">
+.vxe-cell.hocuspocus_select{
+    &::before{
+        content: attr(data-user);
+        display: block;
+        padding: 0 var(--app-space-xs) ;
+        font-size: var(--app-font-size-xs);
+        position: absolute;
+        top: calc(var(--app-font-size-xs) * -2);
+        left: 0;
+        z-index: 999;
+        background: var(--color);
+    }
+    /* outline: 1px solid var(--color); */
+    &::after{
+        width:100%;
+        height: 100%;
+        display: block;
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 1px solid var(--color);
+        z-index: 99;
+    }
+}
+</style>
 <style lang="scss" scoped>
 .page-container {
   height: 100%;
