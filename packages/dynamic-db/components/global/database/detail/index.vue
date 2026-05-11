@@ -40,9 +40,7 @@ watch(
   databaseMenuRouteParams,
   (params) => {
     hocuspocusManager.setFocus(roomName.value, {
-      tableId: params.tableId || undefined,
-      rowId: params.recordId || undefined,
-      cellId: undefined
+      ...params
     })
   },
   { deep: true }

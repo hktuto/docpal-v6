@@ -1,37 +1,27 @@
 <script setup lang="ts">
-const props = defineProps<{
-  isAdmin: boolean
-}>()
-
-const { databaseMenuRouteParams, menuState, findItemById, checkMenuItemPermission, openSetting } = useSingleDatabaseContext()
+const { databaseMenuRouteParams, menuState, findItemById } = useSingleDatabaseContext()
 
 const currentMenuItem = computed(() => {
   if (!databaseMenuRouteParams.value.detailId) return null
   return findItemById(menuState.value.items, databaseMenuRouteParams.value.detailId as string)
 })
 
-const canManage = computed(() => {
-  if (!databaseMenuRouteParams.value.detailId) return false
-  return checkMenuItemPermission(databaseMenuRouteParams.value.detailId, 'Manage')
-})
-
-function handleEdit() {
-  if (!currentMenuItem.value?.id) return
-  openSetting(currentMenuItem.value.id, 'dashboard')
+function handleDone() {
+  databaseMenuRouteParams.value.pageType = 'detail'
 }
 </script>
 
 <template>
-  <div class="db-dashboard-detail">
+  <div class="db-dashboard-setting">
     <Teleport to="#database-table-header-right">
-      <el-button v-if="canManage" size="small" @click="handleEdit">
-        <Icon name="lucide:pencil" size="14" />
-        Edit
+      <el-button type="primary" size="small" @click="handleDone">
+        <Icon name="lucide:check" size="14" />
+        Done
       </el-button>
     </Teleport>
     <DashboardDatabaseDashboard
       v-if="currentMenuItem"
-      :edit-mode="false"
+      :edit-mode="true"
       :menu-item="currentMenuItem"
     />
     <div v-else class="empty-state">
@@ -41,7 +31,7 @@ function handleEdit() {
 </template>
 
 <style scoped lang="scss">
-.db-dashboard-detail {
+.db-dashboard-setting {
   height: 100%;
   overflow: hidden;
 }
