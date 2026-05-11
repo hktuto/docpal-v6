@@ -1,4 +1,5 @@
 import { HocuspocusProvider } from '@hocuspocus/provider'
+import * as Y from 'yjs'
 
 interface AwarenessUser {
   id: string
@@ -6,7 +7,7 @@ interface AwarenessUser {
   color: string
 }
 
-interface AwarenessFocus {
+export interface AwarenessFocus {
   tableId?: string
   rowId?: string
   cellId?: string
@@ -128,16 +129,20 @@ export function useHocuspocusManager() {
     }
 
     const joinedAt = Date.now()
-
+    const ydoc = new Y.Doc()
     const provider = new HocuspocusProvider({
       url,
       name: roomName,
       token: getToken(),
-      connect: true,
+      document: ydoc,
       onAuthenticated: () => {
         if (roomMeta.value[roomName]) {
           roomMeta.value[roomName].connected = true
           roomMeta.value[roomName].connecting = false
+        }
+        const localUser = getLocalUser()
+        if (localUser) {
+          provider.awareness.setLocalStateField('user', localUser)
         }
       },
       onAuthenticationFailed: () => {
@@ -151,9 +156,9 @@ export function useHocuspocusManager() {
           roomMeta.value[roomName].connected = false
         }
       },
-      onAwarenessChange: ({ states }) => {
+      onAwarenessChange: (e) => {
         const awarenessStates: AwarenessState[] = []
-        states.forEach((state: any) => {
+        e.states.forEach((state: any) => {
           if (state.user) {
             awarenessStates.push(state as AwarenessState)
           }
@@ -176,22 +181,14 @@ export function useHocuspocusManager() {
 
   function setFocus(roomName: string, focus: AwarenessFocus) {
     const provider = providers.get(roomName)
-    const localUser = getLocalUser()
-    if (!provider || !localUser) return
-    provider.awareness.setLocalState({
-      user: localUser,
-      focus
-    })
+    if (!provider) return
+    provider.awareness.setLocalStateField('focus', focus)
   }
 
   function clearFocus(roomName: string) {
     const provider = providers.get(roomName)
-    const localUser = getLocalUser()
-    if (!provider || !localUser) return
-    provider.awareness.setLocalState({
-      user: localUser,
-      focus: undefined
-    })
+    if (!provider) return
+    provider.awareness.setLocalStateField('focus', undefined)
   }
 
   return {
