@@ -2362,7 +2362,8 @@
       "none": "不展示",
       "statistics": "統計",
       "sum": "求和",
-      "unique": "唯一值"
+      "unique": "唯一值",
+      "uniquePercent": "唯一值佔比"
     },
     "deleteRow": "删除这行",
     "deleteSelectedRow": "刪除這{count}行",

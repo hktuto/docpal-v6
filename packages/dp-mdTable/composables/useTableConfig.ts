@@ -4,7 +4,6 @@ import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { VxeUI } from 'vxe-pc-ui'
 import type { ColumnConfig } from '../types/column-context'
 import { ColumnFieldType } from '../types/column-types'
-import { calculateCount, type CountMethod, flattenAggregatedData } from '../utils/tableCount'
 // 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
 rendererManager.registerAllRenderers()
@@ -15,6 +14,7 @@ export interface TableConfigOptions {
     deleteColumn: (column: ColumnConfig) => void
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
+    updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
@@ -307,14 +307,11 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
 
   async function loadData(args: any) {
     const { page, sorts, filters } = args
-    // 默认接收 Promise<{ result: [], page: { total: 100 } }>
     let pageParams: any = {
       pageSize: page.pageSize,
       pageNum: page.currentPage - 1
     }
-    const gb: any = (options?.extraColumnConfig?.columnGroupRules as any)?.value
-    const groupByList = Array.isArray(gb) && gb.length > 0 ? gb : null
-    const { entryList, totalSize } = await apiMethod(pageParams, groupByList)
+    const { entryList, totalSize } = await apiMethod(pageParams)
     console.log('entryList', entryList)
     return {
       result: entryList,

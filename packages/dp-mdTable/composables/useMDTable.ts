@@ -11,6 +11,8 @@ export interface mdTable {
   updateColumn: (column: any) => void
   addColumn: (column: any) => void
   updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+  updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
+  currentView?: Ref<any>
   tableFields: any[]
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]

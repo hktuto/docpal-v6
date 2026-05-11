@@ -5,6 +5,7 @@ import { EventType, useEventBus } from 'eventbus'
 import { updateRelationFields } from '../utils/relationHelper'
 // import { createGroupTree } from '../utils/treeDataHelper'
 function mergeParams(base: any, extra: any) {
+  console.log('mergeParams', JSON.stringify(base), JSON.stringify(extra))
   if (!extra) return base
   const result = { ...base }
   for (const key of Object.keys(extra)) {
@@ -27,6 +28,7 @@ function mergeParams(base: any, extra: any) {
       result[key] = extra[key]
     }
   }
+  console.log('mergeParams', JSON.stringify(result))
   return result
 }
 export interface UseTableDataOptions {
@@ -145,6 +147,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       let additionalParams: any = {}
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
+        console.log('additionalParams', JSON.stringify(additionalParams))
       }
       if (extraParams) {
         additionalParams = mergeParams(additionalParams, extraParams)
