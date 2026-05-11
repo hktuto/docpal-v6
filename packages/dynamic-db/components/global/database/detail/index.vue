@@ -57,6 +57,20 @@ const awarenessStates = computed(() => {
   return room?.awarenessStates ?? []
 })
 
+const connected = computed(() => {
+  return hocuspocusManager.isConnected(roomName.value)
+})
+
+function setAwareness(focus: { tableId?: string; rowId?: string; cellId?: string }) {
+  hocuspocusManager.setFocus(roomName.value, focus)
+}
+
+provide('databaseHocuspocus', {
+  awarenessStates,
+  connected,
+  setAwareness
+})
+
 // Responsive sidebar state
 const pageContainerRef = ref<HTMLElement | null>(null)
 const isSidebarOpen = ref(true) // Sidebar visibility state (for mobile toggle)
