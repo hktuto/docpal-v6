@@ -12,6 +12,7 @@
       :clearable="false"
       :automatic-dropdown="false"
       class="custom-date-picker__native"
+      tabindex="9999"
       @update:model-value="handleCalendarChange"
     />
 
