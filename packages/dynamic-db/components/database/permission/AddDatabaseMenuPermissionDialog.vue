@@ -2,6 +2,7 @@
 import { ElMessage } from 'element-plus'
 import { newClientApi } from 'api'
 import { useSingleDatabaseContext } from '../../../composables/useSignleDatabase'
+import AddDatabaseMenuPermissionFromOtherDialog from './AddDatabaseMenuPermissionFromOtherDialog.vue'
 
 type MenuItemPermissionLevel = 'View' | 'Edit' | 'Manage'
 
@@ -18,12 +19,12 @@ interface PermissionFormData {
 }
 
 const props = defineProps<{
-  existList: { targetType: number; targetId: string }[]
+  existList: { targetType: number; targetId: string; isInherit?: boolean }[]
 }>()
 const { permissions } = useSingleDatabaseContext()
 function isExistingTarget(targetType: number, targetId: string): boolean {
   return props.existList.some(
-    (item) => item.targetType === targetType && item.targetId === targetId
+    (item) => item.targetType === targetType && item.targetId === targetId && item.isInherit === false
   )
 }
 
@@ -101,29 +102,7 @@ async function loadGroups() {
 }
 
 const selectedTarget = ref('')
-const targetName = ref('')
 const permissionLevel = ref<MenuItemPermissionLevel>('View')
-
-watch(selectedTarget, (val) => {
-  if (!val) {
-    targetName.value = ''
-    return
-  }
-  const [typeStr, ...idParts] = val.split(':')
-  const type = parseInt(typeStr, 10)
-  const id = idParts.join(':')
-
-  if (type === 1) {
-    const u = users.value.find((x) => x.id === id)
-    targetName.value = u?.username || u?.name || id
-  } else if (type === 2) {
-    const r = roles.value.find((x) => x.id === id)
-    targetName.value = r?.name || id
-  } else if (type === 3) {
-    const g = groups.value.find((x) => x.id === id)
-    targetName.value = g?.name || id
-  }
-})
 
 interface SelectGroup {
   label: string
@@ -193,9 +172,19 @@ function close() {
 
 function resetForm() {
   selectedTarget.value = ''
-  targetName.value = ''
   permissionLevel.value = 'View'
   submitting.value = false
+}
+
+const fromOtherDialogRef = ref()
+
+function openFromOtherDialog() {
+  fromOtherDialogRef.value?.open()
+}
+
+function handleFromOtherSubmit(data: PermissionFormData) {
+  emit('submit', data)
+  close()
 }
 
 async function handleSubmit() {
@@ -270,13 +259,10 @@ defineExpose({
         </el-select>
       </el-form-item>
 
-      <!-- Target Name (auto-filled) -->
-      <el-form-item label="Target Name">
-        <el-input
-          v-model="targetName"
-          placeholder="Target name"
-          disabled
-        />
+      <el-form-item>
+        <el-button link type="primary" @click="openFromOtherDialog">
+          Can't find the user? Select from all users
+        </el-button>
       </el-form-item>
 
       <!-- Permission Level -->
@@ -310,6 +296,11 @@ defineExpose({
         </el-button>
       </div>
     </template>
+    <AddDatabaseMenuPermissionFromOtherDialog
+      ref="fromOtherDialogRef"
+      :exist-list="existList"
+      @submit="handleFromOtherSubmit"
+    />
   </el-dialog>
 </template>
 

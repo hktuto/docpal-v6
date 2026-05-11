@@ -162,7 +162,7 @@ watch(
         <el-splitter-panel size="220">
           <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
             <DatabaseMenuHeader />
-            <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="true" />
+            <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="canManageDatabase" />
           </aside>
         </el-splitter-panel>
         <el-splitter-panel>
@@ -184,7 +184,7 @@ watch(
               </template>
             </DatabaseDetailHeader>
             <div class="content-area">
-              <component :is="detailComponent" :is-admin="true" />
+              <component :is="detailComponent" :is-admin="canManageDatabase" />
             </div>
           </main>
         </el-splitter-panel>
@@ -192,7 +192,7 @@ watch(
       <template v-else>
         <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
           <DatabaseMenuHeader />
-          <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="true" />
+          <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="canManageDatabase" />
         </aside>
         <main class="main-content">
           <DatabaseDetailHeader>
@@ -212,7 +212,7 @@ watch(
             </template>
           </DatabaseDetailHeader>
           <div class="content-area">
-            <component :is="detailComponent" :is-admin="true" />
+            <component :is="detailComponent" :is-admin="canManageDatabase" />
           </div>
         </main>
         <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />

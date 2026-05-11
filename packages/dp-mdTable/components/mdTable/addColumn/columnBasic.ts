@@ -134,7 +134,9 @@ export function getColumnHeaderIndicator(columnType: ColumnFieldType, columnConf
       if(variables) {
         variables.forEach((variable) => {
           const variableName = variable.replace('${', '').replace('}', '')
-          headerIndicator.tooltip = headerIndicator.tooltip.replace(variable, columnConfig[variableName])
+          if(columnConfig[variableName]) {
+            headerIndicator.tooltip = headerIndicator.tooltip.replace(variable, columnConfig[variableName])
+          }
         })
       }
     }

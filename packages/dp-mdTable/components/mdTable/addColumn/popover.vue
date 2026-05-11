@@ -12,7 +12,7 @@
             style="width: 100%"
             :options="displayColumnFieldOptions"
             @visible-change="handleSelectVisibleChange"
-            @change="handleSelectChange"
+            @change="handleTypeChange"
             @click.stop
           >
           </el-select-v2>
@@ -41,8 +41,6 @@ import { defineAsyncComponent } from 'vue'
 import { getColumnFieldOptions } from './columnBasic'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import type { ColumnConfig } from '@packages/dp-mdTable/types/column-types'
-// MagicLink (Relation) type constant
-const RELATION_TYPE = 14
 
 interface Props {
   virtualRef?: HTMLElement | (() => HTMLElement)
@@ -117,13 +115,18 @@ const handleClose = () => {
 }
 // 提供给子组件使用，让子组件的select也能控制popover的关闭行为
 provide('handleSelectVisibleChange', handleSelectVisibleChange)
-function handleSelectChange(value: any) {
-  console.log('handleSelectChange', value)
-  formData.value = {
+function handleTypeChange(newValue: any) {
+  const nextFormData: any = {
     field_name: formData.value.field_name,
-    business_type: value
+    business_type: newValue
   }
-  loadComponent(value)
+
+  if (Object.prototype.hasOwnProperty.call(formData.value, 'options') && [ColumnFieldType.SingleSelect, ColumnFieldType.MultiSelect].includes(newValue)) {
+    nextFormData.options = formData.value.options
+  }
+
+  formData.value = nextFormData
+  loadComponent(newValue)
 }
 const AsyncComponent = ref<null | any>(null)
 // 定义加载组件的函数
@@ -192,13 +195,11 @@ const handleSubmit = async () => {
           return
         }
       }
-      // Let useTableView handle type changes properly (including relation columns)
-      // This preserves relation data when only changing display field
       await updateColumn(state.column?.field, columnConfig as any)
     } else {
       await addColumn([columnConfig])
     }
-    if ([ColumnFieldType.AggVirtualColumn, ColumnFieldType.virtualColumn].includes(columnConfig.business_type)) {
+    if ([ColumnFieldType.AggVirtualColumn, ColumnFieldType.VirtualColumn].includes(columnConfig.business_type)) {
       updateRelationDisplayFields(columnConfig)
     }
     resetForm()

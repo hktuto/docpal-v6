@@ -15,6 +15,9 @@ export interface TableConfigOptions {
     deleteColumn: (column: ColumnConfig) => void
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
+    columnFilterRules: Ref<any[]>
+    columnGroupRules: Ref<any[]>
+    columnSortRules: Ref<any[]>
   }
   /** 表格高度 */
   height?: string | number
@@ -32,12 +35,6 @@ export interface TableConfigOptions {
   rowId?: string
   /** 编辑配置 */
   editConfig?: boolean | object
-  /** 分组字段 */
-  groupBy?: any
-  /** 筛选字段 */
-  filterBy?: any
-  /** 排序字段 */
-  sortBy?: any
   /** 列配置 */
   /** 加载状态 */
   loading: Ref<boolean> | ComputedRef<boolean>
@@ -99,7 +96,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     if (_columns.length === 0) {
       return []
     }
-    // _columns[0].treeNode = !!groupBy.value && groupBy.value.length > 0
     _columns.unshift({
       type: 'checkbox',
       width: 60,
@@ -110,29 +106,35 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       headerAlign: 'right',
       align: 'center'
     })
-    const data = _columns.map((col: any) => {
-      if (col.type === 'checkbox') return col
+    const data = _columns
+      .map((col: any) => {
+        if (col.type === 'checkbox') return col
 
-      if (!col.business_type) col.business_type = ColumnFieldType.Text
-      // if (col.field === 'name') col.rowGroupNode = true
-      const colConfig = {
-        ...col,
-        field: col.field_name,
-        title: col.field_name_alias,
-        aggFunc: true,
-        ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
-      }
-      colConfig.slots = {
-        footer: 'footerCount',
-        header: 'header'
-      }
-      // 数字类型默认右对齐
-      if (col.business_type === ColumnFieldType.Number) {
-        colConfig.align = 'right'
-      }
-      return colConfig
-    })
-    return data.filter((col: any) => !col.hidden)
+        if (!col.business_type) col.business_type = ColumnFieldType.Text
+        // if (col.field === 'name') col.rowGroupNode = true
+        const colConfig = {
+          ...col,
+          field: col.field_name,
+          title: col.field_name_alias,
+          aggFunc: true,
+          ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
+        }
+        colConfig.slots = {
+          footer: 'footerCount',
+          header: 'header'
+        }
+        // 数字类型默认右对齐
+        if (col.business_type === ColumnFieldType.Number) {
+          colConfig.align = 'right'
+        }
+        return colConfig
+      })
+      .filter((col: any) => !col.hidden)
+    if (isGroupingEnabled.value) {
+      data[1].treeNode = true
+    }
+    console.log('data', data)
+    return data
   })
   const processedEditRules = computed(() => {
     if (!columns.value) {
@@ -170,6 +172,13 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   /**
    * 表格配置
    */
+  const isGroupingEnabled = computed(() => {
+    return (
+      !!options.extraColumnConfig?.columnGroupRules &&
+      options.extraColumnConfig?.columnGroupRules.value &&
+      options.extraColumnConfig?.columnGroupRules.value.length > 0
+    )
+  })
   const gridOptions = computed<VxeGridProps>(() => {
     const options: VxeGridProps | any = {
       height: computedHeight.value,
@@ -254,22 +263,19 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       cellClassName: cellClassName || undefined
     }
 
-    // IMPORTANT: treeConfig with lazy:true DISABLES virtual scrolling!
-    // Only enable treeConfig when grouping/aggregation is actually being used
-    // const isGroupingEnabled = groupBy?.value && groupBy.value.length > 0
-    // if (isGroupingEnabled) {
-    //   options.treeConfig = {
-    //     transform: true,
-    //     rowField: 'id',
-    //     parentField: 'parentId',
-    //     lazy: true,
-    //     hasChild: 'isAggregate',
-    //     loadMethod: treeLoadData,
-    //     expandAll: true
-    //   }
-    // Must disable virtual scroll when using tree config with lazy loading
-    // options.virtualYConfig = { enabled: false }
-    // }
+    if (isGroupingEnabled.value) {
+      options.treeConfig = {
+        transform: true,
+        rowField: 'id',
+        parentField: 'parentId',
+        lazy: true,
+        hasChildField: 'hasChild',
+        loadMethod: treeLoadData,
+        expandAll: false
+      }
+      // Must disable virtual scroll when using tree config with lazy loading
+      options.virtualYConfig = { enabled: false }
+    }
     // 编辑配置
     // 检查是否有列配置了 editRender
     const hasEditRender = processedColumns.value.some((col: any) => col.editRender)
@@ -285,7 +291,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showStatus: false,
         ...((editConfig as any) || {}),
         beforeEditMethod: ({ row, column }: any) => {
-          return row.isAggregate !== true && !disabledFields.includes(column.type)
+          return !row.hasChild && !disabledFields.includes(column.type)
         }
       }
     }
@@ -298,6 +304,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     }
     return options
   })
+
   async function loadData(args: any) {
     const { page, sorts, filters } = args
     // 默认接收 Promise<{ result: [], page: { total: 100 } }>
@@ -305,9 +312,10 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       pageSize: page.pageSize,
       pageNum: page.currentPage - 1
     }
-    const gb: any = (options?.groupBy as any)?.value
+    const gb: any = (options?.extraColumnConfig?.columnGroupRules as any)?.value
     const groupByList = Array.isArray(gb) && gb.length > 0 ? gb : null
     const { entryList, totalSize } = await apiMethod(pageParams, groupByList)
+    console.log('entryList', entryList)
     return {
       result: entryList,
       page: {
@@ -316,21 +324,22 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     }
   }
   async function treeLoadData(params: any) {
-    try {
-      console.log('treeLoadData params', params)
-      if (!childApiMethod) {
-        console.warn('childApiMethod is not defined')
-        return []
+    return new Promise<any[]>(async (resolve) => {
+      try {
+        const { $table, row } = params
+        const rowLevel = $table.getTreeRowLevel(row)
+        const data = await childApiMethod?.({ ...params.row, __level: rowLevel })
+        console.log(data)
+        resolve(data)
+      } catch (error) {
+        console.error('treeLoadData error:', error)
+        resolve([])
       }
-      // return await childApiMethod(params, groupBy.value)
-    } catch (error) {
-      console.error('treeLoadData error:', error)
-      return []
-    }
+    })
   }
   watch(
-    () => [options.groupBy, options.filterBy, options.sortBy],
-    ([newGroupBy, newFilterBy, newSortBy]) => {
+    () => [options.extraColumnConfig?.columnGroupRules, options.extraColumnConfig?.columnFilterRules, options.extraColumnConfig?.columnSortRules],
+    ([newColumnGroupRules, newColumnFilterRules, newColumnSortRules]) => {
       gridRef.value?.commitProxy('reload')
     },
     { deep: true }
