@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
+
 const props = defineProps<{
   id: string
   detailId: string | null
@@ -37,13 +38,10 @@ watch(
 )
 
 watch(
-  databaseMenuRouteParams,
-  (params) => {
-    hocuspocusManager.setFocus(roomName.value, {
-      ...params
-    })
-  },
-  { deep: true }
+  () => databaseMenuRouteParams.value.tableId,
+  (tableId) => {
+    hocuspocusManager.setFocus(roomName.value, { tableId: tableId || undefined })
+  }
 )
 
 onBeforeUnmount(() => {
@@ -175,14 +173,6 @@ provide('isSidebarOpen', readonly(isSidebarOpen))
 provide('isMobileView', readonly(isMobileView))
 provide('toggleSidebar', toggleSidebar)
 
-// Close sidebar on navigation in mobile mode
-watch(
-  databaseMenuRouteParams,
-  () => {
-    closeSidebarOnMobile()
-  },
-  { deep: true }
-)
 
 watch(
   props,

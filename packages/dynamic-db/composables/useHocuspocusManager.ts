@@ -179,10 +179,11 @@ export function useHocuspocusManager() {
     }
   }
 
-  function setFocus(roomName: string, focus: AwarenessFocus) {
+  function setFocus(roomName: string, focus: Partial<AwarenessFocus>) {
     const provider = providers.get(roomName)
     if (!provider) return
-    provider.awareness.setLocalStateField('focus', focus)
+    const current = (provider.awareness.getLocalState() as any)?.focus || {}
+    provider.awareness.setLocalStateField('focus', { ...current, ...focus })
   }
 
   function clearFocus(roomName: string) {
