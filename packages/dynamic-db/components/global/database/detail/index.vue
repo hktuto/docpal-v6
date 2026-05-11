@@ -250,6 +250,11 @@ watch(
                     +{{ awarenessStates.length - 5 }}
                   </div>
                 </div>
+                <div class="connection-status" :class="{ 'is-online': connected }">
+                  <span class="connection-dot" />
+                  <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
+                  <button v-if="!connected" class="connection-btn" @click="connect">Connect</button>
+                </div>
                 <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canOpenSetting">
                   <Icon name="lucide:settings" class="header-action" @click="openSetting" />
                 </template>
@@ -295,6 +300,11 @@ watch(
                 <div v-if="awarenessStates.length > 5" class="awareness-avatar awareness-avatar--more">
                   +{{ awarenessStates.length - 5 }}
                 </div>
+              </div>
+              <div class="connection-status" :class="{ 'is-online': connected }">
+                <span class="connection-dot" />
+                <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
+                <button v-if="!connected" class="connection-btn" @click="connect">Connect</button>
               </div>
               <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canOpenSetting">
                 <Icon name="lucide:settings" class="header-action" @click="openSetting" />
@@ -503,6 +513,52 @@ watch(
 
   &--more {
     background-color: var(--app-grey-600);
+  }
+}
+
+// ============================================
+// Connection status
+// ============================================
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xxs);
+  margin-right: var(--app-space-s);
+  font-size: var(--app-font-size-s);
+  color: var(--app-grey-500);
+
+  .connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--app-grey-600);
+    transition: background-color 0.2s;
+  }
+
+  .connection-text {
+    white-space: nowrap;
+  }
+
+  .connection-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+    border: 1px solid var(--el-color-primary);
+    background: transparent;
+    color: var(--el-color-primary);
+    border-radius: var(--app-border-radius-s);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--el-color-primary);
+      color: white;
+    }
+  }
+
+  &.is-online {
+    .connection-dot {
+      background-color: #10b981;
+    }
   }
 }
 </style>
