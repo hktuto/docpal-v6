@@ -94,6 +94,7 @@ export function useHocuspocusManager() {
       provider.destroy()
       providers.delete(roomName)
     }
+    console.log("leave rooms")
     delete roomMeta.value[roomName]
   }
 
@@ -150,9 +151,8 @@ export function useHocuspocusManager() {
       },
       onAwarenessChange: ({ states }) => {
         const awarenessStates: AwarenessState[] = []
-        const localUser = getLocalUser()
         states.forEach((state: any) => {
-          if (state.user && state.user.id !== localUser?.id) {
+          if (state.user) {
             awarenessStates.push(state as AwarenessState)
           }
         })
