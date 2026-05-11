@@ -65,10 +65,15 @@ function setAwareness(focus: { tableId?: string; rowId?: string; cellId?: string
   hocuspocusManager.setFocus(roomName.value, focus)
 }
 
+function connect() {
+  hocuspocusManager.joinRoom(roomName.value)
+}
+
 provide('databaseHocuspocus', {
   awarenessStates,
   connected,
-  setAwareness
+  setAwareness,
+  connect
 })
 
 // Responsive sidebar state
