@@ -33,7 +33,7 @@ const stringVariablesList = computed(() => {
   return getVariablesByTags(['string'], true)
 })
 const storeVariablesList = computed(() => {
-  return getVariablesByTags(['string'])
+  return getVariablesByTags(['file'])
 })
 
 const documentTypeList = ref<any[]>([])

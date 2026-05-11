@@ -7,6 +7,9 @@ const { getVariablesByTags } = useVariablesProvide()
 const stringVariablesList = computed(() => {
   return getVariablesByTags(['string'], true)
 })
+const fileVariablesList = computed(() => {
+  return getVariablesByTags(['file'], true)
+})
 const allVariablesList = computed(() => {
   return getVariablesByTags([], true)
 })
@@ -172,7 +175,7 @@ watch(
     </el-form-item>
     <el-form-item label="Attachments File Path">
       <el-select v-model="formData.attachmentsFilePath" filterable @change="updateData">
-        <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+        <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
 
