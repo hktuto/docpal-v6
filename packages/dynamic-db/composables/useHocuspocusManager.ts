@@ -8,7 +8,7 @@ interface AwarenessUser {
 }
 
 export interface AwarenessFocus {
-  tableId?: string
+  menuId?: string
   rowId?: string
   cellId?: string
   editingCell?: boolean
@@ -61,6 +61,41 @@ function getLocalUser(): AwarenessUser | undefined {
 
 function getToken(): string {
   return localStorage.getItem('access_token') || ''
+}
+
+export function useAwarenessDiff(states: Ref<AwarenessState[]>) {
+  const previous = ref<AwarenessState[]>([])
+
+  const diff = computed(() => {
+    const curr = states.value
+    const prev = previous.value
+
+    const prevCells = new Map(prev.map(s => [`${s.user?.id}:${s.focus?.rowId}:${s.focus?.cellId}`, s]))
+    const currCells = new Map(curr.map(s => [`${s.user?.id}:${s.focus?.rowId}:${s.focus?.cellId}`, s]))
+
+    const added: AwarenessState[] = []
+    const removed: AwarenessState[] = []
+
+    for (const [key, state] of currCells) {
+      if (!prevCells.has(key)) {
+        added.push(state)
+      }
+    }
+
+    for (const [key, state] of prevCells) {
+      if (!currCells.has(key)) {
+        removed.push(state)
+      }
+    }
+
+    return { added, removed }
+  })
+
+  watch(states, (newVal) => {
+    previous.value = JSON.parse(JSON.stringify(newVal))
+  }, { flush: 'post' })
+
+  return { previous, diff }
 }
 
 export function useHocuspocusManager() {
