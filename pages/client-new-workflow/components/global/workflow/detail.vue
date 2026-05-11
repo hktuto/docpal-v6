@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { newClientApi } from 'api'
-import { routeWorkflowPage } from '~/utils/routerHelper'
+import { routeWorkflowPage } from '#imports'
 import { generateData, replaceVariables } from 'docpal-document-editor/src/utils'
 import { CellType, conversionFormDataByVariables, getButtonAdditionalElement } from '#imports'
 

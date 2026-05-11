@@ -3,8 +3,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { newClientApi } from 'api'
 import { getButtonAdditionalElement, getWorkflowList } from '@packages/workflow/utils/workflowHelper'
-import { newWorkflowStartPage } from '../../../../../../pages/client-new-workflow/utils/routerHelper'
-import { conversionFormDataByVariables } from '#imports'
+import { conversionFormDataByVariables, newWorkflowStartPage } from '#imports'
 
 const vFormRef = ref()
 const workflowEditorRef = ref()
