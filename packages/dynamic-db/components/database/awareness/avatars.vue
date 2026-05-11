@@ -4,6 +4,7 @@ import type { AwarenessState } from '../../../composables/useHocuspocusManager'
 
 interface HocuspocusInject {
   awarenessStates: ComputedRef<AwarenessState[]>
+  localAwareness?: ComputedRef<any>
 }
 
 const { databaseMenuRouteParams } = useSingleDatabaseContext()
@@ -13,7 +14,10 @@ const hocuspocus = inject<HocuspocusInject>('databaseHocuspocus', {
 
 const filteredStates = computed(() => {
   const detailId = databaseMenuRouteParams.value.detailId
-  if (!detailId) return []
+  if (!hocuspocus.awarenessStates.value) return []
+  if(!detailId) return hocuspocus.awarenessStates.value.filter(
+    (s) => s.focus?.menuId
+  )
   return hocuspocus.awarenessStates.value.filter(
     (s) => s.focus?.menuId === detailId
   )
@@ -38,6 +42,9 @@ const filteredStates = computed(() => {
     <div v-if="filteredStates.length > 5" class="awareness-avatar awareness-avatar--more">
       +{{ filteredStates.length - 5 }}
     </div>
+  </div>
+  <div v-else>
+      {{hocuspocus.awarenessStates.value}}
   </div>
 </template>
 

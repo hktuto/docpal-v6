@@ -40,7 +40,10 @@ watch(
 watch(
   databaseMenuRouteParams,
   () => {
+    console.log("databaseMenuRouteParams", databaseMenuRouteParams.value)
     hocuspocusManager.setFocus(roomName.value, { menuId: databaseMenuRouteParams.value.detailId})
+  }, {
+    deep: true
   }
 )
 
@@ -59,7 +62,13 @@ const connected = computed(() => {
   return hocuspocusManager.roomMeta.value[roomName.value]?.connected ?? false
 })
 
-function setAwareness(focus: { tableId?: string; rowId?: string; cellId?: string }) {
+const localAwareness = computed(() => {
+  const room = hocuspocusManager.getRoomState(roomName.value)
+  const state = room?.provider?.awareness?.getLocalState()
+  return (state as any) || {}
+})
+
+function setAwareness(focus: { menuId?: string; rowId?: string; cellId?: string }) {
   hocuspocusManager.setFocus(roomName.value, focus)
 }
 
@@ -69,6 +78,7 @@ function connect() {
 
 provide('databaseHocuspocus', {
   awarenessStates,
+  localAwareness,
   connected,
   setAwareness,
   connect
@@ -256,12 +266,13 @@ watch(
             </template>
             <template #right>
               <div id="database-table-header-right" />
-              <DatabaseAwarenessAvatars />
+
               <div class="connection-status" :class="{ 'is-online': connected }">
                 <span class="connection-dot" />
                 <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
                 <button v-if="!connected" class="connection-btn" @click="connect">Connect</button>
               </div>
+              <DatabaseAwarenessAvatars />
               <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canOpenSetting">
                 <Icon name="lucide:settings" class="header-action" @click="openSetting" />
               </template>
