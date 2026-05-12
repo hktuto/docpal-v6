@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { AwarenessState, AwarenessFocus } from '../../../composables/useHocuspocusManager'
-import { useIntervalFn } from '@vueuse/core'
 
 interface CellLocation {
   element: HTMLElement | null
@@ -31,26 +30,62 @@ const hocuspocus = inject<HocuspocusInject>('databaseHocuspocus', {
 const overlayRef = ref<HTMLElement>()
 const tags = ref<TagItem[]>([])
 
+// Cache resolved elements to avoid repeated DOM queries
+const elementCache = new Map<string, { element: HTMLElement; type: string }>()
+
+function isElementStale(el: HTMLElement): boolean {
+  // Element was removed from DOM (virtual scroll, row reorder, etc.)
+  return !el.isConnected
+}
+
+function resolveCell(focus: AwarenessFocus): { element: HTMLElement | null; type: string } | null {
+  const cacheKey = `${focus.rowId}:${focus.cellId}`
+  const cached = elementCache.get(cacheKey)
+
+  if (cached && !isElementStale(cached.element)) {
+    // Cache hit, element still valid
+    return cached
+  }
+
+  // Cache miss or stale — query DOM and cache
+  const loc = props.getElement(focus)
+  if (!loc.element) {
+    elementCache.delete(cacheKey)
+    return null
+  }
+
+  elementCache.set(cacheKey, { element: loc.element, type: loc.type })
+  return { element: loc.element, type: loc.type }
+}
+
 function updatePositions() {
   const overlay = overlayRef.value
   if (!overlay) return
 
   const overlayRect = overlay.getBoundingClientRect()
 
-  // Group by cell
+  // Group by cell using cached elements
   const cellMap = new Map<string, { element: HTMLElement; type: string; users: NonNullable<AwarenessState['user']>[] }>()
 
   for (const state of hocuspocus.awarenessStates.value) {
     if (!state.focus?.rowId || !state.focus?.cellId || !state.user) continue
 
-    const loc = props.getElement(state.focus)
-    if (!loc.element) continue
+    const resolved = resolveCell(state.focus)
+    if (!resolved) continue
 
     const key = `${state.focus.rowId}:${state.focus.cellId}`
     if (!cellMap.has(key)) {
-      cellMap.set(key, { element: loc.element, type: loc.type, users: [] })
+      cellMap.set(key, { element: resolved.element, type: resolved.type, users: [] })
     }
     cellMap.get(key)!.users.push(state.user)
+  }
+
+  // Clean up cache entries for cells no longer in awareness
+  const activeKeys = new Set(cellMap.keys())
+  for (const key of elementCache.keys()) {
+    if (!activeKeys.has(key)) {
+      elementCache.delete(key)
+    }
   }
 
   const newTags: TagItem[] = []
@@ -73,21 +108,52 @@ function updatePositions() {
   tags.value = newTags
 }
 
-const { pause, resume } = useIntervalFn(() => {
-  updatePositions()
-}, 200, { immediate: false })
+// rAF loop
+let rafId: number | null = null
+
+function tick() {
+  if (tags.value.length > 0 || hocuspocus.awarenessStates.value.length > 0) {
+    updatePositions()
+    rafId = requestAnimationFrame(tick)
+  } else {
+    rafId = null
+  }
+}
+
+function startTick() {
+  if (rafId === null) {
+    rafId = requestAnimationFrame(tick)
+  }
+}
+
+function stopTick() {
+  if (rafId !== null) {
+    cancelAnimationFrame(rafId)
+    rafId = null
+  }
+}
 
 watch(() => hocuspocus.awarenessStates.value, () => {
-  nextTick(updatePositions)
-  if (hocuspocus.awarenessStates.value.length > 0) {
-    resume()
-  } else {
-    pause()
-  }
+  nextTick(() => {
+    updatePositions()
+    if (hocuspocus.awarenessStates.value.length > 0) {
+      startTick()
+    } else {
+      stopTick()
+    }
+  })
 }, { deep: true })
 
 onMounted(() => {
-  nextTick(updatePositions)
+  nextTick(() => {
+    updatePositions()
+    startTick()
+  })
+})
+
+onBeforeUnmount(() => {
+  stopTick()
+  elementCache.clear()
 })
 </script>
 
@@ -116,6 +182,6 @@ onMounted(() => {
 .tag-wrapper {
   position: absolute;
   pointer-events: auto;
-  transition: top 0.15s ease, left 0.15s ease;
+  transition: top 0.1s ease, left 0.1s ease;
 }
 </style>
