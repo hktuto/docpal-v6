@@ -47,7 +47,7 @@ export function useCount(props: any) {
   }
   function getCount(field: string, method: CountMethod) {
     const value = aggData.value?.[`agg_${field}`]
-    const properties = columnsSource.value.find((column: any) => column.field_name === field)?.properties
+    const properties = columnsSource.value.find((column: any) => column.field_name === field)?.display_structure
     return formatCount(value, method, properties)
   }
   provide(MdCountKey, {

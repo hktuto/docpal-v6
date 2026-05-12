@@ -5,7 +5,6 @@ import { EventType, useEventBus } from 'eventbus'
 import { updateRelationFields } from '../utils/relationHelper'
 // import { createGroupTree } from '../utils/treeDataHelper'
 function mergeParams(base: any, extra: any) {
-  console.log('mergeParams', JSON.stringify(base), JSON.stringify(extra))
   if (!extra) return base
   const result = { ...base }
   for (const key of Object.keys(extra)) {
@@ -28,7 +27,6 @@ function mergeParams(base: any, extra: any) {
       result[key] = extra[key]
     }
   }
-  console.log('mergeParams', JSON.stringify(result))
   return result
 }
 export interface UseTableDataOptions {
@@ -111,7 +109,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   })
 
   const stopRelationRefresh = relationRefreshBus.on((payload: any) => {
-    console.log('relationRefresh', payload)
     if (!payload?.data || !payload?.relationRowId || !payload?.relationField || !payload?.relationTableId) return
     const { relationRowId, relationField, relationTableId, data } = payload
     tableData.value.forEach((row) => {
@@ -147,7 +144,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       let additionalParams: any = {}
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
-        console.log('additionalParams', JSON.stringify(additionalParams))
       }
       if (extraParams) {
         additionalParams = mergeParams(additionalParams, extraParams)
@@ -161,7 +157,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
           pageNum: params.pageNum ? params.pageNum + 1 : 0
         }
       }
-      console.log('additionalParams', additionalParams)
       const { data } = await postDynamicActions({
         tableId,
         columns: [],
@@ -171,9 +166,11 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       if (additionalParams.groupBy) {
         tableData.value = data.data.map((item: any) => ({
           ...item,
+          id: item[additionalParams.groupBy.columns[0]],
           hasChild: item.count ? item.count > 0 : true
         }))
       }
+
       rawData.value = JSON.parse(JSON.stringify(data.data))
       totalSize.value = data.meta.total
       return {
@@ -232,9 +229,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   }
 
   async function getAggChildData(row: any) {
-    console.log('viewTools', viewTools)
     const columnGroupRules = viewTools?.columnGroupRules
-    console.log('columnGroupRules', columnGroupRules)
     if (!columnGroupRules?.value?.length) {
       return []
     }

@@ -1,5 +1,5 @@
 // composables/useTableConfig.ts
-import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from 'vue'
 import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { VxeUI } from 'vxe-pc-ui'
 import type { ColumnConfig } from '../types/column-context'
@@ -180,6 +180,28 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       options.extraColumnConfig?.columnGroupRules.value.length > 0
     )
   })
+  /**
+   * 树分组用的是 treeConfig，展开状态由「树展开」API 维护；
+   * getRowExpandRecords / setRowExpand 只对应「行展开」（expand 列 / expandConfig），与树无关，故在树模式下会一直为空。
+   */
+  function getExpandedTreeRows() {
+    if (!isGroupingEnabled.value) {
+      return []
+    }
+
+    return gridRef.value?.getRowExpandRecords?.() ?? []
+  }
+
+  function restoreExpandedRows(expandedRows: any[]) {
+    if (expandedRows.length === 0) {
+      return
+    }
+
+    setTimeout(() => {
+      gridRef.value?.setRowExpand?.(expandedRows, true)
+    })
+  }
+
   const gridOptions = computed<VxeGridProps>(() => {
     const options: VxeGridProps | any = {
       height: computedHeight.value,
@@ -265,6 +287,12 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     }
 
     if (isGroupingEnabled.value) {
+      options.expandConfig = {
+        lazy: true,
+        loadMethod: treeLoadData,
+        reserve: true,
+        expandRowKeys: []
+      }
       options.treeConfig = {
         transform: true,
         rowField: 'id',
@@ -308,12 +336,14 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
 
   async function loadData(args: any) {
     const { page, sorts, filters } = args
+    const expandedRows = getExpandedTreeRows()
+    console.log('expandedRows', expandedRows)
     let pageParams: any = {
       pageSize: page.pageSize,
       pageNum: page.currentPage - 1
     }
     const { entryList, totalSize } = await apiMethod(pageParams)
-    console.log('entryList', entryList)
+    // restoreExpandedRows(expandedRows)
     return {
       result: entryList,
       page: {

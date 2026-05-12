@@ -30,7 +30,6 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
       if (!fullColumn?.countMethod || fullColumn.countMethod === 'none') {
         return h('div', {}, '')
       }
-
       return h('div', {}, formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure))
     }
   }

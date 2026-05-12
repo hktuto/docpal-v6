@@ -1,8 +1,8 @@
 <template>
   <el-dropdown trigger="click" placement="top" @command="handleMethodSelect" @click.stop>
     <div class="footer-count">
-      <template v-if="currentMethodLabel !== '-' && selectedCountMethod !== 'none'">
-        <span class="method-name">{{ currentMethodLabel }}</span>
+      <template v-if="selectedCountMethod !== 'none'">
+        <span class="method-name">{{ t(`mdTable.countMethod.${selectedCountMethod}`) }}</span>
         <span class="count-value">{{ getCount(column.field, selectedCountMethod) }}</span>
         <el-icon class="dropdown-icon">
           <CaretBottom />
@@ -25,7 +25,7 @@
           :command="method.value"
           :class="{ 'is-active': selectedCountMethod === method.value }"
         >
-          <span class="method-label">{{ method.label }}</span>
+          <span class="method-label">{{ t(`mdTable.countMethod.${method.value}`) }}</span>
           <el-icon v-if="selectedCountMethod === method.value" class="check-icon">
             <Check />
           </el-icon>
@@ -55,24 +55,23 @@ const props = defineProps<Props>()
 // 统计方法配置
 interface MethodOption {
   value: CountMethod
-  label: string
   numericOnly?: boolean // 仅数字类型可用
 }
 const { getAgg, getCount } = useCountInject()
 // 所有统计方法
 const allMethods = computed<MethodOption[]>(() => [
-  { value: 'none', label: t('mdTable.countMethod.none') },
-  { value: 'SUM', label: t('mdTable.countMethod.sum'), numericOnly: true },
-  { value: 'MAX', label: t('mdTable.countMethod.max'), numericOnly: true },
-  { value: 'MIN', label: t('mdTable.countMethod.min'), numericOnly: true },
-  { value: 'AVG', label: t('mdTable.countMethod.avg'), numericOnly: true },
-  { value: 'COUNT', label: t('mdTable.countMethod.count') },
-  { value: 'BLANK_COUNT', label: t('mdTable.countMethod.empty') },
-  { value: 'FILLED_COUNT', label: t('mdTable.countMethod.filled') },
-  { value: 'UNIQUE_COUNT', label: t('mdTable.countMethod.unique') },
-  { value: 'BLANK_RATIO', label: t('mdTable.countMethod.emptyPercent') },
-  { value: 'FILLED_RATIO', label: t('mdTable.countMethod.filledPercent') },
-  { value: 'UNIQUE_RATIO', label: t('mdTable.countMethod.uniquePercent') }
+  { value: 'none' },
+  { value: 'SUM', numericOnly: true },
+  { value: 'MAX', numericOnly: true },
+  { value: 'MIN', numericOnly: true },
+  { value: 'AVG', numericOnly: true },
+  { value: 'COUNT' },
+  { value: 'BLANK_COUNT' },
+  { value: 'FILLED_COUNT' },
+  { value: 'UNIQUE_COUNT' },
+  { value: 'BLANK_RATIO' },
+  { value: 'FILLED_RATIO' },
+  { value: 'UNIQUE_RATIO' }
 ])
 const mdTable = useMDTableInject()
 const gridRef = mdTable.gridRef
@@ -121,14 +120,7 @@ const getTableData = (): any[] => {
 const selectedCountMethod = computed<CountMethod>(() => {
   const viewColumns = mdTable.columns.value
   const viewColumn = viewColumns.find((item: any) => String(item.field_name) === String(props.column.field))
-  if (viewColumn?.countMethod) console.log('selectedCountMethod', viewColumn)
   return (viewColumn?.countMethod || 'none') as CountMethod
-})
-
-// 当前选中的统计方法标签
-const currentMethodLabel = computed(() => {
-  const methodOption = allMethods.value.find((m) => m.value === selectedCountMethod.value)
-  return methodOption?.label || '-'
 })
 
 // 处理统计方法选择
@@ -140,8 +132,12 @@ const handleMethodSelect = async (method: CountMethod) => {
     return
   }
   const fullColumn = mdTable.columns.value.find((col: any) => String(col.field_name) === String(props.column.field))
+  if (!fullColumn?.id) {
+    return
+  }
   await mdTable.updateViewColumnCountMethod?.(fullColumn.id, method)
-  await getAgg()
+  getAgg()
+  mdTable.refreshTableData?.()
 }
 </script>
 

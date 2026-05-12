@@ -234,6 +234,9 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     fullData.forEach((row: any) => {
       setChecked(row)
     })
+  },
+  'toggle-tree-expand': (params: any) => {
+    console.log('toggle-tree-expand', params)
   }
 }))
 

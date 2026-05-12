@@ -20,6 +20,7 @@ export interface mdTable {
   getUserList: () => Promise<any[]>
   userList: Ref<any[]>
   tableData: Ref<any[]>
+  refreshTableData: () => Promise<void>
   updateRow: (rowId: string, data: any) => Promise<boolean>
   addRow: (row: any) => void
   addColumnPopoverRef: Ref<any>
@@ -131,6 +132,7 @@ export function useMDTable(props: any) {
     getOptionsFromTableData,
     getUserList,
     userList,
+    refreshTableData,
     updateRow,
     addRow,
     addColumnPopoverRef,

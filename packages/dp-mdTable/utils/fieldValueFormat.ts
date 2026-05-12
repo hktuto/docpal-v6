@@ -42,10 +42,17 @@ export function formatDateTime(value: any, properties: Record<string, any> = {})
  */
 export function formatNumber(value: any, properties: Record<string, any> = {}): string {
   if (value === null || value === undefined || isNaN(Number(value))) return '-'
-  const { precision = 0, showThouComma } = properties
+  const { precision = 0, showThouComma, symbol, symbolAlign } = properties
   let formatted = Number(value).toFixed(precision)
   if (showThouComma) {
     formatted = formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  }
+  if (symbol) {
+    if (symbolAlign === 'left') {
+      formatted = symbol + formatted
+    } else {
+      formatted = formatted + symbol
+    }
   }
   return formatted
 }
