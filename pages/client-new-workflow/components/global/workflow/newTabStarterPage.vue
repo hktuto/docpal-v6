@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { conversionFormDataByVariables, getButtonAdditionalElement, MenuRouterKey } from '#imports'
 import { newClientApi } from 'api'
-import { ElMessage } from 'element-plus'
 
 const { definition_id, nextTaskNode, variables } = defineProps<{
   definition_id: string
@@ -74,11 +73,9 @@ async function handleSubmit() {
       // Check workflow running status
       const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.id}`).then((r: any) => r.data)
       if (newVar.state === 'running') {
-        ElMessage.success('Workflow created')
+        routerProvider?.message.success('Workflow created')
       }
     }, 100)
-
-    routerProvider?.message.success('Workflow created')
     cancel()
   } catch (error) {
     console.log(error)

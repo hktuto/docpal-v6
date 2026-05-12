@@ -61,8 +61,8 @@ function handleRefresh(chartSetting: any) {
   emits('refreshSetting', chartSetting)
 }
 
-function getWorkflowId() {
-  console.log(props.setting.workflowList)
+async function getWorkflowId() {
+  workflowList.value = await getWorkflowList().workflowList
 
   if (props.setting.workflowList && props.setting.workflowList.length > 0) {
     state.workflowList = props.setting.workflowList.reduce((prev: any, item: any) => {
@@ -79,7 +79,6 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
   }
 })
 onMounted(async () => {
-  workflowList.value = await getWorkflowList().workflowList
   getWorkflowId()
 })
 </script>
