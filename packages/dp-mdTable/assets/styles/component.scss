@@ -123,6 +123,14 @@
   overflow: visible !important;
 }
 
+.col--tree-node.col--edit {
+  .vxe-cell--wrapper,
+  .vxe-cell--tree-node,
+  .vxe-tree-cell {
+    height: 100%;
+  }
+}
+
 .vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox,
 .vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox > .vxe-cell {
   overflow: visible !important;
