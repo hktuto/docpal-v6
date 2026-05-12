@@ -1,0 +1,121 @@
+<script setup lang="ts">
+import type { AwarenessState, AwarenessFocus } from '../../../composables/useHocuspocusManager'
+import { useIntervalFn } from '@vueuse/core'
+
+interface CellLocation {
+  element: HTMLElement | null
+  type: string
+  selector: string
+}
+
+interface TagItem {
+  key: string
+  user: NonNullable<AwarenessState['user']>
+  type: string
+  top: number
+  left: number
+}
+
+const props = defineProps<{
+  getElement: (focus: AwarenessFocus) => CellLocation
+}>()
+
+interface HocuspocusInject {
+  awarenessStates: ComputedRef<AwarenessState[]>
+}
+
+const hocuspocus = inject<HocuspocusInject>('databaseHocuspocus', {
+  awarenessStates: computed(() => [])
+})
+
+const overlayRef = ref<HTMLElement>()
+const tags = ref<TagItem[]>([])
+
+function updatePositions() {
+  const overlay = overlayRef.value
+  if (!overlay) return
+
+  const overlayRect = overlay.getBoundingClientRect()
+
+  // Group by cell
+  const cellMap = new Map<string, { element: HTMLElement; type: string; users: NonNullable<AwarenessState['user']>[] }>()
+
+  for (const state of hocuspocus.awarenessStates.value) {
+    if (!state.focus?.rowId || !state.focus?.cellId || !state.user) continue
+
+    const loc = props.getElement(state.focus)
+    if (!loc.element) continue
+
+    const key = `${state.focus.rowId}:${state.focus.cellId}`
+    if (!cellMap.has(key)) {
+      cellMap.set(key, { element: loc.element, type: loc.type, users: [] })
+    }
+    cellMap.get(key)!.users.push(state.user)
+  }
+
+  const newTags: TagItem[] = []
+  for (const [key, cell] of cellMap) {
+    const rect = cell.element.getBoundingClientRect()
+    const baseTop = rect.top - overlayRect.top
+    const baseLeft = rect.left - overlayRect.left
+
+    cell.users.forEach((user, idx) => {
+      newTags.push({
+        key: `${key}-${user.id}`,
+        user,
+        type: cell.type,
+        top: baseTop + idx * 22,
+        left: baseLeft
+      })
+    })
+  }
+
+  tags.value = newTags
+}
+
+const { pause, resume } = useIntervalFn(() => {
+  updatePositions()
+}, 200, { immediate: false })
+
+watch(() => hocuspocus.awarenessStates.value, () => {
+  nextTick(updatePositions)
+  if (hocuspocus.awarenessStates.value.length > 0) {
+    resume()
+  } else {
+    pause()
+  }
+}, { deep: true })
+
+onMounted(() => {
+  nextTick(updatePositions)
+})
+</script>
+
+<template>
+  <div ref="overlayRef" class="awareness-floating-tags">
+    <div
+      v-for="tag in tags"
+      :key="tag.key"
+      class="tag-wrapper"
+      :style="{ top: tag.top + 'px', left: tag.left + 'px' }"
+    >
+      <UserCursorTag :user="tag.user" :type="tag.type" />
+    </div>
+  </div>
+</template>
+
+<style scoped lang="scss">
+.awareness-floating-tags {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.tag-wrapper {
+  position: absolute;
+  pointer-events: auto;
+  transition: top 0.15s ease, left 0.15s ease;
+}
+</style>
