@@ -89,10 +89,10 @@ async function handleSubmit() {
   visible.value = false
   emits('submit', _formData, formData.value.id)
 }
-async function open(row: any, _mode: 'default' | 'edit' = 'default', _title: string = '') {
+async function open(row: any, _mode: 'default' | 'edit' = 'edit', _title: string = '') {
   formData.value = JSON.parse(JSON.stringify(row))
   mode.value = _mode
-
+  console.log("mode", mode.value)
   visible.value = true
   if (props.showMoveButtons) setCurrentRow(row)
   if (_title) {
