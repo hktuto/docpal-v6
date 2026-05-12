@@ -11,12 +11,14 @@
     @refresh="refresh"
   >
     <div class="workflow-create-content">
-      <el-button v-for="item in state.workflowList" :type="item.type || 'primary'" :key="item.key" :title="item.name" @click="handleClick(item)">{{ item.title || item.name }}</el-button>
+      <el-button v-for="item in state.workflowList" :type="item.type || 'primary'" :key="item.key" :title="item.name" @click="handleClick(item)">{{
+        item.title || item.name
+      }}</el-button>
     </div>
     <PersonalWorkflowCreateDialog
       ref="settingRef"
       :workflowList="state.workflowList"
-      :workflowAList="state.workflowAList"
+      :WorkflowCandidateList="workflowList"
       @delete="handleDelete"
       @refresh="handleRefresh"
     />
@@ -26,8 +28,10 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
+import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { newClientApi } from 'api'
 const emits = defineEmits(['delete', 'refreshSetting'])
+const workflowList = ref<any[]>([])
 
 const props = withDefaults(
   defineProps<{
@@ -56,11 +60,13 @@ function handleRefresh(chartSetting: any) {
   state.workflowList = chartSetting.workflowList
   emits('refreshSetting', chartSetting)
 }
-async function getWorkflowId() {
-  state.workflowAList = await newClientApi.postDsbWorkflowProcessList({}).then((res) => res.data)
+
+function getWorkflowId() {
+  console.log(props.setting.workflowList)
+
   if (props.setting.workflowList && props.setting.workflowList.length > 0) {
     state.workflowList = props.setting.workflowList.reduce((prev: any, item: any) => {
-      const workflowItem = state.workflowAList?.find((workflow: any) => workflow.key === item.key)
+      const workflowItem = workflowList.value.find((workflow: any) => workflow.key === item.key)
       prev.push({ ...workflowItem, title: item.title, type: item.type || 'primary' })
       return prev
     }, [])
@@ -73,7 +79,8 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
   }
 })
 onMounted(async () => {
-  await getWorkflowId()
+  workflowList.value = await getWorkflowList().workflowList
+  getWorkflowId()
 })
 </script>
 <style lang="scss" scoped>

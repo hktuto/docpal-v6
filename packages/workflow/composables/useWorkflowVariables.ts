@@ -82,6 +82,7 @@ export type VariableSelectItem = {
   name: string
   type: VariableItemType
   tag: string
+  required: boolean
 }
 
 export type WorkflowVariablesObj = Record<string, Omit<VariableItem, 'id'>>

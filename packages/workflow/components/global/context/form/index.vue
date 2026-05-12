@@ -8,30 +8,35 @@ const { node } = defineProps<{
 }>()
 const { t } = useI18n()
 const emits = defineEmits(['openForm'])
-const formDialogRef = ref()
-const formRenderVisible = ref()
-const fromRenderRef = ref()
+const { variables } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('provider not found')
 }
+const { workflowKey } = graphProvider
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
-const { workflowKey } = graphProvider
+const formDialogRef = ref()
+const formRenderVisible = ref()
+const fromRenderRef = ref()
 const formTitle = ref<string>('')
-const RuleManageDialogRef = ref()
+const contextFormFieldManageDialogRef = ref()
 const formKey = ref<string>('')
+const formField = ref<any[]>([])
+const formJson = ref({})
 
 function initData() {
   const data = node.getData()
-  formKey.value = data.config.human_task.form_key
-  formTitle.value = data.config.human_task.form_title || ''
+  const humanTask = data.config.human_task
+  formKey.value = humanTask.form_key
+  formTitle.value = humanTask.form_title || ''
+  formField.value = humanTask.form_fields || []
 }
 
 function editField() {
-  RuleManageDialogRef.value.open()
+  contextFormFieldManageDialogRef.value.open()
 }
 
 async function copyFormAndFieldSetting() {
@@ -47,8 +52,8 @@ function pasteForm() {
 }
 
 async function handleOpenForm() {
-  const formJson = await getFormJson()
-  formDialogRef.value.openDialog(formJson)
+  await getFormJson()
+  formDialogRef.value.openDialog(formJson.value)
 }
 
 function update() {
@@ -67,34 +72,54 @@ function update() {
   }
   if (!!formKey.value && formKey.value !== '') {
     newData.config.human_task.form_key = formKey.value.toString()
+    newData.config.human_task.form_fields = formField.value
   }
 
   node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-form-setting-data')
 }
 
-function handelSubmitForm(id: string) {
-  formKey.value = id
+async function handelSubmitForm(data: { id: string; slotMap: string[] }) {
+  formKey.value = data.id
+  updateFormField(data.slotMap)
   update()
 }
 
+function updateFormField(slotMap: string[]) {
+  const slotSet = new Set(slotMap)
+  const formFieldList = variables.value.filter((item: any) => slotSet.has(item.id))
+  if (!formField.value?.length) {
+    formField.value = formFieldList
+    return
+  }
+  // formField 有資料：保留相同 id 的舊數據，其它用新數據
+  const byId = new Map(formField.value.map((f: any) => [f.id, f]))
+  formField.value = formFieldList.map((n: any) => byId.get(n.id) ?? n)
+}
+
 async function previewForm() {
-  const json = await getFormJson()
+  await getFormJson()
   formRenderVisible.value = true
   nextTick(() => {
-    fromRenderRef.value.setForm(json)
+    fromRenderRef.value.setForm(formJson.value)
   })
 }
 
+function handleUpdateFormField(field: any) {
+  formField.value = formField.value.map((item: any) => {
+    if (item.id === field.id) return { ...field }
+    return item
+  })
+  update()
+}
+
 async function getFormJson() {
+  formJson.value = {}
   try {
     if (!!formKey.value && formKey.value !== 0) {
       const data: any = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
       if (!data) return {}
-
-      return data.jsonValue
-    } else {
-      return {}
+      formJson.value = data.jsonValue
     }
   } catch (e) {
     console.log(e)
@@ -126,7 +151,7 @@ watch(
       <el-input v-model="formTitle" @change="update" />
     </el-form-item>
     <div class="actionsContainer">
-      <el-button type="primary" id="Workflow__UserTask__EditField" @click="editField">Edit Field</el-button>
+      <el-button type="primary" id="Workflow__UserTask__EditField" @click="editField">Edit Form Field</el-button>
       <el-button type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</el-button>
       <el-button type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
     </div>
@@ -136,7 +161,7 @@ watch(
     </div>
   </el-form>
 
-  <LazyContextVariableManageDialog ref="RuleManageDialogRef" />
+  <LazyContextFormFieldManageDialog ref="contextFormFieldManageDialogRef" :form-field="formField" @updateFormField="handleUpdateFormField" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" @submit="handelSubmitForm" />
   <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
     <LazyContextFormRender ref="fromRenderRef" />

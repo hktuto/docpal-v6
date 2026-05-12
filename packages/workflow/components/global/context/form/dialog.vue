@@ -18,9 +18,11 @@ const variables = computed(() => {
   }
 })
 const formDialogVisible = ref(false)
+const oldJson = ref({})
 
 async function openDialog(json: any) {
   formDialogVisible.value = true
+  oldJson.value = json
   nextTick(() => {
     FormDesignRef.value?.setFormJson(json)
   })
@@ -28,6 +30,11 @@ async function openDialog(json: any) {
 
 async function handleFormSubmit() {
   const json = FormDesignRef.value.getFormJson()
+  if (JSON.stringify(json) === JSON.stringify(oldJson.value)) {
+    formDialogVisible.value = false
+    return
+  }
+
   //  save e-form
   const params = {
     processKey: processKey,
@@ -35,12 +42,11 @@ async function handleFormSubmit() {
     jsonValue: JSON.stringify(json),
     versionId: '0'
   }
-  // if (node.data.metadata.formKey !== '' && node.data.metadata.formKey !== 0) {
-  //   params.id = node.data.metadata.formKey
-  // }
-
   const data: any = await newClientApi.postDmsFormPropertiesSave(params).then((r) => r.data)
-  emits('submit', data.id)
+  const slotMap = json.widgetList.map((item: any) => {
+    return item.options?.name
+  })
+  emits('submit', { id: data.id, slotMap })
   formDialogVisible.value = false
 }
 
@@ -51,9 +57,9 @@ defineExpose({ openDialog })
   <el-dialog v-model="formDialogVisible" fullscreen class="bpmn-vform--dialog" width="100%" top="0" append-to-body destroy-on-close>
     <FormDesigner ref="FormDesignRef" :fieldListApi="variables">
       <template #submit>
-        <ElButton type="primary" @click="handleFormSubmit">
+        <el-button type="primary" @click="handleFormSubmit">
           {{ $t('submit') }}
-        </ElButton>
+        </el-button>
       </template>
     </FormDesigner>
   </el-dialog>

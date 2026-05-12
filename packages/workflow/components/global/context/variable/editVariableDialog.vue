@@ -157,10 +157,12 @@ defineExpose({
 
       <el-divider />
       <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="formData" :form="formData" />
-
-      <el-form-item>
-        <ElButton id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">{{ $t('dpButtom_confirm') }}</ElButton>
-      </el-form-item>
     </el-form>
+
+    <template #footer>
+      <el-button id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">
+        {{ $t('common_submit') }}
+      </el-button>
+    </template>
   </el-dialog>
 </template>

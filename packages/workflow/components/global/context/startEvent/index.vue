@@ -16,7 +16,7 @@ function editField() {
     <SidebarLabel :node="node" />
     <ContextStartEventCandidate :node="node" />
     <ContextStartEventAdditionLogic :node="node" />
-    <el-button style="width: 100%" type="primary" id="Workflow__Start__EditField" @click="editField">{{ $t('Workflow Variables') }}</el-button>
+    <el-button style="width: 100%" type="primary" id="Workflow__Start__EditField" @click="editField">{{ $t('Workflow Global Variables') }}</el-button>
   </div>
 
   <LazyContextVariableManageDialog ref="RuleManageDialogRef" />

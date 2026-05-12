@@ -8,11 +8,8 @@ if (!graphProvider) {
 const { node } = defineProps<{
   node: Node
 }>()
-const { getVariablesByTags, deleteVariableItem } = useVariablesProvide()
+const { variables, deleteVariableItem } = useVariablesProvide()
 const FormDialogRef = ref()
-const variables = computed(() => {
-  return getVariablesByTags()
-})
 const FormRef = ref()
 const form = ref({
   name: ''
@@ -82,7 +79,7 @@ onMounted(() => {
     <el-divider />
 
     <h4>
-      {{ $t('Workflow Variables') }}
+      {{ $t('Workflow Global Variables') }}
       <Icon v-if="!graphProvider.readonly.value" name="lucide:plus" @click="handleAdd" />
     </h4>
     <div v-for="(item, index) in variables" :key="item.id" class="formFieldItem">

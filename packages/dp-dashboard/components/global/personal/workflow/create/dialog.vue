@@ -1,13 +1,13 @@
 <template>
   <el-dialog v-model="state.visible" :title="$t('dashboard.setting')" class="scroll-dialog" append-to-body :close-on-click-modal="false">
-    <el-form ref="formRef" :model="state.setting" label-position="top" >
-      <el-form-item :label="$t('common_title')" prop="title" required>
+    <el-form ref="formRef" :model="state.setting" label-position="top">
+      <el-form-item :label="$t('common_title')" prop="title">
         <el-input v-model="state.setting.title" />
       </el-form-item>
     </el-form>
-    
+
     <div style="height: 50vh; overflow: hidden">
-      <DragSelect layout="lr" itemKey="name" showDragTip joiner="" :dragList="state.workflowAList" :dropList="form.workflowList">
+      <DragSelect layout="lr" itemKey="name" showDragTip joiner="" :dragList="state.WorkflowCandidateList" :dropList="form.workflowList">
         <template #buttons="{ element, index }">
           <SvgIcon class="cursor-pointer el-icon--right" src="/icons/file/edit.svg" @click="handleEdit(element, index)" />
         </template>
@@ -22,23 +22,23 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox } from 'element-plus'
-const props = defineProps(['setting', 'workflowList', 'workflowAList'])
+const props = defineProps(['setting', 'workflowList', 'WorkflowCandidateList'])
 const emits = defineEmits(['refresh', 'delete'])
-const { t } = useI18n()
 
 const state = reactive({
   loading: false,
   visible: false,
-  setting: {},
+  setting: {
+    title: ''
+  },
   icon: '',
-  workflowAList: []
+  WorkflowCandidateList: []
 })
 const form = ref({
   workflowList: []
 })
 const titleDialogRef = ref()
-function handleEdit(element, index) {
+function handleEdit(element: any, index: number) {
   titleDialogRef.value.handleOpen(element)
 }
 const formRef = ref()
@@ -72,11 +72,11 @@ function handleOpen(setting) {
   setTimeout(async () => {
     await formRef.value.resetFields()
     state.setting = setting
-    let workflowList = props.workflowList ? [...props.workflowList] : []
+    const workflowList: any[] = props.workflowList ? [...props.workflowList] : []
     if (!setting.workflowKeys) setting.workflowKeys = []
     form.value.workflowList = workflowList
     state.loading = false
-    state.workflowAList = props.workflowAList.filter((item) => !setting.workflowKeys.includes(item.key))
+    state.WorkflowCandidateList = props.WorkflowCandidateList.filter((item: any) => !setting.workflowKeys.includes(item.key))
   })
 }
 defineExpose({ handleOpen })
