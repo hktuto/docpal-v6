@@ -128,6 +128,8 @@ const emit = defineEmits<{
   'cell-click': [params: any]
   'cell-mouseenter': [params: any]
   'cell-mouseleave': [params: any]
+  'start-edit': [params: any]
+  'exit-edit': [params: any]
   'row-dblclick': [params: { row: any; rowIndex: number }]
   'expand-click': [params: { row: any; rowIndex: number }]
   'open-record': [params: { tableId: string; recordId: string; row: any }]
@@ -208,10 +210,14 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     emit('cell-mouseleave', params)
   },
 
-  // 'cell-dblclick': (params: any) => {
-  //   const { row, rowIndex } = params
-  //   emit('row-dblclick', { row, rowIndex })
-  // },
+  'start-edit': (params: any) => {
+    const { row, column } = params
+    console.log("start-edit")
+    emit('start-edit', { row, column })
+  },
+  'edit-closed': ({ row, column }: any) => {
+    emit('exit-edit', { row, column })
+  },
   columnDragend({ newColumn, oldColumn, dragPos }) {
     const newFullColumn = columns.value.find((item: any) => item.field_name === newColumn.field)
     const oldFullColumn = columns.value.find((item: any) => item.field_name === oldColumn.field)

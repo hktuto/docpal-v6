@@ -37,6 +37,8 @@ export interface LockRecord {
   rowId?: string
   cellId?: string
   menuId?: string
+  editingCell?: boolean,
+  editingRow?: boolean
 }
 
 const MAX_CONCURRENT_ROOMS = 3
@@ -115,7 +117,7 @@ export function useHocuspocusManager() {
   const roomMeta = useState<Record<string, Omit<RoomState, 'provider'>>>('hocuspocus-rooms', () => ({}))
   const lockRecords = useState<LockRecord[]>('hocuspocus-locks', () => [])
   const providers = new Map<string, HocuspocusProvider>()
-
+  const localAwareness = useState<any>('hocuspocus-local')
   const rooms = computed<RoomState[]>(() => {
     return Object.values(roomMeta.value).map((meta) => {
       const provider = providers.get(meta.name)
@@ -218,9 +220,13 @@ export function useHocuspocusManager() {
                 userColor: state.user.color,
                 rowId: state.focus.rowId,
                 cellId: state.focus.cellId,
-                menuId: state.focus.menuId
+                menuId: state.focus.menuId,
+                editingCell: state.focus.editingCell,
+                editingRow: state.focus.editingRow
               })
             }
+          } else {
+            if(state.user) localAwareness.value = state
           }
         })
         if (roomMeta.value[roomName]) {
@@ -261,6 +267,7 @@ export function useHocuspocusManager() {
     rooms: readonly(rooms),
     roomMeta,
     lockRecords,
+    localAwareness,
     joinRoom,
     leaveRoom,
     leaveAllRooms,

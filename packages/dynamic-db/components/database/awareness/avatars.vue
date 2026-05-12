@@ -43,9 +43,6 @@ const filteredStates = computed(() => {
       +{{ filteredStates.length - 5 }}
     </div>
   </div>
-  <div v-else>
-      {{hocuspocus.awarenessStates.value}}
-  </div>
 </template>
 
 <style scoped lang="scss">

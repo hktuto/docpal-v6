@@ -31,6 +31,9 @@
           :extra-column-config="extraColumnConfig"
           @cell-mouseenter="handleCellMouseEnter"
           @cell-mouseleave="handleCellMouseLeave"
+          @start-edit="startEditHandler"
+          @exit-edit="exitCellEdit"
+          @start-edit-row=""
           />
       <DatabaseAwarenessFloatingTags :get-element="getTableCell" />
     </div>
@@ -88,15 +91,33 @@ const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 
 
 // hocuspocus logic
-const { setAwareness } = inject('databaseHocuspocus')
+const { setAwareness, localAwareness } = inject('databaseHocuspocus')
 
 function handleCellMouseEnter(params: any) {
+  if (!localAwareness.value.focus.editingRow && !localAwareness.value.focus.editingCell) {
+    setAwareness({
+      rowId: params.row.id,
+      cellId: params.column.field
+    })
+  }
+}
+function exitCellEdit(params: any) {
   setAwareness({
     rowId: params.row.id,
-    cellId: params.column.field
+    cellId: params.column.field,
+    editingRow: false,
+    editingCell: false
   })
 }
-
+function startEditHandler(params:any) {
+  console.log("startEditHandler", params)
+  setAwareness({
+    rowId: params.row.id,
+    cellId: params.column.field,
+    editingRow: false,
+    editingCell: true
+  })
+}
 function handleCellMouseLeave(params: any) {
 }
 

@@ -19,7 +19,9 @@ const focus = computed(() => props.state.focus)
   >
     <el-tooltip :content="user.name" placement="top">
       <div class="cursor-dot">
-        {{ user.name.charAt(0).toUpperCase() }}
+        {{ user.name.charAt(0).toUpperCase() }} {{
+           (state.focus?.editingCell ||　state.focus?.editingRow) ? ": Editing" : ''
+        }}
       </div>
     </el-tooltip>
   </div>
@@ -27,9 +29,10 @@ const focus = computed(() => props.state.focus)
 
 <style scoped lang="scss">
 .user-cursor-tag {
-  width: 20px;
+  /* width: 20px; */
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--app-border-radius-m);
+  padding: var(--app-space-xs);
   display: flex;
   align-items: center;
   justify-content: center;
