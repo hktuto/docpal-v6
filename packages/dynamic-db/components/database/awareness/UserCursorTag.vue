@@ -1,18 +1,18 @@
 <script setup lang="ts">
-interface AwarenessUser {
-  id: string
-  name: string
-  color: string
-}
+import type { AwarenessState } from '../../../composables/useHocuspocusManager'
 
 const props = defineProps<{
-  user: AwarenessUser
+  state: AwarenessState
   type: string
 }>()
+
+const user = computed(() => props.state.user)
+const focus = computed(() => props.state.focus)
 </script>
 
 <template>
   <div
+    v-if="user"
     class="user-cursor-tag"
     :class="`type-${type}`"
     :style="{ backgroundColor: user.color }"

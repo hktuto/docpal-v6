@@ -9,7 +9,7 @@ interface CellLocation {
 
 interface TagItem {
   key: string
-  user: NonNullable<AwarenessState['user']>
+  state: AwarenessState
   type: string
   top: number
   left: number
@@ -76,6 +76,8 @@ function updatePositions() {
     const key = `${state.focus.rowId}:${state.focus.cellId}`
     if (!cellMap.has(key)) {
       cellMap.set(key, { element: resolved.element, type: resolved.type, users: [] })
+    } else {
+
     }
     cellMap.get(key)!.users.push(state.user)
   }
@@ -94,10 +96,10 @@ function updatePositions() {
     const baseTop = rect.top - overlayRect.top
     const baseLeft = rect.left - overlayRect.left
 
-    cell.users.forEach((user, idx) => {
+    cell.states.forEach((state, idx) => {
       newTags.push({
-        key: `${key}-${user.id}`,
-        user,
+        key: state.user!.id,
+        state,
         type: cell.type,
         top: baseTop + idx * 22,
         left: baseLeft
@@ -165,7 +167,7 @@ onBeforeUnmount(() => {
       class="tag-wrapper"
       :style="{ top: tag.top + 'px', left: tag.left + 'px' }"
     >
-      <UserCursorTag :user="tag.user" :type="tag.type" />
+      <DatabaseAwarenessUserCursorTag :state="tag.state" :type="tag.type" />
     </div>
   </div>
 </template>
