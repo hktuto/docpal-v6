@@ -5,6 +5,8 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
   const { $grid, row, column, level } = params as any
   const { columnGroupRules, tableFields, columns }: any = inject('viewTools')
   if (row.hasChild) {
+    const countValue = row[`agg_${column.field}`]
+    const fullColumn = columns.value.find((field: any) => field.field_name === column.field)
     if (column.treeNode) {
       try {
         const groupColumn = columnGroupRules.value[level]
@@ -15,7 +17,7 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
         if (value && value !== 0) {
           hList.push(
             h('div', { class: 'tree-node-header' }, [h('span', { class: 'tree-node-title' }, title), h('span', { class: 'tree-node-value' }, value)]),
-            h('span', { class: 'tree-node-count' }, row.count)
+            h('span', { class: 'tree-node-count' }, formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure))
           )
         }
         return h('div', { class: 'custom-tree-node' }, hList)
@@ -24,21 +26,21 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
         return h('div', {}, '')
       }
     } else {
-      const countValue = row[`agg_${column.field}`]
-      const fullColumn = columns.value.find((field: any) => field.field_name === column.field)
-
       if (!fullColumn?.countMethod || fullColumn.countMethod === 'none') {
         return h('div', {}, '')
       }
-
-      return h('div', {
-        onMouseenter: (e) => {
-          $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      return h(
+        'div',
+        {
+          onMouseenter: (e) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
+          },
+          onMouseleave: (e) => {
+            $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
+          }
         },
-        onMouseleave: (e) => {
-           $grid.dispatchEvent('cell-mouseleave', { row, column },e)
-        },
-      }, formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure))
+        formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure)
+      )
     }
   }
   return feedback({ options, params })
