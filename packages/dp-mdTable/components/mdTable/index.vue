@@ -32,7 +32,7 @@
             <slot :name="slotName" v-bind="slotProps" />
           </template>
           <template #footerCount="footerProps">
-            <ToolsFooterCount :column="footerProps.column" :row="footerProps.row" />
+            <ToolsFooterCount :column="getColumn(footerProps.column.field)" :row="footerProps.row" />
           </template>
           <template #header="headerProps">
             <MdTableHeader v-if="headerProps.column.field" :headerProps="headerProps" :column="headerProps.column" />
@@ -81,15 +81,17 @@ interface Props {
   tableId?: string
   editable?: boolean
   isMirror?: boolean
-  canEditTable: boolean,
-  canManageTable: boolean,
+  canEditTable: boolean
+  canManageTable: boolean
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
     tableFields: Ref<any[]>
+    currentView?: Ref<any>
     updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
     saveColumnOrder: (columnId: string, position: number) => void
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
@@ -109,7 +111,9 @@ const props = withDefaults(defineProps<Props>(), {
     updateColumn: () => {},
     addColumn: () => {},
     tableFields: [],
+    currentView: undefined,
     updatedViewColumnsConfig: () => {},
+    updateViewColumnCountMethod: async () => {},
     saveColumnOrder: () => {},
     columnFilterRules: [],
     columnGroupRules: [],
@@ -141,6 +145,7 @@ const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
 const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow, systemFieldsTypes } =
   useMDTable(props)
+const { getAgg } = useCount(props)
 
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -188,8 +193,9 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       console.error('Failed to update row:', error)
       setError(row.id, column.field, error instanceof Error ? error.message : 'Update failed')
       ElMessage.error('Failed to update cell')
+    } finally {
+      await getAgg()
     }
-
     emit('edit-closed', params)
   },
   'cell-click': (params: any) => {
@@ -298,7 +304,9 @@ const handleVirtualColumnSelect = async (relationFieldName: string, displayField
     console.warn('addVirtualColumn not available in context')
   }
 }
-
+function getColumn(field: string) {
+  return columns.value.find((col: any) => String(col.field_name) === String(field))
+}
 // 暴露方法
 defineExpose({
   gridRef,

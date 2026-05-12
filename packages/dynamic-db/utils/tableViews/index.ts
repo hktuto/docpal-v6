@@ -1,4 +1,4 @@
-import type { ViewConfig, ViewColumn, SortInfo, GroupInfo, FilterInfo, ViewStyle } from '../db/schema/tableView'
+import type { ViewConfig, ViewColumn, SortInfo, GroupInfo, FilterInfo, ViewStyle } from '../databaseType'
 
 const DEFAULT_SORT_INFO: SortInfo[] = [{ desc: false, fieldId: '' }]
 const DEFAULT_FILTER_INFO: FilterInfo = { conditions: [], conjunction: 'AND' }
@@ -78,7 +78,7 @@ export function addView(views: ViewConfig[], newView: Partial<ViewConfig> & { id
   const view: ViewConfig = {
     id: newView.id,
     name: finalName,
-    type: newView.type ?? 0,
+    type: newView.type ?? 'table',
     columns: newView.columns ?? [],
     sortInfo: newView.sortInfo ?? [...DEFAULT_SORT_INFO],
     groupInfo: newView.groupInfo ?? [],
@@ -159,7 +159,7 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
 /**
  * 根据列显隐配置更新 view.columns 中对应 column 的 hidden（display: true => hidden: false，display: false => hidden: true）
  */
-export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; hidden: boolean }>, tableFields: any[]): ViewColumn[] {
+export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; display: boolean }>, tableFields: any[]): ViewColumn[] {
   const fieldsById = new Map<string, any>()
   for (const f of tableFields ?? []) {
     if (f?.id == null) continue
@@ -169,7 +169,7 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
   const updatesById = new Map<string, boolean>()
   for (const u of updates ?? []) {
     if (u?.id == null) continue
-    updatesById.set(String(u.id), Boolean(u.hidden))
+    updatesById.set(String(u.id), Boolean(u.display))
   }
   const seen = new Set<string>()
   const nextColumns: ViewColumn[] = []
@@ -184,13 +184,14 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     if (!tableField) continue
     seen.add(key)
 
-    const hidden = updatesById.get(key)
+    const display = updatesById.get(key)
     const hasKey = updatesById.has(key)
     const tableFieldItem = tableFields.find((f: any) => f.id === fieldId)
     const item = {
+      ...col,
       title: tableFieldItem.field_name_alias,
       id: String(tableField.id),
-      hidden: hasKey ? (hidden === true ? true : false) : col.hidden
+      hidden: hasKey ? (display === false ? true : false) : col.hidden
     }
     nextColumns.push(item)
   }
@@ -202,10 +203,10 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     if (seen.has(key)) continue
     seen.add(key)
 
-    const hidden = updatesById.get(key)
+    const display = updatesById.get(key)
     nextColumns.push({
       id: String(f.id),
-      hidden: hidden === true ? true : false
+      hidden: display === false ? true : false
     })
   }
   return nextColumns

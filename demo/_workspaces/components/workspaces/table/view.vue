@@ -20,6 +20,7 @@ const {
   updateField,
   addField,
   updatedViewColumnsConfig,
+  updateViewColumnCountMethod,
   saveColumnOrder,
   columnFilterRules,
   columnSortRules,
@@ -36,7 +37,9 @@ const extraColumnConfig = computed(() => {
     updateColumn: updateField,
     addColumn: addField,
     tableFields,
+    currentView,
     updatedViewColumnsConfig,
+    updateViewColumnCountMethod,
     saveColumnOrder,
 
     columnFilterRules,

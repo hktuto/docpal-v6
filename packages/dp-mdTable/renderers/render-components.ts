@@ -62,14 +62,22 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   URL: {
     view: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $table, row, column } = params
+        const { $grid, row, column } = params
         const data = row[column.field]?.length > 0 ? row[column.field][0] : { text: '', title: '' }
-        return h('a', { href: data.text, target: '_blank' }, data.text)
+        return h('a', {
+          href: data.text, target: '_blank',
+          onMouseenter: (e) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+          },
+          onMouseleave: (e) => {
+             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+          },
+        }, data.text)
       }
     },
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $table, row, column } = params
+        const { $grid, row, column } = params
         const data = row[column.field]?.length > 0 ? row[column.field][0] : { text: '', title: '' }
         const inputRef = ref<any>(null)
         return h(ElInput, {
@@ -84,7 +92,13 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
             nextTick(() => {
               inputRef.value.focus()
             })
-          }
+          },
+          onMouseenter: (e) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+          },
+          onMouseleave: (e) => {
+             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+          },
         })
       }
     }
@@ -98,7 +112,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   SingleSelect: {
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $table, row, column } = params
+        const { $grid, row, column } = params
         const { options: selectOptions } = options?.props
         return h(SelectEdit, {
           options: selectOptions,
@@ -109,7 +123,13 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           popperClass: 'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
           'onUpdate:modelValue': (value: any) => {
             row[column.field] = value
-          }
+          },
+          onMouseenter: (e) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+          },
+          onMouseleave: (e) => {
+             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+          },
         })
       }
     },
@@ -120,7 +140,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   MultiSelect: {
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $table, row, column } = params
+        const { $grid, row, column } = params
         const { options: selectOptions } = options?.props
         return h(SelectEdit, {
           options: selectOptions,
@@ -131,7 +151,13 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           popperClass: 'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
           'onUpdate:modelValue': (value: any) => {
             row[column.field] = value
-          }
+          },
+          onMouseenter: (e) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+          },
+          onMouseleave: (e) => {
+             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+          },
         })
       }
     },
@@ -178,13 +204,19 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Relation: {
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $table, row, column } = params
+        const { $grid, row, column } = params
         const relationOptions = options?.props || {}
         return h(RelationEditVue, {
           ...relationOptions,
           row: row,
           column: column,
           modelValue: row[column.field],
+          onMouseenter: (e) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+          },
+          onMouseleave: (e) => {
+             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+          },
           'onUpdate:modelValue': (value: string[] | string | null) => {
             row[column.field] = value
           }
@@ -211,7 +243,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     },
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { row, column } = params
+        const { $grid,row, column } = params
         const { getUserList, userList } = useMDTableInject()
         return h(SelectEdit, {
           options: userList,
@@ -223,6 +255,12 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           popperClass: 'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
           'onUpdate:modelValue': (value: any) => {
             row[column.field] = value
+          },
+          onMouseenter: (e) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+          },
+          onMouseleave: (e) => {
+             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
           },
           onVnodeMounted: () => {
             nextTick(() => {

@@ -4,7 +4,8 @@ export type DatabaseItem = {
   [key: string]: any
 }
 
-export type ViewType = 'table' | 'kanban' | 'gantt' | 'calendar'
+export type ViewType = 'table' | 'card' | 'kanban' | 'gantt' | 'calendar'
+type Operator = 'is' | 'isNot' | 'contains' | 'doesNotContain' | 'isEmpty' | 'isNotEmpty';
 
 export type DatabaseMenuRouteParams = {
   detailId: string | null
@@ -38,6 +39,7 @@ export interface ViewColumn {
   width?: number;
   id: string;
   hidden?: boolean;
+  countMethod?: string;
   fixed?: 'left' | 'right'
 }
 

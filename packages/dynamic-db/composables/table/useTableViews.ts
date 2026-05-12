@@ -39,6 +39,7 @@ export interface ViewContext {
   deleteField: (fieldId: string) => Promise<void>
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
   updatedViewColumnsConfig: (updates: Array<{ id: string; display: boolean }>) => Promise<void>
+  updateViewColumnCountMethod: (fieldId: string, countMethod: string) => Promise<void>
   updateViewFilterSortGroup: (fieldName: 'filterInfo' | 'sortInfo' | 'groupInfo' | 'style', value: any) => Promise<void>
   saveColumnOrder: (columnId: string, targetFieldId: string, dragPos: 'left' | 'right') => Promise<void>
 }
@@ -69,9 +70,9 @@ export function useTableViews(options: UseTableViewsOptions) {
     const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
       tableId: tableId.value,
       userId: 'master',
-      type:"detail"
+      type: 'detail'
     })
-    console.log("getTableDetailDasbboard", data)
+    console.log('getTableDetailDasbboard', data)
   }
   async function getViews(viewId?: string) {
     columnFilterRules.value = null
@@ -232,6 +233,17 @@ export function useTableViews(options: UseTableViewsOptions) {
     updatedColumns = updateViewColumnOrder(updatedColumns, columnId, targetFieldIndex + positionNum)
     await updateView(view.id, { columns: updatedColumns })
   }
+  async function updateViewColumnCountMethod(fieldId: string, countMethod: string) {
+    const view = currentView.value
+    if (!view) return
+    const updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
+    const targetColumn = updatedColumns.find((col: any) => String(col.id) === String(fieldId))
+    console.log('updateViewColumnCountMethod', { updatedColumns })
+    if (!targetColumn) return
+    targetColumn.countMethod = countMethod
+    console.log('updateViewColumnCountMethod', { targetColumn })
+    await updateView(view.id, { columns: updatedColumns })
+  }
   async function updateViewFilterSortGroup(fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style', value: any) {
     const view = currentView.value
     if (!view) return
@@ -255,6 +267,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     deleteField,
     updateField,
     updatedViewColumnsConfig,
+    updateViewColumnCountMethod,
     saveColumnOrder,
     updateViewFilterSortGroup,
     viewStyleConfig
@@ -277,6 +290,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     deleteField,
     updateField,
     updatedViewColumnsConfig,
+    updateViewColumnCountMethod,
     saveColumnOrder,
     updateViewFilterSortGroup
   }

@@ -2365,7 +2365,8 @@
       "none": "Don't Show",
       "statistics": "Statistics",
       "sum": "Sum",
-      "unique": "Unique Values"
+      "unique": "Unique Values",
+      "uniquePercent": "Unique Percentage"
     },
     "deleteRow": "Delete this line",
     "deleteSelectedRow": "Delete these {count} lines",
