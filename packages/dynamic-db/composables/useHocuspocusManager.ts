@@ -192,9 +192,10 @@ export function useHocuspocusManager() {
         }
       },
       onAwarenessChange: (e) => {
+        const localUser = getLocalUser()
         const awarenessStates: AwarenessState[] = []
         e.states.forEach((state: any) => {
-          if (state.user) {
+          if (state.user && state.user.id !== localUser?.id) {
             awarenessStates.push(state as AwarenessState)
           }
         })

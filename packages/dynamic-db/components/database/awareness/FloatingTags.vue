@@ -58,16 +58,6 @@ function resolveCell(focus: AwarenessFocus): { element: HTMLElement | null; type
   return { element: loc.element, type: loc.type }
 }
 
-function getLocalUserId(): string | undefined {
-  try {
-    const userJson = localStorage.getItem('docpal-user')
-    if (!userJson) return undefined
-    return JSON.parse(userJson).userId
-  } catch {
-    return undefined
-  }
-}
-
 function updatePositions() {
   const overlay = overlayRef.value
   if (!overlay) return
@@ -77,14 +67,12 @@ function updatePositions() {
     top: 5,
     left: 5
   }
-  const localUserId = getLocalUserId()
 
   // Group by cell using cached elements
   const cellMap = new Map<string, { element: HTMLElement; type: string; state: AwarenessState[] }>()
 
   for (const state of hocuspocus.awarenessStates.value) {
     if (!state.focus?.rowId || !state.focus?.cellId || !state.user) continue
-    if (state.user.id === localUserId) continue // skip self
 
     const resolved = resolveCell(state.focus)
     if (!resolved) continue
