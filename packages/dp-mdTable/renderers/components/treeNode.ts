@@ -2,7 +2,7 @@ import { formatCount } from '../../composables/useCount'
 import type { CountMethod } from '../../types/count-type'
 import type { ViewRenderFunctionParams } from '../../types/column-types'
 export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, feedback: (params: ViewRenderFunctionParams<string>) => any) => {
-  const { $table, row, column, level } = params as any
+  const { $grid, row, column, level } = params as any
   const { columnGroupRules, tableFields, columns }: any = inject('viewTools')
   if (row.hasChild) {
     if (column.treeNode) {
@@ -30,7 +30,15 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
       if (!fullColumn?.countMethod || fullColumn.countMethod === 'none') {
         return h('div', {}, '')
       }
-      return h('div', {}, formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure))
+
+      return h('div', {
+        onMouseenter: (e) => {
+          $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+        },
+        onMouseleave: (e) => {
+           $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+        },
+      }, formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure))
     }
   }
   return feedback({ options, params })

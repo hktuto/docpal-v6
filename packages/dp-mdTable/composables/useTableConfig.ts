@@ -65,7 +65,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     cellClassName
   } = options
   const { columns } = toRefs(options.extraColumnConfig as any)
-  console.log('data', options)
   // console.log('columns', columns)
   // console.log('deleteColumn', deleteColumn)
   // console.log('updateColumn', updateColumn)
@@ -319,8 +318,19 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showIcon: false,
         showStatus: false,
         ...((editConfig as any) || {}),
-        beforeEditMethod: ({ row, column }: any) => {
-          return !row.hasChild && !disabledFields.includes(column.type)
+        beforeEditMethod: ({ row, column, $grid }: any) => {
+          const lockedRowCell = useState('hocuspocus-locks');
+
+          let isLock = false;
+          if (lockedRowCell.value && lockedRowCell.value.length) {
+            isLock = lockedRowCell.value.some(l => (l.editingRow && l.rowId === row.id) || (l.editingCell && l.cellId === column.field && l.rowId === row.id))
+          }
+          const value = !row.hasChild && !disabledFields.includes(column.type) &&　!isLock
+          if (value) {
+            // dispatch event to parent
+            $grid.dispatchEvent('start-edit',{row, column})
+          }
+          return value
         }
       }
     }

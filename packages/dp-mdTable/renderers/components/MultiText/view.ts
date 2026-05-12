@@ -2,13 +2,19 @@ import { h } from 'vue';
 import type { ViewRenderFunctionParams } from "../../../types/column-types";
 import { ElInput } from "element-plus";
 export const MultiTextView = ({options, params}: ViewRenderFunctionParams<string>) => {
-  const { $table, row, column } = params
+  const { $grid, row, column } = params
   const multiTextOptions = options?.props
   // console.log('multiTextOptions', multiTextOptions)
   return h('div', {
     class: 'multi-text-view mb-table-cell',
     "data-title": row[column.field],
     editable: true,
+    onMouseenter: (e) => {
+      $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+    },
+    onMouseleave: (e) => {
+       $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+    },
   }, row[column.field])
 }
 

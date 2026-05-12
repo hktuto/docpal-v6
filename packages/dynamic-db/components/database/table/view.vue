@@ -1,6 +1,6 @@
 <template>
   <div class="table-view-root" v-if="tableId">
-    <div class="table-view-main">
+    <div class="table-view-main" style="position: relative;">
       <MdCard
           v-if="currentView?.type === 'card'"
           :canManageTable="canManageTable"
@@ -31,7 +31,11 @@
           :extra-column-config="extraColumnConfig"
           @cell-mouseenter="handleCellMouseEnter"
           @cell-mouseleave="handleCellMouseLeave"
+          @start-edit="startEditHandler"
+          @exit-edit="exitCellEdit"
+          @start-edit-row=""
           />
+      <DatabaseAwarenessFloatingTags :get-element="getTableCell" />
     </div>
 
     <div v-if="panelVisible" class="table-view-panel">
@@ -87,51 +91,43 @@ const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 
 
 // hocuspocus logic
-const { setAwareness, awarenessStates, localAwareness } = inject('databaseHocuspocus')
-const { diff } = useAwarenessDiff(awarenessStates)
-const lastAwarenessState = ref<any>(null)
+const { setAwareness, localAwareness } = inject('databaseHocuspocus')
+
 function handleCellMouseEnter(params: any) {
-  lastAwarenessState.value = {
-    rowId: params.row.id,
-    cellId: params.column.field
+  if (!localAwareness.value.focus.editingRow && !localAwareness.value.focus.editingCell) {
+    setAwareness({
+      rowId: params.row.id,
+      cellId: params.column.field
+    })
   }
+}
+function exitCellEdit(params: any) {
   setAwareness({
     rowId: params.row.id,
-    cellId: params.column.field
+    cellId: params.column.field,
+    editingRow: false,
+    editingCell: false
   })
 }
-
-watch(diff, ({ added, removed }) => {
-   // New users focusing on cells
-  for (const state of added) {
-    const user = useUserState()
-     if(state.user.name === user.value.username) return
-     const el = document.querySelector(`tr[rowid="${state.focus?.rowId}"] td[colid="${state.focus?.cellId}"] .vxe-cell`)
-
-    if (el) {
-      el.classList.add('hocuspocus_select')
-      el.setAttribute('data-user', state.user?.name)
-      el.style.setProperty('--color', state.user?.color)
-     }
-   }
-
-   // Users who stopped focusing
-  for (const state of removed) {
-     const user = useUserState()
-    if(state?.user.name === user.value.username) return
-    const el = document.querySelector(`tr[rowid="${state.focus?.rowId}"] td[colid="${state.focus?.cellId}"] .vxe-cell`)
-
-    if (el) {
-      el.classList.remove('hocuspocus_select')
-      el.style.removeProperty('--color')
-      el.removeAttribute('user')
-    }
-
-   }
- })
-
+function startEditHandler(params:any) {
+  console.log("startEditHandler", params)
+  setAwareness({
+    rowId: params.row.id,
+    cellId: params.column.field,
+    editingRow: false,
+    editingCell: true
+  })
+}
 function handleCellMouseLeave(params: any) {
+}
 
+function getTableCell(focus: any) {
+  const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
+  return {
+    element: document.querySelector(selector) as HTMLElement | null,
+    type: 'table-cell',
+    selector
+  }
 }
 
 

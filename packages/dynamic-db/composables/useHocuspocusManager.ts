@@ -29,6 +29,18 @@ export interface RoomState {
   joinedAt: number
 }
 
+export interface LockRecord {
+  roomName: string
+  userId: string
+  userName: string
+  userColor: string
+  rowId?: string
+  cellId?: string
+  menuId?: string
+  editingCell?: boolean,
+  editingRow?: boolean
+}
+
 const MAX_CONCURRENT_ROOMS = 3
 
 const COLOR_PALETTE = [
@@ -103,8 +115,9 @@ export function useHocuspocusManager() {
   const hocuspocusUrl = computed(() => (config.public.HOCUSPOCUS_URL as string | undefined) || 'ws://localhost:1234')
 
   const roomMeta = useState<Record<string, Omit<RoomState, 'provider'>>>('hocuspocus-rooms', () => ({}))
+  const lockRecords = useState<LockRecord[]>('hocuspocus-locks', () => [])
   const providers = new Map<string, HocuspocusProvider>()
-
+  const localAwareness = useState<any>('hocuspocus-local')
   const rooms = computed<RoomState[]>(() => {
     return Object.values(roomMeta.value).map((meta) => {
       const provider = providers.get(meta.name)
@@ -192,15 +205,38 @@ export function useHocuspocusManager() {
         }
       },
       onAwarenessChange: (e) => {
+        const localUser = getLocalUser()
         const awarenessStates: AwarenessState[] = []
+        const newLocks: LockRecord[] = []
+
         e.states.forEach((state: any) => {
-          if (state.user) {
+          if (state.user && state.user.id !== localUser?.id) {
             awarenessStates.push(state as AwarenessState)
+            if (state.focus && (state.focus.editingCell || state.focus.editingRow)) {
+              newLocks.push({
+                roomName,
+                userId: state.user.id,
+                userName: state.user.name,
+                userColor: state.user.color,
+                rowId: state.focus.rowId,
+                cellId: state.focus.cellId,
+                menuId: state.focus.menuId,
+                editingCell: state.focus.editingCell,
+                editingRow: state.focus.editingRow
+              })
+            }
+          } else {
+            if(state.user) localAwareness.value = state
           }
         })
         if (roomMeta.value[roomName]) {
           roomMeta.value[roomName].awarenessStates = awarenessStates
         }
+        // Update lockRecords: remove old locks for this room, add new ones
+        lockRecords.value = [
+          ...lockRecords.value.filter((l) => l.roomName !== roomName),
+          ...newLocks
+        ]
       }
     })
 
@@ -230,6 +266,8 @@ export function useHocuspocusManager() {
   return {
     rooms: readonly(rooms),
     roomMeta,
+    lockRecords,
+    localAwareness,
     joinRoom,
     leaveRoom,
     leaveAllRooms,
