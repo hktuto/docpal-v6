@@ -1,13 +1,20 @@
 import type { ViewRenderFunctionParams } from "../../../types/column-types";
 import { ElInput } from "element-plus";
 export const TextView = ({options, params}: ViewRenderFunctionParams<string>) => {
-  const { $table, row, column } = params
+  const { $table, $grid, row, column } = params
   const textOptions = options?.props
+  // console.log("table", $table)
   // console.log('textOptions', textOptions)
   return h('div', {
     class: 'text-view mb-table-cell',
     title: row[column.field],
     "data-title": row[column.field],
+    onMouseenter: (e) => {
+      $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+    },
+    onMouseleave: (e) => {
+       $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+    },
   }, row[column.field])
 }
 

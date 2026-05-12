@@ -450,6 +450,9 @@ export const useSingleDatabase = () => {
       newItem.metadata = viewSettings
       newItem.view_condition = {}
     }
+    if (type === 'dashboard') {
+      newItem.metadata = { dashboardLayout: [] }
+    }
     const { data }: any = await newClientApi.postDynamicDbMenus(newItem)
 
     // Update local state

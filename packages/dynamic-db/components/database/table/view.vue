@@ -28,7 +28,10 @@
           :canEditTable="canEditTable"
           :is-mirror="isMirror"
           :table-id="tableId"
-          :extra-column-config="extraColumnConfig" />
+          :extra-column-config="extraColumnConfig"
+          @cell-mouseenter="handleCellMouseEnter"
+          @cell-mouseleave="handleCellMouseLeave"
+          />
     </div>
 
     <div v-if="panelVisible" class="table-view-panel">
@@ -81,6 +84,57 @@ const { navigateToItem, findItemById, menuState, databaseMenuRouteParams, addIte
 const { getPageParams, columns } = useDBParams()
 const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
+
+
+// hocuspocus logic
+const { setAwareness, awarenessStates, localAwareness } = inject('databaseHocuspocus')
+const { diff } = useAwarenessDiff(awarenessStates)
+const lastAwarenessState = ref<any>(null)
+function handleCellMouseEnter(params: any) {
+  lastAwarenessState.value = {
+    rowId: params.row.id,
+    cellId: params.column.field
+  }
+  setAwareness({
+    rowId: params.row.id,
+    cellId: params.column.field
+  })
+}
+
+watch(diff, ({ added, removed }) => {
+   // New users focusing on cells
+  for (const state of added) {
+    const user = useUserState()
+     if(state.user.name === user.value.username) return
+     const el = document.querySelector(`tr[rowid="${state.focus?.rowId}"] td[colid="${state.focus?.cellId}"] .vxe-cell`)
+
+    if (el) {
+      el.classList.add('hocuspocus_select')
+      el.setAttribute('data-user', state.user?.name)
+      el.style.setProperty('--color', state.user?.color)
+     }
+   }
+
+   // Users who stopped focusing
+  for (const state of removed) {
+     const user = useUserState()
+    if(state?.user.name === user.value.username) return
+    const el = document.querySelector(`tr[rowid="${state.focus?.rowId}"] td[colid="${state.focus?.cellId}"] .vxe-cell`)
+
+    if (el) {
+      el.classList.remove('hocuspocus_select')
+      el.style.removeProperty('--color')
+      el.removeAttribute('user')
+    }
+
+   }
+ })
+
+function handleCellMouseLeave(params: any) {
+
+}
+
+
 
 const extraColumnConfig = computed(() => {
   const data = {

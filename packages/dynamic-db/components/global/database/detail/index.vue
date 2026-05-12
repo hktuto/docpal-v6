@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
+
 const props = defineProps<{
   id: string
   detailId: string | null
@@ -17,6 +18,70 @@ const canEditTable = computed(() => databaseMenuRouteParams.value.detailId && ch
 const canOpenSetting = computed(() => {
   if (databaseMenuRouteParams.value.detailType === 'root') return canManageDatabase.value
   return canManageTable.value
+})
+
+// Hocuspocus awareness
+const hocuspocusManager = useHocuspocusManager()
+const roomName = computed(() => `dynamic-db:${props.id}`)
+
+watch(
+  roomName,
+  (newRoom, oldRoom) => {
+    if (oldRoom && oldRoom !== newRoom) {
+      hocuspocusManager.leaveRoom(oldRoom)
+    }
+    if (newRoom) {
+      hocuspocusManager.joinRoom(newRoom)
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  databaseMenuRouteParams,
+  () => {
+    console.log("databaseMenuRouteParams", databaseMenuRouteParams.value)
+    hocuspocusManager.setFocus(roomName.value, { menuId: databaseMenuRouteParams.value.detailId})
+  }, {
+    deep: true
+  }
+)
+
+onBeforeUnmount(() => {
+  if (roomName.value) {
+    hocuspocusManager.leaveRoom(roomName.value)
+  }
+})
+
+const awarenessStates = computed(() => {
+  const room = hocuspocusManager.getRoomState(roomName.value)
+  return room?.awarenessStates ?? []
+})
+
+const connected = computed(() => {
+  return hocuspocusManager.roomMeta.value[roomName.value]?.connected ?? false
+})
+
+const localAwareness = computed(() => {
+  const room = hocuspocusManager.getRoomState(roomName.value)
+  const state = room?.provider?.awareness?.getLocalState()
+  return (state as any) || {}
+})
+
+function setAwareness(focus: { menuId?: string; rowId?: string; cellId?: string }) {
+  hocuspocusManager.setFocus(roomName.value, focus)
+}
+
+function connect() {
+  hocuspocusManager.joinRoom(roomName.value)
+}
+
+provide('databaseHocuspocus', {
+  awarenessStates,
+  localAwareness,
+  connected,
+  setAwareness,
+  connect
 })
 
 // Responsive sidebar state
@@ -118,14 +183,6 @@ provide('isSidebarOpen', readonly(isSidebarOpen))
 provide('isMobileView', readonly(isMobileView))
 provide('toggleSidebar', toggleSidebar)
 
-// Close sidebar on navigation in mobile mode
-watch(
-  databaseMenuRouteParams,
-  () => {
-    closeSidebarOnMobile()
-  },
-  { deep: true }
-)
 
 watch(
   props,
@@ -175,6 +232,12 @@ watch(
               </template>
               <template #right>
                 <div id="database-table-header-right" />
+                <DatabaseAwarenessAvatars />
+                <div class="connection-status" :class="{ 'is-online': connected }">
+                  <span class="connection-dot" />
+                  <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
+                  <button v-if="!connected" class="connection-btn" @click="connect">Connect</button>
+                </div>
                 <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canOpenSetting">
                   <Icon name="lucide:settings" class="header-action" @click="openSetting" />
                 </template>
@@ -203,6 +266,13 @@ watch(
             </template>
             <template #right>
               <div id="database-table-header-right" />
+
+              <div class="connection-status" :class="{ 'is-online': connected }">
+                <span class="connection-dot" />
+                <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
+                <button v-if="!connected" class="connection-btn" @click="connect">Connect</button>
+              </div>
+              <DatabaseAwarenessAvatars />
               <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canOpenSetting">
                 <Icon name="lucide:settings" class="header-action" @click="openSetting" />
               </template>
@@ -224,6 +294,33 @@ watch(
   </div>
 </template>
 
+<style lang="scss">
+.vxe-cell.hocuspocus_select{
+    &::before{
+        content: attr(data-user);
+        display: block;
+        padding: 0 var(--app-space-xs) ;
+        font-size: var(--app-font-size-xs);
+        position: absolute;
+        top: calc(var(--app-font-size-xs) * -2);
+        left: 0;
+        z-index: 999;
+        background: var(--color);
+    }
+    /* outline: 1px solid var(--color); */
+    &::after{
+        width:100%;
+        height: 100%;
+        display: block;
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 1px solid var(--color);
+        z-index: 99;
+    }
+}
+</style>
 <style lang="scss" scoped>
 .page-container {
   height: 100%;
@@ -378,6 +475,52 @@ watch(
 
   .sidebar-backdrop {
     display: none;
+  }
+}
+
+// ============================================
+// Connection status
+// ============================================
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xxs);
+  margin-right: var(--app-space-s);
+  font-size: var(--app-font-size-s);
+  color: var(--app-grey-500);
+
+  .connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--app-grey-600);
+    transition: background-color 0.2s;
+  }
+
+  .connection-text {
+    white-space: nowrap;
+  }
+
+  .connection-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+    border: 1px solid var(--el-color-primary);
+    background: transparent;
+    color: var(--el-color-primary);
+    border-radius: var(--app-border-radius-s);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--el-color-primary);
+      color: white;
+    }
+  }
+
+  &.is-online {
+    .connection-dot {
+      background-color: #10b981;
+    }
   }
 }
 </style>
