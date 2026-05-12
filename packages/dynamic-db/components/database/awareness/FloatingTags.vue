@@ -9,10 +9,13 @@ interface CellLocation {
 
 interface TagItem {
   key: string
-  state: AwarenessState
+  states: AwarenessState[]
   type: string
   top: number
   left: number
+  width: number
+  height: number
+  visible: boolean
 }
 
 const props = defineProps<{
@@ -58,18 +61,23 @@ function resolveCell(focus: AwarenessFocus): { element: HTMLElement | null; type
   return { element: loc.element, type: loc.type }
 }
 
+function isRectInViewport(rect: DOMRect, viewport: DOMRect): boolean {
+  return (
+    rect.bottom > viewport.top &&
+    rect.top < viewport.bottom &&
+    rect.right > viewport.left &&
+    rect.left < viewport.right
+  )
+}
+
 function updatePositions() {
   const overlay = overlayRef.value
   if (!overlay) return
 
   const overlayRect = overlay.getBoundingClientRect()
-  const offset = {
-    top: 5,
-    left: 5
-  }
 
   // Group by cell using cached elements
-  const cellMap = new Map<string, { element: HTMLElement; type: string; state: AwarenessState[] }>()
+  const cellMap = new Map<string, { element: HTMLElement; type: string; states: AwarenessState[] }>()
 
   for (const state of hocuspocus.awarenessStates.value) {
     if (!state.focus?.rowId || !state.focus?.cellId || !state.user) continue
@@ -79,9 +87,9 @@ function updatePositions() {
 
     const key = `${state.focus.rowId}:${state.focus.cellId}`
     if (!cellMap.has(key)) {
-      cellMap.set(key, { element: resolved.element, type: resolved.type, state: [] })
+      cellMap.set(key, { element: resolved.element, type: resolved.type, states: [] })
     }
-    cellMap.get(key)!.state.push(state)
+    cellMap.get(key)!.states.push(state)
   }
 
   // Clean up cache entries for cells no longer in awareness
@@ -95,17 +103,17 @@ function updatePositions() {
   const newTags: TagItem[] = []
   for (const [key, cell] of cellMap) {
     const rect = cell.element.getBoundingClientRect()
-    const baseTop = rect.top - overlayRect.top - offset.top
-    const baseLeft = rect.left - overlayRect.left - offset.left
+    const visible = isRectInViewport(rect, overlayRect)
 
-    cell.state.forEach((state, idx) => {
-      newTags.push({
-        key: state.user!.id,
-        state,
-        type: cell.type,
-        top: baseTop + idx * 22,
-        left: baseLeft
-      })
+    newTags.push({
+      key,
+      states: cell.states,
+      type: cell.type,
+      top: rect.top - overlayRect.top,
+      left: rect.left - overlayRect.left,
+      width: rect.width,
+      height: rect.height,
+      visible
     })
   }
 
@@ -167,9 +175,20 @@ onBeforeUnmount(() => {
       v-for="tag in tags"
       :key="tag.key"
       class="tag-wrapper"
-      :style="{ top: tag.top + 'px', left: tag.left + 'px' }"
+      :class="{ 'tag-hidden': !tag.visible }"
+      :style="{
+        top: tag.top + 'px',
+        left: tag.left + 'px',
+        width: tag.width + 'px',
+        height: tag.height + 'px'
+      }"
     >
-      <DatabaseAwarenessUserCursorTag :state="tag.state" :type="tag.type" />
+      <DatabaseAwarenessUserCursorTag
+        :states="tag.states"
+        :type="tag.type"
+        :width="tag.width"
+        :height="tag.height"
+      />
     </div>
   </div>
 </template>
@@ -185,7 +204,11 @@ onBeforeUnmount(() => {
 
 .tag-wrapper {
   position: absolute;
-  pointer-events: auto;
-  transition: top 0.1s ease, left 0.1s ease;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.tag-hidden {
+  opacity: 0;
 }
 </style>

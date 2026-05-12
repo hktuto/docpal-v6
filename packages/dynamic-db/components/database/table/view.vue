@@ -33,7 +33,8 @@
           @cell-mouseleave="handleCellMouseLeave"
           @start-edit="startEditHandler"
           @exit-edit="exitCellEdit"
-          @start-edit-row=""
+          @exit-edit-row="exitRowEdit"
+          @expand-click="startEditRowHandler"
           />
       <DatabaseAwarenessFloatingTags :get-element="getTableCell" />
     </div>
@@ -109,6 +110,14 @@ function exitCellEdit(params: any) {
     editingCell: false
   })
 }
+function exitRowEdit() {
+  setAwareness({
+    rowId: null,
+    cellId:null,
+    editingRow: false,
+    editingCell: false
+  })
+}
 function startEditHandler(params:any) {
   console.log("startEditHandler", params)
   setAwareness({
@@ -120,7 +129,14 @@ function startEditHandler(params:any) {
 }
 function handleCellMouseLeave(params: any) {
 }
-
+function startEditRowHandler(params:any) {
+  console.log("startEditRowHandler", params)
+  setAwareness({
+    rowId: params.row.id,
+    editingRow: true,
+    editingCell: false
+  })
+}
 function getTableCell(focus: any) {
   const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
   return {
