@@ -63,7 +63,10 @@ function updatePositions() {
   if (!overlay) return
 
   const overlayRect = overlay.getBoundingClientRect()
-
+  const offset = {
+    top: 5,
+    left: 5
+  }
   // Group by cell using cached elements
   const cellMap = new Map<string, { element: HTMLElement; type: string; users: NonNullable<AwarenessState['user']>[] }>()
 
@@ -75,11 +78,11 @@ function updatePositions() {
 
     const key = `${state.focus.rowId}:${state.focus.cellId}`
     if (!cellMap.has(key)) {
-      cellMap.set(key, { element: resolved.element, type: resolved.type, users: [] })
+      cellMap.set(key, { element: resolved.element, type: resolved.type, state: [], })
     } else {
 
     }
-    cellMap.get(key)!.users.push(state.user)
+    cellMap.get(key)!.state.push(state)
   }
 
   // Clean up cache entries for cells no longer in awareness
@@ -93,10 +96,10 @@ function updatePositions() {
   const newTags: TagItem[] = []
   for (const [key, cell] of cellMap) {
     const rect = cell.element.getBoundingClientRect()
-    const baseTop = rect.top - overlayRect.top
-    const baseLeft = rect.left - overlayRect.left
+    const baseTop = rect.top - overlayRect.top - offset.top
+    const baseLeft = rect.left - overlayRect.left - offset.left
 
-    cell.states.forEach((state, idx) => {
+    cell.state.forEach((state, idx) => {
       newTags.push({
         key: state.user!.id,
         state,

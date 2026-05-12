@@ -97,10 +97,6 @@ function handleCellMouseEnter(params: any) {
 }
 
 function handleCellMouseLeave(params: any) {
-  setAwareness({
-    rowId: undefined,
-    cellId: undefined
-  })
 }
 
 function getTableCell(focus: any) {
