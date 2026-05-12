@@ -1,6 +1,6 @@
 import type { ViewRenderFunctionParams } from '../../types/column-types'
 export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, feedback: (params: ViewRenderFunctionParams<string>) => any) => {
-  const { $table, row, column, level } = params
+  const { $grid, row, column, level } = params
   const { columnGroupRules, tableFields }: any = inject('viewTools')
   if (row.hasChild) {
     if (column.treeNode) {
@@ -15,9 +15,24 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
           h('span', { class: 'tree-node-count' }, row.count)
         )
       }
-      return h('div', { class: 'custom-tree-node' }, hList)
+      return h('div', {
+        class: 'custom-tree-node',
+        onMouseenter: (e) => {
+          $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+        },
+        onMouseleave: (e) => {
+           $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+        },
+      }, hList)
     } else {
-      return h('div', {}, '')
+      return h('div', {
+        onMouseenter: (e) => {
+          $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+        },
+        onMouseleave: (e) => {
+           $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+        },
+      }, '')
     }
   }
   return feedback({ options, params })
