@@ -157,9 +157,9 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
 }
 
 /**
- * 根据列显隐配置更新 view.columns 中对应 column 的 hidden（display: true => hidden: false，display: false => hidden: true）
+ * 根据列显隐配置更新 view.columns 中对应 column 的 hidden
  */
-export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; display: boolean }>, tableFields: any[]): ViewColumn[] {
+export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; hidden: boolean }>, tableFields: any[]): ViewColumn[] {
   const fieldsById = new Map<string, any>()
   for (const f of tableFields ?? []) {
     if (f?.id == null) continue
@@ -169,7 +169,7 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
   const updatesById = new Map<string, boolean>()
   for (const u of updates ?? []) {
     if (u?.id == null) continue
-    updatesById.set(String(u.id), Boolean(u.display))
+    updatesById.set(String(u.id), Boolean(u.hidden))
   }
   const seen = new Set<string>()
   const nextColumns: ViewColumn[] = []
@@ -184,14 +184,14 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     if (!tableField) continue
     seen.add(key)
 
-    const display = updatesById.get(key)
+    const hiddenFlag = updatesById.get(key)
     const hasKey = updatesById.has(key)
     const tableFieldItem = tableFields.find((f: any) => f.id === fieldId)
     const item = {
       ...col,
       title: tableFieldItem.field_name_alias,
       id: String(tableField.id),
-      hidden: hasKey ? (display === false ? true : false) : col.hidden
+      hidden: hasKey ? Boolean(hiddenFlag) : col.hidden
     }
     nextColumns.push(item)
   }
@@ -203,10 +203,11 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     if (seen.has(key)) continue
     seen.add(key)
 
-    const display = updatesById.get(key)
+    const hiddenFlag = updatesById.get(key)
+    const hasKey = updatesById.has(key)
     nextColumns.push({
       id: String(f.id),
-      hidden: display === false ? true : false
+      hidden: hasKey ? Boolean(hiddenFlag) : false
     })
   }
   return nextColumns

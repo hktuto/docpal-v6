@@ -48,10 +48,14 @@
         </div>
       </div>
       <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @refresh="handleRefresh" />
-      <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons
-      @submit="handleAddRowSubmit"
-      @closed="handleFinishEdit"
-      @current-row-change="handleExpandIndexChange"
+      <MdFormPopover
+        ref="MdFormPopoverRef"
+        :columns="columns"
+        :systemFieldsTypes="systemFieldsTypes"
+        showMoveButtons
+        @submit="handleAddRowSubmit"
+        @closed="handleFinishEdit"
+        @current-row-change="handleExpandIndexChange"
       />
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
@@ -72,6 +76,7 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import type { ColumnConfig } from '../../types/column-context'
 import type { SortRule } from '../tools/sort/configPopover.vue'
 import { createFieldId } from '../../utils/mdTableHelper'
+import { useMDTable } from '../../composables/useMDTable'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 
@@ -94,7 +99,7 @@ interface Props {
     addColumn: (column: ColumnConfig) => void
     tableFields: Ref<any[]>
     currentView?: Ref<any>
-    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
     updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
     saveColumnOrder: (columnId: string, position: number) => void
     columnFilterRules: Ref<any[]>
@@ -134,7 +139,7 @@ const emit = defineEmits<{
   'cell-mouseleave': [params: any]
   'start-edit': [params: any]
   'exit-edit': [params: any]
-  'exit-edit-row':[]
+  'exit-edit-row': []
   'row-dblclick': [params: { row: any; rowIndex: number }]
   'expand-click': [params: { row: any; rowIndex: number }]
   'open-record': [params: { tableId: string; recordId: string; row: any }]
@@ -292,7 +297,7 @@ const handleAddRowSubmit = async (data: any, id: string) => {
     await addRow(data)
   }
 }
-function handleFinishEdit(){
+function handleFinishEdit() {
   emit('exit-edit-row')
 }
 // Handle expand click from checkbox column
@@ -302,9 +307,9 @@ const handleExpandClick = (row: any) => {
   emit('expand-click', { row, rowIndex })
   MdFormPopoverRef.value.open(row, 'edit')
 }
-function handleExpandIndexChange(row:any) {
+function handleExpandIndexChange(row: any) {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
-  console.log("handleExpandIndexChange")
+  console.log('handleExpandIndexChange')
   emit('expand-click', { row, rowIndex })
 }
 

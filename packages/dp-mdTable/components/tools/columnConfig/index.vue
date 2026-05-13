@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
-
+import { ElMessage } from 'element-plus'
 const { tableFields, updatedViewColumnsConfig, columns, saveColumnOrder } = inject('viewTools')
 
 const columnVisibilityList = ref<Array<{ id: string; title: string; hidden: boolean }>>([])
@@ -41,9 +41,21 @@ function buildColumnVisibilityList() {
   return list
 }
 
+function hasMinOneColumn(list: Array<{ id: string; title?: string; hidden: boolean }>) {
+  if (list.length === 0) {
+    return false
+  }
+  return list.some((item) => !item.hidden)
+}
+
 async function handleColumnVisibilityChange(fieldId: string, hidden: boolean) {
   const target = columnVisibilityList.value.find((item) => item.id === fieldId)
   if (target) {
+    if (!hasMinOneColumn(columnVisibilityList.value)) {
+      ElMessage.error('至少保留一个列')
+      target.hidden = false
+      return
+    }
     target.hidden = hidden
   }
   if (!updatedViewColumnsConfig) {
@@ -69,13 +81,17 @@ async function handleColumnDragEnd(event: { oldIndex?: number; newIndex?: number
 }
 
 async function handleHideAllColumns() {
-  columnVisibilityList.value.forEach((item) => {
-    item.hidden = true
+  columnVisibilityList.value.forEach((item, index) => {
+    item.hidden = index !== 0
   })
   if (!updatedViewColumnsConfig) {
     return
   }
-  const updates = (tableFields.value || []).map((field: any) => ({ id: field.id, hidden: true }))
+  const updates = columnVisibilityList.value.map((item) => ({
+    id: item.id,
+    hidden: item.hidden
+  }))
+
   await updatedViewColumnsConfig(updates)
 }
 
@@ -112,7 +128,7 @@ watch(
               v-model="element.hidden"
               :active-value="false"
               :inactive-value="true"
-              @change="handleColumnVisibilityChange(element.id, element.hidden)"
+              @change="(val: boolean) => handleColumnVisibilityChange(element.id, val)"
             />
           </div>
         </template>

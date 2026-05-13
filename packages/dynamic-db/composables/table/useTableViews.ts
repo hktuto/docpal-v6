@@ -38,7 +38,7 @@ export interface ViewContext {
   addField: (newColumns: any[], targetFieldId: string, dragPos?: 'left' | 'right') => Promise<void>
   deleteField: (fieldId: string) => Promise<void>
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
-  updatedViewColumnsConfig: (updates: Array<{ id: string; display: boolean }>) => Promise<void>
+  updatedViewColumnsConfig: (updates: Array<{ id: string; hidden: boolean }>) => Promise<void>
   updateViewColumnCountMethod: (fieldId: string, countMethod: string) => Promise<void>
   updateViewFilterSortGroup: (fieldName: 'filterInfo' | 'sortInfo' | 'groupInfo' | 'style', value: any) => Promise<void>
   saveColumnOrder: (columnId: string, targetFieldId: string, dragPos: 'left' | 'right') => Promise<void>
@@ -216,9 +216,9 @@ export function useTableViews(options: UseTableViewsOptions) {
   }
 
   /**
-   * 根据列显隐配置更新当前视图的 columns（display: true 显示，false 隐藏，对应 column.hidden = !display）
+   * 根据列显隐配置更新当前视图的 columns（hidden 与 column.hidden 一致）
    */
-  async function updatedViewColumnsConfig(updates: Array<{ id: string; display: boolean }>) {
+  async function updatedViewColumnsConfig(updates: Array<{ id: string; hidden: boolean }>) {
     const view = currentView.value
     if (!view) return
     const updatedColumns = updateViewColumnDisplay(view, updates, tableFields.value)
