@@ -1,6 +1,61 @@
+<script lang="ts" setup>
+const emits = defineEmits(['refresh', 'delete'])
+const { t } = useI18n()
+
+const state = reactive({
+  visible: false,
+  setting: <
+    {
+      name: string
+      title: string
+      type: string
+    }
+  >{}
+})
+const predefineColors = ref(['#ffffff', '#ff4500', '#13c3ae', '#0bcf07', '#e6a23d', '#f56b6b', '#909298'])
+
+async function handleSubmit() {
+  emits('refresh')
+  state.visible = false
+}
+
+function handleOpen(setting: any) {
+  state.visible = true
+  setTimeout(async () => {
+    state.setting = setting
+    if (!state.setting.type) {
+      state.setting.type = '#13C3AEFF'
+    }
+
+    if (!setting.title) setting.title = setting.name
+  })
+}
+function handleClear() {
+  state.setting.type = '#ffffff'
+}
+
+defineExpose({ handleOpen })
+</script>
+
 <template>
-  <el-dialog v-model="state.visible" :title="$t('dashboard.setting')" class="scroll-dialog" append-to-body :close-on-click-modal="false" @close="handleClose">
-    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
+  <el-dialog v-model="state.visible" :title="$t('dashboard.setting')" class="scroll-dialog" append-to-body :close-on-click-modal="false">
+    <el-form label-position="top">
+      <el-form-item label="Name">
+        <el-input v-model="state.setting.name" disabled />
+      </el-form-item>
+      <el-form-item label="Title">
+        <el-input v-model="state.setting.title" />
+      </el-form-item>
+      <el-form-item label="Button Color">
+        <div class="color-preview-row">
+          <el-color-picker v-model="state.setting.type" :predefine="predefineColors" @clear="handleClear" />
+          <el-button :style="{ backgroundColor: state.setting.type, color: state.setting.type === '#ffffff' ? '#000' : '#fff' }">
+            {{ $t('Preview Button Color') }}
+          </el-button>
+        </div>
+      </el-form-item>
+    </el-form>
+
     <template #footer>
       <div class="footer-grid">
         <el-button id="WorkPanel__title__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
@@ -10,43 +65,11 @@
     </template>
   </el-dialog>
 </template>
-<script lang="ts" setup>
-import { ElMessageBox } from 'element-plus'
-import formJson from './titleDialog.vform.json'
 
-const emits = defineEmits(['refresh', 'delete'])
-const { t } = useI18n()
-
-const state = reactive({
-  loading: false,
-  visible: false,
-  setting: {}
-})
-const FormRendererRef = ref()
-
-async function handleSubmit() {
-  state.loading = true
-  try {
-    const data = await FormRendererRef.value.getFormData()
-    state.setting.title = data.title
-    state.setting.type = data.type || 'primary'
-    emits('refresh')
-  } catch (error) {
-    state.loading = false
-  }
-  state.visible = false
-  state.loading = false
+<style lang="scss" scoped>
+.color-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-
-function handleOpen(setting) {
-  state.visible = true
-  setTimeout(async () => {
-    state.setting = setting
-    if (!setting.title) setting.title = setting.name
-    await FormRendererRef.value.vFormRenderRef.setFormData(setting)
-    state.loading = false
-  })
-}
-defineExpose({ handleOpen })
-</script>
-<style lang="scss" scoped></style>
+</style>

@@ -154,7 +154,6 @@ async function checkAndSubmit() {
   emits('reload')
 }
 
-onMounted(() => {})
 defineExpose({ workflowClickHandler })
 </script>
 
