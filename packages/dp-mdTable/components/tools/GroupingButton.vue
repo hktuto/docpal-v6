@@ -13,6 +13,7 @@
       :available-columns="availableColumns"
       v-model:grouping-rules="groupingRules"
       :virtual-ref="buttonRef"
+      :groupMaxCount="groupMaxCount"
       width="480"
       placement="bottom-start"
       @change="handleGroupingChange"
@@ -30,6 +31,7 @@ import type { ColumnConfig } from '../../types/column-context'
 interface Props {
   groupableColumns: ColumnConfig[]
   disabled?: boolean
+  groupMaxCount?: number
 }
 
 const props = defineProps<Props>()
