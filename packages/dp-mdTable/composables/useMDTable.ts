@@ -57,7 +57,7 @@ export function useMDTable(props: any) {
 
   // Get update status helper for cell styling
   const { getCellClass } = useUpdateStatus()
-  const { gridOptions } = useTableConfig(
+  const { gridOptions, updateExpandedRows } = useTableConfig(
     {
       ...props,
       loading,
@@ -67,7 +67,7 @@ export function useMDTable(props: any) {
       cellClassName: ({ row, column }: any) => {
         if (!row?.id || !column?.field) return ''
         return getCellClass(row.id, column.field)
-      }
+      },
     },
     gridRef
   )
@@ -150,6 +150,7 @@ export function useMDTable(props: any) {
     editable,
 
     clearCheckboxRow,
+    updateExpandedRows,
     addRow,
     updateRow
   }

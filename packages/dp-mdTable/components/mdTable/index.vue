@@ -145,8 +145,19 @@ const emit = defineEmits<{
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow, systemFieldsTypes } =
-  useMDTable(props)
+const {
+  tableData,
+  columns,
+  gridOptions,
+  gridRef,
+  refreshTableData,
+  updateRow,
+  addVirtualColumn,
+  addColumnPopoverRef,
+  addRow,
+  systemFieldsTypes,
+  updateExpandedRows
+} = useMDTable(props)
 const { getAgg } = useCount(props)
 
 // Import update status composable
@@ -212,7 +223,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
 
   'start-edit': (params: any) => {
     const { row, column } = params
-    console.log("start-edit")
+    console.log('start-edit')
     emit('start-edit', { row, column })
   },
   'edit-closed': ({ row, column }: any) => {
@@ -241,8 +252,10 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       setChecked(row)
     })
   },
-  'toggle-tree-expand': (params: any) => {
-    console.log('toggle-tree-expand', params)
+  toggleTreeExpand: () => {
+    setTimeout(() => {
+      updateExpandedRows()
+    }, 100)
   }
 }))
 
