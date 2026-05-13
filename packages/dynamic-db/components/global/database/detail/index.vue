@@ -58,6 +58,11 @@ const awarenessStates = computed(() => {
   return room?.awarenessStates ?? []
 })
 
+const updatedRows = computed(() => {
+  const room = hocuspocusManager.getRoomState(roomName.value)
+  return room?.updatedRows ?? []
+})
+
 const connected = computed(() => {
   return hocuspocusManager.roomMeta.value[roomName.value]?.connected ?? false
 })
@@ -68,7 +73,7 @@ const localAwareness = computed(() => {
   return (state as any) || {}
 })
 
-function setAwareness(focus: { menuId?: string; rowId?: string; cellId?: string }) {
+function setAwareness(focus: { menuId?: string; rowId?: string; cellId?: string; status?: 'editing' | 'saved' }) {
   hocuspocusManager.setFocus(roomName.value, focus)
 }
 
@@ -78,6 +83,7 @@ function connect() {
 
 provide('databaseHocuspocus', {
   awarenessStates,
+  updatedRows,
   localAwareness,
   connected,
   setAwareness,
