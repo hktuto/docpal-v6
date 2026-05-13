@@ -26,7 +26,9 @@ interface CardWidgetStyle {
 
 const emit = defineEmits<{
   'open-record': [row: any]
+  'row-context-menu': [row: any, event: MouseEvent]
   'load-more': []
+  reload: []
 }>()
 
 const { columns, systemFieldsTypes, updateRow, viewStyleConfig } = useMDCardInject()
@@ -67,6 +69,10 @@ function handleLoadMore() {
   emit('load-more')
 }
 
+function handleRowContextMenu(row: any, event: MouseEvent) {
+  emit('row-context-menu', row, event)
+}
+
 async function handleEditRecord(data: any, id: string) {
   console.log('handleEditRecord', data)
   const updated = await updateRow(id, data)
@@ -76,6 +82,10 @@ async function handleEditRecord(data: any, id: string) {
 }
 
 function commitProxy(type: string = 'reload') {
+  if (type === 'reload') {
+    emit('reload')
+    return
+  }
   console.log('commitProxy', type)
 }
 
@@ -92,6 +102,7 @@ defineExpose({
       :style-config="cardWidgetStyle"
       :grid-style="gridStyle"
       @open-record="handleOpenRecord"
+      @row-context-menu="handleRowContextMenu"
     />
     <MdCardViewList
       v-else
@@ -100,6 +111,7 @@ defineExpose({
       :style-config="cardWidgetStyle"
       :grid-style="gridStyle"
       @open-record="handleOpenRecord"
+      @row-context-menu="handleRowContextMenu"
       @load-more="handleLoadMore"
     />
     <MdFormPopover ref="recordCardDialogRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleEditRecord" />

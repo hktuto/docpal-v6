@@ -49,7 +49,7 @@ export interface TableDataContext {
   refresh: () => Promise<void>
   addRow: (row: any) => void
   updateRow: (rowId: string, data: any, mdTableId?: string) => Promise<boolean>
-  deleteRow: (rowid: string) => Promise<boolean>
+  deleteRow: (rowid: string | string[]) => Promise<boolean>
   getAggChildData: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
   queryRecordById: (id: string) => any
   upsertRows?: (

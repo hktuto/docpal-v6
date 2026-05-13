@@ -31,6 +31,7 @@ const emit = defineEmits<{
 const refreshLoading = ref(false)
 const { columns, cardRef, getTableData, addRow, systemFieldsTypes } = useMDCard(props)
 console.log('extraColumnConfig', props.extraColumnConfig)
+const rightClickCellPopoverRef = ref()
 const isGroupingEnabled = computed(() => {
   return props.extraColumnConfig?.columnGroupRules?.value?.length > 0
 })
@@ -54,6 +55,14 @@ async function handleAddRowSubmit(data: any) {
   console.log('handleAddRowSubmit', data)
   await addRow(data)
   handleRefresh()
+}
+
+function handleRowContextMenu(row: any, event: MouseEvent) {
+  const target = event.currentTarget instanceof HTMLElement ? event.currentTarget : event.target
+  if (!(target instanceof HTMLElement)) {
+    return
+  }
+  rightClickCellPopoverRef.value?.open(target, { row })
 }
 </script>
 
@@ -90,7 +99,14 @@ async function handleAddRowSubmit(data: any) {
       </template>
     </ToolsBar>
 
-    <MdCardView :ref="cardRef" :draggable="props.editable" :isGroupingEnabled="isGroupingEnabled" />
+    <MdCardView
+      :ref="cardRef"
+      :draggable="props.editable"
+      :isGroupingEnabled="isGroupingEnabled"
+      @row-context-menu="handleRowContextMenu"
+      @reload="handleRefresh"
+    />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
     <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
   </div>
 </template>

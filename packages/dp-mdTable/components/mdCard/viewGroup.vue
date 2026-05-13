@@ -21,6 +21,7 @@ defineProps<{
 
 const emit = defineEmits<{
   'open-record': [row: any]
+  'row-context-menu': [row: any, event: MouseEvent]
 }>()
 
 const { columns, tableFields, tableData, columnGroupRules, getAggChildData } = useMDCardInject()
@@ -113,6 +114,10 @@ function handleOpenRecord(row: any) {
   emit('open-record', row)
 }
 
+function handleRowContextMenu(row: any, event: MouseEvent) {
+  emit('row-context-menu', row, event)
+}
+
 watch(
   () => [activeGroupField.value, tableData.value],
   () => {
@@ -142,7 +147,14 @@ defineExpose({
         <div v-if="isGroupExpanded(group, groupIndex)" class="md-card-group-body">
           <div v-if="groupChildren[getGroupKey(group, groupIndex)]?.length > 0" class="card-grid" :style="gridStyle">
             <div v-for="(row, rowIndex) in groupChildren[getGroupKey(group, groupIndex)]" :key="row?.id || rowIndex" class="md-card-draggable-item">
-              <MdCardWidget :row="row" :fields="columns" :style-config="styleConfig" :draggable="false" @open-record="handleOpenRecord" />
+              <MdCardWidget
+                :row="row"
+                :fields="columns"
+                :style-config="styleConfig"
+                :draggable="false"
+                @open-record="handleOpenRecord"
+                @row-context-menu="handleRowContextMenu"
+              />
             </div>
           </div>
           <el-empty v-else-if="!isGroupLoading(group, groupIndex)" class="md-card-group-empty" description="暂无记录" />

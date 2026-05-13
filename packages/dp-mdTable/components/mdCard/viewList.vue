@@ -21,6 +21,7 @@ defineProps<{
 
 const emit = defineEmits<{
   'open-record': [row: any]
+  'row-context-menu': [row: any, event: MouseEvent]
   'load-more': []
 }>()
 
@@ -104,6 +105,10 @@ function handleOpenRecord(row: any) {
   emit('open-record', row)
 }
 
+function handleRowContextMenu(row: any, event: MouseEvent) {
+  emit('row-context-menu', row, event)
+}
+
 function updateRow() {}
 
 defineExpose({
@@ -127,7 +132,14 @@ defineExpose({
     >
       <template #item="{ element }">
         <div class="md-card-draggable-item">
-          <MdCardWidget :row="element" :fields="columns" :style-config="styleConfig" :draggable="true" @open-record="handleOpenRecord" />
+          <MdCardWidget
+            :row="element"
+            :fields="columns"
+            :style-config="styleConfig"
+            :draggable="true"
+            @open-record="handleOpenRecord"
+            @row-context-menu="handleRowContextMenu"
+          />
         </div>
       </template>
     </draggable>
