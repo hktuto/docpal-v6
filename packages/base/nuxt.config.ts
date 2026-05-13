@@ -6,7 +6,7 @@ const currentDir = dirname(fileURLToPath(import.meta.url))
 
 const config = {
   compatibilityDate: '2024-04-03',
-  devtools: { 
+  devtools: {
     enabled: true,
   },
   modules: [
@@ -20,7 +20,7 @@ const config = {
   extends:[
     "../sql-store"
   ],
-  
+
   runtimeConfig:{
     public:{
       isProduction: process.env.NODE_ENV === 'production',
@@ -42,15 +42,15 @@ const config = {
     locales: [
       {
         code:'en-US',
-        files: ['default.ts']
+        files: []
       },
       {
         code:'zh-CN',
-        files: ['default.ts']
+        files: []
       },
       {
         code : 'zh-HK',
-        files: ['default.ts']
+        files: []
       }
     ],
     strategy:'no_prefix',
@@ -172,7 +172,7 @@ const config = {
       script:{
         defineModel:true
       },
-    }    
+    }
   },
 } as any
 
