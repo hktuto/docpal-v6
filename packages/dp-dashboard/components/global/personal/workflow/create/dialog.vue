@@ -6,12 +6,10 @@ const { workflowList, WorkflowCandidateList } = defineProps<{
 const emits = defineEmits(['refresh', 'delete'])
 
 const state = reactive({
-  loading: false,
   visible: false,
   setting: {
     title: ''
   },
-  icon: '',
   WorkflowCandidateList: []
 })
 const form = ref({
@@ -24,38 +22,34 @@ function handleEdit(element: any) {
 const formRef = ref()
 async function handleSubmit() {
   try {
-    state.loading = true
     const valid = await formRef.value.validate()
     if (!valid) return
+
     const workflowList = form.value.workflowList.reduce((prev: any, item: any) => {
       prev.push({
+        id: item.id,
         key: item.key,
-        title: item.title,
-        versionId: item.versionId,
         name: item.name,
         type: item.type || '#13C3AEFF'
       })
       return prev
     }, [])
+
     emits('refresh', { workflowList, title: state.setting.title })
     state.visible = false
   } catch (error) {
     console.error(error)
-  } finally {
-    state.loading = false
   }
 }
 
 function handleOpen(setting: any) {
   state.visible = true
-  state.loading = true
   setTimeout(async () => {
     await formRef.value.resetFields()
     state.setting = setting
-    if (!setting.workflowKeys) setting.workflowKeys = []
-    form.value.workflowList = workflowList ? workflowList : []
-    state.loading = false
-    state.WorkflowCandidateList = WorkflowCandidateList.filter((item: any) => !setting.workflowKeys.includes(item.key))
+    form.value.workflowList = workflowList
+    const idSet = new Set(workflowList.map((item: any) => item.id))
+    state.WorkflowCandidateList = WorkflowCandidateList.filter((item: any) => !idSet.has(item.id))
   })
 }
 defineExpose({ handleOpen })
@@ -70,7 +64,7 @@ defineExpose({ handleOpen })
     </el-form>
 
     <div style="height: 50vh; overflow: hidden">
-      <DragSelect layout="lr" itemKey="name" showDragTip joiner="" :dragList="state.WorkflowCandidateList" :dropList="form.workflowList">
+      <DragSelect layout="lr" itemKey="name" showDragTip joiner="" :dropList="form.workflowList" :dragList="state.WorkflowCandidateList">
         <template #buttons="{ element, index }">
           <SvgIcon class="cursor-pointer el-icon--right" src="/icons/file/edit.svg" @click="handleEdit(element)" />
         </template>

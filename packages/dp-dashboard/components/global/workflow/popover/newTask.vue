@@ -19,13 +19,13 @@ const emits = defineEmits(['reload'])
 const pageButtonSetting = ref<any>(null)
 const openWorkflowEdit = ref(false)
 const userId = useUserId()
-const { workflowList } = await getWorkflowList()
+const workflowList = await getWorkflowList()
 
-async function workflowClickHandler(item: any) {
+async function workflowClickHandler(workflowItem: any) {
   state.loading = true
   openWorkflowEdit.value = false
   openWorkflowEdit.value = true
-  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${item.id}`).then((r: any) => r.data)
+  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => r.data)
   if (!data) return
   if (data.published_version < 1) {
     state.loading = false

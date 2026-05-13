@@ -67,7 +67,7 @@ export type DashboardWidgetSetting = {
 
 export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting } = {
   // HKHS
-  HkhsDailyReportTable:{
+  HkhsDailyReportTable: {
     type: DASHBOARD_TYPE.hkhs,
     label: 'HkhsDailyReportTable',
     minW: 8,
@@ -77,10 +77,9 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     w: 8,
     h: 6,
     component: 'LazyHkhsDailyReportTable',
-    setting: {
-    }
+    setting: {}
   },
-  HkhsApplicationFormsPassLog:{
+  HkhsApplicationFormsPassLog: {
     type: DASHBOARD_TYPE.hkhs,
     label: 'HkhsApplicationFormsPassLog',
     minW: 8,
@@ -90,10 +89,9 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     w: 8,
     h: 10,
     component: 'LazyHkhsApplicationFormsPassLog',
-    setting: {
-    }
+    setting: {}
   },
-  HkhsApplicationsVerified:{
+  HkhsApplicationsVerified: {
     type: DASHBOARD_TYPE.hkhs,
     label: 'HkhsApplicationsVerified',
     minW: 8,
@@ -103,10 +101,9 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     w: 8,
     h: 6,
     component: 'LazyHkhsApplicationsVerified',
-    setting: {
-    }
+    setting: {}
   },
-  HkhsDailySummary:{
+  HkhsDailySummary: {
     type: DASHBOARD_TYPE.hkhs,
     label: 'HkhsDailySummary',
     minW: 8,
@@ -116,8 +113,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     w: 8,
     h: 6,
     component: 'LazyHkhsDailySummary',
-    setting: {
-    }
+    setting: {}
   },
   DocSizeStatistics: {
     type: DASHBOARD_TYPE.documentCount,
@@ -342,7 +338,8 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     h: 3,
     component: 'LazyPersonalWorkflowCreate',
     setting: {
-      workflowKeys: []
+      title: '',
+      workflowList: []
     }
   },
   PersonalWorkflow: {
@@ -514,7 +511,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
       hideSetting: []
     }
   },
-  ...CaseStatisticsWidgetSetting,
+  ...CaseStatisticsWidgetSetting
 }
 export function getDashboardWidgetByType(settingMap: { [key in string]: DashboardWidgetSetting }): { [key in string]: DashboardWidgetSetting[] } {
   const DashboardWidgetResult: { [key in string]: DashboardWidgetSetting[] } = {
@@ -548,4 +545,3 @@ export const getNormalizeSetting = (setting: DashboardWidget) => {
     maxH: item.maxH || 2
   }
 }
-

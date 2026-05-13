@@ -2,7 +2,7 @@
 import { newClientApi } from 'api'
 import { routeWorkflowDetail, getWorkflowList } from '#imports'
 
-const { workflowList } = await getWorkflowList()
+const workflowList = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')

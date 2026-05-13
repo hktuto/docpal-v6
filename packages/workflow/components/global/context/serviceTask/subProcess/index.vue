@@ -12,7 +12,7 @@ const { config } = defineProps<{
     processDefinitionId: string
   }
 }>()
-const { workflowList } = await getWorkflowList()
+const workflowList = await getWorkflowList()
 const processDefinitionId = ref<string>('')
 
 function initForm() {

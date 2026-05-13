@@ -3,7 +3,7 @@ import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { newClientApi } from 'api'
 
 const emits = defineEmits(['delete', 'refreshSetting'])
-const { workflowList } = await getWorkflowList()
+const workflowList = await getWorkflowList()
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -22,8 +22,7 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
   }
 })
 const state = reactive<any>({
-  workflowList: [],
-  workflowAList: []
+  workflowList: []
 })
 const newTaskRef = ref()
 
@@ -32,7 +31,8 @@ async function handleDelete() {
 }
 
 function handleClick(item: any) {
-  newTaskRef.value.workflowClickHandler(item)
+  console.log(333, item)
+  // newTaskRef.value.workflowClickHandler(item)
 }
 
 function handleRefresh(chartSetting: any) {
@@ -41,15 +41,21 @@ function handleRefresh(chartSetting: any) {
 }
 
 async function getWorkflowId() {
-  if (!props.setting.workflowList || props.setting.workflowList.length === 0) return
+  if (props.setting.workflowList.length === 0) return
 
   state.workflowList = props.setting.workflowList.reduce((prev: any, item: any) => {
-    const workflowItem = workflowList.find((workflow: any) => workflow.key === item.key)
-    prev.push({ ...workflowItem, title: item.title, type: item.type || 'primary' })
+    const workflowItem = workflowList.find((workflow: any) => workflow.id === item.id)
+    if (!!workflowItem) {
+      prev.push({
+        id: workflowItem.id,
+        key: workflowItem.key,
+        name: item.name,
+        type: item.type || '#13C3AEFF'
+      })
+    }
     return prev
   }, [])
 }
-
 onMounted(async () => {
   await getWorkflowId()
 })
@@ -74,10 +80,11 @@ onMounted(async () => {
           :title="item.name"
           @click="handleClick(item)"
         >
-          {{ item.title || item.name }}
+          {{ item.name }}
         </el-button>
       </template>
     </div>
+
     <PersonalWorkflowCreateDialog
       ref="settingRef"
       :workflowList="state.workflowList"
