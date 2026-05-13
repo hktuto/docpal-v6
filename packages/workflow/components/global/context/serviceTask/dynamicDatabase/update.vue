@@ -204,13 +204,13 @@ watch(
       </el-select>
     </el-form-item>
 
-    <el-divider />
-
     <el-form-item label="Record Id">
       <el-select v-model="dataId" filterable @change="update">
         <el-option v-for="item in getVariables('string')" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
+
+    <el-divider />
 
     <el-form-item label="Add Fields">
       <el-select v-model="fieldsList" :placeholder="t('common_selectOccupancyContent')" multiple collapse-tags collapse-tags-tooltip>

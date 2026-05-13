@@ -224,7 +224,7 @@ watch(
     </el-form-item>
     <el-form-item label="Return Record Id">
       <el-select v-model="dataId" filterable clearable @change="update">
-        <el-option v-for="item in getVariables('string')" :key="item.id" :label="item.name" :value="item.id" />
+        <el-option v-for="item in getVariablesByTags(['string'])" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-divider />
