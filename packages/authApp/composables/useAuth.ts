@@ -27,10 +27,10 @@ export const useFeature = () => useState<Record<string, boolean>>('app-feature')
 export const useToken = () => useState<string>('auth-token')
 export const useOcrSetting = () => useState<any>('ocr-setting')
 export const useLoginState = () => useState<boolean>('auth-login-state', () => false)
-export const useUserRole = () => useState<string>(() => '')
-export const useIsAdmin = () => useState<boolean>(() => false)
-export const useIsSuperAdmin = () => useState<boolean>(() => true)
-export const useIsMac = () => useState<boolean>(() => false)
+export const useUserRole = () => useState<string>('auth-user-role', () => '')
+export const useIsAdmin = () => useState<boolean>('auth-is-admin', () => false)
+export const useIsSuperAdmin = () => useState<boolean>('auth-is-super-admin', () => true)
+export const useIsMac = () => useState<boolean>('auth-is-mac', () => false)
 
 export const useAuth = () => {
   const loggedIn = useLoginState()
@@ -64,7 +64,7 @@ export async function verifly() {
     const isSuperAdmin = useIsSuperAdmin()
     const hasAdmin = decodedToken.roles.includes('ROLE_ADMIN')
     const hasSuperAdmin = decodedToken.roles.includes('ROLE_SUPER')
-    isAdmin.value = hasAdmin
+    isAdmin.value = hasAdmin || hasSuperAdmin
     isSuperAdmin.value = hasSuperAdmin
   }
   // check if user in in db
