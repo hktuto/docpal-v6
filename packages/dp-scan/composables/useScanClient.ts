@@ -96,12 +96,34 @@ export const useScanClient = () => {
       })
     })
     projects.value = Array.from(allProjects.values()) as any[]
-    console.log("filter.value.projectId", filter.value.projectId)
     if (!filter.value.projectId ||　!filter.value.projectId.length && projects.value.length) {
       filter.value.projectId = projects.value[0].id
+      // set default status filter base on project permission
+      // const projectPermission = [];
+      if (isAdmin(filter.value.projectId)) {
+        filter.value.status = []
+      } else {
+        let result = new Set()
+        if(isExporter(filter.value.projectId)) {
+          result.add('exportReady')
+        }
+        if (isVerifier(filter.value.projectId)) {
+          result.add('failed')
+          result.add('verification')
+        }
+        if (isCreator(filter.value.projectId)) {
+          result.add('processing')
+          result.add('failed')
+           result.add('verification')
+        }
+        filter.value.status = Array.from(result)
+      }
+
+      console.log("StatusMap", StatusMap, filter.value.status)
     }
 
     projectLoading.value = false
+    // update
   }
 
   onMounted(() => {

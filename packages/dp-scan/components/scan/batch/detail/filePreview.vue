@@ -63,16 +63,17 @@ const dragStart = ref({ x: 0, y: 0 })
 const scrollStart = ref({ x: 0, y: 0 })
 
 // Calculate base scale to fit image in container (fit-to-screen)
+const FIT_PADDING = 24
+
 const baseScale = computed(() => {
   const img = imageObj.value
   const container = containerRef.value
   if (!img || !container) return 1
 
   const containerRect = container.getBoundingClientRect()
-  return Math.min(
-    containerRect.width / img.naturalWidth,
-    containerRect.height / img.naturalHeight,
-    1 // Don't upscale beyond 100%
+  return Math.max(
+    (containerRect.width - FIT_PADDING * 2) / img.naturalWidth,
+    (containerRect.height - FIT_PADDING * 2) / img.naturalHeight
   )
 })
 
@@ -140,6 +141,7 @@ function drawCanvas() {
   } else {
     // Draw section highlight if on current page
     if (highlightedSection.value && currentPageNumber.value === highlightedSection.value.page) {
+
       const zone = parseZone(highlightedSection.value.zone)
       if (zone) {
         drawHighlightBox(ctx, zone, scale, '#409EFF', 2) // Blue for section
@@ -329,7 +331,7 @@ function centerCanvas() {
   }
 
   if (maxScrollTop > 0) {
-    container.scrollTop = maxScrollTop / 2
+    container.scrollTop = 0
   } else {
     // Canvas fits vertically - center via flexbox by adding margin
     canvas.style.marginTop = 'auto'
@@ -349,10 +351,12 @@ const canvasButtons = ref<{
   cancel: { x: number; y: number; width: number; height: number } | null
 }>({ save: null, cancel: null })
 
+const canvasImageReady = ref(false)
+
 // Load image when preview URL changes
 watch(() => previewImgUrl.value, (url) => {
   if (!url) return
-
+  canvasImageReady.value = false
   // Reset zoom when new image loads
   zoomScale.value = 1
 
@@ -366,6 +370,7 @@ watch(() => previewImgUrl.value, (url) => {
       // Check if we have a pending highlight pan
       if (pendingHighlightPan.value && pendingHighlightPan.value.page === currentPageNumber.value) {
         const zone = parseZone(pendingHighlightPan.value.zone)
+
         if (zone) {
           nextTick(() => panToZone(zone))
         }
@@ -374,6 +379,10 @@ watch(() => previewImgUrl.value, (url) => {
         // Center canvas after drawing
         nextTick(() => centerCanvas())
       }
+      nextTick(() => {
+
+        canvasImageReady.value = true
+      })
     })
   }
   img.onerror = () => {
@@ -410,7 +419,6 @@ function panToZone(zone: { x: number; y: number; width: number; height: number }
 watch(() => highlightedSection.value, (newVal) => {
   drawCanvas()
   if (!newVal) return
-
   // Don't auto-pan when in edit mode
   if (isEditingCrop.value) return
 
@@ -421,20 +429,19 @@ watch(() => highlightedSection.value, (newVal) => {
   }
 
   // If highlight is on current page, pan after short delay
-  if (currentPageNumber.value === newVal.page) {
+  if (currentPageNumber.value === newVal.page && canvasImageReady.value) {
     highlightPanTimeout = setTimeout(() => {
       const zone = parseZone(newVal.zone)
       if (zone) panToZone(zone)
     }, 100)
-  } else {
-    // Highlight is on a different page, set pending pan for after page load
-    pendingHighlightPan.value = { zone: newVal.zone, page: newVal.page }
   }
+  pendingHighlightPan.value = { zone: newVal.zone, page: newVal.page }
 }, { deep: true })
 
 watch(() => highlightedField.value, (newVal) => {
-  drawCanvas()
+
   if (!newVal) return
+  drawCanvas()
   // Don't auto-pan when in edit mode
   if (isEditingCrop.value) return
 
@@ -443,17 +450,15 @@ watch(() => highlightedField.value, (newVal) => {
     clearTimeout(highlightPanTimeout)
     highlightPanTimeout = null
   }
-
   // If highlight is on current page, pan after short delay
-  if (currentPageNumber.value === newVal.page) {
+  if (currentPageNumber.value === newVal.page && canvasImageReady.value) {
     highlightPanTimeout = setTimeout(() => {
       const zone = parseZone(newVal.zone)
       if (zone) panToZone(zone)
     }, 100)
-  } else {
-    // Highlight is on a different page, set pending pan for after page load
-    pendingHighlightPan.value = { zone: newVal.zone, page: newVal.page }
   }
+
+  pendingHighlightPan.value = { zone: newVal.zone, page: newVal.page }
 }, { deep: true })
 
 // Store the mouse position for zoom-to-cursor
@@ -470,10 +475,10 @@ function zoomTo(newZoom: number, focalPoint?: { x: number; y: number } | null) {
   const clampedZoom = Math.max(MIN_ZOOM, Math.min(newZoom, MAX_ZOOM))
   if (clampedZoom === zoomScale.value) return
 
-  // If no focal point provided, zoom to center
+  // If no focal point provided, zoom to top center
   const focus = focalPoint || {
     x: container.clientWidth / 2 + container.scrollLeft,
-    y: container.clientHeight / 2 + container.scrollTop
+    y: 0
   }
 
   // Calculate the point on the image that we're zooming towards (as ratio 0-1)
@@ -554,7 +559,7 @@ function zoomOut() {
 
 function resetZoom() {
   zoomScale.value = 1
-  nextTick(() => centerCanvas())
+  centerCanvas()
 }
 
 
@@ -853,7 +858,7 @@ function handleMouseDown(event: MouseEvent) {
     event.preventDefault()
     event.stopPropagation()
     if (button === 'save') {
-      console.log("sve button click")
+      console.log("save button click")
       saveCropEdit()
     } else if (button === 'cancel') {
       cancelCropEdit()
@@ -976,7 +981,6 @@ async function getPreviewPdf(){
     previewErrorFile.value = null;
     if(!detail.originalFilename) return
     errorPreviewLoading.value = true;
-    console.log("try get document")
     try{
 
       const path = `/process/${detail.batchId}/${detail.id}/${detail.id}.pdf`

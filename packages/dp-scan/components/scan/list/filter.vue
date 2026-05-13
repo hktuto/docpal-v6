@@ -2,7 +2,7 @@
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useDebounceFn } from '@vueuse/core'
 import { StatusMap, ScanTableColumns } from '#imports'
-const { filter, projects } = useScanClient()
+const { filter, projects, isCreator,isVerifier,isExporter,isAdmin  } = useScanClient()
 
 const emit = defineEmits(['search'])
 const filterUpdate = computed({
@@ -99,6 +99,29 @@ const search = useDebounceFn(() => {
   emit('search', filter)
 }, 500)
 
+function projectChange(newVal){
+  console.log("Project changed:", newVal)
+  if(!newVal) return
+  if(isAdmin(newVal)){
+    filter.value.status = []
+  }else{
+    let result = new Set()
+    if(isExporter(newVal)) {
+      result.add('exportReady')
+    }
+    if (isVerifier(newVal)) {
+      result.add('failed')
+      result.add('verification')
+    }
+    if (isCreator(newVal)) {
+      result.add('processing')
+      result.add('failed')
+      result.add('verification')
+    }
+    filter.value.status = Array.from(result)
+  }
+}
+
 watchThrottled(filter, search, { throttle: 300 })
 
 </script>
@@ -112,7 +135,7 @@ watchThrottled(filter, search, { throttle: 300 })
           :name="filterType === 'keyword' ? 'mdi:magnify' : 'mdi:application'" @click="filterType = filterType === 'keyword' ? 'Application' : 'keyword'"/>
         </template>
     </ElInput>
-    <ElSelect class="project" v-model="filter.projectId"  placeholder="Projects">
+    <ElSelect class="project" v-model="filter.projectId"  placeholder="Projects" @change="projectChange">
       <ElOption v-for="p in projects" :key="p.id" :label="p.name" :value="p.id" />
     </ElSelect>
     <ElSelect class="status" v-model="filter.status" collapse-tags placeholder="Status" multiple clearable>

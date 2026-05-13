@@ -39,6 +39,14 @@
           :disabled="loading"
           @change="handleSave"
         />
+        <PasswordPolicySwitch
+          id="disallowPersonalInfoInPassword"
+          label="Username check"
+          v-model:value="form.disallowPersonalInfoInPassword"
+          description="Password cannot contain username, first name, last name, or any name tokens (split by spaces, hyphens, underscores). Case-insensitive."
+          :disabled="loading"
+          @change="handleSave"
+        />
       </div>
       <el-divider direction="vertical" />
       <div>

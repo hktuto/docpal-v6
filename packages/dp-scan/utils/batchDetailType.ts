@@ -31,6 +31,9 @@ export type FieldWithValue = {
     options: Record<string, string>[]
   }
   format?: string // e.g. 'DD/MM/YYYY' for date formatting
+  min_date?: string // e.g. 'today', 'yesterday', 'one_week_ago'
+  max_date?: string // e.g. 'today', 'yesterday', 'one_week_ago'
+  default_value?: string // default value when no OCR data is present
   page?: number // for table type if field is from other page then section
   // Added values from result JSON
   currentValue: any
@@ -80,7 +83,7 @@ export type BatchDetailContext = {
   isLockedByOther: Ref<boolean>
   lockedByUser: Ref<string | undefined>
   selectSection: (section: any) => void
-  selectField: (field: any) => void
+  selectField: (field: any, section?:any) => void
   changePage: (pageNumber: number) => Promise<void>
   updateFieldValue: (sectionId: string, fieldKey: string, value: any, rowIndex?: number) => void
   addTableRow: (sectionId: string) => void
