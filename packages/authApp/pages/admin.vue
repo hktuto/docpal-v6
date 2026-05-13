@@ -17,15 +17,16 @@ defaultTab.value =  {
   props: {}
 }
 
-
+onMounted(() => {
+  const usserIsAdmin = useIsAdmin()
+  if (!usserIsAdmin.value) {
+    window.location.href = '/'
+  }
+})
 </script>
 
 <template>
   <NuxtLayout name="auth" defaultTab="defaultTab">
-    
+
   </NuxtLayout>
 </template>
-
-
-
-
