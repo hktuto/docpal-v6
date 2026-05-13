@@ -92,12 +92,7 @@ export function useDBParams() {
         }
       ]
     }
-    if (columnSortRules.value && columnSortRules.value.length > 0) {
-      const orderBy = getSortRules()
-      if (orderBy.length > 0) {
-        params.orderBy = orderBy
-      }
-    }
+
     if (getGroup && columnGroupRules.value && columnGroupRules.value.length > 0) {
       params.groupBy = {
         columns: [columnGroupRules.value[0].field]
@@ -112,6 +107,17 @@ export function useDBParams() {
           aggFunc: 'COUNT' // [可选] 聚合函数: COUNT, SUM, MAX, MIN, AVG
         }
       ]
+      params.orderBy = [
+        {
+          column: columnGroupRules.value[0].field,
+          desc: columnGroupRules.value[0].order === 'desc'
+        }
+      ]
+    } else if (columnSortRules.value && columnSortRules.value.length > 0) {
+      const orderBy = getSortRules()
+      if (orderBy.length > 0) {
+        params.orderBy = orderBy
+      }
     }
     return params
   }
