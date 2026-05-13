@@ -346,16 +346,18 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     type: DASHBOARD_TYPE.workflow,
     feature: 'WORKFLOW',
     label: 'PersonalWorkflow',
-    minW: 2,
-    minH: 2,
+    minW: 8,
+    minH: 4,
     maxW: 12,
     maxH: 12,
-    w: 3,
-    h: 3,
-    component: 'LazyPersonalWorkflow',
+    w: 8,
+    h: 4,
+    component: 'LazyPersonalWorkflowPage',
     setting: {
+      title: '',
       isTabView: false,
-      processKeys: []
+      selectedTable: '',
+      workflowIdList: []
     }
   },
   PersonalWorkflowSingle: {

@@ -44,13 +44,10 @@ async function handleSubmit() {
 
 function handleOpen(setting: any) {
   state.visible = true
-  setTimeout(async () => {
-    await formRef.value.resetFields()
-    state.setting = setting
-    form.value.workflowList = workflowList
-    const idSet = new Set(workflowList.map((item: any) => item.id))
-    state.WorkflowCandidateList = WorkflowCandidateList.filter((item: any) => !idSet.has(item.id))
-  })
+  state.setting = deepCopy(setting)
+  form.value.workflowList = workflowList
+  const idSet = new Set(workflowList.map((item: any) => item.id))
+  state.WorkflowCandidateList = WorkflowCandidateList.filter((item: any) => !idSet.has(item.id))
 }
 defineExpose({ handleOpen })
 </script>
@@ -80,7 +77,7 @@ defineExpose({ handleOpen })
     </template>
   </el-dialog>
 
-  <PersonalWorkflowCreateTitleDialog ref="titleDialogRef" @refresh="handleSubmit" />
+  <PersonalWorkflowCreateItemDialog ref="titleDialogRef" @refresh="handleSubmit" />
 </template>
 
 <style lang="scss" scoped></style>

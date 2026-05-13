@@ -84,7 +84,7 @@ onMounted(async () => {
       </template>
     </div>
 
-    <PersonalWorkflowCreateDialog
+    <PersonalWorkflowCreateSetting
       ref="settingRef"
       :workflowList="state.workflowList"
       :WorkflowCandidateList="workflowList"

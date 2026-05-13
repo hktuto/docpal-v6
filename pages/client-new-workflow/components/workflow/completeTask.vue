@@ -58,7 +58,8 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      workflowType: 'completeTask'
+      workflowType: 'completeTask',
+      db_id: row.node_id
     }),
     false
   )
