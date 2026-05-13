@@ -31,8 +31,7 @@ async function handleDelete() {
 }
 
 function handleClick(item: any) {
-  console.log(333, item)
-  // newTaskRef.value.workflowClickHandler(item)
+  newTaskRef.value.workflowClickHandler(item)
 }
 
 function handleRefresh(chartSetting: any) {
