@@ -43,7 +43,7 @@ function handleDblclick(row: any) {
     routeWorkflowDetail({
       ...row,
       workflowType: 'activeTask',
-      db_id: row.node_id
+      db_id: row.db_id
     }),
     false
   )
