@@ -1,6 +1,6 @@
 <template>
   <div class="table-view-root" v-if="tableId">
-    <div class="table-view-main" style="position: relative;">
+    <div ref="tableViewMainRef" class="table-view-main" style="position: relative;">
       <MdCard
           v-if="currentView?.type === 'card'"
           :canManageTable="canManageTable"
@@ -33,9 +33,10 @@
           @cell-mouseleave="handleCellMouseLeave"
           @start-edit="startEditHandler"
           @exit-edit="exitCellEdit"
-          @start-edit-row=""
+          @exit-edit-row="exitRowEdit"
+          @expand-click="startEditRowHandler"
           />
-      <DatabaseAwarenessFloatingTags :get-element="getTableCell" />
+      <DatabaseAwarenessFloatingTags :get-element="getTableCell" :container-ref="tableBodyRef" @jump="handleJump" />
     </div>
 
     <div v-if="panelVisible" class="table-view-panel">
@@ -93,6 +94,21 @@ const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 // hocuspocus logic
 const { setAwareness, localAwareness } = inject('databaseHocuspocus')
 
+const tableViewMainRef = ref<HTMLElement>()
+const tableBodyRef = ref<HTMLElement | null>(null)
+
+function updateTableBodyRef() {
+  tableBodyRef.value = tableViewMainRef.value?.querySelector('.vxe-table--body-wrapper') as HTMLElement | null
+}
+
+onMounted(() => {
+  nextTick(updateTableBodyRef)
+})
+
+watch(currentView, () => {
+  nextTick(updateTableBodyRef)
+})
+
 function handleCellMouseEnter(params: any) {
   if (!localAwareness.value.focus.editingRow && !localAwareness.value.focus.editingCell) {
     setAwareness({
@@ -109,6 +125,14 @@ function exitCellEdit(params: any) {
     editingCell: false
   })
 }
+function exitRowEdit() {
+  setAwareness({
+    rowId: null,
+    cellId:null,
+    editingRow: false,
+    editingCell: false
+  })
+}
 function startEditHandler(params:any) {
   console.log("startEditHandler", params)
   setAwareness({
@@ -120,13 +144,26 @@ function startEditHandler(params:any) {
 }
 function handleCellMouseLeave(params: any) {
 }
-
+function startEditRowHandler(params:any) {
+  console.log("startEditRowHandler", params)
+  setAwareness({
+    rowId: params.row.id,
+    editingRow: true,
+    editingCell: false
+  })
+}
 function getTableCell(focus: any) {
   const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
   return {
     element: document.querySelector(selector) as HTMLElement | null,
     type: 'table-cell',
     selector
+  }
+}
+function handleJump(focus: any) {
+  const cell = getTableCell(focus)
+  if (cell.element) {
+    cell.element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
   }
 }
 

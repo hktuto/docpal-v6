@@ -6,6 +6,7 @@
       :max="properties.maxRating"
       :allow-half="properties.allowHalf"
       :clearable="properties.allowClear"
+      :disabled="disabled"
     />
   </MdFormItem>
 </template>
@@ -18,6 +19,7 @@ const props = defineProps<{
   formData: any
   column: any
   fieldName: string
+  disabled: boolean
 }>()
 
 /** 评分列配置（column.properties），与 RatingConfig 一致，最大值等 */

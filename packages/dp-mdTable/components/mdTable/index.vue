@@ -48,7 +48,11 @@
         </div>
       </div>
       <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @refresh="handleRefresh" />
-      <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
+      <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons
+      @submit="handleAddRowSubmit"
+      @closed="handleFinishEdit"
+      @current-row-change="handleExpandIndexChange"
+      />
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
       <RecordCardDialog ref="recordCardDialogRef" />
@@ -130,6 +134,7 @@ const emit = defineEmits<{
   'cell-mouseleave': [params: any]
   'start-edit': [params: any]
   'exit-edit': [params: any]
+  'exit-edit-row':[]
   'row-dblclick': [params: { row: any; rowIndex: number }]
   'expand-click': [params: { row: any; rowIndex: number }]
   'open-record': [params: { tableId: string; recordId: string; row: any }]
@@ -287,12 +292,20 @@ const handleAddRowSubmit = async (data: any, id: string) => {
     await addRow(data)
   }
 }
+function handleFinishEdit(){
+  emit('exit-edit-row')
+}
 // Handle expand click from checkbox column
 const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
   emit('expand-click', { row, rowIndex })
   MdFormPopoverRef.value.open(row, 'edit')
+}
+function handleExpandIndexChange(row:any) {
+  const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
+  console.log("handleExpandIndexChange")
+  emit('expand-click', { row, rowIndex })
 }
 
 // 处理添加列

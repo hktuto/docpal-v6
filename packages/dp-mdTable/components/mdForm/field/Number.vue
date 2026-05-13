@@ -8,6 +8,7 @@
       :precision="properties.precision"
       :step="1"
       align="left"
+      :disabled="disabled"
       controls-position="right"
     >
       <template v-if="properties.symbol && properties.symbolAlign === 'right'" #suffix>
@@ -27,6 +28,7 @@ const props = defineProps<{
   formData: any
   column: any
   fieldName: string
+  disabled: boolean
 }>()
 
 const modelField = computed(() => props.column?.[props.fieldName])

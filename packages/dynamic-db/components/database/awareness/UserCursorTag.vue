@@ -2,34 +2,79 @@
 import type { AwarenessState } from '../../../composables/useHocuspocusManager'
 
 const props = defineProps<{
-  state: AwarenessState
+  states: AwarenessState[]
   type: string
+  width: number
+  height: number
 }>()
 
-const user = computed(() => props.state.user)
-const focus = computed(() => props.state.focus)
+const firstUser = computed(() => props.states[0]?.user)
+const borderColor = computed(() => firstUser.value?.color || '#999')
+
+const anyOneEditing = computed(() => props.states.some((s) => s.focus?.editingCell || s.focus?.editingRow))
 </script>
 
 <template>
   <div
-    v-if="user"
     class="user-cursor-tag"
     :class="`type-${type}`"
-    :style="{ backgroundColor: user.color }"
+    :style="{ width: width + 'px', height: height + 'px' }"
   >
-    <el-tooltip :content="user.name" placement="top">
-      <div class="cursor-dot">
-        {{ user.name.charAt(0).toUpperCase() }} {{
-           (state.focus?.editingCell ||　state.focus?.editingRow) ? ": Editing" : ''
-        }}
-      </div>
-    </el-tooltip>
+    <!-- Cell-following border -->
+    <div
+      class="cell-border"
+      v-if="anyOneEditing"
+      :style="{ borderColor: borderColor }"
+    />
+
+    <!-- Stacked user dots -->
+    <div class="cursor-dot-contaioner">
+
+
+        <div
+        v-for="(state, idx) in states"
+        :key="state.user!.id"
+        class="cursor-dot"
+        :style="{
+            backgroundColor: state.user!.color,
+            top: (idx * 22) + 'px'
+        }"
+        >
+        <el-tooltip :content="state.user!.name" placement="top">
+            <div class="dot-inner">
+            {{ state.user!.name.charAt(0).toUpperCase() }}
+            {{ state.focus?.editingCell ? ': Edit Cell' : state.focus?.editingRow? ': Edit Row' :'' }}
+            </div>
+        </el-tooltip>
+        </div>
+        </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .user-cursor-tag {
-  /* width: 20px; */
+  position: relative;
+  pointer-events: none;
+}
+
+.cell-border {
+  position: absolute;
+  inset: 0;
+  border: 2px solid;
+  border-radius: 2px;
+  pointer-events: none;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.cursor-dot-contaioner{
+    position: absolute;
+    left: calc(var(--app-space-xs) * -1);
+    top: calc(var(--app-space-xs) * -1);
+}
+.cursor-dot {
+  position: absolute;
+  left: 0;
   height: 20px;
   border-radius: var(--app-border-radius-m);
   padding: var(--app-space-xs);
@@ -39,17 +84,21 @@ const focus = computed(() => props.state.focus)
   font-size: 10px;
   font-weight: 600;
   color: white;
-  border: 2px solid white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   pointer-events: auto;
   cursor: pointer;
+  z-index: 2;
+  min-width: 20px;
+
 }
 
-.cursor-dot {
+.dot-inner {
   width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
+
+
 }
 </style>
