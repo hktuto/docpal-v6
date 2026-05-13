@@ -54,7 +54,7 @@ function createDeleteOption(row: Record<string, any>): CellPopoverOption {
 
   return {
     label: isBatchDelete ? t('mdTable.deleteSelectedRow', { count: rowsToDelete.length }) : t('mdTable.deleteRow'),
-    icon: 'Delete',
+    icon: 'material-symbols:delete-outline',
     onClick: () => handleDeleteRows(rowsToDelete)
   }
 }
@@ -111,9 +111,12 @@ defineExpose({
 <style scoped lang="scss">
 .cell-popover-item {
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xs);
   &:hover {
-    background: var(--app-primary-alpha-10);
-    color: var(--app-primary);
+    background: var(--app-primary-alpha-30);
+    color: var(--app-primary-color);
   }
 }
 </style>
