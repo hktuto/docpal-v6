@@ -13,11 +13,6 @@ const currentMenuItem = computed<TreeItem | undefined>(() => {
 // Navigation state
 const activeSection = ref('info')
 
-// Responsive state
-const pageContainerRef = ref<HTMLElement | null>(null)
-const isMobileView = ref(false)
-const isSidebarOpen = ref(true)
-
 const settingsSections = [
   {
     group: 'GENERAL',
@@ -50,10 +45,6 @@ const settingsSections = [
 
 function switchSection(sectionId: string) {
   activeSection.value = sectionId
-  // Auto-hide sidebar on mobile after selection
-  if (isMobileView.value) {
-    isSidebarOpen.value = false
-  }
 }
 
 const sectionComponent = computed(() => {
@@ -78,64 +69,13 @@ const sectionComponent = computed(() => {
       return 'LazyDatabaseSettingTableGeneral'
   }
 })
-
-// Responsive handling
-function checkContainerSize() {
-  if (!pageContainerRef.value) return
-  const containerWidth = pageContainerRef.value.offsetWidth
-  const wasMobile = isMobileView.value
-  isMobileView.value = containerWidth < 700
-
-  // Auto-hide sidebar when transitioning to mobile
-  if (!wasMobile && isMobileView.value) {
-    isSidebarOpen.value = false
-  }
-  // Auto-show sidebar when transitioning to desktop
-  if (wasMobile && !isMobileView.value) {
-    isSidebarOpen.value = true
-  }
-}
-
-function toggleSidebar() {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
-
-onMounted(() => {
-  nextTick(() => {
-    checkContainerSize()
-  })
-
-  if (pageContainerRef.value) {
-    const resizeObserver = new ResizeObserver(checkContainerSize)
-    resizeObserver.observe(pageContainerRef.value)
-
-    onUnmounted(() => {
-      resizeObserver.disconnect()
-    })
-  }
-})
 </script>
 
 <template>
-  <div
-    ref="pageContainerRef"
-    class="setting-page"
-    :class="{
-      'is-mobile': isMobileView,
-      'sidebar-open': isSidebarOpen
-    }"
-  >
-    <!-- Toggle button teleported to header for mobile -->
-    <Teleport to="#database-table-header-right">
-      <el-button v-if="isMobileView" size="small" @click="toggleSidebar">
-        <Icon :name="isSidebarOpen ? 'lucide:panel-left-close' : 'lucide:panel-left'" size="16" />
-      </el-button>
-    </Teleport>
-
-    <!-- Single layout structure - CSS handles responsive -->
+  <div class="setting-page">
     <div class="layout-wrapper">
       <!-- Sidebar navigation -->
-      <aside class="setting-nav" :class="{ 'is-open': isSidebarOpen }">
+      <aside class="setting-nav">
         <div class="nav-title">Table Settings</div>
         <div class="nav-content">
           <template v-for="section in settingsSections" :key="section.group">
@@ -160,7 +100,7 @@ onMounted(() => {
       <!-- Resize handle (desktop only) -->
       <div class="resize-handle" />
 
-      <!-- Main content - never re-renders on resize -->
+      <!-- Main content -->
       <main class="setting-container">
         <component
           :is="sectionComponent"
@@ -169,9 +109,6 @@ onMounted(() => {
           :id="databaseMenuRouteParams.detailId"
         />
       </main>
-
-      <!-- Backdrop for mobile sidebar -->
-      <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />
     </div>
   </div>
 </template>
@@ -204,7 +141,6 @@ onMounted(() => {
   flex-direction: column;
   overflow-y: auto;
   flex-shrink: 0;
-  transition: transform 0.3s ease;
 
   .nav-title {
     font-size: var(--app-font-size-xl);
@@ -293,65 +229,5 @@ onMounted(() => {
   overflow-y: auto;
   padding: var(--app-space-m);
   background: var(--app-paper);
-}
-
-// ============================================
-// Sidebar backdrop (mobile)
-// ============================================
-.sidebar-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999;
-}
-
-// ============================================
-// Mobile responsive styles
-// ============================================
-.setting-page.is-mobile {
-  .layout-wrapper {
-    display: block;
-    position: relative;
-  }
-
-  .setting-nav {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 260px;
-    z-index: 1000;
-    transform: translateX(-100%);
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-
-    &.is-open {
-      transform: translateX(0);
-    }
-  }
-
-  .resize-handle {
-    display: none;
-  }
-
-  .setting-container {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-}
-
-// ============================================
-// Desktop styles
-// ============================================
-.setting-page:not(.is-mobile) {
-  .sidebar-backdrop {
-    display: none;
-  }
 }
 </style>
