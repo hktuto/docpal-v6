@@ -73,8 +73,8 @@ async function fetchData() {
     const orderBy: any[] = []
     if (props.setting?.sortField) {
       orderBy.push({
-        field: props.setting.sortField,
-        order: props.setting.sortOrder || 'desc'
+        column: props.setting.sortField,
+        desc: props.setting.sortOrder !== 'asc'
       })
     }
     const { data }: any = await postDynamicActions({
