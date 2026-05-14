@@ -58,7 +58,7 @@ async function getDetail() {
     state.title = data.config.human_task.form_title || data.name
 
     const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
-    variablesData.value = instanceData.initial_variables || {}
+    variablesData.value = instanceData.variables || {}
     contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data)
     variables.value = contentData.value.variables
 
@@ -195,6 +195,7 @@ async function handleSubmit() {
     const fallbackRoute = routeWorkflowPage({
       workflowType: workflowType
     })
+    // TODO：call router repair
     routerProvider?.back(fallbackRoute)
   } catch (error) {
     console.log('error', error)
@@ -372,11 +373,10 @@ async function handleTaskInfoChange(taskDetailRes: any) {
 }
 
 function handleBack() {
-  routerProvider?.navigateTo(
-    routeWorkflowPage({
-      workflowType: workflowType
-    })
-  )
+  const newRoute = routeWorkflowPage({
+    workflowType: workflowType
+  })
+  routerProvider?.navigateTo(newRoute)
 }
 
 onMounted(() => {

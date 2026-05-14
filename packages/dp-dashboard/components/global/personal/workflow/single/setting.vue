@@ -26,23 +26,6 @@ async function handleWorkflowChange(workflowId: string) {
   availableSteps.value = userNodes
 
   const allFormInfo = new Map()
-  allFormInfo.set('name', {
-    id: 'name',
-    name: 'workflow_name'
-  })
-  allFormInfo.set('createDate', {
-    id: 'createDate',
-    name: 'Task Start Date'
-  })
-  allFormInfo.set('startUserId', {
-    id: 'startUserId',
-    name: 'Task Initiator'
-  })
-  allFormInfo.set('assignee', {
-    id: 'assignee',
-    name: 'Task Owner'
-  })
-
   userNodes.reduce((prev: any[], item: any) => {
     item.config.human_task.form_fields.forEach((f: any) => {
       allFormInfo.set(f.id, f)

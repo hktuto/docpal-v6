@@ -2,17 +2,20 @@
 const activeTab = ref('allTask')
 const workflowRef = ref()
 
-const { workflowType } = defineProps<{
+const props = defineProps<{
   workflowType: string
 }>()
+const { workflowType } = toRefs(props)
 
 function reload() {
-  // workflowRef.value.reloadTable()
+  nextTick(() => {
+    // workflowRef.value.reloadTable()
+  })
 }
 
 onMounted(() => {
-  if (!!workflowType) {
-    activeTab.value = workflowType
+  if (workflowType.value) {
+    activeTab.value = workflowType.value
   }
 })
 </script>
@@ -27,15 +30,15 @@ onMounted(() => {
       <el-tab-pane :label="$t('workflow_allTask')" name="allTask">
         <WorkflowAllTask v-if="activeTab === 'allTask'" ref="workflowRef" />
       </el-tab-pane>
-      <el-tab-pane :label="$t('workflow_myTask')" name="activeTask">
-        <WorkflowActiveTask v-if="activeTab === 'activeTask'" ref="workflowRef" />
+      <el-tab-pane :label="$t('workflow_myTask')" name="myTask">
+        <WorkflowMyTask v-if="activeTab === 'myTask'" ref="workflowRef" />
       </el-tab-pane>
-<!--      <el-tab-pane :label="$t('workflow_myTask')" name="myTask">-->
-<!--        <WorkflowMyTask v-if="activeTab === 'myTask'" ref="workflowRef" />-->
-<!--      </el-tab-pane>-->
       <el-tab-pane :label="$t('workflow_completedTask')" name="completeTask">
         <WorkflowCompleteTask v-if="activeTab === 'completeTask'" ref="workflowRef" />
       </el-tab-pane>
+      <!--      <el-tab-pane :label="$t('workflow_myTask')" name="activeTask">-->
+      <!--        <WorkflowActiveTask v-if="activeTab === 'activeTask'" ref="workflowRef" />-->
+      <!--      </el-tab-pane>-->
       <el-tab-pane :label="$t('Resolved Task')" name="resolvedTask">
         <WorkflowResolvedTask v-if="activeTab === 'resolvedTask'" ref="workflowRef" />
       </el-tab-pane>
