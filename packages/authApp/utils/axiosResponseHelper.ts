@@ -22,7 +22,13 @@ function getBaseUrl(baseURL: string) {
 }
 
 // TODO: 部分接口暫不支持X-tenant-id的請求方式
-const ignorePath = ['/api/dms/user/getApplication', '/api/notification/unRead/number', '/api/dms/user/setting']
+const ignorePath = [
+  '/api/dms/user/getApplication',
+  '/api/notification/unRead/number',
+  '/api/dms/user/setting',
+  '/admin/api/dms/template/email/all',
+
+]
 
 export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) => {
   // const {locale} = useI18n()
