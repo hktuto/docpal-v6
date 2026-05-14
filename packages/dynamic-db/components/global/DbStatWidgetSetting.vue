@@ -35,29 +35,12 @@
 </template>
 
 <script setup lang="ts">
-import { useWidgetSetting} from '../../composables/dashboard/useWidgetSetting'
-import { useTableFields } from '../../composables/dashboard/useTableFields'
-import { useSingleDatabaseContext } from '../../composables/useSignleDatabase'
-import { g } from 'vitest/dist/chunks/suite.d.FvehnV49.js'
+import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
+import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
+
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { menuState } = useSingleDatabaseContext()
-const { getNumericFields, loading: fieldsLoading } = useTableFields()
-
-const tableOptions = computed(() => {
-  const items = menuState.value.items || []
-  const tables: any[] = []
-  function collect(items: any[]) {
-    for (const item of items) {
-      if (item.item_type === 'master_table' && item.item_id) tables.push(item)
-      if (item.children?.length) collect(item.children)
-    }
-  }
-  collect(items)
-  return tables
-})
-
-const numericFields = ref<any[]>([])
+const { tableOptions, numericFields, fieldsLoading, loadFields } = useWidgetTableFields()
 
 const aggregationOptions = [
   { label: 'Count', value: 'count' },
@@ -84,9 +67,7 @@ const form = reactive({
 
 async function handleTableChange(tableId: string) {
   form.field = ''
-  if (tableId) {
-    numericFields.value = await getNumericFields(tableId)
-  }
+  await loadFields(tableId)
 }
 
 watch(
@@ -99,7 +80,7 @@ watch(
       form.label = setting.value.label || 'Records'
       form.color = setting.value.color || 'primary'
       if (form.tableId) {
-        numericFields.value = await getNumericFields(form.tableId)
+        await loadFields(form.tableId)
       }
     }
   }

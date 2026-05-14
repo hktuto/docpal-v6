@@ -71,38 +71,28 @@ async function fetchValue() {
       return
     }
 
-    // For sum/avg/min/max, fetch up to 500 records and compute client-side
+    // Server-side aggregation for sum/avg/min/max
+    const aggFunc = aggregation.toUpperCase()
     const { data }: any = await postDynamicActions({
       tableId,
-      columns: field ? [{ name: field }] : [{ name: '*' }],
-      pagination: { pageSize: 500, pageNum: 1 }
+      columns: [
+        {
+          name: field || '*',
+          alias: 'agg_value',
+          aggFunc
+        }
+      ]
     })
-    const rows = data?.data || []
-    const numbers = rows
-      .map((row: any) => Number(row[field]))
-      .filter((n: number) => !isNaN(n))
 
-    if (numbers.length === 0) {
+    const row = data?.data?.[0]
+    const rawValue = row?.agg_value
+    if (rawValue === null || rawValue === undefined) {
       value.value = 0
       return
     }
 
-    switch (aggregation) {
-      case 'sum':
-        value.value = numbers.reduce((a: number, b: number) => a + b, 0)
-        break
-      case 'avg':
-        value.value = numbers.reduce((a: number, b: number) => a + b, 0) / numbers.length
-        break
-      case 'min':
-        value.value = Math.min(...numbers)
-        break
-      case 'max':
-        value.value = Math.max(...numbers)
-        break
-      default:
-        value.value = 0
-    }
+    const num = Number(rawValue)
+    value.value = isNaN(num) ? 0 : num
   } catch (error) {
     console.error('Failed to fetch stat:', error)
     value.value = 0

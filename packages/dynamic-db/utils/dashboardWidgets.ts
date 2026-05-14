@@ -48,8 +48,20 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       tableId: '',
       chartType: 'bar',
       xField: '',
-      yField: '',
-      aggregation: 'count',
+      xTimeGranularity: '',
+      series: [
+        {
+          field: '',
+          aggregation: 'sum',
+          label: '',
+          color: ''
+        }
+      ],
+      appearance: {
+        legendPosition: 'bottom',
+        stacked: false,
+        smooth: false
+      },
       rowLimit: 20
     }
   },
@@ -85,22 +97,6 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       filterValue: '',
       label: '',
       color: 'primary'
-    }
-  },
-  DbText: {
-    label: 'DbText',
-    minW: 2,
-    minH: 2,
-    maxW: 6,
-    maxH: 6,
-    w: 3,
-    h: 3,
-    component: 'LazyDbTextWidget',
-    setting: {
-      content: '',
-      bgColor: '#ffffff',
-      textColor: '#333333',
-      fontSize: 'medium'
     }
   }
 }

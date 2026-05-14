@@ -2,7 +2,7 @@
   <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="420px" @close="handleClose">
     <el-form label-position="top">
       <el-form-item label="Table">
-        <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%">
+        <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
           <el-option v-for="table in tableOptions" :key="table.item_id" :label="table.name" :value="table.item_id" />
         </el-select>
       </el-form-item>
@@ -35,29 +35,12 @@
 </template>
 
 <script setup lang="ts">
-import { useWidgetSetting} from '../../composables/dashboard/useWidgetSetting'
-import { useTableFields } from '../../composables/dashboard/useTableFields'
-import { useSingleDatabaseContext } from '../../composables/useSignleDatabase'
+import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
+import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { menuState } = useSingleDatabaseContext()
-const { getFields, loading: fieldsLoading } = useTableFields()
-
-const tableOptions = computed(() => {
-  const items = menuState.value.items || []
-  const tables: any[] = []
-  function collect(items: any[]) {
-    for (const item of items) {
-      if (item.item_type === 'master_table' && item.item_id) tables.push(item)
-      if (item.children?.length) collect(item.children)
-    }
-  }
-  collect(items)
-  return tables
-})
-
-const fields = ref<any[]>([])
+const { tableOptions, fields, fieldsLoading, loadFields } = useWidgetTableFields()
 
 const colorOptions = [
   { label: 'Primary', value: 'primary' },
@@ -74,6 +57,11 @@ const form = reactive({
   color: 'primary'
 })
 
+async function handleTableChange(tableId: string) {
+  form.filterField = ''
+  await loadFields(tableId)
+}
+
 watch(
   () => visible.value,
   async (isVisible) => {
@@ -84,7 +72,7 @@ watch(
       form.label = setting.value.label || 'Progress'
       form.color = setting.value.color || 'primary'
       if (form.tableId) {
-        fields.value = await getFields(form.tableId)
+        await loadFields(form.tableId)
       }
     }
   }

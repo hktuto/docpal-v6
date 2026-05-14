@@ -37,28 +37,12 @@
 </template>
 
 <script setup lang="ts">
-import { useWidgetSetting} from '../../composables/dashboard/useWidgetSetting'
-import { useTableFields } from '../../composables/dashboard/useTableFields'
-import { useSingleDatabaseContext } from '../../composables/useSignleDatabase'
+import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
+import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
+
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { menuState } = useSingleDatabaseContext()
-const { getFields, loading: fieldsLoading } = useTableFields()
-
-const tableOptions = computed(() => {
-  const items = menuState.value.items || []
-  const tables: any[] = []
-  function collect(items: any[]) {
-    for (const item of items) {
-      if (item.item_type === 'master_table' && item.item_id) tables.push(item)
-      if (item.children?.length) collect(item.children)
-    }
-  }
-  collect(items)
-  return tables
-})
-
-const fields = ref<any[]>([])
+const { tableOptions, fields, fieldsLoading, loadFields } = useWidgetTableFields()
 
 const limitOptions = [
   { label: '5 rows', value: 5 },
@@ -83,9 +67,7 @@ const form = reactive({
 async function handleTableChange(tableId: string) {
   form.columns = []
   form.sortField = ''
-  if (tableId) {
-    fields.value = await getFields(tableId)
-  }
+  await loadFields(tableId)
 }
 
 watch(
@@ -98,7 +80,7 @@ watch(
       form.sortField = setting.value.sortField || ''
       form.sortOrder = setting.value.sortOrder || 'desc'
       if (form.tableId) {
-        fields.value = await getFields(form.tableId)
+        await loadFields(form.tableId)
       }
     }
   }
