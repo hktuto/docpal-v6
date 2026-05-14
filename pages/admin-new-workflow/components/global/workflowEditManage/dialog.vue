@@ -57,7 +57,7 @@ async function handleSubmit() {
     if (isEdit.valuel) {
       const workflowJson = formData.value.draft_content
       workflowJson.description = formData.value.description
-      await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${formData.value.id}`, workflowJson).then((res) => res.data.data)
+      await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${formData.value.id}`, workflowJson).then((res) => res.data)
       emits('refresh')
       return
     }

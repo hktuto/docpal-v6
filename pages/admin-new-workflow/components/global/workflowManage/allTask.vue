@@ -73,7 +73,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await $api.post(`/oniflow/api/v1/processes/instance-task/${row.process_instance_id}/claim`).then((r: any) => r.data.data)
+  await $api.post(`/oniflow/api/v1/processes/instance-task/${row.process_instance_id}/claim`).then((r: any) => r.data)
   reload()
 }
 </script>

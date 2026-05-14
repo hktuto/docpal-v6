@@ -48,7 +48,7 @@ async function handleStatus() {
   loading.value = true
   try {
     const userId = useUserId()
-    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data.data)
+    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
     openWorkflowEdit.value = false
     openWorkflowEdit.value = true
     isActivate.value = true
