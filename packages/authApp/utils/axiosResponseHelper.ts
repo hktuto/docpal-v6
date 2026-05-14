@@ -17,7 +17,7 @@ function getBaseUrl(baseURL: string) {
   if (baseURL === '/docpalApi') baseURL = PROXY
   if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
   if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
-  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string
+  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY  as string
   return baseURL
 }
 
@@ -69,7 +69,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     return
   }
 
-  if (error.response.status >= 500) {
+  if (error.response.status >= 500 || error.response.status <= 400) {
     if (error.config.headers.noThrowError) return
 
     if (error.config.headers.noErrorMessage) return Promise.reject(error)
@@ -89,6 +89,15 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
   console.log('error', error, this)
   const refreshToken = localStorage.getItem('refresh_token')
   if (error.response.status === 401 && !originalRequest._retry && refreshToken) {
+    // If the failing request is the token refresh itself, log out to prevent infinite loop
+    if (originalRequest.url && originalRequest.url.includes('/auth/token')) {
+      console.log('token refresh returned 401, logging out')
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      emitBus(EventType.USER_LOGIN__EXPIRE)
+      logout()
+      return Promise.reject(error)
+    }
     originalRequest._retry = true
 
     try {
@@ -120,7 +129,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     } catch (refreshError: any) {
       console.log('refresh error', refreshError)
       // 如果 refresh token 也过期了，则清除所有存储的 token，并导航到登录页面
-      if (refreshError.response?.status === 403 || refreshError.response?.status === 500) {
+      if (refreshError.response?.status === 401 || refreshError.response?.status === 403 || refreshError.response?.status === 500) {
         console.log('token expired, clear token and redirect to login page')
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
@@ -134,9 +143,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     }
   } else {
     // 如果没有 refresh token，则直接退出登录
-    if (error.response.status === 401 && !refreshToken) {
-      logout()
-    }
+    logout()
   }
 
   return Promise.reject(error)
