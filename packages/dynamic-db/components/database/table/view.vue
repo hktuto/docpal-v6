@@ -36,7 +36,7 @@
           @exit-edit-row="exitRowEdit"
           @expand-click="startEditRowHandler"
           />
-      <DatabaseAwarenessFloatingTags :get-element="getTableCell" :container-ref="tableBodyRef" @jump="handleJump" />
+      <DatabaseAwarenessFloatingTags :get-element="getTableCell" :container-ref="tableBodyRef" />
     </div>
 
     <div v-if="panelVisible" class="table-view-panel">
@@ -92,7 +92,7 @@ const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 
 
 // hocuspocus logic
-const { setAwareness, localAwareness } = inject('databaseHocuspocus')
+const { setAwareness, localAwareness, updatedRows } = inject('databaseHocuspocus')
 
 const tableViewMainRef = ref<HTMLElement>()
 const tableBodyRef = ref<HTMLElement | null>(null)
@@ -113,7 +113,8 @@ function handleCellMouseEnter(params: any) {
   if (!localAwareness.value.focus.editingRow && !localAwareness.value.focus.editingCell) {
     setAwareness({
       rowId: params.row.id,
-      cellId: params.column.field
+      cellId: params.column.field,
+      status: undefined
     })
   }
 }
@@ -122,7 +123,8 @@ function exitCellEdit(params: any) {
     rowId: params.row.id,
     cellId: params.column.field,
     editingRow: false,
-    editingCell: false
+    editingCell: false,
+    status: 'saved'
   })
 }
 function exitRowEdit() {
@@ -130,26 +132,27 @@ function exitRowEdit() {
     rowId: null,
     cellId:null,
     editingRow: false,
-    editingCell: false
+    editingCell: false,
+    status: 'saved'
   })
 }
 function startEditHandler(params:any) {
-  console.log("startEditHandler", params)
   setAwareness({
     rowId: params.row.id,
     cellId: params.column.field,
     editingRow: false,
-    editingCell: true
+    editingCell: true,
+    status: 'editing'
   })
 }
 function handleCellMouseLeave(params: any) {
 }
 function startEditRowHandler(params:any) {
-  console.log("startEditRowHandler", params)
   setAwareness({
     rowId: params.row.id,
     editingRow: true,
-    editingCell: false
+    editingCell: false,
+    status: 'editing'
   })
 }
 function getTableCell(focus: any) {
@@ -160,12 +163,14 @@ function getTableCell(focus: any) {
     selector
   }
 }
-function handleJump(focus: any) {
-  const cell = getTableCell(focus)
-  if (cell.element) {
-    cell.element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+
+watch(updatedRows, (rows) => {
+  if (rows.length === 0) return
+  for (const row of rows) {
+    // TODO: refresh row data for row.rowId
+    console.log('[remote edit]', row.userName, 'saved row', row.rowId)
   }
-}
+})
 
 
 

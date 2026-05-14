@@ -13,11 +13,21 @@ export interface AwarenessFocus {
   cellId?: string
   editingCell?: boolean
   editingRow?: boolean
+  status?: 'editing' | 'saved'
 }
 
 export interface AwarenessState {
   user?: AwarenessUser
   focus?: AwarenessFocus
+}
+
+export interface UpdatedRow {
+  userId: string
+  userName: string
+  userColor: string
+  rowId: string
+  cellId?: string
+  menuId?: string
 }
 
 export interface RoomState {
@@ -27,6 +37,7 @@ export interface RoomState {
   connecting: boolean
   awarenessStates: AwarenessState[]
   joinedAt: number
+  updatedRows: UpdatedRow[]
 }
 
 export interface LockRecord {
@@ -208,8 +219,12 @@ export function useHocuspocusManager() {
         const localUser = getLocalUser()
         const awarenessStates: AwarenessState[] = []
         const newLocks: LockRecord[] = []
+        const currentStates = new Map<string, any>()
 
         e.states.forEach((state: any) => {
+          if (state.user) {
+            currentStates.set(state.user.id, state)
+          }
           if (state.user && state.user.id !== localUser?.id) {
             awarenessStates.push(state as AwarenessState)
             if (state.focus && (state.focus.editingCell || state.focus.editingRow)) {
@@ -229,8 +244,42 @@ export function useHocuspocusManager() {
             if(state.user) localAwareness.value = state
           }
         })
+
+        // Detect editing -> saved transitions
+        const newlySaved: UpdatedRow[] = []
+        for (const [userId, current] of currentStates) {
+          if (userId === localUser?.id) continue
+          const previous = previousStates.get(userId)
+          const transitioned = previous?.focus?.status === 'editing' && current.focus?.status === 'saved'
+          const key = `${userId}:${current.focus?.rowId}`
+          if (transitioned && !doneRows.has(key)) {
+            doneRows.add(key)
+            newlySaved.push({
+              userId: current.user.id,
+              userName: current.user.name,
+              userColor: current.user.color,
+              rowId: current.focus.rowId,
+              cellId: current.focus.cellId,
+              menuId: current.focus.menuId
+            })
+          }
+        }
+
+        // Cleanup doneRows for users no longer in 'saved' status
+        for (const key of doneRows) {
+          const [uid] = key.split(':')
+          const state = currentStates.get(uid)
+          if (!state || state.focus?.status !== 'saved') {
+            doneRows.delete(key)
+          }
+        }
+
+        previousStates.clear()
+        for (const [k, v] of currentStates) previousStates.set(k, v)
+
         if (roomMeta.value[roomName]) {
           roomMeta.value[roomName].awarenessStates = awarenessStates
+          roomMeta.value[roomName].updatedRows = newlySaved
         }
         // Update lockRecords: remove old locks for this room, add new ones
         lockRecords.value = [
@@ -241,12 +290,16 @@ export function useHocuspocusManager() {
     })
 
     providers.set(roomName, provider)
+    const previousStates = new Map<string, any>()
+    const doneRows = new Set<string>()
+
     roomMeta.value[roomName] = {
       name: roomName,
       connected: false,
       connecting: true,
       awarenessStates: [],
-      joinedAt
+      joinedAt,
+      updatedRows: []
     }
   }
 

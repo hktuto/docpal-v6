@@ -23,8 +23,8 @@ const anyOneEditing = computed(() => props.states.some((s) => s.focus?.editingCe
     <!-- Cell-following border -->
     <div
       class="cell-border"
-      v-if="anyOneEditing"
-      :style="{ borderColor: borderColor }"
+      :class="{anyOneEditing}"
+      :style="{ '--color': borderColor }"
     />
 
     <!-- Stacked user dots -->
@@ -36,6 +36,7 @@ const anyOneEditing = computed(() => props.states.some((s) => s.focus?.editingCe
         :key="state.user!.id"
         class="cursor-dot"
         :style="{
+
             backgroundColor: state.user!.color,
             top: (idx * 22) + 'px'
         }"
@@ -59,18 +60,22 @@ const anyOneEditing = computed(() => props.states.some((s) => s.focus?.editingCe
 
 .cell-border {
   position: absolute;
-  inset: 0;
-  border: 2px solid;
-  border-radius: 2px;
-  pointer-events: none;
-  box-sizing: border-box;
-  z-index: 1;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  top: -2px;
+  left: -2px;
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, var(--color) 0%, transparent 20%);
+              border-image-slice: 1;
+  &.anyOneEditing{
+      border: 2px solid var(--color);
+  }
 }
 
 .cursor-dot-contaioner{
     position: absolute;
-    left: calc(var(--app-space-xs) * -1);
-    top: calc(var(--app-space-xs) * -1);
+    left: calc(var(--app-space-s) * -1);
+    top: calc(var(--app-space-s) * -1);
 }
 .cursor-dot {
   position: absolute;
