@@ -61,7 +61,7 @@ async function handleSubmit() {
       emits('refresh')
       return
     }
-    const key = formData.value.name.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_\s]/g, '')
+    const key = formData.value.name.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\s]/g, '')
 
     // Create Workflow
     const defWorkflowJson = {
@@ -69,16 +69,14 @@ async function handleSubmit() {
       key: `${key}_${Date.now()}`,
       name: formData.value.name,
       description: formData.value.description,
-      metadata:{
+      metadata: {
         ...json.metadata,
         created_date: Date.now(),
-        author: useUserId().value,
+        author: useUserId().value
       }
     }
     const data = await $api.post('/oniflow/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data.data)
     if (!data) return
-
-    if (data.code !==200) return
 
     const workflowEdit = routeWorkflowManageEditor({
       id: data.id,
