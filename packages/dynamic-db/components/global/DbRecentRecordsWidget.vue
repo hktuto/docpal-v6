@@ -11,6 +11,11 @@
     <div class="db-recent-records-widget">
       <el-skeleton v-if="loading" :rows="3" animated />
       <template v-else-if="records.length > 0">
+        <div class="records-header">
+          <template v-for="field in displayFields" :key="field">
+            <span class="header-label">{{ fieldLabel(field) }}</span>
+          </template>
+        </div>
         <div v-for="record in records" :key="record.id" class="record-item">
           <div class="record-fields">
             <template v-for="field in displayFields" :key="field">
@@ -27,6 +32,7 @@
 
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
+import { useTableFields } from '../../composables/dashboard/useTableFields'
 
 const props = withDefaults(
   defineProps<{
@@ -55,6 +61,26 @@ const displayFields = computed(() => {
   }
   return ['name']
 })
+
+const fieldMap = ref<Record<string, string>>({})
+const { getFields } = useTableFields()
+
+async function loadFieldLabels(tableId: string) {
+  if (!tableId) {
+    fieldMap.value = {}
+    return
+  }
+  const fields = await getFields(tableId)
+  const map: Record<string, string> = {}
+  for (const f of fields) {
+    map[f.field_name] = f.field_name_alias || f.field_name
+  }
+  fieldMap.value = map
+}
+
+function fieldLabel(fieldName: string): string {
+  return fieldMap.value[fieldName] || fieldName
+}
 
 async function fetchRecords() {
   if (!props.setting?.tableId) return
@@ -94,6 +120,14 @@ function handleRefresh(newSetting: any) {
 }
 
 watch(
+  () => props.setting?.tableId,
+  (tableId) => {
+    loadFieldLabels(tableId)
+  },
+  { immediate: true }
+)
+
+watch(
   () => [props.setting?.tableId, props.setting?.limit, props.setting?.sortField],
   () => {
     fetchRecords()
@@ -112,6 +146,20 @@ defineExpose({
   overflow-y: auto;
   padding: var(--app-space-xs);
 }
+.records-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-xs);
+  padding: var(--app-space-xs) 0;
+  border-bottom: 2px solid var(--app-grey-800);
+  font-weight: 600;
+  font-size: var(--app-font-size-s);
+  color: var(--app-text-color-secondary);
+}
+.header-label {
+  flex: 1;
+  min-width: 80px;
+}
 .record-item {
   padding: var(--app-space-xs) 0;
   border-bottom: 1px solid var(--app-grey-900);
@@ -126,6 +174,8 @@ defineExpose({
   font-size: var(--app-font-size-s);
 }
 .field-value {
+  flex: 1;
+  min-width: 80px;
   color: var(--app-text-color);
   white-space: nowrap;
   overflow: hidden;

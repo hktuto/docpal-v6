@@ -24,6 +24,7 @@
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
 import type { VxeGridProps } from 'vxe-table'
+import { useTableFields } from '../../composables/dashboard/useTableFields'
 
 const props = withDefaults(
   defineProps<{
@@ -46,13 +47,33 @@ const cardRef = ref()
 
 const displayTitle = computed(() => props.setting?.title || 'Table View')
 
+const fieldMap = ref<Record<string, string>>({})
+const { getFields } = useTableFields()
+
+async function loadFieldLabels(tableId: string) {
+  if (!tableId) {
+    fieldMap.value = {}
+    return
+  }
+  const fields = await getFields(tableId)
+  const map: Record<string, string> = {}
+  for (const f of fields) {
+    map[f.field_name] = f.field_name_alias || f.field_name
+  }
+  fieldMap.value = map
+}
+
 const gridOptions = computed<VxeGridProps>(() => {
   const selectedColumns = props.setting?.columns || []
   const columns = selectedColumns.length
-    ? selectedColumns.map((field: string) => ({ field, title: field, minWidth: 120 }))
+    ? selectedColumns.map((field: string) => ({
+        field,
+        title: fieldMap.value[field] || field,
+        minWidth: 120
+      }))
     : [
-        { field: 'name', title: 'Name', minWidth: 120 },
-        { field: 'createdTime', title: 'Created', minWidth: 140 }
+        { field: 'name', title: fieldMap.value['name'] || 'Name', minWidth: 120 },
+        { field: 'createdTime', title: fieldMap.value['createdTime'] || 'Created', minWidth: 140 }
       ]
 
   return {
@@ -102,6 +123,14 @@ function handleDelete() {
 function handleRefresh(newSetting: any) {
   emit('refreshSetting', newSetting)
 }
+
+watch(
+  () => props.setting?.tableId,
+  (tableId) => {
+    loadFieldLabels(tableId)
+  },
+  { immediate: true }
+)
 
 watch(
   () => [props.setting?.tableId, props.setting?.rowLimit, props.setting?.sortField, props.setting?.sortOrder],
