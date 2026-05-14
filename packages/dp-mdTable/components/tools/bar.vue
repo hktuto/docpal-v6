@@ -107,5 +107,8 @@ defineExpose({})
       margin-left: 0;
     }
   }
+  .toolbar-left {
+    gap: var(--app-space-xs);
+  }
 }
 </style>
