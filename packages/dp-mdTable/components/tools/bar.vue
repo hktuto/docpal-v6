@@ -100,15 +100,13 @@ defineExpose({})
   .toolbar-right {
     display: flex;
     align-items: center;
+    gap: var(--app-space-xs);
     :deep(.el-button) {
       padding: var(--app-space-xs);
     }
     :deep(.el-button + .el-button) {
       margin-left: 0;
     }
-  }
-  .toolbar-left {
-    gap: var(--app-space-xs);
   }
 }
 </style>
