@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="420px" @close="handleClose">
+  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="460px" @close="handleClose">
     <el-form label-position="top">
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
@@ -11,6 +11,26 @@
         <el-select v-model="form.columns" multiple collapse-tags placeholder="Select columns" style="width: 100%" :loading="fieldsLoading">
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
+      </el-form-item>
+
+      <!-- Column Order -->
+      <el-form-item v-if="orderedColumns.length > 0" label="Column Order">
+        <div class="column-order-list">
+          <div v-for="(col, index) in orderedColumns" :key="col" class="column-order-item">
+            <span class="column-name">{{ fieldLabel(col) }}</span>
+            <div class="column-actions">
+              <el-button link size="small" :disabled="index === 0" @click="moveColumn(index, -1)">
+                <Icon name="lucide:arrow-up" size="14" />
+              </el-button>
+              <el-button link size="small" :disabled="index === orderedColumns.length - 1" @click="moveColumn(index, 1)">
+                <Icon name="lucide:arrow-down" size="14" />
+              </el-button>
+              <el-button link type="danger" size="small" @click="removeColumn(index)">
+                <Icon name="lucide:x" size="14" />
+              </el-button>
+            </div>
+          </div>
+        </div>
       </el-form-item>
 
       <el-form-item label="Row Limit">
@@ -64,6 +84,27 @@ const form = reactive({
   sortOrder: 'desc'
 })
 
+const orderedColumns = computed(() => form.columns)
+
+function fieldLabel(fieldName: string): string {
+  const field = fields.value.find((f: any) => f.field_name === fieldName)
+  return field?.field_name_alias || fieldName
+}
+
+function moveColumn(index: number, direction: number) {
+  const newIndex = index + direction
+  if (newIndex < 0 || newIndex >= form.columns.length) return
+  const cols = [...form.columns]
+  const temp = cols[index]
+  cols[index] = cols[newIndex]
+  cols[newIndex] = temp
+  form.columns = cols
+}
+
+function removeColumn(index: number) {
+  form.columns.splice(index, 1)
+}
+
 async function handleTableChange(tableId: string) {
   form.columns = []
   form.sortField = ''
@@ -100,6 +141,28 @@ defineExpose({ handleOpen })
 </script>
 
 <style scoped lang="scss">
+.column-order-list {
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 8px;
+  padding: 8px;
+}
+.column-order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  &:hover {
+    background: var(--el-fill-color-light);
+  }
+}
+.column-name {
+  font-size: 14px;
+}
+.column-actions {
+  display: flex;
+  gap: 4px;
+}
 .footer-grid {
   display: flex;
   justify-content: space-between;
