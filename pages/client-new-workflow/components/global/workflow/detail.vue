@@ -195,8 +195,7 @@ async function handleSubmit() {
     const fallbackRoute = routeWorkflowPage({
       workflowType: workflowType
     })
-    // TODO：call router repair
-    routerProvider?.back(fallbackRoute)
+    routerProvider?.replace(fallbackRoute)
   } catch (error) {
     console.log('error', error)
     routerProvider?.message.error(error.message)
@@ -359,7 +358,7 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
   if (backItem) {
     routerProvider?.back(backItem)
   } else {
-    routerProvider?.back(
+    routerProvider?.replace(
       routeWorkflowPage({
         workflowType: workflowType
       })
@@ -489,11 +488,6 @@ onMounted(() => {
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
           <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail" :content-json="contentData" autoplay />
         </el-tab-pane>
-
-        <!--  TODO: 該功能是否要保留      -->
-<!--        <el-tab-pane v-if="taskDetail && taskDetail.process_id" :label="$t('common_discussionChannel')" name="command">-->
-<!--          <WorkflowDetailDiscussionChannel :id="taskDetail.process_id" :noToggle="true" />-->
-<!--        </el-tab-pane>-->
       </el-tabs>
     </div>
   </div>
