@@ -25,6 +25,7 @@ import { BarChart, LineChart, PieChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import dayjs from 'dayjs'
+import { useTableFields } from '../../composables/dashboard/useTableFields'
 
 // Register required modules
 echarts.use([BarChart, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
@@ -56,11 +57,33 @@ const colorPalette = [
 
 const config = computed(() => props.setting || {})
 
+const fieldMap = ref<Record<string, string>>({})
+const { getFields } = useTableFields()
+
+async function loadFieldLabels(tableId: string) {
+  if (!tableId) {
+    fieldMap.value = {}
+    return
+  }
+  const fields = await getFields(tableId)
+  const map: Record<string, string> = {}
+  for (const f of fields) {
+    map[f.field_name] = f.field_name_alias || f.field_name
+  }
+  fieldMap.value = map
+}
+
+function fieldLabel(fieldName: string): string {
+  return fieldMap.value[fieldName] || fieldName
+}
+
 const chartTitle = computed(() => {
   const { xField } = config.value
-  const seriesLabels = (config.value.series || []).map((s: any) => s.label || s.field).filter(Boolean)
+  const seriesLabels = (config.value.series || [])
+    .map((s: any) => s.label || fieldLabel(s.field))
+    .filter(Boolean)
   if (xField && seriesLabels.length) {
-    return `${xField} vs ${seriesLabels.join(', ')}`
+    return `${fieldLabel(xField)} vs ${seriesLabels.join(', ')}`
   }
   return 'Chart'
 })
@@ -293,7 +316,7 @@ function initChart() {
     const yData = chartData.value.map((d) => d[`series_${index}`] ?? 0)
 
     const baseSeries: any = {
-      name: s.label || s.field,
+      name: s.label || fieldLabel(s.field),
       type: isLine ? 'line' : 'bar',
       data: yData,
       stack: isStacked ? 'total' : undefined,
@@ -352,6 +375,14 @@ function handleDelete() {
 function handleRefresh(newSetting: any) {
   emit('refreshSetting', newSetting)
 }
+
+watch(
+  () => props.setting?.tableId,
+  (tableId) => {
+    loadFieldLabels(tableId)
+  },
+  { immediate: true }
+)
 
 watch(
   () => [
