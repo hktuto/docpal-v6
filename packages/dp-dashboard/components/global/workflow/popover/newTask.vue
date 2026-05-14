@@ -141,10 +141,19 @@ async function checkAndSubmit() {
 
       setTimeout(async () => {
         // Check workflow running status
-        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.id}`).then((r: any) => r.data)
+        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
         if (newVar.state === 'running') {
           ElMessage.success('Workflow created')
         }
+
+        // run User Task
+        // TODO 上述接口缺少返回 task ID
+        // $api.post(`/oniflow/api/v1/processes/instance/${data.process_id}/tasks/${data.db_id}/complete`, {
+        //     process_id: taskDetail.value.process_id,
+        //     user_id: userId,
+        //     variables: { ...cFormData }
+        //   })
+        //   .then((r: any) => r.data)
       }, 100)
     } catch (e) {
       console.log(e)
