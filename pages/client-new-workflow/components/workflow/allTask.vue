@@ -15,7 +15,7 @@ const extraParams = ref({
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
   api: async (pageParams: any) => {
-    const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data)) as any[]
+    const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data.data)) as any[]
     // 只保留 waiting 狀態的數據
     let list = data.task.filter((item: any) => item.status === 'waiting')
 
@@ -67,7 +67,7 @@ function handleDblclick(row: any) {
 async function claimTask(row: any) {
   if (row.status === '') return
 
-  await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res: any) => res.data)
+  await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res: any) => res.data.data)
   reload()
 }
 

@@ -172,10 +172,12 @@ export function getUrlOrigin() {
 
 // TODO get config setting
 export function generatorHTTPRequestTaskHeaders() {
+  // TODO : 從當前瀏覽器的User setting 獲取x-tenant-id
   return {
     ServerName: 'docpal-api',
     ServerKey: '14ecdf56081AGSDghw',
     'Content-Type': 'application/json',
-    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c'
+    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
+    'x-tenant-id': 'demo'
   }
 }

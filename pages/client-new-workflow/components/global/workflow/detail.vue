@@ -42,7 +42,7 @@ async function getDetail() {
   try {
     state.loading = true
     state.error = null
-    const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => r.data)
+    const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => r.data.data)
     if (!data) {
       state.error = 'Get Task Detail Failed'
       return
@@ -57,9 +57,9 @@ async function getDetail() {
     taskDetail.value = data
     state.title = data.config.human_task.form_title || data.name
 
-    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
+    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data.data)
     variablesData.value = instanceData.variables || {}
-    contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data)
+    contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data.data)
     variables.value = contentData.value.variables
 
     if (data.config?.human_task?.assignee === userId) {

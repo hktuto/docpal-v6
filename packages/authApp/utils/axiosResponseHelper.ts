@@ -21,6 +21,9 @@ function getBaseUrl(baseURL: string) {
   return baseURL
 }
 
+// TODO: 部分接口暫不支持X-tenant-id的請求方式
+const ignorePath = ['/api/dms/user/getApplication', '/api/notification/unRead/number', '/api/dms/user/setting']
+
 export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) => {
   // const {locale} = useI18n()
   // console.log(locale)
@@ -29,14 +32,17 @@ export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
     config.headers['accept-language'] = locale
+    // TODO: 等待後端更改登錄接口，從登錄接口獲取該環境變量
+    if (!ignorePath.includes(config.url)) {
+      config.headers['X-Tenant-ID'] = 'demo'
+    }
   }
   if (process.env.NODE_ENV !== 'development') {
     const {
       public: { DOCPAL_GATEWAY_PROXY }
     } = useRuntimeConfig()
     const pathOnly = typeof config.url === 'string' ? config.url.split('?')[0] : ''
-    const hitsDynamicActions =
-      pathOnly === '/gateway' || config.baseURL === '/gateway'
+    const hitsDynamicActions = pathOnly === '/gateway' || config.baseURL === '/gateway'
     if (hitsDynamicActions && DOCPAL_GATEWAY_PROXY) {
       config.baseURL = DOCPAL_GATEWAY_PROXY as string
       if (!config.url) {

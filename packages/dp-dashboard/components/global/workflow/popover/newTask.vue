@@ -25,7 +25,7 @@ async function workflowClickHandler(workflowItem: any) {
   state.loading = true
   openWorkflowEdit.value = false
   openWorkflowEdit.value = true
-  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => r.data)
+  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => r.data.data)
   if (!data) return
   if (data.published_version < 1) {
     state.loading = false
@@ -73,7 +73,7 @@ async function workflowClickHandler(workflowItem: any) {
         }
       }
 
-      await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
+      await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
     } catch (e) {
       console.log(e)
     }
@@ -136,12 +136,12 @@ async function checkAndSubmit() {
     }
 
     try {
-      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
+      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
       state.formDialogVisible = false
 
       setTimeout(async () => {
         // Check workflow running status
-        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
+        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data.data)
         if (newVar.state === 'running') {
           ElMessage.success('Workflow created')
         }

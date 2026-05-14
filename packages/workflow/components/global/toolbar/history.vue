@@ -22,13 +22,13 @@ async function save() {
   }
   // 修改時，檢查是否已激活
   if (isActivate) {
-    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data)
+    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data.data)
     emits('updateActivate')
   }
 
   // update workflow Json Data
   try {
-    $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r: any) => r.data)
+    $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r: any) => r.data.data)
   } catch (e) {
     console.log(e)
   }

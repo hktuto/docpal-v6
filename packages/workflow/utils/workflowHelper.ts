@@ -51,7 +51,7 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
 export async function getWorkflowList() {
   let workflowList: any[] = []
   try {
-    const data = (await $api.get(`/oniflow/api/v1/workflow/definitions?published=true`).then((r: any) => r.data)) as any[]
+    const data = (await $api.get(`/oniflow/api/v1/workflow/definitions?published=true`).then((r: any) => r.data.data)) as any[]
     workflowList = data.filter((item: any) => item.status === 'A')
   } catch (e) {
     console.log(e)

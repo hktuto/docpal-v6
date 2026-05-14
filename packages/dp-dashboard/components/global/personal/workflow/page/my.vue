@@ -47,7 +47,7 @@ async function getData(params: any = {}) {
   }
   // const res = await newClientApi.postDocpalWorkflowTasksUser({ ...params, ...extraParams.value, ...settingParams }).then((res) => res.data)
 
-  const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data)) as any[]
+  const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data.data)) as any[]
   // 只保留 waiting 狀態的數據
   let list = data.filter((item: any) => item.status === 'waiting')
 
