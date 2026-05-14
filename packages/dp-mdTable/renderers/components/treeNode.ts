@@ -11,7 +11,8 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
       try {
         const groupColumn = columnGroupRules.value[level]
         const groupColumnField = tableFields.value.find((field: any) => field.field_name === groupColumn.field)
-        const title = groupColumnField.field_name_alias
+        const __count = row.__count || 0
+        const title = groupColumnField.field_name_alias + '(' + __count + ')'
         const value = row[groupColumnField.field_name] || ''
         const hList: any[] = []
         if (value && value !== 0) {
