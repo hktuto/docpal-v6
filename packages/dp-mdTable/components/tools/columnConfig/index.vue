@@ -2,6 +2,7 @@
 import draggable from 'vuedraggable'
 import { ElMessage } from 'element-plus'
 const { tableFields, updatedViewColumnsConfig, columns, saveColumnOrder } = inject('viewTools')
+const { t } = useI18n()
 
 const columnVisibilityList = ref<Array<{ id: string; title: string; hidden: boolean }>>([])
 
@@ -52,7 +53,7 @@ async function handleColumnVisibilityChange(fieldId: string, hidden: boolean) {
   const target = columnVisibilityList.value.find((item) => item.id === fieldId)
   if (target) {
     if (!hasMinOneColumn(columnVisibilityList.value)) {
-      ElMessage.error('至少保留一个列')
+      ElMessage.error(t('mdTable.columnConfig.minOneColumn'))
       target.hidden = false
       return
     }
@@ -117,12 +118,12 @@ watch(
 
 <template>
   <div class="md-card-setting-column">
-    <div class="setting-title column-title">列显示与隐藏</div>
+    <div class="setting-title column-title">{{ t('mdTable.columnConfig.title') }}</div>
     <div class="column-list">
       <draggable v-model="columnVisibilityList" item-key="id" handle=".drag-handle" ghost-class="column-item-ghost" :animation="180" @end="handleColumnDragEnd">
         <template #item="{ element }">
           <div class="column-item">
-            <span class="drag-handle" aria-label="拖拽排序">⋮⋮</span>
+            <span class="drag-handle" :aria-label="t('mdTable.columnConfig.dragToSort')">⋮⋮</span>
             <span class="column-name">{{ element.title }}</span>
             <el-switch
               v-model="element.hidden"
@@ -135,8 +136,8 @@ watch(
       </draggable>
     </div>
     <div class="column-actions">
-      <el-button size="small" @click="handleHideAllColumns">隐藏所有</el-button>
-      <el-button size="small" type="primary" @click="handleShowAllColumns">显示所有</el-button>
+      <el-button size="small" @click="handleHideAllColumns">{{ t('mdTable.columnConfig.hideAll') }}</el-button>
+      <el-button size="small" type="primary" @click="handleShowAllColumns">{{ t('mdTable.columnConfig.showAll') }}</el-button>
     </div>
   </div>
 </template>

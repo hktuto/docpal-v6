@@ -5,12 +5,12 @@
         <!-- 标题和提示信息 -->
         <div class="popover-header">
           <div class="header-title">
-            <span>设置分组</span>
+            <span>{{ t('mdTable.grouping.popoverTitle') }}</span>
             <el-icon class="info-icon" :size="16">
               <QuestionFilled />
             </el-icon>
           </div>
-          <div class="auto-save-tip">视图配置处于自动保存中,你的操作会实时保存并同步给其他成员</div>
+          <div class="auto-save-tip">{{ t('mdTable.grouping.autoSaveTip') }}</div>
         </div>
 
         <!-- 分组规则列表 -->
@@ -19,7 +19,7 @@
             <template #item="{ element, index }">
               <div class="grouping-rule-item">
                 <!-- 拖拽手柄 -->
-                <div class="drag-handle">
+                <div class="drag-handle" :aria-label="t('mdTable.columnConfig.dragToSort')">
                   <el-icon :size="16">
                     <Rank />
                   </el-icon>
@@ -28,7 +28,7 @@
                 <!-- 字段选择 -->
                 <el-select
                   v-model="element.field"
-                  placeholder="请选择一个选项"
+                  :placeholder="t('mdTable.grouping.selectPlaceholder')"
                   class="field-select"
                   :teleported="false"
                   @change="handleFieldChange(element, index)"
@@ -65,7 +65,7 @@
         <div class="add-rule-section" v-if="!isMaxGroupsReached">
           <el-select
             v-model="newRuleField"
-            placeholder="请选择一个选项"
+            :placeholder="t('mdTable.grouping.selectPlaceholder')"
             class="add-field-select"
             :teleported="false"
             :disabled="isMaxGroupsReached"
@@ -81,7 +81,7 @@
               </div>
             </el-option>
           </el-select>
-          <div v-if="isMaxGroupsReached" class="max-groups-tip">最多只能设置{{ groupMaxCount }}个分组</div>
+          <div v-if="isMaxGroupsReached" class="max-groups-tip">{{ t('mdTable.grouping.maxGroupsTip', { count: groupMaxCount }) }}</div>
         </div>
       </div>
     </template>
@@ -124,6 +124,8 @@ const emit = defineEmits<{
   'update:groupingRules': [rules: GroupingRule[]]
   change: [rules: GroupingRule[]]
 }>()
+
+const { t } = useI18n()
 
 const popoverRef = ref()
 const newRuleField = ref<string>('')

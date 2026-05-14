@@ -1,36 +1,40 @@
-<template>
-  <div class="filter-button-wrapper">
-    <el-button ref="buttonRef" :disabled="disabled" type="primary" @click="handleButtonClick">
-      {{ columnFilterRules && columnFilterRules?.conditions?.length > 0 ? `${columnFilterRules?.conditions?.length}个筛选` : '筛选' }}
-    </el-button>
-    <ToolsFilterConfigPopover ref="popoverRef" :available-columns="canFilterColumns" width="600" placement="bottom-start" @filter-change="handleFilterChange" />
-  </div>
-</template>
-
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { FilterRule } from './ConfigPopover.vue'
 import type { ColumnConfig } from '../../types/column-context'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+
+const { t } = useI18n()
 
 interface Props {
   availableColumns: ColumnConfig[]
   disabled?: boolean
 }
+const props = defineProps<Props>()
+const emits = defineEmits<{
+  (e: 'filter-change', rules: FilterRule[]): void
+}>()
+
 const canFilterColumns = computed(() => {
   if (!props.availableColumns) return []
   return props.availableColumns.filter(
     (col) => ![ColumnFieldType.Relation, ColumnFieldType.VirtualColumn, ColumnFieldType.Formula, ColumnFieldType.AggVirtualColumn].includes(col.business_type)
   )
 })
-const props = defineProps<Props>()
-const emits = defineEmits<{
-  (e: 'filter-change', rules: FilterRule[]): void
-}>()
 
 const buttonRef = ref<InstanceType<typeof ElButton>>()
 const popoverRef = ref<InstanceType<typeof FilterConfigPopover>>()
 
 const { columnFilterRules } = inject('viewTools')
+
+const filterButtonLabel = computed(() => {
+  const n = columnFilterRules.value?.conditions?.length ?? 0
+  if (n > 0) {
+    return t('mdTable.filter.buttonWithCount', { count: n })
+  }
+  return t('mdTable.filter.button')
+})
+
 // 处理按钮点击（传 $el 给 popover，因 ref 绑在组件上拿到的是组件实例不是 DOM）
 const handleButtonClick = () => {
   if (popoverRef.value) {
@@ -45,6 +49,21 @@ const handleFilterChange = (rules: FilterRule[]) => {
   emits('filter-change', rules)
 }
 </script>
+
+<template>
+  <div class="filter-button-wrapper">
+    <el-button
+      ref="buttonRef"
+      :disabled="disabled"
+      type="primary"
+      :aria-label="filterButtonLabel"
+      @click="handleButtonClick"
+    >
+      {{ filterButtonLabel }}
+    </el-button>
+    <ToolsFilterConfigPopover ref="popoverRef" :available-columns="canFilterColumns" width="600" placement="bottom-start" @filter-change="handleFilterChange" />
+  </div>
+</template>
 
 <style scoped lang="scss">
 .filter-button-wrapper {

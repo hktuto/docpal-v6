@@ -2371,6 +2371,58 @@
       "removeRelation": "移除該關聯",
       "unnamed": "未命名"
     },
+    "columnConfig": {
+      "dragToSort": "拖拽排序",
+      "hideColumns": "隱藏欄",
+      "hideAll": "隱藏所有",
+      "minOneColumn": "至少保留一欄",
+      "showAll": "顯示所有",
+      "title": "欄位顯示與隱藏"
+    },
+    "grouping": {
+      "autoSaveTip": "視圖設定正處於自動儲存中，你的操作會即時儲存並同步給其他成員",
+      "button": "分組",
+      "buttonWithCount": "{count}個分組",
+      "maxGroupsTip": "最多只能設定 {count} 個分組",
+      "popoverTitle": "設定分組",
+      "selectPlaceholder": "請選擇一個選項"
+    },
+    "filter": {
+      "addCondition": "新增篩選條件",
+      "and": "且",
+      "autoSaveTip": "視圖設定正處於自動儲存中，你的操作會即時儲存並同步給其他成員",
+      "button": "篩選",
+      "buttonWithCount": "{count}個篩選",
+      "connectorWhen": "當",
+      "dialogTitle": "篩選設定",
+      "operators": {
+        "after": "晚於",
+        "afterOrEquals": "晚於或等於",
+        "before": "早於",
+        "beforeOrEquals": "早於或等於",
+        "contains": "包含",
+        "duplicate": "有重複",
+        "equals": "等於",
+        "isEmpty": "為空",
+        "isNotEmpty": "不為空",
+        "notEquals": "不等於"
+      },
+      "or": "或",
+      "placeholderDate": "選擇日期",
+      "placeholderField": "選擇欄位",
+      "placeholderOperator": "選擇運算符",
+      "placeholderValue": "輸入值"
+    },
+    "sort": {
+      "addCondition": "新增排序條件",
+      "autoSaveTip": "視圖設定正處於自動儲存中，你的操作會即時儲存並同步給其他成員",
+      "button": "排序",
+      "buttonWithCount": "{count}個排序",
+      "dialogTitle": "排序設定",
+      "orderTextAsc": "A → Z",
+      "orderTextDesc": "Z → A",
+      "selectPlaceholder": "請選擇一個選項"
+    },
     "relationPicker": {
       "configRequired": "請先配置關聯表",
       "defaultTableLabel": "關聯表",

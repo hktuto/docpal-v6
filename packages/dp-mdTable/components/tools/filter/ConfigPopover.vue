@@ -1,9 +1,15 @@
 <template>
-  <UiPopoverDialog ref="popoverRef" :width="width" :placement="placement" title="Filter Settings" :close-on-click-outside="closeOnClickOutside">
+  <UiPopoverDialog
+    ref="popoverRef"
+    :width="width"
+    :placement="placement"
+    :title="t('mdTable.filter.dialogTitle')"
+    :close-on-click-outside="closeOnClickOutside"
+  >
     <div class="filter-config-popover">
       <!-- 标题和提示信息 -->
       <div class="popover-header">
-        <div class="auto-save-tip">View configuration is auto-saved. Your changes are saved in real time and synced to other members.</div>
+        <div class="auto-save-tip">{{ t('mdTable.filter.autoSaveTip') }}</div>
       </div>
 
       <!-- 筛选规则列表 -->
@@ -12,7 +18,13 @@
           <!-- 第一列：逻辑连接符 -->
           <div class="logic-connector">
             <el-button v-if="index !== 1" disabled size="small" class="connector-btn">
-              {{ index === 0 ? 'When' : columnFilterRules.conjunction === 'AND' ? 'And' : 'Or' }}
+              {{
+                index === 0
+                  ? t('mdTable.filter.connectorWhen')
+                  : columnFilterRules.conjunction === 'AND'
+                    ? t('mdTable.filter.and')
+                    : t('mdTable.filter.or')
+              }}
             </el-button>
             <el-select
               v-else
@@ -24,15 +36,15 @@
               @visible-change="handleSelectVisibleChange"
               @click.stop
             >
-              <el-option label="And" value="AND" />
-              <el-option label="Or" value="OR" />
+              <el-option :label="t('mdTable.filter.and')" value="AND" />
+              <el-option :label="t('mdTable.filter.or')" value="OR" />
             </el-select>
           </div>
 
           <!-- 第二列：字段选择 -->
           <el-select
             v-model="rule.field"
-            placeholder="Select field"
+            :placeholder="t('mdTable.filter.placeholderField')"
             size="small"
             class="field-select"
             @change="handleFieldChange(rule)"
@@ -52,7 +64,7 @@
           <!-- 第三列：操作符选择 -->
           <el-select
             v-model="rule.operator"
-            placeholder="Select operator"
+            :placeholder="t('mdTable.filter.placeholderOperator')"
             size="small"
             class="operator-select"
             @change="handleEditRule(rule)"
@@ -66,7 +78,7 @@
           <el-date-picker
             v-if="isDateField(rule.field)"
             v-model="rule.value"
-            placeholder="Select date"
+            :placeholder="t('mdTable.filter.placeholderDate')"
             size="small"
             class="value-input"
             value-format="x"
@@ -75,7 +87,7 @@
           <el-input
             v-else-if="!isValueEmptyOperator(rule.operator)"
             v-model="rule.value"
-            placeholder="Enter value"
+            :placeholder="t('mdTable.filter.placeholderValue')"
             size="small"
             class="value-input"
             @input="handleEditRule(rule)"
@@ -88,7 +100,7 @@
 
       <!-- 添加新规则 -->
       <div class="add-rule-section">
-        <el-button type="primary" :icon="Plus" size="small" text @click="handleAddRule"> Add filter condition </el-button>
+        <el-button type="primary" :icon="Plus" size="small" text @click="handleAddRule">{{ t('mdTable.filter.addCondition') }}</el-button>
       </div>
     </div>
   </UiPopoverDialog>
@@ -133,6 +145,8 @@ const emit = defineEmits<{
     }
   ]
 }>()
+
+const { t } = useI18n()
 
 const popoverRef = ref()
 const { columnFilterRules } = inject('viewTools')
@@ -186,13 +200,13 @@ const getOperatorsForField = (field: string): OperatorOption[] => {
   }
   if (isDateField(field)) {
     return [
-      { label: 'Equals', value: 'EQ' },
-      { label: 'After', value: 'GT' },
-      { label: 'After or equals', value: 'GTE' },
-      { label: 'Before', value: 'LT' },
-      { label: 'Before or equals', value: 'LTE' },
-      { label: 'Is empty', value: 'IS_NULL' },
-      { label: 'Is not empty', value: 'IS_NOT_NULL' }
+      { label: t('mdTable.filter.operators.equals'), value: 'EQ' },
+      { label: t('mdTable.filter.operators.after'), value: 'GT' },
+      { label: t('mdTable.filter.operators.afterOrEquals'), value: 'GTE' },
+      { label: t('mdTable.filter.operators.before'), value: 'LT' },
+      { label: t('mdTable.filter.operators.beforeOrEquals'), value: 'LTE' },
+      { label: t('mdTable.filter.operators.isEmpty'), value: 'IS_NULL' },
+      { label: t('mdTable.filter.operators.isNotEmpty'), value: 'IS_NOT_NULL' }
     ]
   } else if (isNumericField(field)) {
     // 数字类型操作符
@@ -203,19 +217,19 @@ const getOperatorsForField = (field: string): OperatorOption[] => {
       { label: '≥', value: 'GTE' },
       { label: '<', value: 'LT' },
       { label: '≤', value: 'LTE' },
-      { label: 'Is empty', value: 'IS_NULL' }
+      { label: t('mdTable.filter.operators.isEmpty'), value: 'IS_NULL' }
     ]
   } else {
     // 非数字类型操作符
     console.log('getOperatorsForField', props.availableColumns)
     return [
-      { label: 'Contains', value: 'LIKE' },
+      { label: t('mdTable.filter.operators.contains'), value: 'LIKE' },
       // { label: 'Does not contain', value: 'NOT_LIKE' },
-      { label: 'Equals', value: 'EQ' },
-      { label: 'Not equals', value: 'NE' },
-      { label: 'Is empty', value: 'IS_NULL' },
-      { label: 'Is not empty', value: 'IS_NOT_NULL' },
-      { label: 'Has duplicate', value: 'DUPLICATE' }
+      { label: t('mdTable.filter.operators.equals'), value: 'EQ' },
+      { label: t('mdTable.filter.operators.notEquals'), value: 'NE' },
+      { label: t('mdTable.filter.operators.isEmpty'), value: 'IS_NULL' },
+      { label: t('mdTable.filter.operators.isNotEmpty'), value: 'IS_NOT_NULL' },
+      { label: t('mdTable.filter.operators.duplicate'), value: 'DUPLICATE' }
     ]
   }
 }

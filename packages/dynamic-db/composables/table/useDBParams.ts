@@ -83,7 +83,10 @@ export function useDBParams() {
       // dryRun: true,
     }
     if (columnFilterRules.value && columnFilterRules.value.conditions.length > 0) {
-      params.conditions = getFilterRules()
+      const conditions = getFilterRules()
+      if (conditions[0].value && conditions[0].value.length > 0) {
+        params.conditions = conditions
+      }
     }
     if (columns.value) {
       params.columns = [

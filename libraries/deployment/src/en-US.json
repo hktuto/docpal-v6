@@ -2374,6 +2374,58 @@
       "removeRelation": "Remove this relation",
       "unnamed": "Unnamed"
     },
+    "columnConfig": {
+      "dragToSort": "Drag to sort",
+      "hideColumns": "Hide columns",
+      "hideAll": "Hide All",
+      "minOneColumn": "Keep at least one column visible",
+      "showAll": "Show All",
+      "title": "Column Visibility"
+    },
+    "grouping": {
+      "autoSaveTip": "View settings are saved automatically. Your changes sync to other members in real time.",
+      "button": "Group",
+      "buttonWithCount": "{count} groups",
+      "maxGroupsTip": "You can configure up to {count} grouping levels.",
+      "popoverTitle": "Configure grouping",
+      "selectPlaceholder": "Select an option"
+    },
+    "filter": {
+      "addCondition": "Add filter condition",
+      "and": "And",
+      "autoSaveTip": "View configuration is auto-saved. Your changes are saved in real time and synced to other members.",
+      "button": "Filter",
+      "buttonWithCount": "{count} filters",
+      "connectorWhen": "When",
+      "dialogTitle": "Filter settings",
+      "operators": {
+        "after": "After",
+        "afterOrEquals": "After or equals",
+        "before": "Before",
+        "beforeOrEquals": "Before or equals",
+        "contains": "Contains",
+        "duplicate": "Has duplicate",
+        "equals": "Equals",
+        "isEmpty": "Is empty",
+        "isNotEmpty": "Is not empty",
+        "notEquals": "Not equals"
+      },
+      "or": "Or",
+      "placeholderDate": "Select date",
+      "placeholderField": "Select field",
+      "placeholderOperator": "Select operator",
+      "placeholderValue": "Enter value"
+    },
+    "sort": {
+      "addCondition": "Add sort rule",
+      "autoSaveTip": "View settings are saved automatically. Your changes sync to other members in real time.",
+      "button": "Sort",
+      "buttonWithCount": "{count} sorts",
+      "dialogTitle": "Sort settings",
+      "orderTextAsc": "A → Z",
+      "orderTextDesc": "Z → A",
+      "selectPlaceholder": "Select an option"
+    },
     "relationPicker": {
       "configRequired": "Please configure the relation table first",
       "defaultTableLabel": "Relation table",
