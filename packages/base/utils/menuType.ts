@@ -23,6 +23,7 @@ export interface RouterParams extends DroppableItem {
 
 interface MenuProvider {
     navigateTo:(param:TabItem, openInNewTab?:boolean) => void
+    replace:(param:TabItem) => void
     updateProps(newProps:any):void
     updateTabName(newName:string):void
     routerContainer: Ref<HTMLElement | null>,
