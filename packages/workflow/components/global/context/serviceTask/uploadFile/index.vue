@@ -108,6 +108,14 @@ watch(
         </el-popover>
       </div>
     </el-form-item>
+    <el-form-item :label="t('File')">
+      <el-select v-model="formData.body.fileContentId" filterable @change="updateData">
+        <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
+
+    <el-divider />
+
     <el-form-item :label="t('Document Name')">
       <el-select v-model="formData.body.name" filterable @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
@@ -116,11 +124,6 @@ watch(
     <el-form-item :label="t('Document Type')">
       <el-select v-model="formData.body.type" filterable @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
-      </el-select>
-    </el-form-item>
-    <el-form-item :label="t('File Content Id')">
-      <el-select v-model="formData.body.fileContentId" filterable @change="updateData">
-        <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item :label="t('Creator')">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { VariableTypeOptions, type VariableSelectItem } from '#imports'
+import { VariableItemDisplayType } from '@packages/workflow/composables/useWorkflowVariables'
 
 const editComponent = ref()
 const visible = ref(false)
@@ -28,7 +29,7 @@ function typeChanged(tag: string) {
     field.value = {
       id: field.value.id,
       name: field.value.name,
-      type: Object.entries(VariableItemTag).find(([, arr]) => arr.includes(tag))?.[0],
+      type: Object.entries(VariableItemDisplayType).find(([, arr]) => arr.includes(tag))?.[0],
       tag: tag,
       required: field.value.required,
       ...typeObject.validation
@@ -57,9 +58,9 @@ defineExpose({ open })
         </el-select>
       </el-form-item>
     </el-form>
-    <!-- <el-form-item label="Required">
+     <el-form-item label="Required">
       <el-switch v-model="field.required" disabled/>
-    </el-form-item> -->
+    </el-form-item>
 
     <el-divider />
     <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="field" :form="field" />

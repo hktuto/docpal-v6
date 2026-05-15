@@ -4,8 +4,12 @@ import type { Graph } from '@antv/x6'
  * 動態變量的數據類型
  */
 export type VariableItemType = 'string' | 'number' | 'boolean' | 'date'
-export const VariableItemTag = {
-  string: ['string', 'file'],
+export const VariableItemDisplayType = {
+  string: [
+    'text',
+    'file_id'
+    // , 'url', 'email', 'phone'
+  ],
   number: ['number'],
   boolean: ['boolean'],
   date: ['date']
@@ -18,45 +22,76 @@ export const VariableTypeOptions = [
       {
         label: 'Text',
         type: 'string',
-        tag: 'string',
+        display_type: 'text',
         validation: {
-          maxLength: 255
+          pattern: '',
+          max_length: 255
         },
         component: 'ContextVariableDataTypeString'
       },
       {
         label: 'File',
         type: 'string',
-        tag: 'file',
-        validation: {},
+        display_type: 'file',
+        validation: {
+          pattern: ''
+        },
         component: 'ContextVariableDataTypeString'
       },
+      // {
+      //   label: 'URL',
+      //   type: 'string',
+      //   display_type: 'url',
+      //   validation: {
+      //     pattern: '^https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$',
+      //     max_length: 255
+      //   },
+      //   component: 'ContextVariableDataTypeUrl'
+      // },
+      // {
+      //   label: 'Email',
+      //   type: 'string',
+      //   display_type: 'email',
+      //   validation: {
+      //     pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+      //     max_length: 255
+      //   },
+      //   component: 'ContextVariableDataTypeEmail'
+      // },
+      // {
+      //   label: 'Phone',
+      //   type: 'string',
+      //   display_type: 'phone',
+      //   validation: {
+      //     country_code: 86,
+      //     length: 11
+      //   },
+      //   component: 'ContextVariableDataTypePhone'
+      // },
       {
         label: 'Number',
         type: 'number',
-        tag: 'number',
+        display_type: 'number',
         validation: {
-          minimum: -999999,
-          maximum: 999999,
-          multipleOf: 0
+          max_value: 100,
+          min_value: 1,
+          decimal_places: 0
         },
         component: 'ContextVariableDataTypeNumber'
       },
       {
         label: 'Boolean',
         type: 'boolean',
-        tag: 'boolean',
+        display_type: 'boolean',
         validation: {},
         component: 'ContextVariableDataTypeBoolean'
       },
       {
         label: 'Date',
         type: 'date',
-        tag: 'date',
+        display_type: 'date',
         validation: {
-          dateOrDateTime: 'date',
-          format: 'YYYY-MM-DD',
-          isMultiple: false
+          pattern: 'YYYY-MM-DD hh:mm:ss'
         },
         component: 'ContextVariableDataTypeDate'
       }
@@ -67,21 +102,27 @@ export const VariableTypeOptions = [
 export type VariableItem = {
   id: string
   name: string
+  description: string
   type: VariableItemType
-  tag: string
+  display_type: string
   required: boolean
-  maxLength?: number
-  pattern?: string
-  format?: string
-  minimum?: number
-  maximum?: number
+  default_value: string
+  validation: {
+    pattern?: string
+    max_length?: number
+    min_length?: number
+    max_value?: number
+    min_value?: number
+    decimal_places?: number
+  }
+  display_option: {}
 }
 
 export type VariableSelectItem = {
   id: string
   name: string
   type: VariableItemType
-  tag: string
+  display_type: string
   required: boolean
 }
 
@@ -103,12 +144,12 @@ export type WorkflowVariablesProvideContext = {
  */
 export function conversionFormDataByVariables(formData: any, variables: any) {
   try {
-    const variableSchema = Object.entries(variables).reduce((acc, [key, value]) => {
-      acc[key] = { type: value.type }
+    const variableSchema = Object.entries(variables).reduce((acc: any, [key, value]) => {
+      acc[key] = { type: value?.type }
       return acc
     }, {})
 
-    const formattedVariables = {}
+    const formattedVariables: any = {}
 
     for (const key in formData) {
       const value = formData[key]
@@ -213,20 +254,22 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
 
   /**
    * 根據數據類型返回對應的數據類型
-   * @param tagList 變量的數據類型 VariableItemTag 的子類型
+   * @param displayTypeList 變量的數據類型 VariableItemDisplayType 的子類型
    * @param status 是否是變量
    */
-  function getVariablesByTags(tagList?: string[], status = false): VariableSelectItem[] {
+  function getVariablesByTags(displayTypeList?: string[], status = false): VariableSelectItem[] {
     let list: VariableItem[] = variables.value
 
-    if (tagList?.length) {
-      list = variables.value.filter((item) => tagList.includes(item.tag))
+    if (displayTypeList?.length) {
+      list = variables.value.filter((item: VariableItem) => displayTypeList.includes(item.display_type))
     }
 
     return list.map((item: VariableItem) => ({
       id: status ? '${' + item.id + '}' : item.id,
       name: item.name,
-      type: item.type
+      type: item.type,
+      display_type: item.display_type,
+      required: item.required
     }))
   }
 
@@ -252,6 +295,8 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
     setVariables
   }
 }
+
+async function updateStartEventNodeFormFields() {}
 
 function toWorkflowVariablesObj(variables: VariableItem[]): WorkflowVariablesObj {
   return variables.reduce((acc: WorkflowVariablesObj, curr: VariableItem) => {

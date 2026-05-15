@@ -39,7 +39,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   },
   columns: [
     { title: 'Name', field: 'name' },
-    { title: 'Type', field: 'tag' }
+    { title: 'Type', field: 'display_type' },
+    { title: 'Required', field: 'required' }
   ],
   dblClickAction: ({ row, column, event }: any) => {
     console.log('dblClickAction', row, column, event)
@@ -112,8 +113,7 @@ defineExpose({
       <ElDivider />
       <div class="tableSection">
         <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-          <template #toolbar_buttons>
-          </template>
+          <template #toolbar_buttons></template>
         </VxeGrid>
       </div>
     </template>

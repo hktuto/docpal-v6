@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
-
 const platform = useAppPlatform()
 const { t } = useI18n()
 const { state, handleSubmit, handleOpen } = useDashboardSetting({
@@ -10,17 +8,20 @@ type Columns = {
   field: string
   title: string
 }
-const workflowList = await getWorkflowList()
+const workflowList = ref([])
 const workflowColumns = ref<Columns[]>([])
 const availableSteps = ref<any[]>([])
+const userId: string = useUserId().value
 
-async function handleWorkflowChange(workflowId: string) {
+async function handleWorkflowChange(processId: string) {
   state.setting.columns = []
   state.setting.steps = []
-  const selectedWorkflowData = workflowList.find((item: any) => item.id === workflowId)
+  const selectedWorkflowData = workflowList.value.find((item: any) => item.process_id === processId)
   if (!selectedWorkflowData) return
 
-  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`).then((r: any) => r.data)
+  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${processId}`).then((r: any) => r.data.data)
+  console.log(123, data)
+  return
   const workflowJson = data.content
   const userNodes: any[] = workflowJson.nodes.filter((node: any) => node.type === CellType.userTask)
   availableSteps.value = userNodes
@@ -36,6 +37,10 @@ async function handleWorkflowChange(workflowId: string) {
 }
 
 async function beforeOpen(setting) {
+  if (workflowList.value.length === 0) {
+    await getWorkflowTask()
+  }
+
   state.setting = deepCopy(setting)
 
   if (!setting.columns) setting.columns = []
@@ -43,6 +48,17 @@ async function beforeOpen(setting) {
     await handleWorkflowChange(setting.selectedWorkflow)
   }
 }
+
+async function getWorkflowTask() {
+  const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
+  if (data.code === 200) {
+    workflowList.value = data.task || []
+  }
+}
+
+onMounted(async () => {
+  await getWorkflowTask()
+})
 
 defineExpose({
   handleOpen
@@ -57,7 +73,7 @@ defineExpose({
       </el-form-item>
       <el-form-item label="workflow">
         <el-select v-model="state.setting.selectedWorkflow" filterable clearable allow-create @change="handleWorkflowChange">
-          <el-option v-for="item in workflowList" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in workflowList" :key="item.process_id" :label="item.name" :value="item.process_id" />
         </el-select>
       </el-form-item>
       <el-form-item label="Steps">

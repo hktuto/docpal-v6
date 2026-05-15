@@ -41,7 +41,7 @@ const allDocumentTemplates = ref<{ id: string; name: string; value: any }[]>([])
 const formData = ref<{
   http_request: any
 }>({
-  http_request: {},
+  http_request: {}
 })
 const storeValue = ref<string>('')
 const variables = ref<any[]>([])
@@ -224,6 +224,9 @@ watch(
         <el-option v-for="item in storeVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
+
+    <el-divider />
+
     <el-form-item label="Document Type">
       <el-select v-model="formData.http_request.body.type" :placeholder="t('common_selectedIsRequiredMsg')" filterable @change="updateData">
         <el-option v-for="item in documentTypeList" :key="item.name" :label="item.name" :value="item.name" />

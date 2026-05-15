@@ -53,30 +53,20 @@ async function workflowClickHandler(workflowItem: any) {
     routerProvider?.message.error('Workflow No process')
     return
   }
+
   // Check if the next node of the start task is a user task
   const nextTaskId = startTask.flow.outgoing[0]
   const nextTaskNode = data.content.nodes.find((item: any) => item.id === nextTaskId)
   if (!nextTaskNode || nextTaskNode.type !== CellType.userTask) {
+    // run workflow by service
+    await directlyStart(data.id)
     state.loading = false
     return
   }
 
   // nextTaskNode Task has no set E-Form
   if (!nextTaskNode.config.human_task.form_key || nextTaskNode.config.human_task.form_key === '') {
-    // Directly Submit form
-    try {
-      const formParams = {
-        start_user_id: userId.value,
-        definition_id: data.id,
-        variables: {
-          __system__user_creator_id: userId.value
-        }
-      }
-
-      await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
-    } catch (e) {
-      console.log(e)
-    }
+    await directlyStart(data.id)
     state.loading = false
     return
   }
@@ -91,6 +81,21 @@ async function workflowClickHandler(workflowItem: any) {
 
   state.formDialogVisible = true
   await initForm(nextTaskNode)
+}
+
+async function directlyStart(definition_id: string) {
+  try {
+    const formParams = {
+      start_user_id: userId.value,
+      definition_id: definition_id,
+      variables: {
+        __system__user_creator_id: userId.value
+      }
+    }
+    await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function initForm(nextTaskNode: any) {
