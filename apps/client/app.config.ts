@@ -100,6 +100,9 @@ export default defineAppConfig({
     },
     {
       name: 'client-scan'
+    },
+    {
+      name:"dynamic-db"
     }
   ],
   adminMenu: [

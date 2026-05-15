@@ -5,5 +5,6 @@ export default defineNuxtConfig({
     public: {
       HOCUSPOCUS_URL: process.env.HOCUSPOCUS_URL || 'ws://localhost:1234'
     }
-  }
+  },
+  extends:["../dp-mdTable"]
 })

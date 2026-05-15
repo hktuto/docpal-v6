@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     '../../packages/authApp',
     '../../packages/rbac',
     "../../packages/dp-scan",
-
+    "../../packages/dynamic-db",
     '../../pages/client-browse',
     '../../pages/client-search',
     '../../pages/client-master-table',
