@@ -258,7 +258,8 @@ provide('viewTools', {
   saveColumnOrder,
   updateViewFilterSortGroup,
   systemFieldsTypes,
-  tableId
+  tableId,
+  menuId: computed(() => databaseMenuRouteParams.value.detailId)
 })
 
 // Side panel state

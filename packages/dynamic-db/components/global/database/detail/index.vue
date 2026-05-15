@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 
 const props = defineProps<{
   id: string
@@ -23,6 +23,7 @@ const canOpenSetting = computed(() => {
 // Hocuspocus awareness
 const hocuspocusManager = useHocuspocusManager()
 const roomName = computed(() => `dynamic-db:${props.id}`)
+const { remoteChanges } = useRemoteChanges(roomName.value)
 
 watch(
   roomName,
@@ -81,13 +82,47 @@ function connect() {
   hocuspocusManager.joinRoom(roomName.value)
 }
 
+function broadcastChange(change: { type: string; rowId?: string; rowIds?: string[]; tableId: string; menuId: string }) {
+  const localUser = JSON.parse(localStorage.getItem('docpal-user') || '{}')
+  const fullChange = {
+    ...change,
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    timestamp: Date.now(),
+    userId: localUser.userId || ''
+  }
+  hocuspocusManager.broadcastChanges(roomName.value, [fullChange as any])
+}
+
 provide('databaseHocuspocus', {
   awarenessStates,
   updatedRows,
   localAwareness,
   connected,
+  remoteChanges,
   setAwareness,
+  broadcastChange,
   connect
+})
+
+// Consume remote changes at page level for toast notifications
+watch(remoteChanges, (events) => {
+  for (const event of events) {
+    const { change, userName } = event
+    if (change.menuId !== databaseMenuRouteParams.value.detailId) continue
+    if (change.type === 'row_created') {
+      ElNotification({
+        title: 'New Record',
+        message: `${userName} created a new row`,
+        type: 'info'
+      })
+    } else if (change.type === 'rows_deleted') {
+      ElNotification({
+        title: 'Rows Deleted',
+        message: `${userName} deleted ${change.rowIds?.length || 0} rows`,
+        type: 'warning'
+      })
+    }
+  }
 })
 
 function openSetting() {
