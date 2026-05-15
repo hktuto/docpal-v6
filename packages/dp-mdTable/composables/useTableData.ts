@@ -1,5 +1,5 @@
 // composables/useTableData.ts
-import { ref, computed, provide, inject, onBeforeUnmount, watch, type Ref, type InjectionKey, type ComputedRef } from 'vue'
+import { ref, computed, provide, inject, nextTick, onBeforeUnmount, watch, type Ref, type InjectionKey, type ComputedRef } from 'vue'
 import { newClientApi, postDynamicActions } from 'api'
 import { ElNotification } from 'element-plus'
 import { EventType, useEventBus } from 'eventbus'
@@ -37,17 +37,31 @@ export interface UseTableDataOptions {
   transform?: (data: any[]) => any[]
 }
 
+export interface TableDataFetchOptions {
+  /** 静默请求数据，不触发表格 loading */
+  silent?: boolean
+}
+
+export interface TableDataRefreshOptions {
+  /** 静默刷新，不触发表格 loading */
+  silent?: boolean
+  /** 保持当前分页查询；默认沿用 reload 行为 */
+  keepPage?: boolean
+}
+
 export interface TableDataContext {
   gridRef: Ref<any>
   tableData: Ref<any[]>
   loading: Ref<boolean>
   loadingMore: Ref<boolean>
+  silentRefreshing: Ref<boolean>
   totalSize: Ref<number>
   hasMore: ComputedRef<boolean>
+  currentEditing: Ref<string[]>
   // 方法
-  getTableData: (params?: any, extraParams?: any) => Promise<{ entryList: any[]; totalSize: number } | undefined>
+  getTableData: (params?: any, extraParams?: any, options?: TableDataFetchOptions) => Promise<{ entryList: any[]; totalSize: number } | undefined>
   loadMore: (extraParams?: any) => Promise<void>
-  refresh: () => Promise<void>
+  refresh: (options?: TableDataRefreshOptions) => Promise<void>
   addRow: (row: any) => void
   updateRow: (rowId: string, data: any, mdTableId?: string) => Promise<boolean>
   deleteRow: (rowid: string | string[]) => Promise<boolean>
@@ -96,6 +110,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const rawData = ref<any[]>([]) // 原始数据，用于行数据管理
   const loading = ref(false)
   const loadingMore = ref(false)
+  const silentRefreshing = ref(false)
   const currentPage = ref(0)
   const viewTools: any = inject('viewTools')
   const databaseHocuspocus: any = inject('databaseHocuspocus', null)
@@ -135,7 +150,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     params: any = {
       pageSize: 100
     },
-    extraParams?: any
+    extraParams?: any,
+    options: TableDataFetchOptions = {}
   ): Promise<{ entryList: any[]; totalSize: number } | undefined> => {
     // if (columnGroupRules.value?.length > 0) {
     //   tableData.value = getAggregateData(params)
@@ -144,8 +160,11 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     //     totalSize: tableData.value.length
     //   }
     // }
+    const shouldShowLoading = !options.silent && !silentRefreshing.value
     try {
-      loading.value = true
+      if (shouldShowLoading) {
+        loading.value = true
+      }
       let additionalParams: any = {}
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
@@ -186,7 +205,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       console.error('getTableData error', error)
       return undefined
     } finally {
-      loading.value = false
+      if (shouldShowLoading) {
+        loading.value = false
+      }
     }
   }
 
@@ -291,8 +312,19 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   /**
    * 刷新数据
    */
-  const refresh = async () => {
-    gridRef.value?.commitProxy('reload')
+  const refresh = async (options: TableDataRefreshOptions = {}) => {
+    const command = options.keepPage ? 'query' : 'reload'
+    if (options.silent) {
+      silentRefreshing.value = true
+      await nextTick()
+    }
+    try {
+      await gridRef.value?.commitProxy(command)
+    } finally {
+      if (options.silent) {
+        silentRefreshing.value = false
+      }
+    }
   }
 
   /**
@@ -500,6 +532,7 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
     tableData,
     loading,
     loadingMore,
+    silentRefreshing,
     totalSize,
     hasMore,
     currentEditing,
@@ -521,6 +554,7 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
     rawData,
     loading,
     loadingMore,
+    silentRefreshing,
     totalSize,
     hasMore,
     currentEditing,

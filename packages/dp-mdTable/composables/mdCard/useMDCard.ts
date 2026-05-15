@@ -47,6 +47,7 @@ export function useMDCard(props: MDCardProps) {
   provide(MDCardContextKey, {
     tableId: props.tableId,
     updateRow,
+    getTableData,
     getAggChildData,
     coverField,
     tableData,

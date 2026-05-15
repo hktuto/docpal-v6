@@ -86,6 +86,14 @@ interface ColumnVisibilityItem {
   display: boolean
 }
 
+interface GridRefreshState {
+  scrollLeft: number
+  scrollTop: number
+  selectedRowIds: string[]
+  currentRowId?: string
+  expandedRowIds: string[]
+}
+
 interface Props {
   tableId?: string
   editable?: boolean
@@ -153,7 +161,7 @@ const emit = defineEmits<{
 }>()
 
 // 引用
-const activeGroupFields = ref<string[]>([])
+const isGroupingEnabled = computed(() => (props.extraColumnConfig?.columnGroupRules?.value?.length ?? 0) > 0)
 const addPopoverRef = ref()
 const {
   tableData,
@@ -213,6 +221,9 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       await updateRow(row.id, updateData)
       // Set success state - will auto-clear after delay
       setSuccess(row.id, column.field)
+      if (isGroupingEnabled.value) {
+        await handleRefresh()
+      }
     } catch (error) {
       console.error('Failed to update row:', error)
       setError(row.id, column.field, error instanceof Error ? error.message : 'Update failed')
@@ -281,8 +292,91 @@ const filteredSlots = computed(() => {
 })
 
 // 方法
+function getRowKey(row: any) {
+  return row?.id === undefined || row?.id === null ? undefined : String(row.id)
+}
+
+function getGridBodyWrapper() {
+  return (gridRef.value?.$el as HTMLElement | undefined)?.querySelector?.('.vxe-table--body-wrapper') as HTMLElement | null
+}
+
+function getGridRows() {
+  const tableResult = gridRef.value?.getTableData?.()
+  return tableResult?.fullData || tableResult?.tableData || tableResult?.visibleData || tableData.value || []
+}
+
+function flattenRows(rows: any[]) {
+  const result: any[] = []
+  const stack = [...(rows || [])]
+  while (stack.length) {
+    const row = stack.shift()
+    if (!row) {
+      continue
+    }
+    result.push(row)
+    if (Array.isArray(row.children) && row.children.length) {
+      stack.push(...row.children)
+    }
+  }
+  return result
+}
+
+function captureGridRefreshState(): GridRefreshState {
+  const scrollInfo = gridRef.value?.getScroll?.()
+  const bodyWrapper = getGridBodyWrapper()
+  const selectedRows = gridRef.value?.getCheckboxRecords?.() || []
+  const currentRow = gridRef.value?.getCurrentRecord?.()
+  const expandedRows = gridRef.value?.getTreeExpandRecords?.() || []
+
+  return {
+    scrollLeft: Number(scrollInfo?.scrollLeft ?? bodyWrapper?.scrollLeft ?? 0),
+    scrollTop: Number(scrollInfo?.scrollTop ?? bodyWrapper?.scrollTop ?? 0),
+    selectedRowIds: selectedRows.map(getRowKey).filter(Boolean) as string[],
+    currentRowId: getRowKey(currentRow),
+    expandedRowIds: expandedRows.map(getRowKey).filter(Boolean) as string[]
+  }
+}
+
+async function restoreGridRefreshState(state: GridRefreshState) {
+  await nextTick()
+  const rows = flattenRows(getGridRows())
+  const rowMap = new Map(rows.map((row) => [getRowKey(row), row]).filter(([key]) => !!key) as Array<[string, any]>)
+  const selectedRows = state.selectedRowIds.map((id) => rowMap.get(id)).filter(Boolean)
+  const expandedRows = state.expandedRowIds.map((id) => rowMap.get(id)).filter(Boolean)
+
+  gridRef.value?.clearCheckboxRow?.()
+  rows.forEach((row) => {
+    row.checked = false
+  })
+  if (selectedRows.length) {
+    gridRef.value?.setCheckboxRow?.(selectedRows, true)
+    selectedRows.forEach((row) => {
+      row.checked = true
+    })
+  }
+
+  const currentRow = state.currentRowId ? rowMap.get(state.currentRowId) : undefined
+  if (currentRow) {
+    gridRef.value?.setCurrentRow?.(currentRow)
+  }
+  if (expandedRows.length) {
+    await gridRef.value?.setTreeExpand?.(expandedRows, true)
+  }
+
+  await nextTick()
+  await gridRef.value?.scrollTo?.(state.scrollLeft, state.scrollTop)
+  const bodyWrapper = getGridBodyWrapper()
+  if (bodyWrapper) {
+    bodyWrapper.scrollLeft = state.scrollLeft
+    bodyWrapper.scrollTop = state.scrollTop
+  }
+}
+
 const handleRefresh = async () => {
-  await refreshTableData()
+  const state = captureGridRefreshState()
+  updateExpandedRows()
+  await refreshTableData({ silent: true, keepPage: true })
+  await restoreGridRefreshState(state)
   emit('refresh')
 }
 

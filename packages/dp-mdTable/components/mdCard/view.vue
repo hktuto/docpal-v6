@@ -31,7 +31,7 @@ const emit = defineEmits<{
   reload: []
 }>()
 
-const { columns, systemFieldsTypes, updateRow, viewStyleConfig } = useMDCardInject()
+const { columns, systemFieldsTypes, updateRow, getTableData, viewStyleConfig } = useMDCardInject()
 const recordCardDialogRef = ref()
 const activeViewRef = ref()
 
@@ -74,10 +74,13 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
 }
 
 async function handleEditRecord(data: any, id: string) {
-  console.log('handleEditRecord', data)
   const updated = await updateRow(id, data)
-  if (updated !== false) {
-    activeViewRef.value?.updateRow?.(id, data)
+  if (updated === false) {
+    return
+  }
+  activeViewRef.value?.updateRow?.(id, data)
+  if (props.isGroupingEnabled) {
+    await getTableData({ pageNum: 0 }, undefined, { silent: true })
   }
 }
 

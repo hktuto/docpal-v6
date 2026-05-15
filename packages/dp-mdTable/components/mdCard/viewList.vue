@@ -109,7 +109,17 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
   emit('row-context-menu', row, event)
 }
 
-function updateRow() {}
+function updateRow(rowId: string, data: any) {
+  const index = localRows.value.findIndex((row) => row?.id === rowId)
+  if (index >= 0) {
+    localRows.value[index] = { ...localRows.value[index], ...data }
+    localRows.value = [...localRows.value]
+  }
+  const sourceIndex = tableData.value.findIndex((row: any) => row?.id === rowId)
+  if (sourceIndex >= 0) {
+    Object.assign(tableData.value[sourceIndex], data)
+  }
+}
 
 defineExpose({
   updateRow

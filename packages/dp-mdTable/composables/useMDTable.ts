@@ -2,6 +2,7 @@
 import { provide, inject, ref, type Ref } from 'vue'
 import type { VxeGridInstance } from 'vxe-table'
 import { useUpdateStatus } from './useUpdateStatus'
+import type { TableDataRefreshOptions } from './useTableData'
 import { clientApi } from 'api'
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
@@ -20,7 +21,7 @@ export interface mdTable {
   getUserList: () => Promise<any[]>
   userList: Ref<any[]>
   tableData: Ref<any[]>
-  refreshTableData: () => Promise<void>
+  refreshTableData: (options?: TableDataRefreshOptions) => Promise<void>
   updateRow: (rowId: string, data: any) => Promise<boolean>
   addRow: (row: any) => void
   addColumnPopoverRef: Ref<any>
@@ -53,7 +54,8 @@ export function useMDTable(props: any) {
     deleteRow,
     getTableData,
     getAggChildData,
-    currentEditing
+    currentEditing,
+    silentRefreshing
   } = useTableData(props.tableId, gridRef)
 
   // Get update status helper for cell styling
@@ -64,6 +66,7 @@ export function useMDTable(props: any) {
       loading,
       childApiMethod: getAggChildData,
       apiMethod: getTableData,
+      silentRefreshing,
       // Add cell class name function for update status visual feedback
       cellClassName: ({ row, column }: any) => {
         if (!row?.id || !column?.field) return ''

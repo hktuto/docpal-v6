@@ -19,6 +19,8 @@ export interface TableConfigOptions {
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
   }
+  /** 是否可编辑表格 */
+  canEditTable?: boolean
   /** 表格高度 */
   height?: string | number
   /** 是否自动调整大小 */
@@ -38,6 +40,8 @@ export interface TableConfigOptions {
   /** 列配置 */
   /** 加载状态 */
   loading: Ref<boolean> | ComputedRef<boolean>
+  /** 静默刷新状态：刷新数据但不显示 loading */
+  silentRefreshing?: Ref<boolean>
   apiMethod: Function
   /** 子节点加载方法 */
   childApiMethod?: Function
@@ -51,7 +55,7 @@ export interface TableConfigOptions {
  */
 export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   const {
-    canEditTable,
+    canEditTable = false,
     height = '100%',
     autoResize = true,
     stripe = true,
@@ -61,6 +65,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     rowId = 'id',
     editConfig,
     loading,
+    silentRefreshing,
     apiMethod,
     childApiMethod,
     cellClassName
@@ -215,7 +220,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       resizable,
       keepSource,
       rowId,
-      loading: loading.value,
+      loading: silentRefreshing?.value ? false : loading.value,
       columns: processedColumns.value as any,
       editRules: processedEditRules.value,
       columnConfig: {
@@ -340,6 +345,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     }
     if (apiMethod) {
       options.proxyConfig = {
+        showLoading: !silentRefreshing?.value,
         ajax: {
           query: loadData
         }
@@ -380,6 +386,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   watch(
     () => [options.extraColumnConfig?.columnGroupRules, options.extraColumnConfig?.columnFilterRules, options.extraColumnConfig?.columnSortRules],
     ([newColumnGroupRules, newColumnFilterRules, newColumnSortRules]) => {
+      if (silentRefreshing?.value) {
+        return
+      }
       gridRef.value?.commitProxy('reload')
     },
     { deep: true }
