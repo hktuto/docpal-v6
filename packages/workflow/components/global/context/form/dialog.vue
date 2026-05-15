@@ -35,10 +35,7 @@ async function handleFormSubmit() {
     versionId: '0'
   }
   const data: any = await newClientApi.postDmsFormPropertiesSave(params).then((r) => r.data)
-  const slotMap = json.widgetList.map((item: any) => {
-    return item.options?.name
-  })
-  emits('submit', { id: data.id, slotMap })
+  emits('submit', data.id)
   formDialogVisible.value = false
 }
 

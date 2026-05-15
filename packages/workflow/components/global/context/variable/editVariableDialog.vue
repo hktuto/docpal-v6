@@ -174,7 +174,6 @@ defineExpose({
         <el-switch v-model="formData.required" />
       </el-form-item>
       <el-divider />
-
       <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="formData" :form="formData" />
     </el-form>
 

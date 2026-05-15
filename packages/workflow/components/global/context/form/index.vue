@@ -87,22 +87,16 @@ function update() {
   graphProvider?.graph.value?.stopBatch('update-form-setting-data')
 }
 
-async function handelSubmitForm(data: { id: string; slotMap: string[] }) {
-  formKey.value = data.id
-  updateFormField(data.slotMap)
+async function handelSubmitForm(formID: string) {
+  formKey.value = formID
+  updateFormField()
   update()
 }
 
-function updateFormField(slotMap: string[]) {
-  const slotSet = new Set(slotMap)
-  const formFieldList = variables.value.filter((item: any) => slotSet.has(item.id))
-  if (!formField.value?.length) {
-    formField.value = formFieldList
-    return
-  }
+function updateFormField() {
   // formField 有資料：保留相同 id 的舊數據，其它用新數據
   const byId = new Map(formField.value.map((f: any) => [f.id, f]))
-  formField.value = formFieldList.map((n: any) => byId.get(n.id) ?? n)
+  formField.value = variables.value.filter((item: any) => !item.id.startsWith('__system__')).map((n: any) => byId.get(n.id) ?? n)
 }
 
 async function previewForm() {

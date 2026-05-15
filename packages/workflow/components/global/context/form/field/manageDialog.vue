@@ -15,7 +15,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   },
   columns: [
     { title: 'Name', field: 'name' },
-    { title: 'Type', field: 'tag' }
+    { title: 'Type', field: 'display_type' }
   ],
   dblClickAction: ({ row, column, event }: any) => {},
   bodyActions: [
