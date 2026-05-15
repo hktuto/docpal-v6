@@ -10,16 +10,13 @@ export interface MDCardProps {
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
     tableFields: Ref<any[]>
-    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
     saveColumnOrder: (columnId: string, position: number) => void
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
     viewStyleConfig?: Ref<Record<string, any>>
-    updateViewFilterSortGroup?: (
-      fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style',
-      value: any
-    ) => Promise<void>
+    updateViewFilterSortGroup?: (fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style', value: any) => Promise<void>
   }
 }
 
@@ -50,8 +47,10 @@ export function useMDCard(props: MDCardProps) {
   provide(MDCardContextKey, {
     tableId: props.tableId,
     updateRow,
+    getAggChildData,
     coverField,
     tableData,
+    loading,
     hasMore,
     loadingMore,
     systemFieldsTypes,
@@ -71,9 +70,11 @@ export function useMDCard(props: MDCardProps) {
     loadMore,
     hasMore,
     loadingMore,
+    loading,
     addRow,
     updateRow,
     deleteRow,
+    getAggChildData
   }
 }
 export const useMDCardInject = () => {

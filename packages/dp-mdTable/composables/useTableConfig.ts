@@ -1,10 +1,9 @@
 // composables/useTableConfig.ts
-import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from 'vue'
 import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { VxeUI } from 'vxe-pc-ui'
 import type { ColumnConfig } from '../types/column-context'
 import { ColumnFieldType } from '../types/column-types'
-import { calculateCount, type CountMethod, flattenAggregatedData } from '../utils/tableCount'
 // 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
 rendererManager.registerAllRenderers()
@@ -15,6 +14,7 @@ export interface TableConfigOptions {
     deleteColumn: (column: ColumnConfig) => void
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
+    updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
@@ -65,7 +65,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     cellClassName
   } = options
   const { columns } = toRefs(options.extraColumnConfig as any)
-  console.log('data', options)
+  const expandedRowKeys = ref<Array<string | number>>([])
+  const defaultTreeExpandRowKeys: Array<string | number> = []
   // console.log('columns', columns)
   // console.log('deleteColumn', deleteColumn)
   // console.log('updateColumn', updateColumn)
@@ -117,6 +118,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
           field: col.field_name,
           title: col.field_name_alias,
           aggFunc: true,
+          colId: col.field_name,
           ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
         }
         colConfig.slots = {
@@ -179,6 +181,30 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       options.extraColumnConfig?.columnGroupRules.value.length > 0
     )
   })
+  /**
+   * 树分组用的是 treeConfig，展开状态由「树展开」API 维护；
+   * getRowExpandRecords / setRowExpand 只对应「行展开」（expand 列 / expandConfig），与树无关，故在树模式下会一直为空。
+   */
+  function updateExpandedRows() {
+    if (!isGroupingEnabled.value) {
+      return
+    }
+    const rows: any[] = gridRef.value?.getTreeExpandRecords?.() ?? []
+    expandedRowKeys.value = rows.map((row) => row?.[rowId]).filter((key): key is string | number => key !== undefined && key !== null)
+  }
+  async function restoreExpandedRows(rows: any[]) {
+    if (!isGroupingEnabled.value || !rows.length) {
+      return
+    }
+    const rowKeys = [...new Set([...defaultTreeExpandRowKeys, ...expandedRowKeys.value])]
+    const rowKeySet = new Set(rowKeys.map(String))
+    const rowsToExpand = rows.filter((row) => rowKeySet.has(String(row?.[rowId])))
+    if (!rowsToExpand.length) {
+      return
+    }
+    await nextTick()
+    gridRef.value?.setTreeExpand?.(rowsToExpand, true)
+  }
   const gridOptions = computed<VxeGridProps>(() => {
     const options: VxeGridProps | any = {
       height: computedHeight.value,
@@ -265,13 +291,14 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
 
     if (isGroupingEnabled.value) {
       options.treeConfig = {
-        transform: true,
-        rowField: 'id',
+        rowField: rowId,
         parentField: 'parentId',
         lazy: true,
         hasChildField: 'hasChild',
         loadMethod: treeLoadData,
-        expandAll: false
+        expandAll: false,
+        reserve: true,
+        expandRowKeys: defaultTreeExpandRowKeys
       }
       // Must disable virtual scroll when using tree config with lazy loading
       options.virtualYConfig = { enabled: false }
@@ -290,8 +317,21 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showIcon: false,
         showStatus: false,
         ...((editConfig as any) || {}),
-        beforeEditMethod: ({ row, column }: any) => {
-          return !row.hasChild && !disabledFields.includes(column.type)
+        beforeEditMethod: ({ row, column, $grid }: any) => {
+          const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
+
+          let isLock = false
+          if (lockedRowCell.value && lockedRowCell.value.length) {
+            isLock = lockedRowCell.value.some(
+              (l: any) => (l.editingRow && l.rowId === row.id) || (l.editingCell && l.cellId === column.field && l.rowId === row.id)
+            )
+          }
+          const value = !row.hasChild && !disabledFields.includes(column.type) && !isLock
+          if (value) {
+            // dispatch event to parent
+            $grid.dispatchEvent('start-edit', { row, column })
+          }
+          return value
         }
       }
     }
@@ -306,16 +346,13 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   })
 
   async function loadData(args: any) {
-    const { page, sorts, filters } = args
-    // 默认接收 Promise<{ result: [], page: { total: 100 } }>
+    const { page } = args
     let pageParams: any = {
       pageSize: page.pageSize,
       pageNum: page.currentPage - 1
     }
-    const gb: any = (options?.extraColumnConfig?.columnGroupRules as any)?.value
-    const groupByList = Array.isArray(gb) && gb.length > 0 ? gb : null
-    const { entryList, totalSize } = await apiMethod(pageParams, groupByList)
-    console.log('entryList', entryList)
+    const { entryList, totalSize } = await apiMethod(pageParams)
+    void restoreExpandedRows(entryList)
     return {
       result: entryList,
       page: {
@@ -345,6 +382,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     { deep: true }
   )
   return {
-    gridOptions
+    gridOptions,
+    updateExpandedRows
   }
 }

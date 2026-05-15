@@ -10,3 +10,6 @@
 [submodule "docpal-documentation"]
 	path = docpal-documentation
 	url = https://gitea.wclsolution.com/DocPal/docpal-documentation.git
+[submodule "apps/hocuspocus"]
+	path = apps/hocuspocus
+	url = https://gitea.wclsolution.com/DocPal/docpal-hocuspocus.git

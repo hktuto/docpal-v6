@@ -3,7 +3,13 @@
     <div class="toolbar-left">
       <slot name="toolbar-left-before" />
       <ToolsColumnConfigPopover v-if="showColumnConfig" :disabled="disabled" />
-      <ToolsGroupingButton v-if="showGroupingButton" :disabled="disabled" :groupableColumns="columns" @grouping-change="(v) => handleRefresh('groupInfo', v)" />
+      <ToolsGroupingButton
+        v-if="showGroupingButton"
+        :disabled="disabled"
+        :groupableColumns="columns"
+        :groupMaxCount="groupMaxCount"
+        @grouping-change="(v) => handleRefresh('groupInfo', v)"
+      />
       <ToolsFilterButton :disabled="disabled" :available-columns="columns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
       <ToolsSortButton :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
@@ -42,6 +48,7 @@ interface Props {
   showAddRowButton?: boolean
   showGroupingButton?: boolean
   showAutomationButton?: boolean
+  groupMaxCount?: number
 }
 
 interface Emits {
@@ -93,7 +100,13 @@ defineExpose({})
   .toolbar-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--app-space-xs);
+    :deep(.el-button) {
+      padding: var(--app-space-xs);
+    }
+    :deep(.el-button + .el-button) {
+      margin-left: 0;
+    }
   }
 }
 </style>

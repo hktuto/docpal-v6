@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Refresh, Plus, Grid, Brush } from '@element-plus/icons-vue'
-import MdCardList from './list.vue'
+import MdCardView from './view.vue'
 import type { MDCardProps } from '../../composables/mdCard/useMDCard'
 type Props = {
   tableId: string
   editable: boolean
   isMirror: boolean
-  canEditTable: boolean,
-  canManageTable: boolean,
+  canEditTable: boolean
+  canManageTable: boolean
   extraColumnConfig: {
     columns: ColumnConfig[]
   }
@@ -30,7 +30,11 @@ const emit = defineEmits<{
 }>()
 const refreshLoading = ref(false)
 const { columns, cardRef, getTableData, addRow, systemFieldsTypes } = useMDCard(props)
-
+console.log('extraColumnConfig', props.extraColumnConfig)
+const rightClickCellPopoverRef = ref()
+const isGroupingEnabled = computed(() => {
+  return props.extraColumnConfig?.columnGroupRules?.value?.length > 0
+})
 async function handleRefresh() {
   refreshLoading.value = true
   await getTableData({ pageNum: 0 })
@@ -52,11 +56,27 @@ async function handleAddRowSubmit(data: any) {
   await addRow(data)
   handleRefresh()
 }
+
+function handleRowContextMenu(row: any, event: MouseEvent) {
+  const target = event.currentTarget instanceof HTMLElement ? event.currentTarget : event.target
+  if (!(target instanceof HTMLElement)) {
+    return
+  }
+  rightClickCellPopoverRef.value?.open(target, { row })
+}
 </script>
 
 <template>
   <div class="md-card-view">
-    <ToolsBar :showMirrorButton="!isMirror" :showAutomationButton="!isMirror && canManageTable" :disabled="isMirror" :showColumnConfig="false" @refresh="handleRefresh" @add-row="handleAddRow">
+    <ToolsBar
+      :groupMaxCount="1"
+      :showMirrorButton="!isMirror"
+      :showAutomationButton="!isMirror && canManageTable"
+      :disabled="isMirror"
+      :showColumnConfig="false"
+      @refresh="handleRefresh"
+      @add-row="handleAddRow"
+    >
       <template #toolbar-left-before>
         <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
@@ -79,7 +99,14 @@ async function handleAddRowSubmit(data: any) {
       </template>
     </ToolsBar>
 
-    <MdCardList :ref="cardRef" :draggable="props.editable" />
+    <MdCardView
+      :ref="cardRef"
+      :draggable="props.editable"
+      :isGroupingEnabled="isGroupingEnabled"
+      @row-context-menu="handleRowContextMenu"
+      @reload="handleRefresh"
+    />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
     <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
   </div>
 </template>

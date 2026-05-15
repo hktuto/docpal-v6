@@ -17,7 +17,7 @@ import {
 } from './renderHelpers'
 
 export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<string>) => {
-  const { row, column } = params
+  const {$grid, row, column } = params
   const props: any = options?.props || {}
   const viewTools: any = inject('viewTools')
   const fieldName = props.display_field_name
@@ -25,13 +25,13 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
   const values = relationArray.map((item: any) => item[fieldName])
   switch (props.display_field_type) {
     case ColumnFieldType.DateTime:
-      return renderAsDateTime(values, props)
+      return renderAsDateTime(values, params, props)
     case ColumnFieldType.Number:
-      return renderAsNumber(values, props)
+      return renderAsNumber(values, params, props)
     case ColumnFieldType.SingleSelect:
-      return renderAsSingleSelect(values, props)
+      return renderAsSingleSelect(values, params, props)
     case ColumnFieldType.MultiSelect:
-      return renderAsMultiSelect(values, props)
+      return renderAsMultiSelect(values, params, props)
     default:
   }
 
@@ -43,7 +43,7 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
         {
           key: `${fieldName}-${i}`,
           size: 'small',
-          type: 'info'
+          type: 'info',
         },
         () => String(relationArray[i][fieldName] || '-')
       )
@@ -58,7 +58,13 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
         display: 'flex',
         gap: '4px',
         flexWrap: 'wrap'
-      }
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     tags
   )

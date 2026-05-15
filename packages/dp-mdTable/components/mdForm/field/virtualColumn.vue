@@ -96,6 +96,7 @@ const props = defineProps<{
   formData: any
   column: any
   fieldName: string
+  disabled: boolean
 }>()
 
 const virtualProps = computed(() => ({

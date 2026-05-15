@@ -32,7 +32,7 @@
             <slot :name="slotName" v-bind="slotProps" />
           </template>
           <template #footerCount="footerProps">
-            <ToolsFooterCount :column="footerProps.column" :row="footerProps.row" />
+            <ToolsFooterCount :column="getColumn(footerProps.column.field)" :row="footerProps.row" />
           </template>
           <template #header="headerProps">
             <MdTableHeader v-if="headerProps.column.field" :headerProps="headerProps" :column="headerProps.column" />
@@ -48,7 +48,15 @@
         </div>
       </div>
       <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @refresh="handleRefresh" />
-      <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
+      <MdFormPopover
+        ref="MdFormPopoverRef"
+        :columns="columns"
+        :systemFieldsTypes="systemFieldsTypes"
+        showMoveButtons
+        @submit="handleAddRowSubmit"
+        @closed="handleFinishEdit"
+        @current-row-change="handleExpandIndexChange"
+      />
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
       <RecordCardDialog ref="recordCardDialogRef" />
@@ -68,6 +76,7 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import type { ColumnConfig } from '../../types/column-context'
 import type { SortRule } from '../tools/sort/configPopover.vue'
 import { createFieldId } from '../../utils/mdTableHelper'
+import { useMDTable } from '../../composables/useMDTable'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 
@@ -81,15 +90,17 @@ interface Props {
   tableId?: string
   editable?: boolean
   isMirror?: boolean
-  canEditTable: boolean,
-  canManageTable: boolean,
+  canEditTable: boolean
+  canManageTable: boolean
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
     tableFields: Ref<any[]>
-    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    currentView?: Ref<any>
+    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
+    updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
     saveColumnOrder: (columnId: string, position: number) => void
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
@@ -109,7 +120,9 @@ const props = withDefaults(defineProps<Props>(), {
     updateColumn: () => {},
     addColumn: () => {},
     tableFields: [],
+    currentView: undefined,
     updatedViewColumnsConfig: () => {},
+    updateViewColumnCountMethod: async () => {},
     saveColumnOrder: () => {},
     columnFilterRules: [],
     columnGroupRules: [],
@@ -122,6 +135,11 @@ const emit = defineEmits<{
   search: [value: string]
   'edit-closed': [params: any]
   'cell-click': [params: any]
+  'cell-mouseenter': [params: any]
+  'cell-mouseleave': [params: any]
+  'start-edit': [params: any]
+  'exit-edit': [params: any]
+  'exit-edit-row': []
   'row-dblclick': [params: { row: any; rowIndex: number }]
   'expand-click': [params: { row: any; rowIndex: number }]
   'open-record': [params: { tableId: string; recordId: string; row: any }]
@@ -137,8 +155,20 @@ const emit = defineEmits<{
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow, systemFieldsTypes } =
-  useMDTable(props)
+const {
+  tableData,
+  columns,
+  gridOptions,
+  gridRef,
+  refreshTableData,
+  updateRow,
+  addVirtualColumn,
+  addColumnPopoverRef,
+  addRow,
+  systemFieldsTypes,
+  updateExpandedRows
+} = useMDTable(props)
+const { getAgg } = useCount(props)
 
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -186,17 +216,29 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       console.error('Failed to update row:', error)
       setError(row.id, column.field, error instanceof Error ? error.message : 'Update failed')
       ElMessage.error('Failed to update cell')
+    } finally {
+      await getAgg()
     }
-
     emit('edit-closed', params)
   },
   'cell-click': (params: any) => {
     emit('cell-click', params)
   },
-  // 'cell-dblclick': (params: any) => {
-  //   const { row, rowIndex } = params
-  //   emit('row-dblclick', { row, rowIndex })
-  // },
+  'cell-mouseenter': (params: any) => {
+    emit('cell-mouseenter', params)
+  },
+  'cell-mouseleave': (params: any) => {
+    emit('cell-mouseleave', params)
+  },
+
+  'start-edit': (params: any) => {
+    const { row, column } = params
+    console.log('start-edit')
+    emit('start-edit', { row, column })
+  },
+  'edit-closed': ({ row, column }: any) => {
+    emit('exit-edit', { row, column })
+  },
   columnDragend({ newColumn, oldColumn, dragPos }) {
     const newFullColumn = columns.value.find((item: any) => item.field_name === newColumn.field)
     const oldFullColumn = columns.value.find((item: any) => item.field_name === oldColumn.field)
@@ -219,6 +261,11 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     fullData.forEach((row: any) => {
       setChecked(row)
     })
+  },
+  toggleTreeExpand: () => {
+    setTimeout(() => {
+      updateExpandedRows()
+    }, 100)
   }
 }))
 
@@ -250,12 +297,20 @@ const handleAddRowSubmit = async (data: any, id: string) => {
     await addRow(data)
   }
 }
+function handleFinishEdit() {
+  emit('exit-edit-row')
+}
 // Handle expand click from checkbox column
 const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
   emit('expand-click', { row, rowIndex })
   MdFormPopoverRef.value.open(row, 'edit')
+}
+function handleExpandIndexChange(row: any) {
+  const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
+  console.log('handleExpandIndexChange')
+  emit('expand-click', { row, rowIndex })
 }
 
 // 处理添加列
@@ -289,7 +344,9 @@ const handleVirtualColumnSelect = async (relationFieldName: string, displayField
     console.warn('addVirtualColumn not available in context')
   }
 }
-
+function getColumn(field: string) {
+  return columns.value.find((col: any) => String(col.field_name) === String(field))
+}
 // 暴露方法
 defineExpose({
   gridRef,

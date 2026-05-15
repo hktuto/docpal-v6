@@ -33,6 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'open-record': [row: any]
+  'row-context-menu': [row: any, event: MouseEvent]
 }>()
 
 const previewFields = computed(() => {
@@ -88,6 +89,10 @@ function formatValue(value: any) {
 function handleOpenRecord() {
   emit('open-record', props.row)
 }
+
+function handleContextMenu(event: MouseEvent) {
+  emit('row-context-menu', props.row, event)
+}
 </script>
 
 <template>
@@ -98,6 +103,7 @@ function handleOpenRecord() {
     aria-label="打开记录"
     :style="{ '--card-count': styleConfig.cardCount }"
     @click="handleOpenRecord"
+    @contextmenu.prevent.stop="handleContextMenu"
     @keydown.enter="handleOpenRecord"
   >
     <!-- <div

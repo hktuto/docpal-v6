@@ -52,16 +52,19 @@ const props = defineProps<{
   tableId: string
   systemFieldsTypes: any[]
 }>()
-const emits = defineEmits(['submit'])
+const emits = defineEmits(['submit', 'closed', 'current-row-change'])
 const { t } = useI18n()
 const title = ref(t('common_edit'))
 const { currentRow, setCurrentRow, moveCurrentRow, disabledUp, disabledDown } = useCurrentRow()
 const formColumns = ref<any[]>([])
+
 const resetForm = () => {
   console.log('resetForm')
+  emits('closed')
 }
 function handleCancel() {
   visible.value = false
+  emits('closed')
 }
 const formRef = ref()
 const relationRefreshBus = useEventBus(EventType.RELATION_NEED_REFRESH)
@@ -86,10 +89,10 @@ async function handleSubmit() {
   visible.value = false
   emits('submit', _formData, formData.value.id)
 }
-async function open(row: any, _mode: 'default' | 'edit' = 'default', _title: string = '') {
+async function open(row: any, _mode: 'default' | 'edit' = 'edit', _title: string = '') {
   formData.value = JSON.parse(JSON.stringify(row))
   mode.value = _mode
-
+  console.log("mode", mode.value)
   visible.value = true
   if (props.showMoveButtons) setCurrentRow(row)
   if (_title) {
@@ -102,6 +105,7 @@ async function open(row: any, _mode: 'default' | 'edit' = 'default', _title: str
 function handleMove(direction: 'up' | 'down') {
   moveCurrentRow(direction)
   formData.value = { ...currentRow.value }
+  emits('current-row-change', {...currentRow.value})
 }
 const close = () => {
   visible.value = false

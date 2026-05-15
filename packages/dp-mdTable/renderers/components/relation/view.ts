@@ -23,7 +23,13 @@ export const RelationView = ({ options, params }: ViewRenderFunctionParams<strin
           class: 'relation-tag el-icon--right',
           onClick: (e: MouseEvent) => {
             e.stopPropagation()
-          }
+          },
+          onMouseenter: (e) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+          },
+          onMouseleave: (e) => {
+             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+          },
         },
         val[displayField.field_name]
       )

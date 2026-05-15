@@ -49,7 +49,7 @@ export interface TableDataContext {
   refresh: () => Promise<void>
   addRow: (row: any) => void
   updateRow: (rowId: string, data: any, mdTableId?: string) => Promise<boolean>
-  deleteRow: (rowid: string) => Promise<boolean>
+  deleteRow: (rowid: string | string[]) => Promise<boolean>
   getAggChildData: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
   queryRecordById: (id: string) => any
   upsertRows?: (
@@ -109,7 +109,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   })
 
   const stopRelationRefresh = relationRefreshBus.on((payload: any) => {
-    console.log('relationRefresh', payload)
     if (!payload?.data || !payload?.relationRowId || !payload?.relationField || !payload?.relationTableId) return
     const { relationRowId, relationField, relationTableId, data } = payload
     tableData.value.forEach((row) => {
@@ -158,7 +157,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
           pageNum: params.pageNum ? params.pageNum + 1 : 0
         }
       }
-      console.log('additionalParams', additionalParams)
       const { data } = await postDynamicActions({
         tableId,
         columns: [],
@@ -168,9 +166,11 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       if (additionalParams.groupBy) {
         tableData.value = data.data.map((item: any) => ({
           ...item,
+          id: item[additionalParams.groupBy.columns[0]],
           hasChild: item.count ? item.count > 0 : true
         }))
       }
+
       rawData.value = JSON.parse(JSON.stringify(data.data))
       totalSize.value = data.meta.total
       return {
@@ -229,9 +229,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   }
 
   async function getAggChildData(row: any) {
-    console.log('viewTools', viewTools)
     const columnGroupRules = viewTools?.columnGroupRules
-    console.log('columnGroupRules', columnGroupRules)
     if (!columnGroupRules?.value?.length) {
       return []
     }

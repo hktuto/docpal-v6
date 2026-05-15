@@ -10,7 +10,9 @@ export interface mdTable {
   deleteColumn: (column: any) => void
   updateColumn: (column: any) => void
   addColumn: (column: any) => void
-  updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+  updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
+  updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
+  currentView?: Ref<any>
   tableFields: any[]
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]
@@ -18,6 +20,7 @@ export interface mdTable {
   getUserList: () => Promise<any[]>
   userList: Ref<any[]>
   tableData: Ref<any[]>
+  refreshTableData: () => Promise<void>
   updateRow: (rowId: string, data: any) => Promise<boolean>
   addRow: (row: any) => void
   addColumnPopoverRef: Ref<any>
@@ -54,7 +57,7 @@ export function useMDTable(props: any) {
 
   // Get update status helper for cell styling
   const { getCellClass } = useUpdateStatus()
-  const { gridOptions } = useTableConfig(
+  const { gridOptions, updateExpandedRows } = useTableConfig(
     {
       ...props,
       loading,
@@ -64,7 +67,7 @@ export function useMDTable(props: any) {
       cellClassName: ({ row, column }: any) => {
         if (!row?.id || !column?.field) return ''
         return getCellClass(row.id, column.field)
-      }
+      },
     },
     gridRef
   )
@@ -129,6 +132,7 @@ export function useMDTable(props: any) {
     getOptionsFromTableData,
     getUserList,
     userList,
+    refreshTableData,
     updateRow,
     addRow,
     addColumnPopoverRef,
@@ -146,6 +150,7 @@ export function useMDTable(props: any) {
     editable,
 
     clearCheckboxRow,
+    updateExpandedRows,
     addRow,
     updateRow
   }

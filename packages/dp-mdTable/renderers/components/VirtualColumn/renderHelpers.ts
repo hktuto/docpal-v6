@@ -11,7 +11,8 @@ import type { TargetFieldConfig } from '../../../types/column-types'
 /**
  * Render values as MultiSelect tags with colors
  */
-export function renderAsSingleSelect(values: any[], targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsSingleSelect(values: any[], params:any, targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column } = params;
   const options = targetConfig.properties?.options || targetConfig.options || []
   if (values.length === 0) {
     return h('div', { class: 'virtual-column-view empty' }, '-')
@@ -26,7 +27,13 @@ export function renderAsSingleSelect(values: any[], targetConfig: any, separator
         display: 'flex',
         gap: '4px',
         flexWrap: 'wrap'
-      }
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     flatValues.map((val: any, index: number) => {
       let option = options.find((o: any) => o.id === val || o.value === val || o.label === val)
@@ -46,10 +53,19 @@ export function renderAsSingleSelect(values: any[], targetConfig: any, separator
 /**
  * Render values as MultiSelect tags with colors
  */
-export function renderAsMultiSelect(values: any[], targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsMultiSelect(values: any[], params:any, targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column } = params;
   const options = targetConfig.properties?.options || targetConfig.options || []
   if (values.length === 0) {
-    return h('div', { class: 'virtual-column-view empty' }, '-')
+    return h('div', {
+      class: 'virtual-column-view empty',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
+    }, '-')
   }
   // Flatten nested arrays (each value might be an array of selections)
   const flatValues: any[] = Array.isArray(values) ? values : [values]
@@ -61,7 +77,13 @@ export function renderAsMultiSelect(values: any[], targetConfig: any, separator:
         display: 'flex',
         gap: '4px',
         flexWrap: 'wrap'
-      }
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     flatValues.map((val: any, index: number) => {
       const vals = Array.isArray(val) ? val : [val]
@@ -88,7 +110,8 @@ export function renderAsMultiSelect(values: any[], targetConfig: any, separator:
 /**
  * Render values as formatted numbers
  */
-export function renderAsNumber(values: any[], targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsNumber(values: any[], params:any, targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column} = params
   const props = targetConfig.properties || targetConfig || {}
   const precision = props.precision ?? 0
   const showThouComma = props.showThouComma ?? false
@@ -126,7 +149,13 @@ export function renderAsNumber(values: any[], targetConfig: TargetFieldConfig, s
         display: 'flex',
         gap: '4px',
         flexWrap: 'wrap'
-      }
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     formattedValues.map((val: string, index: number) =>
       h(
@@ -144,7 +173,9 @@ export function renderAsNumber(values: any[], targetConfig: TargetFieldConfig, s
 /**
  * Render values as formatted dates/times
  */
-export function renderAsDateTime(values: any[], targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsDateTime(values: any[], params:any, targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column} = params
+
   const props = targetConfig.properties || targetConfig || {}
   const dateFormat = props.dateFormat || 'YYYY-MM-DD'
   const includeTime = props.includeTime || false
@@ -169,8 +200,14 @@ export function renderAsDateTime(values: any[], targetConfig: TargetFieldConfig,
       style: {
         display: 'flex',
         gap: '4px',
-        flexWrap: 'wrap'  
-      }
+        flexWrap: 'wrap'
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     formattedValues.map((val: string, index: number) =>
       h(
@@ -188,9 +225,18 @@ export function renderAsDateTime(values: any[], targetConfig: TargetFieldConfig,
 /**
  * Render values as email links
  */
-export function renderAsEmail(values: any[], separator: string = ', '): ReturnType<typeof h> {
+export function renderAsEmail(values: any[], params:any, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column } = params
   if (values.length === 0) {
-    return h('div', { class: 'virtual-column-view empty' }, '-')
+    return h('div', {
+      class: 'virtual-column-view empty',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
+    }, '-')
   }
 
   if (values.length === 1) {
@@ -199,7 +245,13 @@ export function renderAsEmail(values: any[], separator: string = ', '): ReturnTy
       {
         class: 'virtual-column-view email',
         href: `mailto:${values[0]}`,
-        'data-title': values[0]
+        'data-title': values[0],
+        onMouseenter: (e) => {
+          $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+        },
+        onMouseleave: (e) => {
+           $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+        },
       },
       values[0]
     )
@@ -213,7 +265,13 @@ export function renderAsEmail(values: any[], separator: string = ', '): ReturnTy
         display: 'flex',
         gap: '4px',
         flexWrap: 'wrap'
-      }
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     values.map((val: any, index: number) =>
       h(
@@ -232,9 +290,18 @@ export function renderAsEmail(values: any[], separator: string = ', '): ReturnTy
 /**
  * Render values as URL links
  */
-export function renderAsURL(values: any[], separator: string = ', '): ReturnType<typeof h> {
+export function renderAsURL(values: any[], params:any, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column } = params
   if (values.length === 0) {
-    return h('div', { class: 'virtual-column-view empty' }, '-')
+    return h('div', {
+      class: 'virtual-column-view empty',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
+    }, '-')
   }
 
   return h(
@@ -245,7 +312,13 @@ export function renderAsURL(values: any[], separator: string = ', '): ReturnType
         display: 'flex',
         gap: '4px',
         flexWrap: 'wrap'
-      }
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     values.map((val: any, index: number) =>
       h(
@@ -266,9 +339,18 @@ export function renderAsURL(values: any[], separator: string = ', '): ReturnType
 /**
  * Render values as phone links
  */
-export function renderAsPhone(values: any[], separator: string = ', '): ReturnType<typeof h> {
+export function renderAsPhone(values: any[], params:any, separator: string = ', '): ReturnType<typeof h> {
+  const {$grid, row, column} = params
   if (values.length === 0) {
-    return h('div', { class: 'virtual-column-view empty' }, '-')
+    return h('div', {
+      class: 'virtual-column-view empty',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
+    }, '-')
   }
 
   if (values.length === 1) {
@@ -276,7 +358,13 @@ export function renderAsPhone(values: any[], separator: string = ', '): ReturnTy
       'a',
       {
         class: 'virtual-column-view phone',
-        href: `tel:${values[0]}`
+        href: `tel:${values[0]}`,
+        onMouseenter: (e) => {
+          $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+        },
+        onMouseleave: (e) => {
+           $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+        },
       },
       values[0]
     )
@@ -290,7 +378,13 @@ export function renderAsPhone(values: any[], separator: string = ', '): ReturnTy
         display: 'flex',
         gap: '8px',
         flexWrap: 'wrap'
-      }
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     values.map((val: any, index: number) =>
       h(
@@ -309,9 +403,18 @@ export function renderAsPhone(values: any[], separator: string = ', '): ReturnTy
 /**
  * Render values as checkbox indicators
  */
-export function renderAsCheckbox(values: any[], separator: string = ', '): ReturnType<typeof h> {
+export function renderAsCheckbox(values: any[], params:any, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column } = params;
   if (values.length === 0) {
-    return h('div', { class: 'virtual-column-view empty' }, '-')
+    return h('div', {
+      class: 'virtual-column-view empty',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
+    }, '-')
   }
 
   // For single value, show a checkbox icon
@@ -320,7 +423,13 @@ export function renderAsCheckbox(values: any[], separator: string = ', '): Retur
     return h(
       'div',
       {
-        class: 'virtual-column-view checkbox'
+        class: 'virtual-column-view checkbox',
+        onMouseenter: (e) => {
+          $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+        },
+        onMouseleave: (e) => {
+           $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+        },
       },
       isChecked ? '✓' : '✗'
     )
@@ -331,7 +440,13 @@ export function renderAsCheckbox(values: any[], separator: string = ', '): Retur
   return h(
     'div',
     {
-      class: 'virtual-column-view checkbox-count'
+      class: 'virtual-column-view checkbox-count',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     `${checkedCount}/${values.length} ✓`
   )
@@ -340,11 +455,20 @@ export function renderAsCheckbox(values: any[], separator: string = ', '): Retur
 /**
  * Render values as rating stars
  */
-export function renderAsRating(values: any[], targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsRating(values: any[], params:any, targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column} = params
   const maxRating = targetConfig.properties?.max || 5
 
   if (values.length === 0) {
-    return h('div', { class: 'virtual-column-view empty' }, '-')
+    return h('div', {
+      class: 'virtual-column-view empty',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
+    }, '-')
   }
 
   // For single value, show stars
@@ -355,7 +479,13 @@ export function renderAsRating(values: any[], targetConfig: TargetFieldConfig, s
       'div',
       {
         class: 'virtual-column-view rating',
-        style: { color: '#f7ba2a' }
+        style: { color: '#f7ba2a' },
+        onMouseenter: (e) => {
+          $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+        },
+        onMouseleave: (e) => {
+           $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+        },
       },
       stars
     )
@@ -366,7 +496,13 @@ export function renderAsRating(values: any[], targetConfig: TargetFieldConfig, s
   return h(
     'div',
     {
-      class: 'virtual-column-view rating-avg'
+      class: 'virtual-column-view rating-avg',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     `Avg: ${avg.toFixed(1)} ★`
   )
@@ -375,7 +511,8 @@ export function renderAsRating(values: any[], targetConfig: TargetFieldConfig, s
 /**
  * Render values as plain text (default fallback)
  */
-export function renderAsText(values: any[], separator: string = ', '): ReturnType<typeof h> {
+export function renderAsText(values: any[], params:any, separator: string = ', '): ReturnType<typeof h> {
+  const { $grid, row, column } = params;
   if (values.length === 0) {
     return h('div', { class: 'virtual-column-view empty' }, '-')
   }
@@ -383,7 +520,13 @@ export function renderAsText(values: any[], separator: string = ', '): ReturnTyp
   return h(
     'div',
     {
-      class: 'virtual-column-view text'
+      class: 'virtual-column-view text',
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     values.map((v) => String(v ?? '')).join(separator)
   )

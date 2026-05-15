@@ -1,4 +1,4 @@
-import type { ViewConfig, ViewColumn, SortInfo, GroupInfo, FilterInfo, ViewStyle } from '../db/schema/tableView'
+import type { ViewConfig, ViewColumn, SortInfo, GroupInfo, FilterInfo, ViewStyle } from '../databaseType'
 
 const DEFAULT_SORT_INFO: SortInfo[] = [{ desc: false, fieldId: '' }]
 const DEFAULT_FILTER_INFO: FilterInfo = { conditions: [], conjunction: 'AND' }
@@ -78,7 +78,7 @@ export function addView(views: ViewConfig[], newView: Partial<ViewConfig> & { id
   const view: ViewConfig = {
     id: newView.id,
     name: finalName,
-    type: newView.type ?? 0,
+    type: newView.type ?? 'table',
     columns: newView.columns ?? [],
     sortInfo: newView.sortInfo ?? [...DEFAULT_SORT_INFO],
     groupInfo: newView.groupInfo ?? [],
@@ -157,7 +157,7 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
 }
 
 /**
- * 根据列显隐配置更新 view.columns 中对应 column 的 hidden（display: true => hidden: false，display: false => hidden: true）
+ * 根据列显隐配置更新 view.columns 中对应 column 的 hidden
  */
 export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; hidden: boolean }>, tableFields: any[]): ViewColumn[] {
   const fieldsById = new Map<string, any>()
@@ -184,13 +184,14 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     if (!tableField) continue
     seen.add(key)
 
-    const hidden = updatesById.get(key)
+    const hiddenFlag = updatesById.get(key)
     const hasKey = updatesById.has(key)
     const tableFieldItem = tableFields.find((f: any) => f.id === fieldId)
     const item = {
+      ...col,
       title: tableFieldItem.field_name_alias,
       id: String(tableField.id),
-      hidden: hasKey ? (hidden === true ? true : false) : col.hidden
+      hidden: hasKey ? Boolean(hiddenFlag) : col.hidden
     }
     nextColumns.push(item)
   }
@@ -202,10 +203,11 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     if (seen.has(key)) continue
     seen.add(key)
 
-    const hidden = updatesById.get(key)
+    const hiddenFlag = updatesById.get(key)
+    const hasKey = updatesById.has(key)
     nextColumns.push({
       id: String(f.id),
-      hidden: hidden === true ? true : false
+      hidden: hasKey ? Boolean(hiddenFlag) : false
     })
   }
   return nextColumns

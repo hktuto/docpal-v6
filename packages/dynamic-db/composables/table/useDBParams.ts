@@ -1,6 +1,7 @@
 import { useTableViewsInject } from './useTableViews'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import dayjs from 'dayjs'
+import { getAggColumns } from '@packages/dp-mdTable/composables/useCount'
 export function useDBParams() {
   const { currentView, columnFilterRules, columnSortRules, columnGroupRules, updateViewFilterSortGroup, viewStyleConfig } = useTableViewsInject()
   const columns = computed(() => currentView.value?.displayColumns)
@@ -76,19 +77,16 @@ export function useDBParams() {
       }, []) || []
     )
   }
-  function getColumns() {
-    return columns.value?.map((col: any) => {
-      return {
-        name: col.field
-      }
-    })
-  }
+
   function getPageParams({ getGroup }: { getGroup?: boolean } = { getGroup: true }) {
     const params: any = {
       // dryRun: true,
     }
     if (columnFilterRules.value && columnFilterRules.value.conditions.length > 0) {
-      params.conditions = getFilterRules()
+      const conditions = getFilterRules()
+      if (conditions[0].value && conditions[0].value.length > 0) {
+        params.conditions = conditions
+      }
     }
     if (columns.value) {
       params.columns = [
@@ -97,24 +95,32 @@ export function useDBParams() {
         }
       ]
     }
-    if (columnSortRules.value && columnSortRules.value.length > 0) {
-      const orderBy = getSortRules()
-      if (orderBy.length > 0) {
-        params.orderBy = orderBy
-      }
-    }
+
     if (getGroup && columnGroupRules.value && columnGroupRules.value.length > 0) {
       params.groupBy = {
         columns: [columnGroupRules.value[0].field]
       }
+      const aggColumns = getAggColumns(columns.value || [])
       params.columns = [
         { name: columnGroupRules.value[0].field },
+        ...aggColumns,
         {
-          name: columnGroupRules.value[0].field, // 字段名
-          alias: 'count', // [可选] 别名
+          name: '*', // 字段名
+          alias: '__count', // [可选] 别名
           aggFunc: 'COUNT' // [可选] 聚合函数: COUNT, SUM, MAX, MIN, AVG
         }
       ]
+      params.orderBy = [
+        {
+          column: columnGroupRules.value[0].field,
+          desc: columnGroupRules.value[0].order === 'desc'
+        }
+      ]
+    } else if (columnSortRules.value && columnSortRules.value.length > 0) {
+      const orderBy = getSortRules()
+      if (orderBy.length > 0) {
+        params.orderBy = orderBy
+      }
     }
     return params
   }

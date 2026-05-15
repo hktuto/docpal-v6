@@ -38,7 +38,8 @@ export interface ViewContext {
   addField: (newColumns: any[], targetFieldId: string, dragPos?: 'left' | 'right') => Promise<void>
   deleteField: (fieldId: string) => Promise<void>
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
-  updatedViewColumnsConfig: (updates: Array<{ id: string; display: boolean }>) => Promise<void>
+  updatedViewColumnsConfig: (updates: Array<{ id: string; hidden: boolean }>) => Promise<void>
+  updateViewColumnCountMethod: (fieldId: string, countMethod: string) => Promise<void>
   updateViewFilterSortGroup: (fieldName: 'filterInfo' | 'sortInfo' | 'groupInfo' | 'style', value: any) => Promise<void>
   saveColumnOrder: (columnId: string, targetFieldId: string, dragPos: 'left' | 'right') => Promise<void>
 }
@@ -69,9 +70,9 @@ export function useTableViews(options: UseTableViewsOptions) {
     const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
       tableId: tableId.value,
       userId: 'master',
-      type:"detail"
+      type: 'detail'
     })
-    console.log("getTableDetailDasbboard", data)
+    console.log('getTableDetailDasbboard', data)
   }
   async function getViews(viewId?: string) {
     columnFilterRules.value = null
@@ -215,9 +216,9 @@ export function useTableViews(options: UseTableViewsOptions) {
   }
 
   /**
-   * 根据列显隐配置更新当前视图的 columns（display: true 显示，false 隐藏，对应 column.hidden = !display）
+   * 根据列显隐配置更新当前视图的 columns（hidden 与 column.hidden 一致）
    */
-  async function updatedViewColumnsConfig(updates: Array<{ id: string; display: boolean }>) {
+  async function updatedViewColumnsConfig(updates: Array<{ id: string; hidden: boolean }>) {
     const view = currentView.value
     if (!view) return
     const updatedColumns = updateViewColumnDisplay(view, updates, tableFields.value)
@@ -230,6 +231,17 @@ export function useTableViews(options: UseTableViewsOptions) {
     const targetFieldIndex = updatedColumns.findIndex((col: any) => col.id === targetFieldId)
     const positionNum = dragPos === 'left' ? 0 : 1
     updatedColumns = updateViewColumnOrder(updatedColumns, columnId, targetFieldIndex + positionNum)
+    await updateView(view.id, { columns: updatedColumns })
+  }
+  async function updateViewColumnCountMethod(fieldId: string, countMethod: string) {
+    const view = currentView.value
+    if (!view) return
+    const updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
+    const targetColumn = updatedColumns.find((col: any) => String(col.id) === String(fieldId))
+    console.log('updateViewColumnCountMethod', { updatedColumns })
+    if (!targetColumn) return
+    targetColumn.countMethod = countMethod
+    console.log('updateViewColumnCountMethod', { targetColumn })
     await updateView(view.id, { columns: updatedColumns })
   }
   async function updateViewFilterSortGroup(fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style', value: any) {
@@ -255,6 +267,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     deleteField,
     updateField,
     updatedViewColumnsConfig,
+    updateViewColumnCountMethod,
     saveColumnOrder,
     updateViewFilterSortGroup,
     viewStyleConfig
@@ -277,6 +290,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     deleteField,
     updateField,
     updatedViewColumnsConfig,
+    updateViewColumnCountMethod,
     saveColumnOrder,
     updateViewFilterSortGroup
   }

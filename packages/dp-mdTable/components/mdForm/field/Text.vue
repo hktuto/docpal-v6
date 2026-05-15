@@ -4,6 +4,7 @@
       v-if="formData && column[fieldName]"
       v-model="formData[column[fieldName]]"
       :placeholder="column.placeholder"
+      :disabled="disabled"
       clearable
       @keydown.enter.prevent.stop="handleEnter"
     />
@@ -16,6 +17,7 @@ const props = defineProps<{
   formData: any
   column: any
   fieldName: string
+  disabled: boolean
 }>()
 const rules = computed(() => {
   if (!props.column) {

@@ -189,6 +189,7 @@ export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: s
     const hasKey = updatesById.has(key)
     const tableFieldItem = tableFields.find((f: any) => f.id === fieldId)
     const item = {
+      ...col,
       title: tableFieldItem.field_name_alias,
       id: String(tableField.id),
       hidden: hasKey ? (display === false ? true : false) : col.hidden

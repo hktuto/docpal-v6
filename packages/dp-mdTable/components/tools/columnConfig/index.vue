@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
-
+import { ElMessage } from 'element-plus'
 const { tableFields, updatedViewColumnsConfig, columns, saveColumnOrder } = inject('viewTools')
+const { t } = useI18n()
 
 const columnVisibilityList = ref<Array<{ id: string; title: string; hidden: boolean }>>([])
 
@@ -41,9 +42,21 @@ function buildColumnVisibilityList() {
   return list
 }
 
+function hasMinOneColumn(list: Array<{ id: string; title?: string; hidden: boolean }>) {
+  if (list.length === 0) {
+    return false
+  }
+  return list.some((item) => !item.hidden)
+}
+
 async function handleColumnVisibilityChange(fieldId: string, hidden: boolean) {
   const target = columnVisibilityList.value.find((item) => item.id === fieldId)
   if (target) {
+    if (!hasMinOneColumn(columnVisibilityList.value)) {
+      ElMessage.error(t('mdTable.columnConfig.minOneColumn'))
+      target.hidden = false
+      return
+    }
     target.hidden = hidden
   }
   if (!updatedViewColumnsConfig) {
@@ -69,13 +82,17 @@ async function handleColumnDragEnd(event: { oldIndex?: number; newIndex?: number
 }
 
 async function handleHideAllColumns() {
-  columnVisibilityList.value.forEach((item) => {
-    item.hidden = true
+  columnVisibilityList.value.forEach((item, index) => {
+    item.hidden = index !== 0
   })
   if (!updatedViewColumnsConfig) {
     return
   }
-  const updates = (tableFields.value || []).map((field: any) => ({ id: field.id, hidden: true }))
+  const updates = columnVisibilityList.value.map((item) => ({
+    id: item.id,
+    hidden: item.hidden
+  }))
+
   await updatedViewColumnsConfig(updates)
 }
 
@@ -101,26 +118,26 @@ watch(
 
 <template>
   <div class="md-card-setting-column">
-    <div class="setting-title column-title">列显示与隐藏</div>
+    <div class="setting-title column-title">{{ t('mdTable.columnConfig.title') }}</div>
     <div class="column-list">
       <draggable v-model="columnVisibilityList" item-key="id" handle=".drag-handle" ghost-class="column-item-ghost" :animation="180" @end="handleColumnDragEnd">
         <template #item="{ element }">
           <div class="column-item">
-            <span class="drag-handle" aria-label="拖拽排序">⋮⋮</span>
+            <span class="drag-handle" :aria-label="t('mdTable.columnConfig.dragToSort')">⋮⋮</span>
             <span class="column-name">{{ element.title }}</span>
             <el-switch
               v-model="element.hidden"
               :active-value="false"
               :inactive-value="true"
-              @change="handleColumnVisibilityChange(element.id, element.hidden)"
+              @change="(val: boolean) => handleColumnVisibilityChange(element.id, val)"
             />
           </div>
         </template>
       </draggable>
     </div>
     <div class="column-actions">
-      <el-button size="small" @click="handleHideAllColumns">隐藏所有</el-button>
-      <el-button size="small" type="primary" @click="handleShowAllColumns">显示所有</el-button>
+      <el-button size="small" @click="handleHideAllColumns">{{ t('mdTable.columnConfig.hideAll') }}</el-button>
+      <el-button size="small" type="primary" @click="handleShowAllColumns">{{ t('mdTable.columnConfig.showAll') }}</el-button>
     </div>
   </div>
 </template>

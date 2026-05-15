@@ -46,7 +46,6 @@ export class RendererRegistryManager {
    */
   public registerAllRenderers(): void {
     // 遍历所有组件配置
-    console.log('componentMap', this.componentMap)
     this.componentMap.forEach((config, key) => {
       if (config.view?.render || config.edit?.render || config.both?.render) {
         this.registerRenderer(config, key)
@@ -55,7 +54,7 @@ export class RendererRegistryManager {
   }
   private registerRenderer(config: RenderComponentConfig, name: string): void {
     const { both, view, edit } = config
-    
+
     // 创建渲染器函数的公共方法
     const createRenderFunction =
       (renderFunc: Function, defaultOptions: any = {}) =>

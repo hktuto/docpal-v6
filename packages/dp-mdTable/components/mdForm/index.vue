@@ -1,12 +1,13 @@
 <template>
   <ElForm ref="formRef" :model="formData" label-position="top">
+
     <component
       :is="getComponent(column.business_type)"
       v-for="column in displayColumns"
       :key="column.id || column.field_name"
       :form-data="formData"
       :column="column"
-      :disabled="mode === 'edit' && systemFieldsTypes.includes(column.business_type)"
+      :disabled="mode !== 'edit' || systemFieldsTypes.includes(column.business_type)"
       field-name="field_name"
     />
     <el-button v-if="hiddenColumns.length > 0" class="hidden-columns-button" plain text :icon="CaretRight" :class="{ 'is-rotate': showHiddenColumns }" @click="showHiddenColumns = !showHiddenColumns">
@@ -20,7 +21,7 @@
         :key="column.id || column.field_name"
         :form-data="formData"
         :column="column"
-        :disabled="mode === 'edit' && systemFieldsTypes.includes(column.business_type)"
+        :disabled="mode !== 'edit' ||  systemFieldsTypes.includes(column.business_type)"
         field-name="field_name"
       />
     </template>

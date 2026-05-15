@@ -18,25 +18,22 @@ export interface SelectOptionLike {
   color: string
 }
 
-
 /**
  * 按字段配置格式化日期时间（支持 dateFormat、includeTime、dateTimeFormat、timezone）
  */
 export function formatDateTime(value: any, properties: Record<string, any> = {}): string {
   if (!value) return '-'
+  const _value = isNaN(Number(value)) ? value : Number(value)
   const { dateFormat, includeTime, dateTimeFormat, timezone: tz } = properties
   try {
-    const format =
-      includeTime && dateTimeFormat
-        ? `${dateFormat || 'YYYY-MM-DD'} ${dateTimeFormat}`
-        : dateFormat || 'YYYY-MM-DD'
-    let displayValue = dayjs(value).format(format)
+    const format = includeTime && dateTimeFormat ? `${dateFormat || 'YYYY-MM-DD'} ${dateTimeFormat}` : dateFormat || 'YYYY-MM-DD'
+    let displayValue = dayjs(_value).format(format)
     if (includeTime && tz) {
-      displayValue = dayjs(value).tz(tz).format(format)
+      displayValue = dayjs(_value).tz(tz).format(format)
     }
-    return displayValue
+    return value + 'a'
   } catch {
-    return String(value)
+    return String(_value)
   }
 }
 
@@ -45,10 +42,17 @@ export function formatDateTime(value: any, properties: Record<string, any> = {})
  */
 export function formatNumber(value: any, properties: Record<string, any> = {}): string {
   if (value === null || value === undefined || isNaN(Number(value))) return '-'
-  const { precision = 0, showThouComma } = properties
+  const { precision = 0, showThouComma, symbol, symbolAlign } = properties
   let formatted = Number(value).toFixed(precision)
   if (showThouComma) {
     formatted = formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  }
+  if (symbol) {
+    if (symbolAlign === 'left') {
+      formatted = symbol + formatted
+    } else {
+      formatted = formatted + symbol
+    }
   }
   return formatted
 }
@@ -76,13 +80,9 @@ export function formatFieldValue(value: any): string {
 /**
  * 根据字段类型与配置格式化字段值（用于 TableInfo 等需按类型分支的场景）
  */
-export function formatFieldValueByType(
-  value: any,
-  field: Pick<FieldInfo, 'type' | 'properties'>
-): string {
+export function formatFieldValueByType(value: any, field: Pick<FieldInfo, 'type' | 'properties'>): string {
   if (value === null || value === undefined) return '-'
   const properties = field.properties || {}
-
   switch (field.type) {
     case ColumnFieldType.CreatedTime:
     case ColumnFieldType.LastModifiedTime:
@@ -100,12 +100,6 @@ export function formatFieldValueByType(
 
     case ColumnFieldType.Number:
       return formatNumber(value, properties)
-
-    case 17: // Currency（枚举未导出时用数字）
-      return formatNumber(value, properties)
-
-    case 18: // Percent（枚举未导出时用数字）
-      return formatPercent(value, properties)
 
     case ColumnFieldType.User:
       return formatFieldValue(value)

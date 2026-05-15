@@ -1,6 +1,6 @@
 <template>
   <div class="table-view-root" v-if="tableId">
-    <div class="table-view-main">
+    <div ref="tableViewMainRef" class="table-view-main" style="position: relative;">
       <MdCard
           v-if="currentView?.type === 'card'"
           :canManageTable="canManageTable"
@@ -28,7 +28,15 @@
           :canEditTable="canEditTable"
           :is-mirror="isMirror"
           :table-id="tableId"
-          :extra-column-config="extraColumnConfig" />
+          :extra-column-config="extraColumnConfig"
+          @cell-mouseenter="handleCellMouseEnter"
+          @cell-mouseleave="handleCellMouseLeave"
+          @start-edit="startEditHandler"
+          @exit-edit="exitCellEdit"
+          @exit-edit-row="exitRowEdit"
+          @expand-click="startEditRowHandler"
+          />
+      <DatabaseAwarenessFloatingTags :get-element="getTableCell" :container-ref="tableBodyRef" />
     </div>
 
     <div v-if="panelVisible" class="table-view-panel">
@@ -69,6 +77,7 @@ const {
   updateField,
   addField,
   updatedViewColumnsConfig,
+  updateViewColumnCountMethod,
   saveColumnOrder,
   columnFilterRules,
   columnSortRules,
@@ -81,6 +90,90 @@ const { getPageParams, columns } = useDBParams()
 const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 
+
+// hocuspocus logic
+const { setAwareness, localAwareness, updatedRows } = inject('databaseHocuspocus')
+
+const tableViewMainRef = ref<HTMLElement>()
+const tableBodyRef = ref<HTMLElement | null>(null)
+
+function updateTableBodyRef() {
+  tableBodyRef.value = tableViewMainRef.value?.querySelector('.vxe-table--body-wrapper') as HTMLElement | null
+}
+
+onMounted(() => {
+  nextTick(updateTableBodyRef)
+})
+
+watch(currentView, () => {
+  nextTick(updateTableBodyRef)
+})
+
+function handleCellMouseEnter(params: any) {
+  if (!localAwareness.value.focus.editingRow && !localAwareness.value.focus.editingCell) {
+    setAwareness({
+      rowId: params.row.id,
+      cellId: params.column.field,
+      status: undefined
+    })
+  }
+}
+function exitCellEdit(params: any) {
+  setAwareness({
+    rowId: params.row.id,
+    cellId: params.column.field,
+    editingRow: false,
+    editingCell: false,
+    status: 'saved'
+  })
+}
+function exitRowEdit() {
+  setAwareness({
+    rowId: null,
+    cellId:null,
+    editingRow: false,
+    editingCell: false,
+    status: 'saved'
+  })
+}
+function startEditHandler(params:any) {
+  setAwareness({
+    rowId: params.row.id,
+    cellId: params.column.field,
+    editingRow: false,
+    editingCell: true,
+    status: 'editing'
+  })
+}
+function handleCellMouseLeave(params: any) {
+}
+function startEditRowHandler(params:any) {
+  setAwareness({
+    rowId: params.row.id,
+    editingRow: true,
+    editingCell: false,
+    status: 'editing'
+  })
+}
+function getTableCell(focus: any) {
+  const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
+  return {
+    element: document.querySelector(selector) as HTMLElement | null,
+    type: 'table-cell',
+    selector
+  }
+}
+
+watch(updatedRows, (rows) => {
+  if (rows.length === 0) return
+  for (const row of rows) {
+    // TODO: refresh row data for row.rowId
+    console.log('[remote edit]', row.userName, 'saved row', row.rowId)
+  }
+})
+
+
+
 const extraColumnConfig = computed(() => {
   const data = {
     columns,
@@ -88,7 +181,9 @@ const extraColumnConfig = computed(() => {
     updateColumn: updateField,
     addColumn: addField,
     tableFields,
+    currentView,
     updatedViewColumnsConfig,
+    updateViewColumnCountMethod,
     saveColumnOrder,
 
     columnFilterRules,
@@ -159,6 +254,7 @@ provide('viewTools', {
   setSingleRelationConfig,
   mirrorList,
   updatedViewColumnsConfig,
+  updateViewColumnCountMethod,
   saveColumnOrder,
   updateViewFilterSortGroup,
   systemFieldsTypes,
