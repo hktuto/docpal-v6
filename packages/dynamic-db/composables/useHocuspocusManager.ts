@@ -175,7 +175,6 @@ export function useHocuspocusManager() {
       provider.destroy()
       providers.delete(roomName)
     }
-    console.log("leave rooms")
     delete roomMeta.value[roomName]
   }
 

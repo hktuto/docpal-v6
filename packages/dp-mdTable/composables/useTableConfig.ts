@@ -51,6 +51,7 @@ export interface TableConfigOptions {
  */
 export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   const {
+    canEditTable,
     height = '100%',
     autoResize = true,
     stripe = true,
@@ -320,6 +321,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         beforeEditMethod: ({ row, column, $grid }: any) => {
           const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
 
+          // user have no permission to edit
+          if(!canEditTable) return false
           let isLock = false
           if (lockedRowCell.value && lockedRowCell.value.length) {
             isLock = lockedRowCell.value.some(
