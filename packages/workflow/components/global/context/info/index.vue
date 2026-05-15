@@ -8,7 +8,7 @@ if (!graphProvider) {
 const { node } = defineProps<{
   node: Node
 }>()
-const { variables, deleteVariableItem } = useVariablesProvide()
+const { variables, deleteVariableItem, saveStartEventFormFields } = useVariablesProvide()
 const FormDialogRef = ref()
 const FormRef = ref()
 const form = ref({
@@ -51,6 +51,8 @@ function handleEdit(item: any) {
 
 function handleRemove(item: any) {
   deleteVariableItem(node, item.id)
+  const startNode = graphProvider?.graph.value?.getCellById('system_start_event')
+  saveStartEventFormFields(startNode)
 }
 
 watch(

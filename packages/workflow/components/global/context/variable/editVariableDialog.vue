@@ -6,7 +6,7 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { variables, addVariableItem, updateVariableItem } = useVariablesProvide()
+const { variables, addVariableItem, updateVariableItem, saveStartEventFormFields } = useVariablesProvide()
 const comRef = ref()
 const opened = ref(false)
 const emits = defineEmits(['reload'])
@@ -71,6 +71,10 @@ function idChanged(rule: any, value: any, callback: any) {
     return callback(new Error('Please input id'))
   }
 
+  if (value.startsWith('_')) {
+    return callback(new Error("ID cannot start with '_'"))
+  }
+
   if (value.startsWith('__system__')) {
     return callback(new Error("ID cannot start with '__system__'"))
   }
@@ -101,7 +105,7 @@ function typeChanged(displayType: string) {
     formData.value = {
       id: formData.value.id,
       name: formData.value.name,
-      type: Object.entries(VariableItemDisplayType).find(([, arr]) => arr.includes(displayType))?.[0] || 'string',
+      type: (Object.entries(VariableItemDisplayType).find(([, arr]) => arr.includes(displayType))?.[0] as VariableItemType) || ('string' as VariableItemType),
       display_type: displayType,
       required: formData.value.required,
       validation: typeObject.validation
@@ -131,12 +135,18 @@ async function confirmHandler() {
     } else {
       addVariableItem(vNode, formData.value)
     }
+    updateStartEventFormFields()
     emits('reload')
     opened.value = false
   } catch (error) {
     console.error(error)
   }
   graphProvider?.graph.value?.stopBatch('update-variables')
+}
+
+function updateStartEventFormFields() {
+  const node = graphProvider?.graph.value?.getCellById('system_start_event')
+  saveStartEventFormFields(node)
 }
 
 defineExpose({

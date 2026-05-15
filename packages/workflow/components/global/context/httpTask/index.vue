@@ -16,9 +16,9 @@ if (!graphProvider) {
   throw createError('graph provider not found')
 }
 
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringFields = computed(() => {
-  return getVariablesByTags(['string'])
+  return getVariablesByDisplayTypes(['text'])
 })
 
 const state = reactive({

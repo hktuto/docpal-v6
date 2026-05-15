@@ -28,12 +28,12 @@ const { config } = defineProps<{
   }
 }>()
 const loading = ref(false)
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringVariablesList = computed(() => {
-  return getVariablesByTags(['string'], true)
+  return getVariablesByDisplayTypes(['text'], true)
 })
 const storeVariablesList = computed(() => {
-  return getVariablesByTags(['file'])
+  return getVariablesByDisplayTypes(['file'])
 })
 
 const documentTypeList = ref<any[]>([])

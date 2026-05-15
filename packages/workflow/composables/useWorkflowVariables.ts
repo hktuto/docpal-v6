@@ -1,4 +1,4 @@
-import type { Graph } from '@antv/x6'
+import type { Graph, Node } from '@antv/x6'
 
 /**
  * 動態變量的數據類型
@@ -32,8 +32,7 @@ export const VariableTypeOptions = [
         label: 'File',
         type: 'string',
         display_type: 'file',
-        validation: {
-        },
+        validation: {},
         component: 'ContextVariableDataTypeString'
       },
       // {
@@ -128,10 +127,11 @@ export type WorkflowVariablesObj = Record<string, Omit<VariableItem, 'id'>>
 
 export type WorkflowVariablesProvideContext = {
   variables: ReturnType<typeof ref<VariableItem[]>>
-  addVariableItem: (node: any, variableItem: VariableItem) => void
-  updateVariableItem: (node: any, variableItem: VariableItem) => void
-  deleteVariableItem: (node: any, variableItemId: string) => void
-  getVariablesByTags: (tagList?: string[], status?: boolean) => VariableSelectItem[]
+  addVariableItem: (node: Node, variableItem: VariableItem) => void
+  updateVariableItem: (node: Node, variableItem: VariableItem) => void
+  deleteVariableItem: (node: Node, variableItemId: string) => void
+  saveStartEventFormFields: (node: Node) => void
+  getVariablesByDisplayTypes: (displayTypeList?: string[], status?: boolean) => VariableSelectItem[]
 }
 
 /**
@@ -188,13 +188,14 @@ export const useVariablesProvide = () => {
   if (!ctx) {
     throw new Error('WorkflowVariablesProvide is not provided')
   }
-  const { variables, addVariableItem, updateVariableItem, deleteVariableItem, getVariablesByTags } = ctx
+  const { variables, addVariableItem, updateVariableItem, deleteVariableItem, saveStartEventFormFields, getVariablesByDisplayTypes } = ctx
   return {
     variables,
     addVariableItem,
     updateVariableItem,
     deleteVariableItem,
-    getVariablesByTags
+    saveStartEventFormFields,
+    getVariablesByDisplayTypes
   }
 }
 
@@ -217,9 +218,9 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
   /**
    * Add variable to variables and workflowJson variables
    * @param variableItem 變量對象
-   * @param node node
+   * @param node Node
    */
-  function addVariableItem(node: any, variableItem: VariableItem) {
+  function addVariableItem(node: Node, variableItem: VariableItem) {
     variables.value.push(variableItem)
     updateNode(node, toWorkflowVariablesObj(variables.value))
   }
@@ -229,7 +230,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
    * @param variableItem 變量對象
    * @param node node
    */
-  function updateVariableItem(node: any, variableItem: VariableItem) {
+  function updateVariableItem(node: Node, variableItem: VariableItem) {
     const index = variables.value.findIndex((item: VariableItem) => item.id === variableItem.id)
     if (index !== -1) {
       variables.value[index] = variableItem
@@ -242,7 +243,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
    * @param variableItemId 變量ID
    * @param node node
    */
-  function deleteVariableItem(node: any, variableItemId: string) {
+  function deleteVariableItem(node: Node, variableItemId: string) {
     const index = variables.value.findIndex((item: VariableItem) => item.id === variableItemId)
     if (index !== -1) {
       variables.value.splice(index, 1)
@@ -255,7 +256,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
    * @param displayTypeList 變量的數據類型 VariableItemDisplayType 的子類型
    * @param status 是否是變量
    */
-  function getVariablesByTags(displayTypeList?: string[], status = false): VariableSelectItem[] {
+  function getVariablesByDisplayTypes(displayTypeList?: string[], status = false): VariableSelectItem[] {
     let list: VariableItem[] = variables.value
 
     if (displayTypeList?.length) {
@@ -271,7 +272,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
     }))
   }
 
-  function updateNode(node: any, variables: WorkflowVariablesObj) {
+  function updateNode(node: Node, variables: WorkflowVariablesObj) {
     const data = node.getData()
     const newData = {
       ...data,
@@ -281,20 +282,36 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
     node.setData(newData, { overwrite: true, deep: true, silent: false })
   }
 
+  function saveStartEventFormFields(startNode: Node) {
+    const formFields = variables.value.filter((item: any) => item.required && !item.id.startsWith('__system__'))
+    const data = startNode.getData()
+    const newData = {
+      ...data,
+      config: {
+        ...data.config,
+        initialise: {
+          ...data.config.initialise,
+          form_fields: formFields
+        }
+      },
+      version: (data.version || 0) + 1
+    }
+    startNode.setData(newData, { overwrite: true, deep: true, silent: false })
+  }
+
   provide('WorkflowVariablesProvide', {
     variables,
     addVariableItem,
     updateVariableItem,
     deleteVariableItem,
-    getVariablesByTags
+    saveStartEventFormFields,
+    getVariablesByDisplayTypes
   })
 
   return {
     setVariables
   }
 }
-
-async function updateStartEventNodeFormFields() {}
 
 function toWorkflowVariablesObj(variables: VariableItem[]): WorkflowVariablesObj {
   return variables.reduce((acc: WorkflowVariablesObj, curr: VariableItem) => {

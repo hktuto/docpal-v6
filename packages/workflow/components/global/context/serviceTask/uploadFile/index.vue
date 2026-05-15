@@ -2,7 +2,7 @@
 import { newClientApi } from 'api'
 
 const { t } = useI18n()
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
@@ -28,10 +28,10 @@ const { config } = defineProps<{
   }
 }>()
 const stringVariablesList = computed(() => {
-  return getVariablesByTags(['string'], true)
+  return getVariablesByDisplayTypes(['text'], true)
 })
 const fileVariablesList = computed(() => {
-  return getVariablesByTags(['file'], true)
+  return getVariablesByDisplayTypes(['file'], true)
 })
 const formData = ref<{
   body: any

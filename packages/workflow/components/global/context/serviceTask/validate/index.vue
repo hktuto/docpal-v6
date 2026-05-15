@@ -11,9 +11,9 @@ const { config } = defineProps<{
   }
 }>()
 const emits = defineEmits(['update'])
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const variableList = computed(() => {
-  return getVariablesByTags(['string'])
+  return getVariablesByDisplayTypes(['text'])
 })
 
 const outputMapping = ref({

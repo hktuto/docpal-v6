@@ -10,7 +10,7 @@ const node = ref<Node>()
 const { t } = useI18n()
 const opened = ref(false)
 const FormDialogRef = ref()
-const { variables, deleteVariableItem } = useVariablesProvide()
+const { variables, deleteVariableItem, saveStartEventFormFields } = useVariablesProvide()
 
 function open() {
   node.value = graphProvider?.graph.value?.getNodes().find((node: any) => node.getData().type === 'process')
@@ -57,6 +57,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
           const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete', { tip: t('bpmn.globalRuleTip') + ', ' })}`).catch((action) => action)
           if (action !== 'confirm') return
           deleteVariableItem(node.value, row.id)
+          const startNode = graphProvider?.graph.value?.getCellById('system_start_event')
+          saveStartEventFormFields(startNode)
           reload()
         }
       }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 
 const { config } = defineProps<{
   config: {
@@ -48,7 +48,7 @@ watch(
 )
 
 onMounted(async () => {
-  stringVariablesList.value = getVariablesByTags(['string'], true)
+  stringVariablesList.value = getVariablesByDisplayTypes(['text'], true)
 })
 </script>
 

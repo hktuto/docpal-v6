@@ -9,12 +9,12 @@ if (!graphProvider) {
   throw createError('graph provider not found')
 }
 const activeName = ref('')
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringVariablesList = computed(() => {
-  return getVariablesByTags(['string'], true)
+  return getVariablesByDisplayTypes(['text'], true)
 })
 const fileVariablesList = computed(() => {
-  return getVariablesByTags(['file'])
+  return getVariablesByDisplayTypes(['file'])
 })
 
 function handleCheckBox(status: boolean, item: any) {

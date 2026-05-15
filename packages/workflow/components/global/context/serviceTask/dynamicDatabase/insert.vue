@@ -9,7 +9,7 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const databaseId = ref<string>('')
 const tableId = ref<string>('')
 const dataId = ref<string>('')
@@ -42,9 +42,9 @@ function getVariables(status: string) {
       type = 'number'
       break
     default:
-      type = 'string'
+      type = 'text'
   }
-  return getVariablesByTags([type], true)
+  return getVariablesByDisplayTypes([type], true)
 }
 
 async function init() {
@@ -224,7 +224,7 @@ watch(
     </el-form-item>
     <el-form-item label="Return Record Id">
       <el-select v-model="dataId" filterable clearable @change="update">
-        <el-option v-for="item in getVariablesByTags(['string'])" :key="item.id" :label="item.name" :value="item.id" />
+        <el-option v-for="item in getVariablesByDisplayTypes(['text'])" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-divider />

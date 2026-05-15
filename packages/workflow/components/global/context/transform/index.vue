@@ -10,9 +10,9 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const variableList = computed(() => {
-  return getVariablesByTags()
+  return getVariablesByDisplayTypes()
 })
 const contextTransformDialogRef = ref()
 const dataMapping = ref<Record<string, string>>({})

@@ -2,7 +2,7 @@
 const { formField } = defineProps<{
   formField: any[]
 }>()
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const emits = defineEmits(['update'])
 const visible = ref(false)
 const formFieldDetailDialog = ref()
@@ -40,7 +40,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
 function open() {
   visible.value = true
-  getVariablesByTags()
+  getVariablesByDisplayTypes()
 }
 
 function handleDblclick(row: any) {

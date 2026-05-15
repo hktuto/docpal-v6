@@ -8,7 +8,7 @@ const { node } = defineProps<{
 }>()
 const { t } = useI18n()
 const emits = defineEmits(['openForm'])
-const { variables, getVariablesByTags } = useVariablesProvide()
+const { variables, getVariablesByDisplayTypes } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('provider not found')
@@ -27,7 +27,7 @@ const formKey = ref<string>('')
 const formField = ref<any[]>([])
 const formJson = ref({})
 const variablesData = computed(() => {
-  const variableList = getVariablesByTags()
+  const variableList = getVariablesByDisplayTypes()
   return {
     labelKey: 'name',
     nameKey: 'id',
@@ -106,6 +106,11 @@ function updateFormField(slotMap: string[]) {
 }
 
 async function previewForm() {
+  if (!formKey.value && formKey.value == '') {
+    routerProvider?.message.error('Form not configured')
+    return
+  }
+
   await getFormJson()
   formRenderVisible.value = true
   nextTick(() => {
@@ -124,7 +129,7 @@ function handleUpdateFormField(field: any) {
 async function getFormJson() {
   formJson.value = {}
   try {
-    if (!!formKey.value && formKey.value !== 0) {
+    if (!!formKey.value && formKey.value !== '') {
       const data: any = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
       if (!data) return {}
       formJson.value = data.jsonValue
