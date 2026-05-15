@@ -1,14 +1,12 @@
 import { newClientApi, postDynamicActions } from 'api'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import type { TableFieldDTO, MenuDTO } from 'api/src/generate/newClient'
-import type { ParsedSheet } from './excelParser'
 
-const MAX_EXISTING_TABLES = 20
 const EXISTING_SAMPLE_ROW_COUNT = 50
 const CONFIDENCE_THRESHOLD = 0.45
 const MAX_GUESSES_PER_SOURCE = 5
 
-export interface ExistingTableSnapshot {
+export interface TableSnapshot {
   tableId: string
   tableName: string
   fields: TableFieldDTO[]
@@ -16,9 +14,12 @@ export interface ExistingTableSnapshot {
 }
 
 export interface RelationGuess {
-  sourceSheetName: string
+  /** The newly imported table that would contain the foreign-key column */
+  sourceTableId: string
+  sourceTableName: string
   sourceFieldName: string
   sourceFieldType: ColumnFieldType
+  /** The table being referenced (existing or also newly imported) */
   targetTableId: string
   targetTableName: string
   targetFieldId: string
@@ -35,55 +36,22 @@ export interface RelationGuessReason {
 }
 
 /**
- * Fetch existing table snapshots (fields + sample rows) from the database menu.
+ * Capture the current set of master_table IDs from the database menu.
  */
-export async function fetchExistingTableSnapshots(
-  databaseId: string,
-  limit: number = MAX_EXISTING_TABLES
-): Promise<ExistingTableSnapshot[]> {
-  const res: any = await newClientApi.getDynamicDbMenusTree({
-    referenceEntityType: 'case',
-    referenceEntityId: databaseId
-  })
-  const menus: MenuDTO[] = res?.data ?? []
-
-  const tableItems = flattenMenuItems(menus).filter(
-    (item) => item.item_type === 'master_table' && item.item_id
-  )
-
-  const limitedItems = tableItems.slice(0, limit)
-
-  const snapshots = await Promise.all(
-    limitedItems.map(async (item) => {
-      try {
-        const fieldsRes: any = await newClientApi.getDynamicDbTableTableidFields(item.item_id!)
-        const fields: TableFieldDTO[] = fieldsRes?.data ?? []
-
-        let sampleRows: Record<string, any>[] = []
-        try {
-          const rowsRes: any = await postDynamicActions({
-            tableId: item.item_id!,
-            columns: [],
-            pagination: { pageNum: 1, pageSize: EXISTING_SAMPLE_ROW_COUNT }
-          })
-          sampleRows = rowsRes?.data?.data ?? []
-        } catch {
-          // Best-effort: if fetching rows fails, continue with fields only
-        }
-
-        return {
-          tableId: item.item_id!,
-          tableName: item.name || item.item_id!,
-          fields,
-          sampleRows
-        }
-      } catch {
-        return null
-      }
+export async function captureTableSnapshot(databaseId: string): Promise<Set<string>> {
+  try {
+    const res: any = await newClientApi.getDynamicDbMenusTree({
+      referenceEntityType: 'case',
+      referenceEntityId: databaseId
     })
-  )
-
-  return snapshots.filter((s): s is ExistingTableSnapshot => s !== null)
+    const menus: MenuDTO[] = res?.data ?? []
+    const ids = flattenMenuItems(menus)
+      .filter((item) => item.item_type === 'master_table' && item.item_id)
+      .map((item) => item.item_id!)
+    return new Set(ids)
+  } catch {
+    return new Set()
+  }
 }
 
 function flattenMenuItems(items: MenuDTO[]): MenuDTO[] {
@@ -98,22 +66,70 @@ function flattenMenuItems(items: MenuDTO[]): MenuDTO[] {
 }
 
 /**
- * Run the relation guessing algorithm between parsed Excel sheets and existing tables.
+ * Resolve newly created table IDs by diffing a pre-import snapshot against the current menu.
  */
-export function guessRelations(
-  sources: ParsedSheet[],
-  targets: ExistingTableSnapshot[]
-): RelationGuess[] {
+export async function resolveNewTables(
+  preSnapshot: Set<string>,
+  databaseId: string
+): Promise<string[]> {
+  const postSnapshot = await captureTableSnapshot(databaseId)
+  const newIds: string[] = []
+  for (const id of postSnapshot) {
+    if (!preSnapshot.has(id)) {
+      newIds.push(id)
+    }
+  }
+  return newIds
+}
+
+/**
+ * Fetch a single table snapshot (fields + sample rows).
+ */
+export async function fetchTableSnapshot(tableId: string): Promise<TableSnapshot | null> {
+  try {
+    const fieldsRes: any = await newClientApi.getDynamicDbTableTableidFields(tableId)
+    const fields: TableFieldDTO[] = fieldsRes?.data ?? []
+
+    let sampleRows: Record<string, any>[] = []
+    try {
+      const rowsRes: any = await postDynamicActions({
+        tableId,
+        columns: [],
+        pagination: { pageNum: 1, pageSize: EXISTING_SAMPLE_ROW_COUNT }
+      })
+      sampleRows = rowsRes?.data?.data ?? []
+    } catch {
+      // Best-effort: continue with fields only
+    }
+
+    // Resolve table name from first field or fallback to tableId
+    const tableName = fields[0]?.field_name ? tableId : tableId
+
+    return { tableId, tableName, fields, sampleRows }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Run the relation guessing algorithm.
+ *
+ * @param sources — newly imported tables
+ * @param targets — all tables to compare against (existing + other new tables)
+ */
+export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[]): RelationGuess[] {
   const guesses: RelationGuess[] = []
 
   for (const source of sources) {
     const sheetGuesses: RelationGuess[] = []
 
     for (const target of targets) {
-      for (let sIdx = 0; sIdx < source.fieldNames.length; sIdx++) {
-        const sourceFieldName = source.fieldNames[sIdx]
-        const sourceHeader = source.headers[sIdx]
-        const sourceType = source.columnTypes[sIdx]
+      // Do not compare a table to itself
+      if (source.tableId === target.tableId) continue
+
+      for (const sourceField of source.fields) {
+        const sourceFieldName = sourceField.field_name || ''
+        const sourceFieldType = sourceField.business_type || ''
 
         for (const targetField of target.fields) {
           const targetFieldName = targetField.field_name || ''
@@ -121,20 +137,22 @@ export function guessRelations(
           const targetFieldType = targetField.business_type || ''
 
           const scoreResult = computeScore(
-            source,
+            source.tableName,
             sourceFieldName,
-            sourceHeader,
-            sourceType,
-            target,
+            sourceFieldType,
+            source.sampleRows,
+            target.tableName,
             targetFieldName,
-            targetFieldType
+            targetFieldType,
+            target.sampleRows
           )
 
           if (scoreResult.confidence >= CONFIDENCE_THRESHOLD) {
             sheetGuesses.push({
-              sourceSheetName: source.sheetName,
+              sourceTableId: source.tableId,
+              sourceTableName: source.tableName,
               sourceFieldName,
-              sourceFieldType: sourceType,
+              sourceFieldType: sourceFieldType as ColumnFieldType,
               targetTableId: target.tableId,
               targetTableName: target.tableName,
               targetFieldId,
@@ -148,36 +166,33 @@ export function guessRelations(
       }
     }
 
-    // Sort by confidence desc and keep top N per source sheet
     sheetGuesses.sort((a, b) => b.confidence - a.confidence)
     guesses.push(...sheetGuesses.slice(0, MAX_GUESSES_PER_SOURCE))
   }
 
-  // Global sort by confidence desc
   guesses.sort((a, b) => b.confidence - a.confidence)
   return guesses
 }
 
 function computeScore(
-  source: ParsedSheet,
+  sourceTableName: string,
   sourceFieldName: string,
-  sourceHeader: string,
-  sourceType: ColumnFieldType,
-  target: ExistingTableSnapshot,
+  sourceFieldType: string,
+  sourceRows: Record<string, any>[],
+  targetTableName: string,
   targetFieldName: string,
-  targetFieldType: string
+  targetFieldType: string,
+  targetRows: Record<string, any>[]
 ): { confidence: number; reasons: RelationGuessReason[] } {
   const reasons: RelationGuessReason[] = []
   let score = 0
 
   const normalizedSourceField = sourceFieldName.toLowerCase()
   const normalizedTargetField = targetFieldName.toLowerCase()
-  const normalizedTargetTable = normalizeName(target.tableName)
-  const normalizedSourceHeader = sourceHeader.toLowerCase()
+  const normalizedTargetTable = normalizeName(targetTableName)
 
   // ---- Name-match heuristics ----
 
-  // Exact field name match
   if (normalizedSourceField === normalizedTargetField) {
     score += 0.25
     reasons.push({
@@ -187,7 +202,6 @@ function computeScore(
     })
   }
 
-  // ID suffix / prefix with table name match
   const idSuffixes = ['_id', '_no', '_code', '_ref']
   const hasIdSuffix = idSuffixes.some((suf) => normalizedSourceField.endsWith(suf))
   if (hasIdSuffix) {
@@ -201,25 +215,20 @@ function computeScore(
       reasons.push({
         type: 'name_match',
         score: 0.35,
-        detail: `Field "${sourceFieldName}" has ID suffix and prefix "${prefix}" matches target table "${target.tableName}"`
+        detail: `Field "${sourceFieldName}" has ID suffix and prefix "${prefix}" matches target table "${targetTableName}"`
       })
     }
   }
 
-  // Table name inside field name
-  if (
-    normalizedSourceField.includes(normalizedTargetTable) ||
-    normalizedSourceHeader.includes(normalizedTargetTable)
-  ) {
+  if (normalizedSourceField.includes(normalizedTargetTable)) {
     score += 0.15
     reasons.push({
       type: 'table_name_in_field',
       score: 0.15,
-      detail: `Target table name "${target.tableName}" appears in source field "${sourceFieldName}"`
+      detail: `Target table name "${targetTableName}" appears in source field "${sourceFieldName}"`
     })
   }
 
-  // Levenshtein similarity between field names
   const fieldSim = levenshteinSimilarity(normalizedSourceField, normalizedTargetField)
   if (fieldSim > 0.8) {
     score += 0.15
@@ -231,7 +240,12 @@ function computeScore(
   }
 
   // ---- Value overlap ----
-  const overlapScore = computeValueOverlap(source, sourceFieldName, target, targetFieldName)
+  const overlapScore = computeValueOverlap(
+    sourceFieldName,
+    sourceRows,
+    targetFieldName,
+    targetRows
+  )
   if (overlapScore > 0) {
     score += overlapScore
     const detail =
@@ -242,7 +256,7 @@ function computeScore(
   }
 
   // ---- Type compatibility ----
-  const sourceTypeStr = String(sourceType).toLowerCase()
+  const sourceTypeStr = sourceFieldType.toLowerCase()
   const targetTypeStr = targetFieldType.toLowerCase()
   const compatible = areTypesCompatible(sourceTypeStr, targetTypeStr)
   if (compatible) {
@@ -250,14 +264,14 @@ function computeScore(
     reasons.push({
       type: 'type_compatibility',
       score: 0.05,
-      detail: `Types ${sourceType} and ${targetFieldType} are compatible`
+      detail: `Types ${sourceFieldType} and ${targetFieldType} are compatible`
     })
   } else if (sourceTypeStr !== 'text' && targetTypeStr !== 'text') {
     score -= 0.1
     reasons.push({
       type: 'type_compatibility',
       score: -0.1,
-      detail: `Types ${sourceType} and ${targetFieldType} are incompatible`
+      detail: `Types ${sourceFieldType} and ${targetFieldType} are incompatible`
     })
   }
 
@@ -266,19 +280,19 @@ function computeScore(
 }
 
 function computeValueOverlap(
-  source: ParsedSheet,
   sourceFieldName: string,
-  target: ExistingTableSnapshot,
-  targetFieldName: string
+  sourceRows: Record<string, any>[],
+  targetFieldName: string,
+  targetRows: Record<string, any>[]
 ): number {
-  const sourceValues = source.sampleRows
+  const sourceValues = sourceRows
     .map((r) => String(r[sourceFieldName] ?? ''))
     .filter((v) => v !== '')
 
   if (sourceValues.length === 0) return 0
 
   const targetValues = new Set(
-    target.sampleRows
+    targetRows
       .map((r) => {
         const val = r[targetFieldName]
         return val !== undefined && val !== null ? String(val) : ''
@@ -333,9 +347,9 @@ function levenshteinSimilarity(a: string, b: string): number {
     for (let j = 1; j <= a.length; j++) {
       const cost = b[i - 1] === a[j - 1] ? 0 : 1
       matrix[i][j] = Math.min(
-        matrix[i - 1][j] + 1, // deletion
-        matrix[i][j - 1] + 1, // insertion
-        matrix[i - 1][j - 1] + cost // substitution
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
       )
     }
   }

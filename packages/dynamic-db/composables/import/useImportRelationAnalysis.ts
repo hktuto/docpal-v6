@@ -1,17 +1,18 @@
 import { useState } from '#imports'
 import type { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import { parseExcelFile, type ParsedSheet } from './excelParser'
 import {
-  fetchExistingTableSnapshots,
+  captureTableSnapshot,
+  resolveNewTables,
+  fetchTableSnapshot,
   guessRelations,
-  type ExistingTableSnapshot,
+  type TableSnapshot,
   type RelationGuess
 } from './relationGuesser'
 
+const MAX_EXISTING_TABLES = 20
+
 export type AnalysisStatus =
   | 'idle'
-  | 'parsing'
-  | 'fetching_existing'
   | 'analyzing'
   | 'completed'
   | 'error'
@@ -20,7 +21,7 @@ export interface ImportRelationAnalysisState {
   status: AnalysisStatus
   message: string
   progress: number
-  parsedSheets: ParsedSheet[]
+  newTableIds: string[]
   guesses: RelationGuess[]
   startedAt: string | null
   completedAt: string | null
@@ -32,7 +33,7 @@ function createInitialState(): ImportRelationAnalysisState {
     status: 'idle',
     message: '',
     progress: 0,
-    parsedSheets: [],
+    newTableIds: [],
     guesses: [],
     startedAt: null,
     completedAt: null,
@@ -40,26 +41,17 @@ function createInitialState(): ImportRelationAnalysisState {
   }
 }
 
-/**
- * Global state for import relation analysis.
- */
 export function useImportRelationAnalysisState() {
   return useState<ImportRelationAnalysisState>('import-relation-analysis', () =>
     createInitialState()
   )
 }
 
-/**
- * Reset the analysis state to idle.
- */
 export function resetAnalysis() {
   const state = useImportRelationAnalysisState()
   Object.assign(state.value, createInitialState())
 }
 
-/**
- * Dismiss a specific guess by index.
- */
 export function dismissGuess(index: number) {
   const state = useImportRelationAnalysisState()
   if (state.value.guesses[index]) {
@@ -68,63 +60,86 @@ export function dismissGuess(index: number) {
 }
 
 /**
- * Start the pre-upload relation analysis.
+ * Capture a snapshot of current table IDs before import.
+ * Call this immediately before `importExcelFile`.
+ */
+export { captureTableSnapshot }
+
+/**
+ * Start the post-import relation analysis.
  *
- * 1. Parse the Excel file client-side.
- * 2. In parallel, fetch existing table metadata.
- * 3. Run chunked scoring.
+ * 1. Resolve newly created tables by diffing the pre-import snapshot.
+ * 2. Fetch fields + sample rows for new tables and existing tables.
+ * 3. Run scoring.
  * 4. Store results in global state.
  */
-export async function startPreUploadAnalysis(file: File, databaseId?: string) {
+export async function startPostImportAnalysis(
+  preSnapshot: Set<string>,
+  databaseId?: string
+) {
   const state = useImportRelationAnalysisState()
   resetAnalysis()
 
-  state.value.status = 'parsing'
-  state.value.message = 'Parsing Excel file...'
+  state.value.status = 'analyzing'
+  state.value.message = 'Resolving imported tables...'
   state.value.progress = 10
   state.value.startedAt = new Date().toISOString()
 
-  let parsedSheets: ParsedSheet[]
-  try {
-    parsedSheets = await parseExcelFile(file)
-  } catch (err: any) {
+  if (!databaseId) {
     state.value.status = 'error'
-    state.value.error = err?.message || 'Unable to parse Excel file'
-    state.value.message = 'Failed to parse Excel file'
+    state.value.error = 'No database context available'
+    state.value.message = 'Analysis failed — no database context'
     return
   }
 
-  state.value.parsedSheets = parsedSheets
-  state.value.progress = 40
+  const newTableIds = await resolveNewTables(preSnapshot, databaseId)
+  state.value.newTableIds = newTableIds
 
-  if (!databaseId) {
-    // No database context — skip relation guessing but keep parsed sheets
+  if (newTableIds.length === 0) {
     state.value.status = 'completed'
     state.value.completedAt = new Date().toISOString()
-    state.value.message = 'Parsed sheets ready'
+    state.value.message = 'No new tables detected'
     state.value.progress = 100
     return
   }
 
-  state.value.status = 'fetching_existing'
-  state.value.message = 'Fetching existing tables...'
+  state.value.progress = 30
+  state.value.message = 'Fetching table data...'
 
-  let existingTables: ExistingTableSnapshot[]
-  try {
-    existingTables = await fetchExistingTableSnapshots(databaseId)
-  } catch {
-    // Best-effort: if fetching existing tables fails, continue with empty list
-    existingTables = []
+  // Fetch snapshots for new tables
+  const newTables = (
+    await Promise.all(newTableIds.map((id) => fetchTableSnapshot(id)))
+  ).filter((t): t is TableSnapshot => t !== null)
+
+  if (newTables.length === 0) {
+    state.value.status = 'error'
+    state.value.error = 'Unable to fetch data for newly created tables'
+    state.value.message = 'Analysis failed — could not fetch new table data'
+    return
   }
 
-  state.value.status = 'analyzing'
+  state.value.progress = 50
+
+  // Fetch snapshots for existing tables (bounded)
+  const currentSnapshot = await captureTableSnapshot(databaseId)
+  const existingTableIds = Array.from(currentSnapshot)
+    .filter((id) => !newTableIds.includes(id))
+    .slice(0, MAX_EXISTING_TABLES)
+
+  const existingTables = (
+    await Promise.all(existingTableIds.map((id) => fetchTableSnapshot(id)))
+  ).filter((t): t is TableSnapshot => t !== null)
+
+  state.value.progress = 80
   state.value.message = 'Analyzing relations...'
-  state.value.progress = 60
+
+  // Targets = existing tables + other new tables (for inter-sheet relations)
+  const targets = [...existingTables, ...newTables]
 
   // Run scoring in a non-blocking way
   await new Promise<void>((resolve) => {
     setTimeout(() => {
-      const guesses = guessRelations(parsedSheets, existingTables)
+      const guesses = guessRelations(newTables, targets)
       state.value.guesses = guesses
       state.value.status = 'completed'
       state.value.completedAt = new Date().toISOString()
