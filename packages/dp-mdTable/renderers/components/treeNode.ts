@@ -16,10 +16,11 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
         const value = row[groupColumnField.field_name] || ''
         const hList: any[] = []
         if (value && value !== 0) {
-          hList.push(
-            h('div', { class: 'tree-node-header' }, [h('span', { class: 'tree-node-title' }, title), h('span', { class: 'tree-node-value' }, value)]),
-            h('span', { class: 'tree-node-count' }, formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure))
-          )
+          hList.push(h('div', { class: 'tree-node-header' }, [h('span', { class: 'tree-node-title' }, title), h('span', { class: 'tree-node-value' }, value)]))
+          const count = formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure)
+          if (count && count !== '-') {
+            hList.push(h('span', { class: 'tree-node-count' }, count))
+          }
         }
         return h('div', { class: 'custom-tree-node' }, hList)
       } catch (error) {
