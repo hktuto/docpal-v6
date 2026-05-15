@@ -156,7 +156,7 @@ export function useAwarenessDiff(states: Ref<AwarenessState[]>) {
 export function useHocuspocusManager() {
   const config = useRuntimeConfig()
   const hocuspocusUrl = computed(() => (config.public.HOCUSPOCUS_URL as string | undefined) || 'ws://localhost:1234')
-
+  console.log("hocuspocusUrl", hocuspocusUrl.value)
   const roomMeta = useState<Record<string, Omit<RoomState, 'provider'>>>('hocuspocus-rooms', () => ({}))
   const lockRecords = useState<LockRecord[]>('hocuspocus-locks', () => [])
   const providers = new Map<string, HocuspocusProvider>()
