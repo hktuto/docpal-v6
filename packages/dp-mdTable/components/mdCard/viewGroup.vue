@@ -27,6 +27,9 @@ const emit = defineEmits<{
 const { columns, tableFields, tableData, columnGroupRules, getAggChildData } = useMDCardInject()
 const { t } = useI18n()
 
+/** 用于丢弃过期的列表刷新请求（快速连刷或切换分组时） */
+let tableDataReloadSeq = 0
+
 const groupChildren = ref<Record<string, any[]>>({})
 const expandedGroupKeys = ref<string[]>([])
 const loadingGroupKeys = ref<string[]>([])
@@ -48,15 +51,30 @@ const activeGroupTitle = computed(() => {
   return column?.field_name_alias || column?.title || activeGroupField.value || undefined
 })
 
-function getGroupKey(row: any, index: number) {
-  const field = activeGroupField.value
-  const value = field ? row?.[field] : row?.id
-  return `${field || 'group'}:${value ?? '__empty__'}:${index}`
-}
-
 function getGroupValue(row: any) {
   const field = activeGroupField.value
   return field ? row?.[field] : row?.id
+}
+
+function normalizeGroupValueForKey(value: unknown) {
+  if (value === null || value === undefined) {
+    return '__empty__'
+  }
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value)
+    } catch {
+      return '__object__'
+    }
+  }
+  return String(value)
+}
+
+/** 与分组值绑定，刷新后仍可对上同一逻辑分组（不使用列表下标） */
+function getStableGroupKey(row: any) {
+  const field = activeGroupField.value
+  const value = getGroupValue(row)
+  return `${field || 'group'}:${normalizeGroupValueForKey(value)}`
 }
 
 function getGroupCount(row: any) {
@@ -71,12 +89,12 @@ function updateRow(rowId: string, data: any) {
   groupChildren.value = nextGroupChildren
 }
 
-function isGroupExpanded(row: any, index: number) {
-  return expandedGroupKeys.value.includes(getGroupKey(row, index))
+function isGroupExpanded(row: any) {
+  return expandedGroupKeys.value.includes(getStableGroupKey(row))
 }
 
-function isGroupLoading(row: any, index: number) {
-  return loadingGroupKeys.value.includes(getGroupKey(row, index))
+function isGroupLoading(row: any) {
+  return loadingGroupKeys.value.includes(getStableGroupKey(row))
 }
 
 function updateKeyList(keysRef: Ref<string[]>, key: string, selected: boolean) {
@@ -89,13 +107,8 @@ function updateKeyList(keysRef: Ref<string[]>, key: string, selected: boolean) {
   keysRef.value = keysRef.value.filter((item) => item !== key)
 }
 
-async function handleToggleGroup(row: any, index: number) {
-  const key = getGroupKey(row, index)
-  if (expandedGroupKeys.value.includes(key)) {
-    updateKeyList(expandedGroupKeys, key, false)
-    return
-  }
-  updateKeyList(expandedGroupKeys, key, true)
+async function loadGroupChildrenForRow(row: any) {
+  const key = getStableGroupKey(row)
   if (groupChildren.value[key]) {
     return
   }
@@ -111,6 +124,16 @@ async function handleToggleGroup(row: any, index: number) {
   }
 }
 
+async function handleToggleGroup(row: any) {
+  const key = getStableGroupKey(row)
+  if (expandedGroupKeys.value.includes(key)) {
+    updateKeyList(expandedGroupKeys, key, false)
+    return
+  }
+  updateKeyList(expandedGroupKeys, key, true)
+  await loadGroupChildrenForRow(row)
+}
+
 function handleOpenRecord(row: any) {
   emit('open-record', row)
 }
@@ -120,11 +143,57 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
 }
 
 watch(
-  () => [activeGroupField.value, tableData.value],
+  () => activeGroupField.value,
   () => {
+    tableDataReloadSeq += 1
     groupChildren.value = {}
     expandedGroupKeys.value = []
     loadingGroupKeys.value = []
+  }
+)
+
+watch(
+  () => tableData.value,
+  async (rows) => {
+    if (!activeGroupField.value) {
+      return
+    }
+    const seq = (tableDataReloadSeq += 1)
+    const data = rows || []
+    const validKeys = new Set(data.map((row: any) => getStableGroupKey(row)))
+    expandedGroupKeys.value = expandedGroupKeys.value.filter((key) => validKeys.has(key))
+
+    const prevChildren = { ...groupChildren.value }
+    const nextChildren: Record<string, any[]> = {}
+    for (const key of Object.keys(prevChildren)) {
+      if (validKeys.has(key)) {
+        nextChildren[key] = prevChildren[key]
+      }
+    }
+    groupChildren.value = nextChildren
+
+    const keysToReload = [...expandedGroupKeys.value]
+    for (const key of keysToReload) {
+      if (seq !== tableDataReloadSeq) {
+        return
+      }
+      const row = data.find((r: any) => getStableGroupKey(r) === key)
+      if (!row) {
+        continue
+      }
+      try {
+        const childRows = await getAggChildData?.({ ...row, __level: 0 })
+        if (seq !== tableDataReloadSeq) {
+          return
+        }
+        groupChildren.value = {
+          ...groupChildren.value,
+          [key]: childRows || []
+        }
+      } catch {
+        // 保持旧子列表，避免无感刷新时闪空或闪错
+      }
+    }
   }
 )
 
@@ -136,18 +205,18 @@ defineExpose({
 <template>
   <div class="md-card-list-scroll">
     <template v-if="tableData?.length > 0">
-      <section v-for="(group, groupIndex) in tableData" :key="getGroupKey(group, groupIndex)" class="md-card-group">
+      <section v-for="(group, groupIndex) in tableData" :key="`${getStableGroupKey(group)}-${groupIndex}`" class="md-card-group">
         <MdCardViewGroupHeader
           :title="activeGroupTitle"
           :value="getGroupValue(group)"
           :count="getGroupCount(group)"
-          :expanded="isGroupExpanded(group, groupIndex)"
-          :loading="isGroupLoading(group, groupIndex)"
-          @toggle="handleToggleGroup(group, groupIndex)"
+          :expanded="isGroupExpanded(group)"
+          :loading="isGroupLoading(group)"
+          @toggle="handleToggleGroup(group)"
         />
-        <div v-if="isGroupExpanded(group, groupIndex)" class="md-card-group-body">
-          <div v-if="groupChildren[getGroupKey(group, groupIndex)]?.length > 0" class="card-grid" :style="gridStyle">
-            <div v-for="(row, rowIndex) in groupChildren[getGroupKey(group, groupIndex)]" :key="row?.id || rowIndex" class="md-card-draggable-item">
+        <div v-if="isGroupExpanded(group)" class="md-card-group-body">
+          <div v-if="groupChildren[getStableGroupKey(group)]?.length > 0" class="card-grid" :style="gridStyle">
+            <div v-for="(row, rowIndex) in groupChildren[getStableGroupKey(group)]" :key="row?.id || rowIndex" class="md-card-draggable-item">
               <MdCardWidget
                 :row="row"
                 :fields="columns"
@@ -158,7 +227,7 @@ defineExpose({
               />
             </div>
           </div>
-          <el-empty v-else-if="!isGroupLoading(group, groupIndex)" class="md-card-group-empty" :description="t('mdTable.cardGroup.emptyChildren')" />
+          <el-empty v-else-if="!isGroupLoading(group)" class="md-card-group-empty" :description="t('mdTable.cardGroup.emptyChildren')" />
         </div>
       </section>
     </template>

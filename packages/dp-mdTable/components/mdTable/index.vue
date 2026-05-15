@@ -61,7 +61,7 @@
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
       <RecordCardDialog ref="recordCardDialogRef" />
     </div>
-    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
   </div>
 </template>
 
