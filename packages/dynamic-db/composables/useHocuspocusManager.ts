@@ -88,14 +88,27 @@ function getUserColor(userId: string): string {
   return COLOR_PALETTE[index]
 }
 
+function getSessionAwarenessId(): string {
+  const key = 'hocuspocus-awareness-id'
+  let id = sessionStorage.getItem(key)
+  if (!id) {
+    id = Math.random().toString(36).slice(2, 8)
+    sessionStorage.setItem(key, id)
+  }
+  return id
+}
+
+export { getSessionAwarenessId }
+
 function getLocalUser(): AwarenessUser | undefined {
   const userJson = localStorage.getItem('docpal-user')
   if (!userJson) return undefined
   try {
     const user = JSON.parse(userJson)
-    const id = user.userId || ''
+    const realUserId = user.userId || ''
+    const id = getSessionAwarenessId()
     const name = user.username || user.name || 'Unknown'
-    return { id, name, color: getUserColor(id) }
+    return { id, name, color: getUserColor(realUserId) }
   } catch {
     return undefined
   }
