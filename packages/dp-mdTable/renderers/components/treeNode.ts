@@ -1,7 +1,10 @@
 import { formatCount } from '../../composables/useCount'
 import type { CountMethod } from '../../types/count-type'
 import type { ViewRenderFunctionParams } from '../../types/column-types'
+import { useI18n } from 'vue-i18n'
+
 export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, feedback: (params: ViewRenderFunctionParams<string>) => any) => {
+  const { t } = useI18n()
   const { $grid, row, column, level } = params as any
   const { columnGroupRules, tableFields, columns }: any = inject('viewTools')
   if (row.hasChild) {
@@ -31,9 +34,13 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
       if (!fullColumn?.countMethod || fullColumn.countMethod === 'none') {
         return h('div', {}, '')
       }
+      const method = fullColumn.countMethod as CountMethod
+      const methodLabel = t(`mdTable.countMethod.${method}`)
+      const countText = formatCount(countValue, method, fullColumn.display_structure)
       return h(
         'div',
         {
+          class: 'tree-node-agg-cell',
           onMouseenter: (e) => {
             $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
@@ -41,7 +48,7 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
             $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
           }
         },
-        formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure)
+        [h('span', { class: 'tree-node-agg-method' }, methodLabel), h('span', { class: 'tree-node-agg-value' }, countText)]
       )
     }
   }
