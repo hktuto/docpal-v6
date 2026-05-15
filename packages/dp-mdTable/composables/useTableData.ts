@@ -448,9 +448,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   if (databaseHocuspocus?.remoteChanges) {
     const unwatch = watch(
       () => databaseHocuspocus.remoteChanges,
-      (events: any[]) => {
-        if (!events || events.length === 0) return
-        for (const event of events) {
+      () => {
+        if (!databaseHocuspocus.remoteChanges.value || databaseHocuspocus.remoteChanges.value.length === 0) return
+        console.log("remoteChanges", databaseHocuspocus.remoteChanges.value)
+        for (const event of databaseHocuspocus.remoteChanges.value) {
           handleRemoteChangeEvent(event)
         }
       },
