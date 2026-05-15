@@ -124,6 +124,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
   onBeforeUnmount(() => {
     stopRelationRefresh()
+    stopAwarenessWatch()
     stopRemoteChanges()
   })
 
@@ -448,6 +449,35 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
     }
   }
 
+  const currentEditing = ref<string[]>([])
+
+  function updateCurrentEditing() {
+    const states = databaseHocuspocus?.awarenessStates?.value || []
+    const currentMenuId = getCurrentMenuId()
+    const editingRowIds = new Set<string>()
+    for (const state of states) {
+      if (state.focus?.editingCell || state.focus?.editingRow) {
+        if (!currentMenuId || state.focus.menuId === currentMenuId) {
+          if (state.focus.rowId) {
+            editingRowIds.add(state.focus.rowId)
+          }
+        }
+      }
+    }
+    currentEditing.value = Array.from(editingRowIds)
+  }
+
+  let stopAwarenessWatch = () => {}
+  if (databaseHocuspocus?.awarenessStates) {
+    stopAwarenessWatch = watch(
+      () => databaseHocuspocus.awarenessStates,
+      () => {
+        updateCurrentEditing()
+      },
+      { deep: true, immediate: true }
+    )
+  }
+
   let stopRemoteChanges = () => {}
   if (databaseHocuspocus?.remoteChanges) {
     const unwatch = watch(
@@ -472,6 +502,7 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
     loadingMore,
     totalSize,
     hasMore,
+    currentEditing,
 
     // 方法
     getTableData,
@@ -492,6 +523,7 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
     loadingMore,
     totalSize,
     hasMore,
+    currentEditing,
     getAggChildData,
     // 方法
     queryRecordById,
