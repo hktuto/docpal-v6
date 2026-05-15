@@ -119,6 +119,7 @@ function handleCellMouseEnter(params: any) {
   }
 }
 function exitCellEdit(params: any) {
+  console.log("exit edit")
   setAwareness({
     rowId: params.row.id,
     cellId: params.column.field,

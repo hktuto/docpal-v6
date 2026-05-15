@@ -219,7 +219,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     } finally {
       await getAgg()
     }
-    emit('edit-closed', params)
+    emit('exit-edit', params)
   },
   'cell-click': (params: any) => {
     emit('cell-click', params)

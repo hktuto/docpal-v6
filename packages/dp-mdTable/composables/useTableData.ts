@@ -395,7 +395,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     const m = viewTools?.menuId
     return m?.value || m
   }
-
+const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
   function handleRemoteChangeEvent(event: any) {
     const { change, userName } = event
     const currentMenuId = getCurrentMenuId()
@@ -408,7 +408,14 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
         if (row) {
           fetchRowById(change.rowId).then((liveRow) => {
             if (liveRow) {
+              // compare different and get updated fields
+              const updatedFields = Object.keys(liveRow).filter((k) => liveRow[k] !== row[k])
               Object.assign(row, liveRow)
+              if (updatedFields.length) {
+                updatedFields.forEach((field) => {
+                  setSuccess(row.id, field)
+                })
+              }
             }
           })
         }
@@ -431,14 +438,11 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
         break
       }
       case 'row_created': {
-        const exists = tableData.value.some((r) => r.id === change.rowId)
-        if (!exists) {
-          ElNotification({
-            title: 'New Record',
-            message: `${userName || 'Someone'} created a new row`,
-            type: 'info'
-          })
-        }
+        ElNotification({
+          title: 'New Record',
+          message: `${userName || 'Someone'} created a new row`,
+          type: 'info'
+        })
         break
       }
     }
