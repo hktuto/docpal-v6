@@ -23,7 +23,10 @@ const canOpenSetting = computed(() => {
 // Hocuspocus awareness
 const hocuspocusManager = useHocuspocusManager()
 const roomName = computed(() => `dynamic-db:${props.id}`)
-const { remoteChanges } = useRemoteChanges(roomName.value)
+
+const remoteChanges = computed(() => {
+  return hocuspocusManager.roomMeta.value[roomName.value]?.remoteChanges ?? []
+})
 
 watch(
   roomName,

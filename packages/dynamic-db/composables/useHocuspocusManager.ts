@@ -42,6 +42,12 @@ export interface UpdatedRow {
   menuId?: string
 }
 
+export interface RemoteChangeEvent {
+  change: AwarenessChange
+  userName: string
+  userColor: string
+}
+
 export interface RoomState {
   name: string
   provider: HocuspocusProvider
@@ -50,6 +56,7 @@ export interface RoomState {
   awarenessStates: AwarenessState[]
   joinedAt: number
   updatedRows: UpdatedRow[]
+  remoteChanges: RemoteChangeEvent[]
 }
 
 export interface LockRecord {
@@ -233,6 +240,8 @@ export function useHocuspocusManager() {
         const newLocks: LockRecord[] = []
         const currentStates = new Map<string, any>()
 
+        const newRemoteChanges: RemoteChangeEvent[] = []
+
         e.states.forEach((state: any) => {
           if (state.user) {
             currentStates.set(state.user.id, state)
@@ -250,6 +259,15 @@ export function useHocuspocusManager() {
                 menuId: state.focus.menuId,
                 editingCell: state.focus.editingCell,
                 editingRow: state.focus.editingRow
+              })
+            }
+            for (const change of state.changes || []) {
+              if (processedChangeIds.has(change.id)) continue
+              processedChangeIds.add(change.id)
+              newRemoteChanges.push({
+                change,
+                userName: state.user.name,
+                userColor: state.user.color
               })
             }
           } else {
@@ -292,6 +310,9 @@ export function useHocuspocusManager() {
         if (roomMeta.value[roomName]) {
           roomMeta.value[roomName].awarenessStates = awarenessStates
           roomMeta.value[roomName].updatedRows = newlySaved
+          if (newRemoteChanges.length > 0) {
+            roomMeta.value[roomName].remoteChanges = newRemoteChanges
+          }
         }
         // Update lockRecords: remove old locks for this room, add new ones
         lockRecords.value = [
@@ -304,6 +325,7 @@ export function useHocuspocusManager() {
     providers.set(roomName, provider)
     const previousStates = new Map<string, any>()
     const doneRows = new Set<string>()
+    const processedChangeIds = new Set<string>()
 
     roomMeta.value[roomName] = {
       name: roomName,
@@ -311,7 +333,8 @@ export function useHocuspocusManager() {
       connecting: true,
       awarenessStates: [],
       joinedAt,
-      updatedRows: []
+      updatedRows: [],
+      remoteChanges: []
     }
   }
 
