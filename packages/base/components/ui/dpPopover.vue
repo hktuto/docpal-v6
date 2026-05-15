@@ -91,7 +91,6 @@ watch(
 )
 
 async function open(mouseEvent: MouseEvent) {
-  console.log('open', mouseEvent)
   setAnchor(mouseEvent)
   positioned.value = false
   visible.value = true
@@ -283,6 +282,10 @@ function handleDocumentMouseDown(event: MouseEvent) {
   close()
 }
 
+function handleWindowScroll() {
+  close()
+}
+
 function bindGlobalEvents() {
   if (globalEventsBound.value) {
     return
@@ -290,7 +293,7 @@ function bindGlobalEvents() {
 
   document.addEventListener('mousedown', handleDocumentMouseDown)
   window.addEventListener('resize', updatePosition)
-  window.addEventListener('scroll', updatePosition, true)
+  window.addEventListener('scroll', handleWindowScroll, true)
   globalEventsBound.value = true
 }
 
@@ -301,7 +304,7 @@ function unbindGlobalEvents() {
 
   document.removeEventListener('mousedown', handleDocumentMouseDown)
   window.removeEventListener('resize', updatePosition)
-  window.removeEventListener('scroll', updatePosition, true)
+  window.removeEventListener('scroll', handleWindowScroll, true)
   globalEventsBound.value = false
 }
 
