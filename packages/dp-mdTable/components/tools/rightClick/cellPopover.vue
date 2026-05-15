@@ -8,10 +8,6 @@ interface CellPopoverOption {
   onClick: () => Promise<void>
 }
 
-interface OpenParams {
-  row: Record<string, any>
-}
-
 const { t } = useI18n()
 const mdTableContext = inject<mdTable | null>(MdTableContextKey, null)
 const { gridRef, tableData, deleteRow } = useTableDataInject()
@@ -19,7 +15,8 @@ const popoverRef = ref()
 const selectedRows = ref<Record<string, any>[]>([])
 const optionList = ref<CellPopoverOption[]>([])
 
-function open(target: HTMLElement, { row }: OpenParams) {
+function open(mouseEvent: MouseEvent, row: any) {
+  console.log('open', mouseEvent, row)
   if (!row?.id) {
     return
   }
@@ -33,7 +30,7 @@ function open(target: HTMLElement, { row }: OpenParams) {
     }
   }
 
-  popoverRef.value.open(target)
+  popoverRef.value.open(mouseEvent)
   optionList.value = [createDeleteOption(row)]
 }
 
@@ -90,7 +87,7 @@ defineExpose({
 </script>
 
 <template>
-  <UiPopoverDialog ref="popoverRef" width="60px">
+  <UiDpPopover ref="popoverRef">
     <div class="cell-popover">
       <div
         v-for="item in optionList"
@@ -105,10 +102,13 @@ defineExpose({
         <span>{{ item.label }}</span>
       </div>
     </div>
-  </UiPopoverDialog>
+  </UiDpPopover>
 </template>
 
 <style scoped lang="scss">
+.cell-popover {
+  margin: var(--app-space-xs);
+}
 .cell-popover-item {
   cursor: pointer;
   display: flex;

@@ -246,7 +246,8 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   },
   'cell-menu': ({ row, column, $event }: any) => {
     $event?.preventDefault()
-    rightClickCellPopoverRef.value?.open($event?.target, { row, column })
+    console.log('cell-menu', $event)
+    rightClickCellPopoverRef.value?.open($event, { ...row })
   },
   'checkbox-all': ({ checked }: any) => {
     const { fullData } = gridRef.value?.getTableData()

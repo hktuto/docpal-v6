@@ -58,11 +58,7 @@ async function handleAddRowSubmit(data: any) {
 }
 
 function handleRowContextMenu(row: any, event: MouseEvent) {
-  const target = event.currentTarget instanceof HTMLElement ? event.currentTarget : event.target
-  if (!(target instanceof HTMLElement)) {
-    return
-  }
-  rightClickCellPopoverRef.value?.open(target, { row })
+  rightClickCellPopoverRef.value?.open(event, { ...row })
 }
 </script>
 
