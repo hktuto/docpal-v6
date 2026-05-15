@@ -42,6 +42,7 @@
 import { ElMessage } from 'element-plus'
 import { Download } from '@element-plus/icons-vue'
 import {useImportBatch, isExcelFile} from '../../../composables/import/useImportBatch'
+import { startPreUploadAnalysis } from '../../../composables/import/useImportRelationAnalysis'
 
 import { newClientApi } from 'api'
 // Internal state for dynamic entityId and parentFolderId
@@ -101,6 +102,8 @@ async function handleFileChange(file: any) {
     errorMessage.value = 'Please select an Excel file (.xlsx, .xls) or CSV file (.csv)'
     return
   }
+  // Start client-side relation analysis in parallel with upload
+  startPreUploadAnalysis(selectedFile.value, database.value?.id)
   const result: any = await importExcelFile(selectedFile.value)
   if (result.hasErrorReport) {
     errorReportMsg.value = result.errorMessage

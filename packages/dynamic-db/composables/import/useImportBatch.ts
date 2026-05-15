@@ -49,7 +49,7 @@ const RESERVED_COLUMN_NAMES = ['id', 'createdAt', 'createdBy', 'updatedAt', 'upd
 /**
  * Generate a field name from a title
  */
-function generateFieldName(title: string): string {
+export function generateFieldName(title: string): string {
   let field =
     title
       .toLowerCase()
@@ -70,7 +70,7 @@ function generateFieldName(title: string): string {
 /**
  * Generate unique field names for columns
  */
-function generateUniqueFieldNames(titles: string[]): string[] {
+export function generateUniqueFieldNames(titles: string[]): string[] {
   const fieldCounts: Record<string, number> = {}
   const fields: string[] = []
 
@@ -172,7 +172,7 @@ function looksLikeHeaderRow(row: string[]): boolean {
  *   Row 2: [First, Last, City, Street]     <- Actual column headers
  *   Result: [Name_First, Name_Last, Address_City, Address_Street]
  */
-function detectAndFlattenHeaders(jsonData: any[][]): { headers: string[]; headerRowCount: number } {
+export function detectAndFlattenHeaders(jsonData: any[][]): { headers: string[]; headerRowCount: number } {
   if (jsonData.length === 0) {
     return { headers: [], headerRowCount: 0 }
   }
@@ -307,7 +307,7 @@ function detectAndFlattenHeaders(jsonData: any[][]): { headers: string[]; header
 /**
  * Detect the column type based on cell values
  */
-function detectColumnType(samples: any[], excelFormat?: string): { type: ColumnFieldType; properties: Record<string, any> } {
+export function detectColumnType(samples: any[], excelFormat?: string): { type: ColumnFieldType; properties: Record<string, any> } {
   if (samples.length === 0) {
     return { type: ColumnFieldType.Text, properties: { defaultValue: '' } }
   }
@@ -757,7 +757,7 @@ export function guessDateFormatFromSamples(dateStrings: string[]): string {
  * @param dateFormat Optional date format to use for parsing date strings
  * @param fieldProperties Optional field properties for parsing numbers with symbols
  */
-function cellValueToString(value: any, dateFormat?: string, fieldType?: ColumnFieldType, fieldProperties?: Record<string, any>): string {
+export function cellValueToString(value: any, dateFormat?: string, fieldType?: ColumnFieldType, fieldProperties?: Record<string, any>): string {
   if (value === undefined || value === null) {
     return ''
   }
