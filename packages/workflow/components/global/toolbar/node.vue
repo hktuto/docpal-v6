@@ -28,7 +28,7 @@ function setupNode() {
     const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(cell).filter((connectedEdge: any) => {
       return connectedEdge.source.cell === cell.id
     })
-    if (!!cell.getData().metadata.maxOutgoing){
+    if (!!cell.getData().metadata.maxOutgoing) {
       // 當超出node設定的最大連出綫，該節點不在顯示節點標識符
       if (allNodeConnected.length === cell.getData().metadata.maxOutgoing) return
     }
@@ -123,13 +123,11 @@ function handleNodeClick({ node }: any) {
 
 async function copy() {
   const data = contextSelectedNode.value.data
-  const field = data.data.extensionElements['flowable:formProperty'] || []
-  const fields = JSON.parse(JSON.stringify(field))
-  const form = await graphProvider?.getFormByNode(contextSelectedNode.value)
-  graphProvider?.copyForm(contextSelectedNode.value, {
-    fields,
-    form
-  })
+  const nodeSetting = {
+    config: data.config,
+    metadata: data.metadata
+  }
+  graphProvider?.copyForm(contextSelectedNode.value, nodeSetting)
 }
 
 function paste() {

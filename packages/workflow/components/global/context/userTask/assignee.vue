@@ -9,7 +9,7 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('provider not found')
 }
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const autoAssignField = ref<string>('')
 const assignFieldList = ref<any[]>([])
 
@@ -42,7 +42,7 @@ function assigneeChanged(newVal: string) {
 }
 
 async function getAssignFieldList() {
-  const stringVariables = getVariablesByType(['string'], true)
+  const stringVariables = getVariablesByTags(['string'], true)
   const userList = await getUserSelectOption()
 
   assignFieldList.value = [

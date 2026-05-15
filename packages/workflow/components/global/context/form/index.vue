@@ -19,12 +19,9 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
-
 const { workflowKey } = graphProvider
 const formTitle = ref<string>('')
-const formItems = ref<any[]>([])
 const RuleManageDialogRef = ref()
-
 const formKey = ref<string>('')
 
 function initData() {
@@ -38,11 +35,9 @@ function editField() {
 }
 
 async function copyFormAndFieldSetting() {
-  const fields = JSON.parse(JSON.stringify(formItems.value))
-  const form = await graphProvider?.getFormByNode(node)
   graphProvider?.copyForm(node, {
-    fields,
-    form
+    config: node.getData().config,
+    metadata: node.getData().metadata
   })
 }
 
@@ -136,7 +131,7 @@ watch(
       <el-button type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
     </div>
     <div class="actionsContainer">
-      <el-button size="small" @click="copyFormAndFieldSetting">Copy Form and Field setting</el-button>
+      <el-button size="small" @click="copyFormAndFieldSetting">Copy Form</el-button>
       <el-button v-if="graphProvider.copyKey.value" size="small" @click="pasteForm">Paste Form</el-button>
     </div>
   </el-form>

@@ -14,7 +14,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       const data = await $api.get('/oniflow/api/v1/task/overview/all').then((r: any) => r.data)
       return {
         data: {
-          entryList: data.task || [],
+          entryList: data.task || []
         }
       }
     } catch (e) {
@@ -27,7 +27,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   columns: [
     { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status', title: 'dpTable_status' },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -45,22 +44,23 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   ],
   bodyActions: [
     [
-      {
-        code: 'delete',
-        name: t('common_delete'),
-        visible: true,
-        disabled: false,
-        action: async ({ row }: any) => {
-          await $api.delete(`/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r: any) => r.data)
-          reload()
-        }
-      }
+      // {
+      //   code: 'delete',
+      //   name: t('common_delete'),
+      //   visible: true,
+      //   disabled: false,
+      //   action: async ({ row }: any) => {
+      //     await $api.delete(`/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r: any) => r.data)
+      //     reload()
+      //   }
+      // }
     ]
   ],
   dblClickAction: ({ row, column, event }: any) => {
     handleDblclick(row)
   }
 })
+const userId: string = useUserId().value
 
 function handleDblclick(row: any) {
   routerProvider?.navigateTo(
@@ -73,7 +73,8 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((r: any) => r.data)
+  await $api.post(`/oniflow/api/v1/processes/instance-task/${row.process_instance_id}/claim`).then((r: any) => r.data)
+  // await $api.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, { user_id: userId }).then((res: any) => res.data)
   reload()
 }
 </script>
@@ -84,13 +85,9 @@ async function claimTask(row: any) {
       <template #toolbar_buttons> </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button :id="`Workflow__allTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small" round @click="claimTask(row)">
+        <el-button v-else :id="`Workflow__allTask__Detail__ClaimTask__${row.id}`" type="primary" size="small" round @click="claimTask(row)">
           {{ $t('workflow_claim') }}
         </el-button>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.status === 'created'" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
       </template>
     </VxeGrid>
   </div>

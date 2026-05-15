@@ -10,7 +10,7 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const databaseId = ref('')
 const tableId = ref('')
 const dataId = ref('')
@@ -34,7 +34,7 @@ function getVariables(status: string) {
     default:
       type = 'string'
   }
-  return getVariablesByType([type], true)
+  return getVariablesByTags([type], true)
 }
 
 async function init() {
@@ -44,7 +44,7 @@ async function init() {
     await getTableList()
   }
 
-  const { pathname } = new URL(data.config.url)
+  const { pathname } = new URL(data.config.http_request.url)
   const match = pathname.match(/\/dynamic-db\/table\/([^/]+)\/record\/([^/]+)/)
   tableId.value = match ? match[1] : ''
   if (tableId.value != '') {
@@ -55,7 +55,7 @@ async function init() {
 
   // Set updateFieldsList data
   if (tableId.value !== '') {
-    const dataVariable = data.config.body.data
+    const dataVariable = data.config.http_request.body.data
 
     tableFieldList.value = tableFieldList.value.map((item: any) => {
       if (item.id in dataVariable) {
@@ -73,7 +73,7 @@ const path = ref('/apis/v1/dynamic-db/table/{tableID}/record/{dataID}')
 function update() {
   graphProvider?.graph.value?.startBatch('update-update-dynamic-database-data')
   const nodeData = node.getData()
-  const origin = new URL(nodeData.config.url).origin
+  const origin = new URL(nodeData.config.http_request.url).origin
   const newUrl = origin + path.value.replace('{tableID}', tableId.value).replace('{dataID}', dataId.value)
 
   const data: any = {}
@@ -86,8 +86,11 @@ function update() {
     ...nodeData,
     config: {
       ...nodeData.config,
-      url: newUrl,
-      body: { data: data },
+      http_request: {
+        ...nodeData.config.http_request,
+        url: newUrl,
+        body: { data: data }
+      },
       input_mapping: {},
       output_mapping: {}
     },

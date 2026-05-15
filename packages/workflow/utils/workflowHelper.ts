@@ -38,17 +38,14 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
       const data: any = await newClientApi.postDmsDocumentPreview({ idOrPath: documentTemplateData.documentId })
       signatureSetting.templateDetail = JSON.parse(JSON.stringify(data))
       signatureSetting.signatureVariableSetting = data.variables.find((item: any) => item.id === metadata.signature.signatureValue)
-
-      console.log('signatureSetting', signatureSetting)
     }
-  } catch (e) {
-    console.log(e)
-  } finally {
     return {
       buttons,
       buttonSetting,
       signatureSetting
     }
+  } catch (e) {
+    console.log(e)
   }
 }
 
@@ -66,6 +63,7 @@ export async function getWorkflowList() {
 
 export function convertWorkflowVariableToTemplateVariable(variables: any, mapping: any) {
   return Object.keys(mapping).reduce((prev: any, key: string) => {
+    const sourceKey = mapping[key].replace(/^\${|}$/g, '');
     const valueKey = mapping[key].replace('${', '').replace('}', '')
     if (!!valueKey && variables[valueKey]) {
       // variables[valueKey] may be can convert yto json, so we need to convert it to json

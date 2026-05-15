@@ -8,109 +8,65 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
-const { detail, workflowType, backItem } = defineProps<{
-  detail: {
-    id: string
-    process_instance_id: string
-    definition_id: string
-    node_id: string
-    node_name: string
-    task_type: {
-      type: string
-      Alias: number
-    }
-    status: string
-    assignee: string
-    variables: number
-    priority: number
-    created_at: string
-    updated_at: string
-  }
+const { db_id, workflowType, backItem } = defineProps<{
+  db_id: string
   workflowType: string
   backItem?: any
 }>()
 // @ts-ignore
 const userId: string = useUserId().value
-const isMobile = false
 const { t } = useI18n()
 const state = reactive<any>({
   processState: {
     completeTask: 'completeTask'
   },
   activeTab: 'form',
-  activityList: [],
   loading: true,
-  submitShow: false,
   error: null,
   title: ''
 })
 const fromRenderRef = ref()
 const taskDetail = ref({})
-const workflowJson = ref({})
-const nodeType = ref<'UserTask' | 'SignatureTask'>()
-const isAssigneeUser = computed(() => {
-  return !detail?.assignee || detail?.assignee === userId
-})
+const variables = ref({})
 const variablesData = ref({})
-
-async function activeTask() {
-  const row = detail
-  if (!!row.config.result) {
-    state.error = row.config.result
-    return
-  }
-
-  if (row.config.assignee === userId) {
-    // isAssigneeUser = true
-    await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
-  }
-  state.title = row.config.human_task.form_title
-  variablesData.value = row.config.input_mapping
-  await initForm(row)
-}
+const contentData = ref({})
+const nodeType = ref<'UserTask' | 'SignatureTask'>('UserTask')
+const isAssigneeUser = ref<boolean>(false)
 
 async function getDetail() {
-  if (workflowType === 'activeTask') {
-    await activeTask()
-    return
-  }
-
-  taskDetail.value = detail
-  if (!detail.id || detail.id === '') {
-    state.error = 'node Id not exist'
+  if (!db_id || db_id === '') {
+    state.error = 'Id not exist'
     return
   }
 
   try {
     state.loading = true
     state.error = null
-    const workflowTaskInstance = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}`).then((r: any) => r.data)
-    workflowJson.value = workflowTaskInstance.content
-
-    const data = await $api.get(`/oniflow/api/v1/processes/instance-task/${detail.id}`).then((r: any) => r.data)
-    if (!data) return
-
-    variablesData.value = data.input_variables
-    const findNode = workflowJson.value.nodes.find((node: any) => node.id == data.node_id)
-    if (!!findNode) {
-      state.title = findNode.config.human_task.form_title
-      nodeType.value = findNode.metadata.type
-
-      // assignee
-      if (userId === data.assignee) {
-        switch (nodeType.value) {
-          case CellType.userTask:
-            await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
-            break
-          case CellType.signatureTask:
-            await handleAdditionalSetting(workflowJson.value.nodes, findNode.metadata, data.variables)
-            break
-          default:
-        }
-      }
-
-      await initForm(findNode)
+    const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => r.data)
+    if (!data) {
+      state.error = 'Get Task Detail Failed'
+      return
     }
+    // if (!!row.config.result) {
+    //   state.error = row.config.result
+    //   return
+    // }
+    if (data.status !== 'assigned') {
+      return
+    }
+    taskDetail.value = data
+    state.title = data.config.human_task.form_title || data.name
+
+    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
+    variablesData.value = instanceData.initial_variables || {}
+    contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data)
+    variables.value = contentData.value.variables
+
+    if (data.config?.human_task?.assignee === userId) {
+      isAssigneeUser.value = true
+      await handleAdditionalSetting(contentData.value.nodes, data.metadata, variables.value)
+    }
+    await initForm(data)
   } catch (error) {
     console.log(error)
     state.error = error
@@ -174,11 +130,6 @@ function toggleFullScreenForm() {
   }
 }
 
-async function handleFormDataGet() {
-  // Get Form Data
-  await $api.get(`/oniflow/api/v1/processes/variable/${id}/variables`).then((r: any) => r.data)
-}
-
 function toggleShowForm() {
   showForm.value = !showForm.value
 }
@@ -226,11 +177,10 @@ async function handleSubmit() {
 
   state.loading = true
   try {
-    if (detail.assignee !== userId) {
+    if (!isAssigneeUser.value) {
       await $api
-        .post(`/oniflow/api/v1/tasks/instance/${taskDetail.value.id}/claim`, {
-          user_id: userId,
-          process_id: taskDetail.process_instance_id
+        .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, {
+          user_id: userId
         })
         .then((res: any) => res.data)
     }
@@ -281,11 +231,11 @@ async function handleSubmitUserTask() {
   })
 
   // conversion FormData
-  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
+  const cFormData = conversionFormDataByVariables(formData, variables.value)
 
   const data = $api
-    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.id}/complete`, {
-      process_id: detail.process_instance_id,
+    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/complete`, {
+      process_id: taskDetail.value.process_id,
       user_id: userId,
       variables: cFormData
     })
@@ -295,10 +245,10 @@ async function handleSubmitUserTask() {
 
 async function handleSubmitServiceTask() {
   const formData = await fromRenderRef.value.getFormData(true, false)
-  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
+  const cFormData = conversionFormDataByVariables(formData, variables.value)
   const data = $api
-    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.id}/execute`, {
-      process_id: detail.process_instance_id,
+    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/execute`, {
+      process_id: taskDetail.value.process_id,
       variables: cFormData
     })
     .then((r: any) => r.data)
@@ -371,11 +321,10 @@ async function handleFormChange() {
 
 async function addTonalSubmit({ formData, booleanValue }: any) {
   state.loading = true
-  if (taskDetail.value?.assignee !== userId) {
+  if (!isAssigneeUser.value) {
     await $api
-      .post(`/oniflow/api/v1/tasks/instance/${taskDetail.value.id}/claim`, {
-        user_id: userId,
-        process_id: taskDetail.process_instance_id
+      .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, {
+        user_id: userId
       })
       .then((res: any) => res.data)
   }
@@ -395,10 +344,11 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
     }
   })
   // conversion FormData
-  const cFormData = conversionFormDataByVariables(formData, workflowJson.value.variables)
+  const cFormData = conversionFormDataByVariables(formData, variables.value)
 
   $api
-    .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.id}/complete`, {
+    .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.db_id}/complete`, {
+      process_id: taskDetail.value.process_id,
       user_id: userId,
       variables: { ...cFormData }
     })
@@ -417,18 +367,8 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
   state.loading = false
 }
 
-const handleTaskInfoChange = async (taskDetailRes: any) => {
-  try {
-    state.taskDetail = { ...taskDetailRes }
-    if (!isAssigneeUser.value) {
-      state.loading = true
-      await handleFormDataGet()
-    } else {
-      fromRenderRef.value.disableForm()
-    }
-  } catch (error) {
-    console.log(error)
-  }
+async function handleTaskInfoChange(taskDetailRes: any) {
+  handleDisabledForm()
 }
 
 function handleBack() {
@@ -456,11 +396,11 @@ onMounted(() => {
 <template>
   <div v-if="!state.error" class="pageContainer--padding workflow-detail">
     <div class="wrapper">
-      <h3>{{ state.title ? state.title : workflowJson.name }}</h3>
+      <h3>{{ state.title }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
-          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="state.taskDetail" :state="workflowType" />
-          <WorkflowDetailInfo v-else :taskDetail="detail" @change="handleTaskInfoChange" />
+          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="taskDetail" :state="workflowType" />
+          <WorkflowDetailInfo v-else :taskDetail="taskDetail" @change="handleTaskInfoChange" />
         </el-tab-pane>
 
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
@@ -475,7 +415,7 @@ onMounted(() => {
             <div v-if="nodeType === CellType.signatureTask" class="toggleFullScreenButton">
               <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
             </div>
-            <ContextFormRender ref="fromRenderRef" :taskDetail="state.taskDetail" @formChange="handleFormChange">
+            <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" @formChange="handleFormChange">
               <template #action>
                 <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
                   <template v-for="(item, index) in additionalButton" :key="index">
@@ -495,7 +435,6 @@ onMounted(() => {
                       {{ $t('workflow_save') }}
                     </template>
                   </el-button>-->
-
                   <el-button
                     v-if="pageButtonSetting && (nodeType !== CellType.signatureTask || signSubmitStage === 'beforeSubmit')"
                     id="Workflow__AvailableTask__Detail__Form__Submit"
@@ -548,24 +487,19 @@ onMounted(() => {
 
         <el-tab-pane :label="$t('workflow_graph')" name="graph">
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
-          <WorkflowDetailGraph
-            v-if="state.activeTab === 'graph'"
-            :processDefinitionId="state.taskDetail?.processDefinitionId || state.taskDetail?.taskInstance?.processDefinitionId"
-            :processDefinitionVersionId="state.taskDetail?.processDefinitionVersionId"
-            :deploymentId="state.taskDetail?.deploymentId || state.taskDetail?.taskInstance?.deploymentId"
-            :steps="state.activityList"
-          />
+          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail" :content-json="contentData" autoplay />
         </el-tab-pane>
 
-        <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && !isMobile" :label="$t('common_discussionChannel')" name="command">
-          <WorkflowDetailDiscussionChannel :id="state.taskDetail.instanceId" :noToggle="true" />
-        </el-tab-pane>
+        <!--  TODO: 該功能是否要保留      -->
+<!--        <el-tab-pane v-if="taskDetail && taskDetail.process_id" :label="$t('common_discussionChannel')" name="command">-->
+<!--          <WorkflowDetailDiscussionChannel :id="taskDetail.process_id" :noToggle="true" />-->
+<!--        </el-tab-pane>-->
       </el-tabs>
     </div>
   </div>
 
   <div v-else>
-    Workflow id not found, workflow id : {{ workflowJson.id }}.
+    Workflow id not found, workflow id : {{ db_id }}.
     <el-button id="Workflow__AvailableTask__Detail__Form__Back" type="primary" @click="handleBack">
       {{ $t('common_back') }}
     </el-button>

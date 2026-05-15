@@ -5,7 +5,7 @@ import type { Graph } from '@antv/x6'
  */
 export type VariableItemType = 'string' | 'number' | 'boolean' | 'date'
 export const VariableItemTag = {
-  string: ['string', 'user', 'file'],
+  string: ['string', 'file'],
   number: ['number'],
   boolean: ['boolean'],
   date: ['date']
@@ -22,13 +22,6 @@ export const VariableTypeOptions = [
         validation: {
           maxLength: 255
         },
-        component: 'ContextVariableDataTypeString'
-      },
-      {
-        label: 'User',
-        type: 'string',
-        tag: 'user',
-        validation: {},
         component: 'ContextVariableDataTypeString'
       },
       {
@@ -98,7 +91,7 @@ export type WorkflowVariablesProvideContext = {
   addVariableItem: (node: any, variableItem: VariableItem) => void
   updateVariableItem: (node: any, variableItem: VariableItem) => void
   deleteVariableItem: (node: any, variableItemId: string) => void
-  getVariablesByType: (typeList?: VariableItemType[], status?: boolean) => VariableSelectItem[]
+  getVariablesByTags: (tagList?: string[], status?: boolean) => VariableSelectItem[]
 }
 
 /**
@@ -155,13 +148,13 @@ export const useVariablesProvide = () => {
   if (!ctx) {
     throw new Error('WorkflowVariablesProvide is not provided')
   }
-  const { variables, addVariableItem, updateVariableItem, deleteVariableItem, getVariablesByType } = ctx
+  const { variables, addVariableItem, updateVariableItem, deleteVariableItem, getVariablesByTags } = ctx
   return {
     variables,
     addVariableItem,
     updateVariableItem,
     deleteVariableItem,
-    getVariablesByType
+    getVariablesByTags
   }
 }
 
@@ -219,15 +212,14 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
 
   /**
    * 根據數據類型返回對應的數據類型
-   * @param typeList 變量的數據類型 VariableItemTag 的子類型
+   * @param tagList 變量的數據類型 VariableItemTag 的子類型
    * @param status 是否是變量
    */
-  function getVariablesByType(typeList?: string[], status = false): VariableSelectItem[] {
-    let list: any
-    if (!!typeList && typeList.length > 0) {
-      list = variables.value.filter((item: VariableItem) => typeList.includes(item.type))
-    } else {
-      list = variables.value
+  function getVariablesByTags(tagList?: string[], status = false): VariableSelectItem[] {
+    let list: VariableItem[] = variables.value
+
+    if (tagList?.length) {
+      list = variables.value.filter((item) => tagList.includes(item.tag))
     }
 
     return list.map((item: VariableItem) => ({
@@ -252,7 +244,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
     addVariableItem,
     updateVariableItem,
     deleteVariableItem,
-    getVariablesByType
+    getVariablesByTags
   })
 
   return {

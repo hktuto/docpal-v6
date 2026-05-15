@@ -2,7 +2,7 @@
 import { newClientApi } from 'api'
 
 const { t } = useI18n()
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
@@ -28,7 +28,10 @@ const { config } = defineProps<{
   }
 }>()
 const stringVariablesList = computed(() => {
-  return getVariablesByType(['string'], true)
+  return getVariablesByTags(['string'], true)
+})
+const fileVariablesList = computed(() => {
+  return getVariablesByTags(['file'], true)
 })
 const formData = ref<{
   body: any
@@ -117,7 +120,7 @@ watch(
     </el-form-item>
     <el-form-item :label="t('File Content Id')">
       <el-select v-model="formData.body.fileContentId" filterable @change="updateData">
-        <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+        <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item :label="t('Creator')">

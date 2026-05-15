@@ -1,7 +1,7 @@
 export const getTaskItemConfig = {
   UserTask: {
     human_task: {
-      assignee: '',
+      assignee: '${__system__user_creator_id}',
       candidate_users: [],
       candidate_roles: [],
       candidate_groups: [],
@@ -127,18 +127,39 @@ export const getTaskItemConfig = {
     output_mapping: {}
   },
   InsertDynamicDatabase: {
-    method: 'POST',
-    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {},
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {}
+    },
     input_mapping: {},
     output_mapping: {}
   },
   UpdateDynamicDatabase: {
-    method: 'PUT',
-    url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
-    headers: generatorHTTPRequestTaskHeaders(),
-    body: {},
+    http_request: {
+      method: 'PUT',
+      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {}
+    },
+    input_mapping: {},
+    output_mapping: {}
+  },
+  EmailTask: {
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/api/dms/facade/email/send`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {
+        tos: [],
+        ccs: [],
+        bcc: [],
+        templateId: '',
+        attachmentsFilePath: '',
+        variables: {}
+      }
+    },
     input_mapping: {},
     output_mapping: {}
   }

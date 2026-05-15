@@ -136,8 +136,6 @@ export enum CellType {
   inclusiveGateway = 'InclusiveGateway',
   transformTask = 'TransformTask',
   HTTPTask = 'HTTPTask',
-  uniqueIdGenerator = 'UniqueIdGenerator',
-  documentGenerationTask = 'DocumentGenerationTask',
 
   // Service
   conditionTask = 'ConditionTask',
@@ -148,7 +146,10 @@ export enum CellType {
   validateTask = 'ValidateTask',
   filingDocuments = 'FilingDocuments',
   insertDynamicDatabase = 'InsertDynamicDatabase',
-  updateDynamicDatabase = 'UpdateDynamicDatabase'
+  updateDynamicDatabase = 'UpdateDynamicDatabase',
+  uniqueIdGenerator = 'UniqueIdGenerator',
+  documentGenerationTask = 'DocumentGenerationTask',
+  emailTask = 'EmailTask'
 }
 
 // 組件Map
@@ -165,15 +166,15 @@ export enum contextMenuComponentType {
   HTTPTask = 'LazyContextHttpTask',
   UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
-
   ValidateTask = 'LazyContextServiceTaskValidate',
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
   SubProcess = 'LazyContextServiceTaskSubProcess',
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration',
   FilingDocuments = 'LazyContextServiceTaskFilingDocuments',
-  InsertDynamicDatabase = 'LazyContextDynamicDatabaseInsert',
-  UpdateDynamicDatabase = 'LazyContextDynamicDatabaseUpdate',
+  InsertDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseInsert',
+  UpdateDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseUpdate',
+  EmailTask = 'LazyContextServiceTaskEmail',
 
   // Condition
   ConditionTask = 'LazyContextCondition',
@@ -601,13 +602,13 @@ export const workflowElement: WorkflowElement = {
         group: '',
         order: 0
       },
-      {
-        id: CellType.messageTask,
-        icon: 'material-symbols:chat-outline',
-        label: 'Message Task',
-        group: '',
-        order: 0
-      },
+      // {
+      //   id: CellType.messageTask,
+      //   icon: 'material-symbols:chat-outline',
+      //   label: 'Message Task',
+      //   group: '',
+      //   order: 0
+      // },
       {
         id: CellType.uploadFile,
         icon: 'material-symbols:upload-file-outline',
@@ -626,6 +627,13 @@ export const workflowElement: WorkflowElement = {
         id: CellType.filingDocuments,
         icon: 'lucide-lab:cabinet-filing',
         label: 'Filing Documents Task',
+        group: '',
+        order: 0
+      },
+      {
+        id: CellType.emailTask,
+        icon: 'ic:outline-email',
+        label: 'Email Task',
         group: '',
         order: 0
       }
@@ -732,7 +740,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   SignatureTask: {
-    ...createNodeShell('New_SignatureTask', 'Signature Task', 'Signature Task', '/icons/form.svg'),
+    ...createNodeShell('New_SignatureTask', 'Signature Task', 'Signature Task', '/icons/signature.svg'),
     data: {
       id: '',
       name: 'Signature Task',
@@ -744,7 +752,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.signatureTask,
         tags: WorkflowElementType.UserTask,
-        icon: '/icons/form.svg',
+        icon: '/icons/signature.svg',
         buttonSetting: {
           showSubmitButton: true,
           submitButtonLabel: 'Submit',
@@ -760,7 +768,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   ExclusiveGateway: {
-    ...createNodeShell('New_ExclusiveGateway', 'Exclusive Gateway', 'New Exclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
+    ...createNodeShell('New_ExclusiveGateway', 'Exclusive Gateway', 'New Exclusive Gateway', '/icons/condition.svg', 260, 64, '#ff8f31', '#fff'),
     data: {
       id: '',
       name: 'Exclusive Gateway',
@@ -773,14 +781,14 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
-        bgColor: '#c9ffb3',
+        bgColor: '#ff8f31',
         textColor: '#fff',
         maxOutgoing: 2
       }
     }
   },
   ParallelGateway: {
-    ...createNodeShell('New_ParallelGateway', 'Parallel Gateway', 'New Parallel Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
+    ...createNodeShell('New_ParallelGateway', 'Parallel Gateway', 'New Parallel Gateway', '/icons/condition.svg', 260, 64, '#ff8f31', '#fff'),
     data: {
       id: '',
       name: 'Parallel Gateway',
@@ -793,14 +801,14 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
-        bgColor: '#c9ffb3',
+        bgColor: '#ff8f31',
         textColor: '#fff',
         maxOutgoing: 50
       }
     }
   },
   InclusiveGateway: {
-    ...createNodeShell('New_InclusiveGateway', 'Inclusive Gateway', 'New Inclusive Gateway', '/icons/condition.svg', 260, 64, '#c9ffb3', '#fff'),
+    ...createNodeShell('New_InclusiveGateway', 'Inclusive Gateway', 'New Inclusive Gateway', '/icons/condition.svg', 260, 64, '#ff8f31', '#fff'),
     data: {
       id: '',
       name: 'Inclusive Gateway',
@@ -813,27 +821,9 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.Gateway,
         icon: '/icons/condition.svg',
         width: 250,
-        bgColor: '#c9ffb3',
+        bgColor: '#ff8f31',
         textColor: '#fff',
         maxOutgoing: 50
-      }
-    }
-  },
-  // Http Task
-  HTTPTask: {
-    ...createNodeShell('New_HTTPTask', 'HTTP Task', 'New HTTP Task', '/icons/http-task.svg'),
-    data: {
-      id: '',
-      name: 'HTTP Task',
-      label: 'New HTTP Task',
-      documentation: '',
-      type: CellType.HTTPTask,
-      execution: { ...DEFAULT_TASK_EXECUTION },
-      config: getTaskItemConfig[CellType.HTTPTask],
-      metadata: {
-        type: CellType.HTTPTask,
-        tags: WorkflowElementType.HTTPRequestTask,
-        icon: '/icons/http-task.svg'
       }
     }
   },
@@ -844,7 +834,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Unique Id Generator',
       label: 'New Unique Id Generator',
       documentation: '',
-      type: CellType.uniqueIdGenerator,
+      type: CellType.serviceTask,
       execution: { ...DEFAULT_TASK_EXECUTION },
       config: getTaskItemConfig[CellType.uniqueIdGenerator],
       metadata: {
@@ -963,7 +953,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   DocumentGenerationTask: {
-    ...createNodeShell('New_DocumentGenerationTask', 'Document Generation Task', 'New Document Generation Task', '/icons/document.svg', 260),
+    ...createNodeShell('New_DocumentGenerationTask', 'Document Generation Task', 'New Document Generation Task', '/icons/reader-PDF.svg', 260),
     data: {
       id: '',
       name: 'Document Generation Task',
@@ -975,7 +965,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.documentGenerationTask,
         tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/document.svg',
+        icon: '/icons/reader-PDF.svg',
         width: 250
       }
     }
@@ -1014,6 +1004,24 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
+  // Http Task
+  HTTPTask: {
+    ...createNodeShell('New_HTTPTask', 'HTTP Task', 'New HTTP Task', '/icons/http-task.svg'),
+    data: {
+      id: '',
+      name: 'HTTP Task',
+      label: 'New HTTP Task',
+      documentation: '',
+      type: WorkflowElementType.HTTPRequestTask,
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      config: getTaskItemConfig[CellType.HTTPTask],
+      metadata: {
+        type: CellType.HTTPTask,
+        tags: WorkflowElementType.HTTPRequestTask,
+        icon: '/icons/http-task.svg'
+      }
+    }
+  },
   InsertDynamicDatabase: {
     ...createNodeShell('New_DynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/insertDatabase.svg', 260),
     data: {
@@ -1049,6 +1057,23 @@ const workflowCellElementTemplate: CellTypeItem = {
         icon: '/icons/updateDatabase.svg',
         width: 260,
         databaseId: ''
+      }
+    }
+  },
+  EmailTask: {
+    ...createNodeShell('New_EmailTask', 'Email Task', 'New Email Task', '/icons/email.svg'),
+    data: {
+      id: '',
+      name: 'Email Task',
+      label: 'New Email Task',
+      documentation: '',
+      type: WorkflowElementType.HTTPRequestTask,
+      config: getTaskItemConfig[CellType.emailTask],
+      execution: { ...DEFAULT_TASK_EXECUTION },
+      metadata: {
+        type: CellType.emailTask,
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/email.svg'
       }
     }
   }

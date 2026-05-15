@@ -2,7 +2,7 @@
 import type { Node } from '@antv/x6'
 import { newClientApi } from 'api'
 
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByTags } = useVariablesProvide()
 const { node, processKey } = defineProps<{
   node: Node
   processKey: string
@@ -10,7 +10,7 @@ const { node, processKey } = defineProps<{
 const emits = defineEmits(['submit'])
 const FormDesignRef = ref()
 const variables = computed(() => {
-  const variableList = getVariablesByType()
+  const variableList = getVariablesByTags()
   return {
     labelKey: 'name',
     nameKey: 'id',

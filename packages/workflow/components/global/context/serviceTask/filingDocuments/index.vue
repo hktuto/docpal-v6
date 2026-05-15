@@ -181,7 +181,7 @@ function handleUpdateFieldData(item: any) {
 watch(
   () => config,
   () => {
-    if (config !== formData.value) {
+    if (JSON.stringify(config.http_request.body) !== JSON.stringify(formData.value)) {
       initForm()
     }
   },
