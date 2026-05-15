@@ -162,6 +162,7 @@ const {
   gridRef,
   refreshTableData,
   updateRow,
+  currentEditing,
   addVirtualColumn,
   addColumnPopoverRef,
   addRow,
@@ -198,6 +199,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     const recordset = gridRef.value.getRecordset()
     const hasChanged = recordset.updateRecords.length > 0
     if (!hasChanged) {
+      emit('exit-edit', params)
       return
     }
     const updateData = {
@@ -208,7 +210,6 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     setLoading(row.id, column.field)
 
     try {
-      console.log('updateRow', row.id, updateData)
       await updateRow(row.id, updateData)
       // Set success state - will auto-clear after delay
       setSuccess(row.id, column.field)
@@ -218,8 +219,9 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       ElMessage.error('Failed to update cell')
     } finally {
       await getAgg()
+      emit('exit-edit', params)
     }
-    emit('edit-closed', params)
+
   },
   'cell-click': (params: any) => {
     emit('cell-click', params)
@@ -235,9 +237,6 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     const { row, column } = params
     console.log('start-edit')
     emit('start-edit', { row, column })
-  },
-  'edit-closed': ({ row, column }: any) => {
-    emit('exit-edit', { row, column })
   },
   columnDragend({ newColumn, oldColumn, dragPos }) {
     const newFullColumn = columns.value.find((item: any) => item.field_name === newColumn.field)
@@ -305,8 +304,13 @@ function handleFinishEdit() {
 const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
+
+  if (currentEditing.value.includes(row.id) ||　!props.canEditTable) {
+    MdFormPopoverRef.value.open(row, 'default')
+    return
+  }
+  MdFormPopoverRef.value.open(row, props.canEditTable ? 'edit' : 'default')
   emit('expand-click', { row, rowIndex })
-  MdFormPopoverRef.value.open(row, 'edit')
 }
 function handleExpandIndexChange(row: any) {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)

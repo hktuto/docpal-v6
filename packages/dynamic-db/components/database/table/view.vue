@@ -119,6 +119,7 @@ function handleCellMouseEnter(params: any) {
   }
 }
 function exitCellEdit(params: any) {
+  console.log("exit edit")
   setAwareness({
     rowId: params.row.id,
     cellId: params.column.field,
@@ -258,7 +259,8 @@ provide('viewTools', {
   saveColumnOrder,
   updateViewFilterSortGroup,
   systemFieldsTypes,
-  tableId
+  tableId,
+  menuId: computed(() => databaseMenuRouteParams.value.detailId)
 })
 
 // Side panel state

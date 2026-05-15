@@ -24,6 +24,7 @@ export interface mdTable {
   updateRow: (rowId: string, data: any) => Promise<boolean>
   addRow: (row: any) => void
   addColumnPopoverRef: Ref<any>
+  currentEditing: Ref<any[]>
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
@@ -31,7 +32,6 @@ export function useMDTable(props: any) {
   const editable = ref(props.editable)
   const gridRef = ref<any>()
   const addColumnPopoverRef = ref()
-  console.log("props.extraColumnConfig", props.extraColumnConfig)
   if(!props.extraColumnConfig.columnFilterRules) {
     props.extraColumnConfig.columnFilterRules = ref({
       conditions: [],
@@ -52,7 +52,8 @@ export function useMDTable(props: any) {
     updateRow,
     deleteRow,
     getTableData,
-    getAggChildData
+    getAggChildData,
+    currentEditing
   } = useTableData(props.tableId, gridRef)
 
   // Get update status helper for cell styling
@@ -71,6 +72,7 @@ export function useMDTable(props: any) {
     },
     gridRef
   )
+
   function clearCheckboxRow() {
     const selectedRows = gridRef.value?.getCheckboxRecords() || []
     if (selectedRows.length > 0) {
@@ -136,7 +138,8 @@ export function useMDTable(props: any) {
     updateRow,
     addRow,
     addColumnPopoverRef,
-    systemFieldsTypes
+    systemFieldsTypes,
+    currentEditing
   })
 
   return {
@@ -148,7 +151,7 @@ export function useMDTable(props: any) {
     refreshTableData,
     tableData,
     editable,
-
+    currentEditing,
     clearCheckboxRow,
     updateExpandedRows,
     addRow,
