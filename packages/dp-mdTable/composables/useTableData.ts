@@ -99,6 +99,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const currentPage = ref(0)
   const viewTools: any = inject('viewTools')
   const databaseHocuspocus: any = inject('databaseHocuspocus', null)
+
   /** 翻页时复用的查询条件（不含 pageNum） */
   const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
   const relationRefreshBus = useEventBus(EventType.RELATION_NEED_REFRESH)
@@ -329,6 +330,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
         Object.assign(row, data)
       }
       if (databaseHocuspocus?.broadcastChange && viewTools?.menuId) {
+
         databaseHocuspocus.broadcastChange({
           type: 'row_updated',
           rowId,
@@ -397,6 +399,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   function handleRemoteChangeEvent(event: any) {
     const { change, userName } = event
     const currentMenuId = getCurrentMenuId()
+    console.log('handleRemoteChangeEvent', event)
     if (!currentMenuId || change.menuId !== currentMenuId) return
 
     switch (change.type) {
@@ -444,7 +447,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   let stopRemoteChanges = () => {}
   if (databaseHocuspocus?.remoteChanges) {
     const unwatch = watch(
-      () => databaseHocuspocus.remoteChanges.value,
+      () => databaseHocuspocus.remoteChanges,
       (events: any[]) => {
         if (!events || events.length === 0) return
         for (const event of events) {

@@ -236,9 +236,6 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     console.log('start-edit')
     emit('start-edit', { row, column })
   },
-  'edit-closed': ({ row, column }: any) => {
-    emit('exit-edit', { row, column })
-  },
   columnDragend({ newColumn, oldColumn, dragPos }) {
     const newFullColumn = columns.value.find((item: any) => item.field_name === newColumn.field)
     const oldFullColumn = columns.value.find((item: any) => item.field_name === oldColumn.field)

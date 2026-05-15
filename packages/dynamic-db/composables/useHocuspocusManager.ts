@@ -332,9 +332,9 @@ export function useHocuspocusManager() {
     const provider = providers.get(roomName)
     if (!provider) return
     provider.awareness.setLocalStateField('changes', changes)
-    setTimeout(() => {
-      provider.awareness.setLocalStateField('changes', undefined)
-    }, 3000)
+    // setTimeout(() => {
+    //   provider.awareness.setLocalStateField('changes', undefined)
+    // }, 3000)
   }
 
   return {

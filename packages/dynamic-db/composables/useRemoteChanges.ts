@@ -28,6 +28,7 @@ export function useRemoteChanges(roomName: string) {
         })
       }
     }
+    console.log("remoteChanges", events)
     return events
   })
 
