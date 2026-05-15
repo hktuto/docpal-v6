@@ -16,9 +16,21 @@ export interface AwarenessFocus {
   status?: 'editing' | 'saved'
 }
 
+export interface AwarenessChange {
+  id: string
+  type: 'row_updated' | 'row_created' | 'row_deleted' | 'rows_deleted'
+  rowId?: string
+  rowIds?: string[]
+  tableId: string
+  menuId: string
+  timestamp: number
+  userId: string
+}
+
 export interface AwarenessState {
   user?: AwarenessUser
   focus?: AwarenessFocus
+  changes?: AwarenessChange[]
 }
 
 export interface UpdatedRow {
@@ -316,6 +328,15 @@ export function useHocuspocusManager() {
     provider.awareness.setLocalStateField('focus', undefined)
   }
 
+  function broadcastChanges(roomName: string, changes: AwarenessChange[]) {
+    const provider = providers.get(roomName)
+    if (!provider) return
+    provider.awareness.setLocalStateField('changes', changes)
+    setTimeout(() => {
+      provider.awareness.setLocalStateField('changes', undefined)
+    }, 3000)
+  }
+
   return {
     rooms: readonly(rooms),
     roomMeta,
@@ -327,6 +348,7 @@ export function useHocuspocusManager() {
     getRoomState,
     setFocus,
     clearFocus,
+    broadcastChanges,
     isConnected
   }
 }

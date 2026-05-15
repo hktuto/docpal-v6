@@ -1,6 +1,7 @@
 // composables/useTableData.ts
-import { ref, computed, provide, inject, onBeforeUnmount, type Ref, type InjectionKey, type ComputedRef } from 'vue'
+import { ref, computed, provide, inject, onBeforeUnmount, watch, type Ref, type InjectionKey, type ComputedRef } from 'vue'
 import { newClientApi, postDynamicActions } from 'api'
+import { ElNotification } from 'element-plus'
 import { EventType, useEventBus } from 'eventbus'
 import { updateRelationFields } from '../utils/relationHelper'
 // import { createGroupTree } from '../utils/treeDataHelper'
@@ -97,6 +98,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const loadingMore = ref(false)
   const currentPage = ref(0)
   const viewTools: any = inject('viewTools')
+  const databaseHocuspocus: any = inject('databaseHocuspocus', null)
   /** 翻页时复用的查询条件（不含 pageNum） */
   const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
   const relationRefreshBus = useEventBus(EventType.RELATION_NEED_REFRESH)
@@ -121,6 +123,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
   onBeforeUnmount(() => {
     stopRelationRefresh()
+    stopRemoteChanges()
   })
 
   /**
@@ -295,6 +298,15 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
    */
   const addRow = async (row: any) => {
     const { data } = await newClientApi.postDynamicDbTableTableidData(tableId, { data: row })
+    const newRowId = data?.data?.id || data?.id
+    if (databaseHocuspocus?.broadcastChange && viewTools?.menuId) {
+      databaseHocuspocus.broadcastChange({
+        type: 'row_created',
+        rowId: newRowId,
+        tableId,
+        menuId: viewTools.menuId.value || viewTools.menuId
+      })
+    }
     gridRef.value?.commitProxy('reload')
   }
   function queryRecordById(id: string) {
@@ -316,6 +328,14 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       if (row) {
         Object.assign(row, data)
       }
+      if (databaseHocuspocus?.broadcastChange && viewTools?.menuId) {
+        databaseHocuspocus.broadcastChange({
+          type: 'row_updated',
+          rowId,
+          tableId,
+          menuId: viewTools.menuId.value || viewTools.menuId
+        })
+      }
       return true
     } catch (error) {
       gridRef.value?.commitProxy('reload')
@@ -331,11 +351,109 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     try {
       const ids = Array.isArray(rowid) ? rowid : [rowid]
       await newClientApi.deleteDynamicDbTableTableidDataBatch(tableId, { ids })
+      if (databaseHocuspocus?.broadcastChange && viewTools?.menuId) {
+        const menuId = viewTools.menuId.value || viewTools.menuId
+        if (ids.length > 1) {
+          databaseHocuspocus.broadcastChange({
+            type: 'rows_deleted',
+            rowIds: ids,
+            tableId,
+            menuId
+          })
+        } else {
+          databaseHocuspocus.broadcastChange({
+            type: 'row_deleted',
+            rowId: ids[0],
+            tableId,
+            menuId
+          })
+        }
+      }
       gridRef.value?.commitProxy('reload')
       return true
     } catch (error) {
       return false
     }
+  }
+
+  async function fetchRowById(rowId: string) {
+    try {
+      const { data } = await postDynamicActions({
+        tableId,
+        conditions: [{ column: 'id', type: 'EQ', value: rowId }],
+        columns: [{ name: '*' }]
+      })
+      return data.data?.[0] || null
+    } catch {
+      return null
+    }
+  }
+
+  function getCurrentMenuId(): string | undefined {
+    const m = viewTools?.menuId
+    return m?.value || m
+  }
+
+  function handleRemoteChangeEvent(event: any) {
+    const { change, userName } = event
+    const currentMenuId = getCurrentMenuId()
+    if (!currentMenuId || change.menuId !== currentMenuId) return
+
+    switch (change.type) {
+      case 'row_updated': {
+        const row = tableData.value.find((r) => r.id === change.rowId)
+        if (row) {
+          fetchRowById(change.rowId).then((liveRow) => {
+            if (liveRow) {
+              Object.assign(row, liveRow)
+            }
+          })
+        }
+        break
+      }
+      case 'row_deleted': {
+        const row = tableData.value.find((r) => r.id === change.rowId)
+        if (row) {
+          row.__deleted = true
+        }
+        break
+      }
+      case 'rows_deleted': {
+        const ids = change.rowIds || []
+        for (const row of tableData.value) {
+          if (ids.includes(row.id)) {
+            row.__deleted = true
+          }
+        }
+        break
+      }
+      case 'row_created': {
+        const exists = tableData.value.some((r) => r.id === change.rowId)
+        if (!exists) {
+          ElNotification({
+            title: 'New Record',
+            message: `${userName || 'Someone'} created a new row`,
+            type: 'info'
+          })
+        }
+        break
+      }
+    }
+  }
+
+  let stopRemoteChanges = () => {}
+  if (databaseHocuspocus?.remoteChanges) {
+    const unwatch = watch(
+      () => databaseHocuspocus.remoteChanges.value,
+      (events: any[]) => {
+        if (!events || events.length === 0) return
+        for (const event of events) {
+          handleRemoteChangeEvent(event)
+        }
+      },
+      { deep: true }
+    )
+    stopRemoteChanges = unwatch
   }
 
   provide(TableDataContextKey, {
