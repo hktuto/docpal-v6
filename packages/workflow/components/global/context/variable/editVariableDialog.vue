@@ -103,7 +103,7 @@ function typeChanged(displayType: string) {
       name: formData.value.name,
       type: Object.entries(VariableItemDisplayType).find(([, arr]) => arr.includes(displayType))?.[0] || 'string',
       display_type: displayType,
-      required: false,
+      required: formData.value.required,
       validation: typeObject.validation
     }
     editComponent.value = resolveComponent(typeObject.component)

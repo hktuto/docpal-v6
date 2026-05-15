@@ -8,7 +8,7 @@ const { node } = defineProps<{
 }>()
 const { t } = useI18n()
 const emits = defineEmits(['openForm'])
-const { variables } = useVariablesProvide()
+const { variables, getVariablesByTags } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('provider not found')
@@ -26,6 +26,14 @@ const contextFormFieldManageDialogRef = ref()
 const formKey = ref<string>('')
 const formField = ref<any[]>([])
 const formJson = ref({})
+const variablesData = computed(() => {
+  const variableList = getVariablesByTags()
+  return {
+    labelKey: 'name',
+    nameKey: 'id',
+    data: variableList.filter((item) => !item.id.startsWith('__system__'))
+  }
+})
 
 function initData() {
   const data = node.getData()
@@ -162,7 +170,7 @@ watch(
   </el-form>
 
   <LazyContextFormFieldManageDialog ref="contextFormFieldManageDialogRef" :form-field="formField" @updateFormField="handleUpdateFormField" />
-  <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" @submit="handelSubmitForm" />
+  <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variablesData" :processKey="workflowKey" @submit="handelSubmitForm" />
   <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
     <LazyContextFormRender ref="fromRenderRef" />
   </el-dialog>

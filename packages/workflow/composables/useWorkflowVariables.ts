@@ -24,7 +24,6 @@ export const VariableTypeOptions = [
         type: 'string',
         display_type: 'text',
         validation: {
-          pattern: '',
           max_length: 255
         },
         component: 'ContextVariableDataTypeString'
@@ -34,7 +33,6 @@ export const VariableTypeOptions = [
         type: 'string',
         display_type: 'file',
         validation: {
-          pattern: ''
         },
         component: 'ContextVariableDataTypeString'
       },

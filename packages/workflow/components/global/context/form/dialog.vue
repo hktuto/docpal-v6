@@ -2,21 +2,13 @@
 import type { Node } from '@antv/x6'
 import { newClientApi } from 'api'
 
-const { getVariablesByTags } = useVariablesProvide()
-const { node, processKey } = defineProps<{
+const { node, processKey, variables } = defineProps<{
   node: Node
   processKey: string
+  variables: any
 }>()
 const emits = defineEmits(['submit'])
 const FormDesignRef = ref()
-const variables = computed(() => {
-  const variableList = getVariablesByTags()
-  return {
-    labelKey: 'name',
-    nameKey: 'id',
-    data: variableList.filter((item) => !item.id.startsWith('__system__'))
-  }
-})
 const formDialogVisible = ref(false)
 const oldJson = ref({})
 

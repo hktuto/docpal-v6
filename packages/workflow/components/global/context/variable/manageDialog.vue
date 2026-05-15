@@ -26,10 +26,6 @@ function openNewFieldDialog() {
   FormDialogRef.value?.handleOpen()
 }
 
-function handleDblclick(row: any) {
-  FormDialogRef.value?.handleOpen(row)
-}
-
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'WorkflowVariableManage',
   zoom: false,
@@ -97,6 +93,10 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   },
   saveColumnOrder: false
 })
+
+function handleDblclick(row: any) {
+  FormDialogRef.value?.handleOpen(row)
+}
 
 defineExpose({
   open
