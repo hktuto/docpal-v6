@@ -135,15 +135,15 @@ export type WorkflowVariablesProvideContext = {
 }
 
 /**
- * When submitting data, the data format of formData is forced to be converted according to the data type of Variables.
+ * When submitting data, the data format of formData is forced to be converted according to the data type of form Fields.
  *
  * @param formData formData original data
- * @param variables variables object
+ * @param formFields form Fields
  */
-export function conversionFormDataByVariables(formData: any, variables: any) {
+export function conversionFormDataByVariables(formData: any, formFields: VariableItem[]) {
   try {
-    const variableSchema = Object.entries(variables).reduce((acc: any, [key, value]) => {
-      acc[key] = { type: value?.type }
+    const variableSchema = formFields.reduce((acc: any, item: VariableItem) => {
+      acc[item.id] = { type: item.type }
       return acc
     }, {})
 
