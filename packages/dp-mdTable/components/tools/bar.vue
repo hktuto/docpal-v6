@@ -13,8 +13,7 @@
       <ToolsFilterButton :disabled="disabled" :available-columns="columns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
       <ToolsSortButton :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
-        <el-button v-if="showAddRowButton" type="primary" @click="handleAddRow">
-          <el-icon><Plus /></el-icon>
+        <el-button v-if="showAddRowButton" :icon="Plus" type="primary" @click="handleAddRow">
           Add Row
         </el-button>
       </slot>

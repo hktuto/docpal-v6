@@ -25,6 +25,7 @@ const emit = defineEmits<{
 }>()
 
 const { columns, tableFields, tableData, columnGroupRules, getAggChildData } = useMDCardInject()
+const { t } = useI18n()
 
 const groupChildren = ref<Record<string, any[]>>({})
 const expandedGroupKeys = ref<string[]>([])
@@ -44,7 +45,7 @@ const activeGroupColumn = computed(() => {
 })
 const activeGroupTitle = computed(() => {
   const column = activeGroupColumn.value
-  return column?.field_name_alias || column?.title || activeGroupField.value || '分组'
+  return column?.field_name_alias || column?.title || activeGroupField.value || undefined
 })
 
 function getGroupKey(row: any, index: number) {
@@ -157,11 +158,11 @@ defineExpose({
               />
             </div>
           </div>
-          <el-empty v-else-if="!isGroupLoading(group, groupIndex)" class="md-card-group-empty" description="暂无记录" />
+          <el-empty v-else-if="!isGroupLoading(group, groupIndex)" class="md-card-group-empty" :description="t('mdTable.cardGroup.emptyChildren')" />
         </div>
       </section>
     </template>
-    <el-empty v-else description="暂无分组" />
+    <el-empty v-else :description="t('mdTable.cardGroup.emptyGroups')" />
   </div>
 </template>
 

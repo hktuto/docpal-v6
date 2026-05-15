@@ -10,20 +10,23 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: '分组',
   value: '',
   count: undefined,
   expanded: false,
   loading: false
 })
 
+const { t } = useI18n()
+
 const emit = defineEmits<{
   toggle: []
 }>()
 
+const displayTitle = computed(() => props.title ?? t('mdTable.cardGroup.defaultTitle'))
+
 const displayValue = computed(() => {
   if (props.value === null || props.value === undefined || props.value === '') {
-    return '空'
+    return t('mdTable.cardGroup.emptyValue')
   }
   return String(props.value)
 })
@@ -32,7 +35,15 @@ const countText = computed(() => {
   if (props.count === null || props.count === undefined || props.count === '') {
     return ''
   }
-  return `${props.count} 条`
+  return t('mdTable.cardGroup.recordCount', { count: props.count })
+})
+
+const groupHeaderAriaLabel = computed(() => {
+  const parts = [displayTitle.value, displayValue.value]
+  if (countText.value) {
+    parts.push(countText.value)
+  }
+  return parts.join(', ')
 })
 
 function handleToggle() {
@@ -41,12 +52,20 @@ function handleToggle() {
 </script>
 
 <template>
-  <button type="button" class="md-card-group-header" :aria-expanded="expanded" @click="handleToggle">
+  <button
+    type="button"
+    class="md-card-group-header"
+    :aria-expanded="expanded"
+    :aria-label="groupHeaderAriaLabel"
+    tabindex="0"
+    @click="handleToggle"
+    @keydown.enter="handleToggle"
+  >
     <el-icon class="group-toggle-icon" :class="{ 'is-loading': loading, 'is-expanded': !loading && expanded }">
       <Loading v-if="loading" />
       <ArrowRight v-else />
     </el-icon>
-    <span class="group-title">{{ title }}</span>
+    <span class="group-title">{{ displayTitle }}</span>
     <span class="group-value">{{ displayValue }}</span>
     <span v-if="countText" class="group-count">{{ countText }}</span>
   </button>
