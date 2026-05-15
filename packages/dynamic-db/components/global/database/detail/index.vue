@@ -90,59 +90,6 @@ provide('databaseHocuspocus', {
   connect
 })
 
-// Responsive sidebar state
-const pageContainerRef = ref<HTMLElement | null>(null)
-const isSidebarOpen = ref(true) // Sidebar visibility state (for mobile toggle)
-const isMobileView = ref(false)
-
-// Check container size on mount and resize
-function checkContainerSize() {
-  if (!pageContainerRef.value) return
-
-  const containerWidth = pageContainerRef.value.offsetWidth
-  const wasMobile = isMobileView.value
-  isMobileView.value = containerWidth < 800
-
-  // Auto-close sidebar when transitioning to mobile
-  if (!wasMobile && isMobileView.value) {
-    isSidebarOpen.value = false
-  }
-  // Auto-open sidebar when transitioning to desktop
-  if (wasMobile && !isMobileView.value) {
-    isSidebarOpen.value = true
-  }
-}
-
-onMounted(() => {
-  // Initial check
-  nextTick(() => {
-    checkContainerSize()
-  })
-
-
-  // Use ResizeObserver to detect container size changes
-  if (pageContainerRef.value) {
-    const resizeObserver = new ResizeObserver(checkContainerSize)
-    resizeObserver.observe(pageContainerRef.value)
-
-    onUnmounted(() => {
-      resizeObserver.disconnect()
-    })
-  }
-})
-
-// Toggle sidebar
-function toggleSidebar() {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
-
-// Close sidebar on mobile when navigating
-function closeSidebarOnMobile() {
-  if (isMobileView.value) {
-    isSidebarOpen.value = false
-  }
-}
-
 function openSetting() {
   if (!canManageDatabase.value) {
     ElMessage.warning('You do not have permission to access settings')
@@ -184,12 +131,6 @@ const detailComponent = computed(() => {
   }
 })
 
-// Expose toggle function and state to child components
-provide('isSidebarOpen', readonly(isSidebarOpen))
-provide('isMobileView', readonly(isMobileView))
-provide('toggleSidebar', toggleSidebar)
-
-
 watch(
   props,
   async () => {
@@ -209,21 +150,14 @@ watch(
 </script>
 
 <template>
-  <div
-    ref="pageContainerRef"
-    class="page-container"
-    :class="{
-      'is-mobile': isMobileView,
-      'sidebar-open': isSidebarOpen
-    }"
-  >
+  <div class="page-container">
     <template v-if="!database">
       <NuxtLoadingIndicator />
     </template>
     <template v-else>
-      <el-splitter v-if="!isMobileView">
+      <el-splitter>
         <el-splitter-panel size="220">
-          <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
+          <aside class="sidebar">
             <DatabaseMenuHeader />
             <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="canManageDatabase" />
           </aside>
@@ -232,9 +166,7 @@ watch(
           <main class="main-content">
             <DatabaseDetailHeader>
               <template #left>
-                <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
-                  <Icon name="lucide:menu" size="20" />
-                </button>
+                <div />
               </template>
               <template #right>
                 <div id="database-table-header-right" />
@@ -258,50 +190,12 @@ watch(
           </main>
         </el-splitter-panel>
       </el-splitter>
-      <template v-else>
-        <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
-          <DatabaseMenuHeader />
-          <DatabaseMenu :workspace-id="database?.id" :initialMenu="[]" :is-admin="canManageDatabase" />
-        </aside>
-        <main class="main-content">
-          <DatabaseDetailHeader>
-            <template #left>
-              <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
-                <Icon name="lucide:menu" size="20" />
-              </button>
-            </template>
-            <template #right>
-              <div id="database-table-header-right" />
-
-              <div class="connection-status" :class="{ 'is-online': connected }">
-                <span class="connection-dot" />
-                <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
-                <button v-if="!connected" class="connection-btn" @click="connect">Connect</button>
-              </div>
-              <DatabaseAwarenessAvatars />
-              <template v-if="databaseMenuRouteParams.pageType !== 'setting' && canOpenSetting">
-                <Icon name="lucide:settings" class="header-action" @click="openSetting" />
-              </template>
-              <template v-if="databaseMenuRouteParams.pageType === 'setting'  && canOpenSetting">
-                <Icon name="lucide:table" class="header-action" @click="openDetail" />
-              </template>
-            </template>
-          </DatabaseDetailHeader>
-          <div class="content-area">
-            <component :is="detailComponent" :is-admin="canManageDatabase" />
-          </div>
-        </main>
-        <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />
-      </template>
-      <!-- Single layout structure - CSS handles responsive behavior -->
-
       <DatabaseMenuActions ref="menuActionsRef" />
     </template>
   </div>
 </template>
 
 <style lang="scss">
-
 </style>
 <style lang="scss" scoped>
 .page-container {
@@ -375,88 +269,6 @@ watch(
 
   &:hover {
     color: var(--app-grey-300);
-  }
-}
-
-.menu-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: var(--el-border-radius-base);
-  color: var(--app-grey-400);
-
-  &:hover {
-    background: var(--app-grey-800);
-    color: var(--app-grey-200);
-  }
-}
-
-// ============================================
-// Sidebar backdrop (mobile)
-// ============================================
-.sidebar-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999;
-}
-
-// ============================================
-// Mobile responsive styles
-// ============================================
-.page-container.is-mobile {
-  .layout-wrapper {
-    display: block;
-    position: relative;
-  }
-
-  .sidebar {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 1000;
-    transform: translateX(-100%);
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-
-    &.is-open {
-      width: 220px;
-      transform: translateX(0);
-    }
-  }
-
-  .resize-handle {
-    display: none;
-  }
-
-  .main-content {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-}
-
-// ============================================
-// Desktop styles (hide mobile-only elements)
-// ============================================
-.page-container:not(.is-mobile) {
-  .menu-toggle-btn {
-    display: none;
-  }
-
-  .sidebar-backdrop {
-    display: none;
   }
 }
 

@@ -15,6 +15,7 @@
         :data="tableData"
         :loading="loading"
         height="100%"
+        @page-change="handlePageChange"
       />
     </div>
   </DashboardCard>
@@ -41,6 +42,8 @@ const emit = defineEmits(['delete', 'refreshSetting'])
 
 const tableData = ref<any[]>([])
 const loading = ref(false)
+const currentPage = ref(1)
+const total = ref(0)
 const gridRef = ref()
 const settingRef = ref()
 const cardRef = ref()
@@ -83,7 +86,12 @@ const gridOptions = computed<VxeGridProps>(() => {
     showOverflow: true,
     size: 'small',
     columns,
-    pagerConfig: { enabled: false }
+    pagerConfig: {
+      enabled: true,
+      currentPage: currentPage.value,
+      pageSize: props.setting?.rowLimit || 10,
+      total: total.value
+    }
   }
 })
 
@@ -104,16 +112,23 @@ async function fetchData() {
       orderBy,
       pagination: {
         pageSize: props.setting?.rowLimit || 10,
-        pageNum: 1
+        pageNum: currentPage.value
       }
     })
     tableData.value = data?.data || []
+    total.value = data?.meta?.total || 0
   } catch (error) {
     console.error('Failed to fetch table data:', error)
     tableData.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }
+}
+
+function handlePageChange({ currentPage: page }: any) {
+  currentPage.value = page
+  fetchData()
 }
 
 function handleDelete() {
@@ -121,6 +136,7 @@ function handleDelete() {
 }
 
 function handleRefresh(newSetting: any) {
+  currentPage.value = 1
   emit('refreshSetting', newSetting)
 }
 
@@ -135,6 +151,7 @@ watch(
 watch(
   () => [props.setting?.tableId, props.setting?.rowLimit, props.setting?.sortField, props.setting?.sortOrder],
   () => {
+    currentPage.value = 1
     fetchData()
   },
   { immediate: true }
