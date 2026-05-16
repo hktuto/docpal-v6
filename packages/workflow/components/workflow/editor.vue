@@ -314,15 +314,19 @@ function pasteForm(node: Node) {
   graph.value?.stopBatch('update-from-data')
 }
 
-function updateActivate(newWorkflowJson: any) {
-  workflowJson.value = newWorkflowJson
+function updateActivate() {
   emits('updateActivate')
+}
+
+function updateWorkflowJson(newWorkflowJson: any) {
+  workflowJson.value = newWorkflowJson
 }
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
   workflowId,
   workflowKey,
   workflowJson,
+  updateWorkflowJson,
   graph,
   copyKey,
   readonly,
@@ -350,7 +354,6 @@ defineExpose({ init, workflowJson })
         <div v-if="!readonly" class="group">
           <ToolbarHistory :workflowId="workflowId" :isActivate="isActivate" @update-activate="updateActivate" />
           <ToolbarInfo @click="openInfo" />
-          <!--          <WorkflowToolbarPermission @click="openPermission" />-->
         </div>
         <div v-if="!readonly" class="group">
           <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers" @mousedown.native="(ev) => itemDrop(item, ev)">

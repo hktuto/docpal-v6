@@ -23,7 +23,7 @@ async function save() {
   // 修改時，檢查是否已激活
   if (isActivate) {
     await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data)
-    emits('updateActivate', workflowJson)
+    emits('updateActivate')
   }
 
   // update workflow Json Data
@@ -32,6 +32,7 @@ async function save() {
   } catch (e) {
     console.log(e)
   }
+  graphProvider.updateWorkflowJson(workflowJson)
 }
 
 function setupHistory() {

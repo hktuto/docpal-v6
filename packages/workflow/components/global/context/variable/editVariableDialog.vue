@@ -107,6 +107,7 @@ function typeChanged(displayType: string) {
       name: formData.value.name,
       type: (Object.entries(VariableItemDisplayType).find(([, arr]) => arr.includes(displayType))?.[0] as VariableItemType) || ('string' as VariableItemType),
       display_type: displayType,
+      default_value: formData.value.default_value,
       required: formData.value.required,
       validation: typeObject.validation
     }

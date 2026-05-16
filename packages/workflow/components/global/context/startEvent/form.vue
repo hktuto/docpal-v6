@@ -58,8 +58,8 @@ async function editForm() {
   formDialogRef.value.openDialog(formJson.value)
 }
 
-function handelSubmitForm(data: { id: string; slotMap: string[] }) {
-  formKey.value = data.id
+function handelSubmitForm(id: string) {
+  formKey.value = id
   update()
 }
 
@@ -67,7 +67,7 @@ async function getFormJson() {
   formJson.value = {}
   try {
     if (!!formKey.value && formKey.value !== '') {
-      const data: any = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
+      const data: any = await newClientApi.getDmsFormPropertiesId(Number(formKey.value)).then((r) => r.data)
       if (!data) return {}
       formJson.value = data.jsonValue
     }

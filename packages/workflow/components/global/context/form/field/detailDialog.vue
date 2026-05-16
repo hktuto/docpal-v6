@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { VariableTypeOptions, type VariableSelectItem } from '#imports'
+import { VariableTypeOptions, type VariableSelectItem, type VariableItem } from '#imports'
 import { VariableItemDisplayType } from '@packages/workflow/composables/useWorkflowVariables'
 
 const editComponent = ref()
 const visible = ref(false)
 const emits = defineEmits(['update'])
-const field = ref<VariableSelectItem>()
+const field = ref<VariableItem>()
 
-function open(row: VariableSelectItem) {
+function open(row: VariableItem) {
   visible.value = true
   field.value = row
   typeChanged(row.display_type)
@@ -31,6 +31,7 @@ function typeChanged(displayType: string) {
       name: field.value.name,
       type: (Object.entries(VariableItemDisplayType).find(([, arr]) => arr.includes(displayType))?.[0] as VariableItemType) || ('string' as VariableItemType),
       display_type: displayType,
+      default_value: field.value.default_value,
       required: field.value.required,
       validation: typeObject.validation
     }

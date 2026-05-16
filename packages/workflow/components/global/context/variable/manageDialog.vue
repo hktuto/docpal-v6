@@ -2,6 +2,7 @@
 import type { Node } from '@antv/x6'
 import { ElMessageBox } from 'element-plus'
 
+const routerProvider = inject(MenuRouterKey)
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
