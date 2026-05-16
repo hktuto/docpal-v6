@@ -55,12 +55,12 @@ async function getDetail() {
       return
     }
     taskDetail.value = data
-    state.title = data.config.human_task.form_title || data.name
+    state.title = data.config?.human_task?.form_title || data.name
+    variables.value = data.config?.human_task?.form_fields || []
 
     const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data.data)
     variablesData.value = instanceData.variables || {}
     contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data.data)
-    variables.value = contentData.value.variables
 
     if (data.config?.human_task?.assignee === userId) {
       isAssigneeUser.value = true
