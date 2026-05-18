@@ -292,6 +292,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       conditions: []
     }
     const _level = row.__level
+    const currentColumn = columnGroupRules.value[_level]
     const nextColumn = columnGroupRules.value[_level + 1]
     let basicParams: any = {}
     if (nextColumn) {
@@ -330,16 +331,28 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
           acc[condition.column] = condition.value
           return acc
         }, {})
-        return data.data.map((item: any) => ({
+        const newData = data.data.map((item: any) => ({
           ...item,
-          hasChild: !!nextColumn,
-          ...extraData
+          hasChild: true,
+          ...extraData,
+          id: getRowIdForGroup({ ...item, ...extraData }, _level + 1, columnGroupRules.value)
         }))
+        return newData
       }
       return data.data
     } catch (error) {
       console.error('getAggChildData error', error)
     }
+  }
+  function getRowIdForGroup(row: any, level: number, groupRules: any[]) {
+    let id = ''
+    for (let i = 0; i < level + 1; i++) {
+      id += row[groupRules[i].field]
+      if (i < level) {
+        id += '-'
+      }
+    }
+    return id
   }
   /**
    * 刷新数据
@@ -508,9 +521,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       groupChildren?: Ref<Record<string, any[]>>
     } = {}
   ) {
-
     const rules = viewTools?.columnGroupRules?.value
-    console.log("syncRowAndGroupAncestors", rowId, rules)
+    console.log('syncRowAndGroupAncestors', rowId, rules)
     if (!rules?.length) {
       // when no group, update table data directly
       const row = tableData.value.find((r) => r.id === rowId)
@@ -529,7 +541,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
 
     const liveRow = await fetchRowById(rowId)
-    console.log("live row", liveRow)
+    console.log('live row', liveRow)
     if (!liveRow) {
       return null
     }
@@ -538,10 +550,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     const grid = options.gridRef?.value
     if (grid) {
       const fullData = grid.getTableData?.()?.fullData || []
-      console.log("full data", fullData)
+      console.log('full data', fullData)
       treeResult = findRowAndAncestors(fullData, rowId)
       if (treeResult?.row) {
-        console.log("tree result", treeResult)
+        console.log('tree result', treeResult)
         Object.assign(treeResult.row, liveRow)
       }
     }
