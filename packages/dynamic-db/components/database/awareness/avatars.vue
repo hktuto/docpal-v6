@@ -13,7 +13,7 @@ const hocuspocus = inject<HocuspocusInject>('databaseHocuspocus', {
 })
 
 const filteredStates = computed(() => {
-  const detailId = databaseMenuRouteParams.value.detailId
+  const detailId = databaseMenuRouteParams.value.tableId || databaseMenuRouteParams.value.detailI
   if (!hocuspocus.awarenessStates.value) return []
   if(!detailId) return hocuspocus.awarenessStates.value.filter(
     (s) => s.focus?.menuId
