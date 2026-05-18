@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
+
 const platform = useAppPlatform()
 const { t } = useI18n()
 const { state, handleSubmit, handleOpen } = useDashboardSetting({
@@ -16,24 +18,30 @@ const userId: string = useUserId().value
 async function handleWorkflowChange(processId: string) {
   state.setting.columns = []
   state.setting.steps = []
-  const selectedWorkflowData = workflowList.value.find((item: any) => item.process_id === processId)
-  if (!selectedWorkflowData) return
+  try {
+    const selectedWorkflowData = workflowList.value.find((item: any) => item.process_id === processId)
+    if (!selectedWorkflowData) return
+    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${processId}`).then((r: any) => workflowResponseHelper(r))
+    const data = await $api
+      .get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`)
+      .then((r: any) => workflowResponseHelper(r))
 
-  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${processId}`).then((r: any) => r.data.data)
-  console.log(123, data)
-  return
-  const workflowJson = data.content
-  const userNodes: any[] = workflowJson.nodes.filter((node: any) => node.type === CellType.userTask)
-  availableSteps.value = userNodes
+    const userNodes: any[] = data.nodes.filter((node: any) => node.type.type === CellType.userTask.toLowerCase())
+    availableSteps.value = userNodes
 
-  const allFormInfo = new Map()
-  userNodes.reduce((prev: any[], item: any) => {
-    item.config.human_task.form_fields.forEach((f: any) => {
-      allFormInfo.set(f.id, f)
-    })
-    return prev
-  }, [])
-  workflowColumns.value = Array.from(allFormInfo.values())
+    const allFormInfo = new Map()
+    userNodes.reduce((prev: any[], item: any) => {
+      item.config.human_task.form_fields.forEach((f: any) => {
+        allFormInfo.set(f.id, f)
+      })
+      return prev
+    }, [])
+
+
+    workflowColumns.value = Array.from(allFormInfo.values())
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function beforeOpen(setting) {
@@ -50,10 +58,8 @@ async function beforeOpen(setting) {
 }
 
 async function getWorkflowTask() {
-  const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
-  if (data.code === 200) {
-    workflowList.value = data.task || []
-  }
+  const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => workflowResponseHelper(r))
+  workflowList.value = data || []
 }
 
 onMounted(async () => {
