@@ -24,7 +24,7 @@ const emit = defineEmits<{
   'row-context-menu': [row: any, event: MouseEvent]
 }>()
 
-const { columns, tableFields, tableData, columnGroupRules, getAggChildData } = useMDCardInject()
+const { columns, tableFields, tableData, columnGroupRules, getAggChildData, syncRowAndGroupAncestors } = useMDCardInject()
 const { t } = useI18n()
 
 /** 用于丢弃过期的列表刷新请求（快速连刷或切换分组时） */
@@ -81,12 +81,8 @@ function getGroupCount(row: any) {
   return row?.__count ?? row?.count ?? ''
 }
 
-function updateRow(rowId: string, data: any) {
-  const nextGroupChildren = Object.entries(groupChildren.value).reduce<Record<string, any[]>>((acc, [key, rows]) => {
-    acc[key] = rows.map((row) => (row?.id === rowId ? { ...row, ...data } : row))
-    return acc
-  }, {})
-  groupChildren.value = nextGroupChildren
+async function syncAfterEdit(rowId: string) {
+  await syncRowAndGroupAncestors(rowId, { groupChildren })
 }
 
 function isGroupExpanded(row: any) {
@@ -198,7 +194,7 @@ watch(
 )
 
 defineExpose({
-  updateRow
+  syncAfterEdit
 })
 </script>
 

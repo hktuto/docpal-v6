@@ -19,8 +19,25 @@ export const MdCountKey: InjectionKey<MdCountContext> = Symbol('MdCountKey')
 export function useCount(props: any) {
   const tableId = props.tableId
   const columnsSource = props.extraColumnConfig?.columns
+  const viewTools: any = inject('viewTools', null)
   const aggData = ref<any>({})
   const aggLoading = ref(false)
+
+  function getAggRequestParams() {
+    const columns = getAggColumns(columnsSource.value)
+    const requestParams: Record<string, any> = {
+      tableId,
+      columns
+    }
+    if (viewTools?.getPageParams) {
+      const { orderBy: _orderBy, groupBy: _groupBy, pagination: _pagination, columns: _columns, ...filterParams } =
+        viewTools.getPageParams({ getGroup: false }) || {}
+      if (filterParams.conditions?.length) {
+        requestParams.conditions = filterParams.conditions
+      }
+    }
+    return requestParams
+  }
 
   async function getAgg() {
     const columns = getAggColumns(columnsSource.value)
@@ -31,10 +48,7 @@ export function useCount(props: any) {
 
     try {
       aggLoading.value = true
-      const { data } = await postDynamicActions({
-        tableId,
-        columns
-      })
+      const { data } = await postDynamicActions(getAggRequestParams() as Parameters<typeof postDynamicActions>[0])
       aggData.value = data.data[0] || {}
       return data.data
     } catch (error) {

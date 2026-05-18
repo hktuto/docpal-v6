@@ -4,7 +4,14 @@ import { newClientApi, postDynamicActions } from 'api'
 import { ElNotification } from 'element-plus'
 import { EventType, useEventBus } from 'eventbus'
 import { updateRelationFields } from '../utils/relationHelper'
+import { findRowAndAncestors, matchesGroupRow, patchGroupNode, patchChildRowInMap } from '../utils/groupRowSync'
+import { getAggColumns } from './useCount'
 // import { createGroupTree } from '../utils/treeDataHelper'
+function withoutOrderBy(params: Record<string, any> = {}) {
+  const { orderBy: _orderBy, ...rest } = params
+  return rest
+}
+
 function mergeParams(base: any, extra: any) {
   if (!extra) return base
   const result = { ...base }
@@ -66,6 +73,13 @@ export interface TableDataContext {
   updateRow: (rowId: string, data: any, mdTableId?: string) => Promise<boolean>
   deleteRow: (rowid: string | string[]) => Promise<boolean>
   getAggChildData: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
+  syncRowAndGroupAncestors: (
+    rowId: string,
+    options?: {
+      gridRef?: Ref<any>
+      groupChildren?: Ref<Record<string, any[]>>
+    }
+  ) => Promise<any | null>
   queryRecordById: (id: string) => any
   upsertRows?: (
     rows: any[],
@@ -114,6 +128,23 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const currentPage = ref(0)
   const viewTools: any = inject('viewTools')
   const databaseHocuspocus: any = inject('databaseHocuspocus', null)
+
+  function getViewDisplayColumns() {
+    const columns = viewTools?.columns
+    return columns?.value ?? columns ?? []
+  }
+
+  function buildGroupAggregateColumns(groupField: string) {
+    return [
+      { name: groupField },
+      ...getAggColumns(getViewDisplayColumns()),
+      {
+        name: '*',
+        alias: '__count',
+        aggFunc: 'COUNT'
+      }
+    ]
+  }
 
   /** 翻页时复用的查询条件（不含 pageNum） */
   const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
@@ -268,14 +299,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       additionParams.groupBy = {
         columns: [nextColumn.field]
       }
-      additionParams.columns = [
-        { name: nextColumn.field },
-        {
-          name: nextColumn.field, // 字段名
-          alias: 'count', // [可选] 别名
-          aggFunc: 'COUNT' // [可选] 聚合函数: COUNT, SUM, MAX, MIN, AVG
-        }
-      ]
+      additionParams.columns = buildGroupAggregateColumns(nextColumn.field)
     }
     for (let i = 0; i < _level + 1; i++) {
       const column = columnGroupRules.value[i]
@@ -363,7 +387,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
         Object.assign(row, data)
       }
       if (databaseHocuspocus?.broadcastChange && viewTools?.menuId) {
-
         databaseHocuspocus.broadcastChange({
           type: 'row_updated',
           rowId,
@@ -424,11 +447,111 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
   }
 
+  /** 按分组层级拉取聚合父节点（不重载 grid） */
+  async function fetchGroupNodeAtLevel(contextRow: any, level: number) {
+    const columnGroupRules = viewTools?.columnGroupRules
+    if (!columnGroupRules?.value?.length || level < 0 || level >= columnGroupRules.value.length) {
+      return null
+    }
+    const rules = columnGroupRules.value
+    const groupColumn = rules[level]
+    const groupValue = contextRow?.[groupColumn.field]
+    if (groupValue === undefined) {
+      return null
+    }
+    const additionParams: any = {
+      conditions: [
+        {
+          type: 'EQ',
+          column: groupColumn.field,
+          value: groupValue
+        }
+      ],
+      groupBy: { columns: [groupColumn.field] },
+      columns: buildGroupAggregateColumns(groupColumn.field)
+    }
+    for (let i = 0; i < level; i++) {
+      const column = rules[i]
+      additionParams.conditions.unshift({
+        type: 'EQ',
+        column: column.field,
+        value: contextRow[column.field]
+      })
+    }
+    try {
+      const basicParams = withoutOrderBy(viewTools?.getPageParams({ getGroup: false }) || {})
+      const params = withoutOrderBy(mergeParams(basicParams, additionParams))
+      const { data } = await postDynamicActions({
+        tableId,
+        columns: [],
+        ...params
+      })
+      return data.data?.[0] || null
+    } catch (error) {
+      console.error('fetchGroupNodeAtLevel error', error)
+      return null
+    }
+  }
+
+  async function syncRowAndGroupAncestors(
+    rowId: string,
+    options: {
+      gridRef?: Ref<any>
+      groupChildren?: Ref<Record<string, any[]>>
+    } = {}
+  ) {
+    const rules = viewTools?.columnGroupRules?.value
+    if (!rules?.length) {
+      return null
+    }
+
+    const liveRow = await fetchRowById(rowId)
+    if (!liveRow) {
+      return null
+    }
+
+    let treeResult: { row: any; ancestors: any[] } | null = null
+    const grid = options.gridRef?.value
+    if (grid) {
+      const fullData = grid.getTableData?.()?.fullData || []
+      treeResult = findRowAndAncestors(fullData, rowId)
+      if (treeResult?.row) {
+        Object.assign(treeResult.row, liveRow)
+      }
+    }
+
+    if (options.groupChildren) {
+      options.groupChildren.value = patchChildRowInMap(options.groupChildren.value, rowId, liveRow)
+    }
+
+    for (let level = 0; level < rules.length; level++) {
+      const field = rules[level].field
+      const groupNode = await fetchGroupNodeAtLevel(liveRow, level)
+      if (!groupNode) {
+        continue
+      }
+
+      const groupValue = liveRow[field]
+      const ancestorRow = treeResult?.ancestors?.[level]
+      if (ancestorRow) {
+        patchGroupNode(ancestorRow, groupNode, field)
+        continue
+      }
+
+      const rootGroup = tableData.value.find((row: any) => matchesGroupRow(row, field, groupValue))
+      if (rootGroup) {
+        patchGroupNode(rootGroup, groupNode, field)
+      }
+    }
+
+    return liveRow
+  }
+
   function getCurrentMenuId(): string | undefined {
     const m = viewTools?.menuId
     return m?.value || m
   }
-const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
+  const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
   function handleRemoteChangeEvent(event: any) {
     const { change, userName } = event
     const currentMenuId = getCurrentMenuId()
@@ -516,7 +639,7 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
       () => databaseHocuspocus.remoteChanges,
       () => {
         if (!databaseHocuspocus.remoteChanges.value || databaseHocuspocus.remoteChanges.value.length === 0) return
-        console.log("remoteChanges", databaseHocuspocus.remoteChanges.value)
+        console.log('remoteChanges', databaseHocuspocus.remoteChanges.value)
         for (const event of databaseHocuspocus.remoteChanges.value) {
           handleRemoteChangeEvent(event)
         }
@@ -526,7 +649,7 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
     stopRemoteChanges = unwatch
   }
 
-  provide(TableDataContextKey, {
+  const tableDataContext: TableDataContext = {
     gridRef,
     // 数据
     tableData,
@@ -542,11 +665,13 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
     loadMore,
     queryRecordById,
     getAggChildData,
+    syncRowAndGroupAncestors,
     refresh,
     addRow,
     updateRow,
     deleteRow
-  })
+  }
+  provide(TableDataContextKey, tableDataContext)
 
   return {
     // 数据
@@ -563,16 +688,18 @@ const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
     queryRecordById,
     getTableData,
     loadMore,
+    syncRowAndGroupAncestors,
     refresh,
     addRow,
     updateRow,
-    deleteRow
+    deleteRow,
+    gridRef
   }
 }
 
-export const useTableDataInject = () => {
-  const tableDataContext = inject(TableDataContextKey)
-  if (!tableDataContext) {
+export const useTableDataInject = (options?: { required?: boolean }) => {
+  const tableDataContext = inject(TableDataContextKey, null)
+  if (!tableDataContext && options?.required !== false) {
     throw new Error('TableDataContext not found')
   }
   return tableDataContext

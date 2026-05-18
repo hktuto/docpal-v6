@@ -54,6 +54,7 @@ export function useMDTable(props: any) {
     deleteRow,
     getTableData,
     getAggChildData,
+    syncRowAndGroupAncestors,
     currentEditing,
     silentRefreshing
   } = useTableData(props.tableId, gridRef)
@@ -158,7 +159,9 @@ export function useMDTable(props: any) {
     clearCheckboxRow,
     updateExpandedRows,
     addRow,
-    updateRow
+    updateRow,
+    deleteRow,
+    syncRowAndGroupAncestors
   }
 }
 

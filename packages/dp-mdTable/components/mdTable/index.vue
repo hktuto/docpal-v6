@@ -80,20 +80,6 @@ import { useMDTable } from '../../composables/useMDTable'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 
-interface ColumnVisibilityItem {
-  fieldId: string
-  title: string
-  display: boolean
-}
-
-interface GridRefreshState {
-  scrollLeft: number
-  scrollTop: number
-  selectedRowIds: string[]
-  currentRowId?: string
-  expandedRowIds: string[]
-}
-
 interface Props {
   tableId?: string
   editable?: boolean
@@ -170,6 +156,7 @@ const {
   gridRef,
   refreshTableData,
   updateRow,
+  syncRowAndGroupAncestors,
   currentEditing,
   addVirtualColumn,
   addColumnPopoverRef,
@@ -179,9 +166,7 @@ const {
 } = useMDTable(props)
 const { getAgg } = useCount(props)
 
-// Import update status composable
-await new Promise((resolve) => setTimeout(resolve, 1000))
-const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
+const { setLoading, setSuccess, setError } = useUpdateStatus()
 const rightClickCellPopoverRef = ref()
 const recordCardDialogRef = ref()
 function handleMove(direction: 'up' | 'down') {
@@ -222,7 +207,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       // Set success state - will auto-clear after delay
       setSuccess(row.id, column.field)
       if (isGroupingEnabled.value) {
-        await handleRefresh()
+        await syncRowAndGroupAncestors(row.id, { gridRef })
       }
     } catch (error) {
       console.error('Failed to update row:', error)
@@ -291,92 +276,10 @@ const filteredSlots = computed(() => {
   return filtered
 })
 
-// 方法
-function getRowKey(row: any) {
-  return row?.id === undefined || row?.id === null ? undefined : String(row.id)
-}
-
-function getGridBodyWrapper() {
-  return (gridRef.value?.$el as HTMLElement | undefined)?.querySelector?.('.vxe-table--body-wrapper') as HTMLElement | null
-}
-
-function getGridRows() {
-  const tableResult = gridRef.value?.getTableData?.()
-  return tableResult?.fullData || tableResult?.tableData || tableResult?.visibleData || tableData.value || []
-}
-
-function flattenRows(rows: any[]) {
-  const result: any[] = []
-  const stack = [...(rows || [])]
-  while (stack.length) {
-    const row = stack.shift()
-    if (!row) {
-      continue
-    }
-    result.push(row)
-    if (Array.isArray(row.children) && row.children.length) {
-      stack.push(...row.children)
-    }
-  }
-  return result
-}
-
-function captureGridRefreshState(): GridRefreshState {
-  const scrollInfo = gridRef.value?.getScroll?.()
-  const bodyWrapper = getGridBodyWrapper()
-  const selectedRows = gridRef.value?.getCheckboxRecords?.() || []
-  const currentRow = gridRef.value?.getCurrentRecord?.()
-  const expandedRows = gridRef.value?.getTreeExpandRecords?.() || []
-
-  return {
-    scrollLeft: Number(scrollInfo?.scrollLeft ?? bodyWrapper?.scrollLeft ?? 0),
-    scrollTop: Number(scrollInfo?.scrollTop ?? bodyWrapper?.scrollTop ?? 0),
-    selectedRowIds: selectedRows.map(getRowKey).filter(Boolean) as string[],
-    currentRowId: getRowKey(currentRow),
-    expandedRowIds: expandedRows.map(getRowKey).filter(Boolean) as string[]
-  }
-}
-
-async function restoreGridRefreshState(state: GridRefreshState) {
-  await nextTick()
-  const rows = flattenRows(getGridRows())
-  const rowMap = new Map(rows.map((row) => [getRowKey(row), row]).filter(([key]) => !!key) as Array<[string, any]>)
-  const selectedRows = state.selectedRowIds.map((id) => rowMap.get(id)).filter(Boolean)
-  const expandedRows = state.expandedRowIds.map((id) => rowMap.get(id)).filter(Boolean)
-
-  gridRef.value?.clearCheckboxRow?.()
-  rows.forEach((row) => {
-    row.checked = false
-  })
-  if (selectedRows.length) {
-    gridRef.value?.setCheckboxRow?.(selectedRows, true)
-    selectedRows.forEach((row) => {
-      row.checked = true
-    })
-  }
-
-  const currentRow = state.currentRowId ? rowMap.get(state.currentRowId) : undefined
-  if (currentRow) {
-    gridRef.value?.setCurrentRow?.(currentRow)
-  }
-  if (expandedRows.length) {
-    await gridRef.value?.setTreeExpand?.(expandedRows, true)
-  }
-
-  await nextTick()
-  await gridRef.value?.scrollTo?.(state.scrollLeft, state.scrollTop)
-  const bodyWrapper = getGridBodyWrapper()
-  if (bodyWrapper) {
-    bodyWrapper.scrollLeft = state.scrollLeft
-    bodyWrapper.scrollTop = state.scrollTop
-  }
-}
-
 const handleRefresh = async () => {
-  const state = captureGridRefreshState()
   updateExpandedRows()
   await refreshTableData({ silent: true, keepPage: true })
-  await restoreGridRefreshState(state)
+  await getAgg()
   emit('refresh')
 }
 
