@@ -8,21 +8,30 @@
           :is-mirror="isMirror"
           :table-id="tableId"
           :extra-column-config="extraColumnConfig"
-          :editable="true" />
+          :editable="canEditTable"
+          @exit-edit-row="exitRowEdit"
+          @start-edit-row="startEditRowHandler"
+          />
       <MdKanban
           v-else-if="currentView?.type === 'kanban'"
           :canManageTable="canManageTable"
           :canEditTable="canEditTable"
           :is-mirror="isMirror"
           :table-id="tableId"
-          :extra-column-config="extraColumnConfig" />
+          :extra-column-config="extraColumnConfig"
+          @exit-edit-row="exitRowEdit"
+          @start-edit-row="startEditRowHandler"
+          />
       <MdCalendar
           v-else-if="currentView?.type === 'calendar'"
           :canManageTable="canManageTable"
           :canEditTable="canEditTable"
           :is-mirror="isMirror"
           :table-id="tableId"
-          :extra-column-config="extraColumnConfig" />
+          :extra-column-config="extraColumnConfig"
+          @exit-edit-row="exitRowEdit"
+          @start-edit-row="startEditRowHandler"
+        />
       <MdTable v-else
           :canManageTable="canManageTable"
           :canEditTable="canEditTable"
@@ -36,7 +45,7 @@
           @exit-edit-row="exitRowEdit"
           @expand-click="startEditRowHandler"
           />
-      <DatabaseAwarenessFloatingTags :get-element="getTableCell" :container-ref="tableBodyRef" />
+      <DatabaseAwarenessFloatingTags :viewType="currentView?.type" :get-element="getTableCell" :container-ref="tableBodyRef" />
     </div>
 
     <div v-if="panelVisible" class="table-view-panel">
@@ -98,7 +107,9 @@ const tableViewMainRef = ref<HTMLElement>()
 const tableBodyRef = ref<HTMLElement | null>(null)
 
 function updateTableBodyRef() {
-  tableBodyRef.value = tableViewMainRef.value?.querySelector('.vxe-table--body-wrapper') as HTMLElement | null
+  if (databaseMenuRouteParams.value.detailType === 'table') {
+    tableBodyRef.value = tableViewMainRef.value?.querySelector('.vxe-table--body-wrapper') as HTMLElement | null
+  }
 }
 
 onMounted(() => {
@@ -119,7 +130,6 @@ function handleCellMouseEnter(params: any) {
   }
 }
 function exitCellEdit(params: any) {
-  console.log("exit edit")
   setAwareness({
     rowId: params.row.id,
     cellId: params.column.field,
@@ -149,6 +159,7 @@ function startEditHandler(params: any) {
 function handleCellMouseLeave(params: any) {
 }
 function startEditRowHandler(params: any) {
+  console.log("startEditRowHandler", params)
   if(params.mode && params.mode !== 'edit') return
   setAwareness({
     rowId: params.row.id,
@@ -157,22 +168,35 @@ function startEditRowHandler(params: any) {
     status: 'editing'
   })
 }
+
+
 function getTableCell(focus: any) {
-  const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
-  return {
-    element: document.querySelector(selector) as HTMLElement | null,
-    type: 'table-cell',
-    selector
+  const type = currentView.value?.type || 'table'
+  if (type === 'table') {
+    const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
+    return {
+      element: document.querySelector(selector) as HTMLElement | null,
+      type: 'table-cell',
+      selector
+    }
+  }else if(type === 'kanban'){
+    const selector = `#groupItem_${focus.rowId}`
+    return {
+      element: document.querySelector(selector) as HTMLElement | null,
+      type: 'kanban-cell',
+      selector
+    }
+  }else if(type === 'card'){
+    const selector = `#cardItem_${focus.rowId}`
+    const el = document.querySelector(selector) as HTMLElement | null
+    console.log("getTableCell", focus, el)
+    return {
+      element: el,
+      type: 'card-cell',
+      selector
+    }
   }
 }
-
-watch(updatedRows, (rows) => {
-  if (rows.length === 0) return
-  for (const row of rows) {
-    // TODO: refresh row data for row.rowId
-    console.log('[remote edit]', row.userName, 'saved row', row.rowId)
-  }
-})
 
 
 
