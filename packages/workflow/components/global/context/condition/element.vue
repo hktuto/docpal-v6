@@ -10,7 +10,7 @@ const { getVariablesByDisplayTypes } = useVariablesProvide()
 const emits = defineEmits(['delete', 'update'])
 const formData = ref<{
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
-  val_type: 'is_null' | 'string' | 'number' | 'boolean'
+  val_type: 'is_null' | 'text' | 'number' | 'boolean'
   field: string
   condition: '==' | '>' | '>=' | '<' | '<='
   value: string | number | boolean
@@ -64,7 +64,7 @@ function typeChange() {
       formData.value.value = 'null'
       break
     case 'string_validation':
-      formData.value.val_type = 'string'
+      formData.value.val_type = 'text'
       formData.value.value = ''
       break
     case 'numbering_validation':

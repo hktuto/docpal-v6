@@ -15,11 +15,11 @@ const step = computed(() => {
     <el-input-number v-model="form.default_value" :min="form.validation.min_value" :max="form.validation.max_value" :step="step" />
   </el-form-item>
   <el-form-item :label="t('metadata.validation.number.minimum')" prop="minimum">
-    <el-input-number v-model="form.validation.max_value" :placeholder="t('metadata.validation.number.minimum')" />
+    <el-input-number v-model="form.validation.min_value" :placeholder="t('metadata.validation.number.minimum')" />
   </el-form-item>
 
   <el-form-item :label="t('metadata.validation.number.maximum')" prop="maximum">
-    <el-input-number v-model="form.validation.min_value" :placeholder="t('metadata.validation.number.maximum')" />
+    <el-input-number v-model="form.validation.max_value" :placeholder="t('metadata.validation.number.maximum')" />
   </el-form-item>
 
   <el-form-item :label="t('metadata.validation.number.precision')" prop="decimal_places">

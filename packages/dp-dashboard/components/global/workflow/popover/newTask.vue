@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { newClientApi } from 'api'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { conversionFormDataByVariables, newWorkflowStartPage } from '#imports'
@@ -127,19 +126,19 @@ async function checkAndSubmit() {
 
     try {
       const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
-      state.formDialogVisible = false
 
       setTimeout(async () => {
         // Check workflow running status
         const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
         if (newVar.state === 'running') {
-          ElMessage.success('Workflow created')
+          routerProvider?.message.success('Workflow created')
         }
       }, 100)
     } catch (e) {
-      state.formDialogVisible = false
       routerProvider?.message.error('Failed to start workflow, please contact the administrator! ')
       console.log(e)
+    } finally {
+      state.formDialogVisible = false
     }
   }
   state.loading = false

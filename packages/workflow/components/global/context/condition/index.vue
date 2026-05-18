@@ -12,7 +12,7 @@ const { t } = useI18n()
 
 type ruleItemType = {
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
-  val_type: 'string' | 'number' | 'boolean'
+  val_type: 'text' | 'number' | 'boolean'
   field: string
   condition: 'contains' | 'is' | 'eq' | 'gt'
   value: string
@@ -49,7 +49,7 @@ function addNewCondition() {
   const rules = [
     {
       type: 'string_validation',
-      val_type: 'string',
+      val_type: 'text',
       field: '',
       condition: 'contains',
       value: ''

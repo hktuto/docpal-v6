@@ -34,7 +34,7 @@ const formData = ref({
   headers: {},
   body: {},
   output_mapping: {},
-  celCondition: {},
+  // celCondition: {},
   inputSchema: {},
   outputSchema: {}
 })

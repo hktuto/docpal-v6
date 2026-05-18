@@ -26,13 +26,17 @@ const allDocumentStep = computed(() => {
     graphProvider?.graph?.value
       ?.getNodes()
       .filter((node) => {
-        return node.getData()?.type === CellType.documentGenerationTask
+        const data = node.getData()
+        return !!data?.metadata && data?.metadata?.type === CellType.documentGenerationTask
       })
-      .map((item: any) => ({
-        value: item.getData().id,
-        label: item.getData().name,
-        templateId: item.getData().config.body.templateId
-      })) || []
+      .map((item: any) => {
+        const data = item.getData()
+        return {
+          value: data.id,
+          label: data.name,
+          templateId: data.config?.http_request?.body?.templateId || ''
+        }
+      }) || []
   )
 })
 
@@ -77,7 +81,6 @@ async function updateDocumentId() {
 async function getTemplateVariableList() {
   if (!form.value.documentStepId || form.value.documentStepId === '') return
   const selectedStep = allDocumentStep.value.find((item: any) => item.value === form.value.documentStepId)
-
   const data = await newAdminApi.getDmsTemplateDocumentRefreshId(selectedStep.templateId).then((r: any) => r.data)
   if (data.fileType !== 'Word') {
     console.log('not word file')
