@@ -10,13 +10,14 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const variableList = computed(() => {
-  return getVariablesByType()
+  return getVariablesByDisplayTypes()
 })
 const contextTransformDialogRef = ref()
 const dataMapping = ref<Record<string, string>>({})
 const dataMappingList = computed(() => {
+  if (!dataMapping.value) return
   return Object.entries(dataMapping.value).map(([key, value]) => ({
     id: key,
     label: variableList.value.find((item: any) => item.id === key)?.name,
@@ -42,24 +43,25 @@ function handleDeleteMapping(id: string) {
 
 function init() {
   const data = node.getData()
-  dataMapping.value = data.config?.mapping
+  dataMapping.value = data.config?.mappings
 }
 
 function updateData() {
   graphProvider?.graph.value?.startBatch('update-transform-data')
-
+  const outputMapping = Object.fromEntries(Object.entries(dataMapping.value).map(([key]) => [key, '${' + key + '}']))
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
     config: {
       ...nodeData.config,
-      mapping: {
+      mappings: {
         ...dataMapping.value
-      }
+      },
+      output_mapping: outputMapping
     },
     version: (nodeData.version || 0) + 1
   }
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-transform-data')
 }
 

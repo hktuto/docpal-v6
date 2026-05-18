@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { routeWorkflowManageEditor } from '../../../utils/workflowHelper'
 
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 const elFormRef = ref()
 const openDialog = ref(false)
 const formData = ref({

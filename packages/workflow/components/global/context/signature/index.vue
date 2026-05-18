@@ -27,14 +27,11 @@ watch(
     <ContextUserTaskAssignee :node="node" />
     <ContextUserTaskPermissions :node="node" />
     <ContextSignatureDetail :node="node" />
+    <ContextUserTaskAdditional :node="node" />
     <ContextForm :node="node" />
-    <ContextUserTaskPreviewDocument :node="node" />
     <ContextUserTaskBooleanButton :node="node" />
   </div>
 </template>
 
 <style lang="scss" scoped>
-.fromContainer {
-  overflow: auto;
-}
 </style>

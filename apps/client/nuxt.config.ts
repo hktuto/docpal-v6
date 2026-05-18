@@ -41,6 +41,7 @@ export default defineNuxtConfig({
     '../../pages/super-workflow-form',
     '../../pages/admin-dam',
     '../../pages/admin-document-template',
+    '../../pages/admin-dashboard',
     // '../../pages/admin-docTemplate',
     '../../pages/admin-case-management',
     '../../pages/admin-file-policies',
@@ -73,7 +74,7 @@ export default defineNuxtConfig({
 
     // demo packages
     // "../../demo/database",
-    "../../demo/workspaces"
+    // "../../demo/workspaces"
   ],
   features: {
     inlineStyles: true

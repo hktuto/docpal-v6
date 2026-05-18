@@ -131,7 +131,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
 })
 
 async function getData(params: any) {
-  const data = await $api.post('/oniflow/api/v1/workflow/definitions/page', params).then((r) => r.data)
+  const data = await $api.post('/oniflow/api/v1/workflow/definitions/page', params).then((r) => r.data.data)
   return {
     data: {
       entryList: data.items,
@@ -180,10 +180,10 @@ async function handleRemove(row: any) {
   if (row.status === 'A') return
 
   try {
-    await $api.delete(`/oniflow/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
+    await $api.delete(`/oniflow/api/v1/workflow/definitions/instance/${row.id}`).then((r: any) => r.data)
     reload()
   } catch (e) {
-    console.log('')
+    console.log(e)
   }
 }
 

@@ -6,7 +6,6 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const emits = defineEmits(['updateNode'])
 const { node } = defineProps<{
   node: Node
 }>()
@@ -25,7 +24,6 @@ function nameChange(val: string) {
   })
   node.setProp('label', val)
   node.attr('text/text', val)
-  emits('updateNode')
   graphProvider?.graph.value?.stopBatch('update-name')
 }
 

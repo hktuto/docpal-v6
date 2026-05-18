@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { newClientApi } from 'api'
-import { getButtonAdditionalElement, getWorkflowList } from '@packages/workflow/utils/workflowHelper'
-import { newWorkflowStartPage } from '../../../../../../pages/client-new-workflow/utils/routerHelper'
-import { conversionFormDataByVariables } from '#imports'
+import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
+import { conversionFormDataByVariables, newWorkflowStartPage } from '#imports'
 
 const vFormRef = ref()
 const workflowEditorRef = ref()
@@ -13,19 +13,19 @@ const activeName = ref('Form')
 const state = reactive({
   formDialogVisible: false,
   selectedWorkflow: {},
+  formVariables: [],
   loading: false
 })
 const emits = defineEmits(['reload'])
-const pageButtonSetting = ref<any>(null)
 const openWorkflowEdit = ref(false)
 const userId = useUserId()
-const { workflowList } = await getWorkflowList()
+const workflowList = await getWorkflowList()
 
-async function workflowClickHandler(item: any) {
+async function workflowClickHandler(workflowItem: any) {
   state.loading = true
   openWorkflowEdit.value = false
   openWorkflowEdit.value = true
-  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${item.id}`).then((r: any) => r.data)
+  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => r.data.data)
   if (!data) return
   if (data.published_version < 1) {
     state.loading = false
@@ -33,7 +33,9 @@ async function workflowClickHandler(item: any) {
     return
   }
 
-  // Workflow未發佈
+  state.selectedWorkflow = deepCopy(data)
+
+  // Workflow 未發佈
   if (Object.keys(data.content).length === 0) {
     state.loading = false
     routerProvider?.message.error('Workflow has not been released.')
@@ -47,63 +49,57 @@ async function workflowClickHandler(item: any) {
     return
   }
 
-  state.selectedWorkflow = deepCopy(data)
+  // 未配置流程
+  if (startTask.flow.outgoing.length === 0) {
+    routerProvider?.message.error('Workflow No process')
+    return
+  }
+
+  // Start Task has no set E-Form
+  if (!startTask.config?.initialise?.form_key || startTask.config?.initialise?.form_key === '') {
+    await directlyStart(data.id)
+    state.loading = false
+    return
+  }
 
   // Open in new page
   if (startTask.metadata.openInNewPage) {
     state.loading = false
-    const link = newWorkflowStartPage(data.name, data.id, startTask.metadata, data.content.variables)
+    const link = newWorkflowStartPage(data.name, data.id, startTask)
     routerProvider?.navigateTo(link)
     return
   }
 
-  // start Task has no set E-Form
-  if (!startTask.metadata.formKey || startTask.metadata.formKey === '') {
-    // Directly Submit form
-    try {
-      const formParams = {
-        start_user_id: userId.value,
-        definition_id: data.id,
-        variables: {
-          __system__user_creator_id: userId.value
-        }
-      }
-
-      await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
-    } catch (e) {
-      console.log(e)
-    }
-
-    return
-  }
-
+  state.formVariables = startTask.config?.initialise?.form_fields || []
   state.formDialogVisible = true
   await initForm(startTask)
 }
 
-async function initForm(startTask: any) {
-  const formKey = startTask.metadata?.formKey
-  if (!formKey) {
-    state.loading = false
-    state.formDialogVisible = false
-    return
+async function directlyStart(definition_id: string) {
+  try {
+    const formParams = {
+      start_user_id: userId.value,
+      definition_id: definition_id,
+      variables: {
+        __system__user_creator_id: userId.value
+      }
+    }
+    await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
+  } catch (e) {
+    console.log(e)
   }
+}
+
+async function initForm(taskNode: any) {
+  const formKey = taskNode.config.initialise.form_key
 
   const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
   if (!formJson || !formJson.jsonValue) return {}
   state.loading = false
-  await handleAdditionalSetting(startTask.metadata)
   // @ts-ignore
   nextTick(() => {
     vFormRef.value.setForm(formJson.jsonValue)
   })
-}
-
-async function handleAdditionalSetting(metadata: any) {
-  const { buttonSetting, signatureSetting } = await getButtonAdditionalElement([], metadata, {})
-  if (buttonSetting) {
-    pageButtonSetting.value = buttonSetting
-  }
 }
 
 async function checkAndSubmit() {
@@ -112,7 +108,7 @@ async function checkAndSubmit() {
 
   if (!!formData) {
     // conversion FormData
-    const cFormData = conversionFormDataByVariables(formData, state.selectedWorkflow.content.variables)
+    const cFormData = conversionFormDataByVariables(formData, state.formVariables)
 
     const formParams = {
       start_user_id: userId.value,
@@ -124,12 +120,12 @@ async function checkAndSubmit() {
     }
 
     try {
-      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data)
+      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
       state.formDialogVisible = false
 
       setTimeout(async () => {
         // Check workflow running status
-        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.id}`).then((r: any) => r.data)
+        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data.data)
         if (newVar.state === 'running') {
           ElMessage.success('Workflow created')
         }
@@ -142,7 +138,6 @@ async function checkAndSubmit() {
   emits('reload')
 }
 
-onMounted(() => {})
 defineExpose({ workflowClickHandler })
 </script>
 
@@ -193,19 +188,8 @@ defineExpose({ workflowClickHandler })
     </el-tabs>
 
     <template #footer>
-      <el-button
-        v-if="!pageButtonSetting || pageButtonSetting.showSubmitButton"
-        id="Workflow__NewWorkflow__StartWorkflow"
-        type="primary"
-        :disabled="state.loading"
-        @click="checkAndSubmit"
-      >
-        <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
-          {{ pageButtonSetting.submitButtonLabel }}
-        </template>
-        <template v-else>
-          {{ $t('common_submit') }}
-        </template>
+      <el-button id="Workflow__NewWorkflow__StartWorkflow" type="primary" :disabled="state.loading" @click="checkAndSubmit">
+        {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>

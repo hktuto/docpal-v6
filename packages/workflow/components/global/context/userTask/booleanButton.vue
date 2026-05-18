@@ -11,7 +11,7 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const buttonStyle = ['primary', 'success', 'warning', 'danger', 'info', 'text']
 type buttonItem = {
   booleanValue: string
@@ -34,7 +34,7 @@ const buttonSetting = ref<{
   booleanButton: []
 })
 const allBooleanInfo = computed(() => {
-  return getVariablesByType(['boolean'])
+  return getVariablesByDisplayTypes(['boolean'])
 })
 
 function init() {
@@ -53,9 +53,9 @@ function updateData() {
       ...nodeData.metadata,
       buttonSetting: buttonSetting.value
     },
-    version: nodeData.version + 1 || 1
+    version: (nodeData.version || 0) + 1
   }
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-boolean-button-data')
 }
 
@@ -99,24 +99,24 @@ onMounted(() => {
 </script>
 
 <template>
+  <el-divider />
   <div class="formContainer">
     <h4>Boolean Button</h4>
     <div>
       <span>Button Setting</span>
       <el-form label-position="top">
-        <el-form-item v-if="node.data.type !== 'StartEvent'" label="Show Submit Button">
-          <el-switch v-model="buttonSetting.showSubmitButton" @change="updateData" />
-        </el-form-item>
-        <el-form-item label="Submit Button Label">
-          <el-input v-model="buttonSetting.submitButtonLabel" @change="updateData" />
-        </el-form-item>
+        <div style="display: flex; width: 100%; justify-content: space-between; align-items: center">
+          <p>Submit Button</p>
+          <el-switch size="small" v-model="buttonSetting.showSubmitButton" active-text="Show" inactive-text="Disabled" @change="updateData" />
+        </div>
+        <el-input v-if="buttonSetting.showSubmitButton" v-model="buttonSetting.submitButtonLabel" @change="updateData" />
+
         <template v-if="node.data.metadata.type === 'UserTask'">
-          <el-form-item label="Show Save Draft Button">
-            <el-switch v-model="buttonSetting.showSaveDraft" @change="updateData" />
-          </el-form-item>
-          <el-form-item label="Save Draft Button Label">
-            <el-input v-model="buttonSetting.saveDraftLabel" @change="updateData" />
-          </el-form-item>
+          <div style="display: flex; width: 100%; justify-content: space-between; align-items: center">
+            <p>Show Save Draft Button</p>
+            <el-switch size="small" v-model="buttonSetting.showSaveDraft" active-text="Show" inactive-text="Disabled" @change="updateData" />
+          </div>
+          <el-input v-if="buttonSetting.showSaveDraft" v-model="buttonSetting.saveDraftLabel" @change="updateData" />
         </template>
       </el-form>
     </div>

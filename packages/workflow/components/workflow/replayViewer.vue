@@ -3,13 +3,10 @@ import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 const props = withDefaults(
   defineProps<{
-    steps: any
-    bpmnXml?: string
-    x6Json?: any
+    contentJson: any
     autoplay: boolean
   }>(),
   {
-    steps: [],
     autoplay: false
   }
 )
@@ -23,7 +20,6 @@ function toggleMode() {
   }
 }
 const viewerEl = ref()
-const { bpmnXml, x6Json } = toRefs(props)
 type TaskHistory = {
   id?: string
   assignee?: string
@@ -40,6 +36,12 @@ const state = reactive({
 
 const displaySteps = ref<TaskHistory[]>([])
 const allSteps = ref<any>([])
+const workflowData = ref({})
+
+function init() {
+  workflowData.value = props.contentJson
+}
+
 function createDisplaySteps() {
   if (!props.steps || props.steps.length === 0) return []
   const list = [...props.steps].reverse()
@@ -79,7 +81,7 @@ function graphReady() {
     })
   }
 }
-function init(bpmnXml: string, x6Json: any) {
+function init1(bpmnXml: string, x6Json: any) {
   state.playing = false
   state.currentStep = 0
   viewerEl.value.init(bpmnXml, x6Json)
@@ -144,6 +146,16 @@ function handleTableRowHover(row: any) {
 defineExpose({
   init
 })
+
+watch(
+  () => props.contentJson,
+  () => {
+    nextTick(() => {
+      init()
+    })
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -196,7 +208,7 @@ defineExpose({
         </div>
       </div>
       <div v-if="mode === 'table'" style="overflow: hidden">
-        <ElTable
+        <el-table
           ref="tableRef"
           class="table"
           height="100%"
@@ -206,26 +218,25 @@ defineExpose({
           current-row-key="id"
           @cell-mouse-enter="handleTableRowHover"
         >
-          <ElTableColumn prop="startTime" label="Start Time">
+          <el-table-column prop="startTime" label="Start Time">
             <template #default="scope">
               {{ dayjs(scope.row.startTime).format('YYYY-MM-DD HH:mm') }}
             </template>
-          </ElTableColumn>
-          <ElTableColumn prop="endTime" label="Duration">
+          </el-table-column>
+          <el-table-column prop="endTime" label="Duration">
             <template #default="scope">
-              <ElTooltip :content="$t('time.endtime') + ' : ' + formatDate(scope.row.endTime)">
+              <el-tooltip :content="$t('time.endtime') + ' : ' + formatDate(scope.row.endTime)">
                 {{ countDuration(scope.row.startTime, scope.row.endTime) }}
-              </ElTooltip>
+              </el-tooltip>
             </template>
-          </ElTableColumn>
-          <ElTableColumn prop="taskName" label="Task Name" />
-          <ElTableColumn prop="assignee" label="Assignee" />
-        </ElTable>
+          </el-table-column>
+          <el-table-column prop="taskName" label="Task Name" />
+          <el-table-column prop="assignee" label="Assignee" />
+        </el-table>
       </div>
     </div>
 
-    <WorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :showSidebar="false" />
-    <BpmnViewer ref="viewerEl" @graphReady="graphReady" />
+    <WorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="true" :showSidebar="false" />
   </div>
 </template>
 

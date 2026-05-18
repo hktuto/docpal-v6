@@ -15,21 +15,6 @@ const isValid = computed(() => {
   return props.setting?.selectedWorkflow && props.setting.columns.length > 0
 })
 
-// async function queryTaskDetail(instanceId: string) {
-//   try {
-//     const res = await newClientApi
-//       .getWorkflowVariablesInstanceid(instanceId, {
-//         headers: {
-//           noThrowError: true
-//         }
-//       })
-//       .then((res) => res.data)
-//     return res
-//   } catch (err) {
-//     return {}
-//   }
-// }
-
 function getRecursiveValue(obj: any, path: string) {
   if (path.includes('.')) {
     const pathList = path.split('.')
@@ -42,8 +27,7 @@ function displayValue(f: string) {
   // check if f is a string date
   const d = dayjs(f, 'YYYY-MM-DD', true).isValid()
   if (d) {
-    const date = dayjs(f).format('YYYY-MM-DD HH:mm')
-    return date
+    return dayjs(f).format('YYYY-MM-DD HH:mm')
   }
   return f
 }
@@ -227,7 +211,7 @@ defineExpose({ query, reload })
       </template>
     </VxeGrid>
     <div v-else>
-      <el-empty :description="$t('noData')"></el-empty>
+      <el-empty :description="$t('noData')" />
     </div>
   </div>
 </template>

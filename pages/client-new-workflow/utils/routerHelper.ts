@@ -1,5 +1,3 @@
-import { WorkflowNewTabStarterPage } from '#components'
-
 export const routeWorkflowDetail = function (params: any) {
   return {
     id: 'workflow-detail-versions-' + new Date().getTime(),
@@ -8,7 +6,7 @@ export const routeWorkflowDetail = function (params: any) {
     label: params.name,
     component: 'LazyWorkflowDetail',
     props: {
-      detail: params,
+      db_id: params.db_id,
       workflowType: params.workflowType || 'myTask'
     }
   } as TabItem
@@ -27,7 +25,7 @@ export const routeWorkflowPage = function (params: any) {
   } as TabItem
 }
 
-export function newWorkflowStartPage(label: string, definition_id: string, metadata: any, variables: any) {
+export function newWorkflowStartPage(label: string, definition_id: string, taskNode: any) {
   return {
     id: 'workflow-detail-versions-' + new Date().getTime(),
     name: 'workflow-start-versions-' + definition_id,
@@ -36,8 +34,7 @@ export function newWorkflowStartPage(label: string, definition_id: string, metad
     component: 'LazyWorkflowNewTabStarterPage',
     props: {
       definition_id,
-      metadata,
-      variables
+      taskNode,
     }
   }
 }

@@ -3,8 +3,8 @@ const { dataMapping: propsDataMapping } = defineProps<{
   dataMapping: any
 }>()
 const { t } = useI18n()
-const { getVariablesByType } = useVariablesProvide()
-const variablesByType = getVariablesByType()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
+const variablesByType = getVariablesByDisplayTypes()
 
 const variableList = computed(() => {
   const usedKeySet = new Set(Object.keys(propsDataMapping ?? {}))

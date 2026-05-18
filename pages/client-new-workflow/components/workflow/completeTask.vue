@@ -14,13 +14,10 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
   api: (pageParams: any) => {
-    const data = $api.get(`'/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
+    const data = $api.get(`/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
     return {
       data: {
-        entryList: data.items || [],
-        pageNum: data.page_num || 0,
-        pageCount: data.page_size || 1,
-        totalSize: data.total || 0
+        entryList: data || []
       }
     }
   },
@@ -61,8 +58,8 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      name: row.businessKey,
-      workflowType: 'completeTask'
+      workflowType: 'completeTask',
+      db_id: row.node_id
     }),
     false
   )
@@ -77,7 +74,7 @@ function handleFilterFormChange(formModel: any) {
   reload()
 }
 
-function reloadTable(){
+function reloadTable() {
   reload()
 }
 

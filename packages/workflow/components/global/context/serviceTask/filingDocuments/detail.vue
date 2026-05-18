@@ -9,12 +9,12 @@ if (!graphProvider) {
   throw createError('graph provider not found')
 }
 const activeName = ref('')
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringVariablesList = computed(() => {
-  return getVariablesByType(['string'], true)
+  return getVariablesByDisplayTypes(['text'], true)
 })
 const fileVariablesList = computed(() => {
-  return getVariablesByType(['string'])
+  return getVariablesByDisplayTypes(['file'])
 })
 
 function handleCheckBox(status: boolean, item: any) {
@@ -70,50 +70,18 @@ function handleMapping(mapping: any) {
   return map
 }
 
-function fileFieldOption() {
-  const set = new Set()
-  // 將已使用的 field 加進 Set List 中
-  field.value.forEach((treeItem: any) => {
-    treeItem.mapping.forEach((f: any) => {
-      if (!!f.formProperty && f.attr_formProperty !== '') {
-        set.add(f.formProperty)
-      }
-    })
-  })
+function fileFieldOption(id: string) {
+  const ids = new Set<string>()
 
-  if (!!stringVariablesList.value) {
-    return stringVariablesList.value.filter((item: any) => {
-      let includeItem = true
-      set.forEach((name) => {
-        if (item.id === name) {
-          includeItem = false
-        }
-      })
-      return includeItem
-    })
+  for (const i of field.value as any[]) {
+    if (i.documentId && id !== i.documentId) ids.add(i.documentId)
+    if (i.documentFileId && id !== i.documentFileId) ids.add(i.documentFileId)
   }
-  return []
-}
 
-function filterOption() {
-  // Retrieve the used and currently selected option
-  const set: any = []
-  field.value.forEach((i: any) => {
-    if (!i.isFolder) {
-      set.push(i.documentId)
-    }
-  })
+  const list = fileVariablesList.value
+  if (!list) return []
 
-  // Exclude used options
-  return stringVariablesList.value.filter((item: any) => {
-    let includeItem = true
-    set.forEach((name: string) => {
-      if (item.id === name) {
-        includeItem = false
-      }
-    })
-    return includeItem
-  })
+  return list.filter((item: any) => !ids.has(item.id))
 }
 
 function handleUpdateField(item: any) {
@@ -161,15 +129,15 @@ function jsonParse(str: any) {
           <div style="width: 100%">
             <div class="content">
               <el-form label-position="top" @sumit.stop :disabled="!item.check">
-                <el-form-item label="Document Id">
+                <el-form-item label="Return Document Id">
                   <el-select v-model="item.documentId" clearable filterable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
-                    <el-option v-for="option in fileVariablesList" :key="option.id" :label="option.name" :value="option.id" />
+                    <el-option v-for="option in fileFieldOption(item.documentId)" :key="option.id" :label="option.name" :value="option.id" />
                   </el-select>
                 </el-form-item>
                 <div v-if="!item.isFolder">
                   <el-form-item label="File">
                     <el-select v-model="item.documentFileId" filterable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
-                      <el-option v-for="option in fileFieldOption()" :key="option.id" :label="option.name" :value="option.id" />
+                      <el-option v-for="option in fileFieldOption(item.documentFileId)" :key="option.id" :label="option.name" :value="option.id" />
                     </el-select>
                   </el-form-item>
                   <el-divider />
@@ -184,7 +152,7 @@ function jsonParse(str: any) {
                 </div>
                 <el-form-item v-for="metaField in item.mapping" :key="metaField.metadata" :label="metaField.metadata">
                   <el-select v-model="metaField.formProperty" :disabled="graphProvider.readonly.value" clearable filterable @change="handleUpdateField(item)">
-                    <el-option v-for="option in filterOption()" :key="option.id" :label="option.name" :value="option.id" />
+                    <el-option v-for="option in stringVariablesList" :key="option.id" :label="option.name" :value="option.id" />
                   </el-select>
                 </el-form-item>
               </el-form>

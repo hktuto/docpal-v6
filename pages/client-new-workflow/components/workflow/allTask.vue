@@ -2,7 +2,7 @@
 import { newClientApi } from 'api'
 import { routeWorkflowDetail, getWorkflowList } from '#imports'
 
-const { workflowList } = await getWorkflowList()
+const workflowList = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
@@ -15,36 +15,17 @@ const extraParams = ref({
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
   api: async (pageParams: any) => {
-    const params = {
-      ...extraParams.value,
-      page_num: pageParams.pageNum,
-      page_size: pageParams.pageSize
+    const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data.data)) as any[]
+    // 只保留 waiting 狀態的數據
+    let list = data.task.filter((item: any) => item.status === 'waiting')
+
+    if (extraParams.value.definition_id !== '') {
+      list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)
     }
-    try {
-      const data = await $api.get(`/oniflow/api/v1/task/overview/all`).then((r: any) => r.data)
 
-      const map = data.failed.map((item: any) => ({
-        id: item.id,
-        node_name: '',
-        assignee: '',
-        node_type: item.node_type,
-        status: 'failed',
-        created_at: item.failed_at,
-        updated_at: ''
-      }))
-
-      return {
-        data: {
-          entryList: data.task || []
-          // pageNum: data.page_num || 0,
-          // pageCount: data.page_size || 1,
-          // totalSize: data.total || 0
-        }
-      }
-    } catch (e) {
-      console.log(e)
-      return {
-        data: { entryList: [] }
+    return {
+      data: {
+        entryList: list || []
       }
     }
   },
@@ -67,31 +48,17 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       }
     }
   ],
-  bodyActions: [
-    [
-      {
-        code: 'delete',
-        name: t('common_delete'),
-        visible: true,
-        disabled: false,
-        action: async ({ row }: any) => {
-          await $api.delete(`/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r) => r.data)
-          reload()
-        }
-      }
-    ]
-  ],
   dblClickAction: ({ row, column, event }: any) => {
     handleDblclick(row)
   }
 })
 
 function handleDblclick(row: any) {
-  if (!row.id || row.id === '') return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      workflowType: 'allTask'
+      workflowType: 'allTask',
+      db_id: row.node_id
     }),
     false
   )
@@ -100,7 +67,7 @@ function handleDblclick(row: any) {
 async function claimTask(row: any) {
   if (row.status === '') return
 
-  await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`, parms).then((res: any) => res.data)
+  await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res: any) => res.data)
   reload()
 }
 
@@ -135,10 +102,6 @@ defineExpose({ reloadTable })
         >
           {{ $t('workflow_claim') }}
         </el-button>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.status === 'created'" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
       </template>
     </VxeGrid>
   </div>

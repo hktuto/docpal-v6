@@ -32,6 +32,7 @@ async function save() {
   } catch (e) {
     console.log(e)
   }
+  graphProvider.updateWorkflowJson(workflowJson)
 }
 
 function setupHistory() {

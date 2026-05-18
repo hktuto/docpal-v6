@@ -1,7 +1,6 @@
 import { newClientApi } from 'api'
 import { CellType } from '#imports'
 
-// const generateDocumentComponent = 'LazyBpmnButtonGenerateDocument'
 const booleanButtonComponent = 'LazyContextFormBooleanButton'
 
 export async function getButtonAdditionalElement(nodes: any[], metadata: any, formVariables: any) {
@@ -38,30 +37,26 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
       const data: any = await newClientApi.postDmsDocumentPreview({ idOrPath: documentTemplateData.documentId })
       signatureSetting.templateDetail = JSON.parse(JSON.stringify(data))
       signatureSetting.signatureVariableSetting = data.variables.find((item: any) => item.id === metadata.signature.signatureValue)
-
-      console.log('signatureSetting', signatureSetting)
     }
-  } catch (e) {
-    console.log(e)
-  } finally {
     return {
       buttons,
       buttonSetting,
       signatureSetting
     }
+  } catch (e) {
+    console.log(e)
   }
 }
 
 export async function getWorkflowList() {
   let workflowList: any[] = []
   try {
-    workflowList = await $api.get(`/oniflow/api/v1/workflow/definitions?published=true`).then((r: any) => r.data)
+    const data = (await $api.get(`/oniflow/api/v1/workflow/definitions?published=true`).then((r: any) => r.data.data)) as any[]
+    workflowList = data.filter((item: any) => item.status === 'A')
   } catch (e) {
     console.log(e)
   }
-  return {
-    workflowList
-  }
+  return workflowList
 }
 
 export function convertWorkflowVariableToTemplateVariable(variables: any, mapping: any) {

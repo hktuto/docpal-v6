@@ -7,7 +7,7 @@ const { node } = defineProps<{
 }>()
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-if (!graphProvider ) {
+if (!graphProvider) {
   throw createError('provider not found')
 }
 
@@ -22,13 +22,16 @@ function candidateGroupChanged(newVal: string) {
   } else {
     delete data.config.candidateGroups
   }
-  node.setData({
-    ...data,
-    version: node.data.version + 1 || 0
-  }, {
-    overwrite: true,
-    deep: true
-  })
+  node.setData(
+    {
+      ...data,
+      version: (data.version || 0) + 1
+    },
+    {
+      overwrite: true,
+      deep: true
+    }
+  )
 }
 
 function setUpListener() {
@@ -52,18 +55,18 @@ onMounted(async () => {
   refreshData()
   setUpListener()
 })
-
 </script>
 
 <template>
   <div class="itemContainer">
-    <ElForm label-position="top" label-width="100px" size="small">
-      <ElFormItem label="Start Candidate Group">
-        <ElSelect v-model="candidateGroup" placeholder="Select Group" :disabled="graphProvider.readonly.value"
-                  filterable clearable @change="candidateGroupChanged">
-          <ElOption v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
-        </ElSelect>
-      </ElFormItem>
-    </ElForm>
+    <el-form label-position="top" label-width="100px" size="small" :disabled="graphProvider.readonly.value">
+      <el-form-item label="Start Candidate Group">
+        <el-select v-model="candidateGroup" placeholder="Select Group" filterable clearable @change="candidateGroupChanged">
+          <el-option v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
+
+<style scoped lang="scss"></style>

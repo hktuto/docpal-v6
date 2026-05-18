@@ -292,47 +292,48 @@ function openPermission() {
   sidebarRef.value?.openPermission()
 }
 
-async function getFormByNode(node: Node) {
-  const relation = {
-    processKey: workflowKey.value,
-    userTaskId: node.data.id,
-    versionId: version.value
-  }
-
-  const response = await newAdminApi.getDmsFormPropertiesQuery(relation).then((r) => r.data)
-  if (!response || response.length === 0) {
-    return {}
-  }
-  return JSON.parse(response[0].jsonValue || '{}')
-}
-
 const copyKey = useState('copy-key', () => '')
 const copyObj = useState('copy-obj')
 
-async function copyForm(node: Node, obj: any) {
+async function copyForm(node: Node, nodeSetting: any) {
   copyKey.value = node.data.id
-  copyObj.value = obj
+  copyObj.value = nodeSetting
   routerProvider?.message.success(`${node.data.name || node.data.id} form has copied`)
 }
 
-function pasteForm() {}
+function pasteForm(node: Node) {
+  graph.value?.startBatch('update-from-data')
+  const data = node.getData()
+  const newData = {
+    ...data,
+    config: copyObj.value.config,
+    metadata: copyObj.value.metadata,
+    version: (data.version || 0) + 1
+  }
+  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  graph.value?.stopBatch('update-from-data')
+}
 
 function updateActivate() {
   emits('updateActivate')
+}
+
+function updateWorkflowJson(newWorkflowJson: any) {
+  workflowJson.value = newWorkflowJson
 }
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
   workflowId,
   workflowKey,
   workflowJson,
+  updateWorkflowJson,
   graph,
   copyKey,
   readonly,
   openSidebar,
   closeSidebar,
   pasteForm,
-  copyForm,
-  getFormByNode
+  copyForm
 })
 
 watch(
@@ -342,7 +343,7 @@ watch(
   }
 )
 
-defineExpose({ init })
+defineExpose({ init, workflowJson })
 </script>
 
 <template>
@@ -350,10 +351,9 @@ defineExpose({ init })
     <div class="bpmnViewerContainer">
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
-        <div class="group">
+        <div v-if="!readonly" class="group">
           <ToolbarHistory :workflowId="workflowId" :isActivate="isActivate" @update-activate="updateActivate" />
           <ToolbarInfo @click="openInfo" />
-          <!--          <WorkflowToolbarPermission @click="openPermission" />-->
         </div>
         <div v-if="!readonly" class="group">
           <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers" @mousedown.native="(ev) => itemDrop(item, ev)">

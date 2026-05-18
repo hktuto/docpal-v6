@@ -6,112 +6,142 @@ import { useWorkflowAdditionalContext } from '#imports'
 const { node } = defineProps<{
   node: Node
 }>()
-
+const { t } = useI18n()
 const emits = defineEmits(['openForm'])
-const formDialogRef = ref()
-const formRenderVisible = ref()
-const fromRenderRef = ref()
+const { variables, getVariablesByDisplayTypes } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('provider not found')
 }
+const { workflowKey } = graphProvider
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
+const formDialogRef = ref()
+const formRenderVisible = ref()
+const fromRenderRef = ref()
+const formTitle = ref<string>('')
+const contextFormFieldManageDialogRef = ref()
+const formKey = ref<string>('')
+const formField = ref<any[]>([])
+const formJson = ref({})
+const variablesData = computed(() => {
+  const variableList = getVariablesByDisplayTypes()
+  return {
+    labelKey: 'name',
+    nameKey: 'id',
+    data: variableList.filter((item) => !item.id.startsWith('__system__'))
+  }
+})
 
-const { workflowKey } = graphProvider
-
-const formItems = ref<any[]>([])
-const RuleManageDialogRef = ref()
-
-const formKey = ref<number>(0)
-
-function refreshData() {
+function initData() {
   const data = node.getData()
-  formKey.value = Number(data.metadata.formKey)
+  const humanTask = data.config.human_task
+  formKey.value = humanTask.form_key
+  formTitle.value = humanTask.form_title || ''
+  formField.value = humanTask.form_fields || []
 }
 
 function editField() {
-  RuleManageDialogRef.value.open()
+  contextFormFieldManageDialogRef.value.open()
 }
 
 async function copyFormAndFieldSetting() {
-  const fields = JSON.parse(JSON.stringify(formItems.value))
-  const form = await graphProvider?.getFormByNode(node)
-  console.log('copyFormAndFieldSetting', fields, form)
   graphProvider?.copyForm(node, {
-    fields,
-    form
+    config: node.getData().config,
+    metadata: node.getData().metadata
   })
 }
 
-async function pasteForm() {
-  await graphProvider?.pasteForm(node)
-  refreshData()
+function pasteForm() {
+  graphProvider?.pasteForm(node)
+  initData()
 }
 
 async function handleOpenForm() {
-  const formJson = await getFormJson()
-  formDialogRef.value.openDialog(formJson)
+  await getFormJson()
+  formDialogRef.value.openDialog(formJson.value)
 }
 
-function handelSubmitForm(id: string) {
-  graphProvider?.graph.value?.startBatch('update-fromKey-data')
+function update() {
+  graphProvider?.graph.value?.startBatch('update-form-setting-data')
   const data = node.getData()
   const newData = {
     ...data,
-    metadata: {
-      ...data.metadata,
-      formKey: Number(id)
-    }
+    config: {
+      ...data.config,
+      human_task: {
+        ...data.config.human_task,
+        form_title: formTitle.value
+      }
+    },
+    version: (data.version || 0) + 1
   }
+  if (!!formKey.value && formKey.value !== '') {
+    newData.config.human_task.form_key = formKey.value.toString()
+    newData.config.human_task.form_fields = formField.value
+  }
+
   node.setData(newData, { overwrite: true, deep: true })
-  formKey.value = Number(id)
-  graphProvider?.graph.value?.stopBatch('update-fromKey-data')
+  graphProvider?.graph.value?.stopBatch('update-form-setting-data')
+}
+
+async function handelSubmitForm(formID: string) {
+  formKey.value = formID
+  updateFormField()
+  update()
+}
+
+function updateFormField() {
+  // formField 有資料：保留相同 id 的舊數據，其它用新數據
+  const byId = new Map(formField.value.map((f: any) => [f.id, f]))
+  formField.value = variables.value.filter((item: any) => !item.id.startsWith('__system__')).map((n: any) => byId.get(n.id) ?? n)
 }
 
 async function previewForm() {
-  const json = await getFormJson()
+  if (!formKey.value && formKey.value == '') {
+    routerProvider?.message.error('Form not configured')
+    return
+  }
+
+  await getFormJson()
   formRenderVisible.value = true
   nextTick(() => {
-    fromRenderRef.value.setForm(json)
+    fromRenderRef.value.setForm(formJson.value)
   })
 }
 
+function handleUpdateFormField(field: any) {
+  formField.value = formField.value.map((item: any) => {
+    if (item.id === field.id) return { ...field }
+    return item
+  })
+  update()
+}
+
 async function getFormJson() {
+  formJson.value = {}
   try {
-    if (!!formKey.value && formKey.value !== 0) {
+    if (!!formKey.value && formKey.value !== '') {
       const data: any = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
       if (!data) return {}
-
-      return data.jsonValue
-    } else {
-      return {}
+      formJson.value = data.jsonValue
     }
   } catch (e) {
     console.log(e)
   }
 }
 
-const processNode = computed(() => {
-  const process: Node = graphProvider?.graph.value?.getNodes().find((node: any) => node.getData().type === 'process')
-  if (!process) {
-    routerProvider?.message.error('Process Node not found')
-    return {}
-  }
-  return process
-})
-
 onMounted(() => {
-  useWorkflowAdditionalContext(refreshData)
+  useWorkflowAdditionalContext(initData)
 })
 
 watch(
   () => node,
   () => {
     if (node) {
-      refreshData()
+      initData()
     }
   },
   {
@@ -122,36 +152,30 @@ watch(
 </script>
 
 <template>
-  <div class="formComponentContainer">
-    <div class="title">{{ $t('workflowEdior.formField') }}</div>
+  <el-form label-position="top" :disabled="graphProvider.readonly.value">
+    <div class="title">{{ $t('Form Setting') }}</div>
+    <el-form-item :label="t('Form Title')">
+      <el-input v-model="formTitle" @change="update" />
+    </el-form-item>
     <div class="actionsContainer">
-      <ElButton type="primary" id="Workflow__UserTask__EditField" :disabled="graphProvider.readonly.value" @click="editField">Edit Field</ElButton>
-      <ElButton type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</ElButton>
-      <ElButton type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</ElButton>
+      <el-button type="primary" id="Workflow__UserTask__EditField" @click="editField">Edit Form Field</el-button>
+      <el-button type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</el-button>
+      <el-button type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
     </div>
-
     <div class="actionsContainer">
-      <ElButton size="small" @click="copyFormAndFieldSetting" :disabled="graphProvider.readonly.value">Copy Form and Field setting</ElButton>
-      <ElButton v-if="graphProvider.copyKey.value" size="small" :disabled="graphProvider.readonly.value" @click="pasteForm"> Paste Form </ElButton>
+      <el-button size="small" @click="copyFormAndFieldSetting">Copy Form</el-button>
+      <el-button v-if="graphProvider.copyKey.value" size="small" @click="pasteForm">Paste Form</el-button>
     </div>
-  </div>
+  </el-form>
 
-  <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="processNode" />
-  <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" @submit="handelSubmitForm" />
+  <LazyContextFormFieldManageDialog ref="contextFormFieldManageDialogRef" :form-field="formField" @updateFormField="handleUpdateFormField" />
+  <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variablesData" :processKey="workflowKey" @submit="handelSubmitForm" />
   <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
     <LazyContextFormRender ref="fromRenderRef" />
   </el-dialog>
 </template>
 
 <style lang="scss" scoped>
-.actions {
-  cursor: pointer;
-}
-
-.mover {
-  cursor: move;
-}
-
 .actionsContainer {
   display: flex;
   flex-flow: column nowrap;
@@ -169,18 +193,5 @@ watch(
   :deep(.el-button + .el-button) {
     margin-left: 0;
   }
-}
-
-.flip-list-move {
-  transition: transform 0.5s;
-}
-
-.no-move {
-  transition: transform 0s;
-}
-
-.ghost {
-  opacity: 0.5;
-  background: #c8ebfb;
 }
 </style>

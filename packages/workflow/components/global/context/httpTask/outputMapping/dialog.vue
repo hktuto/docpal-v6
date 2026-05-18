@@ -33,9 +33,9 @@ const createMapping = ref<{
   key: '',
   // type: 'string'
 })
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringFields = computed(() => {
-  return getVariablesByType(['string'])
+  return getVariablesByDisplayTypes(['text'])
 })
 
 function open() {
