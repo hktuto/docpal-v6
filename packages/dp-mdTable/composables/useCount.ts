@@ -31,7 +31,7 @@ export function useCount(props: any) {
     }
     if (viewTools?.getPageParams) {
       const { orderBy: _orderBy, groupBy: _groupBy, pagination: _pagination, columns: _columns, ...filterParams } =
-        viewTools.getPageParams({ getGroup: false }) || {}
+        viewTools.getPageParams(false, false) || {}
       if (filterParams.conditions?.length) {
         requestParams.conditions = filterParams.conditions
       }

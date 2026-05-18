@@ -295,11 +295,22 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
     const _level = row.__level
     const nextColumn = columnGroupRules.value[_level + 1]
+    let basicParams: any = {}
     if (nextColumn) {
       additionParams.groupBy = {
         columns: [nextColumn.field]
       }
+
+      additionParams.orderBy = [
+        {
+          column: nextColumn.field,
+          desc: nextColumn.order === 'desc'
+        }
+      ]
       additionParams.columns = buildGroupAggregateColumns(nextColumn.field)
+      basicParams = viewTools?.getPageParams(false, false)
+    } else {
+      basicParams = viewTools?.getPageParams(false, true)
     }
     for (let i = 0; i < _level + 1; i++) {
       const column = columnGroupRules.value[i]
@@ -310,7 +321,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       })
     }
     try {
-      const basicParams: any = viewTools?.getPageParams({ getGroup: false })
       const params = mergeParams(basicParams, additionParams)
       const { data } = await postDynamicActions({
         tableId,
@@ -479,7 +489,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       })
     }
     try {
-      const basicParams = withoutOrderBy(viewTools?.getPageParams({ getGroup: false }) || {})
+      const basicParams = withoutOrderBy(viewTools?.getPageParams(false, false) || {})
       const params = withoutOrderBy(mergeParams(basicParams, additionParams))
       const { data } = await postDynamicActions({
         tableId,
