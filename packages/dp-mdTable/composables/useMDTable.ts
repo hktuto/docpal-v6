@@ -3,6 +3,8 @@ import { provide, inject, ref, type Ref } from 'vue'
 import type { VxeGridInstance } from 'vxe-table'
 import { useUpdateStatus } from './useUpdateStatus'
 import type { TableDataRefreshOptions } from './useTableData'
+
+export type RefreshTableData = (options?: TableDataRefreshOptions) => Promise<void>
 import { clientApi } from 'api'
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
@@ -21,7 +23,8 @@ export interface mdTable {
   getUserList: () => Promise<any[]>
   userList: Ref<any[]>
   tableData: Ref<any[]>
-  refreshTableData: (options?: TableDataRefreshOptions) => Promise<void>
+  refreshTableData: RefreshTableData
+  updateExpandedRows: () => void
   updateRow: (rowId: string, data: any) => Promise<boolean>
   addRow: (row: any) => void
   addColumnPopoverRef: Ref<any>
@@ -139,6 +142,7 @@ export function useMDTable(props: any) {
     getUserList,
     userList,
     refreshTableData,
+    updateExpandedRows,
     updateRow,
     addRow,
     addColumnPopoverRef,
