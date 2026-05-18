@@ -14,7 +14,8 @@ const FormDialogRef = ref()
 const { variables, deleteVariableItem, saveStartEventFormFields } = useVariablesProvide()
 
 function open() {
-  node.value = graphProvider?.graph.value?.getNodes().find((node: any) => node.getData().type === 'process')
+  const nodes: any[] = graphProvider?.graph?.value?.getNodes()
+  node.value = nodes?.find((node: any) => node.getData().type === 'process')
   if (!node.value) {
     routerProvider?.message.error('Process Node not found')
     return

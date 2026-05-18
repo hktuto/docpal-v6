@@ -34,12 +34,13 @@ function initData() {
 
 function update() {
   graphProvider?.graph.value?.startBatch('update-start-setting-data')
-  const data = node.getData()
+  const nodeData = node.getData()
   const newData = {
-    ...data,
+    ...nodeData,
     config: {
-      ...data.config
-    }
+      ...nodeData.config
+    },
+    version: (nodeData.version || 0) + 1
   }
   if (!!formKey.value && formKey.value !== '') {
     newData.config.initialise.form_key = formKey.value.toString()
