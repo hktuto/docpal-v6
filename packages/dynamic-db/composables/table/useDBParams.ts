@@ -78,7 +78,7 @@ export function useDBParams() {
     )
   }
 
-  function getPageParams({ getGroup }: { getGroup?: boolean } = { getGroup: true }) {
+  function getPageParams(getGroup: boolean = true, getOrderBy: boolean = true) {
     const params: any = {
       // dryRun: true,
     }
@@ -116,7 +116,7 @@ export function useDBParams() {
           desc: columnGroupRules.value[0].order === 'desc'
         }
       ]
-    } else if (columnSortRules.value && columnSortRules.value.length > 0) {
+    } else if (columnSortRules.value && columnSortRules.value.length > 0 && getOrderBy) {
       const orderBy = getSortRules()
       if (orderBy.length > 0) {
         params.orderBy = orderBy
