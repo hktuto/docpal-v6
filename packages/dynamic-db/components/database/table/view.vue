@@ -202,6 +202,13 @@ function getTableCell(focus: any) {
       type: 'card-cell',
       selector
     }
+  }else {
+    const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
+    return {
+      element: document.querySelector(selector) as HTMLElement | null,
+      type: 'table-cell',
+      selector
+    }
   }
 }
 
