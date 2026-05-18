@@ -108,7 +108,7 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       @row-context-menu="handleRowContextMenu"
       @reload="handleRefresh"
     />
-    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
     <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
   </div>
 </template>

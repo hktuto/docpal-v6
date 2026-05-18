@@ -55,7 +55,8 @@ interface Emits {
   (e: 'add-row'): void
 }
 const { columns, updateViewFilterSortGroup, systemFieldsTypes } = inject('viewTools')
-const { addRow } = useTableDataInject()
+const tableDataContext = useTableDataInject({ required: false })
+const addRow = tableDataContext?.addRow
 if (!updateViewFilterSortGroup) {
   throw new Error('updateViewFilterSortGroup is not found')
 }
@@ -80,6 +81,9 @@ const handleAddRow = () => {
   MdFormPopoverRef.value.open({})
 }
 const handleAddRowSubmit = async (data: any) => {
+  if (!addRow) {
+    return
+  }
   await addRow(data)
 }
 // 暴露方法

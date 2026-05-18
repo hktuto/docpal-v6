@@ -36,7 +36,8 @@ export function useMDCard(props: MDCardProps) {
     deleteRow,
     getTableData,
     loadMore,
-    getAggChildData
+    getAggChildData,
+    syncRowAndGroupAncestors
   } = useTableData(props.tableId, cardRef)
 
   // 计算封面字段
@@ -47,7 +48,9 @@ export function useMDCard(props: MDCardProps) {
   provide(MDCardContextKey, {
     tableId: props.tableId,
     updateRow,
+    getTableData,
     getAggChildData,
+    syncRowAndGroupAncestors,
     coverField,
     tableData,
     loading,
@@ -58,7 +61,6 @@ export function useMDCard(props: MDCardProps) {
   })
   onMounted(async () => {
     await getTableData()
-    console.log('tableData', tableData)
   })
   return {
     columns: props.extraColumnConfig?.columns,

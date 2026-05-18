@@ -61,7 +61,7 @@
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
       <RecordCardDialog ref="recordCardDialogRef" />
     </div>
-    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
   </div>
 </template>
 
@@ -79,12 +79,6 @@ import { createFieldId } from '../../utils/mdTableHelper'
 import { useMDTable } from '../../composables/useMDTable'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
-
-interface ColumnVisibilityItem {
-  fieldId: string
-  title: string
-  display: boolean
-}
 
 interface Props {
   tableId?: string
@@ -153,7 +147,7 @@ const emit = defineEmits<{
 }>()
 
 // 引用
-const activeGroupFields = ref<string[]>([])
+const isGroupingEnabled = computed(() => (props.extraColumnConfig?.columnGroupRules?.value?.length ?? 0) > 0)
 const addPopoverRef = ref()
 const {
   tableData,
@@ -162,6 +156,7 @@ const {
   gridRef,
   refreshTableData,
   updateRow,
+  syncRowAndGroupAncestors,
   currentEditing,
   addVirtualColumn,
   addColumnPopoverRef,
@@ -171,9 +166,7 @@ const {
 } = useMDTable(props)
 const { getAgg } = useCount(props)
 
-// Import update status composable
-await new Promise((resolve) => setTimeout(resolve, 1000))
-const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
+const { setLoading, setSuccess, setError } = useUpdateStatus()
 const rightClickCellPopoverRef = ref()
 const recordCardDialogRef = ref()
 function handleMove(direction: 'up' | 'down') {
@@ -213,6 +206,9 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       await updateRow(row.id, updateData)
       // Set success state - will auto-clear after delay
       setSuccess(row.id, column.field)
+      if (isGroupingEnabled.value) {
+        await syncRowAndGroupAncestors(row.id, { gridRef })
+      }
     } catch (error) {
       console.error('Failed to update row:', error)
       setError(row.id, column.field, error instanceof Error ? error.message : 'Update failed')
@@ -280,9 +276,10 @@ const filteredSlots = computed(() => {
   return filtered
 })
 
-// 方法
 const handleRefresh = async () => {
-  await refreshTableData()
+  updateExpandedRows()
+  await refreshTableData({ silent: true, keepPage: true })
+  await getAgg()
   emit('refresh')
 }
 

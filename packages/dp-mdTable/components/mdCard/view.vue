@@ -74,11 +74,15 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
 }
 
 async function handleEditRecord(data: any, id: string) {
-  console.log('handleEditRecord', data)
   const updated = await updateRow(id, data)
-  if (updated !== false) {
-    activeViewRef.value?.updateRow?.(id, data)
+  if (updated === false) {
+    return
   }
+  if (props.isGroupingEnabled) {
+    await activeViewRef.value?.syncAfterEdit?.(id)
+    return
+  }
+  activeViewRef.value?.updateRow?.(id, data)
 }
 
 function commitProxy(type: string = 'reload') {

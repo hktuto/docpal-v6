@@ -86,12 +86,11 @@ function connect() {
 }
 
 function broadcastChange(change: { type: string; rowId?: string; rowIds?: string[]; tableId: string; menuId: string }) {
-  const localUser = JSON.parse(localStorage.getItem('docpal-user') || '{}')
   const fullChange = {
     ...change,
     id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
     timestamp: Date.now(),
-    userId: localUser.userId || ''
+    userId: getSessionAwarenessId()
   }
   hocuspocusManager.broadcastChanges(roomName.value, [fullChange as any])
 }
