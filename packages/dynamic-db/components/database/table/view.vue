@@ -137,7 +137,7 @@ function exitRowEdit() {
     status: 'saved'
   })
 }
-function startEditHandler(params:any) {
+function startEditHandler(params: any) {
   setAwareness({
     rowId: params.row.id,
     cellId: params.column.field,
@@ -148,7 +148,8 @@ function startEditHandler(params:any) {
 }
 function handleCellMouseLeave(params: any) {
 }
-function startEditRowHandler(params:any) {
+function startEditRowHandler(params: any) {
+  if(params.mode && params.mode !== 'edit') return
   setAwareness({
     rowId: params.row.id,
     editingRow: true,
