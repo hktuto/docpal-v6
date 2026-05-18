@@ -16,6 +16,7 @@ if (!graphProvider) {
   throw createError('provider not found')
 }
 const { workflowKey } = graphProvider
+const loading = ref<boolean>(false)
 const formKey = ref<string>('')
 const formJson = ref({})
 const variables = computed(() => {
@@ -55,8 +56,10 @@ function editField() {
 }
 
 async function editForm() {
+  loading.vale = true
   await getFormJson()
   formDialogRef.value.openDialog(formJson.value)
+  loading.vale = false
 }
 
 function handelSubmitForm(id: string) {
@@ -97,7 +100,7 @@ watch(
     <el-button style="width: 100%" type="primary" id="Workflow__Start__EditField" @click="editField">
       {{ $t('Workflow Global Variables') }}
     </el-button>
-    <el-button style="width: 100%" type="primary" id="Workflow__Start__EditForm" @click="editForm">
+    <el-button v-loading="loading" style="width: 100%" type="primary" id="Workflow__Start__EditForm" @click="editForm">
       {{ $t('Edit Start Form') }}
     </el-button>
   </div>

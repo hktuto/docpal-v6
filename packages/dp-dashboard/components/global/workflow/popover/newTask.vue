@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { newClientApi } from 'api'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { conversionFormDataByVariables, newWorkflowStartPage } from '#imports'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const vFormRef = ref()
 const workflowEditorRef = ref()
@@ -25,54 +26,59 @@ async function workflowClickHandler(workflowItem: any) {
   state.loading = true
   openWorkflowEdit.value = false
   openWorkflowEdit.value = true
-  const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => r.data.data)
-  if (!data) return
-  if (data.published_version < 1) {
-    state.loading = false
-    routerProvider?.message.error('Workflow has not been released.')
-    return
+  try {
+    const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))
+    if (!data) return
+    if (data.published_version < 1) {
+      state.loading = false
+      routerProvider?.message.error('Workflow has not been released.')
+      return
+    }
+
+    state.selectedWorkflow = deepCopy(data)
+
+    // Workflow 未發佈
+    if (Object.keys(data.content).length === 0) {
+      state.loading = false
+      routerProvider?.message.error('Workflow has not been released.')
+      return
+    }
+
+    const startTask = data.content.nodes.find((item: any) => item.id === 'system_start_event')
+    if (!startTask) {
+      state.loading = false
+      routerProvider?.message.error('Start Task missing')
+      return
+    }
+
+    // 未配置流程
+    if (startTask.flow.outgoing.length === 0) {
+      routerProvider?.message.error('Workflow No process')
+      return
+    }
+
+    // Start Task has no set E-Form
+    if (!startTask.config?.initialise?.form_key || startTask.config?.initialise?.form_key === '') {
+      await directlyStart(data.id)
+      state.loading = false
+      return
+    }
+
+    // Open in new page
+    if (startTask.metadata.openInNewPage) {
+      state.loading = false
+      const link = newWorkflowStartPage(data.name, data.id, startTask)
+      routerProvider?.navigateTo(link)
+      return
+    }
+
+    state.formVariables = startTask.config?.initialise?.form_fields || []
+    state.formDialogVisible = true
+    await initForm(startTask)
+  } catch (e) {
+    routerProvider?.message.error('Failed to start workflow.')
+    console.log(e)
   }
-
-  state.selectedWorkflow = deepCopy(data)
-
-  // Workflow 未發佈
-  if (Object.keys(data.content).length === 0) {
-    state.loading = false
-    routerProvider?.message.error('Workflow has not been released.')
-    return
-  }
-
-  const startTask = data.content.nodes.find((item: any) => item.id === 'system_start_event')
-  if (!startTask) {
-    state.loading = false
-    routerProvider?.message.error('Start Task missing')
-    return
-  }
-
-  // 未配置流程
-  if (startTask.flow.outgoing.length === 0) {
-    routerProvider?.message.error('Workflow No process')
-    return
-  }
-
-  // Start Task has no set E-Form
-  if (!startTask.config?.initialise?.form_key || startTask.config?.initialise?.form_key === '') {
-    await directlyStart(data.id)
-    state.loading = false
-    return
-  }
-
-  // Open in new page
-  if (startTask.metadata.openInNewPage) {
-    state.loading = false
-    const link = newWorkflowStartPage(data.name, data.id, startTask)
-    routerProvider?.navigateTo(link)
-    return
-  }
-
-  state.formVariables = startTask.config?.initialise?.form_fields || []
-  state.formDialogVisible = true
-  await initForm(startTask)
 }
 
 async function directlyStart(definition_id: string) {
@@ -120,17 +126,19 @@ async function checkAndSubmit() {
     }
 
     try {
-      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
+      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
       state.formDialogVisible = false
 
       setTimeout(async () => {
         // Check workflow running status
-        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data.data)
+        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
         if (newVar.state === 'running') {
           ElMessage.success('Workflow created')
         }
       }, 100)
     } catch (e) {
+      state.formDialogVisible = false
+      routerProvider?.message.error('Failed to start workflow, please contact the administrator! ')
       console.log(e)
     }
   }

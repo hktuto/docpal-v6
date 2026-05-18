@@ -156,7 +156,7 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="opened" width="75%" append-to-body destroy-on-close :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
+  <el-dialog v-model="opened" width="75%" append-to-body destroy-on-close :close-on-click-modal="false" :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
     <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top" status-icon @submit.stop>
       <el-form-item label="ID" prop="id">
         <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />

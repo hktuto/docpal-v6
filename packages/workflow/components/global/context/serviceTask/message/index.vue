@@ -18,7 +18,9 @@ const { config } = defineProps<{
 }>()
 const emits = defineEmits(['update'])
 const formData = ref()
-const stringVariablesList = ref()
+const stringVariablesList = computed(() => {
+  return getVariablesByDisplayTypes(['text'], true)
+})
 
 function init() {
   formData.value = deepCopy(config.email)
@@ -29,7 +31,7 @@ function update() {
   emits('update', {
     name: 'update-message-data',
     config: {
-      email:formData.value,
+      email: formData.value,
       input_mapping: {},
       output_mapping: {}
     }
@@ -46,10 +48,6 @@ watch(
     deep: true
   }
 )
-
-onMounted(async () => {
-  stringVariablesList.value = getVariablesByDisplayTypes(['text'], true)
-})
 </script>
 
 <template>

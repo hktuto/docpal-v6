@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { newClientApi } from 'api'
-import { routeWorkflowPage } from '#imports'
+import { routeWorkflowPage, workflowResponseHelper } from '#imports'
 import { generateData, replaceVariables } from 'docpal-document-editor/src/utils'
 import { CellType, conversionFormDataByVariables, getButtonAdditionalElement } from '#imports'
 
@@ -42,7 +42,7 @@ async function getDetail() {
   try {
     state.loading = true
     state.error = null
-    const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => r.data.data)
+    const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => workflowResponseHelper(r))
     if (!data) {
       state.error = 'Get Task Detail Failed'
       return
@@ -58,9 +58,9 @@ async function getDetail() {
     state.title = data.config?.human_task?.form_title || data.name
     variables.value = data.config?.human_task?.form_fields || []
 
-    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data.data)
+    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
     variablesData.value = instanceData.variables || {}
-    contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data.data)
+    contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => workflowResponseHelper(r))
 
     if (data.config?.human_task?.assignee === userId) {
       isAssigneeUser.value = true
@@ -239,7 +239,7 @@ async function handleSubmitUserTask() {
       user_id: userId,
       variables: cFormData
     })
-    .then((r: any) => r.data)
+    .then((r: any) => workflowResponseHelper(r))
   console.log('--- handleSubmitUserTask: ', data)
 }
 
@@ -251,7 +251,7 @@ async function handleSubmitServiceTask() {
       process_id: taskDetail.value.process_id,
       variables: cFormData
     })
-    .then((r: any) => r.data)
+    .then((r: any) => workflowResponseHelper(r))
   console.log('--handleSubmitServiceTask: ', data)
 }
 

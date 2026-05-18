@@ -267,3 +267,8 @@ function joinType(type: string) {
       return 'XOR'
   }
 }
+
+export function workflowResponseHelper(res: any) {
+  if (!res || !res.data || (!res.data.code === 200 && !res.data.code === 200)) throw Error(res.data.message || 'server error')
+  return res.data.data
+}

@@ -35,7 +35,8 @@ export const getTaskItemConfig = {
     output_mapping: {}
   },
   SubProcess: {
-    processDefinitionId: ''
+    processDefinitionId: '',
+    variables: {}
   },
   ValidateTask: {
     rules: [],

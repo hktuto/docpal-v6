@@ -7,7 +7,7 @@ export type VariableItemType = 'string' | 'number' | 'boolean' | 'date'
 export const VariableItemDisplayType = {
   string: [
     'text',
-    'file_id'
+    'file'
     // , 'url', 'email', 'phone'
   ],
   number: ['number'],
@@ -24,7 +24,8 @@ export const VariableTypeOptions = [
         type: 'string',
         display_type: 'text',
         validation: {
-          max_length: 255
+          max_length: 255,
+          min_length: 1
         },
         component: 'ContextVariableDataTypeString'
       },
@@ -32,7 +33,10 @@ export const VariableTypeOptions = [
         label: 'File',
         type: 'string',
         display_type: 'file',
-        validation: {},
+        validation: {
+          max_length: 255,
+          min_length: 1
+        },
         component: 'ContextVariableDataTypeString'
       },
       // {
