@@ -510,12 +510,28 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       groupChildren?: Ref<Record<string, any[]>>
     } = {}
   ) {
+
     const rules = viewTools?.columnGroupRules?.value
+    console.log("syncRowAndGroupAncestors", rowId, rules)
     if (!rules?.length) {
+      // when no group, update table data directly
+      const row = tableData.value.find((r) => r.id === rowId)
+      const liveRow = await fetchRowById(rowId)
+      if (liveRow) {
+        // compare different and get updated fields
+        const updatedFields = Object.keys(liveRow).filter((k) => liveRow[k] !== row[k])
+        Object.assign(row, liveRow)
+        if (updatedFields.length) {
+          updatedFields.forEach((field) => {
+            setSuccess(row.id, field)
+          })
+        }
+      }
       return null
     }
 
     const liveRow = await fetchRowById(rowId)
+    console.log("live row", liveRow)
     if (!liveRow) {
       return null
     }
@@ -524,8 +540,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     const grid = options.gridRef?.value
     if (grid) {
       const fullData = grid.getTableData?.()?.fullData || []
+      console.log("full data", fullData)
       treeResult = findRowAndAncestors(fullData, rowId)
       if (treeResult?.row) {
+        console.log("tree result", treeResult)
         Object.assign(treeResult.row, liveRow)
       }
     }
@@ -562,7 +580,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     return m?.value || m
   }
   const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
-  function handleRemoteChangeEvent(event: any) {
+  async function handleRemoteChangeEvent(event: any) {
     const { change, userName } = event
     const currentMenuId = getCurrentMenuId()
     console.log('handleRemoteChangeEvent', event)
@@ -570,21 +588,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
     switch (change.type) {
       case 'row_updated': {
-        const row = tableData.value.find((r) => r.id === change.rowId)
-        if (row) {
-          fetchRowById(change.rowId).then((liveRow) => {
-            if (liveRow) {
-              // compare different and get updated fields
-              const updatedFields = Object.keys(liveRow).filter((k) => liveRow[k] !== row[k])
-              Object.assign(row, liveRow)
-              if (updatedFields.length) {
-                updatedFields.forEach((field) => {
-                  setSuccess(row.id, field)
-                })
-              }
-            }
-          })
-        }
+        await syncRowAndGroupAncestors(change.rowId, { gridRef })
         break
       }
       case 'row_deleted': {
