@@ -74,7 +74,11 @@ export function useMDTable(props: any) {
       // Add cell class name function for update status visual feedback
       cellClassName: ({ row, column }: any) => {
         if (!row?.id || !column?.field) return ''
-        return getCellClass(row.id, column.field)
+        const additionalClass = getCellClass(row.id, column.field)
+        if (row.__deleted) {
+          return `${additionalClass} cell-update-deleted`
+        }
+        return additionalClass
       },
     },
     gridRef
