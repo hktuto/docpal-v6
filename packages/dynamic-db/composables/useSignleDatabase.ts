@@ -2,6 +2,7 @@ import type { DatabaseItem } from '../../../utils/databaseType'
 import { newClientApi, clientApi } from 'api'
 import { useUserId } from '../../authApp/composables/useAuth'
 import { MenuType } from '@packages/dp-mdTable/types/menu-type'
+import DisplayMetaTable from '../../../pages/admin-document-type/components/docType/displayMetaTable.vue'
 
 export type PermissionLevel = 'Member' | 'Manage'
 export type MenuItemPermissionLevel = 'View' | 'Edit' | 'Manage'
@@ -315,7 +316,6 @@ export const useSingleDatabase = () => {
   async function getAllMenuItemPermissions() {
 
     const allItems = menuState.value.items
-    console.log("getAllMenuItemPermissions allItems", allItems)
     if (!allItems.length) return
 
     const ids = flattenMenuItemIds(allItems)
@@ -336,7 +336,6 @@ export const useSingleDatabase = () => {
       })
     )
     menuItemPermissionMap.value = map
-    console.log("getAllMenuItemPermissions", map)
   }
 
   /**
@@ -498,12 +497,12 @@ export const useSingleDatabase = () => {
         databaseMenuRouteParams.value.detailType = item.item_type
         databaseMenuRouteParams.value.item_id = item.item_id
         databaseMenuRouteParams.value.pageType = pageType
-        console.log('navigateToItem', databaseMenuRouteParams.value)
         break
       case MenuType.table:
         databaseMenuRouteParams.value.detailId = item.id
         databaseMenuRouteParams.value.detailType = item.item_type
         databaseMenuRouteParams.value.item_id = item.item_id
+        databaseMenuRouteParams.value.tableId = item.item_id
         databaseMenuRouteParams.value.pageType = pageType
         break
       case MenuType.dashboard:
@@ -562,7 +561,6 @@ export const useSingleDatabase = () => {
   }
 
   function openSetting(slug: string, type: CaseTreeItemType) {
-    console.log('openSetting', slug, type)
     databaseMenuRouteParams.value.pageType = 'setting'
     databaseMenuRouteParams.value.detailId = slug
     databaseMenuRouteParams.value.detailType = type
