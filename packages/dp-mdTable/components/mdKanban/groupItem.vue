@@ -55,7 +55,7 @@ const contentValues = computed(() => {
 </script>
 
 <template>
-  <div class="groupItem">
+  <div class="groupItem" :id="'groupItem_' + item.id">
     <div v-if="layout?.title" class="card-title">{{ titleValue }}</div>
     <div v-if="contentValues.length" class="card-content">
       <div v-for="c in contentValues" :key="c.field" class="card-field">

@@ -16,6 +16,7 @@ export interface MDCardProps {
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
     viewStyleConfig?: Ref<Record<string, any>>
+    currentEditing?:any
     updateViewFilterSortGroup?: (fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style', value: any) => Promise<void>
   }
 }
@@ -37,6 +38,7 @@ export function useMDCard(props: MDCardProps) {
     getTableData,
     loadMore,
     getAggChildData,
+    currentEditing,
     syncRowAndGroupAncestors
   } = useTableData(props.tableId, cardRef)
 
@@ -57,6 +59,7 @@ export function useMDCard(props: MDCardProps) {
     hasMore,
     loadingMore,
     systemFieldsTypes,
+    currentEditing,
     ...props.extraColumnConfig
   })
   onMounted(async () => {

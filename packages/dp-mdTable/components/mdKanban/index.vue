@@ -28,7 +28,9 @@ const emit = defineEmits<{
   refresh: []
   search: [value: string]
   'add-row': []
-  'update-label': [payload: { id: string | null, label: string }]
+  'update-label': [payload: { id: string | null, label: string }],
+  'start-edit-row': [row: any],
+  'exit-edit-row': [row: any]
 }>()
 
 const showToolbar = computed(() => {
@@ -322,6 +324,13 @@ function handleRefresh() {
   })
 }
 
+function startEdit(params: any) {
+  emit('start-edit-row', params)
+}
+function exitEdit(params:any){
+  emit('exit-edit-row', params)
+}
+
 onMounted(() => {
   initSortable()
   initSetting()
@@ -358,6 +367,9 @@ onBeforeUnmount(() => {
             :group="{ id: null, label: 'All Data' }"
             :field="viewStyleConfig.selectedColumnId"
             :table-id="props.tableId"
+            :canEditTable="canEditTable"
+            @start-edit-row="startEdit"
+            @exit-edit-row="exitEdit"
             @needRefresh="handleNeedRefresh"
         />
         <div ref="groupListRef" class="group_list">
@@ -369,9 +381,12 @@ onBeforeUnmount(() => {
                 :color="option.color"
                 :field="viewStyleConfig.selectedColumnId"
                 :table-id="props.tableId"
+                :canEditTable="canEditTable"
                 @needRefresh="handleNeedRefresh"
                 @update-label="updateLabel"
                 @update-color="updateColor"
+                @start-edit-row="startEdit"
+                @exit-edit-row="exitEdit"
                 @remove="handleRemove"
             />
         </div>

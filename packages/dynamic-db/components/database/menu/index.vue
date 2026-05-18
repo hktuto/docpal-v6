@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useImportBatch, isExcelFile } from '../../../composables/import/useImportBatch'
+import { captureTableSnapshot, startPostImportAnalysis } from '../../../composables/import/useImportRelationAnalysis'
 import { useMenuDrag } from '../../../composables/menu/useMenuDrag'
 import { ElMessage } from 'element-plus'
 
@@ -44,8 +45,10 @@ const {
     const excelFile = files.find(isExcelFile)
     initData({ entityId: database.value?.id })
     if (excelFile && database.value?.id) {
+      const preSnapshot = await captureTableSnapshot(database.value.id)
       const result = await importExcelFile(excelFile)
       await getMenuFromDb()
+      startPostImportAnalysis(preSnapshot, database.value.id)
     }
     } catch (e) {
 
@@ -61,7 +64,10 @@ async function handleFolderDrop(folderId: string, file: File) {
     try{
       menuLoading.value = true
       initData({ entityId: database.value?.id, parentFolderId:folderId })
+      const preSnapshot = await captureTableSnapshot(database.value.id)
       const result = await importExcelFile(file)
+      await getMenuFromDb()
+      startPostImportAnalysis(preSnapshot, database.value.id)
 
     }catch(e){
 
@@ -88,6 +94,7 @@ async function handleFileInputChange(event: Event) {
     try {
 
     initData({ entityId: database.value?.id })
+    const preSnapshot = await captureTableSnapshot(database.value?.id)
     const result = await importExcelFile(file)
     console.log("result", result)
     if (result.hasErrorReport) {
@@ -96,6 +103,7 @@ async function handleFileInputChange(event: Event) {
 
     }
      await getMenuFromDb()
+     startPostImportAnalysis(preSnapshot, database.value?.id)
     } catch (e) {
 
     } finally {

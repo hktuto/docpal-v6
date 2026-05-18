@@ -44,8 +44,7 @@ watch(
 watch(
   databaseMenuRouteParams,
   () => {
-    console.log("databaseMenuRouteParams", databaseMenuRouteParams.value)
-    hocuspocusManager.setFocus(roomName.value, { menuId: databaseMenuRouteParams.value.detailId})
+    hocuspocusManager.setFocus(roomName.value, { menuId: databaseMenuRouteParams.value.tableId || databaseMenuRouteParams.value.detailId})
   }, {
     deep: true
   }
@@ -172,7 +171,6 @@ watch(
   props,
   async () => {
     await getDatabaseById(props.id)
-
     if (props.detailId) {
       databaseMenuRouteParams.value.detailId = props.detailId
       databaseMenuRouteParams.value.detailType = props.detailType
