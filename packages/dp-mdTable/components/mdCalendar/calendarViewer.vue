@@ -231,8 +231,9 @@ function openDetail(item: any) {
   selectedRow.value = item
    const mode = currentEditing.value.includes(item.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
   MdFormPopoverRef.value?.open(item, mode)
+  console.log("openDetail", item, mode)
   if(mode === 'edit') {
-    emit('start-edit-row', item)
+    emit('start-edit-row', {row:item, mode: 'edit'})
   }
 }
 

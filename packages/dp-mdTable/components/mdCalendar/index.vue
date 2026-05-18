@@ -105,6 +105,7 @@ onMounted(() => {
         :end-field="endField"
         :title-field="titleField"
         :is-full-day-field="isFullDayField"
+        :canEditTable="canEditTable"
         @start-edit-row="handleStartEditRow"
         @exit-edit-row="handleExitEditRow"
         @event-click="handleEventClick"

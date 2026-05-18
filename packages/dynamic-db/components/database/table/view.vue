@@ -171,14 +171,7 @@ function startEditRowHandler(params: any) {
 
 function getTableCell(focus: any) {
   const type = currentView.value?.type || 'table'
-  if (type === 'table') {
-    const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
-    return {
-      element: document.querySelector(selector) as HTMLElement | null,
-      type: 'table-cell',
-      selector
-    }
-  }else if(type === 'kanban'){
+   if(type === 'kanban'){
     const selector = `#groupItem_${focus.rowId}`
     return {
       element: document.querySelector(selector) as HTMLElement | null,
@@ -203,11 +196,20 @@ function getTableCell(focus: any) {
       selector
     }
   }else {
-    const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
-    return {
-      element: document.querySelector(selector) as HTMLElement | null,
-      type: 'table-cell',
-      selector
+    if(!focus.cellId){
+      const selector = `tr[rowid="${focus.rowId}"] td:nth-child(2) .vxe-cell`
+      return {
+        element: document.querySelector(selector) as HTMLElement | null,
+        type: 'table-cell',
+        selector
+      }
+    }else{
+      const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
+      return {
+        element: document.querySelector(selector) as HTMLElement | null,
+        type: 'table-cell',
+        selector
+      }
     }
   }
 }
