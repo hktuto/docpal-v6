@@ -28,11 +28,13 @@ const { t } = useI18n()
 const emit = defineEmits<{
   refresh: []
   search: [value: string]
-  'add-row': []
+  'add-row': [],
+  'start-edit-row': [row: any],
+  'exit-edit-row': [row?: any]
 }>()
 const refreshLoading = ref(false)
-const { columns, cardRef, getTableData, addRow, systemFieldsTypes } = useMDCard(props)
-console.log('extraColumnConfig', props.extraColumnConfig)
+const { columns, cardRef, getTableData, addRow, systemFieldsTypes, currentEditing } = useMDCard(props)
+
 const rightClickCellPopoverRef = ref()
 const isGroupingEnabled = computed(() => {
   return props.extraColumnConfig?.columnGroupRules?.value?.length > 0
@@ -58,7 +60,12 @@ async function handleAddRowSubmit(data: any) {
   await addRow(data)
   handleRefresh()
 }
-
+function handleStartEditRow(row: any) {
+  emit('start-edit-row', {row, mode: 'edit'})
+}
+function handleExitEditRow(row?: any) {
+  emit('exit-edit-row', row)
+}
 function handleRowContextMenu(row: any, event: MouseEvent) {
   rightClickCellPopoverRef.value?.open(event, { ...row })
 }
@@ -105,6 +112,9 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       :ref="cardRef"
       :draggable="props.editable"
       :isGroupingEnabled="isGroupingEnabled"
+      :canEditTable="canEditTable"
+      @start-edit-row="handleStartEditRow"
+      @exit-edit-row="handleExitEditRow"
       @row-context-menu="handleRowContextMenu"
       @reload="handleRefresh"
     />
