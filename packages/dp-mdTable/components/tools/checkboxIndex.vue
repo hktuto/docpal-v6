@@ -1,8 +1,8 @@
 <template>
-  <div class="custom-checkbox-cell" :class="{ 'is-checked': row.checked, 'is-indeterminate': isIndeterminate }">
+  <div  class="custom-checkbox-cell" :class="{ 'is-checked': row.checked, 'is-indeterminate': isIndeterminate, 'cell-update-deleted': row.__deleted }">
     <span class="row-index">{{ seq }}</span>
-    <el-checkbox v-model="row.checked" :indeterminate="isIndeterminate" class="row-checkbox" @change="handleCheckboxChange(row)"></el-checkbox>
-    <div class="expand-icon" @click="handleExpandClick(row)">
+    <el-checkbox v-if="!row.__deleted" v-model="row.checked" :indeterminate="isIndeterminate" class="row-checkbox" @change="handleCheckboxChange(row)"></el-checkbox>
+    <div v-if="!row.__deleted" class="expand-icon" @click="handleExpandClick(row)">
       <Icon name="lucide:expand" />
     </div>
   </div>

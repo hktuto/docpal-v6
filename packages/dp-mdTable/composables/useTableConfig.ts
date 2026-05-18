@@ -266,9 +266,10 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       },
       footerData: [{ type: 'footerData' }],
       checkboxConfig: {
+        checkStrictly: true,
+        showHeader: false,
         highlight: true,
-        isShiftKey: true,
-        range: true
+        visibleMethod: ({ row }: any) => !row.__deleted
       },
       'footer-cell-config': {
         height: 32
@@ -375,7 +376,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         const { $table, row } = params
         const rowLevel = $table.getTreeRowLevel(row)
         const data = await childApiMethod?.({ ...params.row, __level: rowLevel })
-        console.log(data)
         resolve(data)
       } catch (error) {
         console.error('treeLoadData error:', error)

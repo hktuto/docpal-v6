@@ -548,7 +548,13 @@ onClickOutside(
     pointer-events: none;
   }
 }
-
+:deep(.vxe-body--row){
+    &:has(.cell-update-deleted) {
+        td{
+            background-color: var(--app-grey-800) !important;
+        }
+    }
+}
 :deep(.cell-update-success) {
   animation: successFlash 0.6s ease-out;
   position: relative;
@@ -563,6 +569,19 @@ onClickOutside(
     background: var(--app-success-color);
     border-radius: 50%;
     animation: successDot 0.6s ease-out;
+  }
+}
+:deep(.cell-update-deleted) {
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 1px);
+    left: 0;
+    width:100%;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.4);
+    text-decoration: line-through;
   }
 }
 
