@@ -159,7 +159,6 @@ function startEditHandler(params: any) {
 function handleCellMouseLeave(params: any) {
 }
 function startEditRowHandler(params: any) {
-  console.log("startEditRowHandler", params)
   if(params.mode && params.mode !== 'edit') return
   setAwareness({
     rowId: params.row.id,
@@ -190,6 +189,14 @@ function getTableCell(focus: any) {
     const selector = `#cardItem_${focus.rowId}`
     const el = document.querySelector(selector) as HTMLElement | null
     console.log("getTableCell", focus, el)
+    return {
+      element: el,
+      type: 'card-cell',
+      selector
+    }
+  }else if(type === 'calendar'){
+    const selector = `.calendar_${focus.rowId}`
+    const el = document.querySelector(selector) as HTMLElement | null
     return {
       element: el,
       type: 'card-cell',

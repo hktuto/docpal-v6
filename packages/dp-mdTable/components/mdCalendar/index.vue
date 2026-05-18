@@ -26,7 +26,8 @@ const props = withDefaults(defineProps<MDCalendarProps>(), {
 const emit = defineEmits<{
   refresh: []
   search: [value: string]
-
+  'start-edit-row': [row: any]
+  'exit-edit-row': [row?: any]
 }>()
 
 const { columns, systemFieldsTypes, viewStyleConfig } = useMDCalendar(props)
@@ -55,6 +56,13 @@ function openSetting() {
 function handleRefresh() {
   emit('refresh')
   viewerRef.value?.refresh()
+}
+function handleStartEditRow(row: any) {
+  emit('start-edit-row', row)
+}
+
+function handleExitEditRow(row?: any) {
+  emit('exit-edit-row', row)
 }
 
 function handleEventClick(event: any) {
@@ -97,6 +105,8 @@ onMounted(() => {
         :end-field="endField"
         :title-field="titleField"
         :is-full-day-field="isFullDayField"
+        @start-edit-row="handleStartEditRow"
+        @exit-edit-row="handleExitEditRow"
         @event-click="handleEventClick"
         @date-click="handleDateClick"
       />

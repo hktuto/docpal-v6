@@ -19,6 +19,7 @@ export interface MDCalendarProps {
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
     viewStyleConfig?: any
+    currentEditing?:any
     updateViewFilterSortGroup?: (
       fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style',
       value: any
@@ -42,18 +43,21 @@ export function useMDCalendar(props: MDCalendarProps) {
     deleteRow,
     getTableData,
     loadMore,
-    getAggChildData
+    getAggChildData,
+    currentEditing
   } = useTableData(props.tableId, cardRef)
 
   provide(MDCalendarContextKey, {
     tableId: props.tableId,
     systemFieldsTypes,
+    currentEditing,
     ...props.extraColumnConfig
   })
 
   return {
     columns: props.extraColumnConfig?.columns,
     systemFieldsTypes,
+    currentEditing,
     tableFields: props.extraColumnConfig?.tableFields,
     viewStyleConfig: props.extraColumnConfig?.viewStyleConfig,
   }
