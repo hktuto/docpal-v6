@@ -301,13 +301,10 @@ function handleFinishEdit() {
 const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
+  const mode = currentEditing.value.includes(row.id)  ? 'edit' : (props.canEditTable ? 'edit' : 'default')
 
-  if (currentEditing.value.includes(row.id) ||　!props.canEditTable) {
-    MdFormPopoverRef.value.open(row, 'default')
-    return
-  }
-  MdFormPopoverRef.value.open(row, props.canEditTable ? 'edit' : 'default')
-  emit('expand-click', { row, rowIndex })
+  MdFormPopoverRef.value.open(row, mode)
+  emit('expand-click', { row, rowIndex, mode })
 }
 function handleExpandIndexChange(row: any) {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
