@@ -12,7 +12,6 @@ interface WorkflowEditorListProvider {
     activeWorkflow:(data:any) => void
     actionPermission:(params:PermissionMethodParams) => {disabled:boolean, visible:boolean}
     createNewWorkflow:() => void
-    openPermissionDialog:(data:any) => void
 }
 
 export const WorkflowEditorListProviderKey: InjectionKey<WorkflowEditorListProvider> = Symbol('workflowEditorListProvider');

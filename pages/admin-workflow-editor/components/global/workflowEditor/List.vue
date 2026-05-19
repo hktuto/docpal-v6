@@ -40,7 +40,6 @@ function openProductionVersion(data: any, openInNewTab = false) {
 }
 
 const saveAsDialogRef = ref()
-const permissionDialogRef = ref()
 const newWorkflowDialogData = ref({
   latestVersion: 'V1'
 })
@@ -63,12 +62,6 @@ const newDialogRef = ref()
 
 function createNewWorkflow() {
   newDialogRef.value.handleOpen()
-}
-
-function openPermissionDialog(data: any) {
-  nextTick(() => {
-    permissionDialogRef.value?.open(data.id)
-  })
 }
 
 function actionPermission({ row, rowIndex, code }: any) {
@@ -108,7 +101,6 @@ provide(WorkflowEditorListProviderKey, {
   actionPermission,
   deleteWorkflow,
   activeWorkflow,
-  openPermissionDialog,
   getListApi: (params) => {
     // Object.keys(filter.value).forEach(key => {
     //     if(filter.value[key]) {
@@ -205,7 +197,6 @@ function reload() {
     <LazyWorkflowEditorNewDialog ref="newDialogRef" @created="handleSaveAsOrCreate" />
     <LazyWorkflowEditorSaveAsDialog ref="saveAsDialogRef" :copyVersion="newWorkflowDialogData.latestVersion"
                                     :data="newWorkflowDialogData" @close="reload" @created="handleSaveAsOrCreate" />
-    <LazyWorkflowEditorPermissionDialog ref="permissionDialogRef" :workflow-id="''" />
   </div>
 </template>
 
