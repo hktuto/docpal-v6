@@ -131,6 +131,9 @@ function handleReset() {
       if (nameRef?.focus) {
         nameRef.focus()
       }
+      if (nameRef?.select) {
+        nameRef.select()
+      }
     })
   }
 }
