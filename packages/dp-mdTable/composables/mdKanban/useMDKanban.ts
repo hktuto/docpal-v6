@@ -7,6 +7,7 @@ export interface MDKanbanProps {
   isMirror?: boolean
   canEditTable: boolean,
   canManageTable: boolean,
+  currentEditing?: any
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void
@@ -42,7 +43,8 @@ export function useMDKanban(props: MDKanbanProps) {
     deleteRow,
     getTableData,
     loadMore,
-    getAggChildData
+    getAggChildData,
+    currentEditing
   } = useTableData(props.tableId, cardRef)
 
 
@@ -53,6 +55,7 @@ export function useMDKanban(props: MDKanbanProps) {
     hasMore,
     loadingMore,
     systemFieldsTypes,
+    currentEditing,
     ...props.extraColumnConfig
   })
 
@@ -68,6 +71,7 @@ export function useMDKanban(props: MDKanbanProps) {
     addRow,
     updateRow,
     deleteRow,
+    currentEditing,
     viewStyleConfig: props.extraColumnConfig?.viewStyleConfig,
   }
 }

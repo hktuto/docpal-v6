@@ -136,8 +136,9 @@ const handleMethodSelect = async (method: CountMethod) => {
     return
   }
   await mdTable.updateViewColumnCountMethod?.(fullColumn.id, method)
-  getAgg()
-  mdTable.refreshTableData?.()
+  mdTable.updateExpandedRows?.()
+  await mdTable.refreshTableData?.({ silent: true, keepPage: true })
+  await getAgg({ silent: true })
 }
 </script>
 

@@ -6,10 +6,12 @@ const props = withDefaults(
   defineProps<{
     isGroupingEnabled: boolean
     draggable?: boolean
+    canEditTable?: boolean
   }>(),
   {
     isGroupingEnabled: false,
-    draggable: false
+    draggable: false,
+    canEditTable: false
   }
 )
 
@@ -28,10 +30,12 @@ const emit = defineEmits<{
   'open-record': [row: any]
   'row-context-menu': [row: any, event: MouseEvent]
   'load-more': []
+  'start-edit-row': [row: any]
+  'exit-edit-row': [row?: any]
   reload: []
 }>()
 
-const { columns, systemFieldsTypes, updateRow, viewStyleConfig } = useMDCardInject()
+const { columns, systemFieldsTypes, updateRow, viewStyleConfig, currentEditing } = useMDCardInject()
 const recordCardDialogRef = ref()
 const activeViewRef = ref()
 
@@ -61,8 +65,16 @@ function mapViewStyleToWidget(config: Record<string, any> | undefined): CardWidg
 
 function handleOpenRecord(row: any) {
   console.log('handleOpenRecord', row)
-  recordCardDialogRef.value.open(row)
+  const mode = currentEditing.value.includes(row.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
+  recordCardDialogRef.value.open(row, mode)
+  if(mode === 'edit'){
+    emit('start-edit-row', row)
+  }
   // emit('open-record', row)
+}
+
+function handleExitEditRow() {
+  emit('exit-edit-row')
 }
 
 function handleLoadMore() {
@@ -70,15 +82,23 @@ function handleLoadMore() {
 }
 
 function handleRowContextMenu(row: any, event: MouseEvent) {
-  emit('row-context-menu', row, event)
+  const mode = currentEditing.value.includes(row.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
+  if(mode === 'edit'){
+    emit('row-context-menu', row, event)
+  }
 }
 
 async function handleEditRecord(data: any, id: string) {
-  console.log('handleEditRecord', data)
   const updated = await updateRow(id, data)
-  if (updated !== false) {
-    activeViewRef.value?.updateRow?.(id, data)
+  if (updated === false) {
+    return
   }
+  emit('exit-edit-row', data)
+  if (props.isGroupingEnabled) {
+    await activeViewRef.value?.syncAfterEdit?.(id)
+    return
+  }
+  activeViewRef.value?.updateRow?.(id, data)
 }
 
 function commitProxy(type: string = 'reload') {
@@ -114,7 +134,13 @@ defineExpose({
       @row-context-menu="handleRowContextMenu"
       @load-more="handleLoadMore"
     />
-    <MdFormPopover ref="recordCardDialogRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleEditRecord" />
+    <MdFormPopover
+        ref="recordCardDialogRef"
+        :columns="columns"
+        :systemFieldsTypes="systemFieldsTypes"
+        showMoveButtons
+        @closed="handleExitEditRow"
+        @submit="handleEditRecord" />
   </div>
 </template>
 

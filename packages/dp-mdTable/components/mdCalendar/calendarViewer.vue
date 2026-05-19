@@ -13,15 +13,18 @@ const props = defineProps<{
   endField: string
   titleField: string
   isFullDayField: string
+  canEditTable: boolean
 }>()
 
 const emit = defineEmits<{
   'event-click': [event: any]
-  'date-click': [date: string]
+  'date-click': [date: string],
+  'start-edit-row': [row: any],
+  'exit-edit-row': [row?: any]
 }>()
 
 const viewerRef = ref()
-const { columns, systemFieldsTypes } = useMDCalendarInject()
+const { columns, systemFieldsTypes, currentEditing  } = useMDCalendarInject()
 
 const dateRange = ref({ start: 0, end: 0 })
 
@@ -132,9 +135,16 @@ const calendarEvents = computed(() => {
   })
 })
 
+function eventClassName(arg: EventClickArg) {
+  const classes = ['calendar_' + arg.event.id]
+  if(arg.event.extendedProps.raw.__deleted) classes.push('deleted')
+  return classes
+}
+
 const calendarOptions = ref<CalendarOptions>({
   plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
+  editable: props.canEditTable,
   headerToolbar: {
     left: 'prev,next today',
     center: 'title',
@@ -152,11 +162,19 @@ const calendarOptions = ref<CalendarOptions>({
   selectable: true,
   dayMaxEvents: true,
   events: [],
+  eventClassNames: eventClassName,
   eventClick: (info: EventClickArg) => {
+    if(info.event.extendedProps.raw.__deleted) return
     emit('event-click', info.event.extendedProps.raw)
   },
   dateClick: (info: DateClickArg) => {
     emit('date-click', info.dateStr)
+  },
+  eventAllow: (info: EventAllowArg) => {
+    const row = info.event.extendedProps.raw
+      if(row.__deleted) return false
+     const mode = currentEditing.value.includes(row.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
+     return mode === 'edit'
   },
   eventDrop: async (info: EventDropArg) => {
     const row = info.event.extendedProps.raw
@@ -174,6 +192,7 @@ const calendarOptions = ref<CalendarOptions>({
     await refresh()
   },
   eventResize: async (info: any) => {
+    if(info.event.extendedProps.raw.__deleted) return
     const row = info.event.extendedProps.raw
     if (!row || !row.id) return
 
@@ -213,19 +232,28 @@ async function refresh() {
 
 // Form popover methods
 function openDetail(item: any) {
+  if(item.__deleted) return
   selectedRow.value = item
-  MdFormPopoverRef.value?.open(item)
+   const mode = currentEditing.value.includes(item.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
+  MdFormPopoverRef.value?.open(item, mode)
+  console.log("openDetail", item, mode)
+  if(mode === 'edit') {
+    emit('start-edit-row', {row:item, mode: 'edit'})
+  }
 }
 
 function openCreate(defaults?: Record<string, any>) {
   selectedRow.value = null
   MdFormPopoverRef.value?.open(defaults || {})
 }
-
+function handleCloseModalForm(){
+  emit('exit-edit-row')
+}
 async function handleAddRowSubmit(data: any) {
   if (selectedRow.value) {
     await updateRow(selectedRow.value.id, data, props.tableId)
     selectedRow.value = null
+    emit('exit-edit-row')
   } else {
     await addRow(data)
   }
@@ -257,7 +285,9 @@ defineExpose({
 
 <template>
   <div ref="viewerRef" class="calendar-viewer">
-    <FullCalendar :options="calendarOptions" />
+    <FullCalendar
+        :options="calendarOptions"
+    />
     <MdFormPopover
       ref="MdFormPopoverRef"
       :columns="columns"
@@ -265,6 +295,8 @@ defineExpose({
       :systemFieldsTypes="systemFieldsTypes"
       :showMoveButtons="false"
       :showSourceButton="false"
+
+      @closed="handleCloseModalForm"
       @submit="handleAddRowSubmit"
     />
   </div>
@@ -287,6 +319,18 @@ defineExpose({
 
   :deep(.fc-button) {
     text-transform: capitalize;
+  }
+  :deep(.fc-event){
+      &.deleted {
+          --fc-event-text-color: var(--app-grey-200);
+          background: var(--app-grey-800) !important;
+          color: var(--app-grey-200) !important;
+          border-color:  var(--app-grey-800) !important;
+          cursor: not-allowed;
+          .fc-event-title fc-sticky{
+              text-decoration: line-through;
+          }
+      }
   }
 }
 </style>

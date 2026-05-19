@@ -118,6 +118,32 @@
   }
 }
 
+.tree-node-agg-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-width: 0;
+  width: 100%;
+
+  .tree-node-agg-method {
+    font-size: var(--app-font-size-s);
+    color: var(--app-text-color-placeholder);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .tree-node-agg-value {
+    font-weight: 500;
+    color: var(--app-text-color-regular);
+    flex-shrink: 0;
+  }
+}
+
 // edit mode overrider
 .vxe-table--render-default .vxe-body--column.col--auto-height.col--edit {
   overflow: visible !important;

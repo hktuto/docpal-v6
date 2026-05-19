@@ -8,70 +8,67 @@ interface CellPopoverOption {
   onClick: () => Promise<void>
 }
 
-interface OpenParams {
-  row: Record<string, any>
-}
-
 const { t } = useI18n()
 const mdTableContext = inject<mdTable | null>(MdTableContextKey, null)
 const { gridRef, tableData, deleteRow } = useTableDataInject()
 const popoverRef = ref()
 const selectedRows = ref<Record<string, any>[]>([])
 const optionList = ref<CellPopoverOption[]>([])
-
-function open(target: HTMLElement, { row }: OpenParams) {
+const emit = defineEmits<{
+  'delete-rows': [pureIds: string[]]
+}>()
+function open(mouseEvent: MouseEvent, row: any) {
   if (!row?.id) {
     return
   }
 
-  selectedRows.value = getSelectedRows()
+  selectedRows.value = gridRef.value?.getCheckboxRecords?.() || []
   if (selectedRows.value.length > 0) {
     const isInSelected = selectedRows.value.some((item) => item.id === row.id)
     if (!isInSelected) {
       mdTableContext?.clearCheckboxRow()
       return
+    } else {
+      optionList.value = [createDeleteOption(selectedRows.value)]
     }
+  } else {
+    optionList.value = [createDeleteOption([row])]
   }
 
-  popoverRef.value.open(target)
-  optionList.value = [createDeleteOption(row)]
+  popoverRef.value.open(mouseEvent)
 }
 
-function getSelectedRows() {
-  return gridRef.value?.getCheckboxRecords?.() || []
-}
-
-function getRowsToDelete(row: Record<string, any>) {
-  if (selectedRows.value.length > 1) {
-    return selectedRows.value
-  }
-  return [row]
-}
-
-function createDeleteOption(row: Record<string, any>): CellPopoverOption {
-  const rowsToDelete = getRowsToDelete(row)
-  const isBatchDelete = rowsToDelete.length > 1
+function createDeleteOption(row: Record<string, any>[]): CellPopoverOption {
+  const rows = Array.isArray(row) ? row : [row]
+  const idsToDelete = rows.reduce((acc, row) => {
+    if (row.children && row.children.length > 0) {
+      const cIds = row.children.map((child) => String(child.id))
+      acc.push(...cIds)
+    } else {
+      acc.push(row.id)
+    }
+    return acc
+  }, [])
+  const pureIds = [...new Set(idsToDelete)]
+  const isBatchDelete = pureIds.length > 1
 
   return {
-    label: isBatchDelete ? t('mdTable.deleteSelectedRow', { count: rowsToDelete.length }) : t('mdTable.deleteRow'),
+    label: isBatchDelete ? t('mdTable.deleteSelectedRow', { count: pureIds.length }) : t('mdTable.deleteRow'),
     icon: 'material-symbols:delete-outline',
-    onClick: () => handleDeleteRows(rowsToDelete)
+    onClick: () => handleDeleteRows(pureIds)
   }
 }
 
-async function handleDeleteRows(rows: Record<string, any>[]) {
-  const ids = rows.map((row) => String(row.id))
-  const message = ids.length > 1 ? t('mdTable.deleteSelectedRow', { count: ids.length }) : t('mdTable.deleteRow', { count: 1 })
-
+async function handleDeleteRows(pureIds: string[]) {
+  const message = pureIds.length > 1 ? t('mdTable.deleteSelectedRow', { count: pureIds.length }) : t('mdTable.deleteRow', { count: 1 })
   try {
     await ElMessageBox.confirm(message, {
       confirmButtonClass: 'el-button el-button--warning',
       confirmButtonText: t('common_confirmDelete'),
       dangerouslyUseHTMLString: true
     })
-    await deleteRow(ids.length > 1 ? ids : ids[0])
-    gridRef.value?.remove?.(rows.length > 1 ? rows : rows[0])
-    tableData.value = tableData.value.filter((row) => !ids.includes(String(row.id)))
+    await deleteRow(pureIds.length > 1 ? pureIds : pureIds[0])
+    emit('delete-rows', pureIds)
   } catch {
     // 用户取消确认框时保持静默。
   } finally {
@@ -90,7 +87,7 @@ defineExpose({
 </script>
 
 <template>
-  <UiPopoverDialog ref="popoverRef" width="60px">
+  <UiDpPopover ref="popoverRef">
     <div class="cell-popover">
       <div
         v-for="item in optionList"
@@ -105,10 +102,13 @@ defineExpose({
         <span>{{ item.label }}</span>
       </div>
     </div>
-  </UiPopoverDialog>
+  </UiDpPopover>
 </template>
 
 <style scoped lang="scss">
+.cell-popover {
+  margin: var(--app-space-xs);
+}
 .cell-popover-item {
   cursor: pointer;
   display: flex;

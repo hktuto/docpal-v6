@@ -46,7 +46,8 @@ const cardClass = computed(() => {
     'is-compact': !!props.styleConfig.compact,
     'shadow-none': props.styleConfig.shadow === 'none',
     'shadow-small': props.styleConfig.shadow === 'small',
-    'shadow-hover': props.styleConfig.shadow === 'hover'
+    'shadow-hover': props.styleConfig.shadow === 'hover',
+    'is-deleted': props.row.__deleted
   }
 })
 
@@ -87,6 +88,7 @@ function formatValue(value: any) {
 }
 
 function handleOpenRecord() {
+  if(props.row.__deleted) return
   emit('open-record', props.row)
 }
 
@@ -99,6 +101,7 @@ function handleContextMenu(event: MouseEvent) {
   <div
     class="md-card-widget"
     :class="cardClass"
+    :id="'cardItem_' + props.row.id"
     tabindex="0"
     aria-label="打开记录"
     :style="{ '--card-count': styleConfig.cardCount }"
@@ -143,7 +146,11 @@ function handleContextMenu(event: MouseEvent) {
   transition: all 0.2s ease;
   outline: none;
   position: relative;
-
+  &.is-deleted{
+      text-decoration: line-through;
+      background: var(--app-grey-900);
+      cursor: not-allowed;
+  }
   &.is-bordered {
     border: 1px solid #ebeef5;
   }

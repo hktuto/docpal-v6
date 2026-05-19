@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 
 const props = defineProps<{
   id: string
@@ -24,6 +24,10 @@ const canOpenSetting = computed(() => {
 const hocuspocusManager = useHocuspocusManager()
 const roomName = computed(() => `dynamic-db:${props.id}`)
 
+const remoteChanges = computed(() => {
+  return hocuspocusManager.roomMeta.value[roomName.value]?.remoteChanges ?? []
+})
+
 watch(
   roomName,
   (newRoom, oldRoom) => {
@@ -40,8 +44,7 @@ watch(
 watch(
   databaseMenuRouteParams,
   () => {
-    console.log("databaseMenuRouteParams", databaseMenuRouteParams.value)
-    hocuspocusManager.setFocus(roomName.value, { menuId: databaseMenuRouteParams.value.detailId})
+    hocuspocusManager.setFocus(roomName.value, { menuId: databaseMenuRouteParams.value.tableId || databaseMenuRouteParams.value.detailId})
   }, {
     deep: true
   }
@@ -81,13 +84,46 @@ function connect() {
   hocuspocusManager.joinRoom(roomName.value)
 }
 
+function broadcastChange(change: { type: string; rowId?: string; rowIds?: string[]; tableId: string; menuId: string }) {
+  const fullChange = {
+    ...change,
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    timestamp: Date.now(),
+    userId: getSessionAwarenessId()
+  }
+  hocuspocusManager.broadcastChanges(roomName.value, [fullChange as any])
+}
+
 provide('databaseHocuspocus', {
   awarenessStates,
   updatedRows,
   localAwareness,
   connected,
+  remoteChanges,
   setAwareness,
+  broadcastChange,
   connect
+})
+
+// Consume remote changes at page level for toast notifications
+watch(remoteChanges, (events) => {
+  for (const event of events) {
+    const { change, userName } = event
+    if (change.menuId !== databaseMenuRouteParams.value.detailId) continue
+    if (change.type === 'row_created') {
+      ElNotification({
+        title: 'New Record',
+        message: `${userName} created a new row`,
+        type: 'info'
+      })
+    } else if (change.type === 'rows_deleted') {
+      ElNotification({
+        title: 'Rows Deleted',
+        message: `${userName} deleted ${change.rowIds?.length || 0} rows`,
+        type: 'warning'
+      })
+    }
+  }
 })
 
 function openSetting() {
@@ -135,7 +171,6 @@ watch(
   props,
   async () => {
     await getDatabaseById(props.id)
-
     if (props.detailId) {
       databaseMenuRouteParams.value.detailId = props.detailId
       databaseMenuRouteParams.value.detailType = props.detailType

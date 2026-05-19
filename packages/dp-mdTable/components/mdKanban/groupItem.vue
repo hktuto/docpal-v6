@@ -55,7 +55,7 @@ const contentValues = computed(() => {
 </script>
 
 <template>
-  <div class="groupItem">
+  <div class="groupItem" :class="{ 'deleted': item.__deleted }" :id="'groupItem_' + item.id">
     <div v-if="layout?.title" class="card-title">{{ titleValue }}</div>
     <div v-if="contentValues.length" class="card-content">
       <div v-for="c in contentValues" :key="c.field" class="card-field">
@@ -77,6 +77,11 @@ const contentValues = computed(() => {
   display: flex;
   flex-direction: column;
   gap: var(--app-space-xs);
+  &.deleted {
+      background: var(--app-grey-900);
+      cursor: not-allowed;
+      text-decoration: line-through;
+  }
 }
 
 .card-title {

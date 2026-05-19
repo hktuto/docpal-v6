@@ -154,6 +154,7 @@ async function handlePermissionChange(level: MenuItemPermissionLevel, row: MenuI
   if (row.isInherit) return
   if (row.permissionLevel === level) return
 
+  const oldLevel = row.permissionLevel
   row.loading = true
   try {
     const { data }: any = await newClientApi.putDynamicDbPermissionsMenuMenuidUpdatePermissionPermissionid(props.id, row.id, {
@@ -166,6 +167,7 @@ async function handlePermissionChange(level: MenuItemPermissionLevel, row: MenuI
     ElMessage.success('Permission updated successfully')
   } catch (error) {
     console.error('Error updating permission:', error)
+    row.permissionLevel = oldLevel
     ElMessage.error('Failed to update permission')
   } finally {
     row.loading = false
@@ -234,7 +236,7 @@ watch(() => props.id, (newId) => {
         <el-table-column label="Permission Level" min-width="280">
           <template #default="{ row }">
             <el-radio-group
-              v-model="row.permissionLevel"
+              :model-value="row.permissionLevel"
               size="small"
               :disabled="row.isInherit || row.loading || isCurrentUser(row)"
               @change="(level: any) => handlePermissionChange(level, row)"

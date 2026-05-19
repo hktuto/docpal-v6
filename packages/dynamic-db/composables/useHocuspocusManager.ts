@@ -16,9 +16,21 @@ export interface AwarenessFocus {
   status?: 'editing' | 'saved'
 }
 
+export interface AwarenessChange {
+  id: string
+  type: 'row_updated' | 'row_created' | 'row_deleted' | 'rows_deleted'
+  rowId?: string
+  rowIds?: string[]
+  tableId: string
+  menuId: string
+  timestamp: number
+  userId: string
+}
+
 export interface AwarenessState {
   user?: AwarenessUser
   focus?: AwarenessFocus
+  changes?: AwarenessChange[]
 }
 
 export interface UpdatedRow {
@@ -30,6 +42,12 @@ export interface UpdatedRow {
   menuId?: string
 }
 
+export interface RemoteChangeEvent {
+  change: AwarenessChange
+  userName: string
+  userColor: string
+}
+
 export interface RoomState {
   name: string
   provider: HocuspocusProvider
@@ -38,6 +56,7 @@ export interface RoomState {
   awarenessStates: AwarenessState[]
   joinedAt: number
   updatedRows: UpdatedRow[]
+  remoteChanges: RemoteChangeEvent[]
 }
 
 export interface LockRecord {
@@ -69,14 +88,27 @@ function getUserColor(userId: string): string {
   return COLOR_PALETTE[index]
 }
 
+function getSessionAwarenessId(): string {
+  const key = 'hocuspocus-awareness-id'
+  let id = sessionStorage.getItem(key)
+  if (!id) {
+    id = Math.random().toString(36).slice(2, 8)
+    sessionStorage.setItem(key, id)
+  }
+  return id
+}
+
+export { getSessionAwarenessId }
+
 function getLocalUser(): AwarenessUser | undefined {
   const userJson = localStorage.getItem('docpal-user')
   if (!userJson) return undefined
   try {
     const user = JSON.parse(userJson)
-    const id = user.userId || ''
+    const realUserId = user.userId || ''
+    const id = getSessionAwarenessId()
     const name = user.username || user.name || 'Unknown'
-    return { id, name, color: getUserColor(id) }
+    return { id, name, color: getUserColor(realUserId) }
   } catch {
     return undefined
   }
@@ -156,7 +188,6 @@ export function useHocuspocusManager() {
       provider.destroy()
       providers.delete(roomName)
     }
-    console.log("leave rooms")
     delete roomMeta.value[roomName]
   }
 
@@ -221,6 +252,8 @@ export function useHocuspocusManager() {
         const newLocks: LockRecord[] = []
         const currentStates = new Map<string, any>()
 
+        const newRemoteChanges: RemoteChangeEvent[] = []
+
         e.states.forEach((state: any) => {
           if (state.user) {
             currentStates.set(state.user.id, state)
@@ -238,6 +271,15 @@ export function useHocuspocusManager() {
                 menuId: state.focus.menuId,
                 editingCell: state.focus.editingCell,
                 editingRow: state.focus.editingRow
+              })
+            }
+            for (const change of state.changes || []) {
+              if (processedChangeIds.has(change.id)) continue
+              processedChangeIds.add(change.id)
+              newRemoteChanges.push({
+                change,
+                userName: state.user.name,
+                userColor: state.user.color
               })
             }
           } else {
@@ -280,6 +322,9 @@ export function useHocuspocusManager() {
         if (roomMeta.value[roomName]) {
           roomMeta.value[roomName].awarenessStates = awarenessStates
           roomMeta.value[roomName].updatedRows = newlySaved
+          if (newRemoteChanges.length > 0) {
+            roomMeta.value[roomName].remoteChanges = newRemoteChanges
+          }
         }
         // Update lockRecords: remove old locks for this room, add new ones
         lockRecords.value = [
@@ -292,6 +337,7 @@ export function useHocuspocusManager() {
     providers.set(roomName, provider)
     const previousStates = new Map<string, any>()
     const doneRows = new Set<string>()
+    const processedChangeIds = new Set<string>()
 
     roomMeta.value[roomName] = {
       name: roomName,
@@ -299,7 +345,8 @@ export function useHocuspocusManager() {
       connecting: true,
       awarenessStates: [],
       joinedAt,
-      updatedRows: []
+      updatedRows: [],
+      remoteChanges: []
     }
   }
 
@@ -316,6 +363,15 @@ export function useHocuspocusManager() {
     provider.awareness.setLocalStateField('focus', undefined)
   }
 
+  function broadcastChanges(roomName: string, changes: AwarenessChange[]) {
+    const provider = providers.get(roomName)
+    if (!provider) return
+    provider.awareness.setLocalStateField('changes', changes)
+    // setTimeout(() => {
+    //   provider.awareness.setLocalStateField('changes', undefined)
+    // }, 3000)
+  }
+
   return {
     rooms: readonly(rooms),
     roomMeta,
@@ -327,6 +383,7 @@ export function useHocuspocusManager() {
     getRoomState,
     setFocus,
     clearFocus,
+    broadcastChanges,
     isConnected
   }
 }
