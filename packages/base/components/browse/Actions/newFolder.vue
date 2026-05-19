@@ -131,8 +131,8 @@ function handleReset() {
       if (nameRef?.focus) {
         nameRef.focus()
       }
-      if (nameRef?.select) {
-        nameRef.select()
+      if (nameRef?.$refs?.fieldEditor?.select) {
+        nameRef?.$refs?.fieldEditor?.select()
       }
     })
   }
