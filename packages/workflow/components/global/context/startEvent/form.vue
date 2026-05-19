@@ -27,6 +27,9 @@ const variables = computed(() => {
     data: variableList.filter((item: VariableItem) => item.required && !item.id.startsWith('__system__'))
   }
 })
+const isEdit = computed(() => {
+  return !!formKey.value && formKey.value !== ''
+})
 
 function initData() {
   const data = node.getData()
@@ -43,9 +46,7 @@ function update() {
     },
     version: (nodeData.version || 0) + 1
   }
-  if (!!formKey.value && formKey.value !== '') {
-    newData.config.initialise.form_key = formKey.value.toString()
-  }
+  newData.config.initialise.form_key = formKey.value.toString()
 
   node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-start-setting-data')
@@ -53,6 +54,10 @@ function update() {
 
 function editField() {
   variableManageDialogRef.value.open()
+}
+
+function createForm() {
+  formDialogRef.value.openDialog({})
 }
 
 async function editForm() {
@@ -80,6 +85,11 @@ async function getFormJson() {
   }
 }
 
+function handleDeleteFormKey() {
+  formKey.value = ''
+  update()
+}
+
 onMounted(() => {
   useWorkflowAdditionalContext(initData)
 })
@@ -100,9 +110,24 @@ watch(
     <el-button style="width: 100%" type="primary" id="Workflow__Start__EditField" @click="editField">
       {{ $t('Workflow Global Variables') }}
     </el-button>
-    <el-button v-loading="loading" style="width: 100%" type="primary" id="Workflow__Start__EditForm" @click="editForm">
-      {{ $t('Edit Start Form') }}
+
+    <el-button v-if="!isEdit" type="primary" style="width: 100%" @click="createForm">
+      {{ $t('Create Start Form') }}
     </el-button>
+    <template v-else>
+      <el-button v-loading="loading" style="width: 100%" type="primary" id="Workflow__Start__EditForm" @click="editForm">
+        {{ $t('Edit Start Form') }}
+      </el-button>
+      <el-popconfirm
+        class="box-item"s
+        title="Are you sure you want to delete this form?"
+        placement="top"
+      >
+        <template #reference>
+          <el-button type="danger" style="width: 100%; margin-top: 5px" @click="handleDeleteFormKey">{{ $t('Delete Start Form') }}</el-button>
+        </template>
+      </el-popconfirm>
+    </template>
   </div>
 
   <LazyContextVariableManageDialog ref="variableManageDialogRef" />

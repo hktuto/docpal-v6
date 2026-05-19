@@ -65,7 +65,7 @@ export const getTaskItemConfig = {
       body: {
         parentPath: '',
         name: '',
-        type: '',
+        type: 'File',
         fileContentId: '',
         creator: '',
         properties: {}

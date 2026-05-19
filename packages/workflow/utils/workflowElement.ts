@@ -942,7 +942,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Upload File',
       label: 'New Upload File',
       documentation: '',
-      type: CellType.uploadFile,
+      type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.uploadFile],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
