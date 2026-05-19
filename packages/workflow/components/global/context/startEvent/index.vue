@@ -4,11 +4,6 @@ import type { Node } from '@antv/x6'
 const { node } = defineProps<{
   node: Node
 }>()
-const RuleManageDialogRef = ref()
-
-function editField() {
-  RuleManageDialogRef.value.open()
-}
 </script>
 
 <template>
@@ -16,10 +11,9 @@ function editField() {
     <SidebarLabel :node="node" />
     <ContextStartEventCandidate :node="node" />
     <ContextStartEventAdditionLogic :node="node" />
-    <el-button style="width: 100%" type="primary" id="Workflow__Start__EditField" @click="editField">{{ $t('Workflow Variables') }}</el-button>
+    <ContextStartEventForm :node="node" />
   </div>
 
-  <LazyContextVariableManageDialog ref="RuleManageDialogRef" />
 </template>
 
 <style lang="scss" scoped>

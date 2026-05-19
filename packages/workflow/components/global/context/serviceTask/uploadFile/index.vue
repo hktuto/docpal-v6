@@ -2,7 +2,7 @@
 import { newClientApi } from 'api'
 
 const { t } = useI18n()
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
@@ -28,16 +28,17 @@ const { config } = defineProps<{
   }
 }>()
 const stringVariablesList = computed(() => {
-  return getVariablesByTags(['string'], true)
+  return getVariablesByDisplayTypes(['text'], true)
 })
 const fileVariablesList = computed(() => {
-  return getVariablesByTags(['file'], true)
+  return getVariablesByDisplayTypes(['file'], true)
 })
 const formData = ref<{
   body: any
 }>({
   body: {}
 })
+const documentTypeList = ref<any[]>([])
 const parentPathDisplay = ref('')
 
 function initForm() {
@@ -59,6 +60,11 @@ function setPath(path: string) {
   formData.value.body.parentPath = path || ''
   updateData()
 }
+
+onMounted(async () => {
+  const documentTypeData: any = await newClientApi.getDmsDocpalTypeActive().then((res) => res.data)
+  documentTypeList.value = documentTypeData.filter((item: any) => !item.isFolder)
+})
 
 watch(
   () => config,
@@ -108,6 +114,14 @@ watch(
         </el-popover>
       </div>
     </el-form-item>
+    <el-form-item :label="t('File')">
+      <el-select v-model="formData.body.fileContentId" filterable @change="updateData">
+        <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
+
+    <el-divider />
+
     <el-form-item :label="t('Document Name')">
       <el-select v-model="formData.body.name" filterable @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
@@ -115,12 +129,7 @@ watch(
     </el-form-item>
     <el-form-item :label="t('Document Type')">
       <el-select v-model="formData.body.type" filterable @change="updateData">
-        <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
-      </el-select>
-    </el-form-item>
-    <el-form-item :label="t('File Content Id')">
-      <el-select v-model="formData.body.fileContentId" filterable @change="updateData">
-        <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+        <el-option v-for="item in documentTypeList" :key="item.name" :label="item.name" :value="item.name" />
       </el-select>
     </el-form-item>
     <el-form-item :label="t('Creator')">

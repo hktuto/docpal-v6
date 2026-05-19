@@ -2,7 +2,7 @@
 import { newClientApi } from 'api'
 import { routeWorkflowDetail, getWorkflowList } from '#imports'
 
-const { workflowList } = await getWorkflowList()
+const workflowList = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
@@ -15,9 +15,9 @@ const extraParams = ref({
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
   api: async (pageParams: any) => {
-    const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data)) as any[]
+    const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data.data)) as any[]
     // 只保留 waiting 狀態的數據
-    let list = data.filter((item: any) => item.status === 'waiting')
+    let list = data.task.filter((item: any) => item.status === 'waiting')
 
     if (extraParams.value.definition_id !== '') {
       list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)
@@ -57,7 +57,8 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      workflowType: 'allTask'
+      workflowType: 'allTask',
+      db_id: row.node_id
     }),
     false
   )

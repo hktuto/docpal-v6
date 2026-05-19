@@ -1,7 +1,6 @@
 import { newClientApi } from 'api'
 import { CellType } from '#imports'
 
-// const generateDocumentComponent = 'LazyBpmnButtonGenerateDocument'
 const booleanButtonComponent = 'LazyContextFormBooleanButton'
 
 export async function getButtonAdditionalElement(nodes: any[], metadata: any, formVariables: any) {
@@ -52,18 +51,16 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
 export async function getWorkflowList() {
   let workflowList: any[] = []
   try {
-    workflowList = await $api.get(`/oniflow/api/v1/workflow/definitions?published=true`).then((r: any) => r.data)
+    const data = (await $api.get(`/oniflow/api/v1/workflow/definitions?published=true`).then((r: any) => r.data.data)) as any[]
+    workflowList = data.filter((item: any) => item.status === 'A')
   } catch (e) {
     console.log(e)
   }
-  return {
-    workflowList
-  }
+  return workflowList
 }
 
 export function convertWorkflowVariableToTemplateVariable(variables: any, mapping: any) {
   return Object.keys(mapping).reduce((prev: any, key: string) => {
-    const sourceKey = mapping[key].replace(/^\${|}$/g, '');
     const valueKey = mapping[key].replace('${', '').replace('}', '')
     if (!!valueKey && variables[valueKey]) {
       // variables[valueKey] may be can convert yto json, so we need to convert it to json

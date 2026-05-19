@@ -2,6 +2,7 @@
 import type { Node } from '@antv/x6'
 import { ElMessageBox } from 'element-plus'
 
+const routerProvider = inject(MenuRouterKey)
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
@@ -10,10 +11,11 @@ const node = ref<Node>()
 const { t } = useI18n()
 const opened = ref(false)
 const FormDialogRef = ref()
-const { variables, deleteVariableItem } = useVariablesProvide()
+const { variables, deleteVariableItem, saveStartEventFormFields } = useVariablesProvide()
 
 function open() {
-  node.value = graphProvider?.graph.value?.getNodes().find((node: any) => node.getData().type === 'process')
+  const nodes: any[] = graphProvider?.graph?.value?.getNodes()
+  node.value = nodes?.find((node: any) => node.getData().type === 'process')
   if (!node.value) {
     routerProvider?.message.error('Process Node not found')
     return
@@ -26,10 +28,6 @@ function openNewFieldDialog() {
   FormDialogRef.value?.handleOpen()
 }
 
-function handleDblclick(row: any) {
-  FormDialogRef.value?.handleOpen(row)
-}
-
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'WorkflowVariableManage',
   zoom: false,
@@ -39,7 +37,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   },
   columns: [
     { title: 'Name', field: 'name' },
-    { title: 'Type', field: 'tag' }
+    { title: 'Type', field: 'display_type' },
+    { title: 'Required', field: 'required' }
   ],
   dblClickAction: ({ row, column, event }: any) => {
     console.log('dblClickAction', row, column, event)
@@ -60,6 +59,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
           const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete', { tip: t('bpmn.globalRuleTip') + ', ' })}`).catch((action) => action)
           if (action !== 'confirm') return
           deleteVariableItem(node.value, row.id)
+          const startNode = graphProvider?.graph.value?.getCellById('system_start_event')
+          saveStartEventFormFields(startNode)
           reload()
         }
       }
@@ -97,6 +98,10 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   saveColumnOrder: false
 })
 
+function handleDblclick(row: any) {
+  FormDialogRef.value?.handleOpen(row)
+}
+
 defineExpose({
   open
 })
@@ -112,8 +117,7 @@ defineExpose({
       <ElDivider />
       <div class="tableSection">
         <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-          <template #toolbar_buttons>
-          </template>
+          <template #toolbar_buttons></template>
         </VxeGrid>
       </div>
     </template>

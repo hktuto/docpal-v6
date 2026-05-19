@@ -28,44 +28,43 @@ const { config } = defineProps<{
   }
 }>()
 const loading = ref(false)
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringVariablesList = computed(() => {
-  return getVariablesByTags(['string'], true)
+  return getVariablesByDisplayTypes(['text'], true)
 })
 const storeVariablesList = computed(() => {
-  return getVariablesByTags(['file'])
+  return getVariablesByDisplayTypes(['file'])
 })
 
 const documentTypeList = ref<any[]>([])
 const allDocumentTemplates = ref<{ id: string; name: string; value: any }[]>([])
 const formData = ref<{
   http_request: any
-  output_mapping: any
 }>({
-  http_request: {},
-  output_mapping: {}
+  http_request: {}
 })
-const storeValue = ref('')
+const storeValue = ref<string>('')
 const variables = ref<any[]>([])
 const path = ref<string[]>([])
 const parentPathDisplay = ref('')
 
 async function initForm() {
-  formData.value.http_request = config.http_request
-  formData.value.output_mapping = config.output_mapping
-
-  if (formData.value.http_request.body.templateId === '') {
-    variables.value = []
-    return
-  }
-
-  const keys = Object.keys(formData.value.output_mapping)
-  if (keys.length > 0) {
-    storeValue.value = keys[0]
-  }
-
-  loading.value = true
   try {
+    formData.value.http_request = config.http_request
+
+    if (formData.value.http_request.body.templateId === '') {
+      variables.value = []
+      return
+    }
+
+    storeValue.value = ''
+    const keys = Object.keys(config.output_mapping)
+    if (keys.length > 0) {
+      storeValue.value = keys[0]
+    }
+    console.log(123, storeValue.value)
+
+    loading.value = true
     await getTemplateVariableList()
   } catch (e) {
     console.log(e)
@@ -96,16 +95,17 @@ function updateData() {
     {} as Record<string, any>
   )
 
-  const mapping = {}
-  mapping[storeValue.value] = '${generateDocumentId}'
-  formData.value.output_mapping = mapping
+  const mapping: any = {}
+  if (!!storeValue.value && storeValue.value !== '') {
+    mapping[storeValue.value] = '${generateDocumentId}'
+  }
 
   emits('update', {
     name: 'update-document-generation-data',
     config: {
       http_request: formData.value.http_request,
       input_mapping: {},
-      output_mapping: formData.value.output_mapping
+      output_mapping: mapping
     }
   })
 }
@@ -182,13 +182,11 @@ onMounted(async () => {
 watch(
   () => config,
   () => {
-    if (config == formData.value) return
-    initForm()
+    if (JSON.stringify(config.http_request) !== JSON.stringify(formData.value.http_request)) {
+      initForm()
+    }
   },
-  {
-    immediate: true,
-    deep: true
-  }
+  { immediate: true, deep: true }
 )
 
 watch(
@@ -222,10 +220,13 @@ watch(
       </div>
     </el-form-item>
     <el-form-item label="Store Value" prop="storeValue">
-      <el-select v-model="storeValue" @change="updateData" filterable>
+      <el-select v-model="storeValue" filterable clearable @change="updateData">
         <el-option v-for="item in storeVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
+
+    <el-divider />
+
     <el-form-item label="Document Type">
       <el-select v-model="formData.http_request.body.type" :placeholder="t('common_selectedIsRequiredMsg')" filterable @change="updateData">
         <el-option v-for="item in documentTypeList" :key="item.name" :label="item.name" :value="item.name" />

@@ -33,9 +33,9 @@ const createMapping = ref<{
   key: '',
   // type: 'string'
 })
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringFields = computed(() => {
-  return getVariablesByTags(['string'])
+  return getVariablesByDisplayTypes(['text']).filter((item: any) => !item.id.startsWith('__system__'))
 })
 
 function open() {
@@ -92,11 +92,11 @@ defineExpose({ open })
   <el-dialog v-model="dialogVisible" :title="t('Add Mapping')" append-to-body :close-on-click-modal="false">
     <div>
       <el-input v-model="createMapping.key" style="max-width: 600px" placeholder="Please input Key">
-<!--        <template #prepend>-->
-<!--          <el-select v-model="createMapping.type" style="width: 115px">-->
-<!--            <el-option v-for="item in mappingTypeList" :key="item.value" :label="item.label" :value="item.value" />-->
-<!--          </el-select>-->
-<!--        </template>-->
+        <!--        <template #prepend>-->
+        <!--          <el-select v-model="createMapping.type" style="width: 115px">-->
+        <!--            <el-option v-for="item in mappingTypeList" :key="item.value" :label="item.label" :value="item.value" />-->
+        <!--          </el-select>-->
+        <!--        </template>-->
         <template #append>
           <el-button @click="handleCreate" style="background-color: #1dd6c3; color: #ffffff">Add Mapping</el-button>
         </template>

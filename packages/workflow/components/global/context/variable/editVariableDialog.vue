@@ -1,27 +1,33 @@
 <script lang="ts" setup>
-import { VariableTypeOptions, type VariableItem, type VariableSelectItem } from '#imports'
+import { VariableTypeOptions, type VariableItem } from '#imports'
+import { VariableItemDisplayType } from '@packages/workflow/composables/useWorkflowVariables'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { variables, addVariableItem, updateVariableItem } = useVariablesProvide()
+const { variables, addVariableItem, updateVariableItem, saveStartEventFormFields } = useVariablesProvide()
 const comRef = ref()
 const opened = ref(false)
 const emits = defineEmits(['reload'])
-const initData = {
+const initData: VariableItem = {
   id: '',
   name: '',
+  description: '',
   type: 'string',
-  tag: 'string',
+  display_type: 'text',
   required: false,
-  maxLength: 200
+  default_value: '',
+  validation: {
+    max_length: 200
+  },
+  display_option: {}
 }
 const formData = ref<VariableItem>({
   ...initData
 })
 const editComponent = ref()
-const exitRules = ref<VariableSelectItem[]>([])
+const exitRules = ref<VariableItem[]>([])
 const idFieldRef = ref()
 const FormRef = ref()
 const isEdit = ref(false)
@@ -42,7 +48,7 @@ const newFieldRules = reactive({
   ]
 })
 
-function handleOpen(variable?: VariableSelectItem) {
+function handleOpen(variable?: VariableItem) {
   opened.value = true
   if (!!variable) {
     formData.value = variable
@@ -52,7 +58,7 @@ function handleOpen(variable?: VariableSelectItem) {
     isEdit.value = false
   }
   exitRules.value = isEdit.value ? variables.value.filter((item: any) => item.id !== variable?.id) : variables.value
-  typeChanged(formData.value.tag)
+  typeChanged(formData.value.display_type)
   setTimeout(() => {
     if (idFieldRef.value) {
       idFieldRef.value?.focus()
@@ -63,6 +69,10 @@ function handleOpen(variable?: VariableSelectItem) {
 function idChanged(rule: any, value: any, callback: any) {
   if (!value) {
     return callback(new Error('Please input id'))
+  }
+
+  if (value.startsWith('_')) {
+    return callback(new Error("ID cannot start with '_'"))
   }
 
   if (value.startsWith('__system__')) {
@@ -84,21 +94,22 @@ function idChanged(rule: any, value: any, callback: any) {
   callback()
 }
 
-function typeChanged(tag: string) {
+function typeChanged(displayType: string) {
   const options = VariableTypeOptions.reduce((acc: any, item: any) => {
     acc.push(...item.options)
     return acc
   }, [])
-  const typeObject = options.find((item: any) => item.tag === tag)
+  const typeObject = options.find((item: any) => item.display_type === displayType)
 
   if (!!typeObject) {
     formData.value = {
       id: formData.value.id,
       name: formData.value.name,
-      type: Object.entries(VariableItemTag).find(([, arr]) => arr.includes(tag))?.[0],
-      tag: tag,
-      required: false,
-      ...typeObject.validation
+      type: (Object.entries(VariableItemDisplayType).find(([, arr]) => arr.includes(displayType))?.[0] as VariableItemType) || ('string' as VariableItemType),
+      display_type: displayType,
+      default_value: formData.value.default_value,
+      required: formData.value.required,
+      validation: typeObject.validation
     }
     editComponent.value = resolveComponent(typeObject.component)
   }
@@ -125,6 +136,7 @@ async function confirmHandler() {
     } else {
       addVariableItem(vNode, formData.value)
     }
+    updateStartEventFormFields()
     emits('reload')
     opened.value = false
   } catch (error) {
@@ -133,13 +145,18 @@ async function confirmHandler() {
   graphProvider?.graph.value?.stopBatch('update-variables')
 }
 
+function updateStartEventFormFields() {
+  const node = graphProvider?.graph.value?.getCellById('system_start_event')
+  saveStartEventFormFields(node)
+}
+
 defineExpose({
   handleOpen
 })
 </script>
 
 <template>
-  <el-dialog v-model="opened" width="75%" append-to-body destroy-on-close :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
+  <el-dialog v-model="opened" width="75%" append-to-body destroy-on-close :close-on-click-modal="false" :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
     <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top" status-icon @submit.stop>
       <el-form-item label="ID" prop="id">
         <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />
@@ -148,19 +165,23 @@ defineExpose({
         <el-input v-model="formData.name" placeholder="Name" />
       </el-form-item>
       <el-form-item label="Type" prop="type">
-        <el-select v-model="formData.tag" placeholder="Select" @change="typeChanged">
+        <el-select v-model="formData.display_type" placeholder="Select" @change="typeChanged">
           <el-option-group v-for="group in VariableTypeOptions" :key="group.group" :label="$t(group.group)">
-            <el-option v-for="option in group.options" :key="option.tag" :label="$t(option.label)" :value="option.tag" />
+            <el-option v-for="option in group.options" :key="option.display_type" :label="$t(option.label)" :value="option.display_type" />
           </el-option-group>
         </el-select>
       </el-form-item>
-
+      <el-form-item label="Required">
+        <el-switch v-model="formData.required" />
+      </el-form-item>
       <el-divider />
       <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="formData" :form="formData" />
-
-      <el-form-item>
-        <ElButton id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">{{ $t('dpButtom_confirm') }}</ElButton>
-      </el-form-item>
     </el-form>
+
+    <template #footer>
+      <el-button id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">
+        {{ $t('common_submit') }}
+      </el-button>
+    </template>
   </el-dialog>
 </template>

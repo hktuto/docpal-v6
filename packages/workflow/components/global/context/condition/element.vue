@@ -6,11 +6,11 @@ if (!graphProvider) {
 const { element } = defineProps<{
   element: any
 }>()
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const emits = defineEmits(['delete', 'update'])
 const formData = ref<{
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
-  val_type: 'is_null' | 'string' | 'number' | 'boolean'
+  val_type: 'is_null' | 'text' | 'number' | 'boolean'
   field: string
   condition: '==' | '>' | '>=' | '<' | '<='
   value: string | number | boolean
@@ -26,7 +26,7 @@ const allVariables = computed(() => {
     typeList.push(formData.value?.val_type)
   }
 
-  return getVariablesByTags(typeList)
+  return getVariablesByDisplayTypes(typeList)
 })
 const typeOptions = ref([
   { label: 'Is Empty', value: 'is_null', condition: [{ label: 'Equal', value: '==' }] },
@@ -64,7 +64,7 @@ function typeChange() {
       formData.value.value = 'null'
       break
     case 'string_validation':
-      formData.value.val_type = 'string'
+      formData.value.val_type = 'text'
       formData.value.value = ''
       break
     case 'numbering_validation':

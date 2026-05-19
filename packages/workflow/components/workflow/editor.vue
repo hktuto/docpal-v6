@@ -318,10 +318,15 @@ function updateActivate() {
   emits('updateActivate')
 }
 
+function updateWorkflowJson(newWorkflowJson: any) {
+  workflowJson.value = newWorkflowJson
+}
+
 provide(WORKFLOW_EDITOR_PROVIDER, {
   workflowId,
   workflowKey,
   workflowJson,
+  updateWorkflowJson,
   graph,
   copyKey,
   readonly,
@@ -338,7 +343,7 @@ watch(
   }
 )
 
-defineExpose({ init })
+defineExpose({ init, workflowJson })
 </script>
 
 <template>
@@ -346,10 +351,9 @@ defineExpose({ init })
     <div class="bpmnViewerContainer">
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
-        <div v-if="!readonly"  class="group">
+        <div v-if="!readonly" class="group">
           <ToolbarHistory :workflowId="workflowId" :isActivate="isActivate" @update-activate="updateActivate" />
           <ToolbarInfo @click="openInfo" />
-          <!--          <WorkflowToolbarPermission @click="openPermission" />-->
         </div>
         <div v-if="!readonly" class="group">
           <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers" @mousedown.native="(ev) => itemDrop(item, ev)">

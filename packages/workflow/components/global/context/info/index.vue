@@ -8,11 +8,8 @@ if (!graphProvider) {
 const { node } = defineProps<{
   node: Node
 }>()
-const { getVariablesByTags, deleteVariableItem } = useVariablesProvide()
+const { variables, deleteVariableItem, saveStartEventFormFields } = useVariablesProvide()
 const FormDialogRef = ref()
-const variables = computed(() => {
-  return getVariablesByTags()
-})
 const FormRef = ref()
 const form = ref({
   name: ''
@@ -54,6 +51,8 @@ function handleEdit(item: any) {
 
 function handleRemove(item: any) {
   deleteVariableItem(node, item.id)
+  const startNode = graphProvider?.graph.value?.getCellById('system_start_event')
+  saveStartEventFormFields(startNode)
 }
 
 watch(
@@ -82,7 +81,7 @@ onMounted(() => {
     <el-divider />
 
     <h4>
-      {{ $t('Workflow Variables') }}
+      {{ $t('Workflow Global Variables') }}
       <Icon v-if="!graphProvider.readonly.value" name="lucide:plus" @click="handleAdd" />
     </h4>
     <div v-for="(item, index) in variables" :key="item.id" class="formFieldItem">

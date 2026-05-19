@@ -11,6 +11,13 @@
       "label": "Start Event",
       "name": "Start Event",
       "type": "StartEvent",
+      "config": {
+        "trigger_type": "userTask",
+        "initialise": {
+          "form_key": "",
+          "form_fields": []
+        }
+      },
       "flow": {
         "incoming": [],
         "outgoing": [],
@@ -21,9 +28,6 @@
         "async": false,
         "timeout_ms": 1000,
         "priority": 0
-      },
-      "config": {
-        "candidateGroups": "members"
       },
       "metadata": {
         "tags": "StartEvent",
@@ -42,6 +46,7 @@
       "label": "End Event",
       "name": "End Event",
       "type": "EndEvent",
+      "config": {},
       "flow": {
         "incoming": [],
         "outgoing": [],
@@ -53,7 +58,6 @@
         "timeout_ms": 1000,
         "priority": 0
       },
-      "config": {},
       "metadata": {
         "tags": "EndEvent",
         "type": "EndEvent",
@@ -70,8 +74,16 @@
     "__system__user_creator_id": {
       "name": "Creator",
       "type": "string",
-      "tag": "string",
-      "required": false
+      "display_type": "text",
+      "required": true,
+      "description": "",
+      "default_value": "",
+      "display_option": {},
+      "validation": {
+        "max_length": 255,
+        "min_length": 1
+      },
+      "order": 1
     }
   },
   "metadata": {

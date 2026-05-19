@@ -13,7 +13,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'active_task',
   api: async (pageParams: any) => {
-    const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data)
+    const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
     return {
       data: {
         entryList: data || []
@@ -42,7 +42,8 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      workflowType: 'activeTask'
+      workflowType: 'activeTask',
+      db_id: row.db_id
     }),
     false
   )

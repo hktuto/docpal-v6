@@ -3,19 +3,16 @@ const { dataMapping: propsDataMapping } = defineProps<{
   dataMapping: any
 }>()
 const { t } = useI18n()
-const { getVariablesByTags } = useVariablesProvide()
-const variablesByType = getVariablesByTags()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
+const variablesByType = getVariablesByDisplayTypes()
 
 const variableList = computed(() => {
   const usedKeySet = new Set(Object.keys(propsDataMapping ?? {}))
-  return variablesByType.filter((item: any) => !usedKeySet.has(item.id))
+  return variablesByType.filter((item: any) => !item.id.startsWith('__system__') && !usedKeySet.has(item.id))
 })
 
 const mappingVariableList = computed(() => {
-  return variablesByType.map((item: any) => ({
-    id: '${' + item.id + '}',
-    name: item.name,
-  }))
+  return getVariablesByDisplayTypes([],true)
 })
 
 const emits = defineEmits(['create'])
@@ -98,7 +95,7 @@ defineExpose({
       </div>
     </el-form>
     <template #footer>
-      <el-button type="primary" @click="handleSubmit">{{ $t('common.submit') }}</el-button>
+      <el-button type="primary" @click="handleSubmit">{{ $t('common_submit') }}</el-button>
     </template>
   </el-dialog>
 </template>

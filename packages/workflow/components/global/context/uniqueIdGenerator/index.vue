@@ -17,12 +17,12 @@ const formData = ref({
   variables: []
 })
 
-const { getVariablesByTags } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringFields = computed(() => {
-  return getVariablesByTags(['string'])
+  return getVariablesByDisplayTypes(['text'])
 })
 const stringAndNumberFields = computed(() => {
-  return getVariablesByTags(['string', 'number'], true)
+  return getVariablesByDisplayTypes(['text', 'number'], true)
 })
 
 async function getGenerateIdTemplateList() {

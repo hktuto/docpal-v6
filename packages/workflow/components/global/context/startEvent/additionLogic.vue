@@ -18,7 +18,7 @@ function updateData() {
       ...data.metadata,
       openInNewPage: openInNewPage.value
     },
-    version: (nodeData.version || 0) + 1
+    version: (data.version || 0) + 1
   }
   node.setData(newData, {
     deep: true,

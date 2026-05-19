@@ -42,7 +42,7 @@ const rules = ref([
 ])
 
 async function checkWorkflowName(rule: any, value: string, callback: any) {
-  const data: any = await $api.get(`/oniflow/api/v1/workflow/definitions?name=${formData.value.name}`).then((r: any) => r.data)
+  const data: any = await $api.get(`/oniflow/api/v1/workflow/definitions?name=${formData.value.name}`).then((r: any) => r.data.data)
   if (data.length > 0) {
     return callback(new Error(t('There are duplicate names')))
   }
@@ -61,7 +61,7 @@ async function handleSubmit() {
       emits('refresh')
       return
     }
-    const key = formData.value.name.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_\s]/g, '')
+    const key = formData.value.name.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\s]/g, '')
 
     // Create Workflow
     const defWorkflowJson = {
@@ -69,13 +69,13 @@ async function handleSubmit() {
       key: `${key}_${Date.now()}`,
       name: formData.value.name,
       description: formData.value.description,
-      metadata:{
+      metadata: {
         ...json.metadata,
         created_date: Date.now(),
-        author: useUserId().value,
+        author: useUserId().value
       }
     }
-    const data = await $api.post('/oniflow/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data)
+    const data = await $api.post('/oniflow/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data.data)
     if (!data) return
 
     const workflowEdit = routeWorkflowManageEditor({

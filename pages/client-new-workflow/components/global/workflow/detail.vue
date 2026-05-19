@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { newClientApi } from 'api'
-import { routeWorkflowPage } from '~/utils/routerHelper'
+import { routeWorkflowPage, workflowResponseHelper } from '#imports'
 import { generateData, replaceVariables } from 'docpal-document-editor/src/utils'
 import { CellType, conversionFormDataByVariables, getButtonAdditionalElement } from '#imports'
 
@@ -42,7 +42,7 @@ async function getDetail() {
   try {
     state.loading = true
     state.error = null
-    const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => r.data)
+    const data: any = await $api.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => workflowResponseHelper(r))
     if (!data) {
       state.error = 'Get Task Detail Failed'
       return
@@ -55,12 +55,12 @@ async function getDetail() {
       return
     }
     taskDetail.value = data
-    state.title = data.config.human_task.form_title || data.name
+    state.title = data.config?.human_task?.form_title || data.name
+    variables.value = data.config?.human_task?.form_fields || []
 
-    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => r.data)
-    variablesData.value = instanceData.initial_variables || {}
-    contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => r.data)
-    variables.value = contentData.value.variables
+    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
+    variablesData.value = instanceData.variables || {}
+    contentData.value = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => workflowResponseHelper(r))
 
     if (data.config?.human_task?.assignee === userId) {
       isAssigneeUser.value = true
@@ -195,7 +195,7 @@ async function handleSubmit() {
     const fallbackRoute = routeWorkflowPage({
       workflowType: workflowType
     })
-    routerProvider?.back(fallbackRoute)
+    routerProvider?.replace(fallbackRoute)
   } catch (error) {
     console.log('error', error)
     routerProvider?.message.error(error.message)
@@ -239,7 +239,7 @@ async function handleSubmitUserTask() {
       user_id: userId,
       variables: cFormData
     })
-    .then((r: any) => r.data)
+    .then((r: any) => workflowResponseHelper(r))
   console.log('--- handleSubmitUserTask: ', data)
 }
 
@@ -251,7 +251,7 @@ async function handleSubmitServiceTask() {
       process_id: taskDetail.value.process_id,
       variables: cFormData
     })
-    .then((r: any) => r.data)
+    .then((r: any) => workflowResponseHelper(r))
   console.log('--handleSubmitServiceTask: ', data)
 }
 
@@ -358,7 +358,7 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
   if (backItem) {
     routerProvider?.back(backItem)
   } else {
-    routerProvider?.back(
+    routerProvider?.replace(
       routeWorkflowPage({
         workflowType: workflowType
       })
@@ -372,11 +372,10 @@ async function handleTaskInfoChange(taskDetailRes: any) {
 }
 
 function handleBack() {
-  routerProvider?.navigateTo(
-    routeWorkflowPage({
-      workflowType: workflowType
-    })
-  )
+  const newRoute = routeWorkflowPage({
+    workflowType: workflowType
+  })
+  routerProvider?.navigateTo(newRoute)
 }
 
 onMounted(() => {
@@ -489,11 +488,6 @@ onMounted(() => {
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
           <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail" :content-json="contentData" autoplay />
         </el-tab-pane>
-
-        <!--  TODO: 該功能是否要保留      -->
-<!--        <el-tab-pane v-if="taskDetail && taskDetail.process_id" :label="$t('common_discussionChannel')" name="command">-->
-<!--          <WorkflowDetailDiscussionChannel :id="taskDetail.process_id" :noToggle="true" />-->
-<!--        </el-tab-pane>-->
       </el-tabs>
     </div>
   </div>

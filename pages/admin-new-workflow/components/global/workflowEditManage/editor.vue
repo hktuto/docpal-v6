@@ -25,7 +25,7 @@ async function getWorkflowData() {
       throw new Error('Workflow ID is null')
     }
     openWorkflowEdit.value = true
-    const data: any = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${props.id}`).then((r: any) => r.data)
+    const data: any = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${props.id}`).then((r: any) => r.data.data)
     if (!data) return
 
     workflowId.value = data.id
@@ -45,6 +45,12 @@ async function getWorkflowData() {
 }
 
 async function handleStatus() {
+  if (!checkWorkflowRequiredParameter()) {
+    routerProvider?.message.error('Start Task No form configured')
+    return
+  }
+  // TODO 檢查主要綫路上的節點是否有正確配置參數
+
   loading.value = true
   try {
     const userId = useUserId()
@@ -61,6 +67,18 @@ async function handleStatus() {
 
 function handleUpdateActivate() {
   isActivate.value = false
+}
+
+function checkWorkflowRequiredParameter() {
+  const workflowJson = workflowEditorRef.value.workflowJson
+  const find = workflowJson.nodes.find((item: any) => item.type === 'StartEvent')
+  const initialise = find.config.initialise
+
+  // 沒有必填的參數
+  if (initialise.form_fields.length === 0) return true
+
+  // 有必填參數但未設置start Form
+  return initialise.form_key !== ''
 }
 
 function handleOpenRelease() {
