@@ -1,4 +1,4 @@
-import { newClientApi } from 'api'
+import { clientApi, newClientApi } from 'api'
 import { CellType } from '#imports'
 
 const booleanButtonComponent = 'LazyContextFormBooleanButton'
@@ -51,12 +51,24 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
 export async function getWorkflowList() {
   let workflowList: any[] = []
   try {
-    const data = (await $api.get(`/oniflow/api/v1/workflow/definitions?published=true`).then((r: any) => r.data.data)) as any[]
-    workflowList = data.filter((item: any) => item.status === 'A')
+    const userId = useUserId()
+    const data = await clientApi.instance.get('v1/dynamic-actions/acl/query', {
+      baseURL: '/gateway',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      params: {
+        resourceType: 3,
+        userId:userId.value
+      }
+    }).then((r: any) => r.data.data)
+    workflowList = data
   } catch (e) {
     console.log(e)
+  } finally {
+
+    return workflowList
   }
-  return workflowList
 }
 
 export function convertWorkflowVariableToTemplateVariable(variables: any, mapping: any) {
