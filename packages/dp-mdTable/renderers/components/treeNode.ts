@@ -1,6 +1,7 @@
 import { formatCount } from '../../composables/useCount'
 import type { CountMethod } from '../../types/count-type'
 import type { ViewRenderFunctionParams } from '../../types/column-types'
+import { formatTableFieldDisplayValue } from '../../utils/fieldValueFormat'
 import { useI18n } from 'vue-i18n'
 
 export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, feedback: (params: ViewRenderFunctionParams<string>) => any) => {
@@ -16,9 +17,10 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
         const groupColumnField = tableFields.value.find((field: any) => field.field_name === groupColumn.field)
         const __count = row.__count || 0
         const title = groupColumnField.field_name_alias + '(' + __count + ')'
-        const value = row[groupColumnField.field_name] || ''
+        const rawValue = row[groupColumnField.field_name]
+        const value = formatTableFieldDisplayValue(rawValue, groupColumnField, row, { viewTools }) || ''
         const hList: any[] = []
-        if (value && value !== 0) {
+        if (rawValue && rawValue !== 0) {
           hList.push(h('div', { class: 'tree-node-header' }, [h('span', { class: 'tree-node-title' }, title), h('span', { class: 'tree-node-value' }, value)]))
           const count = formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure)
           if (count && count !== '-') {
