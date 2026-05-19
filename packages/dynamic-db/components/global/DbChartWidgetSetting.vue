@@ -104,9 +104,7 @@ const { tableOptions, fields, fieldsLoading, loadFields, numericFields, isDateFi
 const chartTypeOptions = [
   { label: 'Bar', value: 'bar' },
   { label: 'Line', value: 'line' },
-  { label: 'Area', value: 'area' },
-  { label: 'Pie', value: 'pie' },
-  { label: 'Donut', value: 'donut' }
+  { label: 'Area', value: 'area' }
 ]
 
 const aggregationOptions = [

@@ -274,7 +274,7 @@ function initChart() {
   const instance = echarts.init(chartContainer.value)
   chartInstance.value = instance
 
-  const isPie = chartType === 'pie' || chartType === 'donut'
+  const isPie = false
   const isLine = chartType === 'line' || chartType === 'area'
   const isBar = chartType === 'bar'
 

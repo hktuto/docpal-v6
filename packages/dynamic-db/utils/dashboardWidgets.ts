@@ -65,6 +65,24 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       rowLimit: 20
     }
   },
+  DbPie: {
+    label: 'DbPie',
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 6,
+    component: 'LazyDbPieWidget',
+    setting: {
+      tableId: '',
+      chartType: 'pie',
+      categoryField: '',
+      valueField: '',
+      aggregation: 'count',
+      rowLimit: 20
+    }
+  },
   DbRecentRecords: {
     label: 'DbRecentRecords',
     minW: 3,
