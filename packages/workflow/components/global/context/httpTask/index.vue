@@ -172,15 +172,19 @@ function handleOpenResponseDialog() {
 }
 
 function handleOutputMapping(mapping: any) {
-  formData.value.output_mapping = mapping
+  formData.value.output_mapping = Object.fromEntries(Object.entries(mapping).map(([key, value]) => [value, `\${${key}}`]))
   updateData()
 }
 
-const outputMapping = computed(() => {
-  return Object.entries(formData.value.output_mapping).map(([key, value]) => ({
-    name: key,
-    value: String(value ?? '')
-  }))
+const outputMappingList = computed(() => {
+  return Object.entries(formData.value.output_mapping).map(([key, value]) => {
+    const m = String(value).match(/^\$\{(.+)\}$/)
+    const inner = m?.[1] ?? ''
+    return {
+      name: key,
+      value: inner
+    }
+  })
 })
 
 function openBodyEdit() {
@@ -282,9 +286,13 @@ watch(
 
     <el-divider />
 
+    <div class="title-header">
+      <span>Store Value</span>
+      <span>Response Value</span>
+    </div>
     <div class="output-mapping-summary">
-      <template v-if="outputMapping.length">
-        <div v-for="(item, index) in outputMapping" :key="`${item.name}-${index}`" class="output-mapping-row">
+      <template v-if="outputMappingList.length">
+        <div v-for="(item, index) in outputMappingList" :key="`${item.name}-${index}`" class="output-mapping-row">
           <span class="output-mapping-key" :title="item.name">{{ item.name }}</span>
           <span class="output-mapping-arrow" aria-hidden="true">--</span>
           <span class="output-mapping-val" :title="item.value">{{ item.value }}</span>
@@ -298,14 +306,16 @@ watch(
   <LazyContextHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
   <LazyContextHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
 
-  <!--  <LazyContextHttpTaskOutputMapping ref="outputMappingRef" @update="handleOutputMapping" />-->
   <LazyContextHttpTaskOutputMappingDialog ref="outputMappingDialogRef" :mapping="formData.output_mapping" @update="handleOutputMapping" />
 </template>
 
 <style scoped lang="scss">
-.error {
-  color: red;
-  margin-top: 10px;
+.title-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
 .output-mapping-summary {
@@ -329,8 +339,8 @@ watch(
 }
 
 .output-mapping-key {
-  font-weight: 600;
-  color: var(--el-text-color-primary);
+  font-weight: 700;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -343,8 +353,7 @@ watch(
 }
 
 .output-mapping-val {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: rgb(57, 57, 57);
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

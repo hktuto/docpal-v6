@@ -209,6 +209,7 @@ function openCreateDialog() {
 }
 
 function handlePermission(row: any) {
+  console.log(123,permissionDialogRef.value)
   nextTick(() => {
     permissionDialogRef.value?.open(row.id)
   })

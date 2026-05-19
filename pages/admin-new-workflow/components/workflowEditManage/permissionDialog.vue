@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { clientApi,newClientApi } from 'api'
+import { clientApi, newClientApi } from 'api'
 
 interface TargetOption {
   id: string
@@ -17,9 +17,8 @@ interface PermissionRow {
   isInherit: boolean
 }
 
-
 const { t } = useI18n()
-const currentWorkflowId = ref("")
+const currentWorkflowId = ref('')
 const dialogVisible = ref(false)
 const loading = ref(false)
 const permissions = ref<PermissionRow[]>([])
@@ -32,37 +31,31 @@ const targetsLoading = ref(false)
 const selectedTarget = ref('')
 const submitting = ref(false)
 
-const selectGroups = computed(() => [
-  {
-    label: t('user_users'),
-    type: 1,
-    icon: 'lucide:user',
-    options: users.value
-      .filter((u) => !isExistingTarget(1, u.id))
-      .map((u) => ({ value: `1:${u.id}`, label: u.username || u.name || u.id }))
-  },
-  {
-    label: t('user_role'),
-    type: 2,
-    icon: 'lucide:shield',
-    options: roles.value
-      .filter((r) => !isExistingTarget(2, r.id))
-      .map((r) => ({ value: `2:${r.id}`, label: r.name || r.id }))
-  },
-  {
-    label: t('user_groups'),
-    type: 3,
-    icon: 'lucide:users',
-    options: groups.value
-      .filter((g) => !isExistingTarget(3, g.id))
-      .map((g) => ({ value: `3:${g.id}`, label: g.name || g.id }))
-  }
-].filter((g) => g.options.length > 0))
+const selectGroups = computed(() =>
+  [
+    {
+      label: t('user_users'),
+      type: 1,
+      icon: 'lucide:user',
+      options: users.value.filter((u) => !isExistingTarget(1, u.id)).map((u) => ({ value: `1:${u.id}`, label: u.username || u.name || u.id }))
+    },
+    {
+      label: t('user_role'),
+      type: 2,
+      icon: 'lucide:shield',
+      options: roles.value.filter((r) => !isExistingTarget(2, r.id)).map((r) => ({ value: `2:${r.id}`, label: r.name || r.id }))
+    },
+    {
+      label: t('user_groups'),
+      type: 3,
+      icon: 'lucide:users',
+      options: groups.value.filter((g) => !isExistingTarget(3, g.id)).map((g) => ({ value: `3:${g.id}`, label: g.name || g.id }))
+    }
+  ].filter((g) => g.options.length > 0)
+)
 
 function isExistingTarget(targetType: number, targetId: string): boolean {
-  return permissions.value.some(
-    (item) => item.targetType === targetType && item.targetId === targetId && !item.isInherit
-  )
+  return permissions.value.some((item) => item.targetType === targetType && item.targetId === targetId && !item.isInherit)
 }
 
 const parsedTarget = computed(() => {
@@ -86,31 +79,41 @@ const parsedTarget = computed(() => {
 
 function getTargetIcon(targetType: number): string {
   switch (targetType) {
-    case 1: return 'lucide:user'
-    case 2: return 'lucide:shield'
-    case 3: return 'lucide:users'
-    default: return 'lucide:user'
+    case 1:
+      return 'lucide:user'
+    case 2:
+      return 'lucide:shield'
+    case 3:
+      return 'lucide:users'
+    default:
+      return 'lucide:user'
   }
 }
 
 function getTargetLabel(targetType: number): string {
   switch (targetType) {
-    case 1: return t('user_users')
-    case 2: return t('user_role')
-    case 3: return t('user_groups')
-    default: return t('user_users')
+    case 1:
+      return t('user_users')
+    case 2:
+      return t('user_role')
+    case 3:
+      return t('user_groups')
+    default:
+      return t('user_users')
   }
 }
 
 async function loadPermissions() {
   loading.value = true
   try {
-    const { data } = await clientApi.instance.get(`/v2/acl/resource-permissions/resource/${currentWorkflowId.value}`, {
-      baseURL: '/gateway',
-      params: {
-        resourceType: 3
-      }
-    }).then(res => res.data)
+    const { data } = await clientApi.instance
+      .get(`/v2/acl/resource-permissions/resource/${currentWorkflowId.value}`, {
+        baseURL: '/gateway',
+        params: {
+          resourceType: 3
+        }
+      })
+      .then((res) => res.data)
     permissions.value = (data || []).map((item: any) => ({
       id: item.id,
       targetId: item.targetId,
@@ -130,11 +133,7 @@ async function loadPermissions() {
 async function loadTargets() {
   targetsLoading.value = true
   try {
-    await Promise.all([
-      loadUsers(),
-      loadRoles(),
-      loadGroups()
-    ])
+    await Promise.all([loadUsers(), loadRoles(), loadGroups()])
   } finally {
     targetsLoading.value = false
   }
@@ -176,15 +175,19 @@ async function handleAddPermission() {
 
   submitting.value = true
   try {
-    await clientApi.instance.post('/v2/acl/resource-permissions', {
-      resourceId: currentWorkflowId.value,
-      resourceType: 3,
-      targetType: parsedTarget.value.type,
-      targetId: parsedTarget.value.id,
-      permissionLevel: 'default'
-    }, {
-      baseURL:'/gateway'
-    })
+    await clientApi.instance.post(
+      '/v2/acl/resource-permissions',
+      {
+        resourceId: currentWorkflowId.value,
+        resourceType: 3,
+        targetType: parsedTarget.value.type,
+        targetId: parsedTarget.value.id,
+        permissionLevel: 'default'
+      },
+      {
+        baseURL: '/gateway'
+      }
+    )
     ElMessage.success(t('dpMsg_success'))
     selectedTarget.value = ''
     await loadPermissions()
@@ -203,15 +206,11 @@ async function handleRemovePermission(row: PermissionRow) {
   }
 
   try {
-    await ElMessageBox.confirm(
-      `Remove permission for ${row.targetName}?`,
-      'Confirm',
-      {
-        confirmButtonText: 'Remove',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`Remove permission for ${row.targetName}?`, 'Confirm', {
+      confirmButtonText: 'Remove',
+      cancelButtonText: 'Cancel',
+      type: 'warning'
+    })
     await clientApi.instance.delete(`/v2/acl/resource-permissions/${row.id}`, {
       baseURL: '/gateway'
     })
@@ -247,37 +246,15 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    :title="t('workflow_editorPermission')"
-    width="600px"
-    :close-on-click-modal="false"
-    @close="close"
-  >
+  <el-dialog v-model="dialogVisible" :title="t('workflow_editorPermission')" width="600px" :close-on-click-modal="false" @close="close">
     <div v-loading="loading" class="permission-dialog-content">
       <!-- Add Permission Section -->
-      <div class="add-permission-section">
-        <el-form label-position="top">
-          <el-form-item :label="t('rbac.permission.targetName')">
-            <el-select
-              v-model="selectedTarget"
-              placeholder="Search and select user, role or group"
-              filterable
-              clearable
-              :loading="targetsLoading"
-              style="width: 100%"
-            >
-              <el-option-group
-                v-for="group in selectGroups"
-                :key="group.label"
-                :label="group.label"
-              >
-                <el-option
-                  v-for="opt in group.options"
-                  :key="opt.value"
-                  :label="opt.label"
-                  :value="opt.value"
-                >
+      <el-form label-position="top">
+        <el-form-item :label="t('rbac.permission.targetName')">
+          <div class="add-permission-section">
+            <el-select v-model="selectedTarget" placeholder="Search and select user, role or group" filterable clearable :loading="targetsLoading">
+              <el-option-group v-for="group in selectGroups" :key="group.label" :label="group.label">
+                <el-option v-for="opt in group.options" :key="opt.value" :label="opt.label" :value="opt.value">
                   <div class="target-option">
                     <Icon :name="group.icon" class="target-option-icon" />
                     <span>{{ opt.label }}</span>
@@ -285,18 +262,12 @@ defineExpose({
                 </el-option>
               </el-option-group>
             </el-select>
-          </el-form-item>
-        </el-form>
-        <el-button
-          type="primary"
-          :loading="submitting"
-          :disabled="!selectedTarget"
-          @click="handleAddPermission"
-        >
-          {{ t('rbac.permission.addPermission') }}
-        </el-button>
-      </div>
-
+            <el-button type="primary" :loading="submitting" :disabled="!selectedTarget" @click="handleAddPermission">
+              {{ t('rbac.permission.addPermission') }}
+            </el-button>
+          </div>
+        </el-form-item>
+      </el-form>
       <el-divider />
 
       <!-- Permissions List -->
@@ -325,13 +296,7 @@ defineExpose({
 
           <el-table-column label="Actions" align="center" width="100">
             <template #default="{ row }">
-              <el-button
-                size="small"
-                type="danger"
-                plain
-                :disabled="row.isInherit"
-                @click="handleRemovePermission(row)"
-              >
+              <el-button size="small" type="danger" plain :disabled="row.isInherit" @click="handleRemovePermission(row)">
                 {{ t('common_delete') }}
               </el-button>
             </template>
@@ -355,14 +320,9 @@ defineExpose({
 }
 
 .add-permission-section {
+  width: 100%;
   display: flex;
   align-items: flex-end;
-  gap: var(--app-space-s);
-
-  .el-form {
-    flex: 1;
-    margin-bottom: 0;
-  }
 }
 
 .permissions-list {
