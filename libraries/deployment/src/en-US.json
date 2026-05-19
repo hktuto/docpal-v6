@@ -4390,6 +4390,7 @@
   "workflow_editorVersionHistory": "Version History",
   "workflow_editorViewProductionVersion": "View Production Version",
   "workflow_editorViewVersionHistory": "View Version History",
+  "workflow_editorPermission": "Permission",
   "workflow_form": "Form",
   "workflow_graph": "Flowchart",
   "workflow_holdPolicy": "Hold Policy",

@@ -16,6 +16,7 @@ const releaseContent = ref()
 const workflowReadonly = ref(false)
 const workflowId = ref()
 const workflowEditorRef = ref()
+const permissionDialogRef = ref()
 const loading = ref(false)
 
 async function getWorkflowData() {
@@ -88,6 +89,12 @@ function handleOpenRelease() {
   loading.value = false
 }
 
+function openPermissionDialog() {
+  nextTick(() => {
+    permissionDialogRef.value?.open(props.id)
+  })
+}
+
 onMounted(async () => {
   await getWorkflowData()
 })
@@ -110,8 +117,12 @@ onMounted(async () => {
         <!--        <el-button v-if="showRelease" type="primary" @click="handleOpenRelease">-->
         <!--          {{ $t('Open The Release Version') }}-->
         <!--        </el-button>-->
+        <el-button id="Workflow__Edit__Permission" type="primary" @click="openPermissionDialog">
+          {{ $t('workflow_editorPermission') }}
+        </el-button>
       </template>
     </WorkflowEditor>
+    <LazyWorkflowEditManagePermissionDialog ref="permissionDialogRef" :workflow-id="props.id" />
   </div>
 </template>
 

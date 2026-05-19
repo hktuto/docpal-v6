@@ -4387,6 +4387,7 @@
   "workflow_editorVersionHistory": "歷史版本",
   "workflow_editorViewProductionVersion": "View Production Version",
   "workflow_editorViewVersionHistory": "View Version History",
+  "workflow_editorPermission": "權限",
   "workflow_form": "表單",
   "workflow_graph": "流程圖",
   "workflow_holdPolicy": "保留政策",
