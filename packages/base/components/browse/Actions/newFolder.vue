@@ -126,6 +126,12 @@ function handleReset() {
     FormRendererRef.value.vFormRenderRef.resetForm()
     const typeRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('type')
     typeRef.setValue('Folder')
+    nextTick(() => {
+      const nameRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('name')
+      if (nameRef?.focus) {
+        nameRef.focus()
+      }
+    })
   }
 }
 
