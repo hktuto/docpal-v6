@@ -183,16 +183,9 @@ async function importWorkflow(importData: any) {
 }
 
 const WorkflowEditorImportDialogRef = ref()
-const permissionDialogRef = ref()
 
 function openImportDialog() {
   WorkflowEditorImportDialogRef.value.open()
-}
-
-function openPermissionDialog() {
-  nextTick(() => {
-    permissionDialogRef.value?.open(id)
-  })
 }
 
 watch(
@@ -241,9 +234,6 @@ watch(
         <ElButton id="WorkflowEditor__DetailDead__ExportWorkflow" type="primary" @click="openImportDialog">
           Import Workflow
         </ElButton>
-        <ElButton id="WorkflowEditor__DetailDead__Permission" type="primary" @click="openPermissionDialog">
-          {{ $t('workflow_editorPermission') }}
-        </ElButton>
         <!-- <el-button v-if="state.detail.publishStatus === 'A' && state.detail.status === 'A'" :loading="state.loading" type="info" @click="handleDeactive()">{{$t('actions.inactive')}}</el-button> -->
         <!-- <el-button v-else-if="state.detail.status === 'A'" :loading="state.loading" type="info" @click="handleActive()">{{$t('actions.active')}}</el-button> -->
         <!-- <el-button :loading="state.loading" type="primary" @click="handleSave(true)">{{$t('button.saveDraft')}}</el-button> -->
@@ -251,7 +241,6 @@ watch(
       </template>
     </BpmnEditor>
     <WorkflowEditorImportDialog ref="WorkflowEditorImportDialogRef" @submit="importWorkflow" />
-    <LazyWorkflowEditorPermissionDialog ref="permissionDialogRef" :workflow-id="id" />
   </div>
 </template>
 

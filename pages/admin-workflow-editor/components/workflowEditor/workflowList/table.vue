@@ -138,15 +138,6 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         action: ({ row }) => {
           listProvider.deleteWorkflow(row)
         }
-      },
-      {
-        code: 'permission',
-        name: 'workflow_editorPermission',
-        visible: true,
-        disabled: false,
-        action: ({ row }) => {
-          listProvider.openPermissionDialog(row)
-        }
       }
 
     ]
