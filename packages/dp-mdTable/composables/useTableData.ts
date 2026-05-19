@@ -226,6 +226,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
       rawData.value = JSON.parse(JSON.stringify(data.data))
       totalSize.value = data.meta.total
+
       return {
         entryList: tableData.value,
         totalSize: totalSize.value

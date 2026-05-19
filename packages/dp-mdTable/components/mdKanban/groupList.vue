@@ -93,7 +93,8 @@ const { stop: stopLoadMore } = useIntersectionObserver(
 )
 
 
-function openRecordDetail(item:any){
+function openRecordDetail(item: any) {
+  if(item.__deleted) return
   emits('select', item)
 }
 
