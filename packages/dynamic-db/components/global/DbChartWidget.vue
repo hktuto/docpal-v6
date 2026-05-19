@@ -80,7 +80,12 @@ function fieldLabel(fieldName: string): string {
 const chartTitle = computed(() => {
   const { xField } = config.value
   const seriesLabels = (config.value.series || [])
-    .map((s: any) => s.label || fieldLabel(s.field))
+    .map((s: any) => {
+      if (s.label) return s.label
+      if (s.field) return fieldLabel(s.field)
+      if (s.aggregation === 'count') return 'Count'
+      return ''
+    })
     .filter(Boolean)
   if (xField && seriesLabels.length) {
     return `${fieldLabel(xField)} vs ${seriesLabels.join(', ')}`
@@ -105,7 +110,7 @@ function buildServerSideParams() {
   const limit = rowLimit || 20
 
   const columns: any[] = [{ name: xField }]
-  const validSeries = (series || []).filter((s: any) => s.field)
+  const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
 
   validSeries.forEach((s: any, index: number) => {
     const aggFunc = s.aggregation === 'count' ? 'COUNT' : s.aggregation.toUpperCase()
@@ -130,10 +135,12 @@ function buildClientSideParams() {
   const limit = rowLimit || 20
 
   const columns: any[] = [{ name: xField }]
-  const validSeries = (series || []).filter((s: any) => s.field)
+  const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
 
   validSeries.forEach((s: any) => {
-    columns.push({ name: s.field })
+    if (s.field) {
+      columns.push({ name: s.field })
+    }
   })
 
   return {
@@ -198,7 +205,7 @@ function aggregateClientSide(rows: any[], xField: string, granularity: string, s
 
 async function fetchData() {
   const { tableId, xField, series, xTimeGranularity } = config.value
-  const validSeries = (series || []).filter((s: any) => s.field)
+  const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
 
   if (!tableId || !xField || validSeries.length === 0) {
     chartData.value = []
@@ -316,7 +323,7 @@ function initChart() {
     const yData = chartData.value.map((d) => d[`series_${index}`] ?? 0)
 
     const baseSeries: any = {
-      name: s.label || fieldLabel(s.field),
+      name: s.label || (s.field ? fieldLabel(s.field) : 'Count'),
       type: isLine ? 'line' : 'bar',
       data: yData,
       stack: isStacked ? 'total' : undefined,

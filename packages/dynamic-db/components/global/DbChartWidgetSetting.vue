@@ -36,9 +36,15 @@
         </div>
         <div class="series-fields">
           <el-form-item label="Field" class="series-field-item">
-            <el-select v-model="series.field" placeholder="Select numeric field" style="width: 100%" :loading="fieldsLoading">
+            <el-select
+              v-model="series.field"
+              :placeholder="series.aggregation === 'count' ? 'Optional — leave empty to count all' : 'Select numeric field'"
+              style="width: 100%"
+              :loading="fieldsLoading"
+              clearable
+            >
               <el-option
-                v-for="f in numericFields"
+                v-for="f in (series.aggregation === 'count' ? fields : numericFields)"
                 :key="f.field_name"
                 :label="f.field_name_alias || f.field_name"
                 :value="f.field_name"
