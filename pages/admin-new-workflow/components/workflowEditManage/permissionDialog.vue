@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { newClientApi } from 'api'
+import { clientApi,newClientApi } from 'api'
 
 interface TargetOption {
   id: string
@@ -17,12 +17,9 @@ interface PermissionRow {
   isInherit: boolean
 }
 
-const props = defineProps<{
-  workflowId: string
-}>()
 
 const { t } = useI18n()
-const currentWorkflowId = ref(props.workflowId)
+const currentWorkflowId = ref("")
 const dialogVisible = ref(false)
 const loading = ref(false)
 const permissions = ref<PermissionRow[]>([])
@@ -108,7 +105,12 @@ function getTargetLabel(targetType: number): string {
 async function loadPermissions() {
   loading.value = true
   try {
-    const { data } = await newClientApi.getDocpalAclResourcePermissionsResourceResourceid(currentWorkflowId.value)
+    const { data } = await clientApi.instance.get(`/v2/acl/resource-permissions/resource/${currentWorkflowId.value}`, {
+      baseURL: '/gateway',
+      params: {
+        resourceType: 3
+      }
+    }).then(res => res.data)
     permissions.value = (data || []).map((item: any) => ({
       id: item.id,
       targetId: item.targetId,
@@ -139,7 +141,7 @@ async function loadTargets() {
 }
 
 async function loadUsers() {
-  const { data } = await newClientApi.admin.postUcenterGetKeycloakAllUsers()
+  const { data } = await newClientApi.postUcenterGetKeycloakAllUsers()
   users.value = (data || []).map((u: any) => ({
     id: u.userId,
     username: u.username,
@@ -148,7 +150,7 @@ async function loadUsers() {
 }
 
 async function loadRoles() {
-  const { data } = await newClientApi.api.postDocpalAclRolePage({
+  const { data } = await clientApi.api.postDocpalAclRolePage({
     pageNum: 0,
     pageSize: 1000
   })
@@ -159,7 +161,7 @@ async function loadRoles() {
 }
 
 async function loadGroups() {
-  const { data } = await newClientApi.admin.postUcenterGroups()
+  const { data } = await clientApi.admin.postUcenterGroups()
   groups.value = (data || []).map((g: any) => ({
     id: g.id,
     name: g.name
@@ -174,12 +176,14 @@ async function handleAddPermission() {
 
   submitting.value = true
   try {
-    await newClientApi.postDocpalAclResourcePermissions({
+    await clientApi.instance.post('/v2/acl/resource-permissions', {
       resourceId: currentWorkflowId.value,
       resourceType: 3,
       targetType: parsedTarget.value.type,
       targetId: parsedTarget.value.id,
       permissionLevel: 'default'
+    }, {
+      baseURL:'/gateway'
     })
     ElMessage.success(t('dpMsg_success'))
     selectedTarget.value = ''
@@ -208,7 +212,9 @@ async function handleRemovePermission(row: PermissionRow) {
         type: 'warning'
       }
     )
-    await newClientApi.deleteDocpalAclResourcePermissionsId(row.id)
+    await clientApi.instance.delete(`/v2/acl/resource-permissions/${row.id}`, {
+      baseURL: '/gateway'
+    })
     ElMessage.success(t('dpMsg_success'))
     await loadPermissions()
   } catch (error: any) {
@@ -219,7 +225,7 @@ async function handleRemovePermission(row: PermissionRow) {
   }
 }
 
-async function open(workflowId?: string) {
+async function open(workflowId: string) {
   if (workflowId) {
     currentWorkflowId.value = workflowId
   }
