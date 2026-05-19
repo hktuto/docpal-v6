@@ -13,7 +13,6 @@ const { t } = useI18n()
       v-model="form.validation.pattern"
       :placeholder="t('metadata.validation.date.format')"
       filterable
-      allow-create
       default-first-option
       class="date-format-select"
     >
@@ -22,6 +21,11 @@ const { t } = useI18n()
       <el-option label="YYYY-MM-DD HH:mm:ss" value="YYYY-MM-DD HH:mm:ss" />
       <el-option label="YYYY-MM-DDTHH:mm:ss.000Z" value="YYYY-MM-DDTHH:mm:ss.000Z" />
       <el-option label="YYYY/MM/DD" value="YYYY/MM/DD" />
+      <el-option label="YYYY/MM/DD HH:mm" value="YYYY/MM/DD HH:mm" />
+      <el-option label="YYYY/MM/DD HH:mm:ss" value="YYYY/MM/DD HH:mm:ss" />
+      <el-option label="DD/MM/YYYY" value="DD/MM/YYYY" />
+      <el-option label="DD/MM/YYYY HH:mm" value="DD/MM/YYYY HH:mm" />
+      <el-option label="DD/MM/YYYY HH:mm:ss" value="DD/MM/YYYY HH:mm:ss" />
     </el-select>
   </el-form-item>
 </template>
