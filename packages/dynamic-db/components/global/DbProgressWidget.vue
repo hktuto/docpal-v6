@@ -78,9 +78,14 @@ async function fetchData() {
         columns: [{ name: '*' }],
         conditions: [
           {
-            field: filterField,
-            operator: 'eq',
-            value: filterValue
+            value: [
+              {
+                column: filterField,
+                type: 'EQ',
+                value: filterValue
+              }
+            ],
+            type: 'AND'
           }
         ],
         pagination: { pageSize: 1, pageNum: 1 }

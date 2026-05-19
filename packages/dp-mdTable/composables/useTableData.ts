@@ -170,8 +170,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
   onBeforeUnmount(() => {
     stopRelationRefresh()
-    stopAwarenessWatch()
-    stopRemoteChanges()
   })
 
   /**
@@ -228,6 +226,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
       rawData.value = JSON.parse(JSON.stringify(data.data))
       totalSize.value = data.meta.total
+
       return {
         entryList: tableData.value,
         totalSize: totalSize.value
@@ -650,7 +649,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
   let stopAwarenessWatch = () => {}
   if (databaseHocuspocus?.awarenessStates) {
-    stopAwarenessWatch = watch(
+    watch(
       () => databaseHocuspocus.awarenessStates,
       () => {
         updateCurrentEditing()
@@ -659,21 +658,17 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     )
   }
 
-  let stopRemoteChanges = () => {}
-  if (databaseHocuspocus?.remoteChanges) {
-    const unwatch = watch(
-      () => databaseHocuspocus.remoteChanges,
-      () => {
-        if (!databaseHocuspocus.remoteChanges.value || databaseHocuspocus.remoteChanges.value.length === 0) return
-        console.log('remoteChanges', databaseHocuspocus.remoteChanges.value)
-        for (const event of databaseHocuspocus.remoteChanges.value) {
-          handleRemoteChangeEvent(event)
-        }
-      },
-      { deep: true }
-    )
-    stopRemoteChanges = unwatch
-  }
+  watch(
+    () => databaseHocuspocus.remoteChanges,
+    () => {
+      if (!databaseHocuspocus.remoteChanges.value || databaseHocuspocus.remoteChanges.value.length === 0) return
+      console.log('remoteChanges', databaseHocuspocus.remoteChanges.value)
+      for (const event of databaseHocuspocus.remoteChanges.value) {
+        handleRemoteChangeEvent(event)
+      }
+    },
+    { deep: true }
+  )
 
   const tableDataContext: TableDataContext = {
     gridRef,
