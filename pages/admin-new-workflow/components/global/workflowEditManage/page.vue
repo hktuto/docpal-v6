@@ -9,6 +9,7 @@ if (!routerProvider) {
 }
 const workflowManageDialogRef = ref()
 const workflowManageDuplicateRef = ref()
+const permissionDialogRef = ref()
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'admin-new-workflow-edit-manage',
   saveColumnOrder: false,
@@ -74,6 +75,15 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
         action: ({ row }: any) => {
           handleRemove(row)
         }
+      },
+      {
+        code: 'permission',
+        name: 'workflow_editorPermission',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => {
+          handlePermission(row)
+        }
       }
     ]
   ],
@@ -116,6 +126,13 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     if (code === 'remove') {
       return {
         visible: row.status === 'D',
+        disabled: false
+      }
+    }
+
+    if (code === 'permission') {
+      return {
+        visible: true,
         disabled: false
       }
     }
@@ -190,6 +207,12 @@ async function handleRemove(row: any) {
 function openCreateDialog() {
   workflowManageDialogRef.value.open()
 }
+
+function handlePermission(row: any) {
+  nextTick(() => {
+    permissionDialogRef.value?.open(row.id)
+  })
+}
 </script>
 
 <template>
@@ -206,6 +229,7 @@ function openCreateDialog() {
   </div>
   <workflowEditManageDialog ref="workflowManageDialogRef" @refresh="reload" />
   <workflowEditManageDuplicate ref="workflowManageDuplicateRef" />
+  <LazyWorkflowEditManagePermissionDialog ref="permissionDialogRef" :workflow-id="''" />
 </template>
 
 <style lang="scss" scoped></style>
