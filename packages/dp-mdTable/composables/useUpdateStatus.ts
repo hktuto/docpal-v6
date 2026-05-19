@@ -134,26 +134,26 @@ export function useUpdateStatus() {
   const getCellClass = (rowId: string, field: string): string => {
     const status = getStatus(rowId, field)
     if (!status) return ''
-    
+
     return `cell-update-${status.status}`
   }
 
   return {
     // State
     allStatuses,
-    
+
     // Setters
     setLoading,
     setSuccess,
     setError,
-    
+
     // Getters
     getStatus,
     isLoading,
     isSuccess,
     isError,
     getCellClass,
-    
+
     // Clear
     clearStatus,
     clearAllStatuses

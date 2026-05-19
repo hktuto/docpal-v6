@@ -19,6 +19,8 @@ export interface TableConfigOptions {
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
   }
+  /** 是否可编辑表格 */
+  canEditTable?: boolean
   /** 表格高度 */
   height?: string | number
   /** 是否自动调整大小 */
@@ -38,6 +40,8 @@ export interface TableConfigOptions {
   /** 列配置 */
   /** 加载状态 */
   loading: Ref<boolean> | ComputedRef<boolean>
+  /** 静默刷新状态：刷新数据但不显示 loading */
+  silentRefreshing?: Ref<boolean>
   apiMethod: Function
   /** 子节点加载方法 */
   childApiMethod?: Function
@@ -51,6 +55,7 @@ export interface TableConfigOptions {
  */
 export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   const {
+    canEditTable = false,
     height = '100%',
     autoResize = true,
     stripe = true,
@@ -60,6 +65,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     rowId = 'id',
     editConfig,
     loading,
+    silentRefreshing,
     apiMethod,
     childApiMethod,
     cellClassName
@@ -214,7 +220,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       resizable,
       keepSource,
       rowId,
-      loading: loading.value,
+      loading: silentRefreshing?.value ? false : loading.value,
       columns: processedColumns.value as any,
       editRules: processedEditRules.value,
       columnConfig: {
@@ -260,9 +266,10 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       },
       footerData: [{ type: 'footerData' }],
       checkboxConfig: {
+        checkStrictly: true,
+        showHeader: false,
         highlight: true,
-        isShiftKey: true,
-        range: true
+        visibleMethod: ({ row }: any) => !row.__deleted
       },
       'footer-cell-config': {
         height: 32
@@ -320,6 +327,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         beforeEditMethod: ({ row, column, $grid }: any) => {
           const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
 
+          // user have no permission to edit
+          if(!canEditTable) return false
           let isLock = false
           if (lockedRowCell.value && lockedRowCell.value.length) {
             isLock = lockedRowCell.value.some(
@@ -337,6 +346,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     }
     if (apiMethod) {
       options.proxyConfig = {
+        showLoading: !silentRefreshing?.value,
         ajax: {
           query: loadData
         }
@@ -366,7 +376,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         const { $table, row } = params
         const rowLevel = $table.getTreeRowLevel(row)
         const data = await childApiMethod?.({ ...params.row, __level: rowLevel })
-        console.log(data)
         resolve(data)
       } catch (error) {
         console.error('treeLoadData error:', error)
@@ -377,6 +386,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   watch(
     () => [options.extraColumnConfig?.columnGroupRules, options.extraColumnConfig?.columnFilterRules, options.extraColumnConfig?.columnSortRules],
     ([newColumnGroupRules, newColumnFilterRules, newColumnSortRules]) => {
+      if (silentRefreshing?.value) {
+        return
+      }
       gridRef.value?.commitProxy('reload')
     },
     { deep: true }

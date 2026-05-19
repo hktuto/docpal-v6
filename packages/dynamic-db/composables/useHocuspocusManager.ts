@@ -156,7 +156,7 @@ export function useAwarenessDiff(states: Ref<AwarenessState[]>) {
 export function useHocuspocusManager() {
   const config = useRuntimeConfig()
   const hocuspocusUrl = computed(() => (config.public.HOCUSPOCUS_URL as string | undefined) || 'ws://localhost:1234')
-  console.log("hocuspocusUrl", hocuspocusUrl.value)
+
   const roomMeta = useState<Record<string, Omit<RoomState, 'provider'>>>('hocuspocus-rooms', () => ({}))
   const lockRecords = useState<LockRecord[]>('hocuspocus-locks', () => [])
   const providers = new Map<string, HocuspocusProvider>()
@@ -188,7 +188,6 @@ export function useHocuspocusManager() {
       provider.destroy()
       providers.delete(roomName)
     }
-    console.log("leave rooms")
     delete roomMeta.value[roomName]
   }
 
@@ -368,9 +367,9 @@ export function useHocuspocusManager() {
     const provider = providers.get(roomName)
     if (!provider) return
     provider.awareness.setLocalStateField('changes', changes)
-    setTimeout(() => {
-      provider.awareness.setLocalStateField('changes', undefined)
-    }, 3000)
+    // setTimeout(() => {
+    //   provider.awareness.setLocalStateField('changes', undefined)
+    // }, 3000)
   }
 
   return {

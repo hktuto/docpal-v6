@@ -13,8 +13,7 @@
       <ToolsFilterButton :disabled="disabled" :available-columns="columns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
       <ToolsSortButton :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
-        <el-button v-if="showAddRowButton" type="primary" @click="handleAddRow">
-          <el-icon><Plus /></el-icon>
+        <el-button v-if="showAddRowButton" :icon="Plus" type="primary" @click="handleAddRow">
           Add Row
         </el-button>
       </slot>
@@ -56,7 +55,8 @@ interface Emits {
   (e: 'add-row'): void
 }
 const { columns, updateViewFilterSortGroup, systemFieldsTypes } = inject('viewTools')
-const { addRow } = useTableDataInject()
+const tableDataContext = useTableDataInject({ required: false })
+const addRow = tableDataContext?.addRow
 if (!updateViewFilterSortGroup) {
   throw new Error('updateViewFilterSortGroup is not found')
 }
@@ -81,6 +81,9 @@ const handleAddRow = () => {
   MdFormPopoverRef.value.open({})
 }
 const handleAddRowSubmit = async (data: any) => {
+  if (!addRow) {
+    return
+  }
   await addRow(data)
 }
 // 暴露方法

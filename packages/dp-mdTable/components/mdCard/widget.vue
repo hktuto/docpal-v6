@@ -99,6 +99,7 @@ function handleContextMenu(event: MouseEvent) {
   <div
     class="md-card-widget"
     :class="cardClass"
+    :id="'cardItem_' + props.row.id"
     tabindex="0"
     aria-label="打开记录"
     :style="{ '--card-count': styleConfig.cardCount }"

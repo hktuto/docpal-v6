@@ -61,7 +61,7 @@
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
       <RecordCardDialog ref="recordCardDialogRef" />
     </div>
-    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
   </div>
 </template>
 
@@ -79,12 +79,6 @@ import { createFieldId } from '../../utils/mdTableHelper'
 import { useMDTable } from '../../composables/useMDTable'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
-
-interface ColumnVisibilityItem {
-  fieldId: string
-  title: string
-  display: boolean
-}
 
 interface Props {
   tableId?: string
@@ -153,7 +147,7 @@ const emit = defineEmits<{
 }>()
 
 // 引用
-const activeGroupFields = ref<string[]>([])
+const isGroupingEnabled = computed(() => (props.extraColumnConfig?.columnGroupRules?.value?.length ?? 0) > 0)
 const addPopoverRef = ref()
 const {
   tableData,
@@ -162,6 +156,8 @@ const {
   gridRef,
   refreshTableData,
   updateRow,
+  syncRowAndGroupAncestors,
+  currentEditing,
   addVirtualColumn,
   addColumnPopoverRef,
   addRow,
@@ -170,9 +166,7 @@ const {
 } = useMDTable(props)
 const { getAgg } = useCount(props)
 
-// Import update status composable
-await new Promise((resolve) => setTimeout(resolve, 1000))
-const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
+const { setLoading, setSuccess, setError } = useUpdateStatus()
 const rightClickCellPopoverRef = ref()
 const recordCardDialogRef = ref()
 function handleMove(direction: 'up' | 'down') {
@@ -198,6 +192,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     const recordset = gridRef.value.getRecordset()
     const hasChanged = recordset.updateRecords.length > 0
     if (!hasChanged) {
+      emit('exit-edit', params)
       return
     }
     const updateData = {
@@ -208,18 +203,21 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     setLoading(row.id, column.field)
 
     try {
-      console.log('updateRow', row.id, updateData)
       await updateRow(row.id, updateData)
       // Set success state - will auto-clear after delay
       setSuccess(row.id, column.field)
+      if (isGroupingEnabled.value) {
+        await syncRowAndGroupAncestors(row.id, { gridRef })
+      }
     } catch (error) {
       console.error('Failed to update row:', error)
       setError(row.id, column.field, error instanceof Error ? error.message : 'Update failed')
       ElMessage.error('Failed to update cell')
     } finally {
       await getAgg()
+      emit('exit-edit', params)
     }
-    emit('edit-closed', params)
+
   },
   'cell-click': (params: any) => {
     emit('cell-click', params)
@@ -236,9 +234,6 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     console.log('start-edit')
     emit('start-edit', { row, column })
   },
-  'edit-closed': ({ row, column }: any) => {
-    emit('exit-edit', { row, column })
-  },
   columnDragend({ newColumn, oldColumn, dragPos }) {
     const newFullColumn = columns.value.find((item: any) => item.field_name === newColumn.field)
     const oldFullColumn = columns.value.find((item: any) => item.field_name === oldColumn.field)
@@ -246,7 +241,8 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   },
   'cell-menu': ({ row, column, $event }: any) => {
     $event?.preventDefault()
-    rightClickCellPopoverRef.value?.open($event?.target, { row, column })
+    console.log('cell-menu', $event)
+    rightClickCellPopoverRef.value?.open($event, { ...row })
   },
   'checkbox-all': ({ checked }: any) => {
     const { fullData } = gridRef.value?.getTableData()
@@ -280,9 +276,10 @@ const filteredSlots = computed(() => {
   return filtered
 })
 
-// 方法
 const handleRefresh = async () => {
-  await refreshTableData()
+  updateExpandedRows()
+  await refreshTableData({ silent: true, keepPage: true })
+  await getAgg()
   emit('refresh')
 }
 
@@ -304,8 +301,10 @@ function handleFinishEdit() {
 const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
-  emit('expand-click', { row, rowIndex })
-  MdFormPopoverRef.value.open(row, 'edit')
+  const mode = currentEditing.value.includes(row.id)  ? 'edit' : (props.canEditTable ? 'edit' : 'default')
+
+  MdFormPopoverRef.value.open(row, mode)
+  emit('expand-click', { row, rowIndex, mode })
 }
 function handleExpandIndexChange(row: any) {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
@@ -549,7 +548,13 @@ onClickOutside(
     pointer-events: none;
   }
 }
-
+:deep(.vxe-body--row){
+    &:has(.cell-update-deleted) {
+        td{
+            background-color: var(--app-grey-800) !important;
+        }
+    }
+}
 :deep(.cell-update-success) {
   animation: successFlash 0.6s ease-out;
   position: relative;
@@ -564,6 +569,19 @@ onClickOutside(
     background: var(--app-success-color);
     border-radius: 50%;
     animation: successDot 0.6s ease-out;
+  }
+}
+:deep(.cell-update-deleted) {
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 1px);
+    left: 0;
+    width:100%;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.4);
+    text-decoration: line-through;
   }
 }
 

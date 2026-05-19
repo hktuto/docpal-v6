@@ -12,29 +12,46 @@ export interface CountColumn {
 export interface MdCountContext {
   aggData: Ref<any>
   aggLoading: Ref<boolean>
-  getAgg: () => Promise<any>
+  getAgg: (options?: { silent?: boolean }) => Promise<any>
   getCount: (field: string, method: CountMethod) => any
 }
 export const MdCountKey: InjectionKey<MdCountContext> = Symbol('MdCountKey')
 export function useCount(props: any) {
   const tableId = props.tableId
   const columnsSource = props.extraColumnConfig?.columns
+  const viewTools: any = inject('viewTools', null)
   const aggData = ref<any>({})
   const aggLoading = ref(false)
 
-  async function getAgg() {
+  function getAggRequestParams() {
+    const columns = getAggColumns(columnsSource.value)
+    const requestParams: Record<string, any> = {
+      tableId,
+      columns
+    }
+    if (viewTools?.getPageParams) {
+      const { orderBy: _orderBy, groupBy: _groupBy, pagination: _pagination, columns: _columns, ...filterParams } =
+        viewTools.getPageParams(false, false) || {}
+      if (filterParams.conditions?.length) {
+        requestParams.conditions = filterParams.conditions
+      }
+    }
+    return requestParams
+  }
+
+  async function getAgg(options?: { silent?: boolean }) {
     const columns = getAggColumns(columnsSource.value)
     if (!tableId || columns.length === 0) {
       aggData.value = undefined
       return undefined
     }
 
+    const shouldShowLoading = !options?.silent
     try {
-      aggLoading.value = true
-      const { data } = await postDynamicActions({
-        tableId,
-        columns
-      })
+      if (shouldShowLoading) {
+        aggLoading.value = true
+      }
+      const { data } = await postDynamicActions(getAggRequestParams() as Parameters<typeof postDynamicActions>[0])
       aggData.value = data.data[0] || {}
       return data.data
     } catch (error) {
@@ -42,7 +59,9 @@ export function useCount(props: any) {
       aggData.value = {}
       return {}
     } finally {
-      aggLoading.value = false
+      if (shouldShowLoading) {
+        aggLoading.value = false
+      }
     }
   }
   function getCount(field: string, method: CountMethod) {

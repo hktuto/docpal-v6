@@ -48,7 +48,13 @@ async function handleNodeDrop(
     body.insert_before_menu_id = dropNode.data.id
   } else if (dropType === 'after') {
     body.move_to_parent_id = dropNode.data.parent_id
-    // body.insert_before_menu_id = dropNode.data.id
+    const siblings = dropNode.parent?.childNodes ?? []
+    const dropIndex = siblings.findIndex((node: any) => node.data.id === dropNode.data.id)
+    const nextSibling = siblings[dropIndex + 2]
+    if (nextSibling && nextSibling.data.id !== moveId) {
+      body.insert_before_menu_id = nextSibling.data.id
+      body.insert_before_menu_name = nextSibling.data.name
+    }
   }
 
   try {

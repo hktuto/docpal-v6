@@ -238,11 +238,12 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (!view) return
     const updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
     const targetColumn = updatedColumns.find((col: any) => String(col.id) === String(fieldId))
-    console.log('updateViewColumnCountMethod', { updatedColumns })
     if (!targetColumn) return
     targetColumn.countMethod = countMethod
-    console.log('updateViewColumnCountMethod', { targetColumn })
     await updateView(view.id, { columns: updatedColumns })
+    if (currentView.value) {
+      currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    }
   }
   async function updateViewFilterSortGroup(fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style', value: any) {
     const view = currentView.value

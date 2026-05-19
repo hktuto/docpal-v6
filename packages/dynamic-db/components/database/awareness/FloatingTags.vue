@@ -5,6 +5,7 @@ interface CellLocation {
   element: HTMLElement | null
   type: string
   selector: string
+
 }
 
 interface TagItem {
@@ -19,9 +20,11 @@ interface TagItem {
 }
 
 const props = defineProps<{
+  viewType: string
   getElement: (focus: AwarenessFocus) => CellLocation
   containerRef?: HTMLElement | null
 }>()
+const {viewType} = toRefs(props)
 
 interface HocuspocusInject {
   awarenessStates: ComputedRef<AwarenessState[]>
@@ -95,7 +98,7 @@ function updatePositions() {
   const cellMap = new Map<string, { element: HTMLElement; type: string; states: AwarenessState[] }>()
 
   for (const state of hocuspocus.awarenessStates.value) {
-    if (!state.focus?.rowId || !state.focus?.cellId || !state.user) continue
+    if (!state.focus?.rowId  || !state.user) continue
 
     const resolved = resolveCell(state.focus)
     if (!resolved) continue
@@ -183,22 +186,17 @@ watch(() => hocuspocus.awarenessStates.value, () => {
   })
 }, { deep: true })
 
-watch([() => props.getElement, () => props.containerRef], () => {
+watch(viewType, () => {
   resetAll()
   nextTick(() => {
     createObserver()
     updatePositions()
     startTick()
   })
+},{
+  immediate: true
 })
 
-onMounted(() => {
-  nextTick(() => {
-    createObserver()
-    updatePositions()
-    startTick()
-  })
-})
 
 onBeforeUnmount(() => {
   resetAll()

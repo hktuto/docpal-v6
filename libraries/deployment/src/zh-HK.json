@@ -2454,6 +2454,33 @@
       "unrecognizedVariable": "未識別{0}",
       "usage": "用法",
       "variableDescription": "變量: {label}"
+    },
+    "cardStyle": {
+      "title": "設定卡片樣式",
+      "cover": "封面",
+      "noCover": "無封面",
+      "stretch": "拉伸",
+      "showColumnNames": "顯示欄名",
+      "border": "邊框",
+      "compact": "緊湊",
+      "shadow": "陰影",
+      "shadowNone": "無",
+      "shadowSmall": "小",
+      "shadowHover": "懸浮"
+    },
+    "cardLayout": {
+      "cardsPerRow": "每行卡片數"
+    },
+    "cardToolbar": {
+      "layout": "版面",
+      "style": "樣式"
+    },
+    "cardGroup": {
+      "defaultTitle": "分組",
+      "emptyValue": "空",
+      "recordCount": "{count} 條",
+      "emptyChildren": "暫無記錄",
+      "emptyGroups": "暫無分組"
     }
   },
   "menu_master-table": "主表格",

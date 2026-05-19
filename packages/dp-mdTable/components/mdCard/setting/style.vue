@@ -13,7 +13,14 @@ const CARD_STYLE_DEFAULTS = {
   cardShadow: 'small' as const
 }
 
+const { t } = useI18n()
 const { tableFields, viewStyleConfig, updateViewFilterSortGroup } = useMDCardInject()
+
+const shadowSegmentOptions = computed(() => [
+  { label: t('mdTable.cardStyle.shadowNone'), value: 'none' as const },
+  { label: t('mdTable.cardStyle.shadowSmall'), value: 'small' as const },
+  { label: t('mdTable.cardStyle.shadowHover'), value: 'hover' as const }
+])
 
 const mergedStyle = computed(() => ({
   ...CARD_STYLE_DEFAULTS,
@@ -52,46 +59,42 @@ function handleCoverFieldChange(value: string) {
 
 <template>
   <div class="md-card-style-setting">
-    <div class="setting-title">设置卡片样式</div>
+    <div class="setting-title">{{ t('mdTable.cardStyle.title') }}</div>
     <div class="setting-row">
-      <span>封面</span>
+      <span>{{ t('mdTable.cardStyle.cover') }}</span>
       <el-select
         :model-value="mergedStyle.coverFieldId || ''"
         style="width: 180px"
         @update:model-value="(v) => handleCoverFieldChange(String(v ?? ''))"
       >
-        <el-option label="无封面" value="" />
+        <el-option :label="t('mdTable.cardStyle.noCover')" value="" />
         <el-option v-for="option in coverOptions" :key="option.value" :label="option.label" :value="option.value" />
       </el-select>
     </div>
     <div class="setting-row">
-      <span>拉伸</span>
+      <span>{{ t('mdTable.cardStyle.stretch') }}</span>
       <el-switch :model-value="mergedStyle.isCoverFit" @update:model-value="(v) => updatePartial({ isCoverFit: !!v })" />
     </div>
     <div class="setting-row">
-      <span>显示列名</span>
+      <span>{{ t('mdTable.cardStyle.showColumnNames') }}</span>
       <el-switch
         :model-value="mergedStyle.isColNameVisible"
         @update:model-value="(v) => updatePartial({ isColNameVisible: !!v })"
       />
     </div>
     <div class="setting-row">
-      <span>边框</span>
+      <span>{{ t('mdTable.cardStyle.border') }}</span>
       <el-switch :model-value="mergedStyle.isBordered" @update:model-value="(v) => updatePartial({ isBordered: !!v })" />
     </div>
     <div class="setting-row">
-      <span>紧凑</span>
+      <span>{{ t('mdTable.cardStyle.compact') }}</span>
       <el-switch :model-value="mergedStyle.isCompact" @update:model-value="(v) => updatePartial({ isCompact: !!v })" />
     </div>
     <div class="setting-row shadow-row">
-      <span>阴影</span>
+      <span>{{ t('mdTable.cardStyle.shadow') }}</span>
       <el-segmented
         :model-value="mergedStyle.cardShadow"
-        :options="[
-          { label: '无', value: 'none' },
-          { label: '小', value: 'small' },
-          { label: '悬浮', value: 'hover' }
-        ]"
+        :options="shadowSegmentOptions"
         @change="(v) => updatePartial({ cardShadow: v as 'none' | 'small' | 'hover' })"
       />
     </div>

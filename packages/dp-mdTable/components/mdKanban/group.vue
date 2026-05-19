@@ -12,6 +12,7 @@ const props = defineProps<{
   },
   tableId: string,
   color?: string,
+  canEditTable: boolean
 }>()
 
 
@@ -19,8 +20,8 @@ const groupRef = ref<HTMLDivElement>()
 const loadMoreRef = ref<HTMLDivElement>()
 const hasLoaded = ref(false)
 const loadingMore = ref(false)
-const { columns, tableFields, systemFieldsTypes } = useMDKanbanInject()
-const emit = defineEmits(['needRefresh', 'update-label', 'update-color', 'remove'])
+const { columns, tableFields, systemFieldsTypes, currentEditing } = useMDKanbanInject()
+const emit = defineEmits(['needRefresh', 'update-label', 'update-color', 'remove', 'start-edit-row', 'exit-edit-row'])
 
 const MdFormPopoverRef = ref()
 function openAddRow() {
@@ -43,12 +44,25 @@ function handleItemMoved({ sourceGroupId }: { sourceGroupId: string | null }) {
 const selectedRow = ref<any>()
 function openRecordDetail(item: any) {
   selectedRow.value = item
-  MdFormPopoverRef.value?.open(item)
+  const mode = currentEditing.value.includes(item.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
+
+  MdFormPopoverRef.value?.open(item, mode)
+  if(mode === 'edit'){
+    emit('start-edit-row', { row: item, mode})
+  }
+
 }
+
+async function handleClosed() {
+  if(!selectedRow.value) return
+  emit('exit-edit-row', selectedRow.value)
+}
+
 async function handleAddRowSubmit(data: any) {
   if (selectedRow.value) {
     await listRef.value?.updateRow(selectedRow.value.id, data, props.tableId)
     selectedRow.value = null
+    emit('exit-edit-row', data)
   }else{
     await listRef.value?.addRow(data)
   }
@@ -145,6 +159,7 @@ defineExpose({
           :systemFieldsTypes="systemFieldsTypes"
           :showMoveButtons="false"
           :showSourceButton="false"
+          @closed="handleClosed"
           @submit="handleAddRowSubmit"
         />
     </div>

@@ -23,14 +23,18 @@ const props = withDefaults(defineProps<Props>(), {
   })
 })
 
+const { t } = useI18n()
+
 const emit = defineEmits<{
   refresh: []
   search: [value: string]
-  'add-row': []
+  'add-row': [],
+  'start-edit-row': [row: any],
+  'exit-edit-row': [row?: any]
 }>()
 const refreshLoading = ref(false)
-const { columns, cardRef, getTableData, addRow, systemFieldsTypes } = useMDCard(props)
-console.log('extraColumnConfig', props.extraColumnConfig)
+const { columns, cardRef, getTableData, addRow, systemFieldsTypes, currentEditing } = useMDCard(props)
+
 const rightClickCellPopoverRef = ref()
 const isGroupingEnabled = computed(() => {
   return props.extraColumnConfig?.columnGroupRules?.value?.length > 0
@@ -56,13 +60,14 @@ async function handleAddRowSubmit(data: any) {
   await addRow(data)
   handleRefresh()
 }
-
+function handleStartEditRow(row: any) {
+  emit('start-edit-row', {row, mode: 'edit'})
+}
+function handleExitEditRow(row?: any) {
+  emit('exit-edit-row', row)
+}
 function handleRowContextMenu(row: any, event: MouseEvent) {
-  const target = event.currentTarget instanceof HTMLElement ? event.currentTarget : event.target
-  if (!(target instanceof HTMLElement)) {
-    return
-  }
-  rightClickCellPopoverRef.value?.open(target, { row })
+  rightClickCellPopoverRef.value?.open(event, { ...row })
 }
 </script>
 
@@ -80,18 +85,22 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       <template #toolbar-left-before>
         <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button v-if="!isMirror && canManageTable">
-              <el-icon><Grid /></el-icon>
-              布局
+            <el-button v-if="!isMirror && canManageTable" :icon="Grid" :aria-label="t('mdTable.cardToolbar.layout')" tabindex="0">
+              {{ t('mdTable.cardToolbar.layout') }}
             </el-button>
           </template>
           <MdCardSettingLayout />
         </el-popover>
         <el-popover placement="bottom-start" :width="320" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button style="margin-left: 0px" v-if="!isMirror && canManageTable">
-              <el-icon><Brush /></el-icon>
-              样式
+            <el-button
+              style="margin-left: 0px"
+              v-if="!isMirror && canManageTable"
+              :aria-label="t('mdTable.cardToolbar.style')"
+              tabindex="0"
+              :icon="Brush"
+            >
+              {{ t('mdTable.cardToolbar.style') }}
             </el-button>
           </template>
           <MdCardSettingStyle />
@@ -103,10 +112,13 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       :ref="cardRef"
       :draggable="props.editable"
       :isGroupingEnabled="isGroupingEnabled"
+      :canEditTable="canEditTable"
+      @start-edit-row="handleStartEditRow"
+      @exit-edit-row="handleExitEditRow"
       @row-context-menu="handleRowContextMenu"
       @reload="handleRefresh"
     />
-    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
     <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
   </div>
 </template>

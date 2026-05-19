@@ -2457,6 +2457,33 @@
       "unrecognizedVariable": "Unrecognized variable {0}",
       "usage": "Usage",
       "variableDescription": "Variable: {label}"
+    },
+    "cardStyle": {
+      "title": "Card appearance",
+      "cover": "Cover",
+      "noCover": "No cover",
+      "stretch": "Stretch to fit",
+      "showColumnNames": "Show column names",
+      "border": "Border",
+      "compact": "Compact",
+      "shadow": "Shadow",
+      "shadowNone": "None",
+      "shadowSmall": "Small",
+      "shadowHover": "On hover"
+    },
+    "cardLayout": {
+      "cardsPerRow": "Cards per row"
+    },
+    "cardToolbar": {
+      "layout": "Layout",
+      "style": "Style"
+    },
+    "cardGroup": {
+      "defaultTitle": "Group",
+      "emptyValue": "Empty",
+      "recordCount": "{count} records",
+      "emptyChildren": "No records",
+      "emptyGroups": "No groups"
     }
   },
   "menu_master-table": "Master Table",

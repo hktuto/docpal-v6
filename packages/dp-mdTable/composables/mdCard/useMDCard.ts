@@ -16,6 +16,7 @@ export interface MDCardProps {
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
     viewStyleConfig?: Ref<Record<string, any>>
+    currentEditing?:any
     updateViewFilterSortGroup?: (fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style', value: any) => Promise<void>
   }
 }
@@ -36,7 +37,9 @@ export function useMDCard(props: MDCardProps) {
     deleteRow,
     getTableData,
     loadMore,
-    getAggChildData
+    getAggChildData,
+    currentEditing,
+    syncRowAndGroupAncestors
   } = useTableData(props.tableId, cardRef)
 
   // 计算封面字段
@@ -47,18 +50,20 @@ export function useMDCard(props: MDCardProps) {
   provide(MDCardContextKey, {
     tableId: props.tableId,
     updateRow,
+    getTableData,
     getAggChildData,
+    syncRowAndGroupAncestors,
     coverField,
     tableData,
     loading,
     hasMore,
     loadingMore,
     systemFieldsTypes,
+    currentEditing,
     ...props.extraColumnConfig
   })
   onMounted(async () => {
     await getTableData()
-    console.log('tableData', tableData)
   })
   return {
     columns: props.extraColumnConfig?.columns,
