@@ -4,7 +4,7 @@
       <img src="/logoWithName.png" style="width: 80%" class="logo" />
     </div>
     <div class="message dpTitle">{{ $t("dpTable_message") }}</div>
-    <div class="message-content" v-html="fileRequestDetail.config.message"></div>
+    <div class="message-content" v-html="fileRequestDetail.uploadRequest.message"></div>
     <FileInputBlob ref="FileInputBlobRef" v-bind="fileOptions"></FileInputBlob>
     <div class="footer">
       <el-button type="primary" @click="handleSubmit">{{ $t("submit") }}</el-button>
@@ -12,6 +12,7 @@
   </el-card>
 </template>
 <script lang="ts" setup>
+import { ElMessage } from 'element-plus'
 const props = defineProps<{
   fileRequestDetail?: any;
 }>();
@@ -25,8 +26,8 @@ const fileOptions = computed(() => {
     fileMaxSize = Number(fileMaxSize);
   }
   return {
-    limit: props.fileRequestDetail.config.maximum || "",
-    accept: props.fileRequestDetail.config.fileType || "",
+    limit: props.fileRequestDetail.uploadRequest.maximum || "",
+    accept: props.fileRequestDetail.uploadRequest.fileType || "",
     multiple: true,
     fileMaxSize,
   };
@@ -37,6 +38,10 @@ function getFilesBlob() {
 }
 function handleSubmit() {
   const data = getFilesBlob();
+  if (data.length === 0) {
+    ElMessage.warning('No file selected')
+    return
+  }
   emits("submit", data);
 }
 </script>
@@ -71,7 +76,7 @@ function handleSubmit() {
   overflow: auto;
 }
 .message {
-  
+
 }
 .message-content {
   margin-top: var(--app-space-xs);
