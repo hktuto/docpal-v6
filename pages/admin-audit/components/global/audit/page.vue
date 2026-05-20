@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newAdminApi } from 'api'
+import { newAdminApi, clientApi } from 'api'
 import formJson from './form.vform.json'
 
 const tabProvider = inject(TabManagerKey)
@@ -53,7 +53,7 @@ function goClientPath(path: string) {
 
 provide(AuditProviderKey, {
   getListApi: (params: any) => {
-    return newAdminApi.postDmsDocumentQueryauditevent({ ...params, ...formData.value })
+    return clientApi.api.postAuditLogPage(params)
   },
   goClientPath
 })
@@ -61,9 +61,10 @@ provide(AuditProviderKey, {
 
 <template>
   <div class="pageContainer">
-    <AuditTable ref="tableRef">
+
+     <AuditTable ref="tableRef">
       <template #toolbar_buttons>
-        <FormRenderer ref="FormRendererRef" :form-json="formJson" @formChange="handleFormChange" />
+
       </template>
     </AuditTable>
   </div>
