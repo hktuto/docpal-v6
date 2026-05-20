@@ -241,10 +241,21 @@ function handleCancel() {
   emit('cancel')
 }
 
-const workflowFormFields = ref({})
-const workflowErrorMessage = ref('')
+const workflowFormFields = ref<any[]>([])
+const workflowErrorMessage = computed(() => {
+  if (workflowFormFields.value.length === 0) return ''
+  // 檢查必要參數是否滿足
+  const requiredSet = new Set(state.fields.map((item: any) => item.field_name))
+  const missingFields = workflowFormFields.value
+    .filter((workflowField: any) => !requiredSet.has(workflowField.id))
+    .map((workflowField: any) => workflowField.name)
+
+  return missingFields.length > 0
+    ? `Launch workflow is missing the following required parameters [${missingFields.join(',')}], Please modify the startup parameters of workflow.`
+    : ''
+})
+
 async function handleChangeWorkflow() {
-  workflowErrorMessage.value = ''
   try {
     const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${form.workflow_id}`).then((r: any) => workflowResponseHelper(r))
     if (!data) {
@@ -264,17 +275,6 @@ async function handleChangeWorkflow() {
       type: field.type,
       display_type: field.display_type
     }))
-
-    if (workflowFormFields.value.length === 0) return
-    // 檢查必要參數是否滿足
-    const requiredSet = new Set(state.fields.map((item: any) => item.field_name))
-    const missingFields = workflowFormFields.value
-      .filter((workflowField: any) => !requiredSet.has(workflowField.id))
-      .map((workflowField: any) => workflowField.name)
-
-    workflowErrorMessage.value = missingFields.length > 0
-        ? `Launch workflow is missing the following required parameters [${missingFields.join(',')}], Please modify the startup parameters of workflow.`
-        : ''
   } catch (e) {
     console.log(e)
   }
@@ -382,6 +382,12 @@ watch(() => props.trigger, hydrateForm, { deep: true })
           <el-option v-for="wf in workflowList" :key="wf.id" :label="wf.name" :value="wf.id" />
         </el-select>
       </div>
+      <template v-for="formField in workflowFormFields" :key="formField.id">
+        <div style="display: flex; align-items: center">
+          <label style="margin-right: 20px">{{ formField.name }}:</label>
+          <el-input size="small" v-model="formField.value" placeholder="Value" />
+        </div>
+      </template>
       {{ workflowErrorMessage }}
     </div>
 
@@ -408,6 +414,9 @@ watch(() => props.trigger, hydrateForm, { deep: true })
   gap: var(--app-space-m);
 }
 
+.add-filed-group {
+  display: flex;
+}
 .section-title {
   font-size: var(--app-font-size-l);
   font-weight: 600;

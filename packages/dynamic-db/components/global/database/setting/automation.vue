@@ -41,8 +41,8 @@ function handleEdit(trigger: TriggerSettingDTO) {
   drawerMode.value = 'form'
 }
 
-function handleTest(trigger: TriggerSettingDTO) {
-  selectedTrigger.value = trigger
+function handleTest() {
+  // selectedTrigger.value = trigger
   drawerMode.value = 'test'
 }
 
@@ -89,7 +89,6 @@ function handleBack() {
       <TriggerTest
         v-else-if="drawerMode === 'test' && selectedTrigger"
         :master-table-id="masterTableId"
-        :trigger="selectedTrigger"
         @back="handleBack"
       />
     </el-drawer>

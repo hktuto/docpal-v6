@@ -10,7 +10,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   add: []
   edit: [trigger: TriggerSettingDTO]
-  test: [trigger: TriggerSettingDTO]
+  test: []
   delete: [trigger: TriggerSettingDTO]
 }>()
 
@@ -52,8 +52,8 @@ function handleEdit(trigger: TriggerSettingDTO) {
   emit('edit', trigger)
 }
 
-function handleTest(trigger: TriggerSettingDTO) {
-  emit('test', trigger)
+function handleTest() {
+  emit('test')
 }
 
 async function handleDelete(trigger: TriggerSettingDTO) {
@@ -88,19 +88,16 @@ defineExpose({
   <div v-loading="state.loading">
     <div class="list-header">
       <h4>Triggers</h4>
-      <el-button type="primary" size="small" @click="handleAdd">
-        Add Trigger
-      </el-button>
+      <div>
+        <el-button size="small" @click="handleTest">Test</el-button>
+        <el-button type="primary" size="small" @click="handleAdd">Add Trigger</el-button>
+      </div>
     </div>
 
     <el-empty v-if="state.triggers.length === 0" description="No triggers configured" />
 
     <div v-else class="trigger-list">
-      <div
-        v-for="trigger in state.triggers"
-        :key="trigger.id"
-        class="trigger-item"
-      >
+      <div v-for="trigger in state.triggers" :key="trigger.id" class="trigger-item">
         <div class="trigger-info">
           <div class="trigger-main">
             <span class="trigger-name">{{ trigger.trigger_name }}</span>
@@ -115,15 +112,8 @@ defineExpose({
           </div>
         </div>
         <div class="trigger-actions">
-          <el-button size="small" @click="handleTest(trigger)">
-            Test
-          </el-button>
-          <el-button size="small" @click="handleEdit(trigger)">
-            Edit
-          </el-button>
-          <el-button size="small" type="danger" plain @click="handleDelete(trigger)">
-            Delete
-          </el-button>
+          <el-button size="small" @click="handleEdit(trigger)"> Edit </el-button>
+          <el-button size="small" type="danger" plain @click="handleDelete(trigger)"> Delete </el-button>
         </div>
       </div>
     </div>

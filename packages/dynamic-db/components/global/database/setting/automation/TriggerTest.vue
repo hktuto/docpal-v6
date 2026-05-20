@@ -5,7 +5,6 @@ import { ElMessage } from 'element-plus'
 
 const props = defineProps<{
   masterTableId: string
-  trigger: TriggerSettingDTO
 }>()
 
 const emit = defineEmits<{
@@ -18,7 +17,7 @@ const state = reactive({
 })
 
 const form = reactive({
-  event_type: props.trigger.event_type || 'record_created',
+  event_type: 'record_created',
   data: '{}'
 })
 
@@ -61,53 +60,37 @@ function handleBack() {
 onMounted(() => {
   // Pre-fill sample data if trigger has conditions referencing fields
   const sample: Record<string, any> = {}
-  const rules = props.trigger.conditions?.trigger_rule || []
-  if (Array.isArray(rules)) {
-    rules.forEach((rule: any) => {
-      if (rule.field_name) {
-        sample[rule.field_name] = ''
-      }
-    })
-  }
-  if (Object.keys(sample).length > 0) {
-    form.data = JSON.stringify(sample, null, 2)
-  }
+  // const rules = props.trigger.conditions?.trigger_rule || []
+  // if (Array.isArray(rules)) {
+  //   rules.forEach((rule: any) => {
+  //     if (rule.field_name) {
+  //       sample[rule.field_name] = ''
+  //     }
+  //   })
+  // }
+  // if (Object.keys(sample).length > 0) {
+  //   form.data = JSON.stringify(sample, null, 2)
+  // }
 })
 </script>
 
 <template>
   <div v-loading="state.loading">
-    <div class="test-header">
-      <h4>Test Trigger: {{ trigger.trigger_name }}</h4>
-    </div>
-
     <el-form label-position="top" size="small">
       <el-form-item label="Event Type" required>
         <el-select v-model="form.event_type" placeholder="Select event type" style="width: 100%">
-          <el-option
-            v-for="opt in eventTypeOptions"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          />
+          <el-option v-for="opt in eventTypeOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="Test Data (JSON)" required>
-        <el-input
-          v-model="form.data"
-          type="textarea"
-          :rows="6"
-          placeholder='{"field_name": "value"}'
-        />
+        <el-input v-model="form.data" type="textarea" :rows="6" placeholder='{"field_name": "value"}' />
       </el-form-item>
     </el-form>
 
     <div class="test-actions">
       <el-button @click="handleBack">Back</el-button>
-      <el-button type="primary" @click="handleRunTest">
-        Run Test
-      </el-button>
+      <el-button type="primary" @click="handleRunTest"> Run Test </el-button>
     </div>
 
     <div v-if="state.result" class="test-result">
