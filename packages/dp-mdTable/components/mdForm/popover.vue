@@ -24,7 +24,16 @@
         </div>
       </div>
     </template>
-    <MdForm ref="formRef" :columns="formColumns" :systemFieldsTypes="systemFieldsTypes" :form-data="formData" :mode="mode" />
+    <el-tabs v-model="activeTab" class="md-form-tabs">
+      <el-tab-pane label="Form" name="form">
+        <MdForm ref="formRef" :columns="formColumns" :systemFieldsTypes="systemFieldsTypes" :form-data="formData" :mode="mode" />
+      </el-tab-pane>
+      <el-tab-pane v-if="formData.id" label="Audit Log" name="auditLog">
+        <div class="audit-log-panel">
+          <VxeGrid ref="auditTableRef" v-bind="auditTableConfig" v-on="auditTableEvent" />
+        </div>
+      </el-tab-pane>
+    </el-tabs>
     <template #footer>
       <div class="form-actions">
         <el-button @click="handleCancel">{{ $t('cancelText') }}</el-button>
@@ -35,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
 import { EventType, useEventBus } from 'eventbus'
 import { Top, Bottom, Position } from '@element-plus/icons-vue'
 import { updateRelationFields } from '../../utils/relationHelper'
@@ -45,6 +54,7 @@ const { navigateToTableMenu } = viewTools
 const visible = ref(false)
 const formData = ref<any>({})
 const mode = ref('edit')
+const activeTab = ref('form')
 const props = defineProps<{
   showMoveButtons: boolean
   showSourceButton: boolean
@@ -60,10 +70,12 @@ const formColumns = ref<any[]>([])
 
 const resetForm = () => {
   console.log('resetForm')
+  activeTab.value = 'form'
   emits('closed')
 }
 function handleCancel() {
   visible.value = false
+  activeTab.value = 'form'
   emits('closed')
 }
 const formRef = ref()
@@ -87,11 +99,13 @@ async function handleSubmit() {
   const _formData = await formRef.value.getFormData()
   if (!_formData) return
   visible.value = false
+  activeTab.value = 'form'
   emits('submit', _formData, formData.value.id)
 }
 async function open(row: any, _mode: 'default' | 'edit' = 'edit', _title: string = '') {
   formData.value = JSON.parse(JSON.stringify(row))
   mode.value = _mode
+  activeTab.value = 'form'
   console.log("mode", mode.value)
   visible.value = true
   if (props.showMoveButtons) setCurrentRow(row)
@@ -136,6 +150,45 @@ function handleSourceClick() {
   navigateToTableMenu(props.tableId)
 }
 
+// Audit log table
+const { tableConfig: auditTableConfig, tableEvent: auditTableEvent, tableRef: auditTableRef } = useVxeTable({
+  id: 'mdFormAuditLog',
+  api: (pageParams: any) => {
+    const extraParams = {
+      source_id: formData.value.id
+    }
+    const p = {
+      page_size: pageParams.pageSize,
+      page_num: pageParams.pageNum
+    }
+    return clientApi.api.postAuditLogPage({ ...p, ...extraParams })
+  },
+  columns: [
+    {
+      field: 'user_id',
+      title: 'User',
+      fixed: 'left',
+      width: '80'
+    },
+    {
+      field: 'event_category',
+      title: 'Category'
+    },
+    {
+      field: 'source_id',
+      title: 'Source Id'
+    },
+    { field: 'event_type', title: 'Type' },
+    {
+      field: 'timestamp',
+      title: 'Date',
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
+    }
+  ]
+})
+
 defineExpose({ open, close })
 </script>
 
@@ -151,5 +204,16 @@ defineExpose({ open, close })
 
 .source-button {
   font-size: var(--app-font-size-m);
+}
+
+.md-form-tabs {
+  :deep(.el-tabs__content) {
+    height: calc(100% - 40px);
+  }
+}
+
+.audit-log-panel {
+  height: 100%;
+  min-height: 300px;
 }
 </style>
