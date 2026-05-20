@@ -27,6 +27,11 @@ import { postDynamicActions } from 'api'
 import type { VxeGridProps } from 'vxe-table'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import { rendererManager } from '@packages/dp-mdTable/renderers/registry-manager'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+
+// Register mdTable renderers so cells render with rich formatters (chips, dates, relations, etc.)
+rendererManager.registerAllRenderers()
 
 const props = withDefaults(
   defineProps<{
@@ -51,33 +56,53 @@ const cardRef = ref()
 
 const displayTitle = computed(() => props.setting?.title || 'Table View')
 
-const fieldMap = ref<Record<string, string>>({})
+// Full field metadata indexed by field_name (includes business_type, display_structure, etc.)
+const fieldMetaMap = ref<Record<string, any>>({})
 const { getFields } = useTableFields()
 
-async function loadFieldLabels(tableId: string) {
+async function loadFieldMeta(tableId: string) {
   if (!tableId) {
-    fieldMap.value = {}
+    fieldMetaMap.value = {}
     return
   }
   const fields = await getFields(tableId)
-  const map: Record<string, string> = {}
+  const map: Record<string, any> = {}
   for (const f of fields) {
-    map[f.field_name] = f.field_name_alias || f.field_name
+    map[f.field_name] = f
   }
-  fieldMap.value = map
+  fieldMetaMap.value = map
 }
 
 const gridOptions = computed<VxeGridProps>(() => {
   const selectedColumns = props.setting?.columns || []
+  const meta = fieldMetaMap.value
+
+  const buildColumn = (fieldName: string) => {
+    const fieldMeta = meta[fieldName]
+    const title = fieldMeta?.field_name_alias || fieldName
+    const base: any = {
+      field: fieldName,
+      title,
+      minWidth: 120
+    }
+
+    if (fieldMeta?.business_type) {
+      const type = fieldMeta.business_type as ColumnFieldType
+      const displayStructure = fieldMeta.display_structure || {}
+      const renderConfig = rendererManager.getColumnConfig(type, displayStructure, displayStructure)
+      if (renderConfig.cellRender) {
+        base.cellRender = renderConfig.cellRender
+      }
+    }
+
+    return base
+  }
+
   const columns = selectedColumns.length
-    ? selectedColumns.map((field: string) => ({
-        field,
-        title: fieldMap.value[field] || field,
-        minWidth: 120
-      }))
+    ? selectedColumns.map((field: string) => buildColumn(field))
     : [
-        { field: 'name', title: fieldMap.value['name'] || 'Name', minWidth: 120 },
-        { field: 'createdTime', title: fieldMap.value['createdTime'] || 'Created', minWidth: 140 }
+        buildColumn('name'),
+        buildColumn('createdTime')
       ]
 
   return {
@@ -144,7 +169,7 @@ function handleRefresh(newSetting: any) {
 watch(
   () => props.setting?.tableId,
   (tableId) => {
-    loadFieldLabels(tableId)
+    loadFieldMeta(tableId)
   },
   { immediate: true }
 )
