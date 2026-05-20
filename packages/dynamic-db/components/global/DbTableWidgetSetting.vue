@@ -14,7 +14,7 @@
       </el-form-item>
 
       <!-- Column Order -->
-      <el-form-item v-if="orderedColumns.length > 0 && !form.groupBy" label="Column Order">
+      <el-form-item v-if="orderedColumns.length > 0" label="Column Order">
         <div class="column-order-list">
           <div v-for="(col, index) in orderedColumns" :key="col" class="column-order-item">
             <span class="column-name">{{ fieldLabel(col) }}</span>
@@ -31,13 +31,6 @@
             </div>
           </div>
         </div>
-      </el-form-item>
-
-      <!-- Group By -->
-      <el-form-item label="Group By">
-        <el-select v-model="form.groupBy" clearable placeholder="Select field to group" style="width: 100%" :loading="fieldsLoading">
-          <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
-        </el-select>
       </el-form-item>
 
       <!-- Sort Rules -->
@@ -135,7 +128,6 @@ const form = reactive({
   tableId: '',
   columns: [] as string[],
   rowLimit: 10,
-  groupBy: '',
   sortRules: [] as SortRule[],
   filterRules: [] as FilterRule[]
 })
@@ -237,7 +229,6 @@ function onFilterFieldChange(rule: FilterRule) {
 
 async function handleTableChange(tableId: string) {
   form.columns = []
-  form.groupBy = ''
   form.sortRules = []
   form.filterRules = []
   await loadFields(tableId)
@@ -250,8 +241,6 @@ watch(
       form.tableId = setting.value.tableId || ''
       form.columns = setting.value.columns || []
       form.rowLimit = setting.value.rowLimit || 10
-      form.groupBy = setting.value.groupBy || ''
-
       // Migrate old sortField/sortOrder to sortRules
       const oldSortField = setting.value.sortField || ''
       const oldSortOrder = setting.value.sortOrder || 'desc'
@@ -282,7 +271,6 @@ function handleSubmit() {
     tableId: form.tableId,
     columns: [...form.columns],
     rowLimit: form.rowLimit,
-    groupBy: form.groupBy,
     sortRules: form.sortRules.filter((r) => r.field).map((r) => ({ field: r.field, order: r.order })),
     filterRules: form.filterRules
       .filter((r) => r.field && r.operator)

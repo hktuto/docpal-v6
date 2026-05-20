@@ -70,8 +70,6 @@ async function loadFieldMeta(tableId: string) {
   fieldMetaMap.value = map
 }
 
-const isGrouped = computed(() => !!props.setting?.groupBy)
-
 const gridOptions = computed<VxeGridProps>(() => {
   const selectedColumns = props.setting?.columns || []
   const meta = fieldMetaMap.value
@@ -101,20 +99,9 @@ const gridOptions = computed<VxeGridProps>(() => {
     return base
   }
 
-  let columns: any[] = []
-
-  if (isGrouped.value) {
-    const groupField = props.setting.groupBy
-    columns = [buildColumn(groupField)]
-    columns.push({
-      field: '__count',
-      title: 'Count',
-      minWidth: 100,
-      align: 'right'
-    })
-  } else if (selectedColumns.length) {
-    columns = selectedColumns.map((field: string) => buildColumn(field))
-  }
+  const columns = selectedColumns.length
+    ? selectedColumns.map((field: string) => buildColumn(field))
+    : []
 
   return {
     border: true,
@@ -182,24 +169,12 @@ async function fetchData() {
   if (!props.setting?.tableId) return
   loading.value = true
   try {
-    const groupBy = props.setting?.groupBy
-      ? { columns: [props.setting.groupBy] }
-      : undefined
-
     const orderBy = buildOrderBy()
     const conditions = buildFilterConditions()
 
-    let columns: any[] = [{ name: '*' }]
-    if (groupBy) {
-      columns = [
-        { name: props.setting.groupBy },
-        { name: '*', alias: '__count', aggFunc: 'COUNT' }
-      ]
-    }
-
     const params: any = {
       tableId: props.setting.tableId,
-      columns,
+      columns: [{ name: '*' }],
       orderBy,
       pagination: {
         pageSize: props.setting?.rowLimit || 10,
@@ -209,9 +184,6 @@ async function fetchData() {
 
     if (conditions.length) {
       params.conditions = conditions
-    }
-    if (groupBy) {
-      params.groupBy = groupBy
     }
 
     const { data }: any = await postDynamicActions(params)
@@ -254,7 +226,6 @@ watch(
     props.setting?.rowLimit,
     props.setting?.sortField,
     props.setting?.sortOrder,
-    props.setting?.groupBy,
     props.setting?.filterRules,
     props.setting?.sortRules
   ],

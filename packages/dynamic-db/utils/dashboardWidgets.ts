@@ -33,7 +33,6 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       rowLimit: 10,
       sortField: '',
       sortOrder: 'desc',
-      groupBy: '',
       filterRules: [],
       sortRules: []
     }
