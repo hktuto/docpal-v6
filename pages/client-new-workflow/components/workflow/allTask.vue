@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { newClientApi } from 'api'
-import { routeWorkflowDetail, getWorkflowList } from '#imports'
+import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
 
 const workflowList = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
@@ -15,9 +15,9 @@ const extraParams = ref({
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
   api: async (pageParams: any) => {
-    const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data.data)) as any[]
+    const data = await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
     // 只保留 waiting 狀態的數據
-    let list = data.task.filter((item: any) => item.status === 'waiting')
+    let list = data.tasks.filter((item: any) => item.status === 'waiting')
 
     if (extraParams.value.definition_id !== '') {
       list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)

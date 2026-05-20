@@ -1012,7 +1012,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'HTTP Task',
       label: 'New HTTP Task',
       documentation: '',
-      type: WorkflowElementType.HTTPRequestTask,
+      type: WorkflowElementType.ServiceTask,
       execution: { ...LONG_RUNNING_EXECUTION },
       config: getTaskItemConfig[CellType.HTTPTask],
       metadata: {
@@ -1049,7 +1049,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Update Dynamic Database',
       documentation: '',
       execution: { ...LONG_RUNNING_EXECUTION },
-      type: WorkflowElementType.HTTPRequestTask,
+      type: WorkflowElementType.ServiceTask,
       config: getTaskItemConfig[CellType.updateDynamicDatabase],
       metadata: {
         type: CellType.updateDynamicDatabase,
@@ -1067,7 +1067,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Email Task',
       label: 'New Email Task',
       documentation: '',
-      type: WorkflowElementType.HTTPRequestTask,
+      type: WorkflowElementType.ServiceTask,
       config: getTaskItemConfig[CellType.emailTask],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {

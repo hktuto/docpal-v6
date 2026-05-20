@@ -32,27 +32,21 @@ const formData = ref({
   method: 'GET',
   url: '',
   headers: {},
-  body: {},
-  output_mapping: {},
-  // celCondition: {},
-  inputSchema: {},
-  outputSchema: {}
+  body: {}
 })
+const outputMapping = ref({})
 
 function initForm() {
   const data = node.getData()
   const config = data.config
 
   formData.value = {
-    method: config.method || 'GET',
-    url: config.url || '',
-    headers: config.headers || {},
-    body: config.body || {},
-    output_mapping: config.output_mapping || {},
-    celCondition: config.celCondition || {},
-    inputSchema: config.inputSchema || {},
-    outputSchema: config.outputSchema || {}
+    method: config.http_request.method || 'GET',
+    url: config.http_request.url || '',
+    headers: config.http_request.headers || {},
+    body: config.http_request.body || {}
   }
+  outputMapping.value = config.output_mapping || {}
 
   // To Params
   const paramsArray = extractParamsFromUrl(formData.value.url)
@@ -167,17 +161,16 @@ function handleUpdateBody(body: any) {
 }
 
 function handleOpenResponseDialog() {
-  // outputMappingRef.value.open()
   outputMappingDialogRef.value.open()
 }
 
 function handleOutputMapping(mapping: any) {
-  formData.value.output_mapping = Object.fromEntries(Object.entries(mapping).map(([key, value]) => [value, `\${${key}}`]))
+  outputMapping.value = Object.fromEntries(Object.entries(mapping).map(([key, value]) => [value, `\${${key}}`]))
   updateData()
 }
 
 const outputMappingList = computed(() => {
-  return Object.entries(formData.value.output_mapping).map(([key, value]) => {
+  return Object.entries(outputMapping.value).map(([key, value]) => {
     const m = String(value).match(/^\$\{(.+)\}$/)
     const inner = m?.[1] ?? ''
     return {
@@ -199,7 +192,8 @@ function updateData() {
     ...nodeData,
     config: {
       ...nodeData.config,
-      ...formData.value
+      http_request: formData.value,
+      output_mapping: outputMapping.value
     },
     version: (nodeData.version || 0) + 1
   }
@@ -226,7 +220,7 @@ watch(
   <SidebarLabel :node="node" />
   <el-form label-width="auto" label-position="top" :disabled="graphProvider.readonly.value">
     <el-form-item :label="t('Request Method')">
-      <el-select v-model="formData.method" placeholder="please select your zone">
+      <el-select v-model="formData.method" placeholder="please select your zone" @change="updateData">
         <el-option v-for="item in state.method" :key="item" :label="item" :value="item" />
       </el-select>
     </el-form-item>
@@ -306,7 +300,7 @@ watch(
   <LazyContextHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
   <LazyContextHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
 
-  <LazyContextHttpTaskOutputMappingDialog ref="outputMappingDialogRef" :mapping="formData.output_mapping" @update="handleOutputMapping" />
+  <LazyContextHttpTaskOutputMappingDialog ref="outputMappingDialogRef" :mapping="outputMapping" @update="handleOutputMapping" />
 </template>
 
 <style scoped lang="scss">

@@ -120,11 +120,13 @@ export const getTaskItemConfig = {
   },
   // http task
   HTTPTask: {
-    method: 'GET',
-    url: '',
-    headers: {},
-    body: {},
-    input_mapping: {},
+    http_request: {
+      method: 'GET',
+      url: '',
+      headers: {},
+      body: {}
+    },
+    input_mapping:{},
     output_mapping: {}
   },
   InsertDynamicDatabase: {
@@ -175,9 +177,9 @@ export function getUrlOrigin() {
 export function generatorHTTPRequestTaskHeaders() {
   // TODO : 從當前瀏覽器的User setting 獲取x-tenant-id
   return {
+    'Content-Type': 'application/json',
     ServerName: 'docpal-api',
     ServerKey: '14ecdf56081AGSDghw',
-    'Content-Type': 'application/json',
     'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
     'x-tenant-id': 'demo'
   }
