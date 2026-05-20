@@ -136,8 +136,9 @@ const calendarEvents = computed(() => {
 })
 
 function eventClassName(arg: EventClickArg) {
-  console.log("eventClassName", arg.event.id)
-  return ['calendar_'+ arg.event.id]
+  const classes = ['calendar_' + arg.event.id]
+  if(arg.event.extendedProps.raw.__deleted) classes.push('deleted')
+  return classes
 }
 
 const calendarOptions = ref<CalendarOptions>({
@@ -163,6 +164,7 @@ const calendarOptions = ref<CalendarOptions>({
   events: [],
   eventClassNames: eventClassName,
   eventClick: (info: EventClickArg) => {
+    if(info.event.extendedProps.raw.__deleted) return
     emit('event-click', info.event.extendedProps.raw)
   },
   dateClick: (info: DateClickArg) => {
@@ -170,6 +172,7 @@ const calendarOptions = ref<CalendarOptions>({
   },
   eventAllow: (info: EventAllowArg) => {
     const row = info.event.extendedProps.raw
+      if(row.__deleted) return false
      const mode = currentEditing.value.includes(row.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
      return mode === 'edit'
   },
@@ -189,6 +192,7 @@ const calendarOptions = ref<CalendarOptions>({
     await refresh()
   },
   eventResize: async (info: any) => {
+    if(info.event.extendedProps.raw.__deleted) return
     const row = info.event.extendedProps.raw
     if (!row || !row.id) return
 
@@ -228,6 +232,7 @@ async function refresh() {
 
 // Form popover methods
 function openDetail(item: any) {
+  if(item.__deleted) return
   selectedRow.value = item
    const mode = currentEditing.value.includes(item.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
   MdFormPopoverRef.value?.open(item, mode)
@@ -314,6 +319,18 @@ defineExpose({
 
   :deep(.fc-button) {
     text-transform: capitalize;
+  }
+  :deep(.fc-event){
+      &.deleted {
+          --fc-event-text-color: var(--app-grey-200);
+          background: var(--app-grey-800) !important;
+          color: var(--app-grey-200) !important;
+          border-color:  var(--app-grey-800) !important;
+          cursor: not-allowed;
+          .fc-event-title fc-sticky{
+              text-decoration: line-through;
+          }
+      }
   }
 }
 </style>

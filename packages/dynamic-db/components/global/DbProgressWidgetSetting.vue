@@ -8,13 +8,16 @@
       </el-form-item>
 
       <el-form-item label="Filter Field">
-        <el-select v-model="form.filterField" clearable placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
+        <el-select v-model="form.filterField" clearable placeholder="Select field" style="width: 100%" :loading="fieldsLoading" @change="handleFilterFieldChange">
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="Filter Value">
-        <el-input v-model="form.filterValue" placeholder="e.g. completed" />
+        <el-select v-if="filterOptions.length > 0" v-model="form.filterValue" placeholder="Select value" style="width: 100%">
+          <el-option v-for="opt in filterOptions" :key="opt.id" :label="opt.name" :value="opt.name" />
+        </el-select>
+        <el-input v-else v-model="form.filterValue" placeholder="e.g. completed" />
       </el-form-item>
 
       <el-form-item label="Label">
@@ -57,9 +60,24 @@ const form = reactive({
   color: 'primary'
 })
 
+const filterOptions = computed(() => {
+  const field = fields.value.find((f: any) => f.field_name === form.filterField)
+  if (!field) return []
+  const isSelect = field.business_type === '3' || field.business_type === '4' ||
+    field.business_type === 'SingleSelect' || field.business_type === 'MultiSelect'
+  if (!isSelect) return []
+  const options = field.display_structure?.options || field.properties?.options || []
+  return Array.isArray(options) ? options : []
+})
+
 async function handleTableChange(tableId: string) {
   form.filterField = ''
+  form.filterValue = ''
   await loadFields(tableId)
+}
+
+function handleFilterFieldChange() {
+  form.filterValue = ''
 }
 
 watch(
