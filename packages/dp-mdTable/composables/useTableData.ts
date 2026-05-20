@@ -594,8 +594,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   async function handleRemoteChangeEvent(event: any) {
     const { change, userName } = event
     const currentMenuId = getCurrentMenuId()
-    console.log('handleRemoteChangeEvent', event)
-    if (!currentMenuId || change.menuId !== currentMenuId) return
+    console.log('handleRemoteChangeEvent',change.type, event)
+    // if (!currentMenuId || change.menuId !== currentMenuId) return
 
     switch (change.type) {
       case 'row_updated': {
@@ -633,14 +633,12 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
   function updateCurrentEditing() {
     const states = databaseHocuspocus?.awarenessStates?.value || []
-    const currentMenuId = getCurrentMenuId()
     const editingRowIds = new Set<string>()
+
     for (const state of states) {
       if (state.focus?.editingCell || state.focus?.editingRow) {
-        if (!currentMenuId || state.focus.menuId === currentMenuId) {
-          if (state.focus.rowId) {
-            editingRowIds.add(state.focus.rowId)
-          }
+        if (state.focus.rowId) {
+          editingRowIds.add(state.focus.rowId)
         }
       }
     }

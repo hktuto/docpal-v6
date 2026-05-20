@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
+import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 
 const props = withDefaults(
   defineProps<{
@@ -115,6 +116,11 @@ watch(
     fetchValue()
   },
   { immediate: true }
+)
+
+useDashboardLiveUpdate(
+  computed(() => props.setting?.tableId),
+  fetchValue
 )
 
 defineExpose({

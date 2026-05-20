@@ -25,6 +25,7 @@ import { PieChart } from 'echarts/charts'
 import { TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
+import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 
 // Register required modules
 echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer])
@@ -206,6 +207,11 @@ watch(
     fetchData()
   },
   { immediate: true }
+)
+
+useDashboardLiveUpdate(
+  computed(() => props.setting?.tableId),
+  fetchData
 )
 
 onUnmounted(() => {
