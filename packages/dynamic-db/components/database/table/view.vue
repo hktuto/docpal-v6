@@ -60,6 +60,10 @@
           v-if="panelType === 'automation'"
           :master-table-id="tableId"
         />
+        <DatabaseSettingAuditLog
+          v-if="panelType === 'auditLog'"
+          :master-table-id="tableId"
+        />
       </div>
     </div>
   </div>
@@ -310,7 +314,8 @@ const panelType = ref<string | null>(null)
 
 const panelTitle = computed(() => {
   const titles: Record<string, string> = {
-    automation: 'Automation'
+    automation: 'Automation',
+    auditLog: 'Audit Log'
   }
   return titles[panelType.value || ''] || 'Panel'
 })

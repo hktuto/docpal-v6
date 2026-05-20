@@ -15,7 +15,7 @@
 
       <el-form-item label="Filter Value">
         <el-select v-if="filterOptions.length > 0" v-model="form.filterValue" placeholder="Select value" style="width: 100%">
-          <el-option v-for="opt in filterOptions" :key="opt.id" :label="opt.name" :value="opt.name" />
+          <el-option v-for="opt in filterOptions" :key="opt.id" :label="opt.label" :value="opt.id" />
         </el-select>
         <el-input v-else v-model="form.filterValue" placeholder="e.g. completed" />
       </el-form-item>
