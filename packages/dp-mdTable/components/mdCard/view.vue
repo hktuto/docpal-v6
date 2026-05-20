@@ -64,7 +64,7 @@ function mapViewStyleToWidget(config: Record<string, any> | undefined): CardWidg
 }
 
 function handleOpenRecord(row: any) {
-  console.log('handleOpenRecord', row)
+  console.log('handleOpenRecord', row, currentEditing.value)
   const mode = currentEditing.value.includes(row.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
   recordCardDialogRef.value.open(row, mode)
   if(mode === 'edit'){

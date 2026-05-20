@@ -302,14 +302,12 @@ function handleFinishEdit() {
 const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
-  const mode = currentEditing.value.includes(row.id)  ? 'edit' : (props.canEditTable ? 'edit' : 'default')
-
+  const mode = currentEditing.value.includes(row.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
   MdFormPopoverRef.value.open(row, mode)
   emit('expand-click', { row, rowIndex, mode })
 }
 function handleExpandIndexChange(row: any) {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
-  console.log('handleExpandIndexChange')
   emit('expand-click', { row, rowIndex })
 }
 
