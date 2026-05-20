@@ -80,30 +80,35 @@ const gridOptions = computed<VxeGridProps>(() => {
   const buildColumn = (fieldName: string) => {
     const fieldMeta = meta[fieldName]
     const title = fieldMeta?.field_name_alias || fieldName
-    const base: any = {
-      field: fieldName,
-      title,
-      minWidth: 120
-    }
+    let base;
+    if (!fieldMeta) {
 
-    if (fieldMeta?.business_type) {
-      const type = fieldMeta.business_type as ColumnFieldType
-      const displayStructure = fieldMeta.display_structure || {}
-      const renderConfig = rendererManager.getColumnConfig(type, displayStructure, displayStructure)
-      if (renderConfig.cellRender) {
-        base.cellRender = renderConfig.cellRender
+      base = {
+        field: fieldName,
+        title,
+        minWidth: 120
       }
-    }
+    } else {
 
+
+    const type = fieldMeta.business_type as ColumnFieldType || ColumnFieldType.Text
+      const displayStructure = fieldMeta.display_structure || {}
+
+    base = {
+      ...fieldMeta,
+      field: fieldMeta.field_name,
+      title: fieldMeta.field_name_alias,
+      aggFunc: true,
+      colId: fieldMeta.field_name,
+      ...rendererManager.getColumnConfig(type, displayStructure, displayStructure)
+    }
+    }
     return base
   }
 
   const columns = selectedColumns.length
     ? selectedColumns.map((field: string) => buildColumn(field))
-    : [
-        buildColumn('name'),
-        buildColumn('createdTime')
-      ]
+    : []
 
   return {
     border: true,
@@ -190,6 +195,10 @@ useDashboardLiveUpdate(
     fetchData()
   }
 )
+
+
+provide('viewTools', { getPageParams:null, columns: gridOptions.value, tableFields: null })
+
 
 defineExpose({
   resize: () => {
