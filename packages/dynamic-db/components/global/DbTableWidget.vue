@@ -31,7 +31,7 @@ import { rendererManager } from '@packages/dp-mdTable/renderers/registry-manager
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 // Register mdTable renderers so cells render with rich formatters (chips, dates, relations, etc.)
-rendererManager.registerAllRenderers()
+
 
 const props = withDefaults(
   defineProps<{

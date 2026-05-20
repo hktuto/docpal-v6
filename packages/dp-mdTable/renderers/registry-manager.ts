@@ -239,5 +239,7 @@ export class RendererRegistryManager {
   }
 }
 
+const rendererManager = new RendererRegistryManager()
+rendererManager.registerAllRenderers()
 // 默认导出单例
-export const rendererManager = new RendererRegistryManager()
+export {rendererManager}
