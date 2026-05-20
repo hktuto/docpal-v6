@@ -241,7 +241,7 @@ function handleCancel() {
   emit('cancel')
 }
 
-const formFieldsMapping = ref({})
+const workflowFormFields = ref({})
 const workflowErrorMessage = ref('')
 async function handleChangeWorkflow() {
   workflowErrorMessage.value = ''
@@ -257,7 +257,7 @@ async function handleChangeWorkflow() {
     }
 
     const startEventNode = data.content?.nodes?.find((item: any) => item.type == 'StartEvent')
-    formFieldsMapping.value = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
+    workflowFormFields.value = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
       id: field.id,
       name: field.name,
       value: '',
@@ -265,19 +265,16 @@ async function handleChangeWorkflow() {
       display_type: field.display_type
     }))
 
-    if (formFieldsMapping.value.length === 0) return
+    if (workflowFormFields.value.length === 0) return
     // 檢查必要參數是否滿足
-    const set = new Set(state.fields.map((item: any) => item.field_name))
-    const missingFields = []
-    formFieldsMapping.value.forEach((workflowField: any) => {
-      if (!set.has(workflowField.id)) {
-        missingFields.push(workflowField.name)
-      }
-    })
+    const requiredSet = new Set(state.fields.map((item: any) => item.field_name))
+    const missingFields = workflowFormFields.value
+      .filter((workflowField: any) => !requiredSet.has(workflowField.id))
+      .map((workflowField: any) => workflowField.name)
 
-    if (missingFields.length > 0) {
-      workflowErrorMessage.value = `Launch workflow is missing the following required parameters [${missingFields.join(',')}], Please modify the startup parameters of workflow.`
-    }
+    workflowErrorMessage.value = missingFields.length > 0
+        ? `Launch workflow is missing the following required parameters [${missingFields.join(',')}], Please modify the startup parameters of workflow.`
+        : ''
   } catch (e) {
     console.log(e)
   }
@@ -386,11 +383,6 @@ watch(() => props.trigger, hydrateForm, { deep: true })
         </el-select>
       </div>
       {{ workflowErrorMessage }}
-      <!--      <template>-->
-      <!--        <el-form-item>-->
-      <!--          <el-input />-->
-      <!--        </el-form-item>-->
-      <!--      </template>-->
     </div>
 
     <!-- Footer -->
