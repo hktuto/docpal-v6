@@ -119,7 +119,8 @@ async function open(row: any, _mode: 'default' | 'edit' = 'edit', _title: string
 function handleMove(direction: 'up' | 'down') {
   moveCurrentRow(direction)
   formData.value = { ...currentRow.value }
-  emits('current-row-change', {...currentRow.value})
+  emits('current-row-change', { ...currentRow.value })
+  reload()
 }
 const close = () => {
   visible.value = false
@@ -151,7 +152,7 @@ function handleSourceClick() {
 }
 
 // Audit log table
-const { tableConfig: auditTableConfig, tableEvent: auditTableEvent, tableRef: auditTableRef } = useVxeTable({
+const { tableConfig: auditTableConfig, tableEvent: auditTableEvent, tableRef: auditTableRef, reload } = useVxeTable({
   id: 'mdFormAuditLog',
   api: (pageParams: any) => {
     const extraParams = {
