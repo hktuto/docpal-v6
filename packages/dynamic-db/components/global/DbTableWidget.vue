@@ -30,9 +30,6 @@ import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboard
 import { rendererManager } from '@packages/dp-mdTable/renderers/registry-manager'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
-// Register mdTable renderers so cells render with rich formatters (chips, dates, relations, etc.)
-
-
 const props = withDefaults(
   defineProps<{
     setting?: any
@@ -73,6 +70,8 @@ async function loadFieldMeta(tableId: string) {
   fieldMetaMap.value = map
 }
 
+const isGrouped = computed(() => !!props.setting?.groupBy)
+
 const gridOptions = computed<VxeGridProps>(() => {
   const selectedColumns = props.setting?.columns || []
   const meta = fieldMetaMap.value
@@ -80,35 +79,42 @@ const gridOptions = computed<VxeGridProps>(() => {
   const buildColumn = (fieldName: string) => {
     const fieldMeta = meta[fieldName]
     const title = fieldMeta?.field_name_alias || fieldName
-    let base;
+    let base: any
     if (!fieldMeta) {
-
       base = {
         field: fieldName,
         title,
         minWidth: 120
       }
     } else {
-
-
-    const type = fieldMeta.business_type as ColumnFieldType || ColumnFieldType.Text
+      const type = (fieldMeta.business_type as ColumnFieldType) || ColumnFieldType.Text
       const displayStructure = fieldMeta.display_structure || {}
-
-    base = {
-      ...fieldMeta,
-      field: fieldMeta.field_name,
-      title: fieldMeta.field_name_alias,
-      aggFunc: true,
-      colId: fieldMeta.field_name,
-      ...rendererManager.getColumnConfig(type, displayStructure, displayStructure)
-    }
+      base = {
+        ...fieldMeta,
+        field: fieldMeta.field_name,
+        title: fieldMeta.field_name_alias,
+        aggFunc: true,
+        colId: fieldMeta.field_name,
+        ...rendererManager.getColumnConfig(type, displayStructure, displayStructure)
+      }
     }
     return base
   }
 
-  const columns = selectedColumns.length
-    ? selectedColumns.map((field: string) => buildColumn(field))
-    : []
+  let columns: any[] = []
+
+  if (isGrouped.value) {
+    const groupField = props.setting.groupBy
+    columns = [buildColumn(groupField)]
+    columns.push({
+      field: '__count',
+      title: 'Count',
+      minWidth: 100,
+      align: 'right'
+    })
+  } else if (selectedColumns.length) {
+    columns = selectedColumns.map((field: string) => buildColumn(field))
+  }
 
   return {
     border: true,
@@ -126,26 +132,89 @@ const gridOptions = computed<VxeGridProps>(() => {
   }
 })
 
+function buildFilterConditions(): any[] {
+  const filterRules = props.setting?.filterRules || []
+  if (!filterRules.length) return []
+
+  const value = filterRules
+    .filter((rule: any) => rule.field && rule.operator)
+    .map((rule: any) => {
+      const params: any = {
+        column: rule.field,
+        type: rule.operator
+      }
+      if (!['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(rule.operator)) {
+        let val = rule.value
+        if (rule.operator === 'LIKE' && val) {
+          val = `%${val}%`
+        }
+        params.value = val
+      }
+      return params
+    })
+
+  if (!value.length) return []
+  return [{ type: 'AND', value }]
+}
+
+function buildOrderBy(): any[] {
+  const sortRules = props.setting?.sortRules || []
+  const result: any[] = []
+
+  for (const rule of sortRules) {
+    if (rule.field) {
+      result.push({ column: rule.field, desc: rule.order === 'desc' })
+    }
+  }
+
+  // Backward compatibility: old sortField/sortOrder
+  if (!result.length && props.setting?.sortField) {
+    result.push({
+      column: props.setting.sortField,
+      desc: props.setting.sortOrder !== 'asc'
+    })
+  }
+
+  return result
+}
+
 async function fetchData() {
   if (!props.setting?.tableId) return
   loading.value = true
   try {
-    const orderBy: any[] = []
-    if (props.setting?.sortField) {
-      orderBy.push({
-        column: props.setting.sortField,
-        desc: props.setting.sortOrder !== 'asc'
-      })
+    const groupBy = props.setting?.groupBy
+      ? { columns: [props.setting.groupBy] }
+      : undefined
+
+    const orderBy = buildOrderBy()
+    const conditions = buildFilterConditions()
+
+    let columns: any[] = [{ name: '*' }]
+    if (groupBy) {
+      columns = [
+        { name: props.setting.groupBy },
+        { name: '*', alias: '__count', aggFunc: 'COUNT' }
+      ]
     }
-    const { data }: any = await postDynamicActions({
+
+    const params: any = {
       tableId: props.setting.tableId,
-      columns: [{ name: '*' }],
+      columns,
       orderBy,
       pagination: {
         pageSize: props.setting?.rowLimit || 10,
         pageNum: currentPage.value
       }
-    })
+    }
+
+    if (conditions.length) {
+      params.conditions = conditions
+    }
+    if (groupBy) {
+      params.groupBy = groupBy
+    }
+
+    const { data }: any = await postDynamicActions(params)
     tableData.value = data?.data || []
     total.value = data?.meta?.total || 0
   } catch (error) {
@@ -180,7 +249,15 @@ watch(
 )
 
 watch(
-  () => [props.setting?.tableId, props.setting?.rowLimit, props.setting?.sortField, props.setting?.sortOrder],
+  () => [
+    props.setting?.tableId,
+    props.setting?.rowLimit,
+    props.setting?.sortField,
+    props.setting?.sortOrder,
+    props.setting?.groupBy,
+    props.setting?.filterRules,
+    props.setting?.sortRules
+  ],
   () => {
     currentPage.value = 1
     fetchData()
@@ -196,9 +273,7 @@ useDashboardLiveUpdate(
   }
 )
 
-
-provide('viewTools', { getPageParams:null, columns: gridOptions.value, tableFields: null })
-
+provide('viewTools', { getPageParams: null, columns: gridOptions.value, tableFields: null })
 
 defineExpose({
   resize: () => {
