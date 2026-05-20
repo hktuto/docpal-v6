@@ -3,7 +3,10 @@ import { clientApi } from 'api'
 import type { TriggerSettingDTO, TableFieldDTO } from 'api'
 import { ElMessage } from 'element-plus'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
+import { workflowResponseHelper } from '../../../../../../workflow/utils/jsonConversion'
 
+const routerProvider = inject(MenuRouterKey)
 const props = defineProps<{
   masterTableId: string
   trigger?: TriggerSettingDTO
@@ -44,16 +47,17 @@ const eventTypeOptions = [
   { label: 'Record is deleted', value: 'record_deleted', desc: 'When a record is removed from this table.' },
   { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' }
 ]
+const workflowList = await getWorkflowList()
 
 function isNumericField(fieldName: string): boolean {
-  const field = state.fields.find(f => f.field_name === fieldName)
+  const field = state.fields.find((f) => f.field_name === fieldName)
   if (!field) return false
   const bt = field.business_type
   return bt === ColumnFieldType.Number || bt === ColumnFieldType.Rating
 }
 
 function isDateField(fieldName: string): boolean {
-  const field = state.fields.find(f => f.field_name === fieldName)
+  const field = state.fields.find((f) => f.field_name === fieldName)
   if (!field) return false
   const bt = field.business_type
   return bt === ColumnFieldType.DateTime || bt === ColumnFieldType.CreatedTime || bt === ColumnFieldType.LastModifiedTime
@@ -97,7 +101,7 @@ function isValueEmptyOperator(operator: string): boolean {
 }
 
 const fieldOptions = computed(() => {
-  return state.fields.map(f => ({
+  return state.fields.map((f) => ({
     label: f.field_name_alias || f.field_name,
     value: f.field_name
   }))
@@ -105,7 +109,7 @@ const fieldOptions = computed(() => {
 
 const showWatchField = computed(() => form.event_type === 'field_changed')
 
-const currentEvent = computed(() => eventTypeOptions.find(o => o.value === form.event_type))
+const currentEvent = computed(() => eventTypeOptions.find((o) => o.value === form.event_type))
 
 function generateId() {
   return Math.random().toString(36).substring(2, 9)
@@ -134,7 +138,7 @@ function handleRemoveCondition(index: number) {
 async function handleLoadFields() {
   try {
     const { data } = await clientApi.api.getDynamicDbTableTableidFields(props.masterTableId)
-    console.log("handleLoadFields", data)
+    console.log('handleLoadFields', data)
     state.fields = data || []
   } catch (error) {
     // silent fail
@@ -198,7 +202,7 @@ async function handleSave() {
     workflow_id: form.workflow_id,
     status: form.status,
     conditions: {
-      trigger_rule: form.conditions.map(c => ({
+      trigger_rule: form.conditions.map((c: any) => ({
         id: c.id,
         field_name: c.field_name,
         operator: c.operator,
@@ -237,6 +241,48 @@ function handleCancel() {
   emit('cancel')
 }
 
+const formFieldsMapping = ref({})
+const workflowErrorMessage = ref('')
+async function handleChangeWorkflow() {
+  workflowErrorMessage.value = ''
+  try {
+    const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${form.workflow_id}`).then((r: any) => workflowResponseHelper(r))
+    if (!data) {
+      routerProvider?.message?.error('Failed to get workflow details')
+      return
+    }
+    if (!data.content) {
+      routerProvider?.message?.error('Workflow is not activated')
+      return
+    }
+
+    const startEventNode = data.content?.nodes?.find((item: any) => item.type == 'StartEvent')
+    formFieldsMapping.value = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
+      id: field.id,
+      name: field.name,
+      value: '',
+      type: field.type,
+      display_type: field.display_type
+    }))
+
+    if (formFieldsMapping.value.length === 0) return
+    // 檢查必要參數是否滿足
+    const set = new Set(state.fields.map((item: any) => item.field_name))
+    const missingFields = []
+    formFieldsMapping.value.forEach((workflowField: any) => {
+      if (!set.has(workflowField.id)) {
+        missingFields.push(workflowField.name)
+      }
+    })
+
+    if (missingFields.length > 0) {
+      workflowErrorMessage.value = `Launch workflow is missing the following required parameters [${missingFields.join(',')}], Please modify the startup parameters of workflow.`
+    }
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 onMounted(() => {
   handleLoadFields()
   hydrateForm()
@@ -254,9 +300,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
         <Icon name="lucide:zap" size="16" />
         <span>Trigger</span>
       </div>
-      <div class="preview-name">
-        {{ isEdit ? '1.' : 'New' }} {{ currentEvent?.label || 'Trigger' }}
-      </div>
+      <div class="preview-name">{{ isEdit ? '1.' : 'New' }} {{ currentEvent?.label || 'Trigger' }}</div>
       <div class="preview-desc">
         {{ currentEvent?.desc }}
       </div>
@@ -272,12 +316,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       <div class="field-group">
         <label class="field-label">Event type <span class="required">*</span></label>
         <el-select v-model="form.event_type" placeholder="Select event type" size="small" style="width: 100%">
-          <el-option
-            v-for="opt in eventTypeOptions"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          />
+          <el-option v-for="opt in eventTypeOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
         <div class="field-hint">{{ currentEvent?.desc }}</div>
       </div>
@@ -285,12 +324,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       <div v-if="showWatchField" class="field-group">
         <label class="field-label">Watch field <span class="required">*</span></label>
         <el-select v-model="form.watch_field" placeholder="Select field" size="small" style="width: 100%">
-          <el-option
-            v-for="opt in fieldOptions"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          />
+          <el-option v-for="opt in fieldOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
       </div>
 
@@ -304,36 +338,16 @@ watch(() => props.trigger, hydrateForm, { deep: true })
         </div>
 
         <div class="conditions-stack">
-          <div
-            v-for="(condition, index) in form.conditions"
-            :key="condition.id"
-            class="condition-line"
-          >
+          <div v-for="(condition, index) in form.conditions" :key="condition.id" class="condition-line">
             <div class="connector-label">
               <span v-if="index === 0">When</span>
               <span v-else>{{ form.match_type === 'all' ? 'And' : 'Or' }}</span>
             </div>
-            <el-select
-              v-model="condition.field_name"
-              placeholder="Field"
-              size="small"
-              style="flex: 1.2"
-              @change="handleFieldChange(condition)"
-            >
-              <el-option
-                v-for="opt in fieldOptions"
-                :key="opt.value"
-                :label="opt.label"
-                :value="opt.value"
-              />
+            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2" @change="handleFieldChange(condition)">
+              <el-option v-for="opt in fieldOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
             <el-select v-model="condition.operator" placeholder="Operator" size="small" style="flex: 1">
-              <el-option
-                v-for="opt in getOperatorsForField(condition.field_name)"
-                :key="opt.value"
-                :label="opt.label"
-                :value="opt.value"
-              />
+              <el-option v-for="opt in getOperatorsForField(condition.field_name)" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
             <el-date-picker
               v-if="isDateField(condition.field_name)"
@@ -343,18 +357,8 @@ watch(() => props.trigger, hydrateForm, { deep: true })
               style="flex: 1.2"
               value-format="x"
             />
-            <div
-              v-else-if="isValueEmptyOperator(condition.operator)"
-              class="placeholder-input"
-              style="flex: 1.2"
-            />
-            <el-input
-              v-else
-              v-model="condition.value"
-              placeholder="Value"
-              size="small"
-              style="flex: 1.2"
-            />
+            <div v-else-if="isValueEmptyOperator(condition.operator)" class="placeholder-input" style="flex: 1.2" />
+            <el-input v-else v-model="condition.value" placeholder="Value" size="small" style="flex: 1.2" />
             <button class="icon-btn" @click="handleRemoveCondition(index)">
               <Icon name="lucide:x" size="14" />
             </button>
@@ -377,8 +381,16 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       </div>
       <div class="field-group">
         <label class="field-label">Run workflow</label>
-        <el-input v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" />
+        <el-select v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" @change="handleChangeWorkflow">
+          <el-option v-for="wf in workflowList" :key="wf.id" :label="wf.name" :value="wf.id" />
+        </el-select>
       </div>
+      {{ workflowErrorMessage }}
+      <!--      <template>-->
+      <!--        <el-form-item>-->
+      <!--          <el-input />-->
+      <!--        </el-form-item>-->
+      <!--      </template>-->
     </div>
 
     <!-- Footer -->
@@ -391,9 +403,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       </div>
       <div class="actions">
         <el-button size="small" @click="handleCancel">Cancel</el-button>
-        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave">
-          Save
-        </el-button>
+        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave" :disabled="workflowErrorMessage !== ''"> Save </el-button>
       </div>
     </div>
   </div>
