@@ -5,6 +5,7 @@
       :disabled="isMirror || !canManageTable"
       :showMirrorButton="!isMirror && canManageTable"
       :showAutomationButton="!isMirror && canManageTable"
+      :showAuditLogButton="!isMirror && canManageTable"
       :showAddRowButton="canEditTable"
       @refresh="handleRefresh"
       @add-row="handleAddRow"
