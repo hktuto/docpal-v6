@@ -229,7 +229,7 @@ function handlePermission(row: any) {
   </div>
   <workflowEditManageDialog ref="workflowManageDialogRef" @refresh="reload" />
   <workflowEditManageDuplicate ref="workflowManageDuplicateRef" />
-  <LazyWorkflowEditManagePermissionDialog ref="permissionDialogRef" :workflow-id="''" />
+  <WorkflowEditManagePermissionDialog ref="permissionDialogRef"  />
 </template>
 
 <style lang="scss" scoped></style>
