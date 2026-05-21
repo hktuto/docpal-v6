@@ -17,7 +17,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   api: async (pageParams: any) => {
     const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
     // 只保留 waiting 狀態的數據
-    let list = data.tasks.filter((item: any) => item.status === 'waiting')
+    let list = data.tasks
 
     if (extraParams.value.definition_id !== '') {
       list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)
