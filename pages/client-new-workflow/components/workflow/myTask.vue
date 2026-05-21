@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { clientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -12,7 +13,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'active_task',
   api: async (pageParams: any) => {
-    const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
+    const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
     return {
       data: {
         entryList: data || []
@@ -49,7 +50,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await $api.post(`/oniflow/api/v1/processes/instance-task/${row.process_id}/claim`, { user_id: userId }).then((res) => res.data)
+  await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.process_id}/claim`, { user_id: userId }).then((res) => res.data)
   query({})
 }
 

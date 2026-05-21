@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { clientApi } from 'api'
+
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
@@ -26,7 +28,7 @@ async function getWorkflowData() {
       throw new Error('Workflow ID is null')
     }
     openWorkflowEdit.value = true
-    const data: any = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${props.id}`).then((r: any) => r.data.data)
+    const data: any = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${props.id}`).then((r: any) => r.data.data)
     if (!data) return
 
     workflowId.value = data.id
@@ -55,7 +57,7 @@ async function handleStatus() {
   loading.value = true
   try {
     const userId = useUserId()
-    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
+    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
     openWorkflowEdit.value = false
     openWorkflowEdit.value = true
     isActivate.value = true

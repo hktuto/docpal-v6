@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
 import { routeWorkflowDetail } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -11,7 +11,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'manage_all_task',
   api: async (pageParams: any) => {
     try {
-      const data = await $api.get('/oniflow/api/v1/task/overview/all').then((r: any) => r.data.data)
+      const data = await clientApi.instance.get('/oniflow/api/v1/task/overview/all').then((r: any) => r.data.data)
       return {
         data: {
           entryList: data.task || []
@@ -50,7 +50,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       //   visible: true,
       //   disabled: false,
       //   action: async ({ row }: any) => {
-      //     await $api.delete(`/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r: any) => r.data)
+      //     await clientApi.instance.delete(`/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r: any) => r.data)
       //     reload()
       //   }
       // }
@@ -73,7 +73,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await $api.post(`/oniflow/api/v1/processes/instance-task/${row.process_instance_id}/claim`).then((r: any) => r.data)
+  await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.process_instance_id}/claim`).then((r: any) => r.data)
   reload()
 }
 </script>
