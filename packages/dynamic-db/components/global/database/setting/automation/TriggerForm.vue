@@ -1,30 +1,28 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import type { TriggerSettingDTO, TableFieldDTO } from 'api'
 import { ElMessage } from 'element-plus'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { workflowResponseHelper } from '../../../../../../workflow/utils/jsonConversion'
+import { watch } from 'vue'
 
 const routerProvider = inject(MenuRouterKey)
-const props = defineProps<{
+const { masterTableId, tableFields, trigger } = defineProps<{
   masterTableId: string
+  tableFields: any[]
   trigger?: TriggerSettingDTO
 }>()
-
 const emit = defineEmits<{
   saved: []
   cancel: []
 }>()
-
-const isEdit = computed(() => !!props.trigger?.id)
-
+const isEdit = computed(() => !!trigger?.id)
 const state = reactive({
   loading: false,
   saving: false,
   fields: [] as TableFieldDTO[]
 })
-
 const form = reactive({
   trigger_name: '',
   description: '',
@@ -40,24 +38,32 @@ const form = reactive({
     value: string
   }>
 })
-
 const eventTypeOptions = [
   { label: 'Record is created', value: 'record_created', desc: 'When a new record is added to this table.' },
   { label: 'Record is updated', value: 'record_updated', desc: 'When any field of an existing record is modified.' },
   { label: 'Record is deleted', value: 'record_deleted', desc: 'When a record is removed from this table.' },
   { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' }
 ]
-const workflowList = await getWorkflowList()
+const workflowList = ref<any[]>([])
+const workflowErrorMessage = ref<string>('')
+const workflowFormFields = ref<any[]>([])
+
+function isBooleanField(fieldName: string): boolean {
+  const find = tableFields.find((f: any) => f.field_name === fieldName)
+  if (!find) return false
+  const bt = find.business_type
+  return bt === ColumnFieldType.Checkbox
+}
 
 function isNumericField(fieldName: string): boolean {
-  const field = state.fields.find((f) => f.field_name === fieldName)
+  const field = tableFields.find((f: any) => f.field_name === fieldName)
   if (!field) return false
   const bt = field.business_type
   return bt === ColumnFieldType.Number || bt === ColumnFieldType.Rating
 }
 
 function isDateField(fieldName: string): boolean {
-  const field = state.fields.find((f) => f.field_name === fieldName)
+  const field = tableFields.find((f: any) => f.field_name === fieldName)
   if (!field) return false
   const bt = field.business_type
   return bt === ColumnFieldType.DateTime || bt === ColumnFieldType.CreatedTime || bt === ColumnFieldType.LastModifiedTime
@@ -65,6 +71,9 @@ function isDateField(fieldName: string): boolean {
 
 function getOperatorsForField(fieldName: string): Array<{ label: string; value: string }> {
   if (!fieldName) return []
+  if (isBooleanField(fieldName)) {
+    return [{ label: 'Equals', value: 'eq' }]
+  }
   if (isDateField(fieldName)) {
     return [
       { label: 'Equals', value: 'eq' },
@@ -79,18 +88,19 @@ function getOperatorsForField(fieldName: string): Array<{ label: string; value: 
   if (isNumericField(fieldName)) {
     return [
       { label: '=', value: 'eq' },
-      { label: '≠', value: 'ne' },
+      // { label: '≠', value: 'ne' },
       { label: '>', value: 'gt' },
       { label: '≥', value: 'gte' },
       { label: '<', value: 'lt' },
       { label: '≤', value: 'lte' },
-      { label: 'Is empty', value: 'is_empty' }
+      { label: 'Is empty', value: 'is_empty' },
+      { label: 'Is not empty', value: 'is_not_empty' }
     ]
   }
   return [
     { label: 'Contains', value: 'contains' },
     { label: 'Equals', value: 'eq' },
-    { label: 'Not equals', value: 'ne' },
+    // { label: 'Not equals', value: 'ne' },
     { label: 'Is empty', value: 'is_empty' },
     { label: 'Is not empty', value: 'is_not_empty' }
   ]
@@ -101,18 +111,17 @@ function isValueEmptyOperator(operator: string): boolean {
 }
 
 const fieldOptions = computed(() => {
-  return state.fields.map((f) => ({
+  return tableFields.map((f: any) => ({
     label: f.field_name_alias || f.field_name,
     value: f.field_name
   }))
 })
 
 const showWatchField = computed(() => form.event_type === 'field_changed')
-
 const currentEvent = computed(() => eventTypeOptions.find((o) => o.value === form.event_type))
 
 function generateId() {
-  return Math.random().toString(36).substring(2, 9)
+  return `${Date.now()}`
 }
 
 function handleFieldChange(condition: any) {
@@ -135,16 +144,6 @@ function handleRemoveCondition(index: number) {
   form.conditions.splice(index, 1)
 }
 
-async function handleLoadFields() {
-  try {
-    const { data } = await clientApi.api.getDynamicDbTableTableidFields(props.masterTableId)
-    console.log('handleLoadFields', data)
-    state.fields = data || []
-  } catch (error) {
-    // silent fail
-  }
-}
-
 function resetForm() {
   form.trigger_name = ''
   form.description = ''
@@ -156,8 +155,8 @@ function resetForm() {
   form.conditions = []
 }
 
-function hydrateForm() {
-  const t = props.trigger
+async function hydrateForm() {
+  const t = trigger
   if (!t) {
     resetForm()
     return
@@ -169,21 +168,19 @@ function hydrateForm() {
   form.match_type = t.match_type || 'all'
   form.workflow_id = t.workflow_id || ''
   form.status = t.status || 'A'
-
-  const rawConditions = t.conditions?.trigger_rule || []
-  if (Array.isArray(rawConditions)) {
-    form.conditions = rawConditions.map((c: any) => ({
-      id: c.id || generateId(),
-      field_name: c.field_name || '',
-      operator: c.operator || 'eq',
-      value: c.value || ''
-    }))
-  } else {
-    form.conditions = []
+  form.conditions = t.conditions?.trigger_rule || []
+  if (!!form.workflow_id && form.workflow_id !== '') {
+    await handleChangeWorkflow()
   }
+
+  workflowFormFields.value = workflowFormFields.value.map((item: any) => {
+    const v = t.map_workflow_parameters[item.id]
+    return v === undefined ? item : { ...item, value: v }
+  })
 }
 
 async function handleSave() {
+  workflowErrorMessage.value = ''
   if (!form.trigger_name.trim()) {
     ElMessage.warning('Trigger name is required')
     return
@@ -192,29 +189,42 @@ async function handleSave() {
     ElMessage.warning('Watch field is required for Field Changed event')
     return
   }
+  let map_workflow_parameters = {}
+  if (form.workflow_id !== '') {
+    const set: any[] = []
+    map_workflow_parameters = workflowFormFields.value.reduce((acc: any, item: any) => {
+      if (item.value === '') {
+        set.push(item.name)
+      }
+      acc[item.id] = item.value
+      return acc
+    }, {})
+
+    // 檢查必要參數是否滿足
+    if (set.length > 0) {
+      workflowErrorMessage.value = `Launch workflow is missing the following required parameters [${set.join(',')}].`
+      return
+    }
+  }
 
   const payload = {
     trigger_name: form.trigger_name,
     description: form.description,
     event_type: form.event_type,
     watch_field: showWatchField.value ? form.watch_field : undefined,
+    conditions: {
+      trigger_rule: form.conditions
+    },
     match_type: form.match_type,
     workflow_id: form.workflow_id,
-    status: form.status,
-    conditions: {
-      trigger_rule: form.conditions.map((c: any) => ({
-        id: c.id,
-        field_name: c.field_name,
-        operator: c.operator,
-        value: c.value
-      }))
-    }
+    map_workflow_parameters: map_workflow_parameters,
+    status: form.status
   }
 
   state.saving = true
   try {
-    if (isEdit.value && props.trigger?.id) {
-      const { data } = await clientApi.api.patchDynamicDbTableMastertableidTriggerSettingsId(props.masterTableId, props.trigger.id, payload)
+    if (isEdit.value && trigger?.id) {
+      const data = await newClientApi.patchDynamicDbTableMastertableidTriggerSettingsId(masterTableId, trigger.id, payload).then((r: any) => r.data)
       if (data?.result !== false) {
         ElMessage.success('Trigger updated')
         emit('saved')
@@ -222,7 +232,7 @@ async function handleSave() {
         ElMessage.error(data?.message || 'Update failed')
       }
     } else {
-      const { data } = await clientApi.api.postDynamicDbTableMastertableidTriggerSettings(props.masterTableId, payload)
+      const data = await newClientApi.postDynamicDbTableMastertableidTriggerSettings(masterTableId, payload).then((r: any) => r.data)
       if (data?.result !== false) {
         ElMessage.success('Trigger created')
         emit('saved')
@@ -241,20 +251,6 @@ function handleCancel() {
   emit('cancel')
 }
 
-const workflowFormFields = ref<any[]>([])
-const workflowErrorMessage = computed(() => {
-  if (workflowFormFields.value.length === 0) return ''
-  // 檢查必要參數是否滿足
-  const requiredSet = new Set(state.fields.map((item: any) => item.field_name))
-  const missingFields = workflowFormFields.value
-    .filter((workflowField: any) => !requiredSet.has(workflowField.id))
-    .map((workflowField: any) => workflowField.name)
-
-  return missingFields.length > 0
-    ? `Launch workflow is missing the following required parameters [${missingFields.join(',')}], Please modify the startup parameters of workflow.`
-    : ''
-})
-
 async function handleChangeWorkflow() {
   try {
     const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${form.workflow_id}`).then((r: any) => workflowResponseHelper(r))
@@ -271,21 +267,21 @@ async function handleChangeWorkflow() {
     workflowFormFields.value = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
       id: field.id,
       name: field.name,
-      value: '',
       type: field.type,
-      display_type: field.display_type
+      display_type: field.display_type,
+      value: ''
     }))
   } catch (e) {
     console.log(e)
   }
 }
 
-onMounted(() => {
-  handleLoadFields()
-  hydrateForm()
+onMounted(async () => {
+  workflowList.value = await getWorkflowList()
+  await hydrateForm()
 })
 
-watch(() => props.trigger, hydrateForm, { deep: true })
+watch(() => trigger, hydrateForm, { deep: true })
 </script>
 
 <template>
@@ -382,12 +378,15 @@ watch(() => props.trigger, hydrateForm, { deep: true })
           <el-option v-for="wf in workflowList" :key="wf.id" :label="wf.name" :value="wf.id" />
         </el-select>
       </div>
-      <template v-for="formField in workflowFormFields" :key="formField.id">
-        <div style="display: flex; align-items: center">
-          <label style="margin-right: 20px">{{ formField.name }}:</label>
-          <el-input size="small" v-model="formField.value" placeholder="Value" />
-        </div>
-      </template>
+      <el-form label-width="auto">
+        <template v-for="formField in workflowFormFields" :key="formField.id">
+          <el-form-item :label="formField.name" size="small">
+            <el-select v-model="formField.value">
+              <el-option v-for="field in tableFields" :key="field.field_name" :label="field.field_name_alias || field.field_name" :value="field.field_name" />
+            </el-select>
+          </el-form-item>
+        </template>
+      </el-form>
       {{ workflowErrorMessage }}
     </div>
 
@@ -401,7 +400,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       </div>
       <div class="actions">
         <el-button size="small" @click="handleCancel">Cancel</el-button>
-        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave" :disabled="workflowErrorMessage !== ''"> Save </el-button>
+        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave">Save</el-button>
       </div>
     </div>
   </div>

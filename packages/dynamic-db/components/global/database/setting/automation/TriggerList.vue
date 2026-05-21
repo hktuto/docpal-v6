@@ -89,7 +89,7 @@ defineExpose({
     <div class="list-header">
       <h4>Triggers</h4>
       <div>
-        <el-button size="small" @click="handleTest">Test</el-button>
+        <el-button type="success" size="small" @click="handleTest">Test</el-button>
         <el-button type="primary" size="small" @click="handleAdd">Add Trigger</el-button>
       </div>
     </div>
