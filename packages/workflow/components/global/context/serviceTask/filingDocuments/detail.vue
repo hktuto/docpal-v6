@@ -13,8 +13,11 @@ const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['text'], true)
 })
-const fileVariablesList = computed(() => {
+const returnFileVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['file'])
+})
+const fileVariablesList = computed(() => {
+  return getVariablesByDisplayTypes(['file'], true)
 })
 
 function handleCheckBox(status: boolean, item: any) {
@@ -69,15 +72,30 @@ function handleMapping(mapping: any) {
   })
   return map
 }
-
-function fileFieldOption(id: string) {
+function documentIdOption(id: string) {
   const ids = new Set<string>()
 
   for (const i of field.value as any[]) {
     if (i.documentId && id !== i.documentId) ids.add(i.documentId)
-    if (i.documentFileId && id !== i.documentFileId) ids.add(i.documentFileId)
+    if (i.documentFileId && '${' + id + '}' !== i.documentFileId) {
+      const match = String(i.documentFileId).match(/^\$\{(.+)\}$/)
+      ids.add(match?.[1] ?? '')
+    }
   }
 
+  const list = returnFileVariablesList.value
+  if (!list) return []
+
+  return list.filter((item: any) => !ids.has(item.id))
+}
+
+function fileFieldOption(documentFileId: string) {
+  const ids = new Set<string>()
+
+  for (const i of field.value as any[]) {
+    if (i.documentId && documentFileId !== '${' + i.documentId + '}') ids.add('${' + i.documentId + '}')
+    if (i.documentFileId && documentFileId !== i.documentFileId) ids.add(i.documentFileId)
+  }
   const list = fileVariablesList.value
   if (!list) return []
 
@@ -131,7 +149,7 @@ function jsonParse(str: any) {
               <el-form label-position="top" @sumit.stop :disabled="!item.check">
                 <el-form-item label="Return Document Id">
                   <el-select v-model="item.documentId" clearable filterable :disabled="graphProvider.readonly.value" @change="handleUpdateField(item)">
-                    <el-option v-for="option in fileFieldOption(item.documentId)" :key="option.id" :label="option.name" :value="option.id" />
+                    <el-option v-for="option in documentIdOption(item.documentId)" :key="option.id" :label="option.name" :value="option.id" />
                   </el-select>
                 </el-form-item>
                 <div v-if="!item.isFolder">

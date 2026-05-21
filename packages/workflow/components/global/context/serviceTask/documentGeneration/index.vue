@@ -97,7 +97,7 @@ function updateData() {
 
   const mapping: any = {}
   if (!!storeValue.value && storeValue.value !== '') {
-    mapping[storeValue.value] = '${generateDocumentId}'
+    mapping[storeValue.value] = '${id}'
   }
 
   emits('update', {

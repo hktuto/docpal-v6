@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
 
 const emits = defineEmits(['change'])
 const { taskDetail } = defineProps<{
@@ -17,7 +17,7 @@ const isAssigneeUser = computed(() => {
 async function handleUnclaim() {
   try {
     loading.value = true
-    const response = await $api.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`).then((r) => r.data.data)
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`).then((r) => r.data.data)
     emits('change', response, false)
     taskDetail.assignee = ''
   } catch (error) {
@@ -36,7 +36,7 @@ async function handleClaim() {
     const parms = {
       user_id: userId
     }
-    const response = await $api.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((res: any) => res.data.data)
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((res: any) => res.data.data)
     if (!response.errorCode) {
       emits('change', response, true)
     }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
-import { routeWorkflowDetail, getWorkflowList } from '#imports'
+import { newClientApi, clientApi } from 'api'
+import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
 
 const workflowList = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
@@ -15,9 +15,9 @@ const extraParams = ref({
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
   api: async (pageParams: any) => {
-    const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data.data)) as any[]
+    const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
     // 只保留 waiting 狀態的數據
-    let list = data.task.filter((item: any) => item.status === 'waiting')
+    let list = data.tasks
 
     if (extraParams.value.definition_id !== '') {
       list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)
@@ -67,7 +67,7 @@ function handleDblclick(row: any) {
 async function claimTask(row: any) {
   if (row.status === '') return
 
-  await $api.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res: any) => res.data)
+  await clientApi.instance.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res: any) => res.data)
   reload()
 }
 

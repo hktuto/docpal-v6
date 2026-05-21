@@ -82,7 +82,7 @@ watch(
 <template>
   <el-form label-position="top" label-width="100px" size="small">
     <el-form-item label="Auto Assignee" required>
-      <el-select v-model="autoAssignField" placeholder="Select Field" filterable :disabled="graphProvider.readonly.value" @change="assigneeChanged">
+      <el-select v-model="autoAssignField" placeholder="Select Field" filterable :disabled="graphProvider.readonly.value" clearable @change="assigneeChanged">
         <el-option-group v-for="group in assignFieldList" :key="group.label" :label="group.label">
           <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
         </el-option-group>
