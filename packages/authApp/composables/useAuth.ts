@@ -50,13 +50,14 @@ export async function verifly() {
   const token = localStorage.getItem('access_token') || ''
   const decodedToken = parseJwt(token)
   if (decodedToken && decodedToken.roles) {
-    console.log('decodedToken', decodedToken)
+
     const isAdmin = useIsAdmin()
     const isSuperAdmin = useIsSuperAdmin()
     const hasAdmin = decodedToken.roles.includes('ROLE_ADMIN')
     const hasSuperAdmin = decodedToken.roles.includes('ROLE_SUPER')
     isAdmin.value = hasAdmin || hasSuperAdmin
     isSuperAdmin.value = hasSuperAdmin
+    console.log('isAdmin', isAdmin.value)
   }
   // check if user in in db
   const userId = useUserId()

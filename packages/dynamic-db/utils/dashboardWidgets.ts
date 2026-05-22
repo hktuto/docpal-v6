@@ -32,7 +32,9 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       columns: [],
       rowLimit: 10,
       sortField: '',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      filterRules: [],
+      sortRules: []
     }
   },
   DbChart: {
@@ -62,6 +64,24 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
         stacked: false,
         smooth: false
       },
+      rowLimit: 20
+    }
+  },
+  DbPie: {
+    label: 'DbPie',
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 6,
+    component: 'LazyDbPieWidget',
+    setting: {
+      tableId: '',
+      chartType: 'pie',
+      categoryField: '',
+      valueField: '',
+      aggregation: 'count',
       rowLimit: 20
     }
   },

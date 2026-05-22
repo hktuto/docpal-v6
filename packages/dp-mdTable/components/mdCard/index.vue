@@ -77,6 +77,7 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       :groupMaxCount="1"
       :showMirrorButton="!isMirror"
       :showAutomationButton="!isMirror && canManageTable"
+      :showAuditLogButton="!isMirror && canManageTable"
       :disabled="isMirror"
       :showColumnConfig="false"
       @refresh="handleRefresh"

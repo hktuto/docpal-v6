@@ -638,14 +638,12 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
   function updateCurrentEditing() {
     const states = databaseHocuspocus?.awarenessStates?.value || []
-    const currentMenuId = getCurrentMenuId()
     const editingRowIds = new Set<string>()
+
     for (const state of states) {
       if (state.focus?.editingCell || state.focus?.editingRow) {
-        if (!currentMenuId || state.focus.menuId === currentMenuId) {
-          if (state.focus.rowId) {
-            editingRowIds.add(state.focus.rowId)
-          }
+        if (state.focus.rowId) {
+          editingRowIds.add(state.focus.rowId)
         }
       }
     }

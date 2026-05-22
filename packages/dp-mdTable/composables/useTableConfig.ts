@@ -6,7 +6,7 @@ import type { ColumnConfig } from '../types/column-context'
 import { ColumnFieldType } from '../types/column-types'
 // 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
-rendererManager.registerAllRenderers()
+
 
 export interface TableConfigOptions {
   extraColumnConfig?: {

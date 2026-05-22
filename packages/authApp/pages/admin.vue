@@ -7,7 +7,7 @@ appPlatform.value = 'admin'
 const { public: { platform }} = useRuntimeConfig()
 const defaultTab = useAppDefaultTab()
 const router = useRouter()
-
+const logedIn = useLoginState()
 defaultTab.value =  {
   id: 'admin-user',
   name: 'admin-user-list',
@@ -17,10 +17,13 @@ defaultTab.value =  {
   props: {}
 }
 
-onMounted(() => {
-  const usserIsAdmin = useIsAdmin()
-  if (!usserIsAdmin.value) {
-    window.location.href = '/'
+
+watch(logedIn, (boo) => {
+  if (boo) {
+    const usserIsAdmin = useIsAdmin()
+    if (!usserIsAdmin.value) {
+      window.location.href = '/'
+    }
   }
 })
 
