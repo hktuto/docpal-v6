@@ -54,7 +54,17 @@ async function updateLanguage(code, token) {
         'Authorization': `Bearer ${token}`
       }
     }).then(async (res) => await res.json())
-    dataList = data
+    if (data.length) {
+
+      dataList = data[0]
+    } else {
+      dataList = {
+
+        locale: code,
+        languageKey: 'client',
+        languageContent: JSON.stringify({})
+      }
+    }
   } catch (e) {
     console.log('--getLanguage error', e)
   }
@@ -64,7 +74,7 @@ async function updateLanguage(code, token) {
   // })
   const newJson = code === 'en-US' ? enJson : code === 'zh-CN' ? zhJson : zhHKJson
   const newData = {
-    ...dataList[0],
+    ...dataList,
     languageContent: JSON.stringify(newJson)
   }
   console.log('---newData', newData.id, newData.locale)
