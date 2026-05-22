@@ -77,6 +77,7 @@ async function initLoginPage() {
       if (usernameEl.value) usernameEl.value.focus()
     })
   } catch (error) {
+    console.log("error to fetch language", err)
     systemError.value = 'Failed to load language'
     throw createError({
       message: 'Failed to load language',
