@@ -11,12 +11,9 @@ const userId: string = useUserId().value
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'resolved_task',
   api: async (pageParams: any) => {
-    const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/resolved/${userId}`).then((r: any) => r.data.data)
-    return {
-      data: {
-        entryList: data || []
-      }
-    }
+    return await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/resolved/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => r.data.data)
   },
   columns: [
     { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },

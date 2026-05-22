@@ -4,9 +4,9 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <el-form-item label="Default Value">
-    <el-date-picker v-model="form.default_value" type="datetime" placeholder="Select date and time" :format="form.validation.pattern" />
-  </el-form-item>
+<!--  <el-form-item label="Default Value">-->
+<!--    <el-date-picker v-model="form.default_value" type="datetime" placeholder="Select date and time" :format="form.validation.pattern" />-->
+<!--  </el-form-item>-->
 
   <el-form-item :label="t('metadata.validation.date.format')" prop="format">
     <el-select

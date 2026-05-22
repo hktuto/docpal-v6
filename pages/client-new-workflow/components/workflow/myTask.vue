@@ -13,12 +13,9 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'active_task',
   api: async (pageParams: any) => {
-    const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
-    return {
-      data: {
-        entryList: data || []
-      }
-    }
+    return await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => r.data.data)
   },
   columns: [
     // { field: 'id', title: 'Workflow Instance Name', fixed: 'left' },

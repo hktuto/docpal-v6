@@ -14,7 +14,9 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
   api: (pageParams: any) => {
-    return clientApi.instance.get(`/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
+    return clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/completed/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => r.data)
   },
   columns: [
     { field: 'businessKey', title: 'table_name', fixed: 'left' },

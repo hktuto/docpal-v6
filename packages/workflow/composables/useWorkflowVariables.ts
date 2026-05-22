@@ -1,9 +1,10 @@
 import type { Graph, Node } from '@antv/x6'
+import dayjs from 'dayjs'
 
 /**
  * 動態變量的數據類型
  */
-export type VariableItemType = 'string' | 'number' | 'boolean' | 'date'
+export type VariableItemType = 'string' | 'number' | 'boolean' | 'date' | 'array' | 'object'
 export const VariableItemDisplayType = {
   string: [
     'text',
@@ -12,7 +13,9 @@ export const VariableItemDisplayType = {
   ],
   number: ['number'],
   boolean: ['boolean'],
-  date: ['date']
+  date: ['date'],
+  array: ['dateRange', 'array'],
+  object: ['object']
 }
 
 export const VariableTypeOptions = [
@@ -39,36 +42,6 @@ export const VariableTypeOptions = [
         },
         component: 'ContextVariableDataTypeString'
       },
-      // {
-      //   label: 'URL',
-      //   type: 'string',
-      //   display_type: 'url',
-      //   validation: {
-      //     pattern: '^https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$',
-      //     max_length: 255
-      //   },
-      //   component: 'ContextVariableDataTypeUrl'
-      // },
-      // {
-      //   label: 'Email',
-      //   type: 'string',
-      //   display_type: 'email',
-      //   validation: {
-      //     pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
-      //     max_length: 255
-      //   },
-      //   component: 'ContextVariableDataTypeEmail'
-      // },
-      // {
-      //   label: 'Phone',
-      //   type: 'string',
-      //   display_type: 'phone',
-      //   validation: {
-      //     country_code: 86,
-      //     length: 11
-      //   },
-      //   component: 'ContextVariableDataTypePhone'
-      // },
       {
         label: 'Number',
         type: 'number',
@@ -95,6 +68,27 @@ export const VariableTypeOptions = [
           pattern: 'YYYY-MM-DD hh:mm:ss'
         },
         component: 'ContextVariableDataTypeDate'
+      },
+      {
+        label: 'Date Range',
+        type: 'array ',
+        display_type: 'dateRange',
+        validation: {},
+        component: 'ContextVariableDataTypeDateRange'
+      },
+      {
+        label: 'Array',
+        type: 'array',
+        display_type: 'array',
+        validation: {},
+        component: 'ContextVariableDataTypeArray'
+      },
+      {
+        label: 'Object',
+        type: 'object',
+        display_type: 'object',
+        validation: {},
+        component: 'ContextVariableDataTypeObject'
       }
     ]
   }
@@ -107,8 +101,8 @@ export type VariableItem = {
   type: VariableItemType
   display_type: string
   required: boolean
-  default_value: string
-  validation: {
+  default_value?: string | boolean | number
+  validation?: {
     pattern?: string
     max_length?: number
     min_length?: number
@@ -116,7 +110,12 @@ export type VariableItem = {
     min_value?: number
     decimal_places?: number
   }
-  display_option: {}
+  minItems?: number
+  items?: {
+    type: 'object' | 'string' | 'number' | 'boolean'
+    properties: any
+  }
+  display_option?: {}
 }
 
 export type VariableSelectItem = {
@@ -176,6 +175,9 @@ export function conversionFormDataByVariables(formData: any, formFields: Variabl
           break
         case 'string':
           formattedVariables[key] = value !== null ? String(value) : ''
+          break
+        case 'date':
+          formattedVariables[key] = dayjs(value).valueOf()
           break
         default:
           formattedVariables[key] = value
