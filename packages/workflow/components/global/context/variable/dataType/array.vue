@@ -102,7 +102,8 @@ function handleAddItem(item: any) {
   updateProperties()
 }
 function handleUpdateItem(item: any) {
-  console.log(222,item)
+  delete item._X_ROW_KEY
+  properties.value[properties.value.findIndex((item: any) => item.id === item.id)] = item
   updateProperties()
 }
 
@@ -121,7 +122,6 @@ onMounted(() => {
 </script>
 
 <template>
-  {{ form }}
   <el-form-item label="Item Type">
     <el-select v-model="form.items.type" @change="handleItemTypeChange">
       <el-option v-for="option in itemTypeOptions" :key="option.value" :label="option.label" :value="option.value" />
