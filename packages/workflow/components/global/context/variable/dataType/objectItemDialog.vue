@@ -59,11 +59,68 @@ const displayTypeList = ref([
     component: 'ContextVariableDataTypeDate'
   }
 ])
+const exitRules = ref([])
+const FormRef = ref()
+const newFieldRules = reactive({
+  id: [
+    {
+      required: true,
+      validator: idChanged,
+      trigger: 'blur'
+    }
+  ],
+  name: [
+    {
+      required: true,
+      validator: newNameChanged,
+      trigger: 'blur'
+    }
+  ]
+})
+
+function idChanged(rule: any, value: any, callback: any) {
+  if (!value) {
+    return callback(new Error('Please input id'))
+  }
+
+  if (value.startsWith('_')) {
+    return callback(new Error("ID cannot start with '_'"))
+  }
+
+  if (value.startsWith('__system__')) {
+    return callback(new Error("ID cannot start with '__system__'"))
+  }
+
+  // check if id has space and other special characters
+  if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+    return callback(new Error('Id can only contain letters, numbers and underscores'))
+  }
+
+  if (!isEdit.value) {
+    const isDuplicatedItem = properties.find((item: any) => item.id === value)
+    if (isDuplicatedItem) {
+      return callback(new Error('Id is duplicated'))
+    }
+  }
+  callback()
+}
+
+function newNameChanged(rule: any, value: any, callback: any) {
+  if (!value) {
+    return callback(new Error('Please input Name'))
+  }
+  const isDuplicatedItem = exitRules.value.some((item: any) => item.name === value)
+  if (isDuplicatedItem) {
+    return callback(new Error('Name is duplicated'))
+  }
+  callback()
+}
 
 function open(row: any) {
   opened.value = true
   formData.value = row
   isEdit.value = row.id !== ''
+  exitRules.value = isEdit.value ? properties.filter((item: any) => item.id !== row?.id) : properties
   typeChanged(formData.value.display_type)
 }
 
@@ -83,7 +140,6 @@ function typeChanged(displayType: string) {
 }
 
 function handleSubmit() {
-  console.log(formData.value)
   if (isEdit.value) {
     emits('update', formData.value)
   } else {
@@ -91,9 +147,9 @@ function handleSubmit() {
       routerProvider?.message.error('Item Id is exist')
       return
     }
-
     emits('add', formData.value)
   }
+  opened.value = false
 }
 
 defineExpose({ open })
@@ -101,22 +157,24 @@ defineExpose({ open })
 
 <template>
   <el-dialog v-model="opened" title="Item" append-to-body destroy-on-close :close-on-click-modal="false">
-    <el-form-item label="ID" prop="id">
-      <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" />
-    </el-form-item>
-    <el-form-item label="Name" prop="name">
-      <el-input v-model="formData.name" placeholder="Name" />
-    </el-form-item>
-    <el-form-item label="Type" prop="type">
-      <el-select v-model="formData.display_type" placeholder="Select" @change="typeChanged">
-        <el-option v-for="option in displayTypeList" :key="option.display_type" :label="$t(option.label)" :value="option.display_type" />
-      </el-select>
-    </el-form-item>
-    <el-form-item label="Required">
-      <el-switch v-model="formData.required" />
-    </el-form-item>
-    <el-divider />
-    <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="formData" :form="formData" />
+    <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top">
+      <el-form-item label="ID" prop="id">
+        <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" />
+      </el-form-item>
+      <el-form-item label="Name" prop="name">
+        <el-input v-model="formData.name" placeholder="Name" />
+      </el-form-item>
+      <el-form-item label="Type" prop="type">
+        <el-select v-model="formData.display_type" placeholder="Select" @change="typeChanged">
+          <el-option v-for="option in displayTypeList" :key="option.display_type" :label="$t(option.label)" :value="option.display_type" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Required">
+        <el-switch v-model="formData.required" />
+      </el-form-item>
+      <el-divider />
+      <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="formData" :form="formData" />
+    </el-form>
 
     <template #footer>
       <el-button type="primary" @click="handleSubmit">Submit</el-button>

@@ -115,16 +115,10 @@ function typeChanged(displayType: string) {
     switch (displayType) {
       case 'array':
         filedData.minItems = 0
-        filedData.items = {
-          type: 'string',
-          properties: {}
-        }
+        filedData.items = formData.value.items
         break
       case 'object':
-        filedData.items = {
-          type: 'string',
-          properties: {}
-        }
+        filedData.items = formData.value.items
         break
       default:
         filedData.validation = typeObject.validation

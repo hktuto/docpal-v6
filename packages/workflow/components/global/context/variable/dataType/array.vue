@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type VariableItem } from '@packages/workflow/composables/useWorkflowVariables'
+import { toWorkflowVariablesObj, type VariableItem } from '@packages/workflow/composables/useWorkflowVariables'
 import { MenuRouterKey } from '@packages/base/utils/menuType'
 
 const form = defineModel<{}>('form')
@@ -27,7 +27,6 @@ const itemTypeOptions = [
   }
 ]
 const properties = ref<VariableItem[]>([])
-const newItemID = ref('')
 const objectItemDialogRef = ref()
 
 function handleItemTypeChange(value: string) {
@@ -42,6 +41,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   api: async (pageParams: any) => {
     return properties.value
   },
+  virtualScroll: true,
   saveColumnOrder: false,
   refresh: false,
   zoom: false,
@@ -51,9 +51,27 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'display_type', title: 'Type' },
     { field: 'required', title: 'Required' }
   ],
+  optionalConfig: {
+    pagerConfig: {
+      enabled: false
+    }
+  },
   dblClickAction: ({ row, column, event }: any) => {
     handleEdit(row)
-  }
+  },
+  bodyActions: [
+    [
+      {
+        code: 'remove',
+        name: 'common_remove',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => {
+          handleDelete(row.id)
+        }
+      }
+    ]
+  ]
 })
 
 function handleOpenAddItemDialog() {
@@ -71,15 +89,39 @@ function handleOpenAddItemDialog() {
 function handleEdit(row: any) {
   objectItemDialogRef.value.open(row)
 }
-function handleDelete() {}
+function handleDelete(id: string) {
+  properties.value.splice(
+    properties.value.findIndex((item: any) => item.id === id),
+    1
+  )
+  updateProperties()
+}
 
 function handleAddItem(item: any) {
-
+  properties.value.push(item)
+  updateProperties()
 }
-function handleUpdateItem(item: any) {}
+function handleUpdateItem(item: any) {
+  console.log(222,item)
+  updateProperties()
+}
+
+function updateProperties() {
+  form.value.items.properties = toWorkflowVariablesObj(properties.value)
+  reload()
+}
+
+onMounted(() => {
+  const pro: any = form.value.items.properties
+  properties.value = Object.keys(pro).map((key) => ({
+    id: key,
+    ...pro[key]
+  }))
+})
 </script>
 
 <template>
+  {{ form }}
   <el-form-item label="Item Type">
     <el-select v-model="form.items.type" @change="handleItemTypeChange">
       <el-option v-for="option in itemTypeOptions" :key="option.value" :label="option.label" :value="option.value" />

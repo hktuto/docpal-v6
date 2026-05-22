@@ -319,7 +319,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
   }
 }
 
-function toWorkflowVariablesObj(variables: VariableItem[]): WorkflowVariablesObj {
+export function toWorkflowVariablesObj(variables: VariableItem[]): WorkflowVariablesObj {
   return variables.reduce((acc: WorkflowVariablesObj, curr: VariableItem) => {
     const { id, ...rest } = curr
     acc[id] = rest
