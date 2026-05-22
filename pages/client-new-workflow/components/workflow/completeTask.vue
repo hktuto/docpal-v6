@@ -2,6 +2,7 @@
 import { newClientApi, clientApi } from 'api'
 import dayjs from 'dayjs'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -16,7 +17,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   api: (pageParams: any) => {
     return clientApi.instance
       .get(`/oniflow/api/v1/task/overview/completed/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
-      .then((r: any) => r.data)
+      .then((r: any) => workflowResponseHelper(r))
   },
   columns: [
     { field: 'businessKey', title: 'table_name', fixed: 'left' },
