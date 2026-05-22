@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { newClientApi, clientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -13,12 +14,9 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'active_task',
   api: async (pageParams: any) => {
-    const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
-    return {
-      data: {
-        entryList: data || []
-      }
-    }
+    return await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
   },
   columns: [
     // { field: 'id', title: 'Workflow Instance Name', fixed: 'left' },
@@ -69,8 +67,7 @@ defineExpose({ reloadTable })
 <template>
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
-      </template>
+      <template #toolbar_buttons> </template>
       <template #assignee="{ row }">
         <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>{{ row.config.human_task.assignee || '' }}</el-tag>
         <el-button v-else :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" type="primary" size="small" round @click="claimTask(row)">

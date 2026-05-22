@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -13,10 +14,12 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'active_task',
   api: async (pageParams: any) => {
-    const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
+    const data = await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
     return {
       data: {
-        entryList: data || []
+        entryList: data.entryList || []
       }
     }
   },

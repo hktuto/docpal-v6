@@ -17,7 +17,7 @@ const initData: VariableItem = {
   type: 'string',
   display_type: 'text',
   required: false,
-  default_value: '',
+  default_value: undefined,
   validation: {
     max_length: 200
   },
@@ -102,15 +102,28 @@ function typeChanged(displayType: string) {
   const typeObject = options.find((item: any) => item.display_type === displayType)
 
   if (!!typeObject) {
-    formData.value = {
+    const filedData = {
       id: formData.value.id,
       name: formData.value.name,
-      type: (Object.entries(VariableItemDisplayType).find(([, arr]) => arr.includes(displayType))?.[0] as VariableItemType) || ('string' as VariableItemType),
+      description: formData.value.description,
+      type: typeObject.type,
       display_type: displayType,
-      default_value: formData.value.default_value,
       required: formData.value.required,
-      validation: typeObject.validation
+      default_value: formData.value.default_value
+    } as VariableItem
+
+    switch (displayType) {
+      case 'array':
+        filedData.minItems = 0
+        filedData.items = formData.value.items
+        break
+      case 'object':
+        filedData.items = formData.value.items
+        break
+      default:
+        filedData.validation = typeObject.validation
     }
+    formData.value = filedData
     editComponent.value = resolveComponent(typeObject.component)
   }
 }
@@ -156,7 +169,7 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="opened" width="75%" append-to-body destroy-on-close :close-on-click-modal="false" :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
+  <el-dialog v-model="opened" append-to-body destroy-on-close :close-on-click-modal="false" :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
     <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top" status-icon @submit.stop>
       <el-form-item label="ID" prop="id">
         <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />

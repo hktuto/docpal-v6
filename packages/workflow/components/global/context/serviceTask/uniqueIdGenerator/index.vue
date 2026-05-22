@@ -1,15 +1,26 @@
 <script setup lang="ts">
-import type { Node } from '@antv/x6'
 import { newAdminApi } from 'api'
 
-const { node } = defineProps<{
-  node: Node
+const { config } = defineProps<{
+  config: {
+    http_request: {
+      method: string
+      url: string
+      headers: any
+      body: {
+        templateId: string
+        variables: any
+      }
+    }
+    input_mapping: any
+    output_mapping: any
+  }
 }>()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-
+const emits = defineEmits(['update'])
 const generateIdTemplateList = ref<any[]>([])
 const formData = ref({
   templateId: '',
@@ -45,20 +56,17 @@ function getVariables(variableList: any) {
 }
 
 function init() {
-  const data = node.getData()
-  formData.value.templateId = data.config?.http_request?.body?.templateId || ''
-  const om: any = Object.keys(data.config.output_mapping)
+  console.log(123,config)
+  formData.value.templateId = config?.http_request?.body?.templateId || ''
+  const om: any = Object.keys(config.output_mapping)
   if (om.length > 0) {
     formData.value.responseId = om[0]
   } else {
     formData.value.responseId = ''
   }
 
-  if (!!data.config?.http_request?.body?.variables) {
-    formData.value.variables = Object.entries(data.config?.http_request?.body?.variables).map(([label, value]) => ({
-      label,
-      value
-    }))
+  if (!!config?.http_request?.body?.variables) {
+    formData.value.variables = Object.entries(config?.http_request?.body?.variables).map(([label, value]) => ({ label, value }))
   } else {
     formData.value.variables = []
   }
@@ -75,23 +83,20 @@ function handleIdTemplateChange(templateId: string) {
 }
 
 function updateData() {
-  graphProvider?.graph.value?.startBatch('update-http-field-data')
   const jsonObject = formData.value.variables.reduce((acc, { label, value }) => {
     acc[label] = value
     return acc
   }, {})
 
-  const outputMapping = {
-    [formData.value.responseId]: '${data}'
+  const outputMapping: any = {}
+  if (!!formData.value.responseId && formData.value.responseId !== '') {
+    outputMapping[formData.value.responseId] = '${data}'
   }
 
-  const nodeData = node.getData()
-  const newData = {
-    ...nodeData,
+  emits('update', {
+    name: 'update-http-field-data',
     config: {
-      ...nodeData.config,
-      http_request:{
-        ...nodeData.config.http_request,
+      http_request: {
         body: {
           templateId: formData.value.templateId,
           variables: jsonObject
@@ -99,15 +104,12 @@ function updateData() {
       },
       input_mapping: {},
       output_mapping: outputMapping
-    },
-    version: (nodeData.version || 0) + 1
-  }
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
-  graphProvider?.graph.value?.stopBatch('update-http-field-data')
+    }
+  })
 }
 
 watch(
-  () => node,
+  () => config,
   async () => {
     init()
   },
@@ -124,7 +126,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <SidebarLabel :node="node" />
   <el-form label-position="top" width="100%" :disabled="graphProvider.readonly.value">
     <el-form-item :label="$t('caseManagement.idGenerator')">
       <el-select v-model="formData.templateId" :placeholder="$t('caseManagement.idGenerator')" filterable @change="handleIdTemplateChange">

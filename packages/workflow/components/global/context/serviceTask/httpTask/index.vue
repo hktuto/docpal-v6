@@ -1,25 +1,28 @@
 <script setup lang="ts">
-import type { Node } from '@antv/x6'
 import { QuestionFilled } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
-const { node } = defineProps<{
-  node: Node
+const { config } = defineProps<{
+  config: {
+    http_request: {
+      method: string
+      url: string
+      headers: any
+      body: {}
+    }
+    input_mapping: any
+    output_mapping: any
+  }
 }>()
 const variablesParamsRef = ref()
 const variablesHeaderRef = ref()
 const bodyDialogRef = ref()
 const outputMappingDialogRef = ref()
-
+const emits = defineEmits(['update'])
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-
-const { getVariablesByDisplayTypes } = useVariablesProvide()
-const stringFields = computed(() => {
-  return getVariablesByDisplayTypes(['text'])
-})
 
 const state = reactive({
   method: ['GET', 'POST', 'PUT', 'PATH', 'DELETE'],
@@ -37,9 +40,6 @@ const formData = ref({
 const outputMapping = ref({})
 
 function initForm() {
-  const data = node.getData()
-  const config = data.config
-
   formData.value = {
     method: config.http_request.method || 'GET',
     url: config.http_request.url || '',
@@ -185,29 +185,20 @@ function openBodyEdit() {
 }
 
 function updateData() {
-  graphProvider?.graph.value?.startBatch('update-http-field-data')
-
-  const nodeData = node.getData()
-  const newData = {
-    ...nodeData,
+  emits('update', {
+    name: 'update-http-field-data',
     config: {
-      ...nodeData.config,
       http_request: formData.value,
+      input_mapping: {},
       output_mapping: outputMapping.value
-    },
-    version: (nodeData.version || 0) + 1
-  }
-
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
-  graphProvider?.graph.value?.stopBatch('update-http-field-data')
+    }
+  })
 }
 
 watch(
-  () => node,
+  () => config,
   async () => {
-    if (node) {
-      initForm()
-    }
+    initForm()
   },
   {
     immediate: true,
@@ -217,7 +208,6 @@ watch(
 </script>
 
 <template>
-  <SidebarLabel :node="node" />
   <el-form label-width="auto" label-position="top" :disabled="graphProvider.readonly.value">
     <el-form-item :label="t('Request Method')">
       <el-select v-model="formData.method" placeholder="please select your zone" @change="updateData">
@@ -296,11 +286,10 @@ watch(
     </div>
   </el-form>
 
-  <LazyContextHttpTaskVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
-  <LazyContextHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
-  <LazyContextHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
-
-  <LazyContextHttpTaskOutputMappingDialog ref="outputMappingDialogRef" :mapping="outputMapping" @update="handleOutputMapping" />
+  <LazyContextServiceTaskHttpTaskVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
+  <LazyContextServiceTaskHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
+  <LazyContextServiceTaskHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
+  <LazyContextServiceTaskHttpTaskOutputMappingDialog ref="outputMappingDialogRef" :mapping="outputMapping" @update="handleOutputMapping" />
 </template>
 
 <style scoped lang="scss">
