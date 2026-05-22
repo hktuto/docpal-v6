@@ -30,7 +30,7 @@ export interface ViewContext {
   columnSortRules: Ref<any[]>
   columnGroupRules: Ref<any[]>
   viewStyleConfig: Ref<any>
-  getViews: () => Promise<void>
+  getViews: (viewId?: string, options?: { silent?: boolean }) => Promise<void>
   createView: (view: Partial<ViewConfig>) => Promise<ViewConfig>
   updateView: (viewId: string, updates: Partial<ViewConfig>) => Promise<void>
   deleteView: (viewId: string) => Promise<void>
@@ -74,10 +74,13 @@ export function useTableViews(options: UseTableViewsOptions) {
     })
     console.log('getTableDetailDasbboard', data)
   }
-  async function getViews(viewId?: string) {
-    columnFilterRules.value = null
-    columnSortRules.value = []
-    columnGroupRules.value = []
+  async function getViews(viewId?: string, options?: { silent?: boolean }) {
+    const silent = options?.silent === true
+    if (!silent) {
+      columnFilterRules.value = null
+      columnSortRules.value = []
+      columnGroupRules.value = []
+    }
     const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
       tableId: tableId.value,
       userId: 'master'
@@ -96,8 +99,26 @@ export function useTableViews(options: UseTableViewsOptions) {
     tableViews.value = views
 
     const currentViewId = viewId ?? currentView.value?.id ?? tableViews.value[0].id
-    setCurrentView(currentViewId)
-    getTableDetailDasbboard()
+    if (silent) {
+      applyColumnConfigFromServer(currentViewId)
+    } else {
+      setCurrentView(currentViewId)
+      getTableDetailDasbboard()
+    }
+  }
+
+  /** 协作同步：只更新字段与列配置，不重置筛选/排序/分组，避免触发表格 reload */
+  function applyColumnConfigFromServer(viewId: string) {
+    const serverView = tableViews.value.find((v: ViewConfig) => v.id === viewId)
+    if (!serverView) return
+    const syncedView: ViewConfig = {
+      ...serverView,
+      displayColumns: getDisplayColumns(serverView, tableFields.value)
+    }
+    tableViews.value = replaceViewInList(tableViews.value, viewId, syncedView)
+    if (currentView.value?.id === viewId) {
+      currentView.value = syncedView
+    }
   }
   function setCurrentView(view: ViewConfig | string) {
     if (typeof view === 'string') {

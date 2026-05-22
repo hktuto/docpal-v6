@@ -594,7 +594,12 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   async function handleRemoteChangeEvent(event: any) {
     const { change, userName } = event
     const currentMenuId = getCurrentMenuId()
-    console.log('handleRemoteChangeEvent', event)
+    if (change.type === 'column_config_updated') {
+      if (change.tableId === tableId) {
+        await viewTools?.refreshColumnConfig?.(change.viewId)
+      }
+      return
+    }
     if (!currentMenuId || change.menuId !== currentMenuId) return
 
     switch (change.type) {
@@ -662,7 +667,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     () => databaseHocuspocus.remoteChanges,
     () => {
       if (!databaseHocuspocus.remoteChanges.value || databaseHocuspocus.remoteChanges.value.length === 0) return
-      console.log('remoteChanges', databaseHocuspocus.remoteChanges.value)
       for (const event of databaseHocuspocus.remoteChanges.value) {
         handleRemoteChangeEvent(event)
       }
