@@ -47,11 +47,9 @@ async function getDetail() {
       state.error = 'Get Task Detail Failed'
       return
     }
-    // if (!!row.config.result) {
-    //   state.error = row.config.result
-    //   return
-    // }
-    if (data.status !== 'assigned') {
+
+    if (data.status.type !== 'assigned') {
+      state.error = 'Is not assigned'
       return
     }
     taskDetail.value = data
@@ -60,7 +58,9 @@ async function getDetail() {
 
     const instanceData = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
     variablesData.value = instanceData.variables || {}
-    contentData.value = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => workflowResponseHelper(r))
+    contentData.value = await clientApi.instance
+      .get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`)
+      .then((r: any) => workflowResponseHelper(r))
 
     if (data.config?.human_task?.assignee === userId) {
       isAssigneeUser.value = true
@@ -398,7 +398,8 @@ onMounted(() => {
       <h3>{{ state.title }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
-          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="taskDetail" :state="workflowType" />
+          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="taskDetail"
+                                      :state="workflowType" />
           <WorkflowDetailInfo v-else :taskDetail="taskDetail" @change="handleTaskInfoChange" />
         </el-tab-pane>
 
@@ -412,13 +413,15 @@ onMounted(() => {
               <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'" size="20" @click="toggleShowForm" />
             </div>
             <div v-if="nodeType === CellType.signatureTask" class="toggleFullScreenButton">
-              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
+              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20"
+                    @click="toggleFullScreenForm" />
             </div>
             <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" @formChange="handleFormChange">
               <template #action>
                 <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
                   <template v-for="(item, index) in additionalButton" :key="index">
-                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
+                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props"
+                               @submit="addTonalSubmit" />
                   </template>
                   <!--   TODO:  Save Draft is not supported.           -->
                   <!-- <el-button
@@ -465,7 +468,8 @@ onMounted(() => {
             </div>
 
             <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
-              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'" @click="handleCancel">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'"
+                         @click="handleCancel">
                 {{ $t('cancelText') }}
               </el-button>
               <el-button
@@ -476,17 +480,20 @@ onMounted(() => {
               >
                 {{ $t('workflow_resign') }}
               </el-button>
-              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleSubmit">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary"
+                         :disabled="workflowType === 'completeTask'" @click="handleSubmit">
                 {{ $t('common_submit') }}
               </el-button>
             </div>
-            <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
+            <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail"
+                                     @confirm="handleApplySignature" />
           </template>
         </el-tab-pane>
 
         <el-tab-pane :label="$t('workflow_graph')" name="graph">
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
-          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail" :content-json="contentData" autoplay />
+          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail"
+                                :content-json="contentData" autoplay />
         </el-tab-pane>
       </el-tabs>
     </div>
