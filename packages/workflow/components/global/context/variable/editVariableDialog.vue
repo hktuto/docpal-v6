@@ -55,6 +55,7 @@ function handleOpen(variable?: VariableItem) {
     isEdit.value = true
   } else {
     formData.value = { ...initData }
+    console.log(123, formData.value)
     isEdit.value = false
   }
   exitRules.value = isEdit.value ? variables.value.filter((item: any) => item.id !== variable?.id) : variables.value
@@ -111,13 +112,35 @@ function typeChanged(displayType: string) {
       required: formData.value.required,
       default_value: formData.value.default_value
     } as VariableItem
-
     switch (displayType) {
       case 'dateRange':
         filedData.minItems = 0
         filedData.items = {
-          type: 'string',
-          properties: {}
+          type: 'date',
+          properties: {
+            start: {
+              id: isEdit.value ? formData.value.items?.properties?.start?.id : Date.now(),
+              name: 'Start Date',
+              description: 'Start Date',
+              type: 'date',
+              display_type: 'date',
+              required: true,
+              validation: {
+                pattern: 'YYYY-MM-DD hh:mm:ss'
+              }
+            },
+            end: {
+              id: isEdit.value ? formData.value.items?.properties?.end?.id : Date.now(),
+              name: 'End Date',
+              description: 'End Date',
+              type: 'date',
+              display_type: 'date',
+              required: true,
+              validation: {
+                pattern: 'YYYY-MM-DD hh:mm:ss'
+              }
+            }
+          }
         }
         break
       case 'array':
@@ -127,7 +150,7 @@ function typeChanged(displayType: string) {
       case 'object':
         filedData.items = {
           type: 'object',
-          properties: formData.value?.items?.properties || {}
+          properties: isEdit.value ? formData.value?.items?.properties : {}
         }
         break
       default:
@@ -198,7 +221,7 @@ defineExpose({
         <el-switch v-model="formData.required" />
       </el-form-item>
       <el-divider />
-      <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="formData" :form="formData" />
+      <component ref="comRef" v-if="editComponent" :is="editComponent"  v-model:form="formData" />
     </el-form>
 
     <template #footer>
