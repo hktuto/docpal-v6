@@ -113,12 +113,22 @@ function typeChanged(displayType: string) {
     } as VariableItem
 
     switch (displayType) {
+      case 'dateRange':
+        filedData.minItems = 0
+        filedData.items = {
+          type: 'string',
+          properties: {}
+        }
+        break
       case 'array':
         filedData.minItems = 0
-        filedData.items = formData.value.items
+        filedData.items = isEdit.value ? formData.value.items : { type: 'string', properties: {} }
         break
       case 'object':
-        filedData.items = formData.value.items
+        filedData.items = {
+          type: 'object',
+          properties: formData.value?.items?.properties || {}
+        }
         break
       default:
         filedData.validation = typeObject.validation

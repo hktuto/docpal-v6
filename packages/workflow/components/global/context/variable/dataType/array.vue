@@ -3,7 +3,6 @@ import { toWorkflowVariablesObj, type VariableItem } from '@packages/workflow/co
 import { MenuRouterKey } from '@packages/base/utils/menuType'
 
 const form = defineModel<{}>('form')
-const routerProvider = inject(MenuRouterKey)
 const itemTypeOptions = [
   {
     label: 'Text',
