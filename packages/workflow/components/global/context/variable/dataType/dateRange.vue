@@ -7,8 +7,8 @@ function handelUpdatePattern() {
   const validation = {
     pattern: pattern.value
   }
-  form.value.items.properties?.start?.validation = validation
-  form.value.items.properties?.end?.validation = validation
+  form.value.items.properties.start.validation = validation
+  form.value.items.properties.end.validation = validation
 }
 
 onMounted(() => {
@@ -17,7 +17,6 @@ onMounted(() => {
 </script>
 
 <template>
-  {{ form }}
   <el-form-item :label="t('metadata.validation.date.format')">
     <el-select
       v-model="pattern"
