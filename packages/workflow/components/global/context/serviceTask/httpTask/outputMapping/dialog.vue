@@ -8,42 +8,32 @@ const { mapping } = defineProps<{
   mapping: any
 }>()
 
-const mappingTypeList = ref([
-  { label: 'String', value: 'string' },
-  { label: 'Array', value: 'array' },
-  { label: 'Number', value: 'number' },
-  { label: 'Boolean', value: 'boolean' },
-  { label: 'Object', value: 'object' }
-])
-
 interface OutputMappingRow {
   key: string
   value: string
-  // type: string
 }
-
 const tableData = ref<OutputMappingRow[]>([])
 const emits = defineEmits(['update'])
 const { t } = useI18n()
 const dialogVisible = ref(false)
 const createMapping = ref<{
   key: string
-  // type: string
 }>({
-  key: '',
-  // type: 'string'
+  key: ''
 })
 const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringFields = computed(() => {
-  return getVariablesByDisplayTypes(['text']).filter((item: any) => !item.id.startsWith('__system__'))
+  const set = new Set(tableData.value.filter((item: any) => item.value !== '').map((item: any) => item.value))
+  return getVariablesByDisplayTypes(['text']).filter((item: any) => !item.id.startsWith('__system__') && !set.has(item.id))
 })
 
 function open() {
-  tableData.value = Object.entries(mapping).map(([key, value]) => ({
-    key,
-    value,
-    // type: 'string'
-  }))
+  tableData.value = Object.entries(mapping).map(([value, key]) => {
+    const m = String(key).match(/^\$\{(.+)\}$/)
+    const inner = m?.[1] ?? key
+    return { value, key: inner }
+  })
+
   dialogVisible.value = true
 }
 
@@ -59,11 +49,9 @@ function handleCreate() {
 
   tableData.value.push({
     key: key,
-    value: '',
-    // type: createMapping.value.type
+    value: ''
   })
   createMapping.value.key = ''
-  createMapping.value.type = 'string'
 }
 
 function handleDelete(index: number) {
@@ -92,28 +80,18 @@ defineExpose({ open })
   <el-dialog v-model="dialogVisible" :title="t('Add Mapping')" append-to-body :close-on-click-modal="false">
     <div>
       <el-input v-model="createMapping.key" style="max-width: 600px" placeholder="Please input Key">
-        <!--        <template #prepend>-->
-        <!--          <el-select v-model="createMapping.type" style="width: 115px">-->
-        <!--            <el-option v-for="item in mappingTypeList" :key="item.value" :label="item.label" :value="item.value" />-->
-        <!--          </el-select>-->
-        <!--        </template>-->
         <template #append>
           <el-button @click="handleCreate" style="background-color: #1dd6c3; color: #ffffff">Add Mapping</el-button>
         </template>
       </el-input>
 
       <el-table :data="tableData" stripe style="width: 100%">
-        <el-table-column :label="t('Key')" prop="key">
+        <el-table-column :label="t('Store Value')" prop="key">
           <template #default="{ row, $index }">
             {{ row.key }}
           </template>
         </el-table-column>
-<!--        <el-table-column :label="t('Type')" prop="type">-->
-<!--          <template #default="{ row, $index }">-->
-<!--            {{ row.type }}-->
-<!--          </template>-->
-<!--        </el-table-column>-->
-        <el-table-column :label="t('Value')" prop="value">
+        <el-table-column :label="t('Response Value')" prop="value">
           <template #default="{ row, $index }">
             <el-select v-model="row.value">
               <el-option v-for="item in stringFields" :key="item.id" :label="item.name" :value="item.id" />

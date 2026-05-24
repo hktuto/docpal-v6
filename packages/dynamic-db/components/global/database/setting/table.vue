@@ -38,6 +38,10 @@ const settingsSections = [
     items: [{ id: 'automation', label: 'Workflows', icon: 'lucide:workflow' }]
   },
   {
+    group: 'AUDIT',
+    items: [{ id: 'auditLog', label: 'Audit Log', icon: 'lucide:history' }]
+  },
+  {
     group: 'SETTINGS',
     items: [{ id: 'settings', label: 'Delete Table', icon: 'lucide:trash-2' }]
   }
@@ -61,6 +65,8 @@ const sectionComponent = computed(() => {
       return 'LazyDatabaseSettingTableData'
     case 'automation':
       return 'LazyDatabaseSettingTableAutomation'
+    case 'auditLog':
+      return 'LazyDatabaseSettingTableAuditLog'
     case 'permissions':
       return 'LazyDatabaseSettingMenuPermission'
     case 'settings':

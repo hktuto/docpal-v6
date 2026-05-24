@@ -10,9 +10,9 @@ function handleMaxLength(number) {
 </script>
 
 <template>
-  <el-form-item label="Default Value">
-    <el-input v-model="form.default_value" />
-  </el-form-item>
+<!--  <el-form-item label="Default Value">-->
+<!--    <el-input v-model="form.default_value" />-->
+<!--  </el-form-item>-->
   <el-form-item v-if="form.display_type === 'text'" :label="t('metadata.validation.text.maxLength')">
     <el-input-number
       v-model="form.validation.max_length"

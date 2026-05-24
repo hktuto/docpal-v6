@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { clientApi } from 'api'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 const { getVariablesByDisplayTypes } = useVariablesProvide()
 
@@ -55,7 +56,7 @@ async function getWorkflowFormFields(variables: any) {
   if (!processDefinitionId.value || processDefinitionId.value === '') return
   try {
     loading.value = true
-    const data = await $api
+    const data = await clientApi.instance
       .get(`/oniflow/api/v1/workflow/definitions/instance/${processDefinitionId.value}/content`)
       .then((r: any) => workflowResponseHelper(r))
 

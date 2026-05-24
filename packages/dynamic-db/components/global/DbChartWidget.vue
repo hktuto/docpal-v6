@@ -26,6 +26,7 @@ import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from
 import { CanvasRenderer } from 'echarts/renderers'
 import dayjs from 'dayjs'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
+import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 
 // Register required modules
 echarts.use([BarChart, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
@@ -405,6 +406,11 @@ watch(
     fetchData()
   },
   { immediate: true, deep: true }
+)
+
+useDashboardLiveUpdate(
+  computed(() => props.setting?.tableId),
+  fetchData
 )
 
 onUnmounted(() => {

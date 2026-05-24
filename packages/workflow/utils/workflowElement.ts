@@ -162,16 +162,15 @@ export enum contextMenuComponentType {
   ExclusiveGateway = 'LazyContextExclusiveGateway',
   ParallelGateway = 'LazyContextParallelGateway',
   InclusiveGateway = 'LazyContextInclusiveGateway',
-  // Http Task
-  HTTPTask = 'LazyContextHttpTask',
-  UniqueIdGenerator = 'LazyContextUniqueIdGenerator',
   // Service
+  HTTPTask = 'LazyContextServiceTaskHttpTask',
   ValidateTask = 'LazyContextServiceTaskValidate',
   MessageTask = 'LazyContextServiceTaskMessage',
   UploadFile = 'LazyContextServiceTaskUploadFile',
   SubProcess = 'LazyContextServiceTaskSubProcess',
   DocumentGenerationTask = 'LazyContextServiceTaskDocumentGeneration',
   FilingDocuments = 'LazyContextServiceTaskFilingDocuments',
+  UniqueIdGenerator = 'LazyContextServiceTaskUniqueIdGenerator',
   InsertDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseInsert',
   UpdateDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseUpdate',
   EmailTask = 'LazyContextServiceTaskEmail',
@@ -515,27 +514,27 @@ export const workflowElement: WorkflowElement = {
   Gateway: {
     embed: false,
     toolbar: [
-      {
-        id: CellType.exclusiveGateway,
-        icon: 'mdi:call-split',
-        label: 'Exclusive',
-        group: 'Gateway',
-        order: 0
-      },
-      {
-        id: CellType.parallelGateway,
-        icon: 'mdi:axis-arrow',
-        label: 'Parallel',
-        group: 'Gateway',
-        order: 0
-      },
-      {
-        id: CellType.inclusiveGateway,
-        icon: 'mdi:axis-arrow',
-        label: 'Inclusive',
-        group: 'Gateway',
-        order: 0
-      }
+      // {
+      //   id: CellType.exclusiveGateway,
+      //   icon: 'mdi:call-split',
+      //   label: 'Exclusive',
+      //   group: 'Gateway',
+      //   order: 0
+      // },
+      // {
+      //   id: CellType.parallelGateway,
+      //   icon: 'mdi:axis-arrow',
+      //   label: 'Parallel',
+      //   group: 'Gateway',
+      //   order: 0
+      // },
+      // {
+      //   id: CellType.inclusiveGateway,
+      //   icon: 'mdi:axis-arrow',
+      //   label: 'Inclusive',
+      //   group: 'Gateway',
+      //   order: 0
+      // }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
     clickHandler: () => {},
@@ -602,13 +601,6 @@ export const workflowElement: WorkflowElement = {
         group: '',
         order: 0
       },
-      // {
-      //   id: CellType.messageTask,
-      //   icon: 'material-symbols:chat-outline',
-      //   label: 'Message Task',
-      //   group: '',
-      //   order: 0
-      // },
       {
         id: CellType.uploadFile,
         icon: 'material-symbols:upload-file-outline',
@@ -636,17 +628,7 @@ export const workflowElement: WorkflowElement = {
         label: 'Email Task',
         group: '',
         order: 0
-      }
-    ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
-    clickHandler: () => {},
-    contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      return 'LazyContextServiceTask'
-    }
-  },
-  HTTPRequestTask: {
-    embed: false,
-    toolbar: [
+      },
       {
         id: CellType.HTTPTask,
         icon: 'mdi:web',
@@ -660,7 +642,34 @@ export const workflowElement: WorkflowElement = {
         label: 'Unique Id Generator',
         group: '',
         order: 0
-      },
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      return 'LazyContextServiceTask'
+    }
+  },
+  MessageTask: {
+    embed: false,
+    toolbar: [
+      // {
+      //   id: CellType.messageTask,
+      //   icon: 'material-symbols:chat-outline',
+      //   label: 'Message Task',
+      //   group: '',
+      //   order: 0
+      // },
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      return 'LazyContextServiceTask'
+    }
+  },
+  HTTPRequestTask: {
+    embed: false,
+    toolbar: [
       {
         id: CellType.insertDynamicDatabase,
         icon: 'mdi:database-arrow-left',
@@ -687,7 +696,7 @@ export const workflowElement: WorkflowElement = {
 }
 
 const DEFAULT_TASK_EXECUTION = { async: false, timeout_ms: 5000, priority: 0 }
-const LONG_RUNNING_EXECUTION = { async: false, timeout_ms: 6000, priority: 1 }
+const LONG_RUNNING_EXECUTION = { async: false, timeout_ms: 12960000, priority: 1 }
 
 function createNodeShell(
   id: string,
@@ -724,7 +733,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.userTask,
       config: getTaskItemConfig[CellType.userTask],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.userTask,
         tags: WorkflowElementType.UserTask,
@@ -748,7 +757,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.userTask,
       config: getTaskItemConfig[CellType.userTask],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.signatureTask,
         tags: WorkflowElementType.UserTask,
@@ -775,7 +784,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Exclusive Gateway',
       documentation: '',
       type: CellType.exclusiveGateway,
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.exclusiveGateway,
         tags: WorkflowElementType.Gateway,
@@ -795,7 +804,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Parallel Gateway',
       documentation: '',
       type: CellType.parallelGateway,
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.parallelGateway,
         tags: WorkflowElementType.Gateway,
@@ -815,7 +824,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Inclusive Gateway',
       documentation: '',
       type: CellType.inclusiveGateway,
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.inclusiveGateway,
         tags: WorkflowElementType.Gateway,
@@ -835,11 +844,11 @@ const workflowCellElementTemplate: CellTypeItem = {
       label: 'New Unique Id Generator',
       documentation: '',
       type: CellType.serviceTask,
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       config: getTaskItemConfig[CellType.uniqueIdGenerator],
       metadata: {
         type: CellType.uniqueIdGenerator,
-        tags: WorkflowElementType.HTTPRequestTask,
+        tags: WorkflowElementType.ServiceTask,
         icon: '/icons/numeric.svg'
       }
     }
@@ -875,7 +884,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.transformTask,
       config: getTaskItemConfig[CellType.transformTask],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.transformTask,
         tags: WorkflowElementType.TransformTask,
@@ -893,7 +902,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.subProcess,
       config: getTaskItemConfig[CellType.subProcess],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.subProcess,
         tags: WorkflowElementType.ServiceTask,
@@ -910,7 +919,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.validateTask,
       config: getTaskItemConfig[CellType.validateTask],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.validateTask,
         tags: WorkflowElementType.ServiceTask,
@@ -927,7 +936,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.messageTask,
       config: getTaskItemConfig[CellType.messageTask],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.messageTask,
         tags: WorkflowElementType.ServiceTask,
@@ -942,9 +951,9 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Upload File',
       label: 'New Upload File',
       documentation: '',
-      type: CellType.uploadFile,
+      type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.uploadFile],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.uploadFile,
         tags: WorkflowElementType.ServiceTask,
@@ -961,7 +970,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.documentGenerationTask],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.documentGenerationTask,
         tags: WorkflowElementType.ServiceTask,
@@ -979,7 +988,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       documentation: '',
       type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.filingDocuments],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.filingDocuments,
         tags: WorkflowElementType.ServiceTask,
@@ -1012,12 +1021,12 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'HTTP Task',
       label: 'New HTTP Task',
       documentation: '',
-      type: WorkflowElementType.HTTPRequestTask,
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      type: CellType.serviceTask,
+      execution: { ...LONG_RUNNING_EXECUTION },
       config: getTaskItemConfig[CellType.HTTPTask],
       metadata: {
         type: CellType.HTTPTask,
-        tags: WorkflowElementType.HTTPRequestTask,
+        tags: WorkflowElementType.ServiceTask,
         icon: '/icons/http-task.svg'
       }
     }
@@ -1029,8 +1038,8 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Insert Dynamic Database',
       label: 'New Insert Dynamic Database',
       documentation: '',
-      execution: { ...DEFAULT_TASK_EXECUTION },
-      type: WorkflowElementType.HTTPRequestTask,
+      execution: { ...LONG_RUNNING_EXECUTION },
+      type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.insertDynamicDatabase],
       metadata: {
         type: CellType.insertDynamicDatabase,
@@ -1048,8 +1057,8 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Update Dynamic Database',
       label: 'New Update Dynamic Database',
       documentation: '',
-      execution: { ...DEFAULT_TASK_EXECUTION },
-      type: WorkflowElementType.HTTPRequestTask,
+      execution: { ...LONG_RUNNING_EXECUTION },
+      type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.updateDynamicDatabase],
       metadata: {
         type: CellType.updateDynamicDatabase,
@@ -1067,9 +1076,9 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'Email Task',
       label: 'New Email Task',
       documentation: '',
-      type: WorkflowElementType.HTTPRequestTask,
+      type: CellType.serviceTask,
       config: getTaskItemConfig[CellType.emailTask],
-      execution: { ...DEFAULT_TASK_EXECUTION },
+      execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
         type: CellType.emailTask,
         tags: WorkflowElementType.ServiceTask,

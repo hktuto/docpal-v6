@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { clientApi } from 'api'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
+
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -9,12 +12,9 @@ const userId: string = useUserId().value
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'resolved_task',
   api: async (pageParams: any) => {
-    const data = await $api.get(`/oniflow/api/v1/task/overview/resolved/${userId}`).then((r: any) => r.data.data)
-    return {
-      data: {
-        entryList: data || []
-      }
-    }
+    return await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/resolved/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
   },
   columns: [
     { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },

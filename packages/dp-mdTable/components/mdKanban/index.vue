@@ -349,6 +349,7 @@ onBeforeUnmount(() => {
       v-if="showToolbar"
        :showMirrorButton="!isMirror && canManageTable"
       :showAutomationButton="!isMirror && canManageTable"
+      :showAuditLogButton="!isMirror && canManageTable"
       :showAddRowButton="false"
       :showGroupingButton="false"
       @refresh="handleRefresh"

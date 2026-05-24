@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { x6NodeToWorkflowJson } from '#imports'
-import { newAdminApi } from 'api'
+import { newAdminApi, clientApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
@@ -22,13 +22,13 @@ async function save() {
   }
   // 修改時，檢查是否已激活
   if (isActivate) {
-    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data)
+    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data)
     emits('updateActivate')
   }
 
   // update workflow Json Data
   try {
-    $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r: any) => r.data)
+    clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
   }

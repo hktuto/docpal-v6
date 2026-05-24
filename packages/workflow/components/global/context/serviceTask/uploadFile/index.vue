@@ -27,12 +27,17 @@ const { config } = defineProps<{
     output_mapping: any
   }
 }>()
+const returnDocumentId = ref<string>('')
 const stringVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['text'], true)
 })
 const fileVariablesList = computed(() => {
-  return getVariablesByDisplayTypes(['file'], true)
+  return getVariablesByDisplayTypes(['file'], true).filter((item: any) => item.id !== '${' + returnDocumentId.value + '}')
 })
+const returnFileVariablesList = computed(() => {
+  return getVariablesByDisplayTypes(['file']).filter((item: any) => '${' + item.id + '}' !== formData.value.body.fileContentId)
+})
+
 const formData = ref<{
   body: any
 }>({
@@ -43,15 +48,24 @@ const parentPathDisplay = ref('')
 
 function initForm() {
   formData.value = config.http_request
+  const keys = Object.keys(config.output_mapping)
+  if (keys.length > 0) {
+    returnDocumentId.value = keys[0]
+  }
 }
 
 function updateData() {
+  const outputMapping = {}
+  if (!!returnDocumentId.value && returnDocumentId.value !== '') {
+    outputMapping[returnDocumentId.value] = '${data.id}'
+  }
+
   emits('update', {
     name: 'update-upload-file-data',
     config: {
       http_request: formData.value,
       input_mapping: {},
-      output_mapping: {}
+      output_mapping: outputMapping
     }
   })
 }
@@ -117,6 +131,11 @@ watch(
     <el-form-item :label="t('File')">
       <el-select v-model="formData.body.fileContentId" filterable @change="updateData">
         <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
+    <el-form-item :label="t('Return Document Id')">
+      <el-select v-model="returnDocumentId" filterable clearable @change="updateData">
+        <el-option v-for="item in returnFileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
 

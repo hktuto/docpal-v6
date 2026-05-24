@@ -26,6 +26,7 @@
 import { postDynamicActions } from 'api'
 import type { VxeGridProps } from 'vxe-table'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
+import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 
 const props = withDefaults(
   defineProps<{
@@ -155,6 +156,14 @@ watch(
     fetchData()
   },
   { immediate: true }
+)
+
+useDashboardLiveUpdate(
+  computed(() => props.setting?.tableId),
+  () => {
+    currentPage.value = 1
+    fetchData()
+  }
 )
 
 defineExpose({

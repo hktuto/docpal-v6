@@ -1,27 +1,28 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import type { TriggerSettingDTO, TableFieldDTO } from 'api'
 import { ElMessage } from 'element-plus'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
+import { workflowResponseHelper } from '../../../../../../workflow/utils/jsonConversion'
+import { watch } from 'vue'
 
-const props = defineProps<{
+const routerProvider = inject(MenuRouterKey)
+const { masterTableId, tableFields, trigger } = defineProps<{
   masterTableId: string
+  tableFields: any[]
   trigger?: TriggerSettingDTO
 }>()
-
 const emit = defineEmits<{
   saved: []
   cancel: []
 }>()
-
-const isEdit = computed(() => !!props.trigger?.id)
-
+const isEdit = computed(() => !!trigger?.id)
 const state = reactive({
   loading: false,
   saving: false,
   fields: [] as TableFieldDTO[]
 })
-
 const form = reactive({
   trigger_name: '',
   description: '',
@@ -37,23 +38,32 @@ const form = reactive({
     value: string
   }>
 })
-
 const eventTypeOptions = [
   { label: 'Record is created', value: 'record_created', desc: 'When a new record is added to this table.' },
   { label: 'Record is updated', value: 'record_updated', desc: 'When any field of an existing record is modified.' },
   { label: 'Record is deleted', value: 'record_deleted', desc: 'When a record is removed from this table.' },
   { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' }
 ]
+const workflowList = ref<any[]>([])
+const workflowErrorMessage = ref<string>('')
+const workflowFormFields = ref<any[]>([])
+
+function isBooleanField(fieldName: string): boolean {
+  const find = tableFields.find((f: any) => f.field_name === fieldName)
+  if (!find) return false
+  const bt = find.business_type
+  return bt === ColumnFieldType.Checkbox
+}
 
 function isNumericField(fieldName: string): boolean {
-  const field = state.fields.find(f => f.field_name === fieldName)
+  const field = tableFields.find((f: any) => f.field_name === fieldName)
   if (!field) return false
   const bt = field.business_type
   return bt === ColumnFieldType.Number || bt === ColumnFieldType.Rating
 }
 
 function isDateField(fieldName: string): boolean {
-  const field = state.fields.find(f => f.field_name === fieldName)
+  const field = tableFields.find((f: any) => f.field_name === fieldName)
   if (!field) return false
   const bt = field.business_type
   return bt === ColumnFieldType.DateTime || bt === ColumnFieldType.CreatedTime || bt === ColumnFieldType.LastModifiedTime
@@ -61,6 +71,9 @@ function isDateField(fieldName: string): boolean {
 
 function getOperatorsForField(fieldName: string): Array<{ label: string; value: string }> {
   if (!fieldName) return []
+  if (isBooleanField(fieldName)) {
+    return [{ label: 'Equals', value: 'eq' }]
+  }
   if (isDateField(fieldName)) {
     return [
       { label: 'Equals', value: 'eq' },
@@ -75,18 +88,19 @@ function getOperatorsForField(fieldName: string): Array<{ label: string; value: 
   if (isNumericField(fieldName)) {
     return [
       { label: '=', value: 'eq' },
-      { label: '≠', value: 'ne' },
+      // { label: '≠', value: 'ne' },
       { label: '>', value: 'gt' },
       { label: '≥', value: 'gte' },
       { label: '<', value: 'lt' },
       { label: '≤', value: 'lte' },
-      { label: 'Is empty', value: 'is_empty' }
+      { label: 'Is empty', value: 'is_empty' },
+      { label: 'Is not empty', value: 'is_not_empty' }
     ]
   }
   return [
     { label: 'Contains', value: 'contains' },
     { label: 'Equals', value: 'eq' },
-    { label: 'Not equals', value: 'ne' },
+    // { label: 'Not equals', value: 'ne' },
     { label: 'Is empty', value: 'is_empty' },
     { label: 'Is not empty', value: 'is_not_empty' }
   ]
@@ -97,18 +111,17 @@ function isValueEmptyOperator(operator: string): boolean {
 }
 
 const fieldOptions = computed(() => {
-  return state.fields.map(f => ({
+  return tableFields.map((f: any) => ({
     label: f.field_name_alias || f.field_name,
     value: f.field_name
   }))
 })
 
 const showWatchField = computed(() => form.event_type === 'field_changed')
-
-const currentEvent = computed(() => eventTypeOptions.find(o => o.value === form.event_type))
+const currentEvent = computed(() => eventTypeOptions.find((o) => o.value === form.event_type))
 
 function generateId() {
-  return Math.random().toString(36).substring(2, 9)
+  return `${Date.now()}`
 }
 
 function handleFieldChange(condition: any) {
@@ -131,16 +144,6 @@ function handleRemoveCondition(index: number) {
   form.conditions.splice(index, 1)
 }
 
-async function handleLoadFields() {
-  try {
-    const { data } = await clientApi.api.getDynamicDbTableTableidFields(props.masterTableId)
-    console.log("handleLoadFields", data)
-    state.fields = data || []
-  } catch (error) {
-    // silent fail
-  }
-}
-
 function resetForm() {
   form.trigger_name = ''
   form.description = ''
@@ -152,8 +155,8 @@ function resetForm() {
   form.conditions = []
 }
 
-function hydrateForm() {
-  const t = props.trigger
+async function hydrateForm() {
+  const t = trigger
   if (!t) {
     resetForm()
     return
@@ -165,21 +168,19 @@ function hydrateForm() {
   form.match_type = t.match_type || 'all'
   form.workflow_id = t.workflow_id || ''
   form.status = t.status || 'A'
-
-  const rawConditions = t.conditions?.trigger_rule || []
-  if (Array.isArray(rawConditions)) {
-    form.conditions = rawConditions.map((c: any) => ({
-      id: c.id || generateId(),
-      field_name: c.field_name || '',
-      operator: c.operator || 'eq',
-      value: c.value || ''
-    }))
-  } else {
-    form.conditions = []
+  form.conditions = t.conditions?.trigger_rule || []
+  if (!!form.workflow_id && form.workflow_id !== '') {
+    await handleChangeWorkflow()
   }
+
+  workflowFormFields.value = workflowFormFields.value.map((item: any) => {
+    const v = t.map_workflow_parameters[item.id]
+    return v === undefined ? item : { ...item, value: v }
+  })
 }
 
 async function handleSave() {
+  workflowErrorMessage.value = ''
   if (!form.trigger_name.trim()) {
     ElMessage.warning('Trigger name is required')
     return
@@ -188,29 +189,42 @@ async function handleSave() {
     ElMessage.warning('Watch field is required for Field Changed event')
     return
   }
+  let map_workflow_parameters = {}
+  if (form.workflow_id !== '') {
+    const set: any[] = []
+    map_workflow_parameters = workflowFormFields.value.reduce((acc: any, item: any) => {
+      if (item.value === '') {
+        set.push(item.name)
+      }
+      acc[item.id] = item.value
+      return acc
+    }, {})
+
+    // 檢查必要參數是否滿足
+    if (set.length > 0) {
+      workflowErrorMessage.value = `Launch workflow is missing the following required parameters [${set.join(',')}].`
+      return
+    }
+  }
 
   const payload = {
     trigger_name: form.trigger_name,
     description: form.description,
     event_type: form.event_type,
     watch_field: showWatchField.value ? form.watch_field : undefined,
+    conditions: {
+      trigger_rule: form.conditions
+    },
     match_type: form.match_type,
     workflow_id: form.workflow_id,
-    status: form.status,
-    conditions: {
-      trigger_rule: form.conditions.map(c => ({
-        id: c.id,
-        field_name: c.field_name,
-        operator: c.operator,
-        value: c.value
-      }))
-    }
+    map_workflow_parameters: map_workflow_parameters,
+    status: form.status
   }
 
   state.saving = true
   try {
-    if (isEdit.value && props.trigger?.id) {
-      const { data } = await clientApi.api.patchDynamicDbTableMastertableidTriggerSettingsId(props.masterTableId, props.trigger.id, payload)
+    if (isEdit.value && trigger?.id) {
+      const data = await newClientApi.patchDynamicDbTableMastertableidTriggerSettingsId(masterTableId, trigger.id, payload).then((r: any) => r.data)
       if (data?.result !== false) {
         ElMessage.success('Trigger updated')
         emit('saved')
@@ -218,7 +232,7 @@ async function handleSave() {
         ElMessage.error(data?.message || 'Update failed')
       }
     } else {
-      const { data } = await clientApi.api.postDynamicDbTableMastertableidTriggerSettings(props.masterTableId, payload)
+      const data = await newClientApi.postDynamicDbTableMastertableidTriggerSettings(masterTableId, payload).then((r: any) => r.data)
       if (data?.result !== false) {
         ElMessage.success('Trigger created')
         emit('saved')
@@ -237,12 +251,37 @@ function handleCancel() {
   emit('cancel')
 }
 
-onMounted(() => {
-  handleLoadFields()
-  hydrateForm()
+async function handleChangeWorkflow() {
+  try {
+    const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${form.workflow_id}`).then((r: any) => workflowResponseHelper(r))
+    if (!data) {
+      routerProvider?.message?.error('Failed to get workflow details')
+      return
+    }
+    if (!data.content) {
+      routerProvider?.message?.error('Workflow is not activated')
+      return
+    }
+
+    const startEventNode = data.content?.nodes?.find((item: any) => item.type == 'StartEvent')
+    workflowFormFields.value = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
+      id: field.id,
+      name: field.name,
+      type: field.type,
+      display_type: field.display_type,
+      value: ''
+    }))
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+onMounted(async () => {
+  workflowList.value = await getWorkflowList()
+  await hydrateForm()
 })
 
-watch(() => props.trigger, hydrateForm, { deep: true })
+watch(() => trigger, hydrateForm, { deep: true })
 </script>
 
 <template>
@@ -254,9 +293,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
         <Icon name="lucide:zap" size="16" />
         <span>Trigger</span>
       </div>
-      <div class="preview-name">
-        {{ isEdit ? '1.' : 'New' }} {{ currentEvent?.label || 'Trigger' }}
-      </div>
+      <div class="preview-name">{{ isEdit ? '1.' : 'New' }} {{ currentEvent?.label || 'Trigger' }}</div>
       <div class="preview-desc">
         {{ currentEvent?.desc }}
       </div>
@@ -272,12 +309,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       <div class="field-group">
         <label class="field-label">Event type <span class="required">*</span></label>
         <el-select v-model="form.event_type" placeholder="Select event type" size="small" style="width: 100%">
-          <el-option
-            v-for="opt in eventTypeOptions"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          />
+          <el-option v-for="opt in eventTypeOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
         <div class="field-hint">{{ currentEvent?.desc }}</div>
       </div>
@@ -285,12 +317,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       <div v-if="showWatchField" class="field-group">
         <label class="field-label">Watch field <span class="required">*</span></label>
         <el-select v-model="form.watch_field" placeholder="Select field" size="small" style="width: 100%">
-          <el-option
-            v-for="opt in fieldOptions"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          />
+          <el-option v-for="opt in fieldOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
       </div>
 
@@ -304,36 +331,16 @@ watch(() => props.trigger, hydrateForm, { deep: true })
         </div>
 
         <div class="conditions-stack">
-          <div
-            v-for="(condition, index) in form.conditions"
-            :key="condition.id"
-            class="condition-line"
-          >
+          <div v-for="(condition, index) in form.conditions" :key="condition.id" class="condition-line">
             <div class="connector-label">
               <span v-if="index === 0">When</span>
               <span v-else>{{ form.match_type === 'all' ? 'And' : 'Or' }}</span>
             </div>
-            <el-select
-              v-model="condition.field_name"
-              placeholder="Field"
-              size="small"
-              style="flex: 1.2"
-              @change="handleFieldChange(condition)"
-            >
-              <el-option
-                v-for="opt in fieldOptions"
-                :key="opt.value"
-                :label="opt.label"
-                :value="opt.value"
-              />
+            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2" @change="handleFieldChange(condition)">
+              <el-option v-for="opt in fieldOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
             <el-select v-model="condition.operator" placeholder="Operator" size="small" style="flex: 1">
-              <el-option
-                v-for="opt in getOperatorsForField(condition.field_name)"
-                :key="opt.value"
-                :label="opt.label"
-                :value="opt.value"
-              />
+              <el-option v-for="opt in getOperatorsForField(condition.field_name)" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
             <el-date-picker
               v-if="isDateField(condition.field_name)"
@@ -343,18 +350,8 @@ watch(() => props.trigger, hydrateForm, { deep: true })
               style="flex: 1.2"
               value-format="x"
             />
-            <div
-              v-else-if="isValueEmptyOperator(condition.operator)"
-              class="placeholder-input"
-              style="flex: 1.2"
-            />
-            <el-input
-              v-else
-              v-model="condition.value"
-              placeholder="Value"
-              size="small"
-              style="flex: 1.2"
-            />
+            <div v-else-if="isValueEmptyOperator(condition.operator)" class="placeholder-input" style="flex: 1.2" />
+            <el-input v-else v-model="condition.value" placeholder="Value" size="small" style="flex: 1.2" />
             <button class="icon-btn" @click="handleRemoveCondition(index)">
               <Icon name="lucide:x" size="14" />
             </button>
@@ -377,8 +374,20 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       </div>
       <div class="field-group">
         <label class="field-label">Run workflow</label>
-        <el-input v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" />
+        <el-select v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" @change="handleChangeWorkflow">
+          <el-option v-for="wf in workflowList" :key="wf.id" :label="wf.name" :value="wf.id" />
+        </el-select>
       </div>
+      <el-form label-width="auto">
+        <template v-for="formField in workflowFormFields" :key="formField.id">
+          <el-form-item :label="formField.name" size="small">
+            <el-select v-model="formField.value">
+              <el-option v-for="field in tableFields" :key="field.field_name" :label="field.field_name_alias || field.field_name" :value="field.field_name" />
+            </el-select>
+          </el-form-item>
+        </template>
+      </el-form>
+      {{ workflowErrorMessage }}
     </div>
 
     <!-- Footer -->
@@ -391,9 +400,7 @@ watch(() => props.trigger, hydrateForm, { deep: true })
       </div>
       <div class="actions">
         <el-button size="small" @click="handleCancel">Cancel</el-button>
-        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave">
-          Save
-        </el-button>
+        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave">Save</el-button>
       </div>
     </div>
   </div>
@@ -406,6 +413,9 @@ watch(() => props.trigger, hydrateForm, { deep: true })
   gap: var(--app-space-m);
 }
 
+.add-filed-group {
+  display: flex;
+}
 .section-title {
   font-size: var(--app-font-size-l);
   font-weight: 600;

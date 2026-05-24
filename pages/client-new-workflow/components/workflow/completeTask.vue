@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
 import dayjs from 'dayjs'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -14,12 +15,9 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
   api: (pageParams: any) => {
-    const data = $api.get(`/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
-    return {
-      data: {
-        entryList: data || []
-      }
-    }
+    return clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/completed/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
   },
   columns: [
     { field: 'businessKey', title: 'table_name', fixed: 'left' },

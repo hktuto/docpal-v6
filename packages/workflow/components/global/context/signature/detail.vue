@@ -80,17 +80,22 @@ async function updateDocumentId() {
 
 async function getTemplateVariableList() {
   if (!form.value.documentStepId || form.value.documentStepId === '') return
-  const selectedStep = allDocumentStep.value.find((item: any) => item.value === form.value.documentStepId)
-  const data = await newAdminApi.getDmsTemplateDocumentRefreshId(selectedStep.templateId).then((r: any) => r.data)
-  if (data.fileType !== 'Word') {
-    console.log('not word file')
-    return
+
+  try {
+    const selectedStep: any = allDocumentStep.value.find((item: any) => item.value === form.value.documentStepId)
+    const data = await newAdminApi.getDmsTemplateDocumentRefreshId(selectedStep.templateId).then((r: any) => r.data)
+    if (data.fileType !== 'Word') {
+      console.log('not word file')
+      return
+    }
+    const variable = JsonSchemaToJsonData(data.templateVariable)
+    if (!variable) {
+      return
+    }
+    signatureVariable.value = variable.filter((item: any) => item.type === 'signature')
+  } catch (e) {
+    console.log(e)
   }
-  const variable = JsonSchemaToJsonData(data.templateVariable)
-  if (!variable) {
-    return
-  }
-  signatureVariable.value = variable.filter((item: any) => item.type === 'signature')
 }
 
 watch(

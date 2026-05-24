@@ -1,25 +1,28 @@
 <script setup lang="ts">
-import type { Node } from '@antv/x6'
 import { QuestionFilled } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
-const { node } = defineProps<{
-  node: Node
+const { config } = defineProps<{
+  config: {
+    http_request: {
+      method: string
+      url: string
+      headers: any
+      body: {}
+    }
+    input_mapping: any
+    output_mapping: any
+  }
 }>()
 const variablesParamsRef = ref()
 const variablesHeaderRef = ref()
 const bodyDialogRef = ref()
 const outputMappingDialogRef = ref()
-
+const emits = defineEmits(['update'])
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-
-const { getVariablesByDisplayTypes } = useVariablesProvide()
-const stringFields = computed(() => {
-  return getVariablesByDisplayTypes(['text'])
-})
 
 const state = reactive({
   method: ['GET', 'POST', 'PUT', 'PATH', 'DELETE'],
@@ -32,27 +35,18 @@ const formData = ref({
   method: 'GET',
   url: '',
   headers: {},
-  body: {},
-  output_mapping: {},
-  // celCondition: {},
-  inputSchema: {},
-  outputSchema: {}
+  body: {}
 })
+const outputMapping = ref({})
 
 function initForm() {
-  const data = node.getData()
-  const config = data.config
-
   formData.value = {
-    method: config.method || 'GET',
-    url: config.url || '',
-    headers: config.headers || {},
-    body: config.body || {},
-    output_mapping: config.output_mapping || {},
-    celCondition: config.celCondition || {},
-    inputSchema: config.inputSchema || {},
-    outputSchema: config.outputSchema || {}
+    method: config.http_request.method || 'GET',
+    url: config.http_request.url || '',
+    headers: config.http_request.headers || {},
+    body: config.http_request.body || {}
   }
+  outputMapping.value = config.output_mapping || {}
 
   // To Params
   const paramsArray = extractParamsFromUrl(formData.value.url)
@@ -167,20 +161,23 @@ function handleUpdateBody(body: any) {
 }
 
 function handleOpenResponseDialog() {
-  // outputMappingRef.value.open()
   outputMappingDialogRef.value.open()
 }
 
 function handleOutputMapping(mapping: any) {
-  formData.value.output_mapping = mapping
+  outputMapping.value = Object.fromEntries(Object.entries(mapping).map(([key, value]) => [value, `\${${key}}`]))
   updateData()
 }
 
-const outputMapping = computed(() => {
-  return Object.entries(formData.value.output_mapping).map(([key, value]) => ({
-    name: key,
-    value: String(value ?? '')
-  }))
+const outputMappingList = computed(() => {
+  return Object.entries(outputMapping.value).map(([key, value]) => {
+    const m = String(value).match(/^\$\{(.+)\}$/)
+    const inner = m?.[1] ?? ''
+    return {
+      name: key,
+      value: inner
+    }
+  })
 })
 
 function openBodyEdit() {
@@ -188,28 +185,20 @@ function openBodyEdit() {
 }
 
 function updateData() {
-  graphProvider?.graph.value?.startBatch('update-http-field-data')
-
-  const nodeData = node.getData()
-  const newData = {
-    ...nodeData,
+  emits('update', {
+    name: 'update-http-field-data',
     config: {
-      ...nodeData.config,
-      ...formData.value
-    },
-    version: (nodeData.version || 0) + 1
-  }
-
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
-  graphProvider?.graph.value?.stopBatch('update-http-field-data')
+      http_request: formData.value,
+      input_mapping: {},
+      output_mapping: outputMapping.value
+    }
+  })
 }
 
 watch(
-  () => node,
+  () => config,
   async () => {
-    if (node) {
-      initForm()
-    }
+    initForm()
   },
   {
     immediate: true,
@@ -219,10 +208,9 @@ watch(
 </script>
 
 <template>
-  <SidebarLabel :node="node" />
   <el-form label-width="auto" label-position="top" :disabled="graphProvider.readonly.value">
     <el-form-item :label="t('Request Method')">
-      <el-select v-model="formData.method" placeholder="please select your zone">
+      <el-select v-model="formData.method" placeholder="please select your zone" @change="updateData">
         <el-option v-for="item in state.method" :key="item" :label="item" :value="item" />
       </el-select>
     </el-form-item>
@@ -282,9 +270,13 @@ watch(
 
     <el-divider />
 
+    <div class="title-header">
+      <span>Store Value</span>
+      <span>Response Value</span>
+    </div>
     <div class="output-mapping-summary">
-      <template v-if="outputMapping.length">
-        <div v-for="(item, index) in outputMapping" :key="`${item.name}-${index}`" class="output-mapping-row">
+      <template v-if="outputMappingList.length">
+        <div v-for="(item, index) in outputMappingList" :key="`${item.name}-${index}`" class="output-mapping-row">
           <span class="output-mapping-key" :title="item.name">{{ item.name }}</span>
           <span class="output-mapping-arrow" aria-hidden="true">--</span>
           <span class="output-mapping-val" :title="item.value">{{ item.value }}</span>
@@ -294,18 +286,19 @@ watch(
     </div>
   </el-form>
 
-  <LazyContextHttpTaskVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
-  <LazyContextHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
-  <LazyContextHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
-
-  <!--  <LazyContextHttpTaskOutputMapping ref="outputMappingRef" @update="handleOutputMapping" />-->
-  <LazyContextHttpTaskOutputMappingDialog ref="outputMappingDialogRef" :mapping="formData.output_mapping" @update="handleOutputMapping" />
+  <LazyContextServiceTaskHttpTaskVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
+  <LazyContextServiceTaskHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
+  <LazyContextServiceTaskHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
+  <LazyContextServiceTaskHttpTaskOutputMappingDialog ref="outputMappingDialogRef" :mapping="outputMapping" @update="handleOutputMapping" />
 </template>
 
 <style scoped lang="scss">
-.error {
-  color: red;
-  margin-top: 10px;
+.title-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
 .output-mapping-summary {
@@ -329,8 +322,8 @@ watch(
 }
 
 .output-mapping-key {
-  font-weight: 600;
-  color: var(--el-text-color-primary);
+  font-weight: 700;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -343,8 +336,7 @@ watch(
 }
 
 .output-mapping-val {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: rgb(57, 57, 57);
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
