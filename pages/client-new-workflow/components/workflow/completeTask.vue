@@ -12,7 +12,7 @@ const { t } = useI18n()
 // @ts-ignore
 const userId: string = useUserId().value
 const user = useUserState().value
-let extraParams: any = {}
+const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
   api: async (pageParams: any) => {
@@ -21,7 +21,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       pageNum: pageParams.pageNum,
       groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
       roles: [user.aclUserDetail.roleId],
-      definition_id: '',
+      definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : '',
       status: ['completed', 'failed', 'terminated'],
       involved_user_id: userId
     }
@@ -73,15 +73,6 @@ function handleDblclick(row: any) {
   )
 }
 
-const ResponsiveFilterRef = ref()
-
-function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-  extraParams = formModel
-  reload()
-}
-
 function reloadTable() {
   reload()
 }
@@ -95,7 +86,7 @@ defineExpose({ reloadTable })
       <template #toolbar_buttons>
         <div class="el-col el-col-10 is-guttered grid-cell">
           <el-form-item :label="t('workflow_workflowName')" label-position="top">
-            <el-select clearable v-model="extraParams.definition_id" placeholder="All" @change="reload">
+            <el-select clearable v-model="definition_id" placeholder="All" @change="reload">
               <el-option v-for="item in workflowList" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
