@@ -58,7 +58,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   ],
   dblClickAction: ({ row, column, event }: any) => {
-    // handleDblclick(row)
+    handleDblclick(row)
   }
 })
 
@@ -67,7 +67,7 @@ function handleDblclick(row: any) {
     routeWorkflowDetail({
       ...row,
       workflowType: 'completeTask',
-      db_id: row.id
+      db_id: row.completed_nodes[row.completed_nodes.length - 2]
     }),
     false
   )
