@@ -187,11 +187,11 @@ defineExpose({ workflowClickHandler })
       <el-tab-pane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
         <ContextFormRender ref="vFormRef" />
       </el-tab-pane>
-      <el-tab-pane :label="$t('workflow_graph')" name="Graph">
-        <div v-if="openWorkflowEdit" class="pageContainer">
-          <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :showSidebar="false" />
-        </div>
-      </el-tab-pane>
+<!--      <el-tab-pane :label="$t('workflow_graph')" name="Graph">-->
+<!--        <div v-if="openWorkflowEdit" class="pageContainer">-->
+<!--          <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :showSidebar="false" />-->
+<!--        </div>-->
+<!--      </el-tab-pane>-->
     </el-tabs>
 
     <template #footer>
