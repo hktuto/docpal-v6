@@ -55,6 +55,7 @@ function handleOpen(variable?: VariableItem) {
     isEdit.value = true
   } else {
     formData.value = { ...initData }
+    console.log(123, formData.value)
     isEdit.value = false
   }
   exitRules.value = isEdit.value ? variables.value.filter((item: any) => item.id !== variable?.id) : variables.value
@@ -72,11 +73,11 @@ function idChanged(rule: any, value: any, callback: any) {
   }
 
   if (value.startsWith('_')) {
-    return callback(new Error("ID cannot start with '_'"))
+    return callback(new Error('ID cannot start with \'_\''))
   }
 
   if (value.startsWith('__system__')) {
-    return callback(new Error("ID cannot start with '__system__'"))
+    return callback(new Error('ID cannot start with \'__system__\''))
   }
 
   // check if id has space and other special characters
@@ -111,14 +112,46 @@ function typeChanged(displayType: string) {
       required: formData.value.required,
       default_value: formData.value.default_value
     } as VariableItem
-
     switch (displayType) {
+      case 'dateRange':
+        filedData.minItems = 0
+        filedData.items = {
+          type: 'date',
+          properties: {
+            start: {
+              id: isEdit.value ? formData.value.items?.properties?.start?.id : Date.now(),
+              name: 'Start Date',
+              description: 'Start Date',
+              type: 'date',
+              display_type: 'date',
+              required: true,
+              validation: {
+                pattern: 'YYYY-MM-DD hh:mm:ss'
+              }
+            },
+            end: {
+              id: isEdit.value ? formData.value.items?.properties?.end?.id : Date.now(),
+              name: 'End Date',
+              description: 'End Date',
+              type: 'date',
+              display_type: 'date',
+              required: true,
+              validation: {
+                pattern: 'YYYY-MM-DD hh:mm:ss'
+              }
+            }
+          }
+        }
+        break
       case 'array':
         filedData.minItems = 0
-        filedData.items = formData.value.items
+        filedData.items = isEdit.value ? formData.value.items : { type: 'string', properties: {} }
         break
       case 'object':
-        filedData.items = formData.value.items
+        filedData.items = {
+          type: 'object',
+          properties: isEdit.value ? formData.value?.items?.properties : {}
+        }
         break
       default:
         filedData.validation = typeObject.validation
@@ -169,7 +202,8 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="opened" append-to-body destroy-on-close :close-on-click-modal="false" :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
+  <el-dialog v-model="opened" append-to-body destroy-on-close :close-on-click-modal="false"
+             :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
     <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top" status-icon @submit.stop>
       <el-form-item label="ID" prop="id">
         <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />
@@ -180,7 +214,8 @@ defineExpose({
       <el-form-item label="Type" prop="type">
         <el-select v-model="formData.display_type" placeholder="Select" @change="typeChanged">
           <el-option-group v-for="group in VariableTypeOptions" :key="group.group" :label="$t(group.group)">
-            <el-option v-for="option in group.options" :key="option.display_type" :label="$t(option.label)" :value="option.display_type" />
+            <el-option v-for="option in group.options" :key="option.display_type" :label="$t(option.label)"
+                       :value="option.display_type" />
           </el-option-group>
         </el-select>
       </el-form-item>
@@ -188,7 +223,7 @@ defineExpose({
         <el-switch v-model="formData.required" />
       </el-form-item>
       <el-divider />
-      <component ref="comRef" v-if="editComponent" :is="editComponent" v-bind="formData" :form="formData" />
+      <component ref="comRef" v-if="editComponent" :is="editComponent" v-model:form="formData" />
     </el-form>
 
     <template #footer>
