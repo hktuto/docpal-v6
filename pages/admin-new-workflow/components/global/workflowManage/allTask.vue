@@ -1,32 +1,36 @@
 <script lang="ts" setup>
-import { newClientApi, clientApi } from 'api'
-import { routeWorkflowDetail } from '#imports'
+import { clientApi } from 'api'
+import { routeWorkflowDetail, workflowResponseHelper, getWorkflowList } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
+const workflowList = await getWorkflowList()
 const { t } = useI18n()
+const reassignTaskRef = ref()
+
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'manage_all_task',
   api: async (pageParams: any) => {
-    try {
-      const data = await clientApi.instance.get('/oniflow/api/v1/task/overview/all').then((r: any) => r.data.data)
-      return {
-        data: {
-          entryList: data.task || []
-        }
-      }
-    } catch (e) {
-      console.log(e)
-      return {
-        data: { entryList: [] }
-      }
+    const response = await clientApi.instance.get('/oniflow/api/v1/task/overview/available').then((r: any) => workflowResponseHelper(r))
+    return {
+      data: response
     }
   },
   columns: [
-    { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
+    {
+      field: 'definition_id',
+      title: 'Workflow Name',
+      fixed: 'left',
+      formatter({ cellValue }: any) {
+        const find = workflowList.find((item: any) => item.id === cellValue)
+        return !!find ? find.name : cellValue
+      }
+    },
+    { field: 'node_name', title: 'workflow_taskName' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    { field: 'status.type', title: 'Status' },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -57,43 +61,22 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     ]
   ],
   dblClickAction: ({ row, column, event }: any) => {
-    handleDblclick(row)
+    if (row.status.type !== 'assignee') {
+      reassignTaskRef.value.open(row)
+    }
   }
 })
-const userId: string = useUserId().value
-
-function handleDblclick(row: any) {
-  routerProvider?.navigateTo(
-    routeWorkflowDetail({
-      ...row,
-      workflowType: 'allTask'
-    }),
-    false
-  )
-}
-
-async function claimTask(row: any) {
-  await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.process_instance_id}/claim`).then((r: any) => r.data)
-  reload()
-}
 </script>
 
 <template>
-  <div>
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons> </template>
-      <template #assignee="{ row }">
-        <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button v-else :id="`Workflow__allTask__Detail__ClaimTask__${row.id}`" type="primary" size="small" round @click="claimTask(row)">
-          {{ $t('workflow_claim') }}
-        </el-button>
-      </template>
-    </VxeGrid>
-  </div>
+  <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+    <template #toolbar_buttons> </template>
+    <template #assignee="{ row }">
+      <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
+    </template>
+  </VxeGrid>
+
+  <LazyWorkflowManageReassignTask ref="reassignTaskRef" />
 </template>
 
-<style lang="scss" scoped>
-:deep(.el-input) {
-  width: 200px;
-}
-</style>
+<style lang="scss" scoped></style>

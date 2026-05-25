@@ -106,8 +106,4 @@ defineExpose({ reloadTable })
   </div>
 </template>
 
-<style lang="scss" scoped>
-:deep(.el-input) {
-  width: 200px;
-}
-</style>
+<style lang="scss" scoped></style>
