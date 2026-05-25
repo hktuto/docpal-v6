@@ -269,6 +269,6 @@ function joinType(type: string) {
 }
 
 export function workflowResponseHelper(res: any) {
-  if (!res || !res.data || (res.data.code !== 200 && res.data.code !== 201)) throw Error(res.data.message || 'server error')
+  if (!res || !res.data || (res.data.code !== 200 && res.data.code !== 201)) throw Error(res.data.message || res.data.data.err_resp || 'server error')
   return res.data.data
 }

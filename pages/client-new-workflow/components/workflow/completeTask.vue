@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newClientApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import dayjs from 'dayjs'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
 import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
@@ -11,13 +11,22 @@ if (!routerProvider) {
 const { t } = useI18n()
 // @ts-ignore
 const userId: string = useUserId().value
+const user = useUserState().value
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
   api: (pageParams: any) => {
-    return clientApi.instance
-      .get(`/oniflow/api/v1/task/overview/completed/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
-      .then((r: any) => workflowResponseHelper(r))
+    const params = {
+      pageSize: pageParams.pageSize,
+      pageNum: pageParams.pageNum,
+      groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
+      roles: [user.aclUserDetail.roleId],
+      definition_id: '',
+      status: ['completed', 'failed', 'terminated'],
+      involved_user_id: userId
+    }
+
+    return clientApi.instance.post(`/oniflow/api/v1/processes/instance/page`, params).then((r: any) => workflowResponseHelper(r))
   },
   columns: [
     { field: 'businessKey', title: 'table_name', fixed: 'left' },
