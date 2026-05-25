@@ -22,15 +22,6 @@ function openInfo() {
   openSidebar('LazyContextInfo', cell)
 }
 
-function openPermission() {
-  const id = graphProvider?.workflowJson.value.id
-  const cell = graphProvider?.graph.value?.getCellById(id)
-  if (!cell) {
-    throw createError('Process node not found')
-  }
-  graphProvider?.openSidebar('LazyContextPermission', cell)
-}
-
 function openSidebar(component: string, node: Node | Cell | Edge) {
   editComponent.value = resolveComponent(component)
   selectedNode.value = node
@@ -46,8 +37,7 @@ function closeSidebar() {
 defineExpose({
   openSidebar,
   closeSidebar,
-  openInfo,
-  openPermission
+  openInfo
 })
 </script>
 
