@@ -23,7 +23,38 @@ const canOpenSetting = computed(() => {
 
 const analysis = useImportRelationAnalysisState()
 const pendingGuesses = computed(() => analysis.value.guesses.filter((g) => !g.dismissed))
-const showAnalysisBanner = computed(() => analysis.value.status === 'completed' && pendingGuesses.value.length > 0)
+const showAnalysisStatus = computed(() => analysis.value.status !== 'idle')
+const analysisPopoverVisible = ref(false)
+
+function analysisStatusLabel() {
+  const s = analysis.value.status
+  if (s === 'analyzing') return 'Analyzing...'
+  if (s === 'error') return 'Analysis failed'
+  const count = pendingGuesses.value.length
+  if (count > 0) return `${count} relation${count === 1 ? '' : 's'} found`
+  return 'No relations found'
+}
+
+function analysisStatusType(): 'primary' | 'success' | 'warning' | 'danger' | 'info' {
+  const s = analysis.value.status
+  if (s === 'analyzing') return 'primary'
+  if (s === 'error') return 'danger'
+  if (pendingGuesses.value.length > 0) return 'success'
+  return 'info'
+}
+
+function analysisDotClass() {
+  const s = analysis.value.status
+  if (s === 'analyzing') return 'is-analyzing'
+  if (s === 'error') return 'is-error'
+  if (pendingGuesses.value.length > 0) return 'is-success'
+  return ''
+}
+
+function dismissAllGuesses() {
+  analysis.value.guesses.forEach((_, i) => dismissGuess(i))
+  analysisPopoverVisible.value = false
+}
 
 // Hocuspocus awareness
 const hocuspocusManager = useHocuspocusManager()
@@ -228,6 +259,61 @@ watch(
               <template #right>
                 <div id="database-table-header-right" />
                 <DatabaseAwarenessAvatars />
+
+                <!-- Post-import relation analysis status -->
+                <el-popover
+                  v-model:visible="analysisPopoverVisible"
+                  :width="380"
+                  trigger="click"
+                  :disabled="analysis.status === 'analyzing' || analysis.status === 'idle'"
+                >
+                  <template #reference>
+                    <div
+                      v-if="showAnalysisStatus"
+                      class="analysis-status"
+                      :class="{ 'is-clickable': analysis.status === 'completed' }"
+                    >
+                      <span class="analysis-dot" :class="analysisDotClass()" />
+                      <span class="analysis-text">{{ analysisStatusLabel() }}</span>
+                      <Icon v-if="analysis.status === 'analyzing'" name="svg-spinners:180-ring" size="14" class="analysis-spinner" />
+                    </div>
+                  </template>
+
+                  <div class="analysis-popover-content">
+                    <div class="analysis-popover-header">
+                      <strong>Potential Relations</strong>
+                      <span v-if="pendingGuesses.length > 0" class="analysis-count">{{ pendingGuesses.length }}</span>
+                    </div>
+                    <div v-if="pendingGuesses.length === 0" class="analysis-empty">
+                      No strong relations detected.
+                    </div>
+                    <div v-else class="analysis-guess-list">
+                      <div
+                        v-for="(guess, idx) in pendingGuesses"
+                        :key="idx"
+                        class="analysis-guess-row"
+                      >
+                        <div class="analysis-guess-fields">
+                          <span class="guess-source">{{ guess.sourceTableName }}.{{ guess.sourceFieldName }}</span>
+                          <span class="guess-arrow">→</span>
+                          <span class="guess-target">{{ guess.targetTableName }}.{{ guess.targetFieldName }}</span>
+                        </div>
+                        <div class="analysis-guess-meta">
+                          <el-tag size="small" :type="guess.confidence > 0.7 ? 'success' : 'warning'">
+                            {{ Math.round(guess.confidence * 100) }}%
+                          </el-tag>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="analysis-popover-actions">
+                      <el-button size="small" text @click="analysisPopoverVisible = false">Close</el-button>
+                      <el-button v-if="pendingGuesses.length > 0" size="small" type="primary" text @click="dismissAllGuesses">
+                        Dismiss All
+                      </el-button>
+                    </div>
+                  </div>
+                </el-popover>
+
                 <div class="connection-status" :class="{ 'is-online': connected }">
                   <span class="connection-dot" />
                   <span class="connection-text">{{ connected ? 'Online' : 'Offline' }}</span>
@@ -241,43 +327,6 @@ watch(
                 </template>
               </template>
             </DatabaseDetailHeader>
-
-            <!-- Post-import relation analysis banner -->
-            <Transition name="fade">
-              <div v-if="showAnalysisBanner" class="relation-analysis-banner">
-                <el-alert
-                  :title="`Detected ${pendingGuesses.length} potential relation${pendingGuesses.length === 1 ? '' : 's'}`"
-                  type="info"
-                  :closable="false"
-                  show-icon
-                >
-                  <template #default>
-                    <div class="guess-list">
-                      <div
-                        v-for="(guess, idx) in pendingGuesses.slice(0, 3)"
-                        :key="idx"
-                        class="guess-item"
-                      >
-                        <span class="guess-source">{{ guess.sourceTableName }}.{{ guess.sourceFieldName }}</span>
-                        <span class="guess-arrow">→</span>
-                        <span class="guess-target">{{ guess.targetTableName }}.{{ guess.targetFieldName }}</span>
-                        <el-tag size="small" :type="guess.confidence > 0.7 ? 'success' : 'warning'">
-                          {{ Math.round(guess.confidence * 100) }}%
-                        </el-tag>
-                      </div>
-                      <div v-if="pendingGuesses.length > 3" class="guess-more">
-                        +{{ pendingGuesses.length - 3 }} more
-                      </div>
-                    </div>
-                    <div class="guess-actions">
-                      <el-button size="small" text @click="analysis.guesses.forEach((_, i) => dismissGuess(i))">
-                        Dismiss All
-                      </el-button>
-                    </div>
-                  </template>
-                </el-alert>
-              </div>
-            </Transition>
 
             <div class="content-area">
               <component :is="detailComponent" :is-admin="canManageDatabase" />
@@ -414,34 +463,120 @@ watch(
 }
 
 // ============================================
-// Relation analysis banner
+// Analysis status
 // ============================================
-.relation-analysis-banner {
-  padding: var(--app-space-s) var(--app-space-m);
-  background: var(--el-color-primary-light-9);
-  border-bottom: 1px solid var(--el-color-primary-light-7);
+.analysis-status {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xxs);
+  margin-right: var(--app-space-s);
+  font-size: var(--app-font-size-s);
+  color: var(--app-grey-500);
+  user-select: none;
 
-  :deep(.el-alert) {
-    background: transparent;
-    padding: 0;
+  &.is-clickable {
+    cursor: pointer;
+
+    &:hover {
+      color: var(--el-color-primary);
+    }
   }
 
-  :deep(.el-alert__content) {
-    padding: 0;
-    width: 100%;
+  .analysis-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--app-grey-600);
+    transition: background-color 0.2s;
+
+    &.is-analyzing {
+      background-color: var(--el-color-primary);
+      animation: analysis-pulse 1.5s infinite;
+    }
+
+    &.is-success {
+      background-color: #10b981;
+    }
+
+    &.is-error {
+      background-color: var(--el-color-danger);
+    }
   }
 
-  .guess-list {
-    margin-top: var(--app-space-xs);
+  .analysis-text {
+    white-space: nowrap;
   }
 
-  .guess-item {
+  .analysis-spinner {
+    color: var(--el-color-primary);
+  }
+}
+
+@keyframes analysis-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+// ============================================
+// Analysis popover
+// ============================================
+.analysis-popover-content {
+  .analysis-popover-header {
     display: flex;
     align-items: center;
-    gap: var(--app-space-xs);
-    padding: 2px 0;
-    font-size: var(--app-font-size-s);
+    justify-content: space-between;
+    margin-bottom: var(--app-space-s);
+    font-size: var(--app-font-size-m);
     color: var(--app-text-color-primary);
+  }
+
+  .analysis-count {
+    background: var(--el-color-primary);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+
+  .analysis-empty {
+    font-size: var(--app-font-size-s);
+    color: var(--app-grey-500);
+    padding: var(--app-space-s) 0;
+    text-align: center;
+  }
+
+  .analysis-guess-list {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .analysis-guess-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--app-space-xs);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .analysis-guess-fields {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    font-size: var(--app-font-size-s);
   }
 
   .guess-source {
@@ -457,27 +592,17 @@ watch(
     color: var(--app-text-color-secondary);
   }
 
-  .guess-more {
-    font-size: var(--app-font-size-s);
-    color: var(--app-grey-500);
-    padding: 2px 0;
+  .analysis-guess-meta {
+    flex-shrink: 0;
   }
 
-  .guess-actions {
-    margin-top: var(--app-space-xs);
+  .analysis-popover-actions {
     display: flex;
     justify-content: flex-end;
+    gap: var(--app-space-xs);
+    margin-top: var(--app-space-s);
+    padding-top: var(--app-space-s);
+    border-top: 1px solid var(--el-border-color-lighter);
   }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
 }
 </style>
