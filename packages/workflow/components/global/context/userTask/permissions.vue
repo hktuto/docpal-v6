@@ -32,11 +32,11 @@ function initData() {
   formData.value.candidateRoles = []
   formData.value.candidateGroup = []
 
-  if (data.config?.human_task?.candidate_roles.length > 0) {
+  if (data.config?.human_task?.candidate_roles?.length > 0) {
     formData.value.sw = false
     formData.value.candidateRoles = data.config?.human_task?.candidate_roles
   }
-  if (data.config?.human_task?.candidate_groups.length > 0) {
+  if (data.config?.human_task?.candidate_groups?.length > 0) {
     formData.value.sw = true
     formData.value.candidateGroup = data.config?.human_task?.candidate_groups
   }

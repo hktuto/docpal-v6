@@ -74,7 +74,7 @@ function handleUpdateActivate() {
 
 function checkWorkflowRequiredParameter() {
   const workflowJson = workflowEditorRef.value.workflowJson
-  const find = workflowJson.nodes.find((item: any) => item.type === 'StartEvent')
+  const find = workflowJson.nodes.find((item: any) => item.type.type === 'startevent')
   const initialise = find.config.initialise
 
   // 沒有必填的參數
