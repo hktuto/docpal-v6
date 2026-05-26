@@ -66,7 +66,7 @@ async function handleClaim() {
     <div class="infoContainer">
       <div class="label">{{ $t('workflow_createDate') }}</div>
       <div class="value">
-        {{ formatDate(taskDetail.created_at) }}
+        {{ formatDate(taskDetail?.execution?.started_at) }}
       </div>
     </div>
     <div class="infoContainer">

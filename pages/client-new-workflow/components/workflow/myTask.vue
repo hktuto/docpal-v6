@@ -28,7 +28,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'name', title: 'workflow_jobName' },
     { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
-      field: 'createDate',
+      field: 'execution.started_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
         // @ts-ignore

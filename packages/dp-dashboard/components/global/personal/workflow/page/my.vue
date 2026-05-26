@@ -18,7 +18,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     { field: 'status', title: 'dpTable_status' },
     {
-      field: 'created_at',
+      field: 'execution.started_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
