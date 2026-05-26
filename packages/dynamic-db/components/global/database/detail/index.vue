@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ElMessage, ElNotification } from 'element-plus'
 import { useImportRelationAnalysisState, dismissGuess } from '../../../../composables/import/useImportRelationAnalysis'
+import type { RelationGuess } from '../../../../composables/import/relationGuesser'
 
 const props = defineProps<{
   id: string
@@ -24,7 +25,21 @@ const canOpenSetting = computed(() => {
 const analysis = useImportRelationAnalysisState()
 const pendingGuesses = computed(() => analysis.value.guesses.filter((g) => !g.dismissed))
 const showAnalysisStatus = computed(() => analysis.value.status !== 'idle')
-const analysisPopoverVisible = ref(false)
+
+const groupedGuesses = computed(() => {
+  const map = new Map<string, RelationGuess[]>()
+  for (const guess of pendingGuesses.value) {
+    const key = guess.sourceTableName
+    if (!map.has(key)) {
+      map.set(key, [])
+    }
+    map.get(key)!.push(guess)
+  }
+  return map
+})
+
+const analysisPopoverRef = ref()
+const analysisStatusRef = ref<HTMLElement>()
 
 function analysisStatusLabel() {
   const s = analysis.value.status
@@ -35,14 +50,6 @@ function analysisStatusLabel() {
   return 'No relations found'
 }
 
-function analysisStatusType(): 'primary' | 'success' | 'warning' | 'danger' | 'info' {
-  const s = analysis.value.status
-  if (s === 'analyzing') return 'primary'
-  if (s === 'error') return 'danger'
-  if (pendingGuesses.value.length > 0) return 'success'
-  return 'info'
-}
-
 function analysisDotClass() {
   const s = analysis.value.status
   if (s === 'analyzing') return 'is-analyzing'
@@ -51,9 +58,22 @@ function analysisDotClass() {
   return ''
 }
 
+function openAnalysisPopover() {
+  if (analysis.value.status === 'analyzing' || analysis.value.status === 'idle') return
+  if (!analysisStatusRef.value) return
+  analysisPopoverRef.value?.open(analysisStatusRef.value)
+}
+
+function dismissGuessAndClose(index: number) {
+  dismissGuess(index)
+  if (pendingGuesses.value.length === 0) {
+    analysisPopoverRef.value?.close()
+  }
+}
+
 function dismissAllGuesses() {
   analysis.value.guesses.forEach((_, i) => dismissGuess(i))
-  analysisPopoverVisible.value = false
+  analysisPopoverRef.value?.close()
 }
 
 // Hocuspocus awareness
@@ -261,58 +281,17 @@ watch(
                 <DatabaseAwarenessAvatars />
 
                 <!-- Post-import relation analysis status -->
-                <el-popover
-                  v-model:visible="analysisPopoverVisible"
-                  :width="380"
-                  trigger="click"
-                  :disabled="analysis.status === 'analyzing' || analysis.status === 'idle'"
+                <div
+                  v-if="showAnalysisStatus"
+                  ref="analysisStatusRef"
+                  class="analysis-status"
+                  :class="{ 'is-clickable': analysis.status === 'completed' }"
+                  @click="openAnalysisPopover"
                 >
-                  <template #reference>
-                    <div
-                      v-if="showAnalysisStatus"
-                      class="analysis-status"
-                      :class="{ 'is-clickable': analysis.status === 'completed' }"
-                    >
-                      <span class="analysis-dot" :class="analysisDotClass()" />
-                      <span class="analysis-text">{{ analysisStatusLabel() }}</span>
-                      <Icon v-if="analysis.status === 'analyzing'" name="svg-spinners:180-ring" size="14" class="analysis-spinner" />
-                    </div>
-                  </template>
-
-                  <div class="analysis-popover-content">
-                    <div class="analysis-popover-header">
-                      <strong>Potential Relations</strong>
-                      <span v-if="pendingGuesses.length > 0" class="analysis-count">{{ pendingGuesses.length }}</span>
-                    </div>
-                    <div v-if="pendingGuesses.length === 0" class="analysis-empty">
-                      No strong relations detected.
-                    </div>
-                    <div v-else class="analysis-guess-list">
-                      <div
-                        v-for="(guess, idx) in pendingGuesses"
-                        :key="idx"
-                        class="analysis-guess-row"
-                      >
-                        <div class="analysis-guess-fields">
-                          <span class="guess-source">{{ guess.sourceTableName }}.{{ guess.sourceFieldName }}</span>
-                          <span class="guess-arrow">→</span>
-                          <span class="guess-target">{{ guess.targetTableName }}.{{ guess.targetFieldName }}</span>
-                        </div>
-                        <div class="analysis-guess-meta">
-                          <el-tag size="small" :type="guess.confidence > 0.7 ? 'success' : 'warning'">
-                            {{ Math.round(guess.confidence * 100) }}%
-                          </el-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="analysis-popover-actions">
-                      <el-button size="small" text @click="analysisPopoverVisible = false">Close</el-button>
-                      <el-button v-if="pendingGuesses.length > 0" size="small" type="primary" text @click="dismissAllGuesses">
-                        Dismiss All
-                      </el-button>
-                    </div>
-                  </div>
-                </el-popover>
+                  <span class="analysis-dot" :class="analysisDotClass()" />
+                  <span class="analysis-text">{{ analysisStatusLabel() }}</span>
+                  <Icon v-if="analysis.status === 'analyzing'" name="svg-spinners:180-ring" size="14" class="analysis-spinner" />
+                </div>
 
                 <div class="connection-status" :class="{ 'is-online': connected }">
                   <span class="connection-dot" />
@@ -337,6 +316,64 @@ watch(
       <DatabaseMenuActions ref="menuActionsRef" />
     </template>
   </div>
+
+  <!-- Relation analysis popover dialog -->
+  <UiPopoverDialog
+    ref="analysisPopoverRef"
+    title="Potential Relations"
+    :width="420"
+    placement="bottom-end"
+    :close-on-click-outside="true"
+    :show-highlight="false"
+  >
+    <div class="analysis-popover-content">
+      <div v-if="pendingGuesses.length === 0" class="analysis-empty">
+        No strong relations detected.
+      </div>
+      <div v-else class="analysis-groups">
+        <div
+          v-for="[tableName, guesses] in groupedGuesses"
+          :key="tableName"
+          class="analysis-group"
+        >
+          <div class="analysis-group-title">{{ tableName }} Table</div>
+          <div class="analysis-guess-list">
+            <div
+              v-for="guess in guesses"
+              :key="`${guess.sourceTableId}-${guess.sourceFieldName}-${guess.targetTableId}-${guess.targetFieldName}`"
+              class="analysis-guess-row"
+            >
+              <div class="analysis-guess-fields">
+                <span class="guess-source-field">{{ guess.sourceFieldAlias }}</span>
+                <span class="guess-arrow">→</span>
+                <span class="guess-target-table">{{ guess.targetTableName }}</span>
+                <span class="guess-target-field">{{ guess.targetFieldAlias }}</span>
+              </div>
+              <div class="analysis-guess-actions">
+                <el-tag size="small" :type="guess.confidence > 0.7 ? 'success' : 'warning'">
+                  {{ Math.round(guess.confidence * 100) }}%
+                </el-tag>
+                <el-button
+                  size="small"
+                  text
+                  type="danger"
+                  @click="dismissGuessAndClose(analysis.guesses.indexOf(guess))"
+                >
+                  Ignore
+                </el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="analysis-popover-footer">
+        <el-button size="small" text @click="analysisPopoverRef?.close()">Close</el-button>
+        <el-button v-if="pendingGuesses.length > 0" size="small" type="primary" text @click="dismissAllGuesses">
+          Dismiss All
+        </el-button>
+      </div>
+    </div>
+  </UiPopoverDialog>
 </template>
 
 <style lang="scss">
@@ -525,37 +562,43 @@ watch(
 }
 
 // ============================================
-// Analysis popover
+// Analysis popover content
 // ============================================
 .analysis-popover-content {
-  .analysis-popover-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--app-space-s);
-    font-size: var(--app-font-size-m);
-    color: var(--app-text-color-primary);
-  }
-
-  .analysis-count {
-    background: var(--el-color-primary);
-    color: white;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 10px;
-  }
-
   .analysis-empty {
     font-size: var(--app-font-size-s);
     color: var(--app-grey-500);
-    padding: var(--app-space-s) 0;
+    padding: var(--app-space-m) 0;
     text-align: center;
   }
 
-  .analysis-guess-list {
-    max-height: 320px;
+  .analysis-groups {
+    max-height: 420px;
     overflow-y: auto;
+  }
+
+  .analysis-group {
+    margin-bottom: var(--app-space-s);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .analysis-group-title {
+    font-size: var(--app-font-size-s);
+    font-weight: 600;
+    color: var(--app-text-color-primary);
+    padding: var(--app-space-xs) var(--app-space-s);
+    background: var(--el-fill-color-light);
+    border-radius: var(--app-border-radius-s);
+    margin-bottom: var(--app-space-xs);
+  }
+
+  .analysis-guess-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .analysis-guess-row {
@@ -563,11 +606,12 @@ watch(
     align-items: center;
     justify-content: space-between;
     gap: var(--app-space-xs);
-    padding: 6px 0;
-    border-bottom: 1px solid var(--el-border-color-lighter);
+    padding: 6px var(--app-space-s);
+    border-radius: var(--app-border-radius-s);
+    transition: background-color 0.15s ease;
 
-    &:last-child {
-      border-bottom: none;
+    &:hover {
+      background: var(--el-fill-color-light);
     }
   }
 
@@ -579,24 +623,32 @@ watch(
     font-size: var(--app-font-size-s);
   }
 
-  .guess-source {
+  .guess-source-field {
     font-weight: 500;
-    color: var(--el-color-primary);
+    color: var(--app-text-color-primary);
   }
 
   .guess-arrow {
     color: var(--app-grey-500);
   }
 
-  .guess-target {
+  .guess-target-table {
+    color: var(--el-color-primary);
+    font-weight: 500;
+  }
+
+  .guess-target-field {
     color: var(--app-text-color-secondary);
   }
 
-  .analysis-guess-meta {
+  .analysis-guess-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-xs);
     flex-shrink: 0;
   }
 
-  .analysis-popover-actions {
+  .analysis-popover-footer {
     display: flex;
     justify-content: flex-end;
     gap: var(--app-space-xs);

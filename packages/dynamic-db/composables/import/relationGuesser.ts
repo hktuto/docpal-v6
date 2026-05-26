@@ -40,12 +40,14 @@ export interface RelationGuess {
   sourceTableId: string
   sourceTableName: string
   sourceFieldName: string
+  sourceFieldAlias: string
   sourceFieldType: ColumnFieldType
   /** The table being referenced (existing or also newly imported) */
   targetTableId: string
   targetTableName: string
   targetFieldId: string
   targetFieldName: string
+  targetFieldAlias: string
   confidence: number
   reasons: RelationGuessReason[]
   dismissed: boolean
@@ -153,10 +155,12 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
 
       for (const sourceField of source.fields) {
         const sourceFieldName = sourceField.field_name || ''
+        const sourceFieldAlias = sourceField.field_name_alias || sourceFieldName
         const sourceFieldType = sourceField.business_type || ''
 
         for (const targetField of target.fields) {
           const targetFieldName = targetField.field_name || ''
+          const targetFieldAlias = targetField.field_name_alias || targetFieldName
           const targetFieldId = targetField.id || ''
           const targetFieldType = targetField.business_type || ''
 
@@ -176,11 +180,13 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
               sourceTableId: source.tableId,
               sourceTableName: source.tableName,
               sourceFieldName,
+              sourceFieldAlias,
               sourceFieldType: sourceFieldType as ColumnFieldType,
               targetTableId: target.tableId,
               targetTableName: target.tableName,
               targetFieldId,
               targetFieldName,
+              targetFieldAlias,
               confidence: scoreResult.confidence,
               reasons: scoreResult.reasons,
               dismissed: false
