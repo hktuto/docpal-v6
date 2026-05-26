@@ -68,6 +68,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   }
 })
+
+defineExpose({ reload })
 </script>
 
 <template>

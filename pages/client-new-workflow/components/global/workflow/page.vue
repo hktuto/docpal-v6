@@ -9,7 +9,7 @@ const { workflowType } = toRefs(props)
 
 function reload() {
   nextTick(() => {
-    // workflowRef.value.reload()
+    workflowRef.value?.reload?.()
   })
 }
 
