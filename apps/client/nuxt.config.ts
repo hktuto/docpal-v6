@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     '../../packages/authApp',
     '../../packages/rbac',
     "../../packages/dp-scan",
-
+    "../../packages/dynamic-db",
     '../../pages/client-browse',
     '../../pages/client-search',
     '../../pages/client-master-table',
@@ -41,6 +41,7 @@ export default defineNuxtConfig({
     '../../pages/super-workflow-form',
     '../../pages/admin-dam',
     '../../pages/admin-document-template',
+    '../../pages/admin-dashboard',
     // '../../pages/admin-docTemplate',
     '../../pages/admin-case-management',
     '../../pages/admin-file-policies',
@@ -51,7 +52,7 @@ export default defineNuxtConfig({
     // '../../pages/admin-workflow',
     '../../pages/admin-document-type',
     '../../pages/admin-new-workflow',
-    '../../pages/admin-log-manage',
+    // '../../pages/admin-log-manage',
     '../../pages/admin-calendar-setting',
     '../../pages/admin-folder-cabinet',
     '../../pages/admin-email-template',
@@ -73,7 +74,7 @@ export default defineNuxtConfig({
 
     // demo packages
     // "../../demo/database",
-    "../../demo/workspaces"
+    // "../../demo/workspaces"
   ],
   features: {
     inlineStyles: true

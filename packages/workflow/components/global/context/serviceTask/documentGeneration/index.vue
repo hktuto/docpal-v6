@@ -10,60 +10,61 @@ if (!graphProvider) {
 const emits = defineEmits(['update'])
 const { config } = defineProps<{
   config: {
-    implementation: string
-    method: string
-    url: string
-    headers: any
-    body: {
-      templateId: string
-      parentPath: string
-      name: string
-      type: string
-      creator: string
-      variables: {}
+    http_request: {
+      method: string
+      url: string
+      headers: any
+      body: {
+        templateId: string
+        parentPath: string
+        name: string
+        type: string
+        creator: string
+        variables: {}
+      }
     }
     input_mapping: any
     output_mapping: any
   }
 }>()
 const loading = ref(false)
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringVariablesList = computed(() => {
-  return getVariablesByType(['string'], true)
+  return getVariablesByDisplayTypes(['text'], true)
 })
 const storeVariablesList = computed(() => {
-  return getVariablesByType(['string'])
+  return getVariablesByDisplayTypes(['file'])
 })
 
 const documentTypeList = ref<any[]>([])
 const allDocumentTemplates = ref<{ id: string; name: string; value: any }[]>([])
 const formData = ref<{
-  body: any
-  output_mapping: any
+  http_request: any
 }>({
-  body: {},
-  output_mapping: {}
+  http_request: {}
 })
-const storeValue = ref('')
+const storeValue = ref<string>('')
 const variables = ref<any[]>([])
 const path = ref<string[]>([])
 const parentPathDisplay = ref('')
 
 async function initForm() {
-  formData.value = config
-
-  if (formData.value.body.templateId === '') {
-    variables.value = []
-    return
-  }
-
-  const keys = Object.keys(formData.value.output_mapping)
-  if (keys.length > 0) {
-    storeValue.value = keys[0]
-  }
-
-  loading.value = true
   try {
+    formData.value.http_request = config.http_request
+
+    if (formData.value.http_request.body.templateId === '') {
+      variables.value = []
+      return
+    }
+
+    storeValue.value = ''
+    const keys = Object.keys(config.output_mapping)
+    if (keys.length > 0) {
+      storeValue.value = keys[0]
+    }
+    console.log(123, storeValue.value)
+
+    loading.value = true
     await getTemplateVariableList()
   } catch (e) {
     console.log(e)
@@ -86,7 +87,7 @@ async function updateParentPathDisplay(pathId: string) {
 }
 
 function updateData() {
-  formData.value.body.variables = variables.value.reduce(
+  formData.value.http_request.body.variables = variables.value.reduce(
     (acc: Record<string, any>, { id, value }: any) => {
       acc[id] = value
       return acc
@@ -94,21 +95,26 @@ function updateData() {
     {} as Record<string, any>
   )
 
-  const mapping = {}
-  mapping[storeValue.value] = '${generateDocumentId}'
-  formData.value.output_mapping = mapping
+  const mapping: any = {}
+  if (!!storeValue.value && storeValue.value !== '') {
+    mapping[storeValue.value] = '${id}'
+  }
 
   emits('update', {
     name: 'update-document-generation-data',
-    config: formData.value
+    config: {
+      http_request: formData.value.http_request,
+      input_mapping: {},
+      output_mapping: mapping
+    }
   })
 }
 
 async function getTemplateVariableList() {
   variables.value = []
-  const fields: any = formData.value.body.variables
+  const fields: any = formData.value.http_request.body.variables
 
-  const data = await newAdminApi.getDmsTemplateDocumentId(formData.value.body.templateId).then((r: any) => r.data)
+  const data = await newAdminApi.getDmsTemplateDocumentId(formData.value.http_request.body.templateId).then((r: any) => r.data)
   if (data.fileType === 'Word') {
     const variable = JsonSchemaToJsonData(data.templateVariable)
     if (!variable) {
@@ -165,7 +171,7 @@ async function handleChangeTemplateId() {
 }
 
 function setPath(path: string) {
-  formData.value.body.parentPath = path || ''
+  formData.value.http_request.body.parentPath = path || ''
   updateData()
 }
 
@@ -176,17 +182,15 @@ onMounted(async () => {
 watch(
   () => config,
   () => {
-    if (config == formData.value) return
-    initForm()
+    if (JSON.stringify(config.http_request) !== JSON.stringify(formData.value.http_request)) {
+      initForm()
+    }
   },
-  {
-    immediate: true,
-    deep: true
-  }
+  { immediate: true, deep: true }
 )
 
 watch(
-  () => formData.value.body?.parentPath,
+  () => formData.value.http_request.body?.parentPath,
   async (newPath) => {
     await updateParentPathDisplay(newPath || '')
   },
@@ -199,7 +203,7 @@ watch(
 <template>
   <el-form label-position="top" :model="formData">
     <el-form-item :label="t('Document Template')" prop="templateId">
-      <el-select v-model="formData.body.templateId" :placeholder="t('common_selectedIsRequiredMsg')" @change="handleChangeTemplateId">
+      <el-select v-model="formData.http_request.body.templateId" :placeholder="t('common_selectedIsRequiredMsg')" @change="handleChangeTemplateId">
         <el-option v-for="item in allDocumentTemplates" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
@@ -216,22 +220,25 @@ watch(
       </div>
     </el-form-item>
     <el-form-item label="Store Value" prop="storeValue">
-      <el-select v-model="storeValue" @change="updateData" filterable>
+      <el-select v-model="storeValue" filterable clearable @change="updateData">
         <el-option v-for="item in storeVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
+
+    <el-divider />
+
     <el-form-item label="Document Type">
-      <el-select v-model="formData.body.type" :placeholder="t('common_selectedIsRequiredMsg')" filterable @change="updateData">
+      <el-select v-model="formData.http_request.body.type" :placeholder="t('common_selectedIsRequiredMsg')" filterable @change="updateData">
         <el-option v-for="item in documentTypeList" :key="item.name" :label="item.name" :value="item.name" />
       </el-select>
     </el-form-item>
     <el-form-item label="Document Name" prop="name">
-      <el-select v-model="formData.body.name" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
+      <el-select v-model="formData.http_request.body.name" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item label="Creator" prop="creator">
-      <el-select v-model="formData.body.creator" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
+      <el-select v-model="formData.http_request.body.creator" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
         <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>

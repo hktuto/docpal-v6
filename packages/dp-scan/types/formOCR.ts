@@ -112,6 +112,12 @@ export interface Field {
   field_setting?: FieldSetting
   /** Date format for date fields (e.g., "DD/MM/YYYY") */
   format?: string
+  /** Min date constraint for date fields (e.g., "today", "yesterday", "one_week_ago") */
+  min_date?: string
+  /** Max date constraint for date fields (e.g., "today", "yesterday", "one_week_ago") */
+  max_date?: string
+  /** Default value for the field when no OCR data is present */
+  default_value?: string
   /** Whether to support Simplified to Traditional Chinese conversion */
   support_chs_to_cht?: boolean
   /** Normalization options for mapping input values to option values */
@@ -492,7 +498,6 @@ export function normalizeValue(
 
   if (!value) {
     if (!normalizeOptions) {
-      console.log("return value", value )
       return value
     } else {
 
@@ -502,7 +507,6 @@ export function normalizeValue(
         console.log("no default found",)
         return " ";
       }
-      console.log("return defaultPattern[0]", defaultPattern[0] )
       return defaultPattern[0] || ""
     }
   } else {

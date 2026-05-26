@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { clientApi } from 'api'
+
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
@@ -16,6 +18,7 @@ const releaseContent = ref()
 const workflowReadonly = ref(false)
 const workflowId = ref()
 const workflowEditorRef = ref()
+const permissionDialogRef = ref()
 const loading = ref(false)
 
 async function getWorkflowData() {
@@ -25,7 +28,7 @@ async function getWorkflowData() {
       throw new Error('Workflow ID is null')
     }
     openWorkflowEdit.value = true
-    const data: any = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${props.id}`).then((r: any) => r.data)
+    const data: any = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${props.id}`).then((r: any) => r.data.data)
     if (!data) return
 
     workflowId.value = data.id
@@ -45,10 +48,16 @@ async function getWorkflowData() {
 }
 
 async function handleStatus() {
+  if (!checkWorkflowRequiredParameter()) {
+    routerProvider?.message.error('Start Task No form configured')
+    return
+  }
+  // TODO 檢查主要綫路上的節點是否有正確配置參數
+
   loading.value = true
   try {
     const userId = useUserId()
-    await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
+    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
     openWorkflowEdit.value = false
     openWorkflowEdit.value = true
     isActivate.value = true
@@ -63,11 +72,29 @@ function handleUpdateActivate() {
   isActivate.value = false
 }
 
+function checkWorkflowRequiredParameter() {
+  const workflowJson = workflowEditorRef.value.workflowJson
+  const find = workflowJson.nodes.find((item: any) => item.type === 'StartEvent')
+  const initialise = find.config.initialise
+
+  // 沒有必填的參數
+  if (initialise.form_fields.length === 0) return true
+
+  // 有必填參數但未設置start Form
+  return initialise.form_key !== ''
+}
+
 function handleOpenRelease() {
   loading.value = true
   workflowData.value = workflowReadonly.value = true
 
   loading.value = false
+}
+
+function openPermissionDialog() {
+  nextTick(() => {
+    permissionDialogRef.value?.open(props.id)
+  })
 }
 
 onMounted(async () => {
@@ -77,7 +104,7 @@ onMounted(async () => {
 
 <template>
   <div v-if="openWorkflowEdit" v-loading="loading" class="pageContainer">
-    <LazyWorkflowEditor
+    <WorkflowEditor
       ref="workflowEditorRef"
       :workflow-data="workflowData"
       :readonly="workflowReadonly"
@@ -92,8 +119,12 @@ onMounted(async () => {
         <!--        <el-button v-if="showRelease" type="primary" @click="handleOpenRelease">-->
         <!--          {{ $t('Open The Release Version') }}-->
         <!--        </el-button>-->
+        <el-button id="Workflow__Edit__Permission" type="primary" @click="openPermissionDialog">
+          {{ $t('workflow_editorPermission') }}
+        </el-button>
       </template>
-    </LazyWorkflowEditor>
+    </WorkflowEditor>
+    <LazyWorkflowEditManagePermissionDialog ref="permissionDialogRef" :workflow-id="props.id" />
   </div>
 </template>
 

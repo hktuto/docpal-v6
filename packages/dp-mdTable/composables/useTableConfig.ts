@@ -1,21 +1,27 @@
 // composables/useTableConfig.ts
-import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from 'vue'
 import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { VxeUI } from 'vxe-pc-ui'
 import type { ColumnConfig } from '../types/column-context'
 import { ColumnFieldType } from '../types/column-types'
-import { calculateCount, type CountMethod, flattenAggregatedData } from '../utils/tableCount'
 // 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
-rendererManager.registerAllRenderers()
+
 
 export interface TableConfigOptions {
   extraColumnConfig?: {
     columns: ColumnConfig[]
-    deleteColumn: (column: ColumnConfig) => void
-    updateColumn: (column: ColumnConfig) => void
-    addColumn: (column: ColumnConfig) => void
+    deleteColumn: (fieldId: string) => Promise<void> | void
+    updateColumn: (fieldName: string, updates: Partial<ColumnConfig>) => Promise<void> | void
+    addColumn: (columns: ColumnConfig[], targetFieldId?: string, dragPos?: 'left' | 'right') => Promise<void> | void
+    updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
+    columnFilterRules: Ref<any[]>
+    columnGroupRules: Ref<any[]>
+    columnSortRules: Ref<any[]>
+    menuId?: Ref<string> | string
   }
+  /** 是否可编辑表格 */
+  canEditTable?: boolean
   /** 表格高度 */
   height?: string | number
   /** 是否自动调整大小 */
@@ -32,15 +38,11 @@ export interface TableConfigOptions {
   rowId?: string
   /** 编辑配置 */
   editConfig?: boolean | object
-  /** 分组字段 */
-  groupBy?: any
-  /** 筛选字段 */
-  filterBy?: any
-  /** 排序字段 */
-  sortBy?: any
   /** 列配置 */
   /** 加载状态 */
   loading: Ref<boolean> | ComputedRef<boolean>
+  /** 静默刷新状态：刷新数据但不显示 loading */
+  silentRefreshing?: Ref<boolean>
   apiMethod: Function
   /** 子节点加载方法 */
   childApiMethod?: Function
@@ -53,7 +55,9 @@ export interface TableConfigOptions {
  * 封装 VxeGrid 的配置逻辑
  */
 export function useTableConfig(options: TableConfigOptions, gridRef: any) {
+  const tableOptions = options
   const {
+    canEditTable = false,
     height = '100%',
     autoResize = true,
     stripe = true,
@@ -63,12 +67,14 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     rowId = 'id',
     editConfig,
     loading,
+    silentRefreshing,
     apiMethod,
     childApiMethod,
     cellClassName
   } = options
   const { columns } = toRefs(options.extraColumnConfig as any)
-  console.log('data', options)
+  const expandedRowKeys = ref<Array<string | number>>([])
+  const defaultTreeExpandRowKeys: Array<string | number> = []
   // console.log('columns', columns)
   // console.log('deleteColumn', deleteColumn)
   // console.log('updateColumn', updateColumn)
@@ -99,7 +105,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     if (_columns.length === 0) {
       return []
     }
-    // _columns[0].treeNode = !!groupBy.value && groupBy.value.length > 0
     _columns.unshift({
       type: 'checkbox',
       width: 60,
@@ -110,28 +115,34 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       headerAlign: 'right',
       align: 'center'
     })
-    const data = _columns.map((col: any) => {
-      if (col.type === 'checkbox') return col
+    const data = _columns
+      .map((col: any) => {
+        if (col.type === 'checkbox') return col
 
-      if (!col.business_type) col.business_type = ColumnFieldType.Text
-      // if (col.field === 'name') col.rowGroupNode = true
-      const colConfig = {
-        ...col,
-        field: col.field_name,
-        title: col.field_name_alias,
-        aggFunc: true,
-        ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
-      }
-      colConfig.slots = {
-        footer: 'footerCount',
-        header: 'header'
-      }
-      // 数字类型默认右对齐
-      if (col.business_type === ColumnFieldType.Number) {
-        colConfig.align = 'right'
-      }
-      return colConfig
-    })
+        if (!col.business_type) col.business_type = ColumnFieldType.Text
+        // if (col.field === 'name') col.rowGroupNode = true
+        const colConfig = {
+          ...col,
+          field: col.field_name,
+          title: col.field_name_alias,
+          aggFunc: true,
+          colId: col.field_name,
+          ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
+        }
+        colConfig.slots = {
+          footer: 'footerCount',
+          header: 'header'
+        }
+        // 数字类型默认右对齐
+        if (col.business_type === ColumnFieldType.Number) {
+          colConfig.align = 'right'
+        }
+        return colConfig
+      })
+      .filter((col: any) => !col.hidden)
+    if (isGroupingEnabled.value) {
+      data[1].treeNode = true
+    }
     console.log('data', data)
     return data
   })
@@ -171,7 +182,96 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   /**
    * 表格配置
    */
+  const isGroupingEnabled = computed(() => {
+    return (
+      !!options.extraColumnConfig?.columnGroupRules &&
+      options.extraColumnConfig?.columnGroupRules.value &&
+      options.extraColumnConfig?.columnGroupRules.value.length > 0
+    )
+  })
+
+  const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
+
+  function getCurrentMenuId() {
+    const menuId = tableOptions.extraColumnConfig?.menuId
+    return (menuId as Ref<string> | undefined)?.value || menuId
+  }
+
+  function isSameMenu(lock: any) {
+    const currentMenuId = getCurrentMenuId()
+    return !currentMenuId || !lock.menuId || lock.menuId === currentMenuId
+  }
+
+  function getColumnFieldKey(column: any) {
+    return column?.field || column?.property || column?.colId
+  }
+
+  function isColumnConfigEditing(column: any) {
+    const fieldKey = getColumnFieldKey(column)
+    if (!fieldKey) return false
+    return lockedRowCell.value?.some((lock: any) => isSameMenu(lock) && lock.editingColumn && lock.cellId === fieldKey) ?? false
+  }
+
+  const columnLockSignature = computed(() => {
+    return (lockedRowCell.value ?? [])
+      .filter((lock: any) => lock.editingColumn)
+      .map((lock: any) => `${lock.menuId || ''}:${lock.cellId || ''}`)
+      .join('|')
+  })
+
+  function isCellEditLocked(row: any, column: any) {
+    return (
+      lockedRowCell.value?.some(
+        (lock: any) =>
+          isSameMenu(lock) &&
+          (
+            (lock.editingRow && lock.rowId === row.id) ||
+            (lock.editingCell && lock.cellId === getColumnFieldKey(column) && lock.rowId === row.id) ||
+            (lock.editingColumn && lock.cellId === getColumnFieldKey(column))
+          )
+      ) ?? false
+    )
+  }
+
+  function getCellClassName(params: { row: any; column: any; rowIndex: number; columnIndex: number }) {
+    const classNames = [cellClassName?.(params)]
+    if (isColumnConfigEditing(params.column)) {
+      classNames.push('column-config-editing')
+    }
+    return classNames.filter(Boolean).join(' ')
+  }
+
+  function getHeaderCellClassName({ column }: any) {
+    return isColumnConfigEditing(column) ? 'column-config-editing' : ''
+  }
+
+  /**
+   * 树分组用的是 treeConfig，展开状态由「树展开」API 维护；
+   * getRowExpandRecords / setRowExpand 只对应「行展开」（expand 列 / expandConfig），与树无关，故在树模式下会一直为空。
+   */
+  function updateExpandedRows() {
+    if (!isGroupingEnabled.value) {
+      return
+    }
+    const rows: any[] = gridRef.value?.getTreeExpandRecords?.() ?? []
+    expandedRowKeys.value = rows.map((row) => row?.[rowId]).filter((key): key is string | number => key !== undefined && key !== null)
+  }
+  async function restoreExpandedRows(rows: any[]) {
+    if (!isGroupingEnabled.value || !rows.length) {
+      return
+    }
+    const rowKeys = [...new Set([...defaultTreeExpandRowKeys, ...expandedRowKeys.value])]
+    const rowKeySet = new Set(rowKeys.map(String))
+    const rowsToExpand = rows.filter((row) => rowKeySet.has(String(row?.[rowId])))
+    if (!rowsToExpand.length) {
+      return
+    }
+    await nextTick()
+    gridRef.value?.setTreeExpand?.(rowsToExpand, true)
+  }
   const gridOptions = computed<VxeGridProps>(() => {
+    // 依赖协作列锁，锁变化时触发 gridOptions 更新并刷新表头/单元格 class
+    void columnLockSignature.value
     const options: VxeGridProps | any = {
       height: computedHeight.value,
       autoResize,
@@ -180,7 +280,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       resizable,
       keepSource,
       rowId,
-      loading: loading.value,
+      loading: silentRefreshing?.value ? false : loading.value,
       columns: processedColumns.value as any,
       editRules: processedEditRules.value,
       columnConfig: {
@@ -226,9 +326,10 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       },
       footerData: [{ type: 'footerData' }],
       checkboxConfig: {
+        checkStrictly: true,
+        showHeader: false,
         highlight: true,
-        isShiftKey: true,
-        range: true
+        visibleMethod: ({ row }: any) => !row.__deleted
       },
       'footer-cell-config': {
         height: 32
@@ -251,26 +352,26 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         useKey: true,
         isCurrent: true
       },
-      // 单元格类名配置 - 用于更新状态视觉反馈
-      cellClassName: cellClassName || undefined
+      // 单元格类名配置 - 用于更新状态视觉反馈与协作列锁高亮
+      cellClassName: getCellClassName,
+      headerCellClassName: getHeaderCellClassName,
+      footerCellClassName: getHeaderCellClassName
     }
 
-    // IMPORTANT: treeConfig with lazy:true DISABLES virtual scrolling!
-    // Only enable treeConfig when grouping/aggregation is actually being used
-    // const isGroupingEnabled = groupBy?.value && groupBy.value.length > 0
-    // if (isGroupingEnabled) {
-    //   options.treeConfig = {
-    //     transform: true,
-    //     rowField: 'id',
-    //     parentField: 'parentId',
-    //     lazy: true,
-    //     hasChild: 'isAggregate',
-    //     loadMethod: treeLoadData,
-    //     expandAll: true
-    //   }
-    // Must disable virtual scroll when using tree config with lazy loading
-    // options.virtualYConfig = { enabled: false }
-    // }
+    if (isGroupingEnabled.value) {
+      options.treeConfig = {
+        rowField: rowId,
+        parentField: 'parentId',
+        lazy: true,
+        hasChildField: 'hasChild',
+        loadMethod: treeLoadData,
+        expandAll: false,
+        reserve: true,
+        expandRowKeys: defaultTreeExpandRowKeys
+      }
+      // Must disable virtual scroll when using tree config with lazy loading
+      options.virtualYConfig = { enabled: false }
+    }
     // 编辑配置
     // 检查是否有列配置了 editRender
     const hasEditRender = processedColumns.value.some((col: any) => col.editRender)
@@ -285,13 +386,22 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showIcon: false,
         showStatus: false,
         ...((editConfig as any) || {}),
-        beforeEditMethod: ({ row, column }: any) => {
-          return row.isAggregate !== true && !disabledFields.includes(column.type)
+        beforeEditMethod: ({ row, column, $grid }: any) => {
+          // user have no permission to edit
+          if(!canEditTable) return false
+          const isLock = isCellEditLocked(row, column)
+          const value = !row.hasChild && !disabledFields.includes(column.type) && !isLock
+          if (value) {
+            // dispatch event to parent
+            $grid.dispatchEvent('start-edit', { row, column })
+          }
+          return value
         }
       }
     }
     if (apiMethod) {
       options.proxyConfig = {
+        showLoading: !silentRefreshing?.value,
         ajax: {
           query: loadData
         }
@@ -299,16 +409,15 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     }
     return options
   })
+
   async function loadData(args: any) {
-    const { page, sorts, filters } = args
-    // 默认接收 Promise<{ result: [], page: { total: 100 } }>
+    const { page } = args
     let pageParams: any = {
       pageSize: page.pageSize,
       pageNum: page.currentPage - 1
     }
-    const gb: any = (options?.groupBy as any)?.value
-    const groupByList = Array.isArray(gb) && gb.length > 0 ? gb : null
-    const { entryList, totalSize } = await apiMethod(pageParams, groupByList)
+    const { entryList, totalSize } = await apiMethod(pageParams)
+    void restoreExpandedRows(entryList)
     return {
       result: entryList,
       page: {
@@ -317,26 +426,38 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     }
   }
   async function treeLoadData(params: any) {
-    try {
-      console.log('treeLoadData params', params)
-      if (!childApiMethod) {
-        console.warn('childApiMethod is not defined')
-        return []
+    return new Promise<any[]>(async (resolve) => {
+      try {
+        const { $table, row } = params
+        const rowLevel = $table.getTreeRowLevel(row)
+        const data = await childApiMethod?.({ ...params.row, __level: rowLevel })
+        resolve(data)
+      } catch (error) {
+        console.error('treeLoadData error:', error)
+        resolve([])
       }
-      // return await childApiMethod(params, groupBy.value)
-    } catch (error) {
-      console.error('treeLoadData error:', error)
-      return []
-    }
+    })
   }
+  watch(columnLockSignature, () => {
+    nextTick(() => {
+      const grid = gridRef.value
+      grid?.recalculate?.(true)
+      grid?.refreshColumn?.()
+    })
+  })
+
   watch(
-    () => [options.groupBy, options.filterBy, options.sortBy],
-    ([newGroupBy, newFilterBy, newSortBy]) => {
+    () => [options.extraColumnConfig?.columnGroupRules, options.extraColumnConfig?.columnFilterRules, options.extraColumnConfig?.columnSortRules],
+    ([newColumnGroupRules, newColumnFilterRules, newColumnSortRules]) => {
+      if (silentRefreshing?.value) {
+        return
+      }
       gridRef.value?.commitProxy('reload')
     },
     { deep: true }
   )
   return {
-    gridOptions
+    gridOptions,
+    updateExpandedRows
   }
 }

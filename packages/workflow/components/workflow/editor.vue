@@ -288,51 +288,159 @@ function closeSidebar() {
 
 function openForm() {}
 
-function openPermission() {
-  sidebarRef.value?.openPermission()
-}
-
-async function getFormByNode(node: Node) {
-  const relation = {
-    processKey: workflowKey.value,
-    userTaskId: node.data.id,
-    versionId: version.value
-  }
-
-  const response = await newAdminApi.getDmsFormPropertiesQuery(relation).then((r) => r.data)
-  if (!response || response.length === 0) {
-    return {}
-  }
-  return JSON.parse(response[0].jsonValue || '{}')
-}
-
 const copyKey = useState('copy-key', () => '')
 const copyObj = useState('copy-obj')
 
-async function copyForm(node: Node, obj: any) {
+async function copyForm(node: Node, nodeSetting: any) {
   copyKey.value = node.data.id
-  copyObj.value = obj
+  copyObj.value = nodeSetting
   routerProvider?.message.success(`${node.data.name || node.data.id} form has copied`)
 }
 
-function pasteForm() {}
+function pasteForm(node: Node) {
+  graph.value?.startBatch('update-from-data')
+  const data = node.getData()
+  const newData = {
+    ...data,
+    config: copyObj.value.config,
+    metadata: copyObj.value.metadata,
+    version: (data.version || 0) + 1
+  }
+  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  graph.value?.stopBatch('update-from-data')
+}
 
 function updateActivate() {
   emits('updateActivate')
+}
+
+function updateWorkflowJson(newWorkflowJson: any) {
+  workflowJson.value = newWorkflowJson
+}
+
+function handelReplayViewer() {
+  isReady.value = false
+  showSidebar.value = false
+}
+
+function dim(cellIds: string[]) {
+  const nodes = graph.value?.getNodes()
+  nodes?.forEach((node: Node) => {
+    //if node.id is not include in cellIds,
+    if (!cellIds.includes(node.id)) {
+      if (node.data.type === 'ConditionTask') {
+        const allNodeConnectedToExclusiveGateway = graph.value?.getConnectedEdges(node)
+        let isAllConnectedNodeDone = true
+        allNodeConnectedToExclusiveGateway?.forEach((connectedEdge: any) => {
+          if (connectedEdge.source.cell === node.id) {
+            if (!cellIds.includes(connectedEdge.target.cell)) {
+              isAllConnectedNodeDone = false
+            }
+          } else if (connectedEdge.target.cell === node.id) {
+            if (!cellIds.includes(connectedEdge.source.cell)) {
+              isAllConnectedNodeDone = false
+            }
+          }
+        })
+        if (!isAllConnectedNodeDone) {
+          allNodeConnectedToExclusiveGateway?.forEach((edge: any) => {
+            edge.attr('line/stroke', '#ccc')
+            edge.attr('line/strokeDasharray', '')
+            edge.attr('line/style/animation', '')
+          })
+          node.attr('body/fill', '#ccc')
+          node.attr('body/stroke', '#ccc')
+        }
+      } else {
+        node.attr('body/fill', '#ccc')
+        node.attr('body/stroke', '#ccc')
+        // dim connection
+        const edges = graph.value?.getConnectedEdges(node)
+        edges?.forEach((edge) => {
+          edge.attr('line/stroke', '#ccc')
+          edge.attr('line/strokeDasharray', '')
+          edge.attr('line/style/animation', '')
+        })
+      }
+    } else {
+      nodes?.forEach((node: Node) => {
+        const view = graph.value?.findView(node)
+        view?.unhighlight(null)
+        // dim connection
+        const edges = graph.value?.getConnectedEdges(node)
+        edges?.forEach((edge) => {
+          edge.attr('line/stroke', '#000')
+          edge.attr('line/strokeDasharray', '')
+          edge.attr('line/style/animation', '')
+        })
+      })
+    }
+  })
+}
+function highlightCell(cellIds: string[], allNodes: string[]) {
+  dim(allNodes)
+  if (cellIds && cellIds.length > 0) {
+    cellIds.forEach((id) => {
+      const node: any = graph.value?.getCellById(id)
+      const view = graph.value?.findView(node)
+      view?.highlight(null, {
+        // @ts-ignore
+        name: 'className'
+      })
+      // highlight connected edge
+      const edges = graph.value?.getConnectedEdges(node)
+      edges?.forEach((edge: any) => {
+        if (allNodes.includes(edge.source.cell) && allNodes.includes(edge.target.cell)) {
+          edge.attr('line/stroke', 'var(--app-primary-color)')
+          edge.attr('line/strokeDasharray', 5)
+          edge.attr('line/style/animation', 'running-line 30s infinite linear')
+          return
+        }
+        // check if edge source is exclusive gateway or boundary event
+        const sourceNode = graph.value?.getCellById(edge.source.cell)
+        const targetNode = graph.value?.getCellById(edge.target.cell)
+        if (sourceNode?.data.type === 'exclusiveGateway' || sourceNode?.data.type === 'boundaryEvent') {
+          // find edge connected to this source
+          const allNodeConnectedToExclusiveGateway = graph.value?.getConnectedEdges(sourceNode)
+          allNodeConnectedToExclusiveGateway?.forEach((connectedEdge: any) => {
+            if (connectedEdge.target.cell === sourceNode.id) {
+              if (allNodes.includes(connectedEdge.source.cell)) {
+                edge.attr('line/stroke', 'var(--app-primary-color)')
+                edge.attr('line/strokeDasharray', 5)
+                edge.attr('line/style/animation', 'running-line 30s infinite linear')
+              }
+            }
+          })
+        } else if (targetNode?.data.type === 'exclusiveGateway' || targetNode?.data.type === 'boundaryEvent') {
+          // if sourceNode is include in allNodes
+          const allNodeConnectedToExclusiveGateway: any = graph.value?.getConnectedEdges(targetNode)
+          allNodeConnectedToExclusiveGateway.forEach((connectedEdge: any) => {
+            if (connectedEdge.source.cell === targetNode.id) {
+              if (allNodes.includes(connectedEdge.target.cell)) {
+                edge.attr('line/stroke', 'var(--app-primary-color)')
+                edge.attr('line/strokeDasharray', 5)
+                edge.attr('line/style/animation', 'running-line 30s infinite linear')
+              }
+            }
+          })
+        }
+      })
+    })
+  }
 }
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
   workflowId,
   workflowKey,
   workflowJson,
+  updateWorkflowJson,
   graph,
   copyKey,
   readonly,
   openSidebar,
   closeSidebar,
   pasteForm,
-  copyForm,
-  getFormByNode
+  copyForm
 })
 
 watch(
@@ -342,7 +450,7 @@ watch(
   }
 )
 
-defineExpose({ init })
+defineExpose({ init, workflowJson, handelReplayViewer, highlightCell, graph, dim })
 </script>
 
 <template>
@@ -350,10 +458,9 @@ defineExpose({ init })
     <div class="bpmnViewerContainer">
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
-        <div class="group">
+        <div v-if="!readonly" class="group">
           <ToolbarHistory :workflowId="workflowId" :isActivate="isActivate" @update-activate="updateActivate" />
           <ToolbarInfo @click="openInfo" />
-          <!--          <WorkflowToolbarPermission @click="openPermission" />-->
         </div>
         <div v-if="!readonly" class="group">
           <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers" @mousedown.native="(ev) => itemDrop(item, ev)">

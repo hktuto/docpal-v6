@@ -30,8 +30,8 @@
 .table-tag {
   padding: var(--app-space-xs) var(--app-space-s);
   border-radius: var(--app-border-radius-m);
-  background-color: oklch(from var(--color) 1 0.2 h);
-  border: 1px solid oklch(from var(--color) l c h);
+  background-color: oklch(from var(--color) max(l, 0.9) calc(c / 2) h);
+  border: 1px solid oklch(from var(--color) 0.6 c h);
   color: oklch(from var(--color) 0.2 c h);
   font-size: var(--app-font-size-s);
   font-weight: 500;
@@ -102,6 +102,7 @@
   }
   .tree-node-title {
     font-size: var(--app-font-size-s);
+    color: var(--app-text-color-placeholder);
     font-weight: 500;
   }
   .tree-node-count {
@@ -117,9 +118,43 @@
   }
 }
 
+.tree-node-agg-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-width: 0;
+  width: 100%;
+
+  .tree-node-agg-method {
+    font-size: var(--app-font-size-s);
+    color: var(--app-text-color-placeholder);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .tree-node-agg-value {
+    font-weight: 500;
+    color: var(--app-text-color-regular);
+    flex-shrink: 0;
+  }
+}
+
 // edit mode overrider
 .vxe-table--render-default .vxe-body--column.col--auto-height.col--edit {
   overflow: visible !important;
+}
+
+.col--tree-node.col--edit {
+  .vxe-cell--wrapper,
+  .vxe-cell--tree-node,
+  .vxe-tree-cell {
+    height: 100%;
+  }
 }
 
 .vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox,

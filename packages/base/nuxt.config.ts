@@ -42,15 +42,15 @@ const config = {
     locales: [
       {
         code:'en-US',
-        files: ['default.ts']
+        files: []
       },
       {
         code:'zh-CN',
-        files: ['default.ts']
+        files: []
       },
       {
         code : 'zh-HK',
-        files: ['default.ts']
+        files: []
       }
     ],
     strategy:'no_prefix',

@@ -1,35 +1,40 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { clientApi } from 'api'
 import dayjs from 'dayjs'
-import { routeWorkflowDetail } from '~/utils/routerHelper'
+import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
+const workflowList = await getWorkflowList()
 const { t } = useI18n()
 // @ts-ignore
 const userId: string = useUserId().value
-let extraParams: any = {}
+const user = useUserState().value
+const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
-  api: (pageParams: any) => {
-    const data = $api.get(`'/oniflow/api/v1/task/overview/completed/${userId}`).then((r: any) => r.data)
+  api: async (pageParams: any) => {
+    const params = {
+      pageSize: pageParams.pageSize,
+      pageNum: pageParams.pageNum,
+      groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
+      roles: [user.aclUserDetail.roleId],
+      definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : '',
+      status: ['completed', 'failed', 'terminated'],
+      involved_user_id: userId
+    }
+
+    const data = await clientApi.instance.post(`/oniflow/api/v1/processes/instance/page`, params).then((r: any) => workflowResponseHelper(r))
     return {
-      data: {
-        entryList: data.items || [],
-        pageNum: data.page_num || 0,
-        pageCount: data.page_size || 1,
-        totalSize: data.total || 0
-      }
+      data: data
     }
   },
   columns: [
-    { field: 'businessKey', title: 'table_name', fixed: 'left' },
-    { field: 'processDefinitionName', title: 'workflow_workflowName' },
-
+    { field: 'name', title: 'workflow_workflowName', fixed: 'left' },
     {
-      field: 'startTime',
+      field: 'created_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
         // @ts-ignore
@@ -37,7 +42,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       }
     },
     {
-      field: 'completeDate',
+      field: 'completed_at',
       title: 'workflow_completeDate',
       formatter({ cellValue }: any) {
         // @ts-ignore
@@ -48,7 +53,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       field: 'duration',
       title: 'workflow_duration',
       formatter({ cellValue, row }: any) {
-        return dayjs(row.completeDate).diff(row.startTime, 'day') + ' ' + t('common_days')
+        return dayjs(row.completed_at).diff(row.created_at, 'day') + ' ' + t('common_days')
       }
     }
   ],
@@ -61,23 +66,14 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      name: row.businessKey,
-      workflowType: 'completeTask'
+      workflowType: 'completeTask',
+      db_id: row.completed_nodes[row.completed_nodes.length - 2]
     }),
     false
   )
 }
 
-const ResponsiveFilterRef = ref()
-
-function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-  extraParams = formModel
-  reload()
-}
-
-function reloadTable(){
+function reloadTable() {
   reload()
 }
 
@@ -88,7 +84,13 @@ defineExpose({ reloadTable })
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
+        <div class="el-col el-col-10 is-guttered grid-cell">
+          <el-form-item :label="t('workflow_workflowName')" label-position="top">
+            <el-select clearable v-model="definition_id" placeholder="All" @change="reload">
+              <el-option v-for="item in workflowList" :key="item.id" :label="item.name" :value="item.id" />
+            </el-select>
+          </el-form-item>
+        </div>
       </template>
       <template #status="{ row }">
         <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>

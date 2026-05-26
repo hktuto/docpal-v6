@@ -6,6 +6,7 @@
       :placeholder="column.placeholder || '请选择成员'"
       clearable
       filterable
+      :disabled="disabled"
       :loading="loading"
       style="width: 100%"
     >
@@ -27,6 +28,7 @@ const props = defineProps<{
   formData: any
   column: any
   fieldName: string
+  disabled: boolean
 }>()
 
 const loading = ref(false)

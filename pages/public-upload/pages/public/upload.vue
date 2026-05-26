@@ -23,9 +23,20 @@ async function handleGetPublicDocument(formData: any) {
     state.loading = true
     formData.token = route.query.token
     state.fileRequestDetail = await newClientApi.getDmsPublicUploadRequest(formData).then((res) => res.data)
-    state.fileRequestDetail.config = getFormData(state.fileRequestDetail.properties)
+    // check expiredAt
+    const today = new Date()
+    const expiredAt = new Date(state.fileRequestDetail.uploadRequest.expiredAt)
+    console.log("expiredAt", expiredAt, "today", today)
+    if (expiredAt && today > new Date(expiredAt)) {
+      throw new Error('Link expired')
+    }
+    if (state.fileRequestDetail.uploadRequest.status !== 'pending_upload') {
+      throw new Error('Link expired')
+    }
+
     state.uploadState = true
   } catch (error) {
+    console.log("error",error)
     router.push('/public/uploadTip?tip=linkExpired')
   }
   await new Promise<void>((resolve, reject) => {
@@ -35,19 +46,12 @@ async function handleGetPublicDocument(formData: any) {
     }, 100)
   })
 }
-function getFormData(properties: any) {
-  const result = <any>{}
-  properties.forEach((item: any) => {
-    result[item.id] = item.value
-  })
-  return result
-}
+
 
 async function handleWorkflow(fileList: any) {
   state.loading = true
   try {
     const formData: any = new FormData()
-    formData.append('taskId', state.fileRequestDetail.task.id)
     formData.append('password', state.password)
     formData.append('token', route.query.token)
     fileList.forEach((file: any) => {
@@ -55,7 +59,9 @@ async function handleWorkflow(fileList: any) {
     })
     const res = await newClientApi.postDmsPublicUploadRequestFiles(formData)
     if (res) router.push('/public/uploadTip?tip=uploadedSuccessfully')
-  } catch (error) {}
+  } catch (error) {
+    console.log("error", error)
+  }
   await new Promise<void>((resolve, reject) => {
     setTimeout(() => {
       state.loading = false

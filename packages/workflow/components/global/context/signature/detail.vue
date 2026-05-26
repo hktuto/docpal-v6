@@ -26,13 +26,17 @@ const allDocumentStep = computed(() => {
     graphProvider?.graph?.value
       ?.getNodes()
       .filter((node) => {
-        return node.getData()?.type === CellType.documentGenerationTask
+        const data = node.getData()
+        return !!data?.metadata && data?.metadata?.type === CellType.documentGenerationTask
       })
-      .map((item: any) => ({
-        value: item.getData().id,
-        label: item.getData().name,
-        templateId: item.getData().config.body.templateId
-      })) || []
+      .map((item: any) => {
+        const data = item.getData()
+        return {
+          value: data.id,
+          label: data.name,
+          templateId: data.config?.http_request?.body?.templateId || ''
+        }
+      }) || []
   )
 })
 
@@ -76,18 +80,22 @@ async function updateDocumentId() {
 
 async function getTemplateVariableList() {
   if (!form.value.documentStepId || form.value.documentStepId === '') return
-  const selectedStep = allDocumentStep.value.find((item: any) => item.value === form.value.documentStepId)
 
-  const data = await newAdminApi.getDmsTemplateDocumentRefreshId(selectedStep.templateId).then((r: any) => r.data)
-  if (data.fileType !== 'Word') {
-    console.log('not word file')
-    return
+  try {
+    const selectedStep: any = allDocumentStep.value.find((item: any) => item.value === form.value.documentStepId)
+    const data = await newAdminApi.getDmsTemplateDocumentRefreshId(selectedStep.templateId).then((r: any) => r.data)
+    if (data.fileType !== 'Word') {
+      console.log('not word file')
+      return
+    }
+    const variable = JsonSchemaToJsonData(data.templateVariable)
+    if (!variable) {
+      return
+    }
+    signatureVariable.value = variable.filter((item: any) => item.type === 'signature')
+  } catch (e) {
+    console.log(e)
   }
-  const variable = JsonSchemaToJsonData(data.templateVariable)
-  if (!variable) {
-    return
-  }
-  signatureVariable.value = variable.filter((item: any) => item.type === 'signature')
 }
 
 watch(
@@ -103,7 +111,7 @@ watch(
 </script>
 
 <template>
-  <el-form :model="form" label-position="top" class="listItem">
+  <el-form :model="form" size="small" label-position="top" class="listItem">
     <el-form-item label="Document Generate Step">
       <el-select v-model="form.documentStepId" placeholder="Document Step" filterable clearable @change="updateDocumentId">
         <el-option v-for="item in allDocumentStep" :key="item.value" :label="item.label" :value="item.value" />

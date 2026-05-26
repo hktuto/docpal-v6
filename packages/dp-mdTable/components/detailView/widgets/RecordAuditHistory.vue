@@ -114,7 +114,7 @@ const emit = defineEmits<{
 }>()
 
 const { t: $t } = useI18n()
-const { query } = usePglite()
+
 
 const settingRef = ref()
 const loading = ref(false)
@@ -154,9 +154,9 @@ async function loadAuditLogs() {
   try {
     // Query for both direct recordId matches and bulk operations where record is in affectedRecordIds
     const result = await query<AuditLogRecord>(
-      `SELECT * FROM audit_logs 
+      `SELECT * FROM audit_logs
        WHERE "tableName" = $1 AND (
-         "recordId" = $2 
+         "recordId" = $2
          OR $2 = ANY("affectedRecordIds")
        )
        ORDER BY "createdAt" DESC
@@ -236,7 +236,7 @@ function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date
   const now = new Date()
   const diff = now.getTime() - d.getTime()
-  
+
   // Less than 1 minute
   if (diff < 60000) {
     return 'Just now'

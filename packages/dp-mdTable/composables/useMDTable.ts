@@ -2,15 +2,21 @@
 import { provide, inject, ref, type Ref } from 'vue'
 import type { VxeGridInstance } from 'vxe-table'
 import { useUpdateStatus } from './useUpdateStatus'
+import type { TableDataRefreshOptions } from './useTableData'
+
+export type RefreshTableData = (options?: TableDataRefreshOptions) => Promise<void>
 import { clientApi } from 'api'
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import type { ColumnConfig } from '@packages/dp-mdTable/types/column-types'
 export interface mdTable {
   columns: any
-  deleteColumn: (column: any) => void
-  updateColumn: (column: any) => void
-  addColumn: (column: any) => void
-  updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+  deleteColumn: (fieldId: string) => Promise<void> | void
+  updateColumn: (fieldName: string, updates: Partial<ColumnConfig>) => Promise<void> | void
+  addColumn: (columns: any[], targetFieldId?: string, dragPos?: 'left' | 'right') => Promise<void> | void
+  updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
+  updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
+  currentView?: Ref<any>
   tableFields: any[]
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]
@@ -18,9 +24,12 @@ export interface mdTable {
   getUserList: () => Promise<any[]>
   userList: Ref<any[]>
   tableData: Ref<any[]>
+  refreshTableData: RefreshTableData
+  updateExpandedRows: () => void
   updateRow: (rowId: string, data: any) => Promise<boolean>
   addRow: (row: any) => void
   addColumnPopoverRef: Ref<any>
+  currentEditing: Ref<any[]>
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
@@ -38,7 +47,7 @@ export function useMDTable(props: any) {
     props.extraColumnConfig.columnGroupRules = ref([])
   }
   if(!props.extraColumnConfig.columnSortRules) {
-    props.extraColumnConfig.columnSortRules = ref([]) 
+    props.extraColumnConfig.columnSortRules = ref([])
   }
   const {
     loading,
@@ -48,25 +57,34 @@ export function useMDTable(props: any) {
     updateRow,
     deleteRow,
     getTableData,
-    getAggChildData
+    getAggChildData,
+    syncRowAndGroupAncestors,
+    currentEditing,
+    silentRefreshing
   } = useTableData(props.tableId, gridRef)
 
   // Get update status helper for cell styling
   const { getCellClass } = useUpdateStatus()
-  const { gridOptions } = useTableConfig(
+  const { gridOptions, updateExpandedRows } = useTableConfig(
     {
       ...props,
       loading,
       childApiMethod: getAggChildData,
       apiMethod: getTableData,
+      silentRefreshing,
       // Add cell class name function for update status visual feedback
       cellClassName: ({ row, column }: any) => {
         if (!row?.id || !column?.field) return ''
-        return getCellClass(row.id, column.field)
-      }
+        const additionalClass = getCellClass(row.id, column.field)
+        if (row.__deleted) {
+          return `${additionalClass} cell-update-deleted`
+        }
+        return additionalClass
+      },
     },
     gridRef
   )
+
   function clearCheckboxRow() {
     const selectedRows = gridRef.value?.getCheckboxRecords() || []
     if (selectedRows.length > 0) {
@@ -105,13 +123,20 @@ export function useMDTable(props: any) {
     const options = new Set()
     tableData.value.forEach((row: any) => {
       const value = row[column.field]
-      if (value) {
+      if (typeof value === 'string' && value) {
         options.add(value)
+        return
+      }
+      if (Array.isArray(value)) {
+        value.forEach((item: any) => {
+          if (typeof item === 'string' && item) {
+            options.add(item)
+          }
+        })
       }
     })
     return Array.from(options).filter(Boolean)
   }
-  console.log(props.extraColumnConfig, 'props.extraColumnConfig')
   provide(MdTableContextKey, {
     ...props.extraColumnConfig,
     tableData,
@@ -121,10 +146,13 @@ export function useMDTable(props: any) {
     getOptionsFromTableData,
     getUserList,
     userList,
+    refreshTableData,
+    updateExpandedRows,
     updateRow,
     addRow,
     addColumnPopoverRef,
-    systemFieldsTypes
+    systemFieldsTypes,
+    currentEditing
   })
 
   return {
@@ -136,10 +164,13 @@ export function useMDTable(props: any) {
     refreshTableData,
     tableData,
     editable,
-
+    currentEditing,
     clearCheckboxRow,
+    updateExpandedRows,
     addRow,
-    updateRow
+    updateRow,
+    deleteRow,
+    syncRowAndGroupAncestors
   }
 }
 

@@ -20,7 +20,7 @@ const orderMap = {
 async function getForms() {
   loading.value = true
   try {
-    const response = await clientApi.api.postCaptureProjformsettingPage({ projectId: props.projectId })
+    const response = await clientApi.api.postCaptureProjformsettingPage({ projectId: props.projectId, pageSize: -1 })
 
     const orderMap = {
       'A': 0,

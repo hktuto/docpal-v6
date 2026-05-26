@@ -5,7 +5,7 @@
       v-model="formData[column[fieldName]]"
       :type="properties.includeTime ? 'datetime' : 'date'"
       :format="displayFormat"
-      :disabled="disabledFields.includes(column.type)"
+      :disabled="disabledFields.includes(column.type) || disabled"
       value-format="x"
       :placeholder="column.placeholder ?? (properties.includeTime ? '选择日期和时间' : '选择日期')"
       clearable
@@ -21,6 +21,7 @@ const props = defineProps<{
   formData: any
   column: any
   fieldName: string
+  disabled: boolean
 }>()
 const disabledFields = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime]
 const _props = computed(() => {

@@ -1,11 +1,20 @@
 <template>
-  <div :class="{ 'md-table-header': true, ellipsis: true, [headerAlign]: true }" @contextmenu.prevent="handleContextMenu">
+  <div
+    :class="{
+      'md-table-header': true,
+      ellipsis: true,
+      [headerAlign]: true,
+      'column-config-editing': isColumnConfigEditing
+    }"
+    @contextmenu.prevent="handleContextMenu"
+  >
     <!-- Column type indicator -->
     <div v-if="columnIndicator" class="column-indicator" :title="columnIndicator.tooltip">
       <Icon :name="columnIndicator.icon" :class="columnIndicator.class" />
     </div>
     <div class="title">
       {{ column.title }}
+      <span v-if="isColumnConfigEditing" class="column-config-editing-badge">Editing</span>
 
       <div
         v-if="suggestionCount > 0"
@@ -36,8 +45,22 @@ const props = defineProps<{
 }>()
 const mdTableHeaderPopover = inject<Ref<any>>('mdTableHeaderPopover')
 const mdTable = useMDTableInject()
+const viewTools: any = inject('viewTools', null)
+const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
 const triggerRef = ref()
 const suggestionBadgeRef = ref()
+
+const isColumnConfigEditing = computed(() => {
+  const fieldKey = props.column?.field || props.column?.property || props.column?.colId
+  if (!fieldKey) return false
+  const menuId = viewTools?.menuId?.value || viewTools?.menuId
+  return (lockedRowCell.value ?? []).some(
+    (lock: any) =>
+      lock.editingColumn &&
+      lock.cellId === fieldKey &&
+      (!menuId || !lock.menuId || lock.menuId === menuId)
+  )
+})
 
 // Inject column suggestions context (provided by TableDetailView)
 // We receive the ref directly to maintain reactivity
@@ -84,10 +107,12 @@ function handleSuggestionClick() {
  * 表头列类型角标：配置见 addColumn/columnBasic.ts 各字段的 headerIndicator
  */
 const columnIndicator = computed(() => {
+  if (!mdTable.columns.value) return null
   const fullColumn = mdTable.columns.value.find((col: any) => col.field_name === props.column.field)
+  // 删除列后 columns 已更新但表头可能仍短暂渲染：必须用 null，避免 `{}` 让 v-if 为真进而把 undefined 传给 Icon（会触发 name.startsWith 报错）
+  if (!fullColumn) return null
   if (fullColumn.business_type === ColumnFieldType.VirtualColumn) {
-    const virtual_field_name = fullColumn.display_structure.virtual_field_name
-    const relation_field_name = virtual_field_name.split('.')[0]
+    const relation_field_name = fullColumn.display_structure.relation_field_name
     const relation_field = mdTable.columns.value.find((col: any) => col.field_name === relation_field_name)
     if (relation_field) {
       fullColumn.display_structure.relation_field_name_alias = relation_field.field_name_alias
@@ -173,6 +198,28 @@ function handleClick(htmlElement: HTMLElement) {
     flex: 1 0 auto;
     text-align: var(--align);
     line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--app-space-xs);
+    min-width: 0;
+  }
+
+  &.column-config-editing {
+    background-color: rgba(64, 158, 255, 0.14);
+    color: var(--app-accent-color);
+  }
+
+  .column-config-editing-badge {
+    flex-shrink: 0;
+    padding: 0 6px;
+    height: 18px;
+    border: 1px dashed var(--app-accent-color);
+    border-radius: var(--app-border-radius-s);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 18px;
+    color: var(--app-accent-color);
+    background: rgba(255, 255, 255, 0.75);
   }
   .suggestion-badge {
     display: inline-flex;

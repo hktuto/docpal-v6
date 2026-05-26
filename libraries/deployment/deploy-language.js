@@ -28,7 +28,9 @@ const URL = ADMINURL.replace('/admin/api', '')
 
 async function loginAdmin() {
   try {
-    const { data } = await fetch(`${URL}/api/auth/login`, {
+    const path = `${URL}/api/auth/login`
+    console.log("try to login admin", path)
+    const { data } = await fetch(path, {
       method: 'POST',
       body: JSON.stringify({
         username: SUPERADMIN,
@@ -41,6 +43,7 @@ async function loginAdmin() {
     return data.access_token
   } catch (e) {
     console.log('--login error', e)
+    throw e
   }
 }
 
@@ -54,7 +57,17 @@ async function updateLanguage(code, token) {
         'Authorization': `Bearer ${token}`
       }
     }).then(async (res) => await res.json())
-    dataList = data
+    if (data.length) {
+
+      dataList = data[0]
+    } else {
+      dataList = {
+
+        locale: code,
+        languageKey: 'client',
+        languageContent: JSON.stringify({})
+      }
+    }
   } catch (e) {
     console.log('--getLanguage error', e)
   }
@@ -64,7 +77,7 @@ async function updateLanguage(code, token) {
   // })
   const newJson = code === 'en-US' ? enJson : code === 'zh-CN' ? zhJson : zhHKJson
   const newData = {
-    ...dataList[0],
+    ...dataList,
     languageContent: JSON.stringify(newJson)
   }
   console.log('---newData', newData.id, newData.locale)

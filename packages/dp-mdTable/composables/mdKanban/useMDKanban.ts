@@ -4,18 +4,22 @@ import { ColumnFieldType } from '../../types/column-types'
 export interface MDKanbanProps {
   tableId: string
   editable?: boolean
+  isMirror?: boolean
+  canEditTable: boolean,
+  canManageTable: boolean,
+  currentEditing?: any
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
     deleteColumn: (column: ColumnConfig) => void
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
     tableFields: Ref<any[]>
-    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
     saveColumnOrder: (columnId: string, position: number) => void
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
-    viewStyleConfig?: Ref<Record<string, any>>
+    viewStyleConfig?: any
     updateViewFilterSortGroup?: (
       fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style',
       value: any
@@ -23,7 +27,7 @@ export interface MDKanbanProps {
   }
 }
 
-export const MDKanbanContextKey = Symbol('MDCardContextKey')
+export const MDKanbanContextKey = Symbol('MDKanbanContextKey')
 
 export function useMDKanban(props: MDKanbanProps) {
   const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
@@ -39,23 +43,22 @@ export function useMDKanban(props: MDKanbanProps) {
     deleteRow,
     getTableData,
     loadMore,
-    getAggChildData
+    getAggChildData,
+    currentEditing
   } = useTableData(props.tableId, cardRef)
 
 
-  provide(MDCardContextKey, {
+  provide(MDKanbanContextKey, {
     tableId: props.tableId,
     updateRow,
     tableData,
     hasMore,
     loadingMore,
     systemFieldsTypes,
+    currentEditing,
     ...props.extraColumnConfig
   })
-  onMounted(async () => {
-    await getTableData()
-    console.log('tableData', tableData)
-  })
+
   return {
     columns: props.extraColumnConfig?.columns,
     systemFieldsTypes,
@@ -68,12 +71,14 @@ export function useMDKanban(props: MDKanbanProps) {
     addRow,
     updateRow,
     deleteRow,
+    currentEditing,
+    viewStyleConfig: props.extraColumnConfig?.viewStyleConfig,
   }
 }
 export const useMDKanbanInject = () => {
-  const injectKey = inject(MDCardContextKey)
+  const injectKey = inject(MDKanbanContextKey)
   if (!injectKey) {
-    throw new Error('MDCardContext not found')
+    throw new Error('MDKanbanContext not found')
   }
   return injectKey
 }

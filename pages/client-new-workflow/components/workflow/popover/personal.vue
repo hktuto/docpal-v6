@@ -1,11 +1,14 @@
 <template>
-  <el-dropdown id="Workflow__PersonalWorkflow"
-               v-if="checkLicenseFeatures('GENERATE_TEMPLATE') || checkLicenseFeatures('BULK_IMPORT')" trigger="click"
-               @command="handleCommand">
+  <el-dropdown
+    id="Workflow__PersonalWorkflow"
+    v-if="checkLicenseFeatures('GENERATE_TEMPLATE') || checkLicenseFeatures('BULK_IMPORT')"
+    trigger="click"
+    @command="handleCommand"
+  >
     <el-button type="primary" class="el-icon--left">
       {{ $t('workflow_personalWorkflow') }}
       <el-icon class="el-icon--right">
-        <arrow-down/>
+        <arrow-down />
       </el-icon>
     </el-button>
     <template #dropdown>
@@ -18,20 +21,19 @@
       </el-dropdown-menu>
     </template>
   </el-dropdown>
-  <WorkflowPopoverTemplate ref="TemplateDialogRef"/>
-  <WorkflowPopoverBulkImport ref="BulkImportDialogRef"/>
+  <WorkflowPopoverTemplate ref="TemplateDialogRef" />
+  <WorkflowPopoverBulkImport ref="BulkImportDialogRef" />
 </template>
 
 <script lang="ts" setup>
-import {ArrowDown} from "@element-plus/icons-vue";
+import { ArrowDown } from '@element-plus/icons-vue'
 
-const emits = defineEmits([]);
+const emits = defineEmits([])
 const BulkImportDialogRef = ref()
 const TemplateDialogRef = ref()
 const state = reactive({
   menuList: [
-    {id: 'template', label: 'workflow_GenerateDocument', show: checkLicenseFeatures('GENERATE_TEMPLATE')},
-    // { id: 'bulkImport', label: 'workflow_bulkImport', show: checkLicenseFeatures('BULK_IMPORT') } // hide request by crystal
+    { id: 'template', label: 'workflow_GenerateDocument', show: checkLicenseFeatures('GENERATE_TEMPLATE') }
   ]
 })
 
@@ -39,12 +41,12 @@ function handleCommand(command) {
   switch (command) {
     case 'template':
       TemplateDialogRef.value.handleOpen()
-      break;
+      break
     case 'bulkImport':
       BulkImportDialogRef.value.handleOpen()
-      break;
+      break
     default:
-      break;
+      break
   }
 }
 </script>

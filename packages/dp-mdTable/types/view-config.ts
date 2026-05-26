@@ -161,7 +161,7 @@ export interface FormStructure {
 export interface FieldInfo {
   fieldName: string
   fieldNameAlias: string
-  type: number
+  type: string
   isSystem?: boolean
   /** Field properties (e.g., options for select fields) */
   properties?: Record<string, any>

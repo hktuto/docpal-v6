@@ -2353,25 +2353,78 @@
   "masterTable_settingRemoveSuccessMsg": "Selected permission has ben removed from the master table  {name}.",
   "mdTable": {
     "countMethod": {
-      "avg": "Average",
-      "count": "Total Records",
-      "empty": "Empty",
-      "emptyPercent": "Empty Percentage",
-      "filled": "Filled",
-      "filledPercent": "Filled Percentage",
+      "AVG": "Average",
+      "BLANK_COUNT": "Empty",
+      "BLANK_RATIO": "Empty Percentage",
+      "COUNT": "Total Records",
+      "FILLED_COUNT": "Filled",
+      "FILLED_RATIO": "Filled Percentage",
       "getDataError": "Failed to get table data",
-      "max": "Max",
-      "min": "Min",
+      "MAX": "Max",
+      "MIN": "Min",
       "none": "Don't Show",
       "statistics": "Statistics",
-      "sum": "Sum",
-      "unique": "Unique Values"
+      "SUM": "Sum",
+      "UNIQUE_COUNT": "Unique Values",
+      "UNIQUE_RATIO": "Unique Percentage"
     },
     "deleteRow": "Delete this line",
     "deleteSelectedRow": "Delete these {count} lines",
     "relationCard": {
       "removeRelation": "Remove this relation",
       "unnamed": "Unnamed"
+    },
+    "columnConfig": {
+      "dragToSort": "Drag to sort",
+      "hideColumns": "Hide columns",
+      "hideAll": "Hide All",
+      "minOneColumn": "Keep at least one column visible",
+      "showAll": "Show All",
+      "title": "Column Visibility"
+    },
+    "grouping": {
+      "autoSaveTip": "View settings are saved automatically. Your changes sync to other members in real time.",
+      "button": "Group",
+      "buttonWithCount": "{count} groups",
+      "maxGroupsTip": "You can configure up to {count} grouping levels.",
+      "popoverTitle": "Configure grouping",
+      "selectPlaceholder": "Select an option"
+    },
+    "filter": {
+      "addCondition": "Add filter condition",
+      "and": "And",
+      "autoSaveTip": "View configuration is auto-saved. Your changes are saved in real time and synced to other members.",
+      "button": "Filter",
+      "buttonWithCount": "{count} filters",
+      "connectorWhen": "When",
+      "dialogTitle": "Filter settings",
+      "operators": {
+        "after": "After",
+        "afterOrEquals": "After or equals",
+        "before": "Before",
+        "beforeOrEquals": "Before or equals",
+        "contains": "Contains",
+        "duplicate": "Has duplicate",
+        "equals": "Equals",
+        "isEmpty": "Is empty",
+        "isNotEmpty": "Is not empty",
+        "notEquals": "Not equals"
+      },
+      "or": "Or",
+      "placeholderDate": "Select date",
+      "placeholderField": "Select field",
+      "placeholderOperator": "Select operator",
+      "placeholderValue": "Enter value"
+    },
+    "sort": {
+      "addCondition": "Add sort rule",
+      "autoSaveTip": "View settings are saved automatically. Your changes sync to other members in real time.",
+      "button": "Sort",
+      "buttonWithCount": "{count} sorts",
+      "dialogTitle": "Sort settings",
+      "orderTextAsc": "A → Z",
+      "orderTextDesc": "Z → A",
+      "selectPlaceholder": "Select an option"
     },
     "relationPicker": {
       "configRequired": "Please configure the relation table first",
@@ -2404,6 +2457,33 @@
       "unrecognizedVariable": "Unrecognized variable {0}",
       "usage": "Usage",
       "variableDescription": "Variable: {label}"
+    },
+    "cardStyle": {
+      "title": "Card appearance",
+      "cover": "Cover",
+      "noCover": "No cover",
+      "stretch": "Stretch to fit",
+      "showColumnNames": "Show column names",
+      "border": "Border",
+      "compact": "Compact",
+      "shadow": "Shadow",
+      "shadowNone": "None",
+      "shadowSmall": "Small",
+      "shadowHover": "On hover"
+    },
+    "cardLayout": {
+      "cardsPerRow": "Cards per row"
+    },
+    "cardToolbar": {
+      "layout": "Layout",
+      "style": "Style"
+    },
+    "cardGroup": {
+      "defaultTitle": "Group",
+      "emptyValue": "Empty",
+      "recordCount": "{count} records",
+      "emptyChildren": "No records",
+      "emptyGroups": "No groups"
     }
   },
   "menu_master-table": "Master Table",
@@ -4310,6 +4390,7 @@
   "workflow_editorVersionHistory": "Version History",
   "workflow_editorViewProductionVersion": "View Production Version",
   "workflow_editorViewVersionHistory": "View Version History",
+  "workflow_editorPermission": "Permission",
   "workflow_form": "Form",
   "workflow_graph": "Flowchart",
   "workflow_holdPolicy": "Hold Policy",

@@ -62,8 +62,8 @@ export default defineAppConfig({
     //   name: 'client-workflow'
     // },
     {
-         name: 'client-new-workflow'
-       },
+      name: 'client-new-workflow'
+    },
     {
       label: 'client_retention_item',
       icon: 'ic:outline-lock-clock',
@@ -100,6 +100,9 @@ export default defineAppConfig({
     },
     {
       name: 'client-scan'
+    },
+    {
+      name:"dynamic-db"
     }
   ],
   adminMenu: [
@@ -201,14 +204,13 @@ export default defineAppConfig({
     //   ]
     // },
     {
-         label: 'New Workflow',
-         icon: 'dp-icon:flow-outline',
-         children: [
-           { name: 'admin-new-workflow-manage' },
-           { name: 'admin-new-workflow-edit-manage'}
-         ]
-       },
-
+      label: 'adminMenu.workflow',
+      icon: 'dp-icon:flow-outline',
+      children: [
+        { name: 'admin-new-workflow-manage' },
+        { name: 'admin-new-workflow-edit-manage' }
+      ]
+    },
     {
       label: 'adminMenu.templateManagement',
       icon: 'lucide:layout-template',
@@ -252,9 +254,9 @@ export default defineAppConfig({
         {
           name: 'admin-password-policy'
         },
-        {
-          name: 'admin-log-manage'
-        },
+        // {
+        //   name: 'admin-log-manage'
+        // },
         {
           name: 'admin-audit'
         },
@@ -284,9 +286,9 @@ export default defineAppConfig({
     {
       name: 'admin-easy-form'
     },
-    {
-      name: 'admin-calendar-setting'
-    },
+    // {
+    //   name: 'admin-calendar-setting'
+    // },
     {
       name: 'admin-scan'
     }

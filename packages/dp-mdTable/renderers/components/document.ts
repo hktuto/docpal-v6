@@ -6,7 +6,7 @@ import { Icon } from '#components'
  * Document 列视图渲染：根据行数据显示附件
  */
 export const DocumentView = ({ options, params }: ViewRenderFunctionParams<boolean>): VNode => {
-  const { row, column } = params
+  const { $grid, row, column } = params
   const properties = options?.props || {}
   if (!column.field || !row[column.field]) {
     return h('div', '')
@@ -18,7 +18,13 @@ export const DocumentView = ({ options, params }: ViewRenderFunctionParams<boole
   const fileNames = row[column.field].split(',')
   const fileNodes = fileNames.map((fileName: string) => {
     return h('div', {
-      onClick: () => handleClick()
+      onClick: () => handleClick(),
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     }, fileName)
   })
   return h('div', fileNodes)

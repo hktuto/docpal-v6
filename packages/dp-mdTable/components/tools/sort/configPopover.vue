@@ -1,9 +1,15 @@
 <template>
-  <UiPopoverDialog ref="popoverRef" :width="width" :placement="placement" title="设置排序" :close-on-click-outside="closeOnClickOutside">
+  <UiPopoverDialog
+    ref="popoverRef"
+    :width="width"
+    :placement="placement"
+    :title="t('mdTable.sort.dialogTitle')"
+    :close-on-click-outside="closeOnClickOutside"
+  >
     <div class="sort-config-popover">
       <!-- 标题和提示信息 -->
       <div class="popover-header">
-        <div class="auto-save-tip">视图配置处于自动保存中，你的操作会实时保存并同步给其他成员</div>
+        <div class="auto-save-tip">{{ t('mdTable.sort.autoSaveTip') }}</div>
       </div>
       <!-- 排序规则列表 -->
       <div class="sort-rules">
@@ -20,7 +26,7 @@
               <!-- 字段选择 -->
               <el-select
                 v-model="element.field"
-                placeholder="请选择一个选项"
+                :placeholder="t('mdTable.sort.selectPlaceholder')"
                 size="small"
                 class="field-select"
                 clearable
@@ -38,10 +44,10 @@
               <!-- 排序方向按钮 -->
               <div class="sort-order-buttons">
                 <el-button :type="element.order === 'asc' ? 'primary' : ''" size="small" class="order-btn" @click="handleOrderChange(element, 'asc')">
-                  A → Z
+                  {{ t('mdTable.sort.orderTextAsc') }}
                 </el-button>
                 <el-button :type="element.order === 'desc' ? 'primary' : ''" size="small" class="order-btn" @click="handleOrderChange(element, 'desc')">
-                  Z → A
+                  {{ t('mdTable.sort.orderTextDesc') }}
                 </el-button>
               </div>
 
@@ -54,7 +60,9 @@
 
       <!-- 添加新规则 -->
       <div class="add-rule-section">
-        <el-button v-if="columnSortRules.length === 0" type="primary" :icon="Plus" size="small" text @click="handleAddRule"> 添加排序条件 </el-button>
+        <el-button v-if="columnSortRules.length === 0" type="primary" :icon="Plus" size="small" text @click="handleAddRule">
+          {{ t('mdTable.sort.addCondition') }}
+        </el-button>
       </div>
     </div>
   </UiPopoverDialog>
@@ -84,8 +92,11 @@ const emit = defineEmits<{
   change: [rules: SortRule[]]
 }>()
 
+const { t } = useI18n()
+
 const popoverRef = ref()
-const { columnSortRules } = useMDTableInject() as { columnSortRules: Ref<SortRule[]> }
+const { columnSortRules } = inject('viewTools')
+
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 

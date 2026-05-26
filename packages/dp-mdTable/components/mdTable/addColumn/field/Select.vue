@@ -55,6 +55,7 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   column: any
+  isChanged?:boolean
 }>()
 
 const { getOptionsFromTableData } = useMDTableInject()
@@ -173,8 +174,9 @@ const getNextColor = (): string => {
 // 初始化选项
 const initOptions = async() => {
   // check type in column if current column type is not select or multiSelect, need to try get all possible options from table data
-  if (props.column.type !== ColumnFieldType.SingleSelect && props.column.type !== ColumnFieldType.MultiSelect) {
-    // promt user to see if need to convert current table data into options
+  if (props.column && props.column.type !== ColumnFieldType.SingleSelect && props.column.type !== ColumnFieldType.MultiSelect && (!props.column.display_structure?.options || !props.column.display_structure?.options.length)) {
+    // promt user to see if need to convert current table data into options\
+    // TODO：　get unique option from backend
     const possibleOptions = await getOptionsFromTableData(props.column)
 
     if(possibleOptions.length > 0) {
@@ -206,7 +208,7 @@ const initOptions = async() => {
       props.formData.options = []
     }
   }
-  
+
   // 初始化 defaultValue
   if (props.formData) {
     if (isMultiSelect.value) {
@@ -250,7 +252,7 @@ const handleClearDefaultValue = () => {
 const handleDeleteOption = (index: number) => {
   const deletedOption = options.value[index]
   options.value.splice(index, 1)
-  
+
   // 如果删除的选项是默认值，需要从 defaultValue 中移除
   if (deletedOption && props.formData?.defaultValue) {
     if (isMultiSelect.value) {
@@ -268,7 +270,7 @@ const handleDeleteOption = (index: number) => {
       }
     }
   }
-  
+
   updateFormData()
 }
 
@@ -316,10 +318,11 @@ const syncOptionsFromProps = () => {
     // 比较新选项和当前选项是否相同（通过比较序列化后的字符串）
 
     const normalizeOptions = (opts: any[]) => {
+      console.log("normalizeOptions opts", opts)
       return JSON.stringify(
         opts
+          .filter((opt) => typeof opt.id === 'string' && typeof opt.label === 'string')
           .map((opt: any) => ({ id: opt.id || '', label: opt.label || '', color: opt.color || '' }))
-          .sort((a: any, b: any) => (a.label || '').localeCompare(b.label || ''))
       )
     }
 
@@ -399,6 +402,8 @@ onMounted(() => {
   }
 
   .options-list {
+      max-height: 400px;
+      overflow-y: auto;
   }
 
   .option-item {

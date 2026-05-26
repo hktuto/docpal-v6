@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
 
 const emits = defineEmits(['change'])
 const { taskDetail } = defineProps<{
@@ -10,17 +10,14 @@ const userId: string = useUserId().value
 const routerProvider = inject(MenuRouterKey)
 const loading = ref(false)
 
-const isStartedUser = computed(() => {
-  return taskDetail.assignee === userId
-})
 const isAssigneeUser = computed(() => {
-  return taskDetail.assignee === userId
+  return taskDetail.config?.human_task?.assignee === userId
 })
 
 async function handleUnclaim() {
   try {
     loading.value = true
-    const response = await $api.post(`/oniflow/api/v1/tasks/instance/${userId}/unclaim`).then((r) => r.data)
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`).then((r) => r.data.data)
     emits('change', response, false)
     taskDetail.assignee = ''
   } catch (error) {
@@ -32,15 +29,14 @@ async function handleUnclaim() {
 }
 
 async function handleClaim() {
+  if (taskDetail.status !== 'assigned') return
+
   try {
     loading.value = true
     const parms = {
-      user_id: userId,
-      process_id: ''
+      user_id: userId
     }
-
-    await $api.post(`/oniflow/api/v1/tasks/instance/${taskDetail.process_instance_id}/claim`, parms).then((res) => res.data)
-
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((res: any) => res.data.data)
     if (!response.errorCode) {
       emits('change', response, true)
     }
@@ -51,19 +47,6 @@ async function handleClaim() {
     loading.value = false
   }, 200)
 }
-
-async function handelDelete() {
-  try {
-    loading.value = true
-    await $api.delete(`/oniflow/api/v1/processes/instance/${taskDetail.process_instance_id}`).then((r) => r.data)
-    routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('common_item') }))
-    routerProvider?.back()
-  } catch (e) {
-    console.log(e)
-  } finally {
-    loading.value = false
-  }
-}
 </script>
 
 <template>
@@ -71,13 +54,13 @@ async function handelDelete() {
     <div class="infoContainer">
       <div class="label">{{ $t('workflow_taskName') }}</div>
       <div class="value">
-        {{ taskDetail.node_name }}
+        {{ taskDetail.name }}
       </div>
     </div>
     <div class="infoContainer">
       <div class="label">{{ $t('workflow_assignee') }}</div>
       <div class="value">
-        {{ taskDetail.assignee }}
+        {{ taskDetail.config?.human_task?.assignee }}
       </div>
     </div>
     <div class="infoContainer">
@@ -97,22 +80,9 @@ async function handelDelete() {
       <el-button id="Workflow__AvailableTask__Detail__JobInfo__UnclaimTask" v-if="isAssigneeUser" type="warning" :loading="loading" @click="handleUnclaim">
         {{ $t('workflow_Unclaim') }}
       </el-button>
-      <el-button
-        id="Workflow__AvailableTask__Detail__JobInfo__ClaimTask"
-        v-else-if="!taskDetail.assignee"
-        type="primary"
-        :loading="loading"
-        @click="handleClaim"
-      >
+      <el-button id="Workflow__AvailableTask__Detail__JobInfo__ClaimTask" v-else-if="!isAssigneeUser" type="primary" :loading="loading" @click="handleClaim">
         {{ $t('workflow_claim') }}
       </el-button>
-      <el-popconfirm v-if="isStartedUser" class="box-item" :title="t('workflow_delete')" placement="top" @confirm="handelDelete">
-        <template #reference>
-          <el-button type="danger" id="Workflow__AvailableTask__Detail__JobInfo__Delete">
-            {{ $t('common_delete') }}
-          </el-button>
-        </template>
-      </el-popconfirm>
     </div>
   </div>
 </template>

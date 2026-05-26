@@ -1,33 +1,15 @@
-<template>
-  <div class="grouping-button-wrapper" v-if="groupingRules">
-    <el-button
-      ref="buttonRef"
-      type="primary"
-      @click="handleButtonClick"
-    >
-      {{ groupingRules.length > 0 ? `${groupingRules.length}个分组` : '分组' }}
-    </el-button>
-    <GroupingConfigPopover
-      ref="popoverRef"
-      :available-columns="availableColumns"
-      v-model:grouping-rules="groupingRules"
-      :virtual-ref="buttonRef"
-      width="480"
-      placement="bottom-start"
-      @change="handleGroupingChange"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import GroupingConfigPopover from './GroupingConfigPopover.vue'
 import type { GroupingRule } from './GroupingConfigPopover.vue'
 import type { ColumnConfig } from '../../types/column-context'
 
+const { t } = useI18n()
 
 interface Props {
   groupableColumns: ColumnConfig[]
+  disabled?: boolean
+  groupMaxCount?: number
 }
 
 const props = defineProps<Props>()
@@ -36,11 +18,18 @@ const emits = defineEmits<{
 }>()
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref<InstanceType<typeof GroupingConfigPopover>>()
-const { columnGroupRules: groupingRules } = useMDTableInject()
+const { columnGroupRules: groupingRules } = inject('viewTools')
+
+const groupingButtonLabel = computed(() => {
+  const n = groupingRules.value?.length ?? 0
+  if (n > 0) {
+    return t('mdTable.grouping.buttonWithCount', { count: n })
+  }
+  return t('mdTable.grouping.button')
+})
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
-  
   if (props.groupableColumns) {
     return props.groupableColumns
   }
@@ -69,9 +58,32 @@ defineExpose({
 })
 </script>
 
+<template>
+  <div class="grouping-button-wrapper" v-if="groupingRules">
+    <el-button
+      ref="buttonRef"
+      type="primary"
+      :disabled="disabled"
+      :aria-label="groupingButtonLabel"
+      @click="handleButtonClick"
+    >
+      {{ groupingButtonLabel }}
+    </el-button>
+    <GroupingConfigPopover
+      ref="popoverRef"
+      :available-columns="availableColumns"
+      v-model:grouping-rules="groupingRules"
+      :virtual-ref="buttonRef"
+      :groupMaxCount="groupMaxCount"
+      width="480"
+      placement="bottom-start"
+      @change="handleGroupingChange"
+    />
+  </div>
+</template>
+
 <style scoped lang="scss">
 .grouping-button-wrapper {
   display: inline-block;
 }
 </style>
-

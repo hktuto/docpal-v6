@@ -2352,25 +2352,78 @@
   "masterTable_settingRemoveSuccessMsg": "所选权限已从主表格 {name} 中删除。",
   "mdTable": {
     "countMethod": {
-      "avg": "平均值",
-      "count": "记录总数",
-      "empty": "未填写",
-      "emptyPercent": "未填写占比",
-      "filled": "已填写",
-      "filledPercent": "已填写占比",
+      "AVG": "平均值",
+      "BLANK_COUNT": "未填写",
+      "BLANK_RATIO": "未填写占比",
+      "COUNT": "记录总数",
+      "FILLED_COUNT": "已填写",
+      "FILLED_RATIO": "已填写占比",
       "getDataError": "获取表格数据失败",
-      "max": "最大值",
-      "min": "最小值",
+      "MAX": "最大值",
+      "MIN": "最小值",
       "none": "不展示",
       "statistics": "统计",
-      "sum": "求和",
-      "unique": "唯一值"
+      "SUM": "求和",
+      "UNIQUE_COUNT": "唯一值",
+      "UNIQUE_RATIO": "唯一值占比"
     },
     "deleteRow": "删除这行",
     "deleteSelectedRow": "删除这{count}行",
     "relationCard": {
       "removeRelation": "移除该关联",
       "unnamed": "未命名"
+    },
+    "columnConfig": {
+      "dragToSort": "拖拽排序",
+      "hideColumns": "隐藏列",
+      "hideAll": "隐藏所有",
+      "minOneColumn": "至少保留一列",
+      "showAll": "显示所有",
+      "title": "列显示与隐藏"
+    },
+    "grouping": {
+      "autoSaveTip": "视图配置处于自动保存中，你的操作会实时保存并同步给其他成员",
+      "button": "分组",
+      "buttonWithCount": "{count}个分组",
+      "maxGroupsTip": "最多只能设置 {count} 个分组",
+      "popoverTitle": "设置分组",
+      "selectPlaceholder": "请选择一个选项"
+    },
+    "filter": {
+      "addCondition": "添加筛选条件",
+      "and": "且",
+      "autoSaveTip": "视图配置处于自动保存中，你的操作会实时保存并同步给其他成员",
+      "button": "筛选",
+      "buttonWithCount": "{count}个筛选",
+      "connectorWhen": "当",
+      "dialogTitle": "筛选设置",
+      "operators": {
+        "after": "晚于",
+        "afterOrEquals": "晚于或等于",
+        "before": "早于",
+        "beforeOrEquals": "早于或等于",
+        "contains": "包含",
+        "duplicate": "有重复",
+        "equals": "等于",
+        "isEmpty": "为空",
+        "isNotEmpty": "不为空",
+        "notEquals": "不等于"
+      },
+      "or": "或",
+      "placeholderDate": "选择日期",
+      "placeholderField": "选择字段",
+      "placeholderOperator": "选择运算符",
+      "placeholderValue": "输入值"
+    },
+    "sort": {
+      "addCondition": "添加排序条件",
+      "autoSaveTip": "视图配置处于自动保存中，你的操作会实时保存并同步给其他成员",
+      "button": "排序",
+      "buttonWithCount": "{count}个排序",
+      "dialogTitle": "排序设置",
+      "orderTextAsc": "A → Z",
+      "orderTextDesc": "Z → A",
+      "selectPlaceholder": "请选择一个选项"
     },
     "relationPicker": {
       "configRequired": "请先配置关联表",
@@ -2403,6 +2456,33 @@
       "unrecognizedVariable": "未识别{0}",
       "usage": "用法",
       "variableDescription": "变量: {label}"
+    },
+    "cardStyle": {
+      "title": "设置卡片样式",
+      "cover": "封面",
+      "noCover": "无封面",
+      "stretch": "拉伸",
+      "showColumnNames": "显示列名",
+      "border": "边框",
+      "compact": "紧凑",
+      "shadow": "阴影",
+      "shadowNone": "无",
+      "shadowSmall": "小",
+      "shadowHover": "悬浮"
+    },
+    "cardLayout": {
+      "cardsPerRow": "每行卡片数"
+    },
+    "cardToolbar": {
+      "layout": "布局",
+      "style": "样式"
+    },
+    "cardGroup": {
+      "defaultTitle": "分组",
+      "emptyValue": "空",
+      "recordCount": "{count} 条",
+      "emptyChildren": "暂无记录",
+      "emptyGroups": "暂无分组"
     }
   },
   "menu_master-table": "主表格",

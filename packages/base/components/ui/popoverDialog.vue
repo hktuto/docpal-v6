@@ -20,6 +20,7 @@ interface Props {
     | 'top-end'
     | 'bottom'
     | 'bottom-start'
+
     | 'bottom-center'
     | 'bottom-end'
     | 'left'
@@ -679,6 +680,7 @@ defineExpose({
     :close-on-click-modal="closeOnClickModal"
     :show-close="showClose"
     append-to-body
+    :class="{ [`offset-${offset}-dialog`]: offset > 100 }"
     @open="emit('open')"
     @close="emit('close')"
     @opened="emit('opened')"
@@ -860,5 +862,11 @@ defineExpose({
       top: -9px;
     }
   }
+}
+
+</style>
+<style lang="scss">
+.offset-400-dialog {
+  margin-right: 400px;
 }
 </style>

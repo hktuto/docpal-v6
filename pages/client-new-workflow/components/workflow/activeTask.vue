@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -13,34 +14,14 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'active_task',
   api: async (pageParams: any) => {
-    const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data)
-    return {
-      data: {
-        entryList: data.items || [],
-        pageNum: data.page_num || 0,
-        pageCount: data.page_size || 1,
-        totalSize: data.total || 0
-      }
-    }
+    return await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
   },
   columns: [
-    { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },
-    { field: 'taskInstance.processDefinitionName', title: 'workflow_workflowName' },
-
-    {
-      field: 'name',
-      title: 'workflow_taskName'
-      //   slots: {
-      //     default: "status",
-      //   },
-    },
-    {
-      field: 'assignee',
-      title: 'workflow_assignee',
-      slots: {
-        default: 'assignee'
-      }
-    },
+    // { field: 'id', title: 'Workflow Instance Name', fixed: 'left' },
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
       field: 'createDate',
       title: 'workflow_createDate',
@@ -56,43 +37,28 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
-  // router.push(`/easyFormManage/${row.id}`);
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      name: row.taskInstance.businessKey,
-      workflowType: 'activeTask'
+      workflowType: 'activeTask',
+      db_id: row.db_id
     }),
     false
   )
 }
 
 async function claimTask(row: any) {
-  await newClientApi.postWorkflowTaskClaim({
-    taskId: row.id,
-    userId
-  })
+  await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.process_id}/claim`, { user_id: userId }).then((res) => res.data)
   query({})
 }
 
-function handleFormChange(data: any) {
-  extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
-    if (data.formModel[key] && data.formModel[key].length > 0) prev[key] = data.formModel[key]
-    return prev
-  }, {})
+function reloadTable() {
   reload()
 }
 
-function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-  extraParams = formModel
-  reload()
-}
-
-const ResponsiveFilterRef = ref()
-function reloadTable(){
-  reload()
+function handleAssignee(assignee: string) {
+  if (!assignee || assignee === '') return false
+  return !assignee.includes('${')
 }
 
 defineExpose({ reloadTable })
@@ -101,18 +67,12 @@ defineExpose({ reloadTable })
 <template>
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
-      </template>
+      <template #toolbar_buttons> </template>
       <template #assignee="{ row }">
-        <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-        <el-button :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" v-else type="primary" size="small" round @click="claimTask(row)">
+        <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>{{ row.config.human_task.assignee || '' }}</el-tag>
+        <el-button v-else :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" type="primary" size="small" round @click="claimTask(row)">
           {{ $t('workflow_claim') }}
         </el-button>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
       </template>
     </VxeGrid>
   </div>

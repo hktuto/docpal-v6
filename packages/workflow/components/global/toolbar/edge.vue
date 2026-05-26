@@ -20,7 +20,9 @@ type EdgeData = {
 
 function setupEdge() {
   graphProvider?.graph.value?.on('edge:dblclick', ({ edge, e }: any) => {
-    if (edge.metadata.sourceType !== CellType.conditionTask) return
+    if (edge.getData().metadata.sourceType !== CellType.conditionTask) return
+    // open Sidebar
+    graphProvider?.openSidebar('LazyContextEdge', edge)
   })
 
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
@@ -71,9 +73,9 @@ function setupEdge() {
     const target = edge.getTargetCell()
     if (!source || !target) return
 
-    console.log('----edge:connected edge ', isNew, edge)
-    console.log('----edge:connected source ', source)
-    console.log('----edge:connected target ', target)
+    // console.log('----edge:connected edge ', isNew, edge)
+    // console.log('----edge:connected source ', source)
+    // console.log('----edge:connected target ', target)
 
     if (!isNew) {
       // update edge
@@ -105,6 +107,7 @@ function setupEdge() {
       },
       metadata: {
         label: '',
+        conditionStatus: 'success',
         sourceType: source.getData().metadata.type,
         targetType: target.getData().metadata.type,
         sourcePort: edge.source.port,
@@ -132,6 +135,7 @@ function setupEdge() {
       newEdgeData.metadata.label = 'Success'
       if (isNew) {
         if (allNodeConnected.length > 0) {
+          newEdgeData.metadata.conditionStatus = 'failure'
           newEdgeData.metadata.label = 'Failure'
         }
         edge.setLabels(newEdgeData.metadata.label)

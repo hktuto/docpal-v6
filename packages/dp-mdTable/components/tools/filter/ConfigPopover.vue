@@ -1,9 +1,15 @@
 <template>
-  <UiPopoverDialog ref="popoverRef" :width="width" :placement="placement" title="设置筛选" :close-on-click-outside="closeOnClickOutside">
+  <UiPopoverDialog
+    ref="popoverRef"
+    :width="width"
+    :placement="placement"
+    :title="t('mdTable.filter.dialogTitle')"
+    :close-on-click-outside="closeOnClickOutside"
+  >
     <div class="filter-config-popover">
       <!-- 标题和提示信息 -->
       <div class="popover-header">
-        <div class="auto-save-tip">视图配置处于自动保存中，你的操作会实时保存并同步给其他成员</div>
+        <div class="auto-save-tip">{{ t('mdTable.filter.autoSaveTip') }}</div>
       </div>
 
       <!-- 筛选规则列表 -->
@@ -12,7 +18,13 @@
           <!-- 第一列：逻辑连接符 -->
           <div class="logic-connector">
             <el-button v-if="index !== 1" disabled size="small" class="connector-btn">
-              {{ index === 0 ? '当' : columnFilterRules.conjunction === 'AND' ? '并且' : '或者' }}
+              {{
+                index === 0
+                  ? t('mdTable.filter.connectorWhen')
+                  : columnFilterRules.conjunction === 'AND'
+                    ? t('mdTable.filter.and')
+                    : t('mdTable.filter.or')
+              }}
             </el-button>
             <el-select
               v-else
@@ -24,15 +36,15 @@
               @visible-change="handleSelectVisibleChange"
               @click.stop
             >
-              <el-option label="并且" value="AND" />
-              <el-option label="或者" value="OR" />
+              <el-option :label="t('mdTable.filter.and')" value="AND" />
+              <el-option :label="t('mdTable.filter.or')" value="OR" />
             </el-select>
           </div>
 
           <!-- 第二列：字段选择 -->
           <el-select
             v-model="rule.field"
-            placeholder="请选择字段"
+            :placeholder="t('mdTable.filter.placeholderField')"
             size="small"
             class="field-select"
             @change="handleFieldChange(rule)"
@@ -52,7 +64,7 @@
           <!-- 第三列：操作符选择 -->
           <el-select
             v-model="rule.operator"
-            placeholder="请选择操作符"
+            :placeholder="t('mdTable.filter.placeholderOperator')"
             size="small"
             class="operator-select"
             @change="handleEditRule(rule)"
@@ -66,7 +78,7 @@
           <el-date-picker
             v-if="isDateField(rule.field)"
             v-model="rule.value"
-            placeholder="请选择日期"
+            :placeholder="t('mdTable.filter.placeholderDate')"
             size="small"
             class="value-input"
             value-format="x"
@@ -75,12 +87,12 @@
           <el-input
             v-else-if="!isValueEmptyOperator(rule.operator)"
             v-model="rule.value"
-            placeholder="请输入值"
+            :placeholder="t('mdTable.filter.placeholderValue')"
             size="small"
             class="value-input"
             @input="handleEditRule(rule)"
           />
-
+          <div v-else class="placeholder-input value-input"></div>
           <!-- 删除按钮 -->
           <el-button type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteRule(index)" />
         </div>
@@ -88,7 +100,7 @@
 
       <!-- 添加新规则 -->
       <div class="add-rule-section">
-        <el-button type="primary" :icon="Plus" size="small" text @click="handleAddRule"> 添加筛选条件 </el-button>
+        <el-button type="primary" :icon="Plus" size="small" text @click="handleAddRule">{{ t('mdTable.filter.addCondition') }}</el-button>
       </div>
     </div>
   </UiPopoverDialog>
@@ -134,8 +146,11 @@ const emit = defineEmits<{
   ]
 }>()
 
+const { t } = useI18n()
+
 const popoverRef = ref()
-const { columnFilterRules } = useMDTableInject()
+const { columnFilterRules } = inject('viewTools')
+
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 
@@ -161,8 +176,8 @@ const handleSelectVisibleChange = (visible: boolean) => {
 const isNumericField = (field: string): boolean => {
   const column = props.availableColumns.find((col) => col.field === field)
   if (!column) return false
-
-  const type = column.type
+  console.log('isNumericField', column)
+  const type = column.business_type
   return (
     type === ColumnFieldType.Number ||
     type === ColumnFieldType.Currency ||
@@ -179,18 +194,19 @@ const isDateField = (field: string): boolean => {
 }
 // 获取字段的操作符选项
 const getOperatorsForField = (field: string): OperatorOption[] => {
+  console.log('getOperatorsForField', field)
   if (!field) {
     return []
   }
   if (isDateField(field)) {
     return [
-      { label: '等于', value: 'EQ' },
-      { label: '晚于', value: 'GT' },
-      { label: '晚于等于', value: 'GTE' },
-      { label: '早于', value: 'LT' },
-      { label: '早于等于', value: 'LTE' },
-      { label: '为空', value: 'EMPTY' },
-      { label: '不为空', value: 'IS_NOT_NULL' }
+      { label: t('mdTable.filter.operators.equals'), value: 'EQ' },
+      { label: t('mdTable.filter.operators.after'), value: 'GT' },
+      { label: t('mdTable.filter.operators.afterOrEquals'), value: 'GTE' },
+      { label: t('mdTable.filter.operators.before'), value: 'LT' },
+      { label: t('mdTable.filter.operators.beforeOrEquals'), value: 'LTE' },
+      { label: t('mdTable.filter.operators.isEmpty'), value: 'IS_NULL' },
+      { label: t('mdTable.filter.operators.isNotEmpty'), value: 'IS_NOT_NULL' }
     ]
   } else if (isNumericField(field)) {
     // 数字类型操作符
@@ -201,25 +217,26 @@ const getOperatorsForField = (field: string): OperatorOption[] => {
       { label: '≥', value: 'GTE' },
       { label: '<', value: 'LT' },
       { label: '≤', value: 'LTE' },
-      { label: '为空', value: 'EMPTY' }
+      { label: t('mdTable.filter.operators.isEmpty'), value: 'IS_NULL' }
     ]
   } else {
     // 非数字类型操作符
+    console.log('getOperatorsForField', props.availableColumns)
     return [
-      { label: '等于', value: 'EQ' },
-      { label: '不等于', value: 'NE' },
-      { label: '包含', value: 'CONTAINS' },
-      { label: '不包含', value: 'NOT_CONTAINS' },
-      { label: '为空', value: 'EMPTY' },
-      { label: '不为空', value: 'NOT_EMPTY' },
-      { label: '有重复', value: 'DUPLICATE' }
+      { label: t('mdTable.filter.operators.contains'), value: 'LIKE' },
+      // { label: 'Does not contain', value: 'NOT_LIKE' },
+      { label: t('mdTable.filter.operators.equals'), value: 'EQ' },
+      { label: t('mdTable.filter.operators.notEquals'), value: 'NE' },
+      { label: t('mdTable.filter.operators.isEmpty'), value: 'IS_NULL' },
+      { label: t('mdTable.filter.operators.isNotEmpty'), value: 'IS_NOT_NULL' },
+      { label: t('mdTable.filter.operators.duplicate'), value: 'DUPLICATE' }
     ]
   }
 }
 
 // 检查操作符是否为"为空"类型（不需要输入值）
 const isValueEmptyOperator = (operator: string): boolean => {
-  return ['empty', 'notEmpty', 'duplicate'].includes(operator)
+  return ['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(operator)
 }
 
 // 获取字段图标
@@ -304,31 +321,16 @@ defineExpose({
 
 <style scoped lang="scss">
 .filter-config-popover {
-  padding: 16px;
-  min-width: 500px;
+  padding: var(--app-space-s);
+  min-width: 40rem;
+  font-size: var(--app-font-size-l);
 
   .popover-header {
-    margin-bottom: 16px;
-
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      color: #303133;
-      margin-bottom: 8px;
-
-      .info-icon {
-        color: #909399;
-        cursor: help;
-      }
-    }
+    margin-bottom: var(--app-space-s);
 
     .auto-save-tip {
-      font-size: 12px;
-      color: #909399;
-      line-height: 1.5;
+      color: var(--app-text-color-secondary);
+      font-size: var(--app-font-size-m);
     }
   }
 
@@ -336,24 +338,17 @@ defineExpose({
     .filter-rule-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px;
-      background: #f5f7fa;
-      border-radius: 4px;
-      margin-bottom: 8px;
-      transition: background-color 0.2s;
-
-      &:hover {
-        background: #ebedf0;
-      }
+      gap: var(--app-space-s);
+      margin-bottom: var(--app-space-s);
 
       .logic-connector {
-        width: 60px;
-        flex-shrink: 0;
-
+        width: 4rem;
         .connector-btn {
           width: 100%;
           cursor: not-allowed;
+          &:hover {
+            background-color: var(--app-fill-color);
+          }
         }
 
         .connector-select {
@@ -363,17 +358,17 @@ defineExpose({
 
       .field-select {
         flex: 1;
-        min-width: 150px;
+        min-width: 10rem;
       }
 
       .operator-select {
         flex: 1;
-        min-width: 120px;
+        min-width: 8rem;
       }
 
       .value-input {
         flex: 1;
-        min-width: 150px;
+        min-width: 15rem;
       }
 
       .delete-btn {
@@ -383,19 +378,19 @@ defineExpose({
   }
 
   .add-rule-section {
-    margin-top: 12px;
+    margin-top: var(--app-space-s);
     display: flex;
     justify-content: center;
   }
+}
 
-  .field-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .field-icon {
-      color: #909399;
-    }
-  }
+:deep(.filter-rule-item .el-input__wrapper),
+:deep(.filter-rule-item .el-select__wrapper),
+:deep(.filter-rule-item .el-date-editor.el-input .el-input__wrapper),
+.connector-btn {
+  min-height: 3rem;
+  box-shadow: none;
+  border: none;
+  background-color: var(--app-fill-color);
 }
 </style>

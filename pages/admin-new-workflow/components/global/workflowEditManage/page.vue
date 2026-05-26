@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { routeWorkflowManageEditor } from '#imports'
-import { newAdminApi } from 'api'
+import { newAdminApi, clientApi } from 'api'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -9,6 +9,7 @@ if (!routerProvider) {
 }
 const workflowManageDialogRef = ref()
 const workflowManageDuplicateRef = ref()
+const permissionDialogRef = ref()
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'admin-new-workflow-edit-manage',
   saveColumnOrder: false,
@@ -74,6 +75,15 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
         action: ({ row }: any) => {
           handleRemove(row)
         }
+      },
+      {
+        code: 'permission',
+        name: 'workflow_editorPermission',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => {
+          handlePermission(row)
+        }
       }
     ]
   ],
@@ -120,6 +130,13 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
       }
     }
 
+    if (code === 'permission') {
+      return {
+        visible: true,
+        disabled: false
+      }
+    }
+
     return {
       visible: false,
       disabled: true
@@ -131,7 +148,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
 })
 
 async function getData(params: any) {
-  const data = await $api.post('/oniflow/api/v1/workflow/definitions/page', params).then((r) => r.data)
+  const data = await clientApi.instance.post('/oniflow/api/v1/workflow/definitions/page', params).then((r) => r.data.data)
   return {
     data: {
       entryList: data.items,
@@ -166,9 +183,9 @@ async function handleActiveAndInactive(row: any, status: boolean) {
   try {
     if (status) {
       const userId = useUserId()
-      await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${row.id}/activate`, { user_id: userId.value }).then((r) => r.data)
+      await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${row.id}/activate`, { user_id: userId.value }).then((r) => r.data)
     } else {
-      await $api.put(`/oniflow/api/v1/workflow/definitions/instance/${row.id}/deactivate`).then((r) => r.data)
+      await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${row.id}/deactivate`).then((r) => r.data)
     }
     reload()
   } catch (error) {
@@ -180,15 +197,21 @@ async function handleRemove(row: any) {
   if (row.status === 'A') return
 
   try {
-    await $api.delete(`/oniflow/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
+    await clientApi.instance.delete(`/oniflow/api/v1/workflow/definitions/instance/${row.id}`).then((r: any) => r.data)
     reload()
   } catch (e) {
-    console.log('')
+    console.log(e)
   }
 }
 
 function openCreateDialog() {
   workflowManageDialogRef.value.open()
+}
+
+function handlePermission(row: any) {
+  nextTick(() => {
+    permissionDialogRef.value?.open(row.id)
+  })
 }
 </script>
 
@@ -206,6 +229,7 @@ function openCreateDialog() {
   </div>
   <workflowEditManageDialog ref="workflowManageDialogRef" @refresh="reload" />
   <workflowEditManageDuplicate ref="workflowManageDuplicateRef" />
+  <WorkflowEditManagePermissionDialog ref="permissionDialogRef"  />
 </template>
 
 <style lang="scss" scoped></style>

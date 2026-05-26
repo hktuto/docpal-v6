@@ -6,7 +6,7 @@ import { ElDatePicker } from 'element-plus'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<string>) => {
-  const { $table, row, column } = params
+  const { $grid, row, column } = params
   const { dateFormat, includeTime, dateTimeFormat, timezone, includeTimeZone } = options?.props
   const value = row[column.field]
   if(!value) return h('div', {
@@ -26,7 +26,13 @@ export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<strin
     'div',
     {
       class: 'date-time-view mb-table-cell',
-      'title': displayValue
+      'title': displayValue,
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     displayValue
   )

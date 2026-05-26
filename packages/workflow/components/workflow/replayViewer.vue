@@ -3,18 +3,17 @@ import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 const props = withDefaults(
   defineProps<{
-    steps: any
-    bpmnXml?: string
-    x6Json?: any
+    taskDetail: any
+    contentJson: any
     autoplay: boolean
   }>(),
   {
-    steps: [],
+    taskDetail: {},
     autoplay: false
   }
 )
 const { t } = useI18n()
-const mode = ref<list | table>('list')
+const mode = ref<'list' | 'table'>('list')
 function toggleMode() {
   if (mode.value === 'list') {
     mode.value = 'table'
@@ -22,8 +21,7 @@ function toggleMode() {
     mode.value = 'list'
   }
 }
-const viewerEl = ref()
-const { bpmnXml, x6Json } = toRefs(props)
+const workflowEditorRef = ref()
 type TaskHistory = {
   id?: string
   assignee?: string
@@ -40,21 +38,32 @@ const state = reactive({
 
 const displaySteps = ref<TaskHistory[]>([])
 const allSteps = ref<any>([])
+const workflowData = ref({})
+
+function init() {
+  state.playing = false
+  state.currentStep = 0
+  workflowData.value = props.contentJson
+  if (props.taskDetail.completed_nodes) {
+    createDisplaySteps()
+    nextTick(() => {
+      workflowEditorRef.value.dim(allSteps.value)
+    })
+  }
+}
+
 function createDisplaySteps() {
-  if (!props.steps || props.steps.length === 0) return []
-  const list = [...props.steps].reverse()
-  const graph = viewerEl.value.graph
+  // TODO 缺少接口查詢workflow的歷史記錄， 且該歷史記錄需要包含node的db_id以及node的定義ID
+  if (!props.taskDetail.completed_nodes || props.taskDetail.completed_nodes.length === 0) return []
+  // 該list為運行過的node記錄
+  const list = [...props.taskDetail.completed_nodes].reverse()
+
+  const graph = workflowEditorRef.value.graph
+  return
 
   const result: TaskHistory[] = list.map((item) => {
     const node = graph.getCellById(item.persistentState.activityId)
-    let type = node.data.type
-    if (type === 'serviceTask') {
-      if (node.data.data['attr_flowable:delegateExpression'] === '${generateDocumentDelegate}') {
-        type = 'document'
-      } else if (node.data.data['attr_flowable:delegateExpression'] === '${sendNotificationDelegate}') {
-        type = 'email'
-      }
-    }
+    const type = node.data.type
     return {
       stepId: item.persistentState.activityId,
       assignee: item.assignee,
@@ -68,23 +77,6 @@ function createDisplaySteps() {
   displaySteps.value = result
 }
 
-function graphReady() {
-  // setTimeout(() => {
-  //     // viewerEl.value.autoLayout(bpmnXml.value)
-  // }, 100)
-  if (props.steps) {
-    createDisplaySteps()
-    nextTick(() => {
-      viewerEl.value.dim(allSteps.value)
-    })
-  }
-}
-function init(bpmnXml: string, x6Json: any) {
-  state.playing = false
-  state.currentStep = 0
-  viewerEl.value.init(bpmnXml, x6Json)
-}
-
 function countDuration(start: string, end: string) {
   const duration = dayjs(end).diff(dayjs(start), 'm')
   if (duration < 60) {
@@ -95,20 +87,14 @@ function countDuration(start: string, end: string) {
   return (duration / 60 / 24).toFixed(0) + t('time.days')
 }
 
-function tableRowClick(row: any) {
-  if (!state.playing) {
-    viewerEl.value.highlightCell([row.stepId], allSteps.value)
-  }
-}
-
 function stepHoverHandler(step: TaskHistory) {
   if (!state.playing) {
-    viewerEl.value.highlightCell([step.stepId], allSteps.value)
+    workflowEditorRef.value.highlightCell([step.stepId], allSteps.value)
   }
 }
 function stepBlurHandler(step: TaskHistory) {
   if (!state.playing) {
-    viewerEl.value.highlightCell(null, allSteps.value)
+    workflowEditorRef.value.highlightCell(null, allSteps.value)
   }
 }
 const playInterval = ref()
@@ -120,17 +106,17 @@ function playNext() {
     state.playing = false
     playInterval.value = null
     state.currentStep = 0
-    viewerEl.value.highlightCell(null, allSteps.value)
+    workflowEditorRef.value.highlightCell(null, allSteps.value)
     if (tableRef.value) tableRef.value.setCurrentRow()
   } else {
-    viewerEl.value.highlightCell([displaySteps.value[state.currentStep].stepId], allSteps.value)
+    workflowEditorRef.value.highlightCell([displaySteps.value[state.currentStep].stepId], allSteps.value)
     if (tableRef.value) tableRef.value.setCurrentRow(displaySteps.value[state.currentStep])
   }
   state.currentStep += 1
 }
 
 function togglePlay() {
-  viewerEl.value.highlightCell(null, allSteps.value)
+  workflowEditorRef.value.highlightCell(null, allSteps.value)
   state.playing = !state.playing
   state.currentStep = 0
   playNext()
@@ -144,6 +130,16 @@ function handleTableRowHover(row: any) {
 defineExpose({
   init
 })
+
+watch(
+  () => props.contentJson,
+  () => {
+    nextTick(() => {
+      init()
+    })
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -196,7 +192,7 @@ defineExpose({
         </div>
       </div>
       <div v-if="mode === 'table'" style="overflow: hidden">
-        <ElTable
+        <el-table
           ref="tableRef"
           class="table"
           height="100%"
@@ -206,26 +202,25 @@ defineExpose({
           current-row-key="id"
           @cell-mouse-enter="handleTableRowHover"
         >
-          <ElTableColumn prop="startTime" label="Start Time">
+          <el-table-column prop="startTime" label="Start Time">
             <template #default="scope">
               {{ dayjs(scope.row.startTime).format('YYYY-MM-DD HH:mm') }}
             </template>
-          </ElTableColumn>
-          <ElTableColumn prop="endTime" label="Duration">
+          </el-table-column>
+          <el-table-column prop="endTime" label="Duration">
             <template #default="scope">
-              <ElTooltip :content="$t('time.endtime') + ' : ' + formatDate(scope.row.endTime)">
+              <el-tooltip :content="$t('time.endtime') + ' : ' + formatDate(scope.row.endTime)">
                 {{ countDuration(scope.row.startTime, scope.row.endTime) }}
-              </ElTooltip>
+              </el-tooltip>
             </template>
-          </ElTableColumn>
-          <ElTableColumn prop="taskName" label="Task Name" />
-          <ElTableColumn prop="assignee" label="Assignee" />
-        </ElTable>
+          </el-table-column>
+          <el-table-column prop="taskName" label="Task Name" />
+          <el-table-column prop="assignee" label="Assignee" />
+        </el-table>
       </div>
     </div>
 
-    <WorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :showSidebar="false" />
-    <BpmnViewer ref="viewerEl" @graphReady="graphReady" />
+    <WorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="true" :showSidebar="false" />
   </div>
 </template>
 

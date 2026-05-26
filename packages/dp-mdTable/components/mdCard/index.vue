@@ -1,36 +1,51 @@
 <script setup lang="ts">
 import { Refresh, Plus, Grid, Brush } from '@element-plus/icons-vue'
-import MdCardList from './list.vue'
+import MdCardView from './view.vue'
 import type { MDCardProps } from '../../composables/mdCard/useMDCard'
-
-const props = withDefaults(defineProps<MDCardProps>(), {
+type Props = {
+  tableId: string
+  editable: boolean
+  isMirror: boolean
+  canEditTable: boolean
+  canManageTable: boolean
+  extraColumnConfig: {
+    columns: ColumnConfig[]
+  }
+}
+const props = withDefaults(defineProps<Props>(), {
   tableId: '',
   editable: false,
+  isMirror: false,
+  canEditTable: false,
+  canManageTable: false,
   extraColumnConfig: () => ({
-    columns: [],
-    deleteColumn: () => {},
-    updateColumn: () => {},
-    addColumn: () => {},
-    tableFields: [],
-    updatedViewColumnsConfig: () => {},
-    saveColumnOrder: () => {},
-    columnFilterRules: [],
-    columnGroupRules: [],
-    columnSortRules: []
+    columns: []
   })
 })
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   refresh: []
   search: [value: string]
-  'add-row': []
+  'add-row': [],
+  'start-edit-row': [row: any],
+  'exit-edit-row': [row?: any]
 }>()
+const refreshLoading = ref(false)
+const { columns, cardRef, getTableData, addRow, systemFieldsTypes, currentEditing } = useMDCard(props)
 
-const { columns, cardRef, getTableData, addRow, systemFieldsTypes } = useMDCard(props)
-
+const rightClickCellPopoverRef = ref()
+const isGroupingEnabled = computed(() => {
+  return props.extraColumnConfig?.columnGroupRules?.value?.length > 0
+})
 async function handleRefresh() {
-  await getTableData({ pageNum: 1 })
+  refreshLoading.value = true
+  await getTableData({ pageNum: 0 })
   emit('refresh')
+  setTimeout(() => {
+    refreshLoading.value = false
+  }, 300)
 }
 
 function handleSearch(value: string) {
@@ -45,56 +60,67 @@ async function handleAddRowSubmit(data: any) {
   await addRow(data)
   handleRefresh()
 }
+function handleStartEditRow(row: any) {
+  emit('start-edit-row', {row, mode: 'edit'})
+}
+function handleExitEditRow(row?: any) {
+  emit('exit-edit-row', row)
+}
+function handleRowContextMenu(row: any, event: MouseEvent) {
+  rightClickCellPopoverRef.value?.open(event, { ...row })
+}
 </script>
 
 <template>
   <div class="md-card-view">
-    <div class="md-card-toolbar">
-      <div class="toolbar-left">
+    <ToolsBar
+      :groupMaxCount="1"
+      :showMirrorButton="!isMirror"
+      :showAutomationButton="!isMirror && canManageTable"
+      :showAuditLogButton="!isMirror && canManageTable"
+      :disabled="isMirror"
+      :showColumnConfig="false"
+      @refresh="handleRefresh"
+      @add-row="handleAddRow"
+    >
+      <template #toolbar-left-before>
         <el-popover placement="bottom-start" :width="280" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button>
-              <el-icon><Grid /></el-icon>
-              布局
+            <el-button v-if="!isMirror && canManageTable" :icon="Grid" :aria-label="t('mdTable.cardToolbar.layout')" tabindex="0">
+              {{ t('mdTable.cardToolbar.layout') }}
             </el-button>
           </template>
           <MdCardSettingLayout />
         </el-popover>
-
         <el-popover placement="bottom-start" :width="320" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button>
-              <el-icon><Brush /></el-icon>
-              样式
+            <el-button
+              style="margin-left: 0px"
+              v-if="!isMirror && canManageTable"
+              :aria-label="t('mdTable.cardToolbar.style')"
+              tabindex="0"
+              :icon="Brush"
+            >
+              {{ t('mdTable.cardToolbar.style') }}
             </el-button>
           </template>
           <MdCardSettingStyle />
         </el-popover>
-      </div>
+      </template>
+    </ToolsBar>
 
-      <div class="toolbar-right">
-        <el-button @click="handleRefresh">
-          <el-icon><Refresh /></el-icon>
-          刷新
-        </el-button>
-        <el-button type="primary" @click="handleAddRow">
-          <el-icon><Plus /></el-icon>
-          新增记录
-        </el-button>
-      </div>
-    </div>
-
-    <MdCardList
+    <MdCardView
       :ref="cardRef"
       :draggable="props.editable"
+      :isGroupingEnabled="isGroupingEnabled"
+      :canEditTable="canEditTable"
+      @start-edit-row="handleStartEditRow"
+      @exit-edit-row="handleExitEditRow"
+      @row-context-menu="handleRowContextMenu"
+      @reload="handleRefresh"
     />
-    <MdFormPopover
-      ref="MdFormPopoverRef"
-      :columns="columns"
-      :systemFieldsTypes="systemFieldsTypes"
-      showMoveButtons
-      @submit="handleAddRowSubmit"
-    />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
+    <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
   </div>
 </template>
 
@@ -104,27 +130,8 @@ async function handleAddRowSubmit(data: any) {
   display: flex;
   flex-direction: column;
   background: #fff;
+  overflow: hidden;
 }
-
-.md-card-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--app-space-s);
-  border-bottom: 1px solid #ebeef5;
-
-  .toolbar-left,
-  .toolbar-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .search-input {
-    width: 240px;
-  }
-}
-
 </style>
 <style>
 .md-card-setting-popover {

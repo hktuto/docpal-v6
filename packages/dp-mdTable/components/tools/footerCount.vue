@@ -1,9 +1,9 @@
 <template>
   <el-dropdown trigger="click" placement="top" @command="handleMethodSelect" @click.stop>
     <div class="footer-count">
-      <template v-if="currentMethodLabel !== '-' && column.countMethod !== 'none' && column.countMethod">
-        <span class="method-name">{{ currentMethodLabel }}</span>
-        <span class="count-value">{{ displayValue }}</span>
+      <template v-if="selectedCountMethod !== 'none'">
+        <span class="method-name">{{ t(`mdTable.countMethod.${selectedCountMethod}`) }}</span>
+        <span class="count-value">{{ getCount(column.field, selectedCountMethod) }}</span>
         <el-icon class="dropdown-icon">
           <CaretBottom />
         </el-icon>
@@ -23,10 +23,10 @@
           v-for="method in availableMethods"
           :key="method.value"
           :command="method.value"
-          :class="{ 'is-active': column.countMethod === method.value }"
+          :class="{ 'is-active': selectedCountMethod === method.value }"
         >
-          <span class="method-label">{{ method.label }}</span>
-          <el-icon v-if="column.countMethod === method.value" class="check-icon">
+          <span class="method-label">{{ t(`mdTable.countMethod.${method.value}`) }}</span>
+          <el-icon v-if="selectedCountMethod === method.value" class="check-icon">
             <Check />
           </el-icon>
         </el-dropdown-item>
@@ -41,7 +41,7 @@ import { Check, CaretBottom } from '@element-plus/icons-vue'
 import type { ColumnConfig } from '../../types/column-context'
 import { ColumnFieldType } from '../../types/column-types'
 import { useMDTableInject } from '../../composables/useMDTable'
-import { calculateCount, type CountMethod, flattenAggregatedData } from '../../utils/tableCount'
+import type { CountMethod } from '../../types/count-type'
 
 const { t } = useI18n()
 
@@ -55,31 +55,31 @@ const props = defineProps<Props>()
 // 统计方法配置
 interface MethodOption {
   value: CountMethod
-  label: string
   numericOnly?: boolean // 仅数字类型可用
 }
-
+const { getAgg, getCount } = useCountInject()
 // 所有统计方法
 const allMethods = computed<MethodOption[]>(() => [
-  { value: 'none', label: t('mdTable.countMethod.none') },
-  { value: 'sum', label: t('mdTable.countMethod.sum'), numericOnly: true },
-  { value: 'max', label: t('mdTable.countMethod.max'), numericOnly: true },
-  { value: 'min', label: t('mdTable.countMethod.min'), numericOnly: true },
-  { value: 'avg', label: t('mdTable.countMethod.avg'), numericOnly: true },
-  { value: 'count', label: t('mdTable.countMethod.count') },
-  { value: 'empty', label: t('mdTable.countMethod.empty') },
-  { value: 'filled', label: t('mdTable.countMethod.filled') },
-  { value: 'unique', label: t('mdTable.countMethod.unique') },
-  { value: 'emptyPercent', label: t('mdTable.countMethod.emptyPercent') },
-  { value: 'filledPercent', label: t('mdTable.countMethod.filledPercent') }
+  { value: 'none' },
+  { value: 'SUM', numericOnly: true },
+  { value: 'MAX', numericOnly: true },
+  { value: 'MIN', numericOnly: true },
+  { value: 'AVG', numericOnly: true },
+  { value: 'COUNT' },
+  { value: 'BLANK_COUNT' },
+  { value: 'FILLED_COUNT' },
+  { value: 'UNIQUE_COUNT' },
+  { value: 'BLANK_RATIO' },
+  { value: 'FILLED_RATIO' },
+  { value: 'UNIQUE_RATIO' }
 ])
 const mdTable = useMDTableInject()
 const gridRef = mdTable.gridRef
 // Inject gridRef 来获取表格数据
 // 判断是否为数字类型
 const isNumericType = computed(() => {
-  const type = props.column.type
-  return type === 'number' || type === 'integer' || type === ColumnFieldType.Number
+  const type = props.column.business_type
+  return [ColumnFieldType.Number, ColumnFieldType.Currency, ColumnFieldType.Percent, ColumnFieldType.AutoNumber, ColumnFieldType.Rating].includes(type)
 })
 
 // 根据列类型获取可用的统计方法
@@ -104,7 +104,6 @@ function makeFlatData(data: any[], childKey: string) {
 }
 // 获取表格数据列表
 const getTableData = (): any[] => {
-  console.log('getTableData', gridRef.value)
   if (gridRef?.value) {
     try {
       const result = (gridRef.value as any).getTableData()
@@ -118,29 +117,28 @@ const getTableData = (): any[] => {
   return []
 }
 
-// 当前选中的统计方法标签
-const currentMethodLabel = computed(() => {
-  const method = props.column.countMethod || 'none'
-  const methodOption = allMethods.value.find((m) => m.value === method)
-  return methodOption?.label || '-'
-})
-
-// 显示值
-const displayValue = computed(() => {
-  const method = props.column.countMethod || 'none'
-  const tableData = getTableData()
-  const field = props.column.field || ''
-  const sumData = tableData.filter((item: any) => !item.isAggregate)
-
-  return calculateCount(method as CountMethod, field, sumData)
+const selectedCountMethod = computed<CountMethod>(() => {
+  const viewColumns = mdTable.columns.value
+  const viewColumn = viewColumns.find((item: any) => String(item.field_name) === String(props.column.field))
+  return (viewColumn?.countMethod || 'none') as CountMethod
 })
 
 // 处理统计方法选择
-const handleMethodSelect = (method: CountMethod) => {
-  // 更新 column.countMethod
-  if (props.column) {
-    props.column.countMethod = method
+const handleMethodSelect = async (method: CountMethod) => {
+  if (!props.column) {
+    return
   }
+  if (!props.column.field) {
+    return
+  }
+  const fullColumn = mdTable.columns.value.find((col: any) => String(col.field_name) === String(props.column.field))
+  if (!fullColumn?.id) {
+    return
+  }
+  await mdTable.updateViewColumnCountMethod?.(fullColumn.id, method)
+  mdTable.updateExpandedRows?.()
+  await mdTable.refreshTableData?.({ silent: true, keepPage: true })
+  await getAgg({ silent: true })
 }
 </script>
 

@@ -4,6 +4,7 @@ export function useCurrentRow() {
   const currentIndex = ref<number>(0)
   const disabledUp = ref<boolean>(false)
   const disabledDown = ref<boolean>(false)
+  const canCurrentRowEdit = ref<boolean>(true)
   const setCurrentRow = (row: any) => {
     currentRow.value = { ...row }
     currentIndex.value = tableData.value.findIndex((item: any) => item.id === row.id)

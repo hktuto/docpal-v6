@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Grid, Operation } from '@element-plus/icons-vue'
 
+const { t } = useI18n()
 const { updateViewFilterSortGroup, viewStyleConfig } = useMDCardInject()
 const cardCount = ref(5)
 function handleChange(value: number) {
@@ -27,7 +28,7 @@ watch(
         <span>平铺</span>
       </div>
     </div> -->
-    <div class="slider-label">每行卡片数</div>
+    <div class="slider-label">{{ t('mdTable.cardLayout.cardsPerRow') }}</div>
     <el-slider v-model="cardCount" :min="1" :max="8" :step="1" show-stops @change="handleChange" />
   </div>
 </template>

@@ -1,5 +1,6 @@
 import type { ViewRenderFunctionParams, VirtualColumnOptions } from '../../../types/column-types'
 import { ColumnFieldType } from '../../../types/column-types'
+import { buildRelationArray } from '../../../utils/relationHelper'
 import { h } from 'vue'
 import { ElTag } from 'element-plus'
 import {
@@ -16,30 +17,35 @@ import {
 } from './renderHelpers'
 
 export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<string>) => {
-  const { row, column } = params
+  const {$grid, row, column } = params
   const props: any = options?.props || {}
-  const virtual_field_name = props?.virtual_field_name
-  const rawValues = row[virtual_field_name]
-  if (!rawValues || (Array.isArray(rawValues) && rawValues.length === 0)) {
-    return h('div', { class: 'virtual-column-view empty' }, '-')
+  const viewTools: any = inject('viewTools')
+  const fieldName = props.display_field_name
+  const relationArray = buildRelationArray(row, props.relation_field_name, fieldName)
+  const values = relationArray.map((item: any) => item[fieldName])
+  switch (props.display_field_type) {
+    case ColumnFieldType.DateTime:
+      return renderAsDateTime(values, params, props)
+    case ColumnFieldType.Number:
+      return renderAsNumber(values, params, props)
+    case ColumnFieldType.SingleSelect:
+      return renderAsSingleSelect(values, params, props)
+    case ColumnFieldType.MultiSelect:
+      return renderAsMultiSelect(values, params, props)
+    default:
   }
 
-  let displayValues = Array.isArray(rawValues) ? [...rawValues] : [rawValues]
-  if (props?.showUniqueOnly) {
-    displayValues = [...new Set(displayValues)]
-  }
-  
   const tags: ReturnType<typeof h>[] = []
-  for (let i = 0; i < displayValues.length; i++) {
+  for (let i = 0; i < relationArray.length; i++) {
     tags.push(
       h(
         ElTag,
         {
-          key: `${virtual_field_name}-${i}`,
+          key: `${fieldName}-${i}`,
           size: 'small',
-          type: 'info'
+          type: 'info',
         },
-        () => String(displayValues[i] ?? '-')
+        () => String(relationArray[i][fieldName] || '-')
       )
     )
   }
@@ -52,7 +58,13 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
         display: 'flex',
         gap: '4px',
         flexWrap: 'wrap'
-      }
+      },
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     tags
   )

@@ -2,7 +2,7 @@ import { h, type Component } from 'vue'
 import type { ViewRenderFunctionParams } from '../../../types/column-types'
 import { ElInput } from 'element-plus'
 export const NumberView = ({ options, params }: ViewRenderFunctionParams<number>) => {
-  const { $table, row, column } = params
+  const { $grid, row, column } = params
   const numberOptions = options?.props
   const value = row[column.field]
   if (isNaN(value)) {
@@ -25,7 +25,13 @@ export const NumberView = ({ options, params }: ViewRenderFunctionParams<number>
     'div',
     {
       class: 'number-view mb-table-cell',
-      'data-title': formattedValue
+      'data-title': formattedValue,
+      onMouseenter: (e) => {
+        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+      },
+      onMouseleave: (e) => {
+         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+      },
     },
     formattedValue
   )

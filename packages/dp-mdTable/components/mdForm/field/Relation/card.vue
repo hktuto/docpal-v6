@@ -6,39 +6,34 @@
       class="relation-card-remove"
       tabindex="0"
       :aria-label="$t('mdTable.relationCard.removeRelation')"
-      @click="handleRemove"
-      @keydown.enter="handleRemove"
+      @click.stop.prevent="handleRemove"
+      @keydown.enter.stop.prevent="handleRemove"
     >
       <Icon name="lucide:minus" size="14" />
     </button>
     <div class="relation-card-main">
       <div class="relation-card-content">
-        <div v-if="fields?.length > 0 && fields?.[0]?.name" class="relation-card-title">
-          {{ formatFieldValue(fields[0].name) }}
+        <div v-if="fields?.length > 0 && fields?.[0]?.field_name" class="relation-card-title">
+          {{ formatFieldValue(fields[0]) }}
         </div>
         <div v-if="fields?.length > 1" class="relation-card-fields">
           <template v-for="(field, index) in fields">
-            <div v-if="index > 0 && index < 5" :key="field.name" class="relation-card-field">
-              <div class="field-label" :title="getFieldLabel(field.name)">{{ getFieldLabel(field.name) }}</div>
-              <div class="field-value" :title="formatFieldValue(field.name)">
+            <div v-if="index > 0 && index < 5" :key="field.field_name" class="relation-card-field">
+              <div class="field-label" :title="field.field_name_alias">{{ field.field_name_alias }}</div>
+              <div class="field-value" :title="formatFieldValue(field)">
                 <!-- 单选：标签 -->
-                <template v-if="getFieldType(field.name) === ColumnFieldType.SingleSelect">
-                  <span v-if="getSelectOption(field.name)" class="value-tag" :style="{ '--tag-color': getSelectOption(field.name)?.color }">
-                    {{ getSelectOption(field.name)?.label || getSelectOption(field.name)?.name }}
-                  </span>
-                  <span v-else>-</span>
-                </template>
-                <!-- 多选：多个标签 -->
-                <template v-else-if="getFieldType(field.name) === ColumnFieldType.MultiSelect">
-                  <template v-if="getSelectOptions(field.name)?.length">
-                    <span v-for="opt in getSelectOptions(field.name)" :key="opt.id" class="value-tag" :style="{ '--tag-color': opt?.color }">
+                <template v-if="[ColumnFieldType.SingleSelect, ColumnFieldType.MultiSelect].includes(field.business_type)">
+                  <template v-if="getSelectOption(field)?.length">
+                    <span v-for="opt in getSelectOption(field)" :key="opt.id" class="value-tag" :style="{ '--tag-color': opt?.color }">
                       {{ opt?.label || opt?.name }}
                     </span>
                   </template>
-                  <span v-else>-</span>
+                  <template v-else>
+                    <span>-</span>
+                  </template>
                 </template>
                 <template v-else>
-                  {{ formatFieldValue(field.name) }}
+                  {{ formatFieldValue(field) }}
                 </template>
               </div>
             </div>
@@ -55,11 +50,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FieldInfo } from '@packages/dp-mdTable/types/view-config'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import {
-  getSelectOption as getSelectOptionUtil,
-  getSelectOptions as getSelectOptionsUtil,
-  formatFieldValueByType
-} from '@packages/dp-mdTable/utils/fieldValueFormat'
+import { formatFieldValueByType } from '@packages/dp-mdTable/utils/fieldValueFormat'
 
 const props = withDefaults(
   defineProps<{
@@ -82,46 +73,33 @@ function handleClick() {
   emit('original-click', recordData.value)
 }
 const recordData = computed(() => props.data || {})
-
-function getFieldInfo(fieldName: string): FieldInfo | undefined {
-  return props.fields.find((f) => f.name === fieldName)
+function getFieldName(field: FieldInfo) {
+  return field.field_name
 }
-
-function getFieldType(fieldName: string): ColumnFieldType | undefined {
-  return getFieldInfo(fieldName)?.type
+function getSelectOption(field: FieldInfo) {
+  const fieldName = getFieldName(field)
+  const fieldValues = Array.isArray(recordData.value[fieldName]) ? recordData.value[fieldName] : [recordData.value[fieldName]]
+  if (!fieldValues?.length) return []
+  const options = field.options
+  return fieldValues.reduce((acc: any[], v: any) => {
+    const option = options?.find((o: any) => o.id === v)
+    if (option) {
+      acc.push(option)
+    }
+    return acc
+  }, [])
 }
-
-function getFieldProperties(fieldName: string): Record<string, any> {
-  return getFieldInfo(fieldName)?.display_structure || {}
-}
-
-function getFieldLabel(fieldName: string): string {
-  const fc = props.fields.find((f) => f.name === fieldName)
-  return fc?.label || fieldName
-}
-
-function getFieldValue(fieldName: string): any {
-  return recordData.value[fieldName]
-}
-
-function getSelectOption(fieldName: string) {
-  return getSelectOptionUtil(getFieldValue(fieldName), getFieldProperties(fieldName))
-}
-
-function getSelectOptions(fieldName: string) {
-  return getSelectOptionsUtil(getFieldValue(fieldName), getFieldProperties(fieldName))
-}
-
-function formatFieldValue(fieldName: string): string {
-  const fieldInfo = getFieldInfo(fieldName)
-  return formatFieldValueByType(getFieldValue(fieldName), {
-    ...fieldInfo,
-    properties: fieldInfo?.displayStructure?.properties,
-    type: fieldInfo?.displayStructure?.type
+function formatFieldValue(field: FieldInfo): string {
+  return formatFieldValueByType(recordData.value[field.field_name], {
+    ...field,
+    properties: field,
+    type: field?.business_type
   })
 }
 
-function handleRemove() {
+function handleRemove(event: MouseEvent | KeyboardEvent) {
+  event.stopPropagation()
+  event.preventDefault()
   emit('remove')
 }
 </script>
@@ -155,12 +133,6 @@ function handleRemove() {
     background: var(--el-color-danger-light-9);
     color: var(--el-color-danger);
   }
-}
-
-.relation-card-main {
-  display: flex;
-  flex: 1;
-  min-width: 0;
 }
 
 .relation-card-content {
@@ -212,6 +184,7 @@ function handleRemove() {
 
 .value-tag {
   display: inline-flex;
+  margin-right: var(--app-space-xs);
   align-items: center;
   padding: 2px 8px;
   border-radius: 4px;
@@ -219,5 +192,22 @@ function handleRemove() {
   background-color: var(--tag-color, var(--el-fill-color));
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.relation-card-main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  margin-bottom: var(--app-space-xs);
+  background: var(--el-fill-color-light);
+  border-radius: var(--app-border-radius-s);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+
+  position: relative;
+  overflow: hidden;
+ 
 }
 </style>

@@ -37,6 +37,8 @@ interface Metadata {
   width: number
   height: number
   icon?: string
+  bgColor?: string
+  textColor?: string
   formKey?: string
   buttonSetting?: any
   signature?: any
@@ -132,7 +134,7 @@ export const x6NodeToWorkflowJson = function (graphProvider: any) {
     // Update variables
     workflowJson.variables = workflowConfig.data.variables
     // Update Nodes
-    workflowJson.nodes = x6NodesToWorkflowJsonNodes(AddFlowForChildNodes(x6Nodes, workflowJson.edges) || [])
+    workflowJson.nodes = x6NodesToWorkflowJsonNodes(addFlowForChildNodes(x6Nodes, workflowJson.edges) || [])
 
     console.log('---- workflowJson', workflowJson)
     return workflowJson
@@ -178,6 +180,10 @@ function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
   x6Nodes.forEach((x6Node: any) => {
     if (x6Node.data.type === 'process') return
 
+    if ('version' in x6Node.data) {
+      delete x6Node.data.version
+    }
+
     const { x, y } = x6Node.getPosition()
     const { width, height } = x6Node.getSize()
     nodes.push({
@@ -194,40 +200,60 @@ function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
   return nodes
 }
 
-function AddFlowForChildNodes(x6Nodes: any[], edges: any[]) {
+function addFlowForChildNodes(x6Nodes: any[], edges: any[]) {
   try {
     const flowMap = edges.reduce(
-      (acc, item) => {
-        if (!acc[item.target_node_id]) {
-          acc[item.target_node_id] = { incoming: [], outgoing: [] }
-        }
-        acc[item.target_node_id].incoming.push(item.source_node_id)
+      (acc, edge) => {
+        const { source_node_id: src, target_node_id: tgt } = edge
 
-        if (!acc[item.source_node_id]) {
-          acc[item.source_node_id] = { incoming: [], outgoing: [] }
-        }
-        acc[item.source_node_id].outgoing.push(item.target_node_id)
+        if (!acc[src]) acc[src] = { incoming: [], outgoing: [], rawEdges: [] }
+        if (!acc[tgt]) acc[tgt] = { incoming: [], outgoing: [], rawEdges: [] }
+
+        acc[tgt].incoming.push(src)
+        acc[src].outgoing.push(tgt)
+
+        acc[src].rawEdges.push(edge)
 
         return acc
       },
-      {} as Record<string, { incoming: string[]; outgoing: string[] }>
+      {} as Record<string, { incoming: string[]; outgoing: string[]; rawEdges: any[] }>
     )
 
-    // 遍历节点并根据 flowMap 设置 flow 属性
-    x6Nodes.forEach((x6Node: any) => {
-      if (x6Node.data.type === 'process') return
+    return x6Nodes.map((node) => {
+      const nodeData = node.data || {}
+      if (nodeData.type === 'process') return node
 
-      const { incoming = [], outgoing = [] } = flowMap[x6Node.id] || {}
-      x6Node.data.flow = {
-        incoming,
-        outgoing,
-        join_type: joinType(x6Node.data.type),
-        split_type: 'XOR'
+      const nodeId = node.id
+      const meta = node.getData()?.metadata || {}
+      const flows = flowMap[nodeId] || { incoming: [], outgoing: [], rawEdges: [] }
+
+      let finalOutgoing = flows.outgoing
+
+      // 處理 conditionTask 的特殊排序邏輯
+      if (meta.type === CellType.conditionTask && flows.rawEdges.length > 0) {
+        finalOutgoing = flows.rawEdges
+          .sort((a: any, b: any) => {
+            const aSuccess = a.metadata?.conditionStatus === 'success' ? 1 : 0
+            const bSuccess = b.metadata?.conditionStatus === 'success' ? 1 : 0
+            return bSuccess - aSuccess // success 排在前面
+          })
+          .map((edge: any) => edge.target_node_id)
       }
+
+      node.updateData({
+        flow: {
+          incoming: flows.incoming,
+          outgoing: finalOutgoing,
+          join_type: joinType(nodeData.type),
+          split_type: 'XOR'
+        }
+      })
+
+      return node
     })
-    return x6Nodes
   } catch (e) {
-    console.log(e)
+    console.error('AddFlowForChildNodes Error:', e)
+    return x6Nodes
   }
 }
 
@@ -240,4 +266,9 @@ function joinType(type: string) {
     default:
       return 'XOR'
   }
+}
+
+export function workflowResponseHelper(res: any) {
+  if (!res || !res.data || (res.data.code !== 200 && res.data.code !== 201)) throw Error(res.data.message || res.data.data.err_resp || 'server error')
+  return res.data.data
 }

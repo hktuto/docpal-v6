@@ -36,17 +36,21 @@ export interface ColumnConfig {
 
 export class RendererRegistryManager {
   private componentMap = new Map<string, RenderComponentConfig>()
+  private initialized = false
 
-  constructor() {
-    this.componentMap = new Map(Object.entries(MDTableComponents))
+  private initComponents() {
+    if (!this.initialized) {
+      this.componentMap = new Map(Object.entries(MDTableComponents))
+      this.initialized = true
+    }
   }
 
   /**
    * 批量注册所有渲染器
    */
   public registerAllRenderers(): void {
+    this.initComponents()
     // 遍历所有组件配置
-    console.log('componentMap', this.componentMap)
     this.componentMap.forEach((config, key) => {
       if (config.view?.render || config.edit?.render || config.both?.render) {
         this.registerRenderer(config, key)
@@ -55,7 +59,7 @@ export class RendererRegistryManager {
   }
   private registerRenderer(config: RenderComponentConfig, name: string): void {
     const { both, view, edit } = config
-    
+
     // 创建渲染器函数的公共方法
     const createRenderFunction =
       (renderFunc: Function, defaultOptions: any = {}) =>
@@ -93,6 +97,7 @@ export class RendererRegistryManager {
    * 获取字段类型的组件配置
    */
   public getComponentConfig(fieldName: string): ComponentConfig | undefined {
+    this.initComponents()
     return this.componentMap.get(fieldName)
   }
 
@@ -101,6 +106,7 @@ export class RendererRegistryManager {
     viewOptions: Record<string, any> = {},
     editOptions: Record<string, any> = {}
   ): Pick<ColumnConfig, 'cellRender' | 'editRender'> {
+    this.initComponents()
     // 1. 使用默认参数值替代空值判断
     viewOptions = viewOptions || {}
     editOptions = editOptions || {}
@@ -170,6 +176,7 @@ export class RendererRegistryManager {
     return result as Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>
   }
   public getRules(type: ColumnFieldType): any[] {
+    this.initComponents()
     const fieldName = ColumnFieldType[type]
     let config: RenderComponentConfig | undefined = this.getComponentConfig(fieldName)
 
@@ -232,5 +239,7 @@ export class RendererRegistryManager {
   }
 }
 
+const rendererManager = new RendererRegistryManager()
+rendererManager.registerAllRenderers()
 // 默认导出单例
-export const rendererManager = new RendererRegistryManager()
+export {rendererManager}

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { clientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -11,43 +12,26 @@ const { t } = useI18n()
 const userId: string = useUserId().value
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
-  id: 'my_task',
+  id: 'active_task',
   api: async (pageParams: any) => {
-    const params = {
-      ...extraParams.value,
-      assignee: userId,
-      page_num: pageParams.pageNum,
-      page_size: pageParams.pageSize
-    }
-    try {
-      const data = await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r) => r.data)
-      return {
-        data: {
-          entryList: data.items || [],
-          pageNum: data.page_num || 0,
-          pageCount: data.page_size || 1,
-          totalSize: data.total || 0
-        }
+    const data = await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
+    return {
+      data: {
+        entryList: data.entryList || []
       }
-    } catch (e) {
-      console.log(e)
     }
   },
   columns: [
-    { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
-    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status', title: 'dpTable_status', slots: { default: 'assignee' } },
+    // { field: 'id', title: 'Workflow Instance Name', fixed: 'left' },
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
-      field: 'created_at',
+      field: 'createDate',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
-        return formatDate(cellValue)
-      }
-    },
-    {
-      field: 'updated_at',
-      title: 'workflow_dueDate',
-      formatter({ cellValue }: any) {
+        // @ts-ignore
         return formatDate(cellValue)
       }
     }
@@ -61,15 +45,25 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      name: row.taskInstance.businessKey,
-      workflowType: 'myTask'
+      workflowType: 'myTask',
+      db_id: row.db_id
     }),
     false
   )
 }
 
-function reloadTable(){
+async function claimTask(row: any) {
+  await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.process_id}/claim`, { user_id: userId }).then((res) => res.data)
+  query({})
+}
+
+function reloadTable() {
   reload()
+}
+
+function handleAssignee(assignee: string) {
+  if (!assignee || assignee === '') return false
+  return !assignee.includes('${')
 }
 
 defineExpose({ reloadTable })
@@ -78,10 +72,12 @@ defineExpose({ reloadTable })
 <template>
   <div>
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons> </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
+      <template #toolbar_buttons></template>
+      <template #assignee="{ row }">
+        <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>{{ row.config.human_task.assignee || '' }}</el-tag>
+        <el-button v-else :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" type="primary" size="small" round @click="claimTask(row)">
+          {{ $t('workflow_claim') }}
+        </el-button>
       </template>
     </VxeGrid>
   </div>

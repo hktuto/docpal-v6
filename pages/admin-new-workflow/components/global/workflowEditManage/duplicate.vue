@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import { clientApi } from 'api'
 import { routeWorkflowManageEditor } from '../../../utils/workflowHelper'
 
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 const elFormRef = ref()
 const openDialog = ref(false)
 const formData = ref({
@@ -21,7 +26,7 @@ function handleSubmit() {
       name: formData.value.name,
       description: formData.value.description
     }
-    const data = $api.post('/oniflow/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data)
+    const data = clientApi.instance.post('/oniflow/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data)
     if (!data) return
 
     const workflowEdit = routeWorkflowManageEditor({

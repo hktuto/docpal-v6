@@ -13,7 +13,14 @@ const CARD_STYLE_DEFAULTS = {
   cardShadow: 'small' as const
 }
 
-const { tableFields, viewStyleConfig, updateViewFilterSortGroup, updatedViewColumnsConfig, columns } = useMDCardInject()
+const { t } = useI18n()
+const { tableFields, viewStyleConfig, updateViewFilterSortGroup } = useMDCardInject()
+
+const shadowSegmentOptions = computed(() => [
+  { label: t('mdTable.cardStyle.shadowNone'), value: 'none' as const },
+  { label: t('mdTable.cardStyle.shadowSmall'), value: 'small' as const },
+  { label: t('mdTable.cardStyle.shadowHover'), value: 'hover' as const }
+])
 
 const mergedStyle = computed(() => ({
   ...CARD_STYLE_DEFAULTS,
@@ -48,89 +55,50 @@ function handleCoverFieldChange(value: string) {
   })
 }
 
-const columnVisibilityList = computed(() => {
-  const visibleFieldNameSet = new Set((columns?.value || []).map((col: any) => col.field_name))
-  return (tableFields.value || []).map((field: any) => ({
-    id: field.id,
-    title: field.field_name_alias || field.field_name || field.id,
-    display: visibleFieldNameSet.has(field.field_name)
-  }))
-})
-
-async function handleColumnVisibilityChange(fieldId: string, display: boolean) {
-  if (!updatedViewColumnsConfig) return
-  await updatedViewColumnsConfig([{ id: fieldId, display }])
-}
-
-async function handleHideAllColumns() {
-  if (!updatedViewColumnsConfig) return
-  const updates = (tableFields.value || []).map((field: any) => ({ id: field.id, display: false }))
-  await updatedViewColumnsConfig(updates)
-}
-
-async function handleShowAllColumns() {
-  if (!updatedViewColumnsConfig) return
-  const updates = (tableFields.value || []).map((field: any) => ({ id: field.id, display: true }))
-  await updatedViewColumnsConfig(updates)
-}
 </script>
 
 <template>
   <div class="md-card-style-setting">
-    <div class="setting-title">设置卡片样式</div>
+    <div class="setting-title">{{ t('mdTable.cardStyle.title') }}</div>
     <div class="setting-row">
-      <span>封面</span>
+      <span>{{ t('mdTable.cardStyle.cover') }}</span>
       <el-select
         :model-value="mergedStyle.coverFieldId || ''"
         style="width: 180px"
         @update:model-value="(v) => handleCoverFieldChange(String(v ?? ''))"
       >
-        <el-option label="无封面" value="" />
+        <el-option :label="t('mdTable.cardStyle.noCover')" value="" />
         <el-option v-for="option in coverOptions" :key="option.value" :label="option.label" :value="option.value" />
       </el-select>
     </div>
     <div class="setting-row">
-      <span>拉伸</span>
+      <span>{{ t('mdTable.cardStyle.stretch') }}</span>
       <el-switch :model-value="mergedStyle.isCoverFit" @update:model-value="(v) => updatePartial({ isCoverFit: !!v })" />
     </div>
     <div class="setting-row">
-      <span>显示列名</span>
+      <span>{{ t('mdTable.cardStyle.showColumnNames') }}</span>
       <el-switch
         :model-value="mergedStyle.isColNameVisible"
         @update:model-value="(v) => updatePartial({ isColNameVisible: !!v })"
       />
     </div>
     <div class="setting-row">
-      <span>边框</span>
+      <span>{{ t('mdTable.cardStyle.border') }}</span>
       <el-switch :model-value="mergedStyle.isBordered" @update:model-value="(v) => updatePartial({ isBordered: !!v })" />
     </div>
     <div class="setting-row">
-      <span>紧凑</span>
+      <span>{{ t('mdTable.cardStyle.compact') }}</span>
       <el-switch :model-value="mergedStyle.isCompact" @update:model-value="(v) => updatePartial({ isCompact: !!v })" />
     </div>
     <div class="setting-row shadow-row">
-      <span>阴影</span>
+      <span>{{ t('mdTable.cardStyle.shadow') }}</span>
       <el-segmented
         :model-value="mergedStyle.cardShadow"
-        :options="[
-          { label: '无', value: 'none' },
-          { label: '小', value: 'small' },
-          { label: '悬浮', value: 'hover' }
-        ]"
+        :options="shadowSegmentOptions"
         @change="(v) => updatePartial({ cardShadow: v as 'none' | 'small' | 'hover' })"
       />
     </div>
-    <div class="setting-title column-title">列显示与隐藏</div>
-    <div class="column-list">
-      <div v-for="column in columnVisibilityList" :key="column.id" class="column-item">
-        <span class="column-name">{{ column.title }}</span>
-        <el-switch :model-value="column.display" @update:model-value="(v) => handleColumnVisibilityChange(column.id, !!v)" />
-      </div>
-    </div>
-    <div class="column-actions">
-      <el-button size="small" @click="handleHideAllColumns">隐藏所有</el-button>
-      <el-button size="small" type="primary" @click="handleShowAllColumns">显示所有</el-button>
-    </div>
+    <ToolsColumnConfig />
   </div>
 </template>
 
@@ -155,35 +123,5 @@ async function handleShowAllColumns() {
     align-items: flex-start;
   }
 
-  .column-title {
-    margin-top: 12px;
-  }
-
-  .column-list {
-    max-height: 220px;
-    overflow-y: auto;
-    margin-bottom: 8px;
-  }
-
-  .column-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--el-border-color-lighter);
-  }
-
-  .column-name {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .column-actions {
-    display: flex;
-    gap: 8px;
-  }
 }
 </style>

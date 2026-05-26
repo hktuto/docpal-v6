@@ -27,7 +27,7 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import { useDebounceFn } from '@vueuse/core'
-
+import * as mime from 'mime-types'
 const props = defineProps<{
   disabled?: Boolean;
   multiple?: Boolean;
@@ -45,7 +45,25 @@ const uploadRef = ref()
 // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用
 const onChange = useDebounceFn(
   (file: any, _fileList: any) => {
-    state.fileList = _fileList.reduce((prev: any, item: any) => {
+    // check file type match
+    let f = _fileList
+    const accepts = props.accept ? props.accept.split(',') : undefined
+    if (accepts) {
+      const exts = accepts.map((a) => mime.types[a.replace('.','')])
+      const filted = [];
+      for (const item of f) {
+        if (exts.includes(item.raw.type)) {
+          filted.push(item)
+        } else {
+          ElMessage.error(
+            '[' + item.name + '] File Type not match'
+          )
+        }
+      }
+      f = filted
+    }
+
+    state.fileList = f.reduce((prev: any, item: any) => {
       const fileSizeCheckResult = item.size / 1024 / 1024 <= props.fileMaxSize
       if (!fileSizeCheckResult) {
         ElMessage.error(

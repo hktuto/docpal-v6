@@ -33,10 +33,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'open-record': [row: any]
+  'row-context-menu': [row: any, event: MouseEvent]
 }>()
 
 const previewFields = computed(() => {
-  return props.fields.slice(0, 6)
+  return props.fields.filter((field: any) => !field.hidden).slice(0, 6)
 })
 
 const cardClass = computed(() => {
@@ -45,7 +46,8 @@ const cardClass = computed(() => {
     'is-compact': !!props.styleConfig.compact,
     'shadow-none': props.styleConfig.shadow === 'none',
     'shadow-small': props.styleConfig.shadow === 'small',
-    'shadow-hover': props.styleConfig.shadow === 'hover'
+    'shadow-hover': props.styleConfig.shadow === 'hover',
+    'is-deleted': props.row.__deleted
   }
 })
 
@@ -86,7 +88,12 @@ function formatValue(value: any) {
 }
 
 function handleOpenRecord() {
+  if(props.row.__deleted) return
   emit('open-record', props.row)
+}
+
+function handleContextMenu(event: MouseEvent) {
+  emit('row-context-menu', props.row, event)
 }
 </script>
 
@@ -94,10 +101,12 @@ function handleOpenRecord() {
   <div
     class="md-card-widget"
     :class="cardClass"
+    :id="'cardItem_' + props.row.id"
     tabindex="0"
     aria-label="打开记录"
     :style="{ '--card-count': styleConfig.cardCount }"
     @click="handleOpenRecord"
+    @contextmenu.prevent.stop="handleContextMenu"
     @keydown.enter="handleOpenRecord"
   >
     <!-- <div
@@ -119,7 +128,7 @@ function handleOpenRecord() {
       <div v-else class="cover-placeholder">No Cover</div>
     </div>
 
-    <div class="card-content" >
+    <div class="card-content">
       <div v-for="(field, index) in previewFields" :key="field.field_name" :class="{ 'card-row': true, 'is-title': index === 0 }">
         <span v-if="styleConfig.showFieldName !== false && index > 0" class="field-name">{{ field.field_name_alias || field.field_name }}</span>
         <span class="field-value">{{ formatValue(row?.[field.field_name]) }}</span>
@@ -137,7 +146,11 @@ function handleOpenRecord() {
   transition: all 0.2s ease;
   outline: none;
   position: relative;
-
+  &.is-deleted{
+      text-decoration: line-through;
+      background: var(--app-grey-900);
+      cursor: not-allowed;
+  }
   &.is-bordered {
     border: 1px solid #ebeef5;
   }

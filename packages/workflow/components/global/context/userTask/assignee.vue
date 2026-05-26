@@ -9,16 +9,16 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('provider not found')
 }
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByDisplayTypes } = useVariablesProvide()
 const autoAssignField = ref<string>('')
 const assignFieldList = ref<any[]>([])
 
-function refreshData() {
+function initData() {
   const data = node.getData()
-  if (!!data.config.assignee) {
-    autoAssignField.value = data.config.assignee
+  if (!!data.config?.human_task?.assignee) {
+    autoAssignField.value = data.config?.human_task?.assignee
   } else {
-    autoAssignField.value = ''
+    autoAssignField.value = '${__system__user_creator_id}'
   }
 }
 
@@ -29,9 +29,12 @@ function assigneeChanged(newVal: string) {
     ...nodeData,
     config: {
       ...nodeData.config,
-      assignee: newVal
+      human_task: {
+        ...nodeData.config.human_task,
+        assignee: newVal
+      }
     },
-    version: node.data.version + 1 || 0
+    version: (nodeData.version || 0) + 1
   }
 
   node.setData(newData, { overwrite: true, deep: true })
@@ -39,7 +42,7 @@ function assigneeChanged(newVal: string) {
 }
 
 async function getAssignFieldList() {
-  const stringVariables = getVariablesByType(['string'], true)
+  const stringVariables = getVariablesByDisplayTypes(['text'], true)
   const userList = await getUserSelectOption()
 
   assignFieldList.value = [
@@ -59,14 +62,14 @@ async function getAssignFieldList() {
 
 onMounted(async () => {
   await getAssignFieldList()
-  // useWorkflowAdditionalContext(refreshData)
+  // useWorkflowAdditionalContext(initData)
 })
 
 watch(
   () => node,
   () => {
     if (node) {
-      refreshData()
+      initData()
     }
   },
   {
@@ -78,8 +81,8 @@ watch(
 
 <template>
   <el-form label-position="top" label-width="100px" size="small">
-    <el-form-item label="Auto Assignee">
-      <el-select v-model="autoAssignField" placeholder="Select Field" filterable clearable :disabled="graphProvider.readonly.value" @change="assigneeChanged">
+    <el-form-item label="Auto Assignee" required>
+      <el-select v-model="autoAssignField" placeholder="Select Field" filterable :disabled="graphProvider.readonly.value" clearable @change="assigneeChanged">
         <el-option-group v-for="group in assignFieldList" :key="group.label" :label="group.label">
           <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
         </el-option-group>
@@ -87,3 +90,5 @@ watch(
     </el-form-item>
   </el-form>
 </template>
+
+<style lang="scss" scoped></style>

@@ -1,42 +1,25 @@
 <template>
-  <el-popover
-    ref="popoverRef"
-    :width="width"
-    trigger="click"
-    :placement="placement"
-    :popper-class="popperClass"
-    :virtual-ref="virtualRef"
-    virtual-triggering
-  >
+  <el-popover ref="popoverRef" :width="width" trigger="click" :placement="placement" :popper-class="popperClass" :virtual-ref="virtualRef" virtual-triggering>
     <template #default>
       <div class="grouping-config-popover">
         <!-- 标题和提示信息 -->
         <div class="popover-header">
           <div class="header-title">
-            <span>设置分组</span>
+            <span>{{ t('mdTable.grouping.popoverTitle') }}</span>
             <el-icon class="info-icon" :size="16">
               <QuestionFilled />
             </el-icon>
           </div>
-          <div class="auto-save-tip">
-            视图配置处于自动保存中,你的操作会实时保存并同步给其他成员
-          </div>
+          <div class="auto-save-tip">{{ t('mdTable.grouping.autoSaveTip') }}</div>
         </div>
 
         <!-- 分组规则列表 -->
         <div class="grouping-rules">
-          <draggable
-            v-model="groupingRules"
-            item-key="id"
-            handle=".drag-handle"
-            :animation="200"
-            ghost-class="ghost-item"
-            @change="handleRulesChange"
-          >
+          <draggable v-model="groupingRules" item-key="id" handle=".drag-handle" :animation="200" ghost-class="ghost-item" @change="handleRulesChange">
             <template #item="{ element, index }">
               <div class="grouping-rule-item">
                 <!-- 拖拽手柄 -->
-                <div class="drag-handle">
+                <div class="drag-handle" :aria-label="t('mdTable.columnConfig.dragToSort')">
                   <el-icon :size="16">
                     <Rank />
                   </el-icon>
@@ -45,19 +28,13 @@
                 <!-- 字段选择 -->
                 <el-select
                   v-model="element.field"
-                  placeholder="请选择一个选项"
+                  :placeholder="t('mdTable.grouping.selectPlaceholder')"
                   class="field-select"
                   :teleported="false"
                   @change="handleFieldChange(element, index)"
                   @click.stop
                 >
-                  <el-option
-                    v-for="col in availableColumns"
-                    :key="col.field"
-                    :label="col.title"
-                    :value="col.field"
-                    :disabled="isFieldUsed(col.field, index)"
-                  >
+                  <el-option v-for="col in availableColumns" :key="col.field" :label="col.title" :value="col.field" :disabled="isFieldUsed(col.field, index)">
                     <div class="field-option">
                       <el-icon class="field-icon" :size="16">
                         <component :is="getFieldIcon(col.type)" />
@@ -69,33 +46,16 @@
 
                 <!-- 排序方向 -->
                 <div class="sort-buttons">
-                  <el-button
-                    :type="element.order === 'asc' ? 'primary' : ''"
-                    size="small"
-                    class="sort-btn"
-                    @click="handleSortChange(element, 'asc')"
-                  >
+                  <el-button :type="element.order === 'asc' ? 'primary' : ''" size="small" class="sort-btn" @click="handleSortChange(element, 'asc')">
                     {{ getSortLabel(element.field, 'asc') }}
                   </el-button>
-                  <el-button
-                    :type="element.order === 'desc' ? 'primary' : ''"
-                    size="small"
-                    class="sort-btn"
-                    @click="handleSortChange(element, 'desc')"
-                  >
+                  <el-button :type="element.order === 'desc' ? 'primary' : ''" size="small" class="sort-btn" @click="handleSortChange(element, 'desc')">
                     {{ getSortLabel(element.field, 'desc') }}
                   </el-button>
                 </div>
 
                 <!-- 删除按钮 -->
-                <el-button
-                  type="danger"
-                  :icon="Delete"
-                  size="small"
-                  text
-                  class="delete-btn"
-                  @click="handleDeleteRule(index)"
-                />
+                <el-button type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteRule(index)" />
               </div>
             </template>
           </draggable>
@@ -105,20 +65,14 @@
         <div class="add-rule-section" v-if="!isMaxGroupsReached">
           <el-select
             v-model="newRuleField"
-            placeholder="请选择一个选项"
+            :placeholder="t('mdTable.grouping.selectPlaceholder')"
             class="add-field-select"
             :teleported="false"
             :disabled="isMaxGroupsReached"
             @change="handleAddRule"
             @click.stop
           >
-            <el-option
-              v-for="col in availableColumns"
-              :key="col.field"
-              :label="col.title"
-              :value="col.field"
-              :disabled="isFieldUsed(col.field)"
-            >
+            <el-option v-for="col in availableColumns" :key="col.field" :label="col.title" :value="col.field" :disabled="isFieldUsed(col.field)">
               <div class="field-option">
                 <el-icon class="field-icon" :size="16">
                   <component :is="getFieldIcon(col.type)" />
@@ -127,9 +81,7 @@
               </div>
             </el-option>
           </el-select>
-          <div v-if="isMaxGroupsReached" class="max-groups-tip">
-            最多只能设置3个分组
-          </div>
+          <div v-if="isMaxGroupsReached" class="max-groups-tip">{{ t('mdTable.grouping.maxGroupsTip', { count: groupMaxCount }) }}</div>
         </div>
       </div>
     </template>
@@ -156,6 +108,7 @@ interface Props {
   width?: number | string
   placement?: string
   'popper-class'?: string
+  groupMaxCount?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -163,13 +116,16 @@ const props = withDefaults(defineProps<Props>(), {
   groupingRules: () => [],
   width: 480,
   placement: 'bottom-start',
-  'popper-class': ''
+  'popper-class': '',
+  groupMaxCount: 3
 })
 
 const emit = defineEmits<{
   'update:groupingRules': [rules: GroupingRule[]]
   change: [rules: GroupingRule[]]
 }>()
+
+const { t } = useI18n()
 
 const popoverRef = ref()
 const newRuleField = ref<string>('')
@@ -181,10 +137,10 @@ watch(
   (newRules) => {
     if (JSON.stringify(newRules) !== JSON.stringify(groupingRules.value)) {
       // 限制最多3个分组
-      const limitedRules = newRules.slice(0, 3)
+      const limitedRules = newRules.slice(0, props.groupMaxCount)
       groupingRules.value = [...limitedRules]
       // 如果被截断了，需要通知父组件
-      if (newRules.length > 3) {
+      if (newRules.length > props.groupMaxCount) {
         handleRulesChange()
       }
     }
@@ -194,7 +150,7 @@ watch(
 
 // 检查是否达到最大分组数
 const isMaxGroupsReached = computed(() => {
-  return groupingRules.value.length >= 3
+  return groupingRules.value.length >= props.groupMaxCount
 })
 
 // 检查字段是否已被使用
@@ -219,10 +175,7 @@ const getFieldIcon = (type?: ColumnFieldType | string) => {
 const getSortLabel = (field: string, order: 'asc' | 'desc'): string => {
   console.log('props.availableColumns', props.availableColumns, field)
   const column = props.availableColumns.find((col) => col.field === field)
-  const isNumeric =
-    column?.type === ColumnFieldType.Number ||
-    column?.type === ColumnFieldType.CreatedTime ||
-    column?.type === ColumnFieldType.DateTime
+  const isNumeric = column?.type === ColumnFieldType.Number || column?.type === ColumnFieldType.CreatedTime || column?.type === ColumnFieldType.DateTime
 
   if (isNumeric) {
     return order === 'asc' ? '1 → 9' : '9 → 1'
@@ -413,4 +366,3 @@ defineExpose({
   }
 }
 </style>
-

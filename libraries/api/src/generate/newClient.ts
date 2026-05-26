@@ -809,6 +809,66 @@ export interface TableFieldDTO {
     updated_at?: string;
 }
 
+/** Update Permission Request */
+export interface UpdatePermissionRequest {
+    /**
+     * Permission Level (Member, Edit, Manage)
+     * @example "Member"
+     */
+    permissionLevel: string;
+}
+
+/** Resource permission data transfer object */
+export interface ResourcePermissionDTO {
+    /** Permission ID */
+    id?: string;
+    /** Resource ID (e.g., document ID) */
+    resourceId?: string;
+    /**
+     * Resource type (1=Document)
+     * @format int32
+     */
+    resourceType?: number;
+    /**
+     * Target type (1=User, 2=Role, 3=Group, 4=User Set)
+     * @format int32
+     */
+    targetType?: number;
+    /** Target ID (user/role/group/user set ID) */
+    targetId?: string;
+    /** Permission level */
+    permissionLevel?: string;
+    /** List of permission IDs */
+    permissionIds?: number[];
+    /** Configuration rule name */
+    configurationRuleName?: string;
+    /** List of members */
+    members?: MemberDTO[];
+    /** List of rules */
+    rules?: RuleDTO[];
+    /**
+     * Create time
+     * @format date-time
+     */
+    createTime?: string;
+    /**
+     * Update time
+     * @format date-time
+     */
+    updateTime?: string;
+}
+
+export interface ResultResourcePermissionDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Resource permission data transfer object */
+    data?: ResourcePermissionDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Menu Update Request DTO */
 export interface MenuUpdateRequestDTO {
     /**
@@ -2130,49 +2190,6 @@ export interface ValidationRuleResponseDTO {
     modifiedDate?: string;
 }
 
-/** Resource permission data transfer object */
-export interface ResourcePermissionDTO {
-    /** Permission ID */
-    id?: string;
-    /** Resource ID (e.g., document ID) */
-    resourceId?: string;
-    /**
-     * Resource type (1=Document)
-     * @format int32
-     */
-    resourceType?: number;
-    /**
-     * Target type (1=User, 2=Role, 3=Group, 4=User Set)
-     * @format int32
-     */
-    targetType?: number;
-    /** Target ID (user/role/group/user set ID) */
-    targetId?: string;
-    /**
-     * Permission level (1=Read, 2=ReadWrite, 3=Manage, 4=Custom, 5=Config)
-     * @format int32
-     */
-    permissionLevel?: number;
-    /** List of permission IDs (used when permissionLevel=4/5) */
-    permissionIds?: number[];
-    /** Configuration rule name */
-    configurationRuleName?: string;
-    /** List of members */
-    members?: MemberDTO[];
-    /** List of rules */
-    rules?: RuleDTO[];
-    /**
-     * Create time
-     * @format date-time
-     */
-    createTime?: string;
-    /**
-     * Update time
-     * @format date-time
-     */
-    updateTime?: string;
-}
-
 export interface ResourcePermissionRequest {
     id?: string;
     resourceId?: string;
@@ -2181,8 +2198,7 @@ export interface ResourcePermissionRequest {
     /** @format int32 */
     targetType?: number;
     targetId?: string;
-    /** @format int32 */
-    permissionLevel?: number;
+    permissionLevel?: string;
     permissionIds?: string[];
     parentId?: string;
     configurationRuleName?: string;
@@ -2626,8 +2642,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    validationRuleName?: string;
     isMultiple?: boolean;
+    validationRuleName?: string;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -2967,11 +2983,11 @@ export interface DocumentDTO {
     fileContentLength?: number;
     fileContentName?: string;
     fileContentMimeType?: string;
-    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentExtension?: string;
 }
 
 export interface FileContentDTO {
@@ -4237,10 +4253,10 @@ export interface PageNotificationRecord {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: NotificationRecord[];
@@ -4251,8 +4267,8 @@ export interface PageNotificationRecord {
 }
 
 export interface PageableObject {
-    paged?: boolean;
     unpaged?: boolean;
+    paged?: boolean;
     /** @format int32 */
     pageNumber?: number;
     /** @format int32 */
@@ -4374,10 +4390,10 @@ export interface PageUploadBatchDTO {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: UploadBatchDTO[];
@@ -4786,11 +4802,11 @@ export interface WhatsAppMessageRequestDTO {
     languageCode?: string;
     components?: {
         /** @deprecated */
+        relatedArray?: any;
+        /** @deprecated */
         componentType?: {
             typeName?: string;
         };
-        /** @deprecated */
-        relatedArray?: any;
         empty?: boolean;
         first?: any;
         last?: any;
@@ -4811,6 +4827,147 @@ export interface ResultSendMessageResponseDTO {
 export interface SendMessageResponseDTO {
     successCallWhatsAppApi?: boolean;
     messageId?: string;
+}
+
+/** Create Trigger Setting Request */
+export interface CreateTriggerSettingRequestDTO {
+    /** Description */
+    description?: string;
+    /** Trigger conditions: { "trigger_rule": [ { id, field_name, operator, value } ] } */
+    conditions?: Record<string, any>;
+    /** Status: A-Active, I-Inactive (default A) */
+    status?: string;
+    /**
+     * Trigger name
+     * @minLength 1
+     */
+    trigger_name: string;
+    /**
+     * Event type: record_created | record_updated | record_deleted | field_changed
+     * @minLength 1
+     */
+    event_type: string;
+    /** Watch field name (required when event_type is field_changed) */
+    watch_field?: string;
+    /**
+     * Match type: all or any
+     * @minLength 1
+     */
+    match_type: string;
+    /** Workflow ID */
+    workflow_id?: string;
+    /** Workflow parameter mapping: { workflowVar: masterTableField } */
+    map_workflow_parameters?: Record<string, any>;
+}
+
+export interface ResultTriggerSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Trigger Setting DTO */
+    data?: TriggerSettingDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Trigger Setting DTO */
+export interface TriggerSettingDTO {
+    /** Trigger Setting ID (UUID) */
+    id?: string;
+    /** Description */
+    description?: string;
+    /** Trigger conditions (JSON): { trigger_rule: [...] } */
+    conditions?: any;
+    /** Status: A-Active, I-Inactive */
+    status?: string;
+    /** Master Table ID */
+    master_table_id?: string;
+    /** Trigger name */
+    trigger_name?: string;
+    /** Event type: record_created, record_updated, record_deleted, field_changed */
+    event_type?: string;
+    /** Watch field name (required when event_type is field_changed) */
+    watch_field?: string;
+    /** Match type: all or any */
+    match_type?: string;
+    /** Workflow ID */
+    workflow_id?: string;
+    /** Workflow parameter mapping (JSON) */
+    map_workflow_parameters?: any;
+    /** Created by user ID */
+    created_by?: string;
+    /** Updated by user ID */
+    updated_by?: string;
+    /** Created at (ISO 8601) */
+    created_at?: string;
+    /** Updated at (ISO 8601) */
+    updated_at?: string;
+}
+
+/** Test Trigger Setting Request */
+export interface TestTriggerSettingRequestDTO {
+    /** Master table record data for testing */
+    data: Record<string, any>;
+    /**
+     * Event type: record_created | record_updated | record_deleted | field_changed
+     * @minLength 1
+     */
+    event_type: string;
+}
+
+/** List Trigger Settings Request */
+export interface ListTriggerSettingsRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Filter by status: A-Active, I-Inactive */
+    status?: string;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
+    desc?: boolean;
+    sort?: SortObject;
+    /** Filter by event type: record_created, record_updated, record_deleted, field_changed */
+    event_type?: string;
+}
+
+export interface PaginationDTOTriggerSettingDTO {
+    entryList?: TriggerSettingDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOTriggerSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOTriggerSettingDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 /** Table Request DTO */
@@ -4923,6 +5080,40 @@ export interface TableDTO {
     updated_by?: string;
     /** Updated at (ISO 8601) */
     updated_at?: string;
+}
+
+/** Grant Menu Permission Request */
+export interface GrantMenuPermissionRequest {
+    /**
+     * Target Type
+     * @format int32
+     * @example 1
+     */
+    targetType: number;
+    /** Target ID */
+    targetId: string;
+    /**
+     * Permission Level (Member, Edit, Manage)
+     * @example "Member"
+     */
+    permissionLevel: string;
+}
+
+/** Grant Database Member Request */
+export interface GrantDatabaseMemberRequest {
+    /**
+     * Target Type (1=User, 2=Role, 3=Group)
+     * @format int32
+     * @example 1
+     */
+    targetType: number;
+    /** Target ID */
+    targetId: string;
+    /**
+     * Permission Level (Member, Manage)
+     * @example "Member"
+     */
+    permissionLevel: string;
 }
 
 /** Menu Request DTO */
@@ -5699,10 +5890,10 @@ export interface PageWatermarkSettingsTemplate {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: WatermarkSettingsTemplate[];
@@ -5808,6 +5999,8 @@ export interface CfUserTableConfigRequestDTO {
     tableId?: string;
     /** User id (optional, default current user) */
     userId?: string;
+    /** Config type */
+    type?: string;
     /** Column config JSON string */
     tableConfig?: string;
 }
@@ -5817,6 +6010,7 @@ export interface CfUserTableConfigResponseDTO {
     id?: string;
     tableId?: string;
     userId?: string;
+    type?: string;
     tableConfig?: string;
     createdBy?: string;
     modifiedBy?: string;
@@ -6979,10 +7173,10 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
+    watermarkedLocalPath?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
-    watermarkedLocalPath?: string;
     watermarkTemplateId?: string;
     conversionId?: string;
 }
@@ -7288,8 +7482,8 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    updateChildName?: boolean;
     ocr?: boolean;
+    updateChildName?: boolean;
     folder?: boolean;
     be_index?: boolean;
     create_by?: string;
@@ -9017,11 +9211,11 @@ export interface DocumentResponseDTO {
     fileContentLength?: number;
     fileContentName?: string;
     fileContentMimeType?: string;
-    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentExtension?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9459,9 +9653,9 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
+    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
-    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
@@ -11289,10 +11483,10 @@ export interface PageBusinessResultRecord {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: BusinessResultRecord[];
@@ -11605,11 +11799,8 @@ export interface ResourcePermissionVO {
     targetType?: number;
     /** Target ID (user/role/group/user set ID) */
     targetId?: string;
-    /**
-     * Permission level (1=Read, 2=ReadWrite, 3=Manage, 4=Custom, 5=Config)
-     * @format int32
-     */
-    permissionLevel?: number;
+    /** Permission level */
+    permissionLevel?: string;
     /** List of permission IDs (used when permissionLevel=4/5) */
     permissionIds?: number[];
     /** Configuration rule name */
@@ -12221,6 +12412,28 @@ export interface ExternalProfileOutputDTO {
     imageSetting?: Record<string, any>;
 }
 
+/** Update Trigger Setting Request */
+export interface UpdateTriggerSettingRequestDTO {
+    /** Description */
+    description?: string;
+    /** Trigger conditions: { "trigger_rule": [ { id, field_name, operator, value } ] } */
+    conditions?: Record<string, any>;
+    /** Status: A-Active, I-Inactive */
+    status?: string;
+    /** Trigger name */
+    trigger_name?: string;
+    /** Event type: record_created | record_updated | record_deleted | field_changed */
+    event_type?: string;
+    /** Watch field name (required when event_type is field_changed) */
+    watch_field?: string;
+    /** Match type: all or any */
+    match_type?: string;
+    /** Workflow ID */
+    workflow_id?: string;
+    /** Workflow parameter mapping: { workflowVar: masterTableField } */
+    map_workflow_parameters?: Record<string, any>;
+}
+
 /** ResetEasyShare (Request) */
 export interface ShareSaveRequestDTO {
     /** Share Id */
@@ -12318,10 +12531,10 @@ export interface PageSearchHistory {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: SearchHistory[];
@@ -12593,16 +12806,6 @@ export interface ResultListMessageTemplateDTO {
     locale?: string;
 }
 
-export interface ResultListTableFieldDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: TableFieldDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultTableStructureDTO {
     result?: boolean;
     /** @format int32 */
@@ -12624,12 +12827,55 @@ export interface TableStructureDTO {
     relation_display_fields?: Record<string, any>[];
 }
 
+export interface ResultListTableFieldDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: TableFieldDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListTableDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
     data?: TableDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PermissionMemberDTO {
+    /** Permission record ID (from ACL) */
+    permissionRecordId?: string;
+    /** Target ID (e.g. userId) */
+    targetId?: string;
+    /**
+     * Target Type (1=User, 2=Role)
+     * @format int32
+     */
+    targetType?: number;
+    /** Permission Level (Member, View, Edit, Manage) */
+    permissionLevel?: string;
+    /** Whether this permission is inherited */
+    isInherit?: boolean;
+    /** Resource ID from which this permission is inherited */
+    inheritFrom?: string;
+    /**
+     * Creation timestamp
+     * @format date-time
+     */
+    createdAt?: string;
+}
+
+export interface ResultListPermissionMemberDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PermissionMemberDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -14319,6 +14565,16 @@ export interface ResultListHistoricProcessInstanceEntityImpl {
     locale?: string;
 }
 
+/** Batch delete request */
+export interface BatchDeleteRequestDTO {
+    /**
+     * List of IDs to delete
+     * @minItems 1
+     * @example ["e88194e0-4925-11f1-b951-d9e4c770afba","3663a180-4926-11f1-b951-d9e4c770afba"]
+     */
+    ids: string[];
+}
+
 export interface ResultIdentityRequestDTO {
     result?: boolean;
     /** @format int32 */
@@ -15435,6 +15691,50 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/api/dynamic-db/table/fields/${fieldId}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name PutDynamicDbPermissionsMenuMenuidUpdatePermissionPermissionid
+         * @summary Update Menu node permission (View / Edit / Manage)
+         * @request PUT:/api/dynamic-db/permissions/menu/{menuId}/update-permission/{permissionId}
+         */
+        putDynamicDbPermissionsMenuMenuidUpdatePermissionPermissionid: (
+            menuId: string,
+            permissionId: string,
+            data: UpdatePermissionRequest,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultResourcePermissionDTO, any>({
+                path: `/api/dynamic-db/permissions/menu/${menuId}/update-permission/${permissionId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name PutDynamicDbPermissionsDatabaseDatabaseidUpdatePermissionPermissionid
+         * @summary Update Database member permission
+         * @request PUT:/api/dynamic-db/permissions/database/{databaseId}/update-permission/{permissionId}
+         */
+        putDynamicDbPermissionsDatabaseDatabaseidUpdatePermissionPermissionid: (
+            databaseId: string,
+            permissionId: string,
+            data: UpdatePermissionRequest,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultResourcePermissionDTO, any>({
+                path: `/api/dynamic-db/permissions/database/${databaseId}/update-permission/${permissionId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -20407,6 +20707,69 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTriggerSettingController
+         * @name PostDynamicDbTableMastertableidTriggerSettings
+         * @summary Create Trigger Setting for a Master Table
+         * @request POST:/api/dynamic-db/table/{masterTableId}/trigger-settings
+         */
+        postDynamicDbTableMastertableidTriggerSettings: (
+            masterTableId: string,
+            data: CreateTriggerSettingRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTriggerSettingDTO, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTriggerSettingController
+         * @name PostDynamicDbTableMastertableidTriggerSettingsTest
+         * @summary Test Trigger Setting conditions with a message
+         * @request POST:/api/dynamic-db/table/{masterTableId}/trigger-settings/test
+         */
+        postDynamicDbTableMastertableidTriggerSettingsTest: (
+            masterTableId: string,
+            data: TestTriggerSettingRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/test`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTriggerSettingController
+         * @name PostDynamicDbTableMastertableidTriggerSettingsPage
+         * @summary Paginated query for Trigger Settings
+         * @request POST:/api/dynamic-db/table/{masterTableId}/trigger-settings/page
+         */
+        postDynamicDbTableMastertableidTriggerSettingsPage: (
+            masterTableId: string,
+            data: ListTriggerSettingsRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOTriggerSettingDTO, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags DynamicDBTableController
          * @name PostDynamicDbTablePage
          * @summary Paginated query for Table list
@@ -20415,6 +20778,48 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDynamicDbTablePage: (data: TableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOTableDTO, any>({
                 path: `/api/dynamic-db/table/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name PostDynamicDbPermissionsMenuMenuidGrant
+         * @summary Grant permission on Menu node (View / Edit / Manage)
+         * @request POST:/api/dynamic-db/permissions/menu/{menuId}/grant
+         */
+        postDynamicDbPermissionsMenuMenuidGrant: (
+            menuId: string,
+            data: GrantMenuPermissionRequest,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultResourcePermissionDTO, any>({
+                path: `/api/dynamic-db/permissions/menu/${menuId}/grant`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name PostDynamicDbPermissionsDatabaseDatabaseidGrant
+         * @summary Invite member to Database (Member / Manage)
+         * @request POST:/api/dynamic-db/permissions/database/{databaseId}/grant
+         */
+        postDynamicDbPermissionsDatabaseDatabaseidGrant: (
+            databaseId: string,
+            data: GrantDatabaseMemberRequest,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultResourcePermissionDTO, any>({
+                path: `/api/dynamic-db/permissions/database/${databaseId}/grant`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22736,6 +23141,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             query: {
                 tableId: string;
                 userId?: string;
+                type?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -29581,6 +29987,66 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTriggerSettingController
+         * @name GetDynamicDbTableMastertableidTriggerSettingsId
+         * @summary Get Trigger Setting by ID
+         * @request GET:/api/dynamic-db/table/{masterTableId}/trigger-settings/{id}
+         */
+        getDynamicDbTableMastertableidTriggerSettingsId: (
+            masterTableId: string,
+            id: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTriggerSettingDTO, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTriggerSettingController
+         * @name DeleteDynamicDbTableMastertableidTriggerSettingsId
+         * @summary Delete Trigger Setting (physical delete)
+         * @request DELETE:/api/dynamic-db/table/{masterTableId}/trigger-settings/{id}
+         */
+        deleteDynamicDbTableMastertableidTriggerSettingsId: (
+            masterTableId: string,
+            id: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTriggerSettingController
+         * @name PatchDynamicDbTableMastertableidTriggerSettingsId
+         * @summary Update Trigger Setting
+         * @request PATCH:/api/dynamic-db/table/{masterTableId}/trigger-settings/{id}
+         */
+        patchDynamicDbTableMastertableidTriggerSettingsId: (
+            masterTableId: string,
+            id: string,
+            data: UpdateTriggerSettingRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTriggerSettingDTO, any>({
+                path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/${id}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags UserDashboardController
          * @name PatchDsbUserDashboardsIdStatusStatus
          * @summary Update status through id
@@ -31720,13 +32186,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DynamicDBTableController
-         * @name GetDynamicDbTableId
+         * @name GetDynamicDbTableTableid
          * @summary Get Table structure (table info + fields + relations)
-         * @request GET:/api/dynamic-db/table/{id}
+         * @request GET:/api/dynamic-db/table/{tableId}
          */
-        getDynamicDbTableId: (id: string, params: RequestParams = {}) =>
+        getDynamicDbTableTableid: (tableId: string, params: RequestParams = {}) =>
             this.request<ResultTableStructureDTO, any>({
-                path: `/api/dynamic-db/table/${id}`,
+                path: `/api/dynamic-db/table/${tableId}`,
                 method: "GET",
                 ...params,
             }),
@@ -31765,6 +32231,67 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/api/dynamic-db/personal-views/${id}`,
                 method: "GET",
                 format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name GetDynamicDbPermissionsMenuMenuidPermissions
+         * @summary Get Menu node permission list
+         * @request GET:/api/dynamic-db/permissions/menu/{menuId}/permissions
+         */
+        getDynamicDbPermissionsMenuMenuidPermissions: (menuId: string, params: RequestParams = {}) =>
+            this.request<ResultListPermissionMemberDTO, any>({
+                path: `/api/dynamic-db/permissions/menu/${menuId}/permissions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name GetDynamicDbPermissionsDatabaseDatabaseidMembers
+         * @summary Get Database member list
+         * @request GET:/api/dynamic-db/permissions/database/{databaseId}/members
+         */
+        getDynamicDbPermissionsDatabaseDatabaseidMembers: (databaseId: string, params: RequestParams = {}) =>
+            this.request<ResultListPermissionMemberDTO, any>({
+                path: `/api/dynamic-db/permissions/database/${databaseId}/members`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name GetDynamicDbPermissionsCheck
+         * @summary Check if user has required permission on a resource
+         * @request GET:/api/dynamic-db/permissions/check
+         */
+        getDynamicDbPermissionsCheck: (
+            query: {
+                /** User ID */
+                userId: string;
+                /**
+                 * Resource Type
+                 * @format int32
+                 */
+                resourceType: number;
+                /** Resource ID */
+                resourceId: string;
+                /** Required permission: View, Edit, Manage, Member */
+                requiredPermission: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/permissions/check`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 
@@ -34534,6 +35061,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
+         * @name GetDmsFacadeIdTemplateUiConfig
+         * @summary Generated ID using id-template
+         * @request GET:/api/dms/facade/id-template/ui-config
+         */
+        getDmsFacadeIdTemplateUiConfig: (params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/facade/id-template/ui-config`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
          * @name GetDmsFacadeDocumentDownload
          * @summary Download file
          * @request GET:/api/dms/facade/document/download
@@ -34548,6 +35090,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/api/dms/facade/document/download`,
                 method: "GET",
                 query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name GetDmsFacadeDocumentTemplateUiConfig
+         * @summary Get document template UI config
+         * @request GET:/api/dms/facade/document-template/ui-config
+         */
+        getDmsFacadeDocumentTemplateUiConfig: (params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/facade/document-template/ui-config`,
+                method: "GET",
                 ...params,
             }),
 
@@ -34719,6 +35276,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultMapStringObject, any>({
                 path: `/api/dms/document/${documentId}/user-permission/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name GetDmsDocumentDocumentidPrint
+         * @summary Print document
+         * @request GET:/api/dms/document/{documentId}/print
+         */
+        getDmsDocumentDocumentidPrint: (documentId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/document/${documentId}/print`,
                 method: "GET",
                 ...params,
             }),
@@ -37282,6 +37854,65 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTableController
+         * @name DeleteDynamicDbTableTableidDataBatch
+         * @summary Batch Delete Data Records
+         * @request DELETE:/api/dynamic-db/table/{tableId}/data/batch
+         */
+        deleteDynamicDbTableTableidDataBatch: (
+            tableId: string,
+            data: BatchDeleteRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/${tableId}/data/batch`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name DeleteDynamicDbPermissionsMenuMenuidRevokePermissionid
+         * @summary Remove permission from Menu node
+         * @request DELETE:/api/dynamic-db/permissions/menu/{menuId}/revoke/{permissionId}
+         */
+        deleteDynamicDbPermissionsMenuMenuidRevokePermissionid: (
+            menuId: string,
+            permissionId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/permissions/menu/${menuId}/revoke/${permissionId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBPermissionController
+         * @name DeleteDynamicDbPermissionsDatabaseDatabaseidRevokePermissionid
+         * @summary Remove member from Database
+         * @request DELETE:/api/dynamic-db/permissions/database/{databaseId}/revoke/{permissionId}
+         */
+        deleteDynamicDbPermissionsDatabaseDatabaseidRevokePermissionid: (
+            databaseId: string,
+            permissionId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/permissions/database/${databaseId}/revoke/${permissionId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Workflow Version Controller
          * @name DeleteDocpalWorkflowVersionDraftidDraftid
          * @request DELETE:/api/docpal/workflow/version/draftId/{draftId}
@@ -38267,6 +38898,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         putExt3rdmessageWhatsappSettings: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/settings`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PutDynamicDbTableTableidRecordDataid
+         * @request PUT:/admin/api/dynamic-db/table/{tableId}/record/{dataId}
+         */
+        putDynamicDbTableTableidRecordDataid: (
+            tableId: string,
+            dataId: string,
+            data: TableDataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/record/${dataId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -41390,6 +42042,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postExt3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWhatsAppLogDTO, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/logs/query`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PostDynamicDbTableTableidRecord
+         * @request POST:/admin/api/dynamic-db/table/{tableId}/record
+         */
+        postDynamicDbTableTableidRecord: (tableId: string, data: TableDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/record`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -47414,14 +48082,35 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDynamicDBTableController
-         * @name GetDynamicDbTableId
+         * @name GetDynamicDbTableTableid
          * @summary Get Table structure (table info + fields + relations)
-         * @request GET:/admin/api/dynamic-db/table/{id}
+         * @request GET:/admin/api/dynamic-db/table/{tableId}
          */
-        getDynamicDbTableId: (id: string, params: RequestParams = {}) =>
+        getDynamicDbTableTableid: (tableId: string, params: RequestParams = {}) =>
             this.request<ResultTableStructureDTO, any>({
-                path: `/admin/api/dynamic-db/table/${id}`,
+                path: `/admin/api/dynamic-db/table/${tableId}`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name GetDynamicDbTableList
+         * @request GET:/admin/api/dynamic-db/table/list
+         */
+        getDynamicDbTableList: (
+            query: {
+                /** Table Request DTO */
+                request: TableRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListTableDTO, any>({
+                path: `/admin/api/dynamic-db/table/list`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 
@@ -48418,6 +49107,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getDocpalManagementHealth: (params: RequestParams = {}) =>
             this.request<ResultMapStringMapStringObject, any>({
                 path: `/admin/api/docpal/management/health`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController(Admin Page)
+         * @name GetDocpalIdTemplatesUiConfig
+         * @request GET:/admin/api/docpal/id-templates/ui-config
+         */
+        getDocpalIdTemplatesUiConfig: (params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, any>({
+                path: `/admin/api/docpal/id-templates/ui-config`,
                 method: "GET",
                 ...params,
             }),
@@ -50931,6 +51634,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/definition/remove/${draftId}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name DeleteDynamicDbTableTableidDataBatch
+         * @summary Batch Delete Data Records
+         * @request DELETE:/admin/api/dynamic-db/table/{tableId}/data/batch
+         */
+        deleteDynamicDbTableTableidDataBatch: (
+            tableId: string,
+            data: BatchDeleteRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/data/batch`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
