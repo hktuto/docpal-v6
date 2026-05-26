@@ -740,6 +740,12 @@
   },
   "dashboard": {
     "Browse": "Browse",
+    "DbChart": "DB Chart",
+    "DbPie": "DB Pie Chart",
+    "DbProgress": "DB Progress",
+    "DbRecentRecords": "DB Recent Records",
+    "DbStat": "DB Stat",
+    "DbTable": "DB Table",
     "CalendarWidget": "Calendar",
     "PersonalCase": "Case",
     "PersonalCaseCreate": "New Case",
@@ -827,6 +833,7 @@
   "dashboardType": {
     "case": "@:adminMenu.caseManagement",
     "caseCount": "Case Statistics",
+    "database": "Database",
     "default": "Common",
     "document": "Document",
     "documentCount": "File Statistics",
@@ -4390,7 +4397,6 @@
   "workflow_editorVersionHistory": "Version History",
   "workflow_editorViewProductionVersion": "View Production Version",
   "workflow_editorViewVersionHistory": "View Version History",
-  "workflow_editorPermission": "Permission",
   "workflow_form": "Form",
   "workflow_graph": "Flowchart",
   "workflow_holdPolicy": "Hold Policy",

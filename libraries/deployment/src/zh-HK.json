@@ -739,6 +739,12 @@
   },
   "dashboard": {
     "Browse": "瀏覽",
+    "DbChart": "數據庫圖表",
+    "DbPie": "數據庫餅圖",
+    "DbProgress": "數據庫進度",
+    "DbRecentRecords": "數據庫最近記錄",
+    "DbStat": "數據庫統計",
+    "DbTable": "數據庫表格",
     "CalendarWidget": "日歷",
     "PersonalCase": "案例",
     "PersonalCaseCreate": "新案例",
@@ -825,6 +831,7 @@
   "dashboardType": {
     "case": "@:adminMenu.caseManagement",
     "caseCount": "Case 統計",
+    "database": "數據庫",
     "default": "普通",
     "document": "文件",
     "documentCount": "文件統計",
@@ -4387,7 +4394,6 @@
   "workflow_editorVersionHistory": "歷史版本",
   "workflow_editorViewProductionVersion": "View Production Version",
   "workflow_editorViewVersionHistory": "View Version History",
-  "workflow_editorPermission": "權限",
   "workflow_form": "表單",
   "workflow_graph": "流程圖",
   "workflow_holdPolicy": "保留政策",
