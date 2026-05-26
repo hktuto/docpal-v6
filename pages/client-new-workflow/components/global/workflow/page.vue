@@ -33,9 +33,9 @@ onMounted(() => {
       <el-tab-pane :label="$t('workflow_myTask')" name="myTask">
         <WorkflowMyTask v-if="activeTab === 'myTask'" ref="workflowRef" />
       </el-tab-pane>
-      <el-tab-pane :label="$t('workflow_joinTask')" name="activeTask">
-        <WorkflowActiveTask v-if="activeTab === 'activeTask'" ref="workflowRef" />
-      </el-tab-pane>
+<!--      <el-tab-pane :label="$t('workflow_joinTask')" name="activeTask">-->
+<!--        <WorkflowActiveTask v-if="activeTab === 'activeTask'" ref="workflowRef" />-->
+<!--      </el-tab-pane>-->
       <el-tab-pane :label="$t('workflow_completedTask')" name="completeTask">
         <WorkflowCompleteTask v-if="activeTab === 'completeTask'" ref="workflowRef" />
       </el-tab-pane>
