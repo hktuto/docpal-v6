@@ -1,7 +1,7 @@
 <template>
   <el-dropdown
     id="Workflow__PersonalWorkflow"
-    v-if="checkLicenseFeatures('GENERATE_TEMPLATE') || checkLicenseFeatures('BULK_IMPORT')"
+    v-if="checkLicenseFeatures('GENERATE_TEMPLATE')"
     trigger="click"
     @command="handleCommand"
   >
@@ -22,14 +22,12 @@
     </template>
   </el-dropdown>
   <WorkflowPopoverTemplate ref="TemplateDialogRef" />
-  <WorkflowPopoverBulkImport ref="BulkImportDialogRef" />
 </template>
 
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
 
 const emits = defineEmits([])
-const BulkImportDialogRef = ref()
 const TemplateDialogRef = ref()
 const state = reactive({
   menuList: [
@@ -37,13 +35,10 @@ const state = reactive({
   ]
 })
 
-function handleCommand(command) {
+function handleCommand(command: string) {
   switch (command) {
     case 'template':
       TemplateDialogRef.value.handleOpen()
-      break
-    case 'bulkImport':
-      BulkImportDialogRef.value.handleOpen()
       break
     default:
       break
