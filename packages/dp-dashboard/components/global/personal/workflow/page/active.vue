@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core'
+import { clientApi } from 'api'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const { idList } = defineProps<{
   idList: string[]
@@ -7,9 +9,7 @@ const { idList } = defineProps<{
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const platform = useAppPlatform()
-let extraParams: any = ref({
-  interrelatedUserId: useUserId()
-})
+const userId: string = useUserId().value
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-workflow-active',
   zoom: false,
@@ -24,21 +24,18 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   saveColumnOrder: false
 })
 
-async function getData(params: any = {}) {
+async function getData(pageParams: any = {}) {
   if (platform.value === 'admin') return
   const settingParams: any = {}
   if (idList.length > 0) {
     settingParams.processKeys = idList
   }
-  // const res = await newClientApi.postDocpalWorkflowTasksUser({ ...params, ...extraParams.value, ...settingParams }).then((res) => res.data)
 
-  const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
-  return {
-    data: {
-      entryList: data || []
-    }
-  }
+  return await clientApi.instance
+    .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+    .then((r: any) => workflowResponseHelper(r))
 }
+
 function handleDblclick(row: any) {
   if (platform.value === 'admin') return
   try {

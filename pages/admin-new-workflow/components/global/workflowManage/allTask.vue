@@ -13,7 +13,9 @@ const reassignTaskRef = ref()
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'manage_all_task',
   api: async (pageParams: any) => {
-    const response = await clientApi.instance.get('/oniflow/api/v1/task/overview/available').then((r: any) => workflowResponseHelper(r))
+    const response = await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/available?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
     return {
       data: response
     }
@@ -70,7 +72,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
 <template>
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-    <template #toolbar_buttons> </template>
+    <template #toolbar_buttons></template>
     <template #assignee="{ row }">
       <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
     </template>

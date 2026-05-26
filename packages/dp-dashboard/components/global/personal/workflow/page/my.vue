@@ -9,9 +9,6 @@ const { idList } = defineProps<{
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const platform = useAppPlatform()
-let extraParams: any = ref({
-  assignedUser: useUserId()
-})
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-workflow-my',
   zoom: false,
@@ -41,17 +38,18 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   saveColumnOrder: false
 })
 
-async function getData(params: any = {}) {
+const userId: string = useUserId().value
+async function getData(pageParams: any = {}) {
   if (platform.value === 'admin') return
   const settingParams: any = {}
   if (idList && idList.length > 0) {
     settingParams.processKeys = idList
   }
-  const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
+  const data = await clientApi.instance
+    .get(`/oniflow/api/v1/task/overview/available/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+    .then((r: any) => workflowResponseHelper(r))
   return {
-    data: {
-      entryList: data || []
-    }
+    data:  data || []
   }
 }
 

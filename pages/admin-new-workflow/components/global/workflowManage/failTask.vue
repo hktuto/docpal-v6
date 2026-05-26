@@ -7,9 +7,11 @@ const workflowList = await getWorkflowList()
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'manage_fail_task',
   api: async (pageParams: any) => {
-    // const response = await clientApi.instance.get('/oniflow/api/v1/task/overview/available').then((r: any) => workflowResponseHelper(r))
+    const response = await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/failed?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
     return {
-      data: []
+      data: response || []
     }
   },
   columns: [
@@ -53,13 +55,14 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       // }
     ]
   ],
-  dblClickAction: ({ row, column, event }: any) => {}
+  dblClickAction: ({ row, column, event }: any) => {
+  }
 })
 </script>
 
 <template>
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-    <template #toolbar_buttons> </template>
+    <template #toolbar_buttons></template>
   </VxeGrid>
 </template>
 

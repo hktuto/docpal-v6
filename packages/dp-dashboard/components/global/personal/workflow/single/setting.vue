@@ -59,7 +59,7 @@ async function beforeOpen(setting) {
 
 async function getWorkflowTask() {
   const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => workflowResponseHelper(r))
-  workflowList.value = data || []
+  workflowList.value = data.entryList || []
 }
 
 onMounted(async () => {

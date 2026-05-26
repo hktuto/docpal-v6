@@ -15,23 +15,21 @@ const extraParams = ref({
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'all_task',
   api: async (pageParams: any) => {
-    const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
-
-    let list = data.tasks
-    if (extraParams.value.definition_id !== '') {
-      list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)
+    const data = await clientApi.instance
+      .get(`/oniflow/api/v1/task/overview/available/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .then((r: any) => workflowResponseHelper(r))
+    if (!!extraParams.value.definition_id && extraParams.value.definition_id !== '') {
+      data.entryList = data.entryList.filter((item: any) => item.definition_id === extraParams.value.definition_id)
     }
 
     return {
-      data: {
-        entryList: list || []
-      }
+      data: data || []
     }
   },
   columns: [
     { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status', title: 'dpTable_status' },
+    { field: 'status.type', title: 'dpTable_status' },
     {
       field: 'created_at',
       title: 'workflow_createDate',
