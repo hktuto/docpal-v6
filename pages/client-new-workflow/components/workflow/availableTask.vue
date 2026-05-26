@@ -36,7 +36,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
+    { field: 'name', title: 'workflow_taskName', fixed: 'left' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     { field: 'status.type', title: 'dpTable_status' },
     {
@@ -64,24 +64,30 @@ function handleDblclick(row: any) {
     routeWorkflowDetail({
       ...row,
       workflowType: 'availableTask',
-      db_id: row.node_id
+      db_id: row.db_id
     }),
     false
   )
 }
 
 async function claimTask(row: any) {
-  if (row.status === '') return
+  if (row.status.type !== 'waiting') {
+    routerProvider?.message?.error('Unable to claim this task')
+    return
+  }
 
-  await clientApi.instance.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res: any) => res.data)
-  reload()
+  try {
+    const parms = {
+      user_id: user.userId
+    }
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
+    reload()
+  } catch (e) {
+    console.log(e)
+  }
 }
 
-function reloadTable() {
-  reload()
-}
-
-defineExpose({ reloadTable })
+defineExpose({ reload })
 </script>
 
 <template>

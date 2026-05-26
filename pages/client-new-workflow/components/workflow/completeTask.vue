@@ -73,11 +73,7 @@ function handleDblclick(row: any) {
   )
 }
 
-function reloadTable() {
-  reload()
-}
-
-defineExpose({ reloadTable })
+defineExpose({ reload })
 </script>
 
 <template>

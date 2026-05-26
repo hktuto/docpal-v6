@@ -9,12 +9,12 @@ const { workflowType } = toRefs(props)
 
 function reload() {
   nextTick(() => {
-    // workflowRef.value.reloadTable()
+    // workflowRef.value.reload()
   })
 }
 
 onMounted(() => {
-  if (workflowType.value) {
+  if (!!workflowType.value) {
     activeTab.value = workflowType.value
   }
 })

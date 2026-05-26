@@ -57,16 +57,12 @@ async function claimTask(row: any) {
   query({})
 }
 
-function reloadTable() {
-  reload()
-}
-
 function handleAssignee(assignee: string) {
   if (!assignee || assignee === '') return false
   return !assignee.includes('${')
 }
 
-defineExpose({ reloadTable })
+defineExpose({ reload })
 </script>
 
 <template>
