@@ -1,7 +1,9 @@
 import { useState } from '#imports'
 import type { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { ElNotification } from 'element-plus'
 import {
   captureTableSnapshot,
+  captureTableNameMap,
   resolveNewTables,
   fetchTableSnapshot,
   guessRelations,
@@ -63,7 +65,7 @@ export function dismissGuess(index: number) {
  * Capture a snapshot of current table IDs before import.
  * Call this immediately before `importExcelFile`.
  */
-export { captureTableSnapshot }
+export { captureTableSnapshot, captureTableNameMap }
 
 /**
  * Start the post-import relation analysis.
@@ -106,9 +108,12 @@ export async function startPostImportAnalysis(
   state.value.progress = 30
   state.value.message = 'Fetching table data...'
 
+  // Build a name map so snapshots can resolve real table names
+  const nameMap = await captureTableNameMap(databaseId)
+
   // Fetch snapshots for new tables
   const newTables = (
-    await Promise.all(newTableIds.map((id) => fetchTableSnapshot(id)))
+    await Promise.all(newTableIds.map((id) => fetchTableSnapshot(id, nameMap)))
   ).filter((t): t is TableSnapshot => t !== null)
 
   if (newTables.length === 0) {
@@ -127,7 +132,7 @@ export async function startPostImportAnalysis(
     .slice(0, MAX_EXISTING_TABLES)
 
   const existingTables = (
-    await Promise.all(existingTableIds.map((id) => fetchTableSnapshot(id)))
+    await Promise.all(existingTableIds.map((id) => fetchTableSnapshot(id, nameMap)))
   ).filter((t): t is TableSnapshot => t !== null)
 
   state.value.progress = 80
@@ -148,6 +153,16 @@ export async function startPostImportAnalysis(
         guesses.length > 0
           ? `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'}`
           : 'Analysis complete — no strong relations detected'
+
+      if (guesses.length > 0) {
+        ElNotification({
+          title: 'Relations Detected',
+          message: `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'} between imported tables.`,
+          type: 'info',
+          duration: 0
+        })
+      }
+
       resolve()
     }, 0)
   })

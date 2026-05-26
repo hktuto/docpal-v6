@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage, ElNotification } from 'element-plus'
+import { useImportRelationAnalysisState, dismissGuess } from '../../../../composables/import/useImportRelationAnalysis'
 
 const props = defineProps<{
   id: string
@@ -19,6 +20,10 @@ const canOpenSetting = computed(() => {
   if (databaseMenuRouteParams.value.detailType === 'root') return canManageDatabase.value
   return canManageTable.value
 })
+
+const analysis = useImportRelationAnalysisState()
+const pendingGuesses = computed(() => analysis.value.guesses.filter((g) => !g.dismissed))
+const showAnalysisBanner = computed(() => analysis.value.status === 'completed' && pendingGuesses.value.length > 0)
 
 // Hocuspocus awareness
 const hocuspocusManager = useHocuspocusManager()
@@ -236,6 +241,44 @@ watch(
                 </template>
               </template>
             </DatabaseDetailHeader>
+
+            <!-- Post-import relation analysis banner -->
+            <Transition name="fade">
+              <div v-if="showAnalysisBanner" class="relation-analysis-banner">
+                <el-alert
+                  :title="`Detected ${pendingGuesses.length} potential relation${pendingGuesses.length === 1 ? '' : 's'}`"
+                  type="info"
+                  :closable="false"
+                  show-icon
+                >
+                  <template #default>
+                    <div class="guess-list">
+                      <div
+                        v-for="(guess, idx) in pendingGuesses.slice(0, 3)"
+                        :key="idx"
+                        class="guess-item"
+                      >
+                        <span class="guess-source">{{ guess.sourceTableName }}.{{ guess.sourceFieldName }}</span>
+                        <span class="guess-arrow">→</span>
+                        <span class="guess-target">{{ guess.targetTableName }}.{{ guess.targetFieldName }}</span>
+                        <el-tag size="small" :type="guess.confidence > 0.7 ? 'success' : 'warning'">
+                          {{ Math.round(guess.confidence * 100) }}%
+                        </el-tag>
+                      </div>
+                      <div v-if="pendingGuesses.length > 3" class="guess-more">
+                        +{{ pendingGuesses.length - 3 }} more
+                      </div>
+                    </div>
+                    <div class="guess-actions">
+                      <el-button size="small" text @click="analysis.guesses.forEach((_, i) => dismissGuess(i))">
+                        Dismiss All
+                      </el-button>
+                    </div>
+                  </template>
+                </el-alert>
+              </div>
+            </Transition>
+
             <div class="content-area">
               <component :is="detailComponent" :is-admin="canManageDatabase" />
             </div>
@@ -368,5 +411,73 @@ watch(
       background-color: #10b981;
     }
   }
+}
+
+// ============================================
+// Relation analysis banner
+// ============================================
+.relation-analysis-banner {
+  padding: var(--app-space-s) var(--app-space-m);
+  background: var(--el-color-primary-light-9);
+  border-bottom: 1px solid var(--el-color-primary-light-7);
+
+  :deep(.el-alert) {
+    background: transparent;
+    padding: 0;
+  }
+
+  :deep(.el-alert__content) {
+    padding: 0;
+    width: 100%;
+  }
+
+  .guess-list {
+    margin-top: var(--app-space-xs);
+  }
+
+  .guess-item {
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-xs);
+    padding: 2px 0;
+    font-size: var(--app-font-size-s);
+    color: var(--app-text-color-primary);
+  }
+
+  .guess-source {
+    font-weight: 500;
+    color: var(--el-color-primary);
+  }
+
+  .guess-arrow {
+    color: var(--app-grey-500);
+  }
+
+  .guess-target {
+    color: var(--app-text-color-secondary);
+  }
+
+  .guess-more {
+    font-size: var(--app-font-size-s);
+    color: var(--app-grey-500);
+    padding: 2px 0;
+  }
+
+  .guess-actions {
+    margin-top: var(--app-space-xs);
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 </style>
