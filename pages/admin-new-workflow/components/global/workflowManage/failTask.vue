@@ -1,21 +1,15 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { clientApi } from 'api'
 import { workflowResponseHelper, getWorkflowList } from '#imports'
 
-const routerProvider = inject(MenuRouterKey)
-if (!routerProvider) {
-  throw new Error('MenuRouterKey is not provided')
-}
-const workflowList = await getWorkflowList()
 const { t } = useI18n()
-const reassignTaskRef = ref()
-
+const workflowList = await getWorkflowList()
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
-  id: 'manage_all_task',
+  id: 'manage_fail_task',
   api: async (pageParams: any) => {
-    const response = await clientApi.instance.get('/oniflow/api/v1/task/overview/available').then((r: any) => workflowResponseHelper(r))
+    // const response = await clientApi.instance.get('/oniflow/api/v1/task/overview/available').then((r: any) => workflowResponseHelper(r))
     return {
-      data: response
+      data: []
     }
   },
   columns: [
@@ -30,7 +24,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     },
     { field: 'node_name', title: 'workflow_taskName' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status.type', title: 'Status' },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -60,23 +53,14 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       // }
     ]
   ],
-  dblClickAction: ({ row, column, event }: any) => {
-    if (row.status.type !== 'assignee') {
-      reassignTaskRef.value.open(row)
-    }
-  }
+  dblClickAction: ({ row, column, event }: any) => {}
 })
 </script>
 
 <template>
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons> </template>
-    <template #assignee="{ row }">
-      <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
-    </template>
   </VxeGrid>
-
-  <LazyWorkflowManageReassignTask ref="reassignTaskRef" />
 </template>
 
-<style lang="scss" scoped></style>
+<style scoped lang="scss"></style>

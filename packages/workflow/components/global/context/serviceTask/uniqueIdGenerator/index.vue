@@ -97,6 +97,7 @@ function updateData() {
     name: 'update-http-field-data',
     config: {
       http_request: {
+        ...config.http_request,
         body: {
           templateId: formData.value.templateId,
           variables: jsonObject

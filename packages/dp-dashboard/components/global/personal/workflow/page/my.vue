@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core'
+import { clientApi } from 'api'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const { idList } = defineProps<{
   idList: string[]
@@ -45,15 +47,10 @@ async function getData(params: any = {}) {
   if (idList && idList.length > 0) {
     settingParams.processKeys = idList
   }
-  // const res = await newClientApi.postDocpalWorkflowTasksUser({ ...params, ...extraParams.value, ...settingParams }).then((res) => res.data)
-
-  const data = (await $api.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => r.data.data)) as any[]
-  // 只保留 waiting 狀態的數據
-  let list = data.filter((item: any) => item.status === 'waiting')
-
+  const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
   return {
     data: {
-      entryList: list || []
+      entryList: data || []
     }
   }
 }

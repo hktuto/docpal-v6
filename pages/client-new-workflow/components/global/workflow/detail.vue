@@ -8,7 +8,8 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
-const { db_id, workflowType, backItem } = defineProps<{
+const { detail, db_id, workflowType, backItem } = defineProps<{
+  detail: any
   db_id: string
   workflowType: string
   backItem?: any
@@ -17,9 +18,6 @@ const { db_id, workflowType, backItem } = defineProps<{
 const userId: string = useUserId().value
 const { t } = useI18n()
 const state = reactive<any>({
-  processState: {
-    completeTask: 'completeTask'
-  },
   activeTab: 'form',
   loading: true,
   error: null,
@@ -38,8 +36,12 @@ async function getDetail() {
     state.error = 'Id not exist'
     return
   }
-
   try {
+    if (workflowType === 'completeTask') {
+      await handleCompleteTask()
+      return
+    }
+
     state.loading = true
     state.error = null
     const data: any = await clientApi.instance.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => workflowResponseHelper(r))
@@ -72,6 +74,15 @@ async function getDetail() {
     state.error = error
   }
   state.loading = true
+}
+
+async function handleCompleteTask() {
+  showForm.value = false
+  state.activeTab = 'info'
+  taskDetail.value = detail
+  contentData.value = await clientApi.instance
+    .get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}/content`)
+    .then((r: any) => workflowResponseHelper(r))
 }
 
 async function initForm(node: any) {
@@ -398,12 +409,11 @@ onMounted(() => {
       <h3>{{ state.title }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
-          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="taskDetail"
-                                      :state="workflowType" />
+          <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail" :state="workflowType" />
           <WorkflowDetailInfo v-else :taskDetail="taskDetail" @change="handleTaskInfoChange" />
         </el-tab-pane>
 
-        <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
+        <el-tab-pane v-if="showForm" class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
           <div
             ref="workflowFormContainerRef"
             v-show="nodeType !== CellType.signatureTask || signSubmitStage !== 'afterSubmit'"
@@ -413,15 +423,13 @@ onMounted(() => {
               <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'" size="20" @click="toggleShowForm" />
             </div>
             <div v-if="nodeType === CellType.signatureTask" class="toggleFullScreenButton">
-              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20"
-                    @click="toggleFullScreenForm" />
+              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
             </div>
             <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" @formChange="handleFormChange">
               <template #action>
                 <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
                   <template v-for="(item, index) in additionalButton" :key="index">
-                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props"
-                               @submit="addTonalSubmit" />
+                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
                   </template>
                   <!--   TODO:  Save Draft is not supported.           -->
                   <!-- <el-button
@@ -468,8 +476,7 @@ onMounted(() => {
             </div>
 
             <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
-              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'"
-                         @click="handleCancel">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'" @click="handleCancel">
                 {{ $t('cancelText') }}
               </el-button>
               <el-button
@@ -480,20 +487,17 @@ onMounted(() => {
               >
                 {{ $t('workflow_resign') }}
               </el-button>
-              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary"
-                         :disabled="workflowType === 'completeTask'" @click="handleSubmit">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleSubmit">
                 {{ $t('common_submit') }}
               </el-button>
             </div>
-            <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail"
-                                     @confirm="handleApplySignature" />
+            <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
           </template>
         </el-tab-pane>
 
         <el-tab-pane :label="$t('workflow_graph')" name="graph">
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
-          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail"
-                                :content-json="contentData" autoplay />
+          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail" :content-json="contentData" autoplay />
         </el-tab-pane>
       </el-tabs>
     </div>

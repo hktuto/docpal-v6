@@ -1,0 +1,55 @@
+<script setup lang="ts">
+import { clientApi } from 'api'
+import { getUserSelectOption, workflowResponseHelper } from '#imports'
+
+const { t } = useI18n()
+const showDialog = ref(false)
+const taskId = ref<string>('')
+const userList = ref<any[]>([])
+const formRef = ref()
+const form = reactive({
+  newAssignee: ''
+})
+const rules = {
+  newAssignee: [{ required: true, message: t('render.hint.fieldRequired', { name: 'New Task Assignee' }), trigger: 'change' }]
+}
+
+function open(row: any) {
+  showDialog.value = true
+  form.newAssignee = ''
+  taskId.value = row.id
+  nextTick(() => formRef.value?.clearValidate())
+}
+
+async function handleAssigneeSubmit() {
+  try {
+    await formRef.value.validate()
+    await clientApi.instance
+      .post(`/oniflow/api/v1/processes/instance-task/${taskId.value}/claim`, { user_id: form.newAssignee })
+      .then((r: any) => workflowResponseHelper(r))
+    showDialog.value = false
+  } catch (e) {}
+}
+onMounted(async () => {
+  userList.value = await getUserSelectOption()
+})
+
+defineExpose({ open })
+</script>
+
+<template>
+  <el-dialog v-model="showDialog" title="Reallocate Task">
+    <el-form ref="formRef" :model="form" label-position="top" :rules="rules">
+      <el-form-item label="New Task Assignee" prop="newAssignee">
+        <el-select v-model="form.newAssignee" filterable>
+          <el-option v-for="item in userList" :key="item.id" :label="item.label" :value="item.id" />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button type="primary" @click="handleAssigneeSubmit">Submit</el-button>
+    </template>
+  </el-dialog>
+</template>
+
+<style scoped lang="scss"></style>

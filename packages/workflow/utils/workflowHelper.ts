@@ -49,25 +49,22 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
 }
 
 export async function getWorkflowList() {
-  let workflowList: any[] = []
   try {
     const userId = useUserId()
-    const data = await clientApi.instance.get('v1/dynamic-actions/acl/query', {
-      baseURL: '/gateway',
-      headers: {
+    return await clientApi.instance
+      .get('v1/dynamic-actions/acl/query', {
+        baseURL: '/gateway',
+        headers: {
           'Content-Type': 'application/json'
-      },
-      params: {
-        resourceType: 3,
-        userId:userId.value
-      }
-    }).then((r: any) => r.data.data)
-    workflowList = data
+        },
+        params: {
+          resourceType: 3,
+          userId: userId.value
+        }
+      })
+      .then((r: any) => r.data.data)
   } catch (e) {
     console.log(e)
-  } finally {
-
-    return workflowList
   }
 }
 
