@@ -9,6 +9,9 @@ const workflowRef = ref()
       <el-tab-pane :label="$t('workflow_allTask')" name="allTask">
         <WorkflowManageAllTask v-if="activeTab === 'allTask'" ref="workflowRef" />
       </el-tab-pane>
+      <el-tab-pane :label="$t('Fail Task')" name="failTask">
+        <WorkflowManageAllTask v-if="activeTab === 'failTask'" ref="workflowRef" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
