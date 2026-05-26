@@ -14,7 +14,10 @@ const { workflowId, isActivate } = defineProps<{
 const emits = defineEmits(['updateActivate'])
 
 const debouncedSave = useDebounceFn(save, 300)
-async function save() {
+async function save(){
+  const appPlatform = useAppPlatform()
+  if (appPlatform.value !== 'admin' ) return
+
   const workflowJson = x6NodeToWorkflowJson(graphProvider)
 
   if (!workflowId || workflowId === '') {

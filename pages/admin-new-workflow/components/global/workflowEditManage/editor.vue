@@ -48,14 +48,14 @@ async function getWorkflowData() {
 }
 
 async function handleStatus() {
-  if (!checkWorkflowRequiredParameter()) {
-    routerProvider?.message.error('Start Task No form configured')
-    return
-  }
-  // TODO 檢查主要綫路上的節點是否有正確配置參數
-
-  loading.value = true
   try {
+    if (!checkWorkflowRequiredParameter()) {
+      routerProvider?.message.error('Start Task No form configured')
+      return
+    }
+    // TODO 檢查主要綫路上的節點是否有正確配置參數
+
+    loading.value = true
     const userId = useUserId()
     await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
     openWorkflowEdit.value = false
@@ -74,7 +74,7 @@ function handleUpdateActivate() {
 
 function checkWorkflowRequiredParameter() {
   const workflowJson = workflowEditorRef.value.workflowJson
-  const find = workflowJson.nodes.find((item: any) => item.type.type === 'startevent')
+  const find = workflowJson.nodes.find((item: any) => item.type === 'StartEvent')
   const initialise = find.config.initialise
 
   // 沒有必填的參數
