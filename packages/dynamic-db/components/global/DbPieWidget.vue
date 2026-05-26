@@ -50,24 +50,56 @@ const loading = ref(false)
 const settingRef = ref()
 const cardRef = ref()
 
-const fieldMap = ref<Record<string, string>>({})
+// Full field metadata indexed by field_name (includes business_type, display_structure, etc.)
+const fieldMetaMap = ref<Record<string, any>>({})
 const { getFields } = useTableFields()
 
-async function loadFieldLabels(tableId: string) {
+async function loadFieldMeta(tableId: string) {
   if (!tableId) {
-    fieldMap.value = {}
+    fieldMetaMap.value = {}
     return
   }
   const fields = await getFields(tableId)
-  const map: Record<string, string> = {}
+  const map: Record<string, any> = {}
   for (const f of fields) {
-    map[f.field_name] = f.field_name_alias || f.field_name
+    map[f.field_name] = f
   }
-  fieldMap.value = map
+  fieldMetaMap.value = map
 }
 
 function fieldLabel(fieldName: string): string {
-  return fieldMap.value[fieldName] || fieldName
+  return fieldMetaMap.value[fieldName]?.field_name_alias || fieldName
+}
+
+/**
+ * Resolve a raw category value to a display label.
+ * For SingleSelect/MultiSelect fields, maps option IDs to their labels.
+ */
+function resolveCategoryLabel(rawValue: any, fieldMeta: any): string {
+  if (rawValue == null || rawValue === '') return 'Unknown'
+
+  const type = fieldMeta?.business_type
+  const options = fieldMeta?.display_structure?.options
+
+  if (!Array.isArray(options)) return String(rawValue)
+
+  if (type === '3' || type === 'SingleSelect') {
+    const option = options.find((opt: any) => opt.id === rawValue)
+    return option?.label || String(rawValue)
+  }
+
+  if (type === '4' || type === 'MultiSelect') {
+    const ids = Array.isArray(rawValue) ? rawValue : [rawValue]
+    const labels = ids
+      .map((id: string) => {
+        const option = options.find((opt: any) => opt.id === id)
+        return option?.label || id
+      })
+      .filter(Boolean)
+    return labels.length ? labels.join(', ') : String(rawValue)
+  }
+
+  return String(rawValue)
 }
 
 const config = computed(() => props.setting || {})
@@ -116,8 +148,11 @@ async function fetchData() {
     const params = buildParams()
     const res: any = await postDynamicActions(params)
     const rows = res.data?.data || []
+
+    const catMeta = fieldMetaMap.value[categoryField]
+
     chartData.value = rows.map((row: any) => ({
-      name: row[categoryField] ?? 'Unknown',
+      name: resolveCategoryLabel(row[categoryField], catMeta),
       value: row.value ?? 0
     }))
 
@@ -189,7 +224,7 @@ function handleRefresh(newSetting: any) {
 watch(
   () => props.setting?.tableId,
   (tableId) => {
-    loadFieldLabels(tableId)
+    loadFieldMeta(tableId)
   },
   { immediate: true }
 )

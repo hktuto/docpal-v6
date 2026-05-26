@@ -44,6 +44,8 @@
           @exit-edit="exitCellEdit"
           @exit-edit-row="exitRowEdit"
           @expand-click="startEditRowHandler"
+          @column-config-edit-start="handleColumnConfigEditStart"
+          @column-config-edit-finish="handleColumnConfigEditFinish"
           />
       <DatabaseAwarenessFloatingTags :viewType="currentView?.type" :get-element="getTableCell" :container-ref="tableBodyRef" />
     </div>
@@ -86,6 +88,7 @@ const tableId = computed(() => props.dataTableId)
 const {
   currentView,
   tableFields,
+  getViews,
   deleteField,
   updateField,
   addField,
@@ -105,7 +108,7 @@ const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
 
 
 // hocuspocus logic
-const { setAwareness, localAwareness, updatedRows } = inject('databaseHocuspocus')
+const { setAwareness, localAwareness, updatedRows, broadcastChange } = inject('databaseHocuspocus')
 
 const tableViewMainRef = ref<HTMLElement>()
 const tableBodyRef = ref<HTMLElement | null>(null)
@@ -125,7 +128,7 @@ watch(currentView, () => {
 })
 
 function handleCellMouseEnter(params: any) {
-  if (!localAwareness.value.focus.editingRow && !localAwareness.value.focus.editingCell) {
+  if (!localAwareness.value.focus?.editingRow && !localAwareness.value.focus?.editingCell && !localAwareness.value.focus?.editingColumn) {
     setAwareness({
       rowId: params.row.id,
       cellId: params.column.field,
@@ -170,6 +173,87 @@ function startEditRowHandler(params: any) {
     editingCell: false,
     status: 'editing'
   })
+}
+
+const editingColumnField = ref<string | null>(null)
+
+function getCurrentMenuId() {
+  return databaseMenuRouteParams.value.tableId || databaseMenuRouteParams.value.detailId
+}
+
+function handleColumnConfigEditStart(column: any) {
+  if (!column?.field) return
+  editingColumnField.value = column.field
+  setAwareness({
+    menuId: getCurrentMenuId(),
+    rowId: null,
+    cellId: column.field,
+    editingRow: false,
+    editingCell: false,
+    editingColumn: true,
+    status: 'editing'
+  })
+}
+
+function handleColumnConfigEditFinish() {
+  if (!editingColumnField.value) return
+  setAwareness({
+    menuId: getCurrentMenuId(),
+    rowId: null,
+    cellId: null,
+    editingRow: false,
+    editingCell: false,
+    editingColumn: false,
+    status: 'saved'
+  })
+  editingColumnField.value = null
+}
+
+function broadcastColumnConfigUpdated(fieldName?: string, fieldId?: string) {
+  if (!broadcastChange) return
+  broadcastChange({
+    type: 'column_config_updated',
+    tableId: tableId.value,
+    menuId: getCurrentMenuId(),
+    fieldName,
+    fieldId,
+    viewId: currentView.value?.id
+  })
+}
+
+async function refreshColumnConfig(viewId?: string) {
+  await getViews(viewId || currentView.value?.id, { silent: true })
+}
+
+async function handleUpdateColumn(fieldName: string, updates: any) {
+  if (!fieldName) return
+  await updateField(fieldName, updates)
+  broadcastColumnConfigUpdated(fieldName)
+}
+
+async function handleAddColumn(newColumns: any[], targetFieldId = '', dragPos?: 'left' | 'right') {
+  await addField(newColumns, targetFieldId, dragPos)
+  broadcastColumnConfigUpdated(undefined, targetFieldId)
+}
+
+async function handleDeleteColumn(fieldId: string) {
+  await deleteField(fieldId)
+  broadcastColumnConfigUpdated(undefined, fieldId)
+}
+
+async function handleUpdatedViewColumnsConfig(updates: Array<{ id: string; hidden: boolean }>) {
+  await updatedViewColumnsConfig(updates)
+  broadcastColumnConfigUpdated()
+}
+
+async function handleUpdateViewColumnCountMethod(fieldId: string, countMethod: string) {
+  await updateViewColumnCountMethod(fieldId, countMethod)
+  broadcastColumnConfigUpdated(undefined, fieldId)
+}
+
+async function handleSaveColumnOrder(columnId: string, targetFieldId: string, dragPos: 'left' | 'right') {
+  await saveColumnOrder(columnId, targetFieldId, dragPos)
+  broadcastColumnConfigUpdated(undefined, columnId)
 }
 
 
@@ -223,20 +307,21 @@ function getTableCell(focus: any) {
 const extraColumnConfig = computed(() => {
   const data = {
     columns,
-    deleteColumn: deleteField,
-    updateColumn: updateField,
-    addColumn: addField,
+    deleteColumn: handleDeleteColumn,
+    updateColumn: handleUpdateColumn,
+    addColumn: handleAddColumn,
     tableFields,
     currentView,
-    updatedViewColumnsConfig,
-    updateViewColumnCountMethod,
-    saveColumnOrder,
+    updatedViewColumnsConfig: handleUpdatedViewColumnsConfig,
+    updateViewColumnCountMethod: handleUpdateViewColumnCountMethod,
+    saveColumnOrder: handleSaveColumnOrder,
 
     columnFilterRules,
     columnSortRules,
     columnGroupRules,
     updateViewFilterSortGroup,
-    viewStyleConfig
+    viewStyleConfig,
+    menuId: computed(() => getCurrentMenuId())
   }
   return data
 })
@@ -299,13 +384,14 @@ provide('viewTools', {
   getRelationFieldConfig,
   setSingleRelationConfig,
   mirrorList,
-  updatedViewColumnsConfig,
-  updateViewColumnCountMethod,
-  saveColumnOrder,
+  updatedViewColumnsConfig: handleUpdatedViewColumnsConfig,
+  updateViewColumnCountMethod: handleUpdateViewColumnCountMethod,
+  saveColumnOrder: handleSaveColumnOrder,
+  refreshColumnConfig,
   updateViewFilterSortGroup,
   systemFieldsTypes,
   tableId,
-  menuId: computed(() => databaseMenuRouteParams.value.detailId)
+  menuId: computed(() => getCurrentMenuId())
 })
 
 // Side panel state

@@ -27,6 +27,8 @@ import { postDynamicActions } from 'api'
 import type { VxeGridProps } from 'vxe-table'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import { rendererManager } from '@packages/dp-mdTable/renderers/registry-manager'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 const props = withDefaults(
   defineProps<{
@@ -51,34 +53,55 @@ const cardRef = ref()
 
 const displayTitle = computed(() => props.setting?.title || 'Table View')
 
-const fieldMap = ref<Record<string, string>>({})
+// Full field metadata indexed by field_name (includes business_type, display_structure, etc.)
+const fieldMetaMap = ref<Record<string, any>>({})
 const { getFields } = useTableFields()
 
-async function loadFieldLabels(tableId: string) {
+async function loadFieldMeta(tableId: string) {
   if (!tableId) {
-    fieldMap.value = {}
+    fieldMetaMap.value = {}
     return
   }
   const fields = await getFields(tableId)
-  const map: Record<string, string> = {}
+  const map: Record<string, any> = {}
   for (const f of fields) {
-    map[f.field_name] = f.field_name_alias || f.field_name
+    map[f.field_name] = f
   }
-  fieldMap.value = map
+  fieldMetaMap.value = map
 }
 
 const gridOptions = computed<VxeGridProps>(() => {
   const selectedColumns = props.setting?.columns || []
-  const columns = selectedColumns.length
-    ? selectedColumns.map((field: string) => ({
-        field,
-        title: fieldMap.value[field] || field,
+  const meta = fieldMetaMap.value
+
+  const buildColumn = (fieldName: string) => {
+    const fieldMeta = meta[fieldName]
+    const title = fieldMeta?.field_name_alias || fieldName
+    let base: any
+    if (!fieldMeta) {
+      base = {
+        field: fieldName,
+        title,
         minWidth: 120
-      }))
-    : [
-        { field: 'name', title: fieldMap.value['name'] || 'Name', minWidth: 120 },
-        { field: 'createdTime', title: fieldMap.value['createdTime'] || 'Created', minWidth: 140 }
-      ]
+      }
+    } else {
+      const type = (fieldMeta.business_type as ColumnFieldType) || ColumnFieldType.Text
+      const displayStructure = fieldMeta.display_structure || {}
+      base = {
+        ...fieldMeta,
+        field: fieldMeta.field_name,
+        title: fieldMeta.field_name_alias,
+        aggFunc: true,
+        colId: fieldMeta.field_name,
+        ...rendererManager.getColumnConfig(type, displayStructure, displayStructure)
+      }
+    }
+    return base
+  }
+
+  const columns = selectedColumns.length
+    ? selectedColumns.map((field: string) => buildColumn(field))
+    : []
 
   return {
     border: true,
@@ -96,18 +119,60 @@ const gridOptions = computed<VxeGridProps>(() => {
   }
 })
 
+function buildFilterConditions(): any[] {
+  const filterRules = props.setting?.filterRules || []
+  if (!filterRules.length) return []
+
+  const value = filterRules
+    .filter((rule: any) => rule.field && rule.operator)
+    .map((rule: any) => {
+      const params: any = {
+        column: rule.field,
+        type: rule.operator
+      }
+      if (!['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(rule.operator)) {
+        let val = rule.value
+        if (rule.operator === 'LIKE' && val) {
+          val = `%${val}%`
+        }
+        params.value = val
+      }
+      return params
+    })
+
+  if (!value.length) return []
+  return [{ type: 'AND', value }]
+}
+
+function buildOrderBy(): any[] {
+  const sortRules = props.setting?.sortRules || []
+  const result: any[] = []
+
+  for (const rule of sortRules) {
+    if (rule.field) {
+      result.push({ column: rule.field, desc: rule.order === 'desc' })
+    }
+  }
+
+  // Backward compatibility: old sortField/sortOrder
+  if (!result.length && props.setting?.sortField) {
+    result.push({
+      column: props.setting.sortField,
+      desc: props.setting.sortOrder !== 'asc'
+    })
+  }
+
+  return result
+}
+
 async function fetchData() {
   if (!props.setting?.tableId) return
   loading.value = true
   try {
-    const orderBy: any[] = []
-    if (props.setting?.sortField) {
-      orderBy.push({
-        column: props.setting.sortField,
-        desc: props.setting.sortOrder !== 'asc'
-      })
-    }
-    const { data }: any = await postDynamicActions({
+    const orderBy = buildOrderBy()
+    const conditions = buildFilterConditions()
+
+    const params: any = {
       tableId: props.setting.tableId,
       columns: [{ name: '*' }],
       orderBy,
@@ -115,7 +180,13 @@ async function fetchData() {
         pageSize: props.setting?.rowLimit || 10,
         pageNum: currentPage.value
       }
-    })
+    }
+
+    if (conditions.length) {
+      params.conditions = conditions
+    }
+
+    const { data }: any = await postDynamicActions(params)
     tableData.value = data?.data || []
     total.value = data?.meta?.total || 0
   } catch (error) {
@@ -144,13 +215,20 @@ function handleRefresh(newSetting: any) {
 watch(
   () => props.setting?.tableId,
   (tableId) => {
-    loadFieldLabels(tableId)
+    loadFieldMeta(tableId)
   },
   { immediate: true }
 )
 
 watch(
-  () => [props.setting?.tableId, props.setting?.rowLimit, props.setting?.sortField, props.setting?.sortOrder],
+  () => [
+    props.setting?.tableId,
+    props.setting?.rowLimit,
+    props.setting?.sortField,
+    props.setting?.sortOrder,
+    props.setting?.filterRules,
+    props.setting?.sortRules
+  ],
   () => {
     currentPage.value = 1
     fetchData()
@@ -165,6 +243,8 @@ useDashboardLiveUpdate(
     fetchData()
   }
 )
+
+provide('viewTools', { getPageParams: null, columns: gridOptions.value, tableFields: null })
 
 defineExpose({
   resize: () => {

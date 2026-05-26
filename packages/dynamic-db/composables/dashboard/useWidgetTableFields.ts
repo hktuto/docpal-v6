@@ -20,9 +20,21 @@ export function useWidgetTableFields() {
 
   const fields = ref<any[]>([])
 
+  const SYSTEM_DATE_FIELDS = [
+    { field_name: 'createdTime', field_name_alias: 'Created At', business_type: '21', display_structure: {} },
+    { field_name: 'lastModifiedTime', field_name_alias: 'Updated At', business_type: '22', display_structure: {} }
+  ]
+
   async function loadFields(tableId: string) {
     if (tableId) {
-      fields.value = await getFields(tableId)
+      const apiFields = await getFields(tableId)
+      const hasCreatedTime = apiFields.some((f: any) => f.field_name === 'createdTime' || f.business_type === '21')
+      const hasLastModifiedTime = apiFields.some((f: any) => f.field_name === 'lastModifiedTime' || f.business_type === '22')
+      const injected = [
+        ...(hasCreatedTime ? [] : [SYSTEM_DATE_FIELDS[0]]),
+        ...(hasLastModifiedTime ? [] : [SYSTEM_DATE_FIELDS[1]])
+      ]
+      fields.value = [...apiFields, ...injected]
     } else {
       fields.value = []
     }

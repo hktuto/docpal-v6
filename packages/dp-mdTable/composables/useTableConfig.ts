@@ -6,18 +6,19 @@ import type { ColumnConfig } from '../types/column-context'
 import { ColumnFieldType } from '../types/column-types'
 // 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
-rendererManager.registerAllRenderers()
+
 
 export interface TableConfigOptions {
   extraColumnConfig?: {
     columns: ColumnConfig[]
-    deleteColumn: (column: ColumnConfig) => void
-    updateColumn: (column: ColumnConfig) => void
-    addColumn: (column: ColumnConfig) => void
+    deleteColumn: (fieldId: string) => Promise<void> | void
+    updateColumn: (fieldName: string, updates: Partial<ColumnConfig>) => Promise<void> | void
+    addColumn: (columns: ColumnConfig[], targetFieldId?: string, dragPos?: 'left' | 'right') => Promise<void> | void
     updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
+    menuId?: Ref<string> | string
   }
   /** 是否可编辑表格 */
   canEditTable?: boolean
@@ -54,6 +55,7 @@ export interface TableConfigOptions {
  * 封装 VxeGrid 的配置逻辑
  */
 export function useTableConfig(options: TableConfigOptions, gridRef: any) {
+  const tableOptions = options
   const {
     canEditTable = false,
     height = '100%',
@@ -187,6 +189,62 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       options.extraColumnConfig?.columnGroupRules.value.length > 0
     )
   })
+
+  const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
+
+  function getCurrentMenuId() {
+    const menuId = tableOptions.extraColumnConfig?.menuId
+    return (menuId as Ref<string> | undefined)?.value || menuId
+  }
+
+  function isSameMenu(lock: any) {
+    const currentMenuId = getCurrentMenuId()
+    return !currentMenuId || !lock.menuId || lock.menuId === currentMenuId
+  }
+
+  function getColumnFieldKey(column: any) {
+    return column?.field || column?.property || column?.colId
+  }
+
+  function isColumnConfigEditing(column: any) {
+    const fieldKey = getColumnFieldKey(column)
+    if (!fieldKey) return false
+    return lockedRowCell.value?.some((lock: any) => isSameMenu(lock) && lock.editingColumn && lock.cellId === fieldKey) ?? false
+  }
+
+  const columnLockSignature = computed(() => {
+    return (lockedRowCell.value ?? [])
+      .filter((lock: any) => lock.editingColumn)
+      .map((lock: any) => `${lock.menuId || ''}:${lock.cellId || ''}`)
+      .join('|')
+  })
+
+  function isCellEditLocked(row: any, column: any) {
+    return (
+      lockedRowCell.value?.some(
+        (lock: any) =>
+          isSameMenu(lock) &&
+          (
+            (lock.editingRow && lock.rowId === row.id) ||
+            (lock.editingCell && lock.cellId === getColumnFieldKey(column) && lock.rowId === row.id) ||
+            (lock.editingColumn && lock.cellId === getColumnFieldKey(column))
+          )
+      ) ?? false
+    )
+  }
+
+  function getCellClassName(params: { row: any; column: any; rowIndex: number; columnIndex: number }) {
+    const classNames = [cellClassName?.(params)]
+    if (isColumnConfigEditing(params.column)) {
+      classNames.push('column-config-editing')
+    }
+    return classNames.filter(Boolean).join(' ')
+  }
+
+  function getHeaderCellClassName({ column }: any) {
+    return isColumnConfigEditing(column) ? 'column-config-editing' : ''
+  }
+
   /**
    * 树分组用的是 treeConfig，展开状态由「树展开」API 维护；
    * getRowExpandRecords / setRowExpand 只对应「行展开」（expand 列 / expandConfig），与树无关，故在树模式下会一直为空。
@@ -212,6 +270,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     gridRef.value?.setTreeExpand?.(rowsToExpand, true)
   }
   const gridOptions = computed<VxeGridProps>(() => {
+    // 依赖协作列锁，锁变化时触发 gridOptions 更新并刷新表头/单元格 class
+    void columnLockSignature.value
     const options: VxeGridProps | any = {
       height: computedHeight.value,
       autoResize,
@@ -292,8 +352,10 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         useKey: true,
         isCurrent: true
       },
-      // 单元格类名配置 - 用于更新状态视觉反馈
-      cellClassName: cellClassName || undefined
+      // 单元格类名配置 - 用于更新状态视觉反馈与协作列锁高亮
+      cellClassName: getCellClassName,
+      headerCellClassName: getHeaderCellClassName,
+      footerCellClassName: getHeaderCellClassName
     }
 
     if (isGroupingEnabled.value) {
@@ -325,16 +387,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showStatus: false,
         ...((editConfig as any) || {}),
         beforeEditMethod: ({ row, column, $grid }: any) => {
-          const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
-
           // user have no permission to edit
           if(!canEditTable) return false
-          let isLock = false
-          if (lockedRowCell.value && lockedRowCell.value.length) {
-            isLock = lockedRowCell.value.some(
-              (l: any) => (l.editingRow && l.rowId === row.id) || (l.editingCell && l.cellId === column.field && l.rowId === row.id)
-            )
-          }
+          const isLock = isCellEditLocked(row, column)
           const value = !row.hasChild && !disabledFields.includes(column.type) && !isLock
           if (value) {
             // dispatch event to parent
@@ -383,6 +438,14 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       }
     })
   }
+  watch(columnLockSignature, () => {
+    nextTick(() => {
+      const grid = gridRef.value
+      grid?.recalculate?.(true)
+      grid?.refreshColumn?.()
+    })
+  })
+
   watch(
     () => [options.extraColumnConfig?.columnGroupRules, options.extraColumnConfig?.columnFilterRules, options.extraColumnConfig?.columnSortRules],
     ([newColumnGroupRules, newColumnFilterRules, newColumnSortRules]) => {

@@ -924,6 +924,12 @@ async function checkJobStatus(jobId: string, uploadProgress: Ref<number>) {
       }
     }
     return result
+  } else if(status === 'failed') {
+    return {
+      status,
+      hasErrorReport: false,
+      jobId
+    }
   } else {
     const promise = new Promise((resolve, reject) => {
       setTimeout(async () => {
