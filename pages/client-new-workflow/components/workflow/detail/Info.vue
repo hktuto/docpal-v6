@@ -69,12 +69,12 @@ async function handleClaim() {
         {{ formatDate(taskDetail?.execution?.started_at) }}
       </div>
     </div>
-    <div class="infoContainer">
-      <div class="label">{{ $t('workflow_dueDate') }}</div>
-      <div class="value">
-        {{ formatDate(taskDetail.updated_at) }}
-      </div>
-    </div>
+<!--    <div class="infoContainer">-->
+<!--      <div class="label">{{ $t('workflow_dueDate') }}</div>-->
+<!--      <div class="value">-->
+<!--        {{ formatDate(taskDetail.updated_at) }}-->
+<!--      </div>-->
+<!--    </div>-->
 
     <div class="flex-x-start">
       <el-button id="Workflow__AvailableTask__Detail__JobInfo__UnclaimTask" v-if="isAssigneeUser" type="warning"
