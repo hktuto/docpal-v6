@@ -27,8 +27,8 @@ onMounted(() => {
       <WorkflowPopoverNewTask @reload="reload" />
     </div>
     <el-tabs v-model="activeTab" class="tag-container dp-tabs--auto">
-      <el-tab-pane :label="$t('workflow_allTask')" name="allTask">
-        <WorkflowAllTask v-if="activeTab === 'allTask'" ref="workflowRef" />
+      <el-tab-pane :label="$t('Available Task')" name="availableTask">
+        <WorkflowAvailableTask v-if="activeTab === 'availableTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_myTask')" name="myTask">
         <WorkflowMyTask v-if="activeTab === 'myTask'" ref="workflowRef" />

@@ -29,7 +29,7 @@ async function handleUnclaim() {
 }
 
 async function handleClaim() {
-  if (taskDetail.status !== 'assigned') return
+  if (taskDetail.status.type !== 'assigned') return
 
   try {
     loading.value = true

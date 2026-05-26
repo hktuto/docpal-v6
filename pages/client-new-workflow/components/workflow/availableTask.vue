@@ -8,19 +8,28 @@ if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 const { t } = useI18n()
-const userId: string = useUserId().value
-const extraParams = ref({
-  definition_id: ''
-})
+const user = useUserState().value
+const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
-  id: 'all_task',
+  id: 'Available_task',
   api: async (pageParams: any) => {
-    const data = await clientApi.instance
-      .get(`/oniflow/api/v1/task/overview/available/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
-      .then((r: any) => workflowResponseHelper(r))
-    if (!!extraParams.value.definition_id && extraParams.value.definition_id !== '') {
-      data.entryList = data.entryList.filter((item: any) => item.definition_id === extraParams.value.definition_id)
+    const params = {
+      groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
+      roles: [user.aclUserDetail.roleId],
+      assignee: user.userId,
+      status: ['pending', 'waiting', 'created'],
+      definition_id: '',
+      process_id: '',
+      page_num: pageParams.pageNum,
+      page_size: pageParams.pageSize
     }
+    if (!!definition_id.value && definition_id.value !== '') {
+      params.definition_id = definition_id.value
+    }
+
+    const data = await clientApi.instance
+      .post(`/oniflow/api/v1/task/overview/active/page`, params)
+      .then((r: any) => workflowResponseHelper(r))
 
     return {
       data: data || []
@@ -54,7 +63,7 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      workflowType: 'allTask',
+      workflowType: 'availableTask',
       db_id: row.node_id
     }),
     false
@@ -81,7 +90,7 @@ defineExpose({ reloadTable })
       <template #toolbar_buttons>
         <div class="el-col el-col-10 is-guttered grid-cell">
           <el-form-item :label="t('workflow_workflowName')" label-position="top">
-            <el-select clearable v-model="extraParams.definition_id" placeholder="All" @change="reload">
+            <el-select clearable v-model="definition_id" placeholder="All" @change="reload">
               <el-option v-for="item in workflowList" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
