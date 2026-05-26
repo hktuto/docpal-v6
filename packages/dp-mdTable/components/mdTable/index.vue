@@ -48,7 +48,14 @@
           </slot>
         </div>
       </div>
-      <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @refresh="handleRefresh" />
+      <MdTableAddColumnPopover
+        ref="addColumnPopoverRef"
+        placement="left-start"
+        popper-class="add-popover-content"
+        @refresh="handleRefresh"
+        @config-edit-start="handleColumnConfigEditStart"
+        @config-edit-finish="handleColumnConfigEditFinish"
+      />
       <MdFormPopover
         ref="MdFormPopoverRef"
         :columns="columns"
@@ -89,9 +96,9 @@ interface Props {
   canManageTable: boolean
   extraColumnConfig?: {
     columns: Ref<ColumnConfig[]>
-    deleteColumn: (column: ColumnConfig) => void
-    updateColumn: (column: ColumnConfig) => void
-    addColumn: (column: ColumnConfig) => void
+    deleteColumn: (fieldId: string) => Promise<void> | void
+    updateColumn: (fieldName: string, updates: Partial<ColumnConfig>) => Promise<void> | void
+    addColumn: (columns: ColumnConfig[], targetFieldId?: string, dragPos?: 'left' | 'right') => Promise<void> | void
     tableFields: Ref<any[]>
     currentView?: Ref<any>
     updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
@@ -145,6 +152,8 @@ const emit = defineEmits<{
   'add-row': []
   'add-row-submit': [data: any]
   'add-mirror': []
+  'column-config-edit-start': [column: any]
+  'column-config-edit-finish': [payload: { column: any; changed: boolean }]
 }>()
 
 // 引用
@@ -317,6 +326,12 @@ const handleAddColumn = (e: MouseEvent) => {
   if (addColumnPopoverRef.value) {
     addColumnPopoverRef.value.show(rightPanelHeaderRef.value || null)
   }
+}
+function handleColumnConfigEditStart(column: any) {
+  emit('column-config-edit-start', column)
+}
+function handleColumnConfigEditFinish(payload: { column: any; changed: boolean }) {
+  emit('column-config-edit-finish', payload)
 }
 const handleCreateRelation = inject<((column: any) => void) | undefined>('handleCreateRelation', undefined)
 
@@ -645,5 +660,21 @@ onClickOutside(
   75% {
     transform: translateX(4px);
   }
+}
+::deep(.column-config-editing) {
+  background-color: rgba(64, 158, 255, 0.08) !important;
+
+  .vxe-cell {
+    position: relative;
+  }
+}
+
+::deep(th.column-config-editing),
+::deep(.vxe-header--column.column-config-editing) {
+  background-color: rgba(64, 158, 255, 0.14) !important;
+}
+
+::deep(.vxe-body--column.column-config-editing) {
+  cursor: not-allowed;
 }
 </style>

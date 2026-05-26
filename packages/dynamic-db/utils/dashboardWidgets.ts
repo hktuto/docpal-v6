@@ -32,7 +32,9 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       columns: [],
       rowLimit: 10,
       sortField: '',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      filterRules: [],
+      sortRules: []
     }
   },
   DbChart: {

@@ -112,7 +112,7 @@ export type VariableItem = {
   }
   minItems?: number
   items?: {
-    type: 'object' | 'string' | 'number' | 'boolean'
+    type: 'object' | 'string' | 'number' | 'boolean' | 'date'
     properties: any
   }
   display_option?: {}

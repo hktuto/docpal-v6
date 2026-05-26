@@ -101,14 +101,11 @@ defineExpose({
         <div class="trigger-info">
           <div class="trigger-main">
             <span class="trigger-name">{{ trigger.trigger_name }}</span>
+          </div>
+          <div class="trigger-meta">
             <el-tag size="small" :type="trigger.status === 'A' ? 'success' : 'info'">
               {{ trigger.status === 'A' ? 'Active' : 'Inactive' }}
             </el-tag>
-          </div>
-          <div class="trigger-meta">
-            <span>{{ eventTypeLabel(trigger.event_type) }}</span>
-            <span v-if="trigger.match_type">· Match: {{ trigger.match_type }}</span>
-            <span v-if="trigger.watch_field">· Field: {{ trigger.watch_field }}</span>
           </div>
         </div>
         <div class="trigger-actions">

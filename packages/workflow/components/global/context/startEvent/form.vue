@@ -24,7 +24,7 @@ const variables = computed(() => {
   return {
     labelKey: 'name',
     nameKey: 'id',
-    data: variableList.filter((item: VariableItem) => item.required && !item.id.startsWith('__system__'))
+    data: variableList.filter((item: VariableItem) => !item.id.startsWith('__system__'))
   }
 })
 const isEdit = computed(() => {

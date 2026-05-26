@@ -76,7 +76,15 @@ const localAwareness = computed(() => {
   return (state as any) || {}
 })
 
-function setAwareness(focus: { menuId?: string; rowId?: string; cellId?: string; status?: 'editing' | 'saved' }) {
+function setAwareness(focus: {
+  menuId?: string
+  rowId?: string | null
+  cellId?: string | null
+  editingCell?: boolean
+  editingRow?: boolean
+  editingColumn?: boolean
+  status?: 'editing' | 'saved'
+}) {
   hocuspocusManager.setFocus(roomName.value, focus)
 }
 
@@ -84,7 +92,16 @@ function connect() {
   hocuspocusManager.joinRoom(roomName.value)
 }
 
-function broadcastChange(change: { type: string; rowId?: string; rowIds?: string[]; tableId: string; menuId: string }) {
+function broadcastChange(change: {
+  type: string
+  rowId?: string
+  rowIds?: string[]
+  fieldId?: string
+  fieldName?: string
+  viewId?: string
+  tableId: string
+  menuId: string
+}) {
   const fullChange = {
     ...change,
     id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,

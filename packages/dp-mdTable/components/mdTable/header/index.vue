@@ -1,11 +1,20 @@
 <template>
-  <div :class="{ 'md-table-header': true, ellipsis: true, [headerAlign]: true }" @contextmenu.prevent="handleContextMenu">
+  <div
+    :class="{
+      'md-table-header': true,
+      ellipsis: true,
+      [headerAlign]: true,
+      'column-config-editing': isColumnConfigEditing
+    }"
+    @contextmenu.prevent="handleContextMenu"
+  >
     <!-- Column type indicator -->
     <div v-if="columnIndicator" class="column-indicator" :title="columnIndicator.tooltip">
       <Icon :name="columnIndicator.icon" :class="columnIndicator.class" />
     </div>
     <div class="title">
       {{ column.title }}
+      <span v-if="isColumnConfigEditing" class="column-config-editing-badge">Editing</span>
 
       <div
         v-if="suggestionCount > 0"
@@ -36,8 +45,22 @@ const props = defineProps<{
 }>()
 const mdTableHeaderPopover = inject<Ref<any>>('mdTableHeaderPopover')
 const mdTable = useMDTableInject()
+const viewTools: any = inject('viewTools', null)
+const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
 const triggerRef = ref()
 const suggestionBadgeRef = ref()
+
+const isColumnConfigEditing = computed(() => {
+  const fieldKey = props.column?.field || props.column?.property || props.column?.colId
+  if (!fieldKey) return false
+  const menuId = viewTools?.menuId?.value || viewTools?.menuId
+  return (lockedRowCell.value ?? []).some(
+    (lock: any) =>
+      lock.editingColumn &&
+      lock.cellId === fieldKey &&
+      (!menuId || !lock.menuId || lock.menuId === menuId)
+  )
+})
 
 // Inject column suggestions context (provided by TableDetailView)
 // We receive the ref directly to maintain reactivity
@@ -175,6 +198,28 @@ function handleClick(htmlElement: HTMLElement) {
     flex: 1 0 auto;
     text-align: var(--align);
     line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--app-space-xs);
+    min-width: 0;
+  }
+
+  &.column-config-editing {
+    background-color: rgba(64, 158, 255, 0.14);
+    color: var(--app-accent-color);
+  }
+
+  .column-config-editing-badge {
+    flex-shrink: 0;
+    padding: 0 6px;
+    height: 18px;
+    border: 1px dashed var(--app-accent-color);
+    border-radius: var(--app-border-radius-s);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 18px;
+    color: var(--app-accent-color);
+    background: rgba(255, 255, 255, 0.75);
   }
   .suggestion-badge {
     display: inline-flex;

@@ -21,7 +21,7 @@ interface PermissionFormData {
 const props = defineProps<{
   existList: { targetType: number; targetId: string; isInherit?: boolean }[]
 }>()
-const { permissions } = useSingleDatabaseContext()
+const { permissions, currentUserPermission } = useSingleDatabaseContext()
 function isExistingTarget(targetType: number, targetId: string): boolean {
   return props.existList.some(
     (item) => item.targetType === targetType && item.targetId === targetId && item.isInherit === false
@@ -259,8 +259,9 @@ defineExpose({
         </el-select>
       </el-form-item>
 
-      <el-form-item>
+      <el-form-item v-if="currentUserPermission === 'Manage'">
         <el-button link type="primary" @click="openFromOtherDialog">
+
           Can't find the user? Select from all users
         </el-button>
       </el-form-item>

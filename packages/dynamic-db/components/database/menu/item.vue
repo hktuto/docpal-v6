@@ -8,11 +8,11 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { menuState, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, databaseMenuRouteParams, getMenuIcon } = useSingleDatabaseContext()
+const { menuState, startEdit, saveEdit, cancelEdit, menuItemPermissionMap, navigateToItem, openMenuItemActions, databaseMenuRouteParams, getMenuIcon } = useSingleDatabaseContext()
 
 const isHovered = ref(false)
 const isDragOver = ref(false)
-
+const canManage = computed(() => menuItemPermissionMap.value[props.item.id] && menuItemPermissionMap.value[props.item.id] === 'Manage')
 // Inject drop handlers from parent menu
 const handleFolderDrop = inject<(folderId: string, file: File) => Promise<void>>('handleFolderDrop')
 const isExcelFile = inject<(file: File) => boolean>('isExcelFile')
@@ -27,7 +27,7 @@ const itemContentRef = ref<HTMLElement>()
 // Handle actions menu
 function handleActionsClick(event: MouseEvent) {
   event.stopPropagation()
-  openMenuItemActions({ item: props.item, isAdmin: props.isAdmin }, event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
+  openMenuItemActions({ item: props.item, isAdmin: props.isAdmin || canManage.value }, event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
   // actionsPopover.value?.open(event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
 }
 
@@ -130,7 +130,7 @@ async function onFolderDrop(event: DragEvent) {
         />
       </div>
       <!-- Actions Menu (shown on hover) -->
-      <div v-if="isAdmin && !isEditing" class="item-actions" :class="{ visible: isHovered }">
+      <div v-if="(isAdmin || canManage) && !isEditing" class="item-actions" :class="{ visible: isHovered }">
         <Icon name="material-symbols:more-vert" size="16" @click="handleActionsClick" />
       </div>
     </div>

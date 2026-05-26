@@ -13,20 +13,37 @@
         <el-select-v2 v-model="form.chartType" :options="chartTypeOptions" style="width: 100%" />
       </el-form-item>
 
-      <!-- X-Axis -->
-      <el-form-item label="X-Axis Field (Category)">
-        <el-select v-model="form.xField" placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
+      <!-- X-Axis Grouping -->
+      <el-divider>X-Axis (Horizontal Grouping)</el-divider>
+
+      <el-form-item label="Group By">
+        <el-radio-group v-model="xAxisMode" @change="onXAxisModeChange">
+          <el-radio-button label="field">Field Value</el-radio-button>
+          <el-radio-button label="time">Time Period</el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+
+      <!-- Field mode -->
+      <el-form-item v-if="xAxisMode === 'field'" label="Field">
+        <el-select v-model="form.xField" placeholder="Select field to group by" style="width: 100%" :loading="fieldsLoading">
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
 
-      <!-- Time Granularity -->
-      <el-form-item v-if="isDateField(form.xField)" label="Time Granularity">
-        <el-select-v2 v-model="form.xTimeGranularity" :options="timeGranularityOptions" style="width: 100%" />
-      </el-form-item>
+      <!-- Time mode -->
+      <template v-if="xAxisMode === 'time'">
+        <el-form-item label="Date Field">
+          <el-select v-model="form.xField" placeholder="Select date field" style="width: 100%" :loading="fieldsLoading">
+            <el-option v-for="f in dateFields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Time Period">
+          <el-select-v2 v-model="form.xTimeGranularity" :options="timeGranularityOptions" style="width: 100%" />
+        </el-form-item>
+      </template>
 
       <!-- Series -->
-      <el-divider>Series</el-divider>
+      <el-divider>Data Series (Y-Axis Values)</el-divider>
       <div v-for="(series, index) in form.series" :key="index" class="series-row">
         <div class="series-header">
           <span class="series-title">Series {{ index + 1 }}</span>
@@ -38,7 +55,7 @@
           <el-form-item label="Field" class="series-field-item">
             <el-select
               v-model="series.field"
-              :placeholder="series.aggregation === 'count' ? 'Optional — leave empty to count all' : 'Select numeric field'"
+              :placeholder="series.aggregation === 'count' ? 'Optional — count all rows' : 'Select numeric field'"
               style="width: 100%"
               :loading="fieldsLoading"
               clearable
@@ -99,7 +116,7 @@ import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTable
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { tableOptions, fields, fieldsLoading, loadFields, numericFields, isDateField } = useWidgetTableFields()
+const { tableOptions, fields, fieldsLoading, loadFields, numericFields, dateFields, isDateField } = useWidgetTableFields()
 
 const chartTypeOptions = [
   { label: 'Bar', value: 'bar' },
@@ -116,7 +133,6 @@ const aggregationOptions = [
 ]
 
 const timeGranularityOptions = [
-  { label: 'None', value: '' },
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
@@ -162,6 +178,8 @@ const form = reactive({
   rowLimit: 20
 })
 
+const xAxisMode = ref<'field' | 'time'>('field')
+
 const showStackedOption = computed(() =>
   ['bar', 'line', 'area'].includes(form.chartType)
 )
@@ -170,9 +188,28 @@ const showSmoothOption = computed(() =>
   ['line', 'area'].includes(form.chartType)
 )
 
+function onXAxisModeChange(mode: 'field' | 'time') {
+  if (mode === 'field') {
+    form.xTimeGranularity = ''
+    // Keep xField if it exists, user can change it
+  } else {
+    form.xTimeGranularity = 'month'
+    // If current xField is not a date field, clear it so user selects a date field
+    if (form.xField && !isDateField(form.xField)) {
+      form.xField = ''
+    }
+    // If no date field selected yet, default to createdTime if available
+    if (!form.xField && dateFields.value.length) {
+      const createdTime = dateFields.value.find((f: any) => f.field_name === 'createdTime')
+      form.xField = createdTime?.field_name || dateFields.value[0]?.field_name || ''
+    }
+  }
+}
+
 async function handleTableChange(tableId: string) {
   form.xField = ''
   form.xTimeGranularity = ''
+  xAxisMode.value = 'field'
   form.series.forEach((s: any) => {
     s.field = ''
   })
@@ -208,6 +245,14 @@ watch(
         smooth: raw.appearance?.smooth || false
       }
       form.rowLimit = raw.rowLimit || 20
+
+      // Derive xAxisMode from existing setting
+      if (form.xTimeGranularity) {
+        xAxisMode.value = 'time'
+      } else {
+        xAxisMode.value = 'field'
+      }
+
       if (form.tableId) {
         await loadFields(form.tableId)
       }

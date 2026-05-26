@@ -8,11 +8,12 @@ export type RefreshTableData = (options?: TableDataRefreshOptions) => Promise<vo
 import { clientApi } from 'api'
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import type { ColumnConfig } from '@packages/dp-mdTable/types/column-types'
 export interface mdTable {
   columns: any
-  deleteColumn: (column: any) => void
-  updateColumn: (column: any) => void
-  addColumn: (column: any) => void
+  deleteColumn: (fieldId: string) => Promise<void> | void
+  updateColumn: (fieldName: string, updates: Partial<ColumnConfig>) => Promise<void> | void
+  addColumn: (columns: any[], targetFieldId?: string, dragPos?: 'left' | 'right') => Promise<void> | void
   updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
   updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
   currentView?: Ref<any>

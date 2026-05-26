@@ -3,34 +3,27 @@
     <div class="infoContainer">
       <div class="label">{{ $t('workflow_jobName') }}</div>
       <div class="value">
-        {{ taskDetail.businessKey || taskDetail.processDefinitionName }}
-      </div>
-    </div>
-
-    <div class="infoContainer">
-      <div class="label">{{ $t('workflow_taskName') }}</div>
-      <div class="value">
-        {{ taskDetail.processDefinitionName }}
+        {{ taskDetail.name }}
       </div>
     </div>
 
     <div class="infoContainer">
       <div class="label">{{ $t('workflow_startTime') }}</div>
       <div class="value">
-        {{ formatDate(taskDetail.startTime) }}
+        {{ formatDate(taskDetail.created_at) }}
       </div>
     </div>
     <div class="infoContainer" v-if="state === 'completeTask'">
       <div class="label">{{ $t('tableHeader_completeDate') }}</div>
       <div class="value">
-        {{ formatDate(taskDetail.endTime) }}
+        {{ formatDate(taskDetail.completed_at) }}
       </div>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
 const props = defineProps<{
-  taskDetail: any,
+  taskDetail: any
   state: string
 }>()
 </script>

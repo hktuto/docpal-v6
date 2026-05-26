@@ -9,18 +9,22 @@ interface AwarenessUser {
 
 export interface AwarenessFocus {
   menuId?: string
-  rowId?: string
-  cellId?: string
+  rowId?: string | null
+  cellId?: string | null
   editingCell?: boolean
   editingRow?: boolean
+  editingColumn?: boolean
   status?: 'editing' | 'saved'
 }
 
 export interface AwarenessChange {
   id: string
-  type: 'row_updated' | 'row_created' | 'row_deleted' | 'rows_deleted'
+  type: 'row_updated' | 'row_created' | 'row_deleted' | 'rows_deleted' | 'column_config_updated'
   rowId?: string
   rowIds?: string[]
+  fieldId?: string
+  fieldName?: string
+  viewId?: string
   tableId: string
   menuId: string
   timestamp: number
@@ -64,11 +68,12 @@ export interface LockRecord {
   userId: string
   userName: string
   userColor: string
-  rowId?: string
-  cellId?: string
+  rowId?: string | null
+  cellId?: string | null
   menuId?: string
   editingCell?: boolean,
   editingRow?: boolean
+  editingColumn?: boolean
 }
 
 const MAX_CONCURRENT_ROOMS = 3
@@ -232,7 +237,7 @@ export function useHocuspocusManager() {
         }
         const localUser = getLocalUser()
         if (localUser) {
-          provider.awareness.setLocalStateField('user', localUser)
+          provider.awareness?.setLocalStateField('user', localUser)
         }
       },
       onAuthenticationFailed: () => {
@@ -260,7 +265,7 @@ export function useHocuspocusManager() {
           }
           if (state.user && state.user.id !== localUser?.id) {
             awarenessStates.push(state as AwarenessState)
-            if (state.focus && (state.focus.editingCell || state.focus.editingRow)) {
+            if (state.focus && (state.focus.editingCell || state.focus.editingRow || state.focus.editingColumn)) {
               newLocks.push({
                 roomName,
                 userId: state.user.id,
@@ -270,7 +275,8 @@ export function useHocuspocusManager() {
                 cellId: state.focus.cellId,
                 menuId: state.focus.menuId,
                 editingCell: state.focus.editingCell,
-                editingRow: state.focus.editingRow
+                editingRow: state.focus.editingRow,
+                editingColumn: state.focus.editingColumn
               })
             }
             for (const change of state.changes || []) {
@@ -294,7 +300,7 @@ export function useHocuspocusManager() {
           const previous = previousStates.get(userId)
           const transitioned = previous?.focus?.status === 'editing' && current.focus?.status === 'saved'
           const key = `${userId}:${current.focus?.rowId}`
-          if (transitioned && !doneRows.has(key)) {
+          if (current.focus?.rowId && transitioned && !doneRows.has(key)) {
             doneRows.add(key)
             newlySaved.push({
               userId: current.user.id,
@@ -352,20 +358,20 @@ export function useHocuspocusManager() {
 
   function setFocus(roomName: string, focus: Partial<AwarenessFocus>) {
     const provider = providers.get(roomName)
-    if (!provider) return
+    if (!provider?.awareness) return
     const current = (provider.awareness.getLocalState() as any)?.focus || {}
     provider.awareness.setLocalStateField('focus', { ...current, ...focus })
   }
 
   function clearFocus(roomName: string) {
     const provider = providers.get(roomName)
-    if (!provider) return
+    if (!provider?.awareness) return
     provider.awareness.setLocalStateField('focus', undefined)
   }
 
   function broadcastChanges(roomName: string, changes: AwarenessChange[]) {
     const provider = providers.get(roomName)
-    if (!provider) return
+    if (!provider?.awareness) return
     provider.awareness.setLocalStateField('changes', changes)
     // setTimeout(() => {
     //   provider.awareness.setLocalStateField('changes', undefined)

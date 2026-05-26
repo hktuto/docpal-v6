@@ -1,5 +1,5 @@
 <template>
-  <UiPopoverDialog ref="popoverRef" :width="width" :close-on-click-outside="closeOnClickOutside" @close="resetForm">
+  <UiPopoverDialog ref="popoverRef" :width="width" :close-on-click-outside="closeOnClickOutside" @close="handlePopoverClose">
     <div class="add-column-popover">
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" @submit.prevent>
         <el-form-item label="列标题" prop="field_name">
@@ -63,6 +63,8 @@ const emit = defineEmits<{
   submit: [column: ColumnConfig]
   cancel: []
   refresh: []
+  'config-edit-start': [column: any]
+  'config-edit-finish': [payload: { column: any; changed: boolean }]
 }>()
 const state = reactive({
   column: null,
@@ -72,16 +74,19 @@ const popoverRef = ref()
 const triggerRef = ref()
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
+const editingColumnConfig = ref(false)
 const formData = ref<ColumnConfig>({
   field_name: 'New Field',
   business_type: ColumnFieldType.MultiText
 })
 function show(targetParams: any, column: any) {
   console.log('show', targetParams, JSON.stringify(column))
+  finishColumnConfigEdit(false)
   // check if targetParams is a html element, or is a vue component ref
   popoverRef.value.open(targetParams)
   state.column = null
   state.isEdit = false
+  editingColumnConfig.value = false
   if (!!column) {
     // 优先从 column.display_structure 读取，如果没有则从 cellRender?.props 或 editRender?.props 读取
     const display_structure = column.properties || column.cellRender?.props || column.editRender?.props || {}
@@ -94,6 +99,8 @@ function show(targetParams: any, column: any) {
     }
     console.log('formData', formData.value)
     loadComponent(column.business_type)
+    editingColumnConfig.value = true
+    emit('config-edit-start', column)
   }
 }
 const formRef = ref<FormInstance>()
@@ -112,6 +119,21 @@ const handleClose = () => {
   // reset the form data
   resetForm()
   closeOnClickOutside.value = true
+}
+function handlePopoverClose() {
+  finishColumnConfigEdit(false)
+  resetForm()
+  state.column = null
+  state.isEdit = false
+  closeOnClickOutside.value = true
+}
+function finishColumnConfigEdit(changed: boolean) {
+  if (!editingColumnConfig.value || !state.column) return
+  emit('config-edit-finish', {
+    column: state.column,
+    changed
+  })
+  editingColumnConfig.value = false
 }
 // 提供给子组件使用，让子组件的select也能控制popover的关闭行为
 provide('handleSelectVisibleChange', handleSelectVisibleChange)
@@ -156,6 +178,7 @@ const resetForm = () => {
 const handleSubmit = async () => {
   if (!formRef.value) return
   try {
+    const stateColumn = JSON.parse(JSON.stringify(state.column))
     await formRef.value.validate()
     // 基本字段
     const basicFields = ['field_name', 'business_type', 'relation_table_id', 'display_field_ids', 'is_array', 'aggregation_field_name', 'aggregation_method']
@@ -179,6 +202,7 @@ const handleSubmit = async () => {
       columnConfig.display_structure = display_structure
     }
 
+    let didEditColumn = false
     if (state.isEdit) {
       const oldType = (state.column as any)?.business_type
       const newType = formData.value.business_type
@@ -195,12 +219,17 @@ const handleSubmit = async () => {
           return
         }
       }
-      await updateColumn(state.column?.field, columnConfig as any)
+      console.log('updateColumn', stateColumn.field_name, columnConfig)
+      await updateColumn(stateColumn.field_name, columnConfig as any)
+      didEditColumn = true
     } else {
       await addColumn([columnConfig])
     }
     if ([ColumnFieldType.AggVirtualColumn, ColumnFieldType.VirtualColumn].includes(columnConfig.business_type)) {
-      updateRelationDisplayFields(columnConfig)
+      await updateRelationDisplayFields(columnConfig)
+    }
+    if (didEditColumn) {
+      finishColumnConfigEdit(true)
     }
     resetForm()
     handleClose()

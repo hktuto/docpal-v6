@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="460px" @close="handleClose">
+  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="520px" @close="handleClose">
     <el-form label-position="top">
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
@@ -33,18 +33,59 @@
         </div>
       </el-form-item>
 
+      <!-- Sort Rules -->
+      <el-form-item label="Sort">
+        <div class="rule-list">
+          <div v-for="(rule, index) in form.sortRules" :key="index" class="rule-row">
+            <el-select v-model="rule.field" placeholder="Field" size="small" style="flex: 1" :loading="fieldsLoading">
+              <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
+            </el-select>
+            <el-select v-model="rule.order" size="small" style="width: 110px">
+              <el-option label="Ascending" value="asc" />
+              <el-option label="Descending" value="desc" />
+            </el-select>
+            <el-button link type="danger" size="small" @click="removeSortRule(index)">
+              <Icon name="lucide:x" size="14" />
+            </el-button>
+          </div>
+          <el-button link size="small" @click="addSortRule">
+            <Icon name="lucide:plus" size="14" />
+            Add sort
+          </el-button>
+        </div>
+      </el-form-item>
+
+      <!-- Filter Rules -->
+      <el-form-item label="Filters">
+        <div class="rule-list">
+          <div v-for="(rule, index) in form.filterRules" :key="index" class="rule-row filter-rule-row">
+            <el-select v-model="rule.field" placeholder="Field" size="small" style="flex: 1" :loading="fieldsLoading" @change="onFilterFieldChange(rule)">
+              <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
+            </el-select>
+            <el-select v-model="rule.operator" placeholder="Op" size="small" style="width: 120px">
+              <el-option v-for="op in getOperatorsForField(rule.field)" :key="op.value" :label="op.label" :value="op.value" />
+            </el-select>
+            <el-input
+              v-if="!isValuelessOperator(rule.operator)"
+              v-model="rule.value"
+              placeholder="Value"
+              size="small"
+              style="flex: 1"
+            />
+            <span v-else style="flex: 1; color: var(--el-text-color-secondary); font-size: 12px; line-height: 24px;">—</span>
+            <el-button link type="danger" size="small" @click="removeFilterRule(index)">
+              <Icon name="lucide:x" size="14" />
+            </el-button>
+          </div>
+          <el-button link size="small" @click="addFilterRule">
+            <Icon name="lucide:plus" size="14" />
+            Add filter
+          </el-button>
+        </div>
+      </el-form-item>
+
       <el-form-item label="Row Limit">
         <el-select-v2 v-model="form.rowLimit" :options="limitOptions" style="width: 100%" />
-      </el-form-item>
-
-      <el-form-item label="Sort By">
-        <el-select v-model="form.sortField" clearable placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
-          <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="Sort Order">
-        <el-select-v2 v-model="form.sortOrder" :options="sortOptions" style="width: 100%" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -59,6 +100,7 @@
 <script setup lang="ts">
 import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
 import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
@@ -71,17 +113,23 @@ const limitOptions = [
   { label: '50 rows', value: 50 }
 ]
 
-const sortOptions = [
-  { label: 'Ascending', value: 'asc' },
-  { label: 'Descending', value: 'desc' }
-]
+interface SortRule {
+  field: string
+  order: 'asc' | 'desc'
+}
+
+interface FilterRule {
+  field: string
+  operator: string
+  value: string
+}
 
 const form = reactive({
   tableId: '',
   columns: [] as string[],
   rowLimit: 10,
-  sortField: '',
-  sortOrder: 'desc'
+  sortRules: [] as SortRule[],
+  filterRules: [] as FilterRule[]
 })
 
 const orderedColumns = computed(() => form.columns)
@@ -105,9 +153,84 @@ function removeColumn(index: number) {
   form.columns.splice(index, 1)
 }
 
+function addSortRule() {
+  form.sortRules.push({ field: '', order: 'desc' })
+}
+
+function removeSortRule(index: number) {
+  form.sortRules.splice(index, 1)
+}
+
+function addFilterRule() {
+  form.filterRules.push({ field: '', operator: '', value: '' })
+}
+
+function removeFilterRule(index: number) {
+  form.filterRules.splice(index, 1)
+}
+
+function getFieldType(fieldName: string): string {
+  const field = fields.value.find((f: any) => f.field_name === fieldName)
+  return field?.business_type || ''
+}
+
+function isDateField(fieldName: string): boolean {
+  const type = getFieldType(fieldName)
+  return type === ColumnFieldType.DateTime || type === '5'
+}
+
+function isNumericField(fieldName: string): boolean {
+  const type = getFieldType(fieldName)
+  return type === ColumnFieldType.Number || type === '2' || type === ColumnFieldType.Rating || type === '12'
+}
+
+function getOperatorsForField(fieldName: string): { label: string; value: string }[] {
+  if (!fieldName) return []
+  if (isDateField(fieldName)) {
+    return [
+      { label: 'Equals', value: 'EQ' },
+      { label: 'After', value: 'GT' },
+      { label: 'After or equals', value: 'GTE' },
+      { label: 'Before', value: 'LT' },
+      { label: 'Before or equals', value: 'LTE' },
+      { label: 'Is empty', value: 'IS_NULL' },
+      { label: 'Is not empty', value: 'IS_NOT_NULL' }
+    ]
+  }
+  if (isNumericField(fieldName)) {
+    return [
+      { label: '=', value: 'EQ' },
+      { label: '≠', value: 'NE' },
+      { label: '>', value: 'GT' },
+      { label: '≥', value: 'GTE' },
+      { label: '<', value: 'LT' },
+      { label: '≤', value: 'LTE' },
+      { label: 'Is empty', value: 'IS_NULL' },
+      { label: 'Is not empty', value: 'IS_NOT_NULL' }
+    ]
+  }
+  return [
+    { label: 'Contains', value: 'LIKE' },
+    { label: 'Equals', value: 'EQ' },
+    { label: 'Not equals', value: 'NE' },
+    { label: 'Is empty', value: 'IS_NULL' },
+    { label: 'Is not empty', value: 'IS_NOT_NULL' }
+  ]
+}
+
+function isValuelessOperator(operator: string): boolean {
+  return ['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(operator)
+}
+
+function onFilterFieldChange(rule: FilterRule) {
+  rule.operator = ''
+  rule.value = ''
+}
+
 async function handleTableChange(tableId: string) {
   form.columns = []
-  form.sortField = ''
+  form.sortRules = []
+  form.filterRules = []
   await loadFields(tableId)
 }
 
@@ -118,8 +241,24 @@ watch(
       form.tableId = setting.value.tableId || ''
       form.columns = setting.value.columns || []
       form.rowLimit = setting.value.rowLimit || 10
-      form.sortField = setting.value.sortField || ''
-      form.sortOrder = setting.value.sortOrder || 'desc'
+      // Migrate old sortField/sortOrder to sortRules
+      const oldSortField = setting.value.sortField || ''
+      const oldSortOrder = setting.value.sortOrder || 'desc'
+      const existingSortRules = setting.value.sortRules || []
+      if (existingSortRules.length) {
+        form.sortRules = existingSortRules.map((r: any) => ({ field: r.field || '', order: r.order || 'desc' }))
+      } else if (oldSortField) {
+        form.sortRules = [{ field: oldSortField, order: oldSortOrder }]
+      } else {
+        form.sortRules = []
+      }
+
+      form.filterRules = (setting.value.filterRules || []).map((r: any) => ({
+        field: r.field || '',
+        operator: r.operator || '',
+        value: r.value || ''
+      }))
+
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -132,8 +271,17 @@ function handleSubmit() {
     tableId: form.tableId,
     columns: [...form.columns],
     rowLimit: form.rowLimit,
-    sortField: form.sortField,
-    sortOrder: form.sortOrder
+    sortRules: form.sortRules.filter((r) => r.field).map((r) => ({ field: r.field, order: r.order })),
+    filterRules: form.filterRules
+      .filter((r) => r.field && r.operator)
+      .map((r) => ({
+        field: r.field,
+        operator: r.operator,
+        value: r.value
+      })),
+    // Clear legacy sort fields when sortRules are used
+    sortField: undefined,
+    sortOrder: undefined
   })
 }
 
@@ -162,6 +310,19 @@ defineExpose({ handleOpen })
 .column-actions {
   display: flex;
   gap: 4px;
+}
+.rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rule-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-rule-row {
+  flex-wrap: wrap;
 }
 .footer-grid {
   display: flex;

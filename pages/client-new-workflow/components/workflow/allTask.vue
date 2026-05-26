@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newClientApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
 
 const workflowList = await getWorkflowList()
@@ -16,9 +16,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'all_task',
   api: async (pageParams: any) => {
     const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
-    // 只保留 waiting 狀態的數據
-    let list = data.tasks
 
+    let list = data.tasks
     if (extraParams.value.definition_id !== '') {
       list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)
     }
@@ -107,8 +106,4 @@ defineExpose({ reloadTable })
   </div>
 </template>
 
-<style lang="scss" scoped>
-:deep(.el-input) {
-  width: 200px;
-}
-</style>
+<style lang="scss" scoped></style>

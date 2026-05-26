@@ -8,7 +8,8 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
-const { db_id, workflowType, backItem } = defineProps<{
+const { detail, db_id, workflowType, backItem } = defineProps<{
+  detail: any
   db_id: string
   workflowType: string
   backItem?: any
@@ -17,9 +18,6 @@ const { db_id, workflowType, backItem } = defineProps<{
 const userId: string = useUserId().value
 const { t } = useI18n()
 const state = reactive<any>({
-  processState: {
-    completeTask: 'completeTask'
-  },
   activeTab: 'form',
   loading: true,
   error: null,
@@ -38,8 +36,12 @@ async function getDetail() {
     state.error = 'Id not exist'
     return
   }
-
   try {
+    if (workflowType === 'completeTask') {
+      await handleCompleteTask()
+      return
+    }
+
     state.loading = true
     state.error = null
     const data: any = await clientApi.instance.get(`/oniflow/api/v1/processes/instance-task/${db_id}`).then((r: any) => workflowResponseHelper(r))
@@ -47,11 +49,9 @@ async function getDetail() {
       state.error = 'Get Task Detail Failed'
       return
     }
-    // if (!!row.config.result) {
-    //   state.error = row.config.result
-    //   return
-    // }
-    if (data.status !== 'assigned') {
+
+    if (data.status.type !== 'assigned') {
+      state.error = 'Is not assigned'
       return
     }
     taskDetail.value = data
@@ -60,7 +60,9 @@ async function getDetail() {
 
     const instanceData = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
     variablesData.value = instanceData.variables || {}
-    contentData.value = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`).then((r: any) => workflowResponseHelper(r))
+    contentData.value = await clientApi.instance
+      .get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`)
+      .then((r: any) => workflowResponseHelper(r))
 
     if (data.config?.human_task?.assignee === userId) {
       isAssigneeUser.value = true
@@ -72,6 +74,15 @@ async function getDetail() {
     state.error = error
   }
   state.loading = true
+}
+
+async function handleCompleteTask() {
+  showForm.value = false
+  state.activeTab = 'info'
+  taskDetail.value = detail
+  contentData.value = await clientApi.instance
+    .get(`/oniflow/api/v1/workflow/definitions/instance/${detail.definition_id}/content`)
+    .then((r: any) => workflowResponseHelper(r))
 }
 
 async function initForm(node: any) {
@@ -398,11 +409,11 @@ onMounted(() => {
       <h3>{{ state.title }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
-          <WorkflowDetailCompleteInfo v-if="state.processState[workflowType]" :taskDetail="taskDetail" :state="workflowType" />
+          <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail" :state="workflowType" />
           <WorkflowDetailInfo v-else :taskDetail="taskDetail" @change="handleTaskInfoChange" />
         </el-tab-pane>
 
-        <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
+        <el-tab-pane v-if="showForm" class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
           <div
             ref="workflowFormContainerRef"
             v-show="nodeType !== CellType.signatureTask || signSubmitStage !== 'afterSubmit'"

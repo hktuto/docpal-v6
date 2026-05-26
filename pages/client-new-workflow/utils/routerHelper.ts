@@ -6,6 +6,7 @@ export const routeWorkflowDetail = function (params: any) {
     label: params.name,
     component: 'LazyWorkflowDetail',
     props: {
+      detail: params,
       db_id: params.db_id,
       workflowType: params.workflowType || 'myTask'
     }
@@ -34,7 +35,7 @@ export function newWorkflowStartPage(label: string, definition_id: string, taskN
     component: 'LazyWorkflowNewTabStarterPage',
     props: {
       definition_id,
-      taskNode,
+      taskNode
     }
   }
 }
