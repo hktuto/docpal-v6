@@ -54,7 +54,7 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const { database } = useSingleDatabaseContext()
+const { database, getMenuFromDb } = useSingleDatabaseContext()
 const { importExcelFile, initData, uploadProgress, isImporting, reset, selectedFile, errorMessage } = useImportBatch()
 
 
@@ -111,7 +111,8 @@ async function handleFileChange(file: any) {
   } else {
     dialogVisible.value = false
   }
-  // Run relation analysis after import completes
+  // Refresh menu so new tables appear, then run relation analysis
+  await getMenuFromDb()
   startPostImportAnalysis(preSnapshot, database.value?.id)
   emit('success')
 }
