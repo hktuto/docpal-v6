@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { newClientApi } from 'api'
+import { clientApi, newClientApi } from 'api'
 import type { TriggerSettingDTO, TableFieldDTO } from 'api'
 import { ElMessage } from 'element-plus'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
@@ -253,7 +253,7 @@ function handleCancel() {
 
 async function handleChangeWorkflow() {
   try {
-    const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${form.workflow_id}`).then((r: any) => workflowResponseHelper(r))
+    const data = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${form.workflow_id}`).then((r: any) => workflowResponseHelper(r))
     if (!data) {
       routerProvider?.message?.error('Failed to get workflow details')
       return
