@@ -15,6 +15,7 @@ const formRef = ref()
 const form = reactive({
   newAssignee: ''
 })
+const emits = defineEmits(['reload'])
 const rules = {
   newAssignee: [{
     required: true,
@@ -24,14 +25,13 @@ const rules = {
 }
 
 function open(row: any) {
-  console.log(123,row)
   showDialog.value = true
   form.newAssignee = ''
   taskId.value = row.db_id
   nextTick(() => formRef.value?.clearValidate())
 }
 
-async function handleAssigneeSubmit() {
+async function handleSubmit() {
   try {
     await formRef.value.validate()
     const params = {
@@ -43,6 +43,7 @@ async function handleAssigneeSubmit() {
       .post(`/oniflow/api/v1/task/overview/assignee`, params)
       .then((r: any) => workflowResponseHelper(r))
     showDialog.value = false
+    emits('reload')
   } catch (e) {
     console.log(e)
     routerProvider?.message?.error(e.message)
@@ -66,7 +67,7 @@ defineExpose({ open })
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button type="primary" @click="handleAssigneeSubmit">Submit</el-button>
+      <el-button type="primary" @click="handleSubmit">Submit</el-button>
     </template>
   </el-dialog>
 </template>

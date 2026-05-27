@@ -76,7 +76,7 @@ defineExpose({ reload })
     </template>
   </VxeGrid>
 
-  <LazyWorkflowManageReassignTask ref="reassignTaskRef" />
+  <LazyWorkflowManageReassignTask ref="reassignTaskRef" @reload="reload"/>
 </template>
 
 <style lang="scss" scoped></style>
