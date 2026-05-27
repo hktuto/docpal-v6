@@ -9,7 +9,7 @@ const { idList } = defineProps<{
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const platform = useAppPlatform()
-const userId: string = useUserId().value
+
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-workflow-active',
   zoom: false,

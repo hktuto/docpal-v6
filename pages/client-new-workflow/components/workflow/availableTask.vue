@@ -17,7 +17,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
       roles: [user.aclUserDetail.roleId],
       assignee: user.userId,
-      status: ['pending', 'waiting', 'created'],
+      status: ['pending', 'waiting'],
       definition_id: '',
       process_id: '',
       page_num: pageParams.pageNum,

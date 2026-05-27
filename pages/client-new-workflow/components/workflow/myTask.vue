@@ -24,7 +24,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    // { field: 'id', title: 'Workflow Instance Name', fixed: 'left' },
     { field: 'name', title: 'workflow_jobName' },
     { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
@@ -52,11 +51,6 @@ function handleDblclick(row: any) {
   )
 }
 
-async function claimTask(row: any) {
-  await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.process_id}/claim`, { user_id: userId }).then((res) => res.data)
-  query({})
-}
-
 function handleAssignee(assignee: string) {
   if (!assignee || assignee === '') return false
   return !assignee.includes('${')
@@ -71,9 +65,6 @@ defineExpose({ reload })
       <template #toolbar_buttons></template>
       <template #assignee="{ row }">
         <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>{{ row.config.human_task.assignee || '' }}</el-tag>
-        <el-button v-else :id="`Workflow__ActiveTask__Detail__ClaimTask__${row.id}`" type="primary" size="small" round @click="claimTask(row)">
-          {{ $t('workflow_claim') }}
-        </el-button>
       </template>
     </VxeGrid>
   </div>
