@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
-import { workflowResponseHelper, getWorkflowList, routeWorkflowManageEditor } from '#imports'
+import { workflowResponseHelper, routeWorkflowManageEditor } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 const { t } = useI18n()
-const workflowList = await getWorkflowList()
+const workflowList = ref<any[]>([])
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'manage_fail_task',
   api: async (pageParams: any) => {
+    if (workflowList.value.length == 0) {
+      await getWorkflowDefinition()
+    }
     const response = await clientApi.instance
       .get(`/oniflow/api/v1/task/overview/failed?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
       .then((r: any) => workflowResponseHelper(r))
@@ -24,7 +27,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       title: 'Workflow Name',
       fixed: 'left',
       formatter({ cellValue }: any) {
-        const find = workflowList.find((item: any) => item.id === cellValue)
+        const find = workflowList.value.find((item: any) => item.id === cellValue)
         return !!find ? find.name : cellValue
       }
     },
@@ -62,7 +65,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDbClick(row: any) {
-  const find = workflowList.find((item: any) => item.id === row.definition_id)
+  const find = workflowList.value.find((item: any) => item.id === row.definition_id)
   if (!find) {
     routerProvider?.message?.error('Workflow definition does not exist')
     return
@@ -77,6 +80,15 @@ function handleDbClick(row: any) {
   } catch (e) {
     console.log(e)
   }
+}
+
+async function getWorkflowDefinition() {
+  const params = {
+    page_size: 1000,
+    page_num: 1
+  }
+  const data = await clientApi.instance.post('/oniflow/api/v1/workflow/definitions/page', params).then((r: any) => workflowResponseHelper(r))
+  workflowList.value = data.items
 }
 </script>
 

@@ -2,6 +2,10 @@
 import { clientApi } from 'api'
 import { getUserSelectOption, workflowResponseHelper } from '#imports'
 
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 const { t } = useI18n()
 const showDialog = ref(false)
 const taskId = ref<string>('')
@@ -12,7 +16,11 @@ const form = reactive({
   newAssignee: ''
 })
 const rules = {
-  newAssignee: [{ required: true, message: t('render.hint.fieldRequired', { name: 'New Task Assignee' }), trigger: 'change' }]
+  newAssignee: [{
+    required: true,
+    message: t('render.hint.fieldRequired', { name: 'New Task Assignee' }),
+    trigger: 'change'
+  }]
 }
 
 function open(row: any) {
@@ -34,8 +42,12 @@ async function handleAssigneeSubmit() {
       .post(`/oniflow/api/v1/task/overview/assignee`, params)
       .then((r: any) => workflowResponseHelper(r))
     showDialog.value = false
-  } catch (e) {}
+  } catch (e) {
+    console.log(e)
+    routerProvider?.message?.error(e.message)
+  }
 }
+
 onMounted(async () => {
   userList.value = await getUserSelectOption()
 })
