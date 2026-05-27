@@ -6,6 +6,28 @@ const EXISTING_SAMPLE_ROW_COUNT = 50
 const CONFIDENCE_THRESHOLD = 0.45
 const MAX_GUESSES_PER_SOURCE = 5
 
+/**
+ * Build a map of table IDs to table names from the database menu.
+ */
+export async function captureTableNameMap(databaseId: string): Promise<Map<string, string>> {
+  try {
+    const res: any = await newClientApi.getDynamicDbMenusTree({
+      referenceEntityType: 'case',
+      referenceEntityId: databaseId
+    })
+    const menus: MenuDTO[] = res?.data ?? []
+    const map = new Map<string, string>()
+    for (const item of flattenMenuItems(menus)) {
+      if (item.item_type === 'master_table' && item.item_id) {
+        map.set(item.item_id, item.name || item.item_id)
+      }
+    }
+    return map
+  } catch {
+    return new Map()
+  }
+}
+
 export interface TableSnapshot {
   tableId: string
   tableName: string
@@ -18,12 +40,14 @@ export interface RelationGuess {
   sourceTableId: string
   sourceTableName: string
   sourceFieldName: string
+  sourceFieldAlias: string
   sourceFieldType: ColumnFieldType
   /** The table being referenced (existing or also newly imported) */
   targetTableId: string
   targetTableName: string
   targetFieldId: string
   targetFieldName: string
+  targetFieldAlias: string
   confidence: number
   reasons: RelationGuessReason[]
   dismissed: boolean
@@ -85,7 +109,10 @@ export async function resolveNewTables(
 /**
  * Fetch a single table snapshot (fields + sample rows).
  */
-export async function fetchTableSnapshot(tableId: string): Promise<TableSnapshot | null> {
+export async function fetchTableSnapshot(
+  tableId: string,
+  nameMap?: Map<string, string>
+): Promise<TableSnapshot | null> {
   try {
     const fieldsRes: any = await newClientApi.getDynamicDbTableTableidFields(tableId)
     const fields: TableFieldDTO[] = fieldsRes?.data ?? []
@@ -94,16 +121,15 @@ export async function fetchTableSnapshot(tableId: string): Promise<TableSnapshot
     try {
       const rowsRes: any = await postDynamicActions({
         tableId,
-        columns: [],
-        pagination: { pageNum: 1, pageSize: EXISTING_SAMPLE_ROW_COUNT }
+        columns: [{ name: '*' }],
+        pagination: { pageNum: 0, pageSize: EXISTING_SAMPLE_ROW_COUNT }
       })
       sampleRows = rowsRes?.data?.data ?? []
     } catch {
       // Best-effort: continue with fields only
     }
 
-    // Resolve table name from first field or fallback to tableId
-    const tableName = fields[0]?.field_name ? tableId : tableId
+    const tableName = nameMap?.get(tableId) || tableId
 
     return { tableId, tableName, fields, sampleRows }
   } catch {
@@ -129,10 +155,12 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
 
       for (const sourceField of source.fields) {
         const sourceFieldName = sourceField.field_name || ''
+        const sourceFieldAlias = sourceField.field_name_alias || sourceFieldName
         const sourceFieldType = sourceField.business_type || ''
 
         for (const targetField of target.fields) {
           const targetFieldName = targetField.field_name || ''
+          const targetFieldAlias = targetField.field_name_alias || targetFieldName
           const targetFieldId = targetField.id || ''
           const targetFieldType = targetField.business_type || ''
 
@@ -152,11 +180,13 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
               sourceTableId: source.tableId,
               sourceTableName: source.tableName,
               sourceFieldName,
+              sourceFieldAlias,
               sourceFieldType: sourceFieldType as ColumnFieldType,
               targetTableId: target.tableId,
               targetTableName: target.tableName,
               targetFieldId,
               targetFieldName,
+              targetFieldAlias,
               confidence: scoreResult.confidence,
               reasons: scoreResult.reasons,
               dismissed: false

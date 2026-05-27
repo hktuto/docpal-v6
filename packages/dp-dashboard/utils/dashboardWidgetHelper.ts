@@ -1,5 +1,4 @@
 export type DashboardWidget =
-  | CaseStatisticsWidget
   | 'DocTypeCoCount'
   | 'DocTypeCount'
   | 'DocSizeStatistics'
@@ -8,7 +7,6 @@ export type DashboardWidget =
   | 'AzureThreshold'
   | 'AzureOcrProcessed'
   | 'AzureOcrProcessedHistory'
-  | 'PersonalDashboard'
   | 'PersonalShare'
   | 'PersonalShareExternal'
   | 'PersonalShareInternalMe'
@@ -192,20 +190,6 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
   //     component : 'AzureOcrProcessedHistory',
   //     setting: {}
   // },
-  PersonalDashboard: {
-    type: DASHBOARD_TYPE.default,
-    feature: 'DASHBOARD',
-    divided: true,
-    label: 'PersonalDashboard',
-    minW: 2,
-    minH: 2,
-    maxW: 12,
-    maxH: 6,
-    w: 3,
-    h: 3,
-    component: 'LazyPersonalDashboard',
-    setting: {}
-  },
   PersonalShare: {
     type: DASHBOARD_TYPE.document,
     feature: 'SHARE_INTERNAL',
@@ -426,21 +410,6 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
       displayColumns: []
     }
   },
-  CalendarWidget: {
-    divided: true,
-    type: DASHBOARD_TYPE.default,
-    label: 'CalendarWidget',
-    minW: 2,
-    minH: 6,
-    maxW: 12,
-    maxH: 12,
-    w: 6,
-    h: 8,
-    component: 'LazyCalendarWidget',
-    setting: {
-      editable: true
-    }
-  },
   Browse: {
     type: DASHBOARD_TYPE.document,
     label: 'Browse',
@@ -456,7 +425,6 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
       hideSetting: []
     }
   },
-  ...CaseStatisticsWidgetSetting,
 }
 export function getDashboardWidgetByType(settingMap: { [key in string]: DashboardWidgetSetting }): { [key in string]: DashboardWidgetSetting[] } {
   const DashboardWidgetResult: { [key in string]: DashboardWidgetSetting[] } = {

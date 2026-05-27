@@ -80,6 +80,7 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       :showAuditLogButton="!isMirror && canManageTable"
       :disabled="isMirror"
       :showColumnConfig="false"
+      :showAddRowButton="canEditTable"
       @refresh="handleRefresh"
       @add-row="handleAddRow"
     >
