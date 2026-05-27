@@ -139,7 +139,6 @@ export enum CellType {
 
   // Service
   conditionTask = 'ConditionTask',
-  serviceTask = 'ServiceTask',
   messageTask = 'MessageTask',
   uploadFile = 'UploadFile',
   subProcess = 'SubProcess',
@@ -840,23 +839,6 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  UniqueIdGenerator: {
-    ...createNodeShell('New_UniqueIdGenerator', 'Unique Id Generator', 'New Unique Id Generator', '/icons/numeric.svg'),
-    data: {
-      id: '',
-      name: 'New Unique Id Generator',
-      documentation: '',
-      type: CellType.serviceTask,
-      execution: { ...LONG_RUNNING_EXECUTION },
-      config: getTaskItemConfig[CellType.uniqueIdGenerator],
-      metadata: {
-        type: CellType.uniqueIdGenerator,
-        tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/numeric.svg'
-      }
-    }
-  },
-  // condition Task
   ConditionTask: {
     ...createNodeShell('New_ConditionTask', 'Condition Task', 'New Condition Task', '/icons/condition.svg', 200, 64, '#0F2037', '#fff'),
     data: {
@@ -876,24 +858,6 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  // Trans form Task
-  TransformTask: {
-    ...createNodeShell('New_TransformTask', 'Transform Task', 'New Transform Task', '/icons/transform.svg'),
-    data: {
-      id: '',
-      name: 'New Transform Task',
-      documentation: '',
-      type: CellType.transformTask,
-      config: getTaskItemConfig[CellType.transformTask],
-      execution: { ...LONG_RUNNING_EXECUTION },
-      metadata: {
-        type: CellType.transformTask,
-        tags: WorkflowElementType.TransformTask,
-        icon: '/icons/transform.svg'
-      }
-    }
-  },
-  // Service Task
   SubProcess: {
     ...createNodeShell('New_SubProcess', 'Sub Process', 'New Sub Process', '/icons/forwardburger.svg'),
     data: {
@@ -926,6 +890,22 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
+  TransformTask: {
+    ...createNodeShell('New_TransformTask', 'Transform Task', 'New Transform Task', '/icons/transform.svg'),
+    data: {
+      id: '',
+      name: 'New Transform Task',
+      documentation: '',
+      type: CellType.transformTask,
+      config: getTaskItemConfig[CellType.transformTask],
+      execution: { ...LONG_RUNNING_EXECUTION },
+      metadata: {
+        type: CellType.transformTask,
+        tags: WorkflowElementType.TransformTask,
+        icon: '/icons/transform.svg'
+      }
+    }
+  },
   MessageTask: {
     ...createNodeShell('New_MessageTask', 'Message Task', 'New Message Task', '/icons/message.svg'),
     data: {
@@ -942,13 +922,30 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
+  // Service Task
+  UniqueIdGenerator: {
+    ...createNodeShell('New_UniqueIdGenerator', 'Unique Id Generator', 'New Unique Id Generator', '/icons/numeric.svg'),
+    data: {
+      id: '',
+      name: 'New Unique Id Generator',
+      documentation: '',
+      type: WorkflowElementType.ServiceTask,
+      execution: { ...LONG_RUNNING_EXECUTION },
+      config: getTaskItemConfig[CellType.uniqueIdGenerator],
+      metadata: {
+        type: CellType.uniqueIdGenerator,
+        tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/numeric.svg'
+      }
+    }
+  },
   UploadFile: {
     ...createNodeShell('New_UploadFileTask', 'Upload File', 'New Upload File', '/icons/uploadFile.svg'),
     data: {
       id: '',
       name: 'New Upload File',
       documentation: '',
-      type: CellType.serviceTask,
+      type: WorkflowElementType.ServiceTask,
       config: getTaskItemConfig[CellType.uploadFile],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
@@ -964,7 +961,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       id: '',
       name: 'New Document Generation Task',
       documentation: '',
-      type: CellType.serviceTask,
+      type: WorkflowElementType.ServiceTask,
       config: getTaskItemConfig[CellType.documentGenerationTask],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
@@ -981,7 +978,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       id: '',
       name: 'New Filing Documents Task',
       documentation: '',
-      type: CellType.serviceTask,
+      type: WorkflowElementType.ServiceTask,
       config: getTaskItemConfig[CellType.filingDocuments],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
@@ -992,29 +989,13 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
-  ServiceTask: {
-    ...createNodeShell('New_ServiceTask', 'Service Task', 'New Service Task', '/icons/form.svg', 260),
-    data: {
-      id: '',
-      name: 'New Service Task',
-      documentation: '',
-      type: CellType.serviceTask,
-      config: {},
-      metadata: {
-        type: CellType.serviceTask,
-        tags: WorkflowElementType.ServiceTask,
-        icon: '/icons/form.svg'
-      }
-    }
-  },
-  // Http Task
   HTTPTask: {
     ...createNodeShell('New_HTTPTask', 'HTTP Task', 'New HTTP Task', '/icons/http-task.svg'),
     data: {
       id: '',
       name: 'New HTTP Task',
       documentation: '',
-      type: CellType.serviceTask,
+      type: WorkflowElementType.ServiceTask,
       execution: { ...LONG_RUNNING_EXECUTION },
       config: getTaskItemConfig[CellType.HTTPTask],
       metadata: {
@@ -1031,7 +1012,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Insert Dynamic Database',
       documentation: '',
       execution: { ...LONG_RUNNING_EXECUTION },
-      type: CellType.serviceTask,
+      type: WorkflowElementType.ServiceTask,
       config: getTaskItemConfig[CellType.insertDynamicDatabase],
       metadata: {
         type: CellType.insertDynamicDatabase,
@@ -1049,7 +1030,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       name: 'New Update Dynamic Database',
       documentation: '',
       execution: { ...LONG_RUNNING_EXECUTION },
-      type: CellType.serviceTask,
+      type: WorkflowElementType.ServiceTask,
       config: getTaskItemConfig[CellType.updateDynamicDatabase],
       metadata: {
         type: CellType.updateDynamicDatabase,
@@ -1066,7 +1047,7 @@ const workflowCellElementTemplate: CellTypeItem = {
       id: '',
       name: 'New Email Task',
       documentation: '',
-      type: CellType.serviceTask,
+      type: WorkflowElementType.ServiceTask,
       config: getTaskItemConfig[CellType.emailTask],
       execution: { ...LONG_RUNNING_EXECUTION },
       metadata: {
