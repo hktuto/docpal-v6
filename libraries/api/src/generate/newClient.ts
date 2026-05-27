@@ -11230,6 +11230,11 @@ export interface GenericAuditLogQueryRequestDTO {
      * @example "login"
      */
     source_id?: string;
+    /**
+     * Reference ID (e.g., table ID for table-level audit logs)
+     * @example "tbl-12345"
+     */
+    ref_id?: string;
 }
 
 /** Generic Audit Log Request */

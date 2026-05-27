@@ -8,7 +8,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'auditListTableSetting',
   api: (pageParams: any) => {
     const extraParams = {
-      source_id: props.masterTableId
+      ref_id: props.masterTableId
     }
     const p = {
       page_size: pageParams.pageSize,
