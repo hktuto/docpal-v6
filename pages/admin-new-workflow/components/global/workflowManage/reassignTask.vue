@@ -24,9 +24,10 @@ const rules = {
 }
 
 function open(row: any) {
+  console.log(123,row)
   showDialog.value = true
   form.newAssignee = ''
-  taskId.value = row.id
+  taskId.value = row.db_id
   nextTick(() => formRef.value?.clearValidate())
 }
 
