@@ -13,8 +13,15 @@ const reassignTaskRef = ref()
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'manage_all_task',
   api: async (pageParams: any) => {
+    const params = {
+      status: [],
+      assignee: '',
+      page_num: pageParams.pageNum,
+      page_size: pageParams.pageSize
+    }
+
     const response = await clientApi.instance
-      .get(`/oniflow/api/v1/task/overview/available?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+      .post(`/oniflow/api/v1/task/overview/page`, params)
       .then((r: any) => workflowResponseHelper(r))
     return {
       data: response
@@ -30,37 +37,16 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
         return !!find ? find.name : cellValue
       }
     },
-    { field: 'node_name', title: 'workflow_taskName' },
-    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    { field: 'name', title: 'workflow_taskName' },
+    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     { field: 'status.type', title: 'Status' },
     {
-      field: 'created_at',
+      field: 'execution.started_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       }
-    },
-    {
-      field: 'updated_at',
-      title: 'workflow_dueDate',
-      formatter({ cellValue }: any) {
-        return formatDate(cellValue)
-      }
     }
-  ],
-  bodyActions: [
-    [
-      // {
-      //   code: 'delete',
-      //   name: t('common_delete'),
-      //   visible: true,
-      //   disabled: false,
-      //   action: async ({ row }: any) => {
-      //     await clientApi.instance.delete(`/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r: any) => r.data)
-      //     reload()
-      //   }
-      // }
-    ]
   ],
   dblClickAction: ({ row, column, event }: any) => {
     if (row.status.type !== 'assignee') {
@@ -76,7 +62,7 @@ defineExpose({ reload })
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons></template>
     <template #assignee="{ row }">
-      <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
+      <el-tag v-if="row.config.human_task.assignee" round>{{ row.config.human_task.assignee || '' }}</el-tag>
     </template>
   </VxeGrid>
 

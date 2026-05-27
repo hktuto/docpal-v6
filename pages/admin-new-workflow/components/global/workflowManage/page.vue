@@ -1,14 +1,14 @@
 <script setup lang="ts">
-const activeTab = ref<string>('failTask')
+const activeTab = ref<string>('availableTask')
 const workflowRef = ref()
 </script>
 
 <template>
   <div class="pageContainer--padding workflow-page">
     <el-tabs v-model="activeTab">
-<!--      <el-tab-pane :label="$t('Available Task')" name="availableTask">-->
-<!--        <WorkflowManageAvailableTask v-if="activeTab === 'availableTask'" ref="workflowRef" />-->
-<!--      </el-tab-pane>-->
+      <el-tab-pane :label="$t('Available Task')" name="availableTask">
+        <WorkflowManageAvailableTask v-if="activeTab === 'availableTask'" ref="workflowRef" />
+      </el-tab-pane>
       <el-tab-pane :label="$t('Fail Task')" name="failTask">
         <WorkflowManageFailTask v-if="activeTab === 'failTask'" ref="workflowRef" />
       </el-tab-pane>

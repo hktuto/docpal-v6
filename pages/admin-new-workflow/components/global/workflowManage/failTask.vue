@@ -63,6 +63,11 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
 function handleDbClick(row: any) {
   const find = workflowList.find((item: any) => item.id === row.definition_id)
+  if (!find) {
+    routerProvider?.message?.error('Workflow definition does not exist')
+    return
+  }
+
   try {
     const workflowEdit = routeWorkflowManageEditor({
       id: row.definition_id,

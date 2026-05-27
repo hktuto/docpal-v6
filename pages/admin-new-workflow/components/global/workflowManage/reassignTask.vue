@@ -6,6 +6,7 @@ const { t } = useI18n()
 const showDialog = ref(false)
 const taskId = ref<string>('')
 const userList = ref<any[]>([])
+const user = useUserState().value
 const formRef = ref()
 const form = reactive({
   newAssignee: ''
@@ -24,8 +25,13 @@ function open(row: any) {
 async function handleAssigneeSubmit() {
   try {
     await formRef.value.validate()
+    const params = {
+      task_id: taskId.value,
+      assignee: form.newAssignee,
+      assign_by: user.userId
+    }
     await clientApi.instance
-      .post(`/oniflow/api/v1/processes/instance-task/${taskId.value}/claim`, { user_id: form.newAssignee })
+      .post(`/oniflow/api/v1/task/overview/assignee`, params)
       .then((r: any) => workflowResponseHelper(r))
     showDialog.value = false
   } catch (e) {}
