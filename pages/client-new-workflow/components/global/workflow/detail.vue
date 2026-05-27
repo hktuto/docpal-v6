@@ -84,7 +84,7 @@ async function handleCompleteTask() {
 async function initForm(node: any) {
   const formKey = node.config.human_task.form_key
   if (!formKey) {
-    routerProvider?.message.error('The form does not exist!')
+    routerProvider?.message.error('The formKey does not exist!')
     return
   }
 
