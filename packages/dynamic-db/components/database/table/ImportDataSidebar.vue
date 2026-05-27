@@ -85,7 +85,7 @@
         <div class="unique-section">
           <div class="step-label">Duplicate Handling</div>
           <div class="unique-row">
-            <el-select v-model="uniqueField" placeholder="Select unique column (optional)" clearable size="small" class="unique-select">
+            <el-select v-model="uniqueFields" placeholder="Select unique columns (optional)" multiple clearable size="small" class="unique-select">
               <el-option
                 v-for="field in mappedFields"
                 :key="field.field_name"
@@ -94,7 +94,7 @@
               />
             </el-select>
           </div>
-          <div v-if="uniqueField" class="strategy-row">
+          <div v-if="uniqueFields.length" class="strategy-row">
             <el-radio-group v-model="duplicateStrategy" size="small">
               <el-radio-button label="ignore">Ignore duplicates</el-radio-button>
               <el-radio-button label="update">Update existing</el-radio-button>
@@ -162,6 +162,7 @@ import { parseImportFile, importRowsToTable, isExcelFile, type ParsedSheet, type
 
 const props = defineProps<{
   tableId: string
+  tableName: string
   tableFields: any[]
 }>()
 
@@ -176,7 +177,7 @@ const step = ref<Step>('upload')
 const parsedSheets = ref<ParsedSheet[]>([])
 const selectedSheet = ref<ParsedSheet | null>(null)
 const columnMappings = ref<ColumnMapping[]>([])
-const uniqueField = ref<string | null>(null)
+const uniqueFields = ref<string[]>([])
 const duplicateStrategy = ref<DuplicateStrategy>('ignore')
 const isImporting = ref(false)
 const progressPercent = ref(0)
@@ -216,7 +217,16 @@ async function handleFileChange(file: any) {
       selectedSheet.value = sheets[0]
       goToMapping()
     } else {
-      step.value = 'sheet'
+      // Auto-select sheet whose name matches the table name (case-insensitive)
+      const match = props.tableName
+        ? sheets.find((s) => s.sheetName.trim().toLowerCase() === props.tableName.trim().toLowerCase())
+        : undefined
+      if (match) {
+        selectedSheet.value = match
+        goToMapping()
+      } else {
+        step.value = 'sheet'
+      }
     }
   } catch (error) {
     console.error('Parse error', error)
@@ -247,7 +257,7 @@ function goToMapping() {
   })
 
   columnMappings.value = mappings
-  uniqueField.value = null
+  uniqueFields.value = []
   duplicateStrategy.value = 'ignore'
   step.value = 'mapping'
 }
@@ -271,7 +281,7 @@ async function startImport() {
       props.tableId,
       selectedSheet.value.rows,
       columnMappings.value,
-      uniqueField.value,
+      uniqueFields.value,
       duplicateStrategy.value,
       props.tableFields,
       (current, total) => {
@@ -298,7 +308,7 @@ function reset() {
   parsedSheets.value = []
   selectedSheet.value = null
   columnMappings.value = []
-  uniqueField.value = null
+  uniqueFields.value = []
   duplicateStrategy.value = 'ignore'
   progressPercent.value = 0
   importResult.value = { created: 0, updated: 0, ignored: 0, errors: [] }

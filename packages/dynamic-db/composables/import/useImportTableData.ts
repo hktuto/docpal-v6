@@ -232,36 +232,46 @@ export async function parseImportFile(file: File): Promise<ParsedSheet[]> {
 }
 
 /**
- * Query existing records by matching values on a specific field
+ * Build a composite key string from multiple field values
+ */
+function buildCompositeKey(record: Record<string, any>, fieldNames: string[]): string {
+  return fieldNames.map((f) => String(record[f] ?? '')).join('::')
+}
+
+/**
+ * Query existing records by matching values on one or more fields (composite key)
  */
 export async function queryExistingRecords(
   tableId: string,
-  fieldName: string,
-  values: any[]
-): Promise<Record<string, any>[]> {
-  if (!values.length) return []
+  fieldNames: string[],
+  rows: Record<string, any>[]
+): Promise<Map<string, string>> {
+  const existingMap = new Map<string, string>()
+  if (!fieldNames.length || !rows.length) return existingMap
 
-  const uniqueValues = [...new Set(values)].filter((v) => v !== '' && v !== null && v !== undefined)
-  if (!uniqueValues.length) return []
+  // Get unique values for the first field to use as the IN filter
+  const firstField = fieldNames[0]
+  const firstFieldValues = [...new Set(rows.map((r) => r[firstField]).filter((v) => v !== '' && v !== null && v !== undefined))]
+  if (!firstFieldValues.length) return existingMap
 
   // Query in batches of 100 to avoid overly large IN clauses
   const batchSize = 100
   const allRecords: Record<string, any>[] = []
 
-  for (let i = 0; i < uniqueValues.length; i += batchSize) {
-    const batch = uniqueValues.slice(i, i + batchSize)
+  for (let i = 0; i < firstFieldValues.length; i += batchSize) {
+    const batch = firstFieldValues.slice(i, i + batchSize)
     const { data }: any = await postDynamicActions({
       tableId,
       columns: [{ name: '*' }],
       conditions: [
         {
           type: 'IN',
-          column: fieldName,
+          column: firstField,
           value: batch
         }
       ],
       pagination: {
-        pageSize: batch.length,
+        pageSize: batch.length * 5, // Allow some slack for multiple matches
         pageNum: 0
       }
     })
@@ -270,7 +280,15 @@ export async function queryExistingRecords(
     }
   }
 
-  return allRecords
+  // Build composite key map from queried records
+  for (const rec of allRecords) {
+    const key = buildCompositeKey(rec, fieldNames)
+    if (!existingMap.has(key)) {
+      existingMap.set(key, rec.id)
+    }
+  }
+
+  return existingMap
 }
 
 /**
@@ -280,7 +298,7 @@ export async function importRowsToTable(
   tableId: string,
   rows: Record<string, any>[],
   columnMapping: ColumnMapping[],
-  uniqueField: string | null,
+  uniqueFields: string[],
   duplicateStrategy: DuplicateStrategy,
   tableFields: TableField[],
   onProgress?: (current: number, total: number) => void
@@ -323,15 +341,10 @@ export async function importRowsToTable(
     return { record, originalIndex: index }
   })
 
-  // If unique field is set, query existing records
-  let existingMap = new Map<string, string>() // value -> row id
-  if (uniqueField && activeMapping.some((m) => m.tableField === uniqueField)) {
-    const uniqueValues = mappedRows.map((r) => r.record[uniqueField])
-    const existingRecords = await queryExistingRecords(tableId, uniqueField, uniqueValues)
-    for (const rec of existingRecords) {
-      const key = String(rec[uniqueField])
-      existingMap.set(key, rec.id)
-    }
+  // If unique fields are set, query existing records
+  let existingMap = new Map<string, string>() // composite key -> row id
+  if (uniqueFields.length && uniqueFields.every((f) => activeMapping.some((m) => m.tableField === f))) {
+    existingMap = await queryExistingRecords(tableId, uniqueFields, mappedRows.map((r) => r.record))
   }
 
   // Track processed unique values within this import batch to avoid creating duplicates
@@ -343,9 +356,9 @@ export async function importRowsToTable(
     const { record, originalIndex } = mappedRows[i]
 
     try {
-      if (uniqueField && record[uniqueField] !== undefined) {
-        const uniqueValue = String(record[uniqueField])
-        const existingId = existingMap.get(uniqueValue)
+      if (uniqueFields.length) {
+        const compositeKey = buildCompositeKey(record, uniqueFields)
+        const existingId = existingMap.get(compositeKey)
 
         if (existingId) {
           if (duplicateStrategy === 'ignore') {
@@ -358,12 +371,12 @@ export async function importRowsToTable(
           }
         }
 
-        // Check if we already created a record with this unique value in the current batch
-        if (processedUniqueValues.has(uniqueValue)) {
+        // Check if we already created a record with this composite key in the current batch
+        if (processedUniqueValues.has(compositeKey)) {
           result.ignored++
           continue
         }
-        processedUniqueValues.add(uniqueValue)
+        processedUniqueValues.add(compositeKey)
       }
 
       // Create new record

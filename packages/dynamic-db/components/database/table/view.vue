@@ -69,6 +69,7 @@
         <DatabaseTableImportDataSidebar
           v-if="panelType === 'importData'"
           :table-id="tableId"
+          :table-name="tableName"
           :table-fields="tableFields"
           @close="handleClosePanel"
           @success="handleImportSuccess"
@@ -92,6 +93,10 @@ const props = defineProps<{
   canManageTable: boolean,
 }>()
 const tableId = computed(() => props.dataTableId)
+const tableName = computed(() => {
+  const item = findItemById(menuState.value.items, tableId.value)
+  return item?.name || ''
+})
 const {
   currentView,
   tableFields,
