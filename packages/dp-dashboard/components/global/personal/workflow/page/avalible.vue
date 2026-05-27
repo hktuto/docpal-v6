@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core'
+import { clientApi } from 'api'
 
 const { idList } = defineProps<{
   idList: string[]
@@ -29,14 +30,11 @@ async function getData(params: any = {}) {
   if (idList && idList.length > 0) {
     settingParams.processKeys = idList
   }
-  // const res = await newClientApi.postDocpalWorkflowTasksUser({ ...params, ...extraParams.value, ...settingParams }).then((res) => res.data)
-  return {
-    data: {
-      entryList: [],
-      totalSize: 0
-    }
-  }
+  return await clientApi.instance
+    .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+    .then((r: any) => r.data)
 }
+
 function handleDblclick(row: any) {
   if (platform.value === 'admin') return
   try {

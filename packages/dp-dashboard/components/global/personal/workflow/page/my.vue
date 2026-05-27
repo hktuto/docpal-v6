@@ -15,10 +15,10 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   api: (pageParams: any) => getData(pageParams),
   columns: [
     { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
-    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status', title: 'dpTable_status' },
+    { field: 'assignee', title: 'workflow_assignee' },
+    { field: 'status.type', title: 'dpTable_status' },
     {
-      field: 'execution.started_at',
+      field: 'created_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
@@ -39,6 +39,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 const userId: string = useUserId().value
+
 async function getData(pageParams: any = {}) {
   if (platform.value === 'admin') return
   const settingParams: any = {}
@@ -49,7 +50,7 @@ async function getData(pageParams: any = {}) {
     .get(`/oniflow/api/v1/task/overview/available/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
     .then((r: any) => workflowResponseHelper(r))
   return {
-    data:  data || []
+    data: data || []
   }
 }
 
@@ -93,12 +94,15 @@ defineExpose({ query, reload })
   height: 100%;
   position: relative;
 }
+
 :deep(.vxe-buttons--wrapper) {
   display: flex;
   justify-content: space-between;
 }
+
 .responsive-container {
   width: 70%;
+
   :deep(.el-input) {
     width: 200px;
   }

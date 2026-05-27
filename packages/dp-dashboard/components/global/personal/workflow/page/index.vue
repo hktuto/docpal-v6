@@ -29,11 +29,11 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
   }
 })
 const activeTab = ref('activeTask')
-const activeTabName = ref('workflow_activeTask')
+const activeTabName = ref('workflow_joinTask')
 const pagelist = ref([
   { name: 'workflow_myTask', key: 'myTask' },
-  { name: 'workflow_activeTask', key: 'activeTask' },
-  { name: 'workflow_allTask', key: 'allTask' }
+  { name: 'workflow_joinTask', key: 'activeTask' },
+  { name: 'Available Task', key: 'allTask' }
 ])
 
 function getSelectedTableName(key: string) {

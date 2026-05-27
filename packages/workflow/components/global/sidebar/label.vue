@@ -19,10 +19,8 @@ const FormRef = ref()
 function nameChange(val: string) {
   graphProvider?.graph.value?.startBatch('update-name')
   node.setData({
-    label: val,
     name: val
   })
-  node.setProp('label', val)
   node.attr('text/text', val)
   graphProvider?.graph.value?.stopBatch('update-name')
 }

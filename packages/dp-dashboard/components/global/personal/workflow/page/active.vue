@@ -26,14 +26,10 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
 async function getData(pageParams: any = {}) {
   if (platform.value === 'admin') return
-  const settingParams: any = {}
-  if (idList.length > 0) {
-    settingParams.processKeys = idList
-  }
 
   return await clientApi.instance
     .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
-    .then((r: any) => workflowResponseHelper(r))
+    .then((r: any) => r.data)
 }
 
 function handleDblclick(row: any) {

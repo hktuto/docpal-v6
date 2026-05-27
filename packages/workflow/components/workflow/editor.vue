@@ -15,7 +15,6 @@ import {
   WorkflowElementType,
   CellType
 } from '#imports'
-import { newAdminApi } from 'api'
 
 const { setVariables } = useVariables()
 const routerProvider = inject(MenuRouterKey)
@@ -286,8 +285,6 @@ function closeSidebar() {
   sidebarRef.value.closeSidebar()
 }
 
-function openForm() {}
-
 const copyKey = useState('copy-key', () => '')
 const copyObj = useState('copy-obj')
 
@@ -469,7 +466,7 @@ defineExpose({ init, workflowJson, handelReplayViewer, highlightCell, graph, dim
           </div>
         </div>
         <ToolbarEdge ref="edgeRef" />
-        <ToolbarNode ref="nodeRef" @openForm="openForm" />
+        <ToolbarNode ref="nodeRef" />
       </div>
     </div>
 

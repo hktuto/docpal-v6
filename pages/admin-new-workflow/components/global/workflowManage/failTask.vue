@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
-import { workflowResponseHelper, getWorkflowList } from '#imports'
+import { workflowResponseHelper, getWorkflowList, routeWorkflowManageEditor } from '#imports'
 
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 const { t } = useI18n()
 const workflowList = await getWorkflowList()
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
@@ -25,20 +29,17 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       }
     },
     { field: 'node_name', title: 'workflow_taskName' },
-    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    { field: 'node_type', title: 'Node Type' },
     {
-      field: 'created_at',
-      title: 'workflow_createDate',
+      field: 'failed_at',
+      title: 'Task Failed Date',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       }
     },
     {
-      field: 'updated_at',
-      title: 'workflow_dueDate',
-      formatter({ cellValue }: any) {
-        return formatDate(cellValue)
-      }
+      field: 'failure_reason',
+      title: 'Failure Reason'
     }
   ],
   bodyActions: [
@@ -56,8 +57,22 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     ]
   ],
   dblClickAction: ({ row, column, event }: any) => {
+    handleDbClick(row)
   }
 })
+
+function handleDbClick(row: any) {
+  const find = workflowList.find((item: any) => item.id === row.definition_id)
+  try {
+    const workflowEdit = routeWorkflowManageEditor({
+      id: row.definition_id,
+      name: !!find ? find.name : row.definition_id
+    })
+    routerProvider?.navigateTo(workflowEdit)
+  } catch (e) {
+    console.log(e)
+  }
+}
 </script>
 
 <template>
