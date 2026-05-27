@@ -273,6 +273,7 @@ async function startImport() {
       columnMappings.value,
       uniqueField.value,
       duplicateStrategy.value,
+      props.tableFields,
       (current, total) => {
         progressPercent.value = Math.round((current / total) * 100)
         progressText.value = `Processing ${current} of ${total} rows...`
