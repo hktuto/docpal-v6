@@ -18,7 +18,10 @@ const isAssigneeUser = computed(() => {
 async function handleUnclaim() {
   try {
     loading.value = true
-    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`).then((r: any) => workflowResponseHelper(r))
+    const parms = {
+      user_id: userId
+    }
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`,parms).then((r: any) => workflowResponseHelper(r))
     emits('change', false)
   } catch (error) {
     routerProvider?.message.error('Unclaim Task Fail')
