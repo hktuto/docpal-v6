@@ -194,17 +194,35 @@ export async function parseImportFile(file: File): Promise<ParsedSheet[]> {
     const headers = rawData[0].map((h: any) => String(h).trim()).filter((h: string) => h !== '')
     if (headers.length === 0) continue
 
-    // Data rows
+    // Data rows — skip rows where every cell is empty
     const rows: Record<string, any>[] = []
+    let consecutiveEmptyRows = 0
+    const MAX_CONSECUTIVE_EMPTY_ROWS = 5
+
     for (let i = 1; i < rawData.length; i++) {
       const row = rawData[i]
       const record: Record<string, any> = {}
+      let hasValue = false
+
       for (let colIdx = 0; colIdx < headers.length; colIdx++) {
         const header = headers[colIdx]
         const value = row[colIdx]
+        if (value !== undefined && value !== null && String(value).trim() !== '') {
+          hasValue = true
+        }
         record[header] = value !== undefined && value !== null ? value : ''
       }
-      rows.push(record)
+
+      if (hasValue) {
+        consecutiveEmptyRows = 0
+        rows.push(record)
+      } else {
+        consecutiveEmptyRows++
+        // Stop parsing after too many consecutive empty rows to avoid trailing blanks
+        if (consecutiveEmptyRows >= MAX_CONSECUTIVE_EMPTY_ROWS) {
+          break
+        }
+      }
     }
 
     parsedSheets.push({ sheetName, headers, rows })
