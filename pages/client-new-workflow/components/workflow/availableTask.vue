@@ -71,10 +71,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  if (row.status.type !== 'waiting') {
-    routerProvider?.message?.error('Unable to claim this task')
-    return
-  }
+  if (row.status.type !== 'waiting') return
 
   try {
     const parms = {
@@ -83,6 +80,7 @@ async function claimTask(row: any) {
     const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
     reload()
   } catch (e) {
+    routerProvider?.message?.error('Unable to claim this task')
     console.log(e)
   }
 }
