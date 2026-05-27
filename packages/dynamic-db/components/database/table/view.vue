@@ -66,6 +66,13 @@
           v-if="panelType === 'auditLog'"
           :master-table-id="tableId"
         />
+        <DatabaseTableImportDataSidebar
+          v-if="panelType === 'importData'"
+          :table-id="tableId"
+          :table-fields="tableFields"
+          @close="handleClosePanel"
+          @success="handleImportSuccess"
+        />
       </div>
     </div>
   </div>
@@ -401,10 +408,17 @@ const panelType = ref<string | null>(null)
 const panelTitle = computed(() => {
   const titles: Record<string, string> = {
     automation: 'Automation',
-    auditLog: 'Audit Log'
+    auditLog: 'Audit Log',
+    importData: 'Import Data'
   }
   return titles[panelType.value || ''] || 'Panel'
 })
+
+function handleImportSuccess() {
+  // Close panel after successful import
+  // Table data refresh is handled by user manually or via existing sync mechanisms
+  panelVisible.value = false
+}
 
 const openSidePanelBus = useEventBus(EventType.OPEN_SIDE_PANEL)
 const closeSidePanelBus = useEventBus(EventType.CLOSE_SIDE_PANEL)
