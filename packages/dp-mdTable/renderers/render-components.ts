@@ -2,8 +2,7 @@
 import { h, ref, nextTick } from 'vue'
 import type { VNode } from 'vue'
 import { useMDTableInject } from '../composables/useMDTable'
-import { ElRate, ElInput } from 'element-plus'
-import { EditPen } from '@element-plus/icons-vue'
+import { ElRate } from 'element-plus'
 import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/column-types'
 import { ElSelect, ElOption, ElInputNumber } from 'element-plus'
 import { renderSelectView, renderMultipleSelectView } from './components/select/view'
@@ -11,6 +10,8 @@ import SelectEdit from './components/select/edit.vue'
 import { NumberView, NumberEdit } from './components/number/view'
 import { DateTimeView, DateTimeEdit } from './components/DateTime/view'
 import { EmailView, EmailEdit } from './components/email/view'
+import { UrlView } from './components/url/view'
+import UrlEditVue from './components/url/edit.vue'
 import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
 import { UserView } from './components/user/view'
@@ -61,44 +62,20 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   URL: {
     view: {
-      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $grid, row, column } = params
-        const data = row[column.field]?.length > 0 ? row[column.field][0] : { text: '', title: '' }
-        return h('a', {
-          href: data.text, target: '_blank',
-          onMouseenter: (e) => {
-            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
-          },
-          onMouseleave: (e) => {
-             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
-          },
-        }, data.text)
-      }
+      render: (params: any) => TreeNode(params, UrlView)
     },
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $grid, row, column } = params
-        const data = row[column.field]?.length > 0 ? row[column.field][0] : { text: '', title: '' }
-        const inputRef = ref<any>(null)
-        return h(ElInput, {
-          modelValue: data.text,
-          'onUpdate:modelValue': (value: string) => {
-            row[column.field] = [{ text: value, title: value }]
+        return h(UrlEditVue, {
+          row,
+          column,
+          onMouseenter: (e: MouseEvent) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
-          class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius',
-          'suffix-icon': EditPen,
-          ref: inputRef,
-          onVnodeMounted: () => {
-            nextTick(() => {
-              inputRef.value.focus()
-            })
-          },
-          onMouseenter: (e) => {
-            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
-          },
-          onMouseleave: (e) => {
-             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
-          },
+          onMouseleave: (e: MouseEvent) => {
+            $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
+          }
         })
       }
     }
@@ -125,11 +102,11 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
             row[column.field] = value
           },
           onMouseenter: (e) => {
-            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+            $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
           onMouseleave: (e) => {
-             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
-          },
+            $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
+          }
         })
       }
     },
@@ -153,11 +130,11 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
             row[column.field] = value
           },
           onMouseenter: (e) => {
-            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+            $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
           onMouseleave: (e) => {
-             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
-          },
+            $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
+          }
         })
       }
     },
@@ -212,10 +189,10 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           column: column,
           modelValue: row[column.field],
           onMouseenter: (e) => {
-            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+            $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
           onMouseleave: (e) => {
-             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+            $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
           },
           'onUpdate:modelValue': (value: string[] | string | null) => {
             row[column.field] = value
@@ -243,7 +220,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     },
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $grid,row, column } = params
+        const { $grid, row, column } = params
         const { getUserList, userList } = useMDTableInject()
         return h(SelectEdit, {
           options: userList,
@@ -257,10 +234,10 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
             row[column.field] = value
           },
           onMouseenter: (e) => {
-            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+            $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
           onMouseleave: (e) => {
-             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
+            $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
           },
           onVnodeMounted: () => {
             nextTick(() => {
