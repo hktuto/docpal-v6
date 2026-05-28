@@ -1,6 +1,10 @@
 <template>
   <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="420px" @close="handleClose">
     <el-form label-position="top">
+      <el-form-item label="Label">
+        <el-input v-model="form.label" placeholder="e.g. Sales by Region" />
+      </el-form-item>
+
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
           <el-option v-for="table in tableOptions" :key="table.item_id" :label="table.name" :value="table.item_id" />
@@ -29,10 +33,6 @@
 
       <el-form-item label="Row Limit">
         <el-select-v2 v-model="form.rowLimit" :options="limitOptions" style="width: 100%" />
-      </el-form-item>
-
-      <el-form-item label="Label">
-        <el-input v-model="form.label" placeholder="e.g. Sales by Region" />
       </el-form-item>
     </el-form>
     <template #footer>
