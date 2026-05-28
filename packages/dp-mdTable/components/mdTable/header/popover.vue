@@ -61,9 +61,10 @@ const analysis = useImportRelationAnalysisState()
 
 function hasRelationSuggestionsForColumn(column: any): boolean {
   if (!column || analysis.value.status !== 'completed') return false
+  const tableId = column.master_table_id || column.tableId
   const fieldName = column.field_name || column.field
   return analysis.value.guesses.some(
-    (g) => !g.dismissed && g.sourceFieldName === fieldName
+    (g) => !g.dismissed && g.sourceTableId === tableId && g.sourceFieldName === fieldName
   )
 }
 

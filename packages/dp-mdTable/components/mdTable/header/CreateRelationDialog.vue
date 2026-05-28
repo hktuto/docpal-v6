@@ -68,11 +68,13 @@ const analysis = useImportRelationAnalysisState()
 
 const suggestions = computed(() => {
   if (!props.sourceColumn) return []
+  const tableId = props.sourceColumn.master_table_id || props.sourceColumn.tableId
   const fieldName = props.sourceColumn.field_name || props.sourceColumn.field
   const seen = new Set<string>()
   return analysis.value.guesses
     .filter((g) =>
       !g.dismissed &&
+      g.sourceTableId === tableId &&
       g.sourceFieldName === fieldName
     )
     .filter((g) => {

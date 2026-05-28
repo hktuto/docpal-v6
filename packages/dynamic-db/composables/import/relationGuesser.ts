@@ -225,8 +225,8 @@ function computeScore(
   let score = 0
 
   // Use aliases for name-match heuristics (import may generate opaque field_name values like f_3083_xxx)
-  const normalizedSourceAlias = sourceFieldAlias.toLowerCase()
-  const normalizedTargetAlias = targetFieldAlias.toLowerCase()
+  const normalizedSourceAlias = normalizeName(sourceFieldAlias)
+  const normalizedTargetAlias = normalizeName(targetFieldAlias)
   const normalizedTargetTable = normalizeName(targetTableName)
 
   // ---- Name-match heuristics ----
@@ -364,7 +364,7 @@ function areTypesCompatible(sourceType: string, targetType: string): boolean {
 function normalizeName(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[\/\\?%*:|"<>\s\-]+/g, '_')
+    .replace(/[\/\\?%*:|"<>\s\-.]+/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_+|_+$/g, '')
 }
