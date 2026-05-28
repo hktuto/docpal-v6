@@ -147,6 +147,10 @@
           </div>
         </div>
 
+        <div v-if="countdown > 0" class="countdown-msg">
+          Import successful. Page refreshes in {{ countdown }} seconds...
+        </div>
+
         <div class="step-actions">
           <el-button @click="reset">Import Another File</el-button>
           <el-button type="primary" @click="handleClose">Done</el-button>
@@ -183,6 +187,8 @@ const isImporting = ref(false)
 const progressPercent = ref(0)
 const progressText = ref('Importing...')
 const importResult = ref({ created: 0, updated: 0, ignored: 0, errors: [] as { row: number; message: string }[] })
+const countdown = ref(0)
+let countdownInterval: ReturnType<typeof setInterval> | null = null
 
 const systemFieldNames = new Set(['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'col_id'])
 
@@ -294,6 +300,17 @@ async function startImport() {
     step.value = 'result'
     emit('success')
     ElMessage.success(`Import complete: ${result.created} created, ${result.updated} updated, ${result.ignored} ignored`)
+
+    // Start 5-second countdown to page refresh
+    countdown.value = 5
+    if (countdownInterval) clearInterval(countdownInterval)
+    countdownInterval = setInterval(() => {
+      countdown.value--
+      if (countdown.value <= 0) {
+        if (countdownInterval) clearInterval(countdownInterval)
+        window.location.reload()
+      }
+    }, 1000)
   } catch (error: any) {
     console.error('Import error', error)
     ElMessage.error(error?.message || 'Import failed')
@@ -304,6 +321,11 @@ async function startImport() {
 }
 
 function reset() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval)
+    countdownInterval = null
+  }
+  countdown.value = 0
   step.value = 'upload'
   parsedSheets.value = []
   selectedSheet.value = null
@@ -315,8 +337,18 @@ function reset() {
 }
 
 function handleClose() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval)
+    countdownInterval = null
+  }
   emit('close')
 }
+
+onBeforeUnmount(() => {
+  if (countdownInterval) {
+    clearInterval(countdownInterval)
+  }
+})
 </script>
 
 <style scoped lang="scss">
@@ -607,6 +639,15 @@ function handleClose() {
     color: var(--app-text-color-tertiary);
     padding: var(--app-space-xs) 0;
   }
+}
+
+.countdown-msg {
+  padding: var(--app-space-s) var(--app-space-m);
+  background: var(--el-color-success-light-9);
+  color: var(--el-color-success);
+  border-radius: var(--app-border-radius-s);
+  font-size: var(--app-font-size-s);
+  text-align: center;
 }
 
 .step-actions {

@@ -280,15 +280,17 @@ export async function queryExistingRecords(
     }
   }
 
-  // Build composite key map from queried records
+  // Build composite key map and data map from queried records
+  const existingDataMap = new Map<string, Record<string, any>>()
   for (const rec of allRecords) {
     const key = buildCompositeKey(rec, fieldNames)
     if (!existingMap.has(key)) {
       existingMap.set(key, rec.id)
+      existingDataMap.set(rec.id, rec)
     }
   }
 
-  return existingMap
+  return { existingMap, existingDataMap }
 }
 
 /**
@@ -343,12 +345,27 @@ export async function importRowsToTable(
 
   // If unique fields are set, query existing records
   let existingMap = new Map<string, string>() // composite key -> row id
+  let existingDataMap = new Map<string, Record<string, any>>() // id -> record
   if (uniqueFields.length && uniqueFields.every((f) => activeMapping.some((m) => m.tableField === f))) {
-    existingMap = await queryExistingRecords(tableId, uniqueFields, mappedRows.map((r) => r.record))
+    const queryResult = await queryExistingRecords(tableId, uniqueFields, mappedRows.map((r) => r.record))
+    existingMap = queryResult.existingMap
+    existingDataMap = queryResult.existingDataMap
   }
 
   // Track processed unique values within this import batch to avoid creating duplicates
   const processedUniqueValues = new Set<string>()
+
+  // Helper to check if record data actually changed compared to existing data
+  function hasChanges(record: Record<string, any>, existing: Record<string, any>): boolean {
+    for (const key of Object.keys(record)) {
+      const newVal = record[key]
+      const oldVal = existing[key]
+      if (newVal !== oldVal && String(newVal) !== String(oldVal)) {
+        return true
+      }
+    }
+    return false
+  }
 
   // Process rows
   const total = mappedRows.length
@@ -363,10 +380,18 @@ export async function importRowsToTable(
         if (existingId) {
           if (duplicateStrategy === 'ignore') {
             result.ignored++
+            if (onProgress) onProgress(i + 1, total)
             continue
           } else if (duplicateStrategy === 'update') {
+            const existingRecord = existingDataMap.get(existingId)
+            if (existingRecord && !hasChanges(record, existingRecord)) {
+              result.ignored++
+              if (onProgress) onProgress(i + 1, total)
+              continue
+            }
             await newClientApi.putDynamicDbTableTableidDataDataid(tableId, existingId, { data: record })
             result.updated++
+            if (onProgress) onProgress(i + 1, total)
             continue
           }
         }
@@ -374,6 +399,7 @@ export async function importRowsToTable(
         // Check if we already created a record with this composite key in the current batch
         if (processedUniqueValues.has(compositeKey)) {
           result.ignored++
+          if (onProgress) onProgress(i + 1, total)
           continue
         }
         processedUniqueValues.add(compositeKey)
