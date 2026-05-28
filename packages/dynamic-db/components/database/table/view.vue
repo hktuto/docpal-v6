@@ -420,9 +420,8 @@ const panelTitle = computed(() => {
 })
 
 function handleImportSuccess() {
-  // Close panel after successful import
-  // Table data refresh is handled by user manually or via existing sync mechanisms
-  panelVisible.value = false
+  // Sidebar stays open on result step with countdown and auto-refresh
+  // No action needed here
 }
 
 const openSidePanelBus = useEventBus(EventType.OPEN_SIDE_PANEL)
