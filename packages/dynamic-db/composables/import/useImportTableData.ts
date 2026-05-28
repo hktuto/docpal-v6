@@ -102,35 +102,37 @@ export function formatCellValue(value: any, field: TableField): any {
     case String(ColumnFieldType.SingleSelect): {
       const options = display.options || []
       if (!options.length) return String(value)
-      // If value already matches an option id, use it directly
-      const byId = options.find((o: any) => String(o.id) === String(value))
-      if (byId) return byId.id
-      // Try matching by label or name
+      const valStr = String(value).trim()
+      // If value already matches an option id or value, use it directly
+      const byId = options.find((o: any) => String(o.id) === valStr || String(o.value) === valStr)
+      if (byId) return byId.id ?? byId.value
+      // Try matching by label or name (case-insensitive)
       const byLabel = options.find((o: any) =>
-        String(o.label).trim().toLowerCase() === String(value).trim().toLowerCase() ||
-        String(o.name).trim().toLowerCase() === String(value).trim().toLowerCase()
+        String(o.label).trim().toLowerCase() === valStr.toLowerCase() ||
+        String(o.name).trim().toLowerCase() === valStr.toLowerCase()
       )
-      if (byLabel) return byLabel.id
-      return String(value)
+      if (byLabel) return byLabel.id ?? byLabel.value
+      return valStr
     }
 
     case ColumnFieldType.MultiSelect:
     case String(ColumnFieldType.MultiSelect): {
       const options = display.options || []
-      if (!options.length) {
-        // Split by common separators and return as array
-        const parts = String(value).split(/[,;]/).map((s) => s.trim()).filter(Boolean)
-        return parts
-      }
-      const parts = String(value).split(/[,;]/).map((s) => s.trim()).filter(Boolean)
-      return parts.map((part: string) => {
-        const byId = options.find((o: any) => String(o.id) === part)
-        if (byId) return byId.id
+      // Accept arrays or split strings by comma/semicolon/newline/pipe
+      const rawParts = Array.isArray(value)
+        ? value.map((v: any) => String(v).trim()).filter(Boolean)
+        : String(value).split(/[,;|\n]/).map((s) => s.trim()).filter(Boolean)
+
+      if (!options.length) return rawParts
+
+      return rawParts.map((part: string) => {
+        const byId = options.find((o: any) => String(o.id) === part || String(o.value) === part)
+        if (byId) return byId.id ?? byId.value
         const byLabel = options.find((o: any) =>
           String(o.label).trim().toLowerCase() === part.toLowerCase() ||
           String(o.name).trim().toLowerCase() === part.toLowerCase()
         )
-        return byLabel ? byLabel.id : part
+        return byLabel ? (byLabel.id ?? byLabel.value) : part
       })
     }
 
