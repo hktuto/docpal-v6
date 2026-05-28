@@ -1,5 +1,11 @@
 <template>
   <div class="workspace-table-views">
+      <Teleport to="#database-table-header-right">
+        <el-button v-if="canManageTable && !isMirror" size="small" text @click="openImportPanel">
+          <Icon name="material-symbols:upload-file-outline" />
+          <span>Import</span>
+        </el-button>
+      </Teleport>
       <Teleport to="#dashboard_detail_header">
         <div class="workspace-table-views__tabs" v-if="!isMirror">
         <draggable v-model="localViews" item-key="id" tag="div" class="workspace-table-views__tab-list" :animation="150" handle=".handler" @end="handleDragEnd">
@@ -52,6 +58,7 @@ import type { ViewConfig, ViewType } from '../../../../utils/databaseType'
 import { useRelationConfig } from '../../../../composables/table/useRelationConfig'
 import { Plus, MoreFilled } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
+import { EventType, emitBus } from 'eventbus'
 
 const { databaseMenuRouteParams, database, checkMenuItemPermission } = useSingleDatabaseContext()
 const { setRelationConfig } = useRelationConfig()
@@ -115,6 +122,10 @@ async function handleDragEnd(event: any) {
     return
   }
   await reorderViews(oldIndex, newIndex)
+}
+
+function openImportPanel() {
+  emitBus(EventType.OPEN_SIDE_PANEL, { type: 'importData' })
 }
 
 watch(

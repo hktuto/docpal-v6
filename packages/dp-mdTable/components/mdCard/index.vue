@@ -28,8 +28,8 @@ const { t } = useI18n()
 const emit = defineEmits<{
   refresh: []
   search: [value: string]
-  'add-row': [],
-  'start-edit-row': [row: any],
+  'add-row': []
+  'start-edit-row': [row: any]
   'exit-edit-row': [row?: any]
 }>()
 const refreshLoading = ref(false)
@@ -51,17 +51,9 @@ async function handleRefresh() {
 function handleSearch(value: string) {
   emit('search', value)
 }
-const MdFormPopoverRef = ref()
-function handleAddRow() {
-  MdFormPopoverRef.value.open({})
-}
-async function handleAddRowSubmit(data: any) {
-  console.log('handleAddRowSubmit', data)
-  await addRow(data)
-  handleRefresh()
-}
+
 function handleStartEditRow(row: any) {
-  emit('start-edit-row', {row, mode: 'edit'})
+  emit('start-edit-row', { row, mode: 'edit' })
 }
 function handleExitEditRow(row?: any) {
   emit('exit-edit-row', row)
@@ -80,6 +72,7 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       :showAuditLogButton="!isMirror && canManageTable"
       :disabled="isMirror"
       :showColumnConfig="false"
+      :showAddRowButton="canEditTable"
       @refresh="handleRefresh"
       @add-row="handleAddRow"
     >
@@ -94,13 +87,7 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
         </el-popover>
         <el-popover placement="bottom-start" :width="320" trigger="click" popper-class="md-card-setting-popover">
           <template #reference>
-            <el-button
-              style="margin-left: 0px"
-              v-if="!isMirror && canManageTable"
-              :aria-label="t('mdTable.cardToolbar.style')"
-              tabindex="0"
-              :icon="Brush"
-            >
+            <el-button style="margin-left: 0px" v-if="!isMirror && canManageTable" :aria-label="t('mdTable.cardToolbar.style')" tabindex="0" :icon="Brush">
               {{ t('mdTable.cardToolbar.style') }}
             </el-button>
           </template>
@@ -120,7 +107,6 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       @reload="handleRefresh"
     />
     <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
-    <MdFormPopover ref="MdFormPopoverRef" :columns="columns" :systemFieldsTypes="systemFieldsTypes" showMoveButtons @submit="handleAddRowSubmit" />
   </div>
 </template>
 
