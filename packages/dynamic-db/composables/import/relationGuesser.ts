@@ -39,6 +39,7 @@ export interface RelationGuess {
   /** The newly imported table that would contain the foreign-key column */
   sourceTableId: string
   sourceTableName: string
+  sourceFieldId: string
   sourceFieldName: string
   sourceFieldAlias: string
   sourceFieldType: ColumnFieldType
@@ -154,6 +155,7 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
       if (source.tableId === target.tableId) continue
 
       for (const sourceField of source.fields) {
+        const sourceFieldId = sourceField.id || ''
         const sourceFieldName = sourceField.field_name || ''
         const sourceFieldAlias = sourceField.field_name_alias || sourceFieldName
         const sourceFieldType = sourceField.business_type || ''
@@ -179,6 +181,7 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
             sheetGuesses.push({
               sourceTableId: source.tableId,
               sourceTableName: source.tableName,
+              sourceFieldId,
               sourceFieldName,
               sourceFieldAlias,
               sourceFieldType: sourceFieldType as ColumnFieldType,
