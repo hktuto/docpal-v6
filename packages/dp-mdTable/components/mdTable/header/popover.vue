@@ -10,6 +10,7 @@
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import CreateRelationDialog from './CreateRelationDialog.vue'
+import { useImportRelationAnalysisState } from '@packages/dynamic-db/composables/import/useImportRelationAnalysis'
 const emits = defineEmits(['headerClick'])
 let triggerEl: HTMLElement | null = null
 let currentColumn: any = null
@@ -46,7 +47,8 @@ const filteredList = computed(() => {
   }
 
   // Remove 'Create Relation' for virtual columns (they can't have relations)
-  if (isVirtualColumn) {
+  // or when no relation suggestions exist for this column
+  if (isVirtualColumn || !hasRelationSuggestionsForColumn(currentColumn)) {
     items = items.filter((item) => item.type !== 'createRelation')
   }
 
@@ -55,6 +57,15 @@ const filteredList = computed(() => {
 
 const popoverRef = ref()
 const createRelationDialogRef = ref<InstanceType<typeof CreateRelationDialog>>()
+const analysis = useImportRelationAnalysisState()
+
+function hasRelationSuggestionsForColumn(column: any): boolean {
+  if (!column || analysis.value.status !== 'completed') return false
+  const fieldName = column.field_name || column.field
+  return analysis.value.guesses.some(
+    (g) => !g.dismissed && g.sourceFieldName === fieldName
+  )
+}
 
 function open(_triggerEl: HTMLElement | null, _column: any) {
   triggerEl = _triggerEl

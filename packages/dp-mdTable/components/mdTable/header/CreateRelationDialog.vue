@@ -6,12 +6,7 @@
     :close-on-click-modal="false"
     @close="close"
   >
-    <div v-if="loading" class="dialog-loading">
-      <Icon name="svg-spinners:180-ring" size="24" />
-      <span>Analyzing possible relations...</span>
-    </div>
-
-    <div v-else-if="suggestions.length === 0" class="dialog-empty">
+    <div v-if="suggestions.length === 0" class="dialog-empty">
       <Icon name="lucide:info" size="20" />
       <span>No strong relation suggestions found for this column.</span>
     </div>
@@ -48,15 +43,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { ElMessage, ElLoading } from 'element-plus'
-import { useSingleDatabaseContext } from '@packages/dynamic-db/composables/useSignleDatabase'
-import {
-  fetchTableSnapshot,
-  captureTableNameMap,
-  guessRelations,
-  type TableSnapshot
-} from '@packages/dynamic-db/composables/import/relationGuesser'
+import { useImportRelationAnalysisState } from '@packages/dynamic-db/composables/import/useImportRelationAnalysis'
 import {
   establishRelation,
   pollRelationJobStatus
@@ -72,75 +61,32 @@ const emit = defineEmits<{
 }>()
 
 const visible = ref(false)
-const loading = ref(false)
-const suggestions = ref<any[]>([])
 const selectedSuggestion = ref<any>(null)
 const submitting = ref(false)
 
-const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
+const analysis = useImportRelationAnalysisState()
 
-async function open() {
-  visible.value = true
-  loading.value = true
-  selectedSuggestion.value = null
-  suggestions.value = []
-
-  try {
-    await loadSuggestions()
-  } catch (e) {
-    console.error('Failed to load relation suggestions', e)
-    ElMessage.error('Failed to analyze relations')
-  } finally {
-    loading.value = false
-  }
-}
-
-async function loadSuggestions() {
-  const databaseId = database.value?.id
-  const sourceTableId = databaseMenuRouteParams.value?.detailId
-  if (!databaseId || !sourceTableId || !props.sourceColumn?.id) {
-    return
-  }
-
-  const nameMap = await captureTableNameMap(databaseId)
-
-  // Fetch source table snapshot
-  const sourceSnapshot = await fetchTableSnapshot(sourceTableId, nameMap)
-  if (!sourceSnapshot) return
-
-  // Fetch other tables (bounded)
-  const res: any = await newClientApi.getDynamicDbMenusTree({
-    referenceEntityType: 'case',
-    referenceEntityId: databaseId
-  })
-  const menus = res?.data ?? []
-  const allTableIds = flattenMenuItems(menus)
-    .filter((item: any) => item.item_type === 'master_table' && item.item_id && item.item_id !== sourceTableId)
-    .map((item: any) => item.item_id)
-    .slice(0, 20)
-
-  const targetSnapshots = (
-    await Promise.all(allTableIds.map((id: string) => fetchTableSnapshot(id, nameMap)))
-  ).filter((t): t is TableSnapshot => t !== null)
-
-  if (targetSnapshots.length === 0) return
-
-  // Run scoring for just the source table against all targets
-  const guesses = guessRelations([sourceSnapshot], targetSnapshots)
-
-  // Filter to only suggestions for this specific source column
-  const columnGuesses = guesses.filter(
-    (g) => g.sourceFieldName === props.sourceColumn.field_name || g.sourceFieldName === props.sourceColumn.field
-  )
-
-  // Get top 5 unique target suggestions
+const suggestions = computed(() => {
+  if (!props.sourceColumn) return []
+  const fieldName = props.sourceColumn.field_name || props.sourceColumn.field
   const seen = new Set<string>()
-  suggestions.value = columnGuesses.filter((g) => {
-    const key = `${g.targetTableId}-${g.targetFieldId}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  }).slice(0, 5)
+  return analysis.value.guesses
+    .filter((g) =>
+      !g.dismissed &&
+      g.sourceFieldName === fieldName
+    )
+    .filter((g) => {
+      const key = `${g.targetTableId}-${g.targetFieldId}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .slice(0, 5)
+})
+
+function open() {
+  visible.value = true
+  selectedSuggestion.value = null
 }
 
 function selectSuggestion(suggestion: any) {
@@ -150,9 +96,6 @@ function selectSuggestion(suggestion: any) {
 async function confirmCreate() {
   if (!selectedSuggestion.value || !props.sourceColumn?.id) return
 
-  const sourceTableId = databaseMenuRouteParams.value?.detailId
-  if (!sourceTableId) return
-
   submitting.value = true
   const loadingInstance = ElLoading.service({
     lock: true,
@@ -161,6 +104,14 @@ async function confirmCreate() {
   })
 
   try {
+    const sourceTableId = props.sourceColumn.master_table_id || props.sourceColumn.tableId
+    if (!sourceTableId) {
+      ElMessage.error('Unable to determine source table ID')
+      loadingInstance.close()
+      submitting.value = false
+      return
+    }
+
     // Fetch target fields to auto-select display fields
     const fieldsRes: any = await newClientApi.getDynamicDbTableTableidFields(selectedSuggestion.value.targetTableId)
     const fields = fieldsRes?.data ?? []
@@ -228,34 +179,12 @@ async function confirmCreate() {
 function close() {
   visible.value = false
   selectedSuggestion.value = null
-  suggestions.value = []
-}
-
-function flattenMenuItems(items: any[]): any[] {
-  const result: any[] = []
-  for (const item of items) {
-    result.push(item)
-    if (item.children && item.children.length > 0) {
-      result.push(...flattenMenuItems(item.children))
-    }
-  }
-  return result
 }
 
 defineExpose({ open, close })
 </script>
 
 <style scoped lang="scss">
-.dialog-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--app-space-s);
-  padding: var(--app-space-m) 0;
-  color: var(--app-grey-500);
-  font-size: var(--app-font-size-s);
-}
-
 .dialog-empty {
   display: flex;
   align-items: flex-start;
