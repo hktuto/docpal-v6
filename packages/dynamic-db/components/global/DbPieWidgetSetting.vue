@@ -30,6 +30,10 @@
       <el-form-item label="Row Limit">
         <el-select-v2 v-model="form.rowLimit" :options="limitOptions" style="width: 100%" />
       </el-form-item>
+
+      <el-form-item label="Label">
+        <el-input v-model="form.label" placeholder="e.g. Sales by Region" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <div class="footer-grid">
@@ -74,7 +78,8 @@ const form = reactive({
   categoryField: '',
   valueField: '',
   aggregation: 'count',
-  rowLimit: 20
+  rowLimit: 20,
+  label: ''
 })
 
 async function handleTableChange(tableId: string) {
@@ -93,6 +98,7 @@ watch(
       form.valueField = setting.value.valueField || ''
       form.aggregation = setting.value.aggregation || 'count'
       form.rowLimit = setting.value.rowLimit || 20
+      form.label = setting.value.label || ''
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -107,7 +113,8 @@ function handleSubmit() {
     categoryField: form.categoryField,
     valueField: form.valueField,
     aggregation: form.aggregation,
-    rowLimit: form.rowLimit
+    rowLimit: form.rowLimit,
+    label: form.label
   })
 }
 
