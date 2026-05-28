@@ -49,6 +49,7 @@ export interface RelationGuess {
   targetFieldId: string
   targetFieldName: string
   targetFieldAlias: string
+  targetFieldType: ColumnFieldType
   confidence: number
   reasons: RelationGuessReason[]
   dismissed: boolean
@@ -192,6 +193,7 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
               targetFieldId,
               targetFieldName,
               targetFieldAlias,
+              targetFieldType: targetFieldType as ColumnFieldType,
               confidence: scoreResult.confidence,
               reasons: scoreResult.reasons,
               dismissed: false
@@ -205,8 +207,47 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
     guesses.push(...sheetGuesses.slice(0, MAX_GUESSES_PER_SOURCE))
   }
 
+  // Generate inverse guesses so that every detected relation is bidirectional.
+  // If A.field → B.field is a strong match, B.field → A.field should also be suggested.
+  const forwardKeys = new Set(guesses.map((g) => guessKey(g)))
+  const inverses: RelationGuess[] = []
+
+  for (const g of guesses) {
+    const inverseKey = `${g.targetTableId}:${g.targetFieldName}→${g.sourceTableId}:${g.sourceFieldName}`
+    if (forwardKeys.has(inverseKey)) continue // Inverse already exists naturally
+
+    inverses.push({
+      sourceTableId: g.targetTableId,
+      sourceTableName: g.targetTableName,
+      sourceFieldId: g.targetFieldId,
+      sourceFieldName: g.targetFieldName,
+      sourceFieldAlias: g.targetFieldAlias,
+      sourceFieldType: g.targetFieldType,
+      targetTableId: g.sourceTableId,
+      targetTableName: g.sourceTableName,
+      targetFieldId: g.sourceFieldId,
+      targetFieldName: g.sourceFieldName,
+      targetFieldAlias: g.sourceFieldAlias,
+      confidence: g.confidence,
+      reasons: [
+        ...g.reasons,
+        {
+          type: 'name_match',
+          score: 0,
+          detail: `Inverse of ${g.sourceTableName}.${g.sourceFieldAlias} → ${g.targetTableName}.${g.targetFieldAlias}`
+        }
+      ],
+      dismissed: false
+    })
+  }
+
+  guesses.push(...inverses)
   guesses.sort((a, b) => b.confidence - a.confidence)
   return guesses
+}
+
+function guessKey(g: RelationGuess): string {
+  return `${g.sourceTableId}:${g.sourceFieldName}→${g.targetTableId}:${g.targetFieldName}`
 }
 
 function computeScore(
