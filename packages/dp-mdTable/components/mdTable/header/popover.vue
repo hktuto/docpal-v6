@@ -5,12 +5,15 @@
       <span>{{ item.label }}</span>
     </div>
   </UiPopoverDialog>
+  <CreateRelationDialog ref="createRelationDialogRef" :source-column="currentFullColumn" />
 </template>
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import CreateRelationDialog from './CreateRelationDialog.vue'
 const emits = defineEmits(['headerClick'])
 let triggerEl: HTMLElement | null = null
 let currentColumn: any = null
+const currentFullColumn = ref<any>(null)
 const { gridRef, addColumn, deleteColumn, columns, addColumnPopoverRef } = useMDTableInject()
 const baseList = [
   { label: 'Column Setting', icon: 'lucide:square-pen', type: 'edit' },
@@ -51,6 +54,8 @@ const filteredList = computed(() => {
 })
 
 const popoverRef = ref()
+const createRelationDialogRef = ref<InstanceType<typeof CreateRelationDialog>>()
+
 function open(_triggerEl: HTMLElement | null, _column: any) {
   triggerEl = _triggerEl
   currentColumn = _column
@@ -60,6 +65,7 @@ function open(_triggerEl: HTMLElement | null, _column: any) {
 const handleClick = (type: string) => {
   popoverRef.value.close()
   const fullColumn = columns.value.find((item: any) => item.field_name === currentColumn.field)
+  currentFullColumn.value = fullColumn
   switch (type) {
     case 'edit':
       addColumnPopoverRef.value.show(triggerEl, currentColumn)
@@ -85,11 +91,9 @@ const handleClick = (type: string) => {
       addColumn([defaultNewColumnRight], fullColumn.id, 'right')
       break
     case 'createRelation':
-      // if (handleCreateRelation) {
-      //   handleCreateRelation(column)
-      // } else {
-      //   console.warn('handleCreateRelation not provided')
-      // }
+      if (fullColumn) {
+        createRelationDialogRef.value?.open()
+      }
       break
     case 'addVirtualColumn':
       // virtualColumnDialogRef.value?.open(triggerEl, column)
@@ -114,6 +118,7 @@ defineExpose({
   open
 })
 </script>
+
 <style scoped lang="scss">
 .mdTableHeader-item {
   display: flex;
