@@ -503,11 +503,11 @@ onMounted(() => {
           </template>
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('workflow_graph')" name="graph">
-          <!-- need to use v-if for bpmn, if not  svg graph will not show -->
-          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail"
-                                :content-json="contentData" autoplay />
-        </el-tab-pane>
+<!--        <el-tab-pane :label="$t('workflow_graph')" name="graph">-->
+<!--          &lt;!&ndash; need to use v-if for bpmn, if not  svg graph will not show &ndash;&gt;-->
+<!--          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail"-->
+<!--                                :content-json="contentData" autoplay />-->
+<!--        </el-tab-pane>-->
       </el-tabs>
     </div>
   </div>

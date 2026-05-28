@@ -39,13 +39,19 @@ async function getData(pageParams: any = {}) {
   if (idList && idList.length > 0) {
     settingParams.processKeys = idList
   }
+  const params = {
+    page_size: pageParams.pageSize,
+    page_num: pageParams.pageNum,
+    assignee: userId,
+    definition_id: ''
+    // sort:"created_at",
+    // order: "desc"
+  }
   const data = await clientApi.instance
-    .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
+    .post(`/oniflow/api/v1/task/overview/todos`, params)
     .then((r: any) => workflowResponseHelper(r))
   return {
-    data: {
-      entryList: data.entryList || []
-    }
+    data: data
   }
 }
 
@@ -85,9 +91,11 @@ defineExpose({ query, reload })
 
 <template>
   <div class="table-container">
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" >
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #assignee="{ row }">
-        <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>{{ row.config.human_task.assignee || '' }}</el-tag>
+        <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>
+          {{ row.config.human_task.assignee || '' }}
+        </el-tag>
       </template>
     </VxeGrid>
   </div>

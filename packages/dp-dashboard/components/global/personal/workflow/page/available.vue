@@ -24,6 +24,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 const user = useUserState().value
+
 async function getData(pageParams: any = {}) {
   const settingParams: any = {}
   if (idList && idList.length > 0) {
@@ -41,7 +42,7 @@ async function getData(pageParams: any = {}) {
   }
 
   const data = await clientApi.instance
-    .post(`/oniflow/api/v1/task/overview/active/page`, params)
+    .post(`/oniflow/api/v1/task/overview/available`, params)
     .then((r: any) => workflowResponseHelper(r))
 
   return {
@@ -80,7 +81,7 @@ defineExpose({ query, reload })
 
 <template>
   <div class="table-container">
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent"/>
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" />
   </div>
 </template>
 
@@ -89,12 +90,15 @@ defineExpose({ query, reload })
   height: 100%;
   position: relative;
 }
+
 :deep(.vxe-buttons--wrapper) {
   display: flex;
   justify-content: space-between;
 }
+
 .responsive-container {
   width: 70%;
+
   :deep(.el-input) {
     width: 200px;
   }

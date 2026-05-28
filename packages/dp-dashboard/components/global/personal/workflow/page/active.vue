@@ -9,14 +9,21 @@ const { idList } = defineProps<{
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const platform = useAppPlatform()
-
+const user = useUserState().value
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-workflow-active',
   zoom: false,
   api: (pageParams: any) => getData(pageParams),
   columns: [
     { field: 'name', title: 'workflow_jobName' },
-    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } }
+    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    {
+      field: 'execution.started_at',
+      title: 'workflow_createDate',
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
+    }
   ],
   dblClickAction: ({ row, column, event }: any) => {
     handleDblclick(row)
@@ -27,9 +34,22 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 async function getData(pageParams: any = {}) {
   if (platform.value === 'admin') return
 
-  return await clientApi.instance
-    .get(`/oniflow/api/v1/task/overview/active/${userId}?pageSize=${pageParams.pageSize}&pageNum=${pageParams.pageNum}`)
-    .then((r: any) => r.data)
+  const params = {
+    page_size: pageParams.pageSize,
+    page_num: pageParams.pageNum,
+    involved_user_id: user.userId,
+    groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
+    roles: [user.aclUserDetail.roleId],
+    definition_id: ''
+    // sort:'',
+    // order:'desc'
+  }
+  const data = await clientApi.instance
+    .post(`/oniflow/api/v1/task/overview/involved`, params)
+    .then((r: any) => workflowResponseHelper(r))
+  return {
+    data: data || []
+  }
 }
 
 function handleDblclick(row: any) {

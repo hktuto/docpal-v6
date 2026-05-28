@@ -18,17 +18,14 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       roles: [user.aclUserDetail.roleId],
       assignee: user.userId,
       status: ['pending', 'waiting'],
-      definition_id: '',
+      definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : '',
       process_id: '',
       page_num: pageParams.pageNum,
       page_size: pageParams.pageSize
     }
-    if (!!definition_id.value && definition_id.value !== '') {
-      params.definition_id = definition_id.value
-    }
 
     const data = await clientApi.instance
-      .post(`/oniflow/api/v1/task/overview/active/page`, params)
+      .post(`/oniflow/api/v1/task/overview/available`, params)
       .then((r: any) => workflowResponseHelper(r))
 
     return {
