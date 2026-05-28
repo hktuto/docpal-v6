@@ -1,12 +1,12 @@
 <template>
   <div class="import-data-sidebar">
     <!-- Header -->
-    <div class="sidebar-header">
+    <!-- <div class="sidebar-header">
       <span class="sidebar-title">Import Data</span>
       <button class="sidebar-close" tabindex="0" @click="handleClose" @keydown.enter="handleClose">
         <Icon name="lucide:x" size="16" />
       </button>
-    </div>
+    </div> -->
 
     <!-- Body -->
     <div class="sidebar-body">
@@ -146,8 +146,10 @@
             ... and {{ importResult.errors.length - 20 }} more
           </div>
         </div>
-
-        <el-alert v-show="countdown > 0" :title="`Import successful. Page refreshes in ${countdown} seconds...`" type="success" :closable="false" />
+        <div class="import-success-countdown" >
+          <Icon name="material-symbols:check-circle-outline" />
+          {{`Import successful. Page refreshes in ${countdown} seconds...`}}
+        </div>
 
         <div class="step-actions">
           <el-button @click="reset">Import Another File</el-button>
@@ -350,6 +352,16 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
+.import-success-countdown{
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-m);
+  color: var(--app-grey-900);
+  font-size: var(--app-font-size-m);
+  background: var(--app-primary-color);
+  padding: var(--app-space-s);
+  border-radius: var(--app-border-radius-s);
+}
 .import-data-sidebar {
   display: flex;
   flex-direction: column;
