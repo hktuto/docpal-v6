@@ -1,15 +1,9 @@
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
-
-export interface EstablishRelationPayload {
-  source_table_id: string
-  target_table_id: string
-  source_match_field_id: string
-  target_match_field_id: string
-  relation_field_name: string
-  display_field_ids: string[]
-  is_array?: boolean
-}
+import type {
+  RelationEstablishRequestDTO,
+  RelationEstablishResultDTO
+} from 'api/src/generate/newClient'
 
 export interface RelationJobStatus {
   status: 'pending' | 'processing' | 'completed' | 'failed'
@@ -21,10 +15,6 @@ export interface RelationJobStatus {
   error_message?: string
 }
 
-export interface EstablishResult {
-  job_id: string
-}
-
 const POLL_INTERVAL_MS = 2000
 const MAX_POLL_DURATION_MS = 5 * 60 * 1000 // 5 minutes
 
@@ -32,14 +22,11 @@ const MAX_POLL_DURATION_MS = 5 * 60 * 1000 // 5 minutes
  * Submit a relation-establishment job to the backend.
  */
 export async function establishRelation(
-  payload: EstablishRelationPayload
+  payload: RelationEstablishRequestDTO
 ): Promise<string | null> {
   try {
-    const res: any = await clientApi.instance.post(
-      '/api/dynamic-db/import/relations/establish',
-      payload
-    )
-    const jobId = res?.data?.job_id
+    const res: any = await newClientApi.postDynamicDbImportRelationsEstablish(payload)
+    const jobId = res?.data?.data?.job_id
     if (!jobId) {
       ElMessage.error('Failed to start relation establishment — no job ID returned')
       return null
@@ -69,10 +56,19 @@ export async function pollRelationJobStatus(
     let status: RelationJobStatus | null = null
 
     try {
-      const res: any = await clientApi.instance.get(
-        `/api/dynamic-db/import/relations/${jobId}/status`
-      )
-      status = res?.data ?? null
+      const res: any = await newClientApi.getDynamicDbImportRelationsJobidStatus(jobId)
+      const dto: RelationEstablishResultDTO | undefined = res?.data?.data
+      if (dto) {
+        status = {
+          status: dto.status as RelationJobStatus['status'],
+          relation_field_id: dto.relation_field_id,
+          total_source_rows: dto.total_source_rows,
+          matched_rows: dto.matched_rows,
+          unmatched_rows: dto.unmatched_rows,
+          total_links_created: dto.total_links_created,
+          error_message: dto.error_message
+        }
+      }
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || 'Unknown error'
       ElMessage.error(`Failed to check relation status: ${msg}`)
