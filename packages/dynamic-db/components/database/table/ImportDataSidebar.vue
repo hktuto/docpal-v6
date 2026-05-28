@@ -301,16 +301,21 @@ async function startImport() {
     emit('success')
     ElMessage.success(`Import complete: ${result.created} created, ${result.updated} updated, ${result.ignored} ignored`)
 
-    // Start 5-second countdown to page refresh
-    countdown.value = 5
-    if (countdownInterval) clearInterval(countdownInterval)
-    countdownInterval = setInterval(() => {
-      countdown.value--
-      if (countdown.value <= 0) {
-        if (countdownInterval) clearInterval(countdownInterval)
-        window.location.reload()
-      }
-    }, 1000)
+    // Only start countdown if there were actual changes
+    if (result.created === 0 && result.updated === 0) {
+      countdown.value = 0
+    } else {
+      // Start 5-second countdown to page refresh
+      countdown.value = 5
+      if (countdownInterval) clearInterval(countdownInterval)
+      countdownInterval = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          if (countdownInterval) clearInterval(countdownInterval)
+          window.location.reload()
+        }
+      }, 1000)
+    }
   } catch (error: any) {
     console.error('Import error', error)
     ElMessage.error(error?.message || 'Import failed')
