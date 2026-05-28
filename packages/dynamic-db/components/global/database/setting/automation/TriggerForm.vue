@@ -155,6 +155,18 @@ function resetForm() {
   form.conditions = []
 }
 
+async function init() {
+  await hydrateForm()
+
+  if (!!form.workflow_id && form.workflow_id !== '') {
+    await handleChangeWorkflow()
+  }
+  workflowFormFields.value = workflowFormFields.value.map((item: any) => {
+    const v = trigger.map_workflow_parameters[item.id]
+    return v === undefined ? item : { ...item, value: v }
+  })
+}
+
 async function hydrateForm() {
   const t = trigger
   if (!t) {
@@ -169,14 +181,6 @@ async function hydrateForm() {
   form.workflow_id = t.workflow_id || ''
   form.status = t.status || 'A'
   form.conditions = t.conditions?.trigger_rule || []
-  if (!!form.workflow_id && form.workflow_id !== '') {
-    await handleChangeWorkflow()
-  }
-
-  workflowFormFields.value = workflowFormFields.value.map((item: any) => {
-    const v = t.map_workflow_parameters[item.id]
-    return v === undefined ? item : { ...item, value: v }
-  })
 }
 
 async function handleSave() {
@@ -277,8 +281,10 @@ async function handleChangeWorkflow() {
 }
 
 onMounted(async () => {
-  workflowList.value = await getWorkflowList()
-  await hydrateForm()
+  if (workflowList.value.length === 0) {
+    workflowList.value = await getWorkflowList()
+  }
+  await init()
 })
 
 watch(() => trigger, hydrateForm, { deep: true })
@@ -336,11 +342,13 @@ watch(() => trigger, hydrateForm, { deep: true })
               <span v-if="index === 0">When</span>
               <span v-else>{{ form.match_type === 'all' ? 'And' : 'Or' }}</span>
             </div>
-            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2" @change="handleFieldChange(condition)">
+            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2"
+                       @change="handleFieldChange(condition)">
               <el-option v-for="opt in fieldOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
             <el-select v-model="condition.operator" placeholder="Operator" size="small" style="flex: 1">
-              <el-option v-for="opt in getOperatorsForField(condition.field_name)" :key="opt.value" :label="opt.label" :value="opt.value" />
+              <el-option v-for="opt in getOperatorsForField(condition.field_name)" :key="opt.value" :label="opt.label"
+                         :value="opt.value" />
             </el-select>
             <el-date-picker
               v-if="isDateField(condition.field_name)"
@@ -374,7 +382,8 @@ watch(() => trigger, hydrateForm, { deep: true })
       </div>
       <div class="field-group">
         <label class="field-label">Run workflow</label>
-        <el-select v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" @change="handleChangeWorkflow">
+        <el-select v-model="form.workflow_id" placeholder="Enter workflow ID" size="small"
+                   @change="handleChangeWorkflow">
           <el-option v-for="wf in workflowList" :key="wf.id" :label="wf.name" :value="wf.id" />
         </el-select>
       </div>
@@ -382,7 +391,8 @@ watch(() => trigger, hydrateForm, { deep: true })
         <template v-for="formField in workflowFormFields" :key="formField.id">
           <el-form-item :label="formField.name" size="small">
             <el-select v-model="formField.value">
-              <el-option v-for="field in tableFields" :key="field.field_name" :label="field.field_name_alias || field.field_name" :value="field.field_name" />
+              <el-option v-for="field in tableFields" :key="field.field_name"
+                         :label="field.field_name_alias || field.field_name" :value="field.field_name" />
             </el-select>
           </el-form-item>
         </template>
@@ -416,6 +426,7 @@ watch(() => trigger, hydrateForm, { deep: true })
 .add-filed-group {
   display: flex;
 }
+
 .section-title {
   font-size: var(--app-font-size-l);
   font-weight: 600;
