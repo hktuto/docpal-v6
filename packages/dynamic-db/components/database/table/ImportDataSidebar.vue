@@ -147,9 +147,7 @@
           </div>
         </div>
 
-        <div v-if="countdown > 0" class="countdown-msg">
-          Import successful. Page refreshes in {{ countdown }} seconds...
-        </div>
+        <el-alert v-show="countdown > 0" :title="`Import successful. Page refreshes in ${countdown} seconds...`" type="success" :closable="false" />
 
         <div class="step-actions">
           <el-button @click="reset">Import Another File</el-button>
@@ -639,15 +637,6 @@ onBeforeUnmount(() => {
     color: var(--app-text-color-tertiary);
     padding: var(--app-space-xs) 0;
   }
-}
-
-.countdown-msg {
-  padding: var(--app-space-s) var(--app-space-m);
-  background: var(--el-color-success-light-9);
-  color: var(--el-color-success);
-  border-radius: var(--app-border-radius-s);
-  font-size: var(--app-font-size-s);
-  text-align: center;
 }
 
 .step-actions {
