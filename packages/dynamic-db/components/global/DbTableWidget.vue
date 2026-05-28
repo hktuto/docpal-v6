@@ -46,6 +46,7 @@ const emit = defineEmits(['delete', 'refreshSetting'])
 const tableData = ref<any[]>([])
 const loading = ref(false)
 const currentPage = ref(1)
+const pageSize = ref(props.setting?.rowLimit || 10)
 const total = ref(0)
 const gridRef = ref()
 const settingRef = ref()
@@ -113,7 +114,7 @@ const gridOptions = computed<VxeGridProps>(() => {
     pagerConfig: {
       enabled: true,
       currentPage: currentPage.value,
-      pageSize: props.setting?.rowLimit || 10,
+      pageSize: pageSize.value,
       total: total.value
     }
   }
@@ -177,7 +178,7 @@ async function fetchData() {
       columns: [{ name: '*' }],
       orderBy,
       pagination: {
-        pageSize: props.setting?.rowLimit || 10,
+        pageSize: pageSize.value,
         pageNum: currentPage.value
       }
     }
@@ -198,8 +199,11 @@ async function fetchData() {
   }
 }
 
-function handlePageChange({ currentPage: page }: any) {
+function handlePageChange({ currentPage: page, pageSize: size }: any) {
   currentPage.value = page
+  if (size) {
+    pageSize.value = size
+  }
   fetchData()
 }
 
@@ -231,6 +235,7 @@ watch(
   ],
   () => {
     currentPage.value = 1
+    pageSize.value = props.setting?.rowLimit || 10
     fetchData()
   },
   { immediate: true }
