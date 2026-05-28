@@ -26,7 +26,7 @@ export async function establishRelation(
 ): Promise<string | null> {
   try {
     const res: any = await newClientApi.postDynamicDbImportRelationsEstablish(payload)
-    const jobId = res?.data?.data?.job_id
+    const jobId = res?.data?.job_id
     if (!jobId) {
       ElMessage.error('Failed to start relation establishment — no job ID returned')
       return null
@@ -57,7 +57,7 @@ export async function pollRelationJobStatus(
 
     try {
       const res: any = await newClientApi.getDynamicDbImportRelationsJobidStatus(jobId)
-      const dto: RelationEstablishResultDTO | undefined = res?.data?.data
+      const dto: RelationEstablishResultDTO | undefined = res?.data
       if (dto) {
         status = {
           status: dto.status as RelationJobStatus['status'],
