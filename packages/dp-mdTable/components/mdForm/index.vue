@@ -56,7 +56,7 @@ const componentMap = {
   SingleSelect: resolveComponent('LazyMdFormFieldSelect'),
   MultiSelect: resolveComponent('LazyMdFormFieldSelect'),
   Rating: resolveComponent('LazyMdFormFieldRating'),
-  URL: resolveComponent('LazyMdFormFieldURL'),
+  URL: resolveComponent('LazyMdFormFieldUrl'),
   Email: resolveComponent('LazyMdFormFieldText'),
   Phone: resolveComponent('LazyMdFormFieldText'),
   Checkbox: resolveComponent('LazyMdFormFieldCheckbox'),
