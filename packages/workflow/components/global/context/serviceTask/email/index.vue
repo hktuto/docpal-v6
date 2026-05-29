@@ -95,14 +95,13 @@ function updateData() {
 async function getEmailRecipient() {
   const stringVariables = getVariablesByDisplayTypes(['text'], true)
   const userList = await getUserSelectOption()
+  const map = userList.map((item: any) => ({
+    id: item.email,
+    name: item.label
+  }))
+
   emailRecipient.value = [
-    {
-      label: 'User',
-      options: userList.map((item: any) => ({
-        id: item.email,
-        name: item.label
-      }))
-    },
+    { label: 'User', options: Array.from(new Map(map.map((x: any) => [x.id, x])).values()) },
     { label: 'Variables', options: stringVariables }
   ]
 }
@@ -156,7 +155,7 @@ watch(
   <el-form label-position="top">
     <el-form-item label="Template ID">
       <el-select v-model="formData.templateId" filterable @change="handleEmailTemplateChange">
-        <el-option v-for="item in emailTemplateList" :key="item.id" :label="item.name" :value="item.id" />
+        <el-option v-for="item in emailTemplateList" :key="item.id" :label="item.label" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item label="TOS">
@@ -167,14 +166,14 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="CSS">
-      <el-select v-model="formData.ccs" multiple filterable @change="updateData">
+      <el-select v-model="formData.ccs" multiple filterable clearable @change="updateData">
         <el-option-group v-for="group in emailRecipient" :key="group.label" :label="group.label">
           <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
         </el-option-group>
       </el-select>
     </el-form-item>
     <el-form-item label="Attachments File Path">
-      <el-select v-model="formData.attachmentsFilePath" filterable @change="updateData">
+      <el-select v-model="formData.attachmentsFilePath" filterable clearable @change="updateData">
         <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
@@ -183,7 +182,7 @@ watch(
     <span>Variables</span>
     <template v-for="variable in emailVariablesList" :key="variable.id">
       <el-form-item :label="variable.name">
-        <el-select v-model="variable.value" filterable @change="updateData">
+        <el-select v-model="variable.value" filterable clearable @change="updateData">
           <el-option v-for="item in allVariablesList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
