@@ -118,6 +118,9 @@ const getTableData = (): any[] => {
 }
 
 const selectedCountMethod = computed<CountMethod>(() => {
+  if (!props.column) {
+    return
+  }
   const viewColumns = mdTable.columns.value
   const viewColumn = viewColumns.find((item: any) => String(item.field_name) === String(props.column.field))
   return (viewColumn?.countMethod || 'none') as CountMethod

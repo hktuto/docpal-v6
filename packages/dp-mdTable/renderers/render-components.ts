@@ -22,6 +22,8 @@ import { AggVirtualColumnView } from './components/VirtualColumn/agg'
 import { FormulaView } from './components/formula'
 import { CheckboxView } from './components/checkbox'
 import { DocumentView } from './components/document'
+import { DocPalDocView } from './components/docPalDoc/view'
+import DocPalDocEditVue from './components/docPalDoc/edit.vue'
 import { TreeNode } from './components/treeNode'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
@@ -261,6 +263,26 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Document: {
     both: {
       render: (params: any) => TreeNode(params, DocumentView)
+    }
+  },
+  DocPalDoc: {
+    view: {
+      render: (params: any) => TreeNode(params, DocPalDocView)
+    },
+    edit: {
+      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
+        const { $grid, row, column } = params
+        return h(DocPalDocEditVue, {
+          row,
+          column,
+          onMouseenter: (e: MouseEvent) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
+          },
+          onMouseleave: (e: MouseEvent) => {
+            $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
+          }
+        })
+      }
     }
   }
 } as const

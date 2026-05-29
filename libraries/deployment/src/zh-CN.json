@@ -4439,6 +4439,11 @@
       "link": "链接",
       "title": "标题",
       "set": "设置链接"
+    },
+    "docPalDoc": {
+      "select": "选择文档",
+      "selectPlaceholder": "请选择文档",
+      "required": "请选择文档"
     }
   }
 }
