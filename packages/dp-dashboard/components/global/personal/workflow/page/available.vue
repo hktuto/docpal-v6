@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core'
+import { clientApi } from 'api'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const { idList } = defineProps<{
   idList: string[]
@@ -7,9 +9,6 @@ const { idList } = defineProps<{
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const platform = useAppPlatform()
-let extraParams: any = ref({
-  candidateOrAssigned: useUserId()
-})
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-workflowAvalible',
   zoom: false,
@@ -24,19 +23,33 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   saveColumnOrder: false
 })
 
-async function getData(params: any = {}) {
+const user = useUserState().value
+
+async function getData(pageParams: any = {}) {
   const settingParams: any = {}
   if (idList && idList.length > 0) {
     settingParams.processKeys = idList
   }
-  // const res = await newClientApi.postDocpalWorkflowTasksUser({ ...params, ...extraParams.value, ...settingParams }).then((res) => res.data)
+  const params = {
+    groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
+    roles: [user.aclUserDetail.roleId],
+    assignee: user.userId,
+    status: ['pending', 'waiting'],
+    definition_id: '',
+    process_id: '',
+    page_num: pageParams.pageNum,
+    page_size: pageParams.pageSize
+  }
+
+  const data = await clientApi.instance
+    .post(`/oniflow/api/v1/task/overview/available`, params)
+    .then((r: any) => workflowResponseHelper(r))
+
   return {
-    data: {
-      entryList: [],
-      totalSize: 0
-    }
+    data: data || []
   }
 }
+
 function handleDblclick(row: any) {
   if (platform.value === 'admin') return
   try {
@@ -68,7 +81,7 @@ defineExpose({ query, reload })
 
 <template>
   <div class="table-container">
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent"/>
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" />
   </div>
 </template>
 
@@ -77,12 +90,15 @@ defineExpose({ query, reload })
   height: 100%;
   position: relative;
 }
+
 :deep(.vxe-buttons--wrapper) {
   display: flex;
   justify-content: space-between;
 }
+
 .responsive-container {
   width: 70%;
+
   :deep(.el-input) {
     width: 200px;
   }

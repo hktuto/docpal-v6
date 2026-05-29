@@ -183,16 +183,9 @@ defineExpose({ workflowClickHandler })
         </div>
       </div>
     </template>
-    <el-tabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading">
-      <el-tab-pane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
-        <ContextFormRender ref="vFormRef" />
-      </el-tab-pane>
-<!--      <el-tab-pane :label="$t('workflow_graph')" name="Graph">-->
-<!--        <div v-if="openWorkflowEdit" class="pageContainer">-->
-<!--          <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :showSidebar="false" />-->
-<!--        </div>-->
-<!--      </el-tab-pane>-->
-    </el-tabs>
+    <template v-if="state.formDialogVisible" v-loading="state.loading">
+      <ContextFormRender ref="vFormRef" />
+    </template>
 
     <template #footer>
       <el-button id="Workflow__NewWorkflow__StartWorkflow" type="primary" :disabled="state.loading" @click="checkAndSubmit">

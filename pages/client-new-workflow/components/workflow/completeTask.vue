@@ -9,23 +9,20 @@ if (!routerProvider) {
 }
 const workflowList = await getWorkflowList()
 const { t } = useI18n()
-// @ts-ignore
-const userId: string = useUserId().value
 const user = useUserState().value
 const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
   api: async (pageParams: any) => {
     const params = {
-      pageSize: pageParams.pageSize,
-      pageNum: pageParams.pageNum,
+      page_size: pageParams.pageSize,
+      page_num: pageParams.pageNum,
       groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
       roles: [user.aclUserDetail.roleId],
       definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : '',
       status: ['completed', 'failed', 'terminated'],
-      involved_user_id: userId
+      involved_user_id: user.userId
     }
-
     const data = await clientApi.instance.post(`/oniflow/api/v1/processes/instance/page`, params).then((r: any) => workflowResponseHelper(r))
     return {
       data: data
@@ -73,11 +70,7 @@ function handleDblclick(row: any) {
   )
 }
 
-function reloadTable() {
-  reload()
-}
-
-defineExpose({ reloadTable })
+defineExpose({ reload })
 </script>
 
 <template>

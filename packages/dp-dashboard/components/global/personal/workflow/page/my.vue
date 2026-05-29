@@ -9,28 +9,18 @@ const { idList } = defineProps<{
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const platform = useAppPlatform()
-let extraParams: any = ref({
-  assignedUser: useUserId()
-})
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-workflow-my',
   zoom: false,
   api: (pageParams: any) => getData(pageParams),
   columns: [
-    { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
-    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status', title: 'dpTable_status' },
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
-      field: 'created_at',
+      field: 'execution.started_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
-        return formatDate(cellValue)
-      }
-    },
-    {
-      field: 'updated_at',
-      title: 'workflow_dueDate',
-      formatter({ cellValue }: any) {
+        // @ts-ignore
         return formatDate(cellValue)
       }
     }
@@ -41,17 +31,27 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   saveColumnOrder: false
 })
 
-async function getData(params: any = {}) {
+const userId: string = useUserId().value
+
+async function getData(pageParams: any = {}) {
   if (platform.value === 'admin') return
   const settingParams: any = {}
   if (idList && idList.length > 0) {
     settingParams.processKeys = idList
   }
-  const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
+  const params = {
+    page_size: pageParams.pageSize,
+    page_num: pageParams.pageNum,
+    assignee: userId,
+    definition_id: ''
+    // sort:"created_at",
+    // order: "desc"
+  }
+  const data = await clientApi.instance
+    .post(`/oniflow/api/v1/task/overview/todos`, params)
+    .then((r: any) => workflowResponseHelper(r))
   return {
-    data: {
-      entryList: data || []
-    }
+    data: data
   }
 }
 
@@ -62,13 +62,18 @@ function handleDblclick(row: any) {
       routeWorkflowDetail({
         ...row,
         workflowType: 'myTask',
-        db_id: row.node_id
+        db_id: row.db_id
       }),
       false
     )
   } catch (error: any) {
     console.error(error)
   }
+}
+
+function handleAssignee(assignee: string) {
+  if (!assignee || assignee === '') return false
+  return !assignee.includes('${')
 }
 
 watchDebounced(
@@ -86,7 +91,13 @@ defineExpose({ query, reload })
 
 <template>
   <div class="table-container">
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" />
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+      <template #assignee="{ row }">
+        <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>
+          {{ row.config.human_task.assignee || '' }}
+        </el-tag>
+      </template>
+    </VxeGrid>
   </div>
 </template>
 
@@ -95,12 +106,15 @@ defineExpose({ query, reload })
   height: 100%;
   position: relative;
 }
+
 :deep(.vxe-buttons--wrapper) {
   display: flex;
   justify-content: space-between;
 }
+
 .responsive-container {
   width: 70%;
+
   :deep(.el-input) {
     width: 200px;
   }

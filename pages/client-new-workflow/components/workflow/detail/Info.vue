@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { newClientApi, clientApi } from 'api'
+import { clientApi } from 'api'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const emits = defineEmits(['change'])
 const { taskDetail } = defineProps<{
@@ -17,10 +18,13 @@ const isAssigneeUser = computed(() => {
 async function handleUnclaim() {
   try {
     loading.value = true
-    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`).then((r) => r.data.data)
-    emits('change', response, false)
-    taskDetail.assignee = ''
+    const parms = {
+      user_id: userId
+    }
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`,parms).then((r: any) => workflowResponseHelper(r))
+    emits('change', false)
   } catch (error) {
+    routerProvider?.message.error('Unclaim Task Fail')
     console.log(error)
   }
   setTimeout(() => {
@@ -29,18 +33,19 @@ async function handleUnclaim() {
 }
 
 async function handleClaim() {
-  if (taskDetail.status !== 'assigned') return
-
+  if (taskDetail.status.type !== 'waiting') {
+    routerProvider?.message?.error('Unable to claim this task')
+    return
+  }
   try {
     loading.value = true
     const parms = {
       user_id: userId
     }
-    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((res: any) => res.data.data)
-    if (!response.errorCode) {
-      emits('change', response, true)
-    }
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
+    emits('change', true)
   } catch (error) {
+    routerProvider?.message.error('Claim Task Fail')
     console.log(error)
   }
   setTimeout(() => {
@@ -66,21 +71,23 @@ async function handleClaim() {
     <div class="infoContainer">
       <div class="label">{{ $t('workflow_createDate') }}</div>
       <div class="value">
-        {{ formatDate(taskDetail.created_at) }}
+        {{ formatDate(taskDetail?.execution?.started_at) }}
       </div>
     </div>
-    <div class="infoContainer">
-      <div class="label">{{ $t('workflow_dueDate') }}</div>
-      <div class="value">
-        {{ formatDate(taskDetail.updated_at) }}
-      </div>
-    </div>
+    <!--    <div class="infoContainer">-->
+    <!--      <div class="label">{{ $t('workflow_dueDate') }}</div>-->
+    <!--      <div class="value">-->
+    <!--        {{ formatDate(taskDetail.updated_at) }}-->
+    <!--      </div>-->
+    <!--    </div>-->
 
     <div class="flex-x-start">
-      <el-button id="Workflow__AvailableTask__Detail__JobInfo__UnclaimTask" v-if="isAssigneeUser" type="warning" :loading="loading" @click="handleUnclaim">
+      <el-button id="Workflow__AvailableTask__Detail__JobInfo__UnclaimTask" v-if="isAssigneeUser" type="warning"
+                 :loading="loading" @click="handleUnclaim">
         {{ $t('workflow_Unclaim') }}
       </el-button>
-      <el-button id="Workflow__AvailableTask__Detail__JobInfo__ClaimTask" v-else-if="!isAssigneeUser" type="primary" :loading="loading" @click="handleClaim">
+      <el-button id="Workflow__AvailableTask__Detail__JobInfo__ClaimTask" v-else-if="!isAssigneeUser" type="primary"
+                 :loading="loading" @click="handleClaim">
         {{ $t('workflow_claim') }}
       </el-button>
     </div>
@@ -100,6 +107,7 @@ async function handleClaim() {
   h4 {
     margin: 0;
   }
+
   @media (max-width: 640px) {
     flex-flow: row wrap;
     gap: calc(var(--app-space-xs) * 2);

@@ -2,34 +2,54 @@
 import { clientApi } from 'api'
 import { getUserSelectOption, workflowResponseHelper } from '#imports'
 
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 const { t } = useI18n()
 const showDialog = ref(false)
 const taskId = ref<string>('')
 const userList = ref<any[]>([])
+const user = useUserState().value
 const formRef = ref()
 const form = reactive({
   newAssignee: ''
 })
+const emits = defineEmits(['reload'])
 const rules = {
-  newAssignee: [{ required: true, message: t('render.hint.fieldRequired', { name: 'New Task Assignee' }), trigger: 'change' }]
+  newAssignee: [{
+    required: true,
+    message: t('render.hint.fieldRequired', { name: 'New Task Assignee' }),
+    trigger: 'change'
+  }]
 }
 
 function open(row: any) {
   showDialog.value = true
   form.newAssignee = ''
-  taskId.value = row.id
+  taskId.value = row.db_id
   nextTick(() => formRef.value?.clearValidate())
 }
 
-async function handleAssigneeSubmit() {
+async function handleSubmit() {
   try {
     await formRef.value.validate()
+    const params = {
+      task_id: taskId.value,
+      assignee: form.newAssignee,
+      assign_by: user.userId
+    }
     await clientApi.instance
-      .post(`/oniflow/api/v1/processes/instance-task/${taskId.value}/claim`, { user_id: form.newAssignee })
+      .post(`/oniflow/api/v1/task/overview/assignee`, params)
       .then((r: any) => workflowResponseHelper(r))
     showDialog.value = false
-  } catch (e) {}
+    emits('reload')
+  } catch (e) {
+    console.log(e)
+    routerProvider?.message?.error(e.message)
+  }
 }
+
 onMounted(async () => {
   userList.value = await getUserSelectOption()
 })
@@ -47,7 +67,7 @@ defineExpose({ open })
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button type="primary" @click="handleAssigneeSubmit">Submit</el-button>
+      <el-button type="primary" @click="handleSubmit">Submit</el-button>
     </template>
   </el-dialog>
 </template>

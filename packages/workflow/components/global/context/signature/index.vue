@@ -25,7 +25,6 @@ watch(
   <div class="fromContainer">
     <SidebarLabel :node="node" />
     <ContextUserTaskAssignee :node="node" />
-    <ContextUserTaskPermissions :node="node" />
     <ContextSignatureDetail :node="node" />
     <ContextUserTaskAdditional :node="node" />
     <ContextForm :node="node" />

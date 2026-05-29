@@ -28,12 +28,12 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
     tableRef.value.query({})
   }
 })
-const activeTab = ref('activeTask')
-const activeTabName = ref('workflow_activeTask')
+const activeTab = ref('myTask')
+const activeTabName = ref('workflow_myTask')
 const pagelist = ref([
   { name: 'workflow_myTask', key: 'myTask' },
-  { name: 'workflow_activeTask', key: 'activeTask' },
-  { name: 'workflow_allTask', key: 'allTask' }
+  { name: 'workflow_joinTask', key: 'activeTask' },
+  { name: 'Available Task', key: 'availableTask' }
 ])
 
 function getSelectedTableName(key: string) {
@@ -103,7 +103,7 @@ function handleRefresh(chartSetting) {
       v-else-if="setting.selectedTable === 'activeTask' || (!setting.selectedTable && activeTab === 'activeTask')"
       :id-list="props.setting.workflowIdList"
     />
-    <PersonalWorkflowPageAvalible ref="tableRef" v-else :id-list="props.setting.workflowIdList" />
+    <PersonalWorkflowPageAvailable ref="tableRef" v-else :id-list="props.setting.workflowIdList" />
   </DashboardCard>
 
   <PersonalWorkflowPageSetting ref="settingRef" :workflow-list="workflowList" @refresh="handleRefresh" />

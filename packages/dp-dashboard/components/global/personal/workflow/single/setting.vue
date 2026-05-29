@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
+import { clientApi } from 'api'
 
 const platform = useAppPlatform()
 const { t } = useI18n()
@@ -58,8 +59,19 @@ async function beforeOpen(setting) {
 }
 
 async function getWorkflowTask() {
-  const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => workflowResponseHelper(r))
-  workflowList.value = data || []
+  const params = {
+    page_size: 1000,
+    page_num: 0,
+    assignee: userId,
+    definition_id: ''
+    // sort:"created_at",
+    // order: "desc"
+  }
+  const data = await clientApi.instance
+    .post(`/oniflow/api/v1/task/overview/todos`, params)
+    .then((r: any) => workflowResponseHelper(r))
+
+  workflowList.value = data.entryList || []
 }
 
 onMounted(async () => {

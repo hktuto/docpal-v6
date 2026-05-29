@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core'
+import { clientApi } from 'api'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const { idList } = defineProps<{
   idList: string[]
@@ -7,16 +9,21 @@ const { idList } = defineProps<{
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const platform = useAppPlatform()
-let extraParams: any = ref({
-  interrelatedUserId: useUserId()
-})
+const user = useUserState().value
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-workflow-active',
   zoom: false,
   api: (pageParams: any) => getData(pageParams),
   columns: [
     { field: 'name', title: 'workflow_jobName' },
-    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } }
+    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    {
+      field: 'execution.started_at',
+      title: 'workflow_createDate',
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
+    }
   ],
   dblClickAction: ({ row, column, event }: any) => {
     handleDblclick(row)
@@ -24,21 +31,27 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   saveColumnOrder: false
 })
 
-async function getData(params: any = {}) {
+async function getData(pageParams: any = {}) {
   if (platform.value === 'admin') return
-  const settingParams: any = {}
-  if (idList.length > 0) {
-    settingParams.processKeys = idList
-  }
-  // const res = await newClientApi.postDocpalWorkflowTasksUser({ ...params, ...extraParams.value, ...settingParams }).then((res) => res.data)
 
-  const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
+  const params = {
+    page_size: pageParams.pageSize,
+    page_num: pageParams.pageNum,
+    involved_user_id: user.userId,
+    groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
+    roles: [user.aclUserDetail.roleId],
+    definition_id: ''
+    // sort:'',
+    // order:'desc'
+  }
+  const data = await clientApi.instance
+    .post(`/oniflow/api/v1/task/overview/involved`, params)
+    .then((r: any) => workflowResponseHelper(r))
   return {
-    data: {
-      entryList: data || []
-    }
+    data: data || []
   }
 }
+
 function handleDblclick(row: any) {
   if (platform.value === 'admin') return
   try {

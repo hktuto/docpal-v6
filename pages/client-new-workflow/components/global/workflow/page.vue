@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const activeTab = ref('allTask')
+const activeTab = ref('myTask')
 const workflowRef = ref()
 
 const props = defineProps<{
@@ -9,12 +9,12 @@ const { workflowType } = toRefs(props)
 
 function reload() {
   nextTick(() => {
-    // workflowRef.value.reloadTable()
+    workflowRef.value?.reload?.()
   })
 }
 
 onMounted(() => {
-  if (workflowType.value) {
+  if (!!workflowType.value) {
     activeTab.value = workflowType.value
   }
 })
@@ -27,8 +27,8 @@ onMounted(() => {
       <WorkflowPopoverNewTask @reload="reload" />
     </div>
     <el-tabs v-model="activeTab" class="tag-container dp-tabs--auto">
-      <el-tab-pane :label="$t('workflow_allTask')" name="allTask">
-        <WorkflowAllTask v-if="activeTab === 'allTask'" ref="workflowRef" />
+      <el-tab-pane :label="$t('Available Task')" name="availableTask">
+        <WorkflowAvailableTask v-if="activeTab === 'availableTask'" ref="workflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_myTask')" name="myTask">
         <WorkflowMyTask v-if="activeTab === 'myTask'" ref="workflowRef" />

@@ -8,32 +8,36 @@ if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 const { t } = useI18n()
-const userId: string = useUserId().value
-const extraParams = ref({
-  definition_id: ''
-})
+const user = useUserState().value
+const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
-  id: 'all_task',
+  id: 'Available_task',
   api: async (pageParams: any) => {
-    const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/available/${userId}`).then((r: any) => workflowResponseHelper(r))
-
-    let list = data.tasks
-    if (extraParams.value.definition_id !== '') {
-      list = list.filter((item: any) => item.definition_id === extraParams.value.definition_id)
+    const params = {
+      groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
+      roles: [user.aclUserDetail.roleId],
+      assignee: user.userId,
+      status: ['pending', 'waiting'],
+      definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : '',
+      process_id: '',
+      page_num: pageParams.pageNum,
+      page_size: pageParams.pageSize
     }
 
+    const data = await clientApi.instance
+      .post(`/oniflow/api/v1/task/overview/available`, params)
+      .then((r: any) => workflowResponseHelper(r))
+
     return {
-      data: {
-        entryList: list || []
-      }
+      data: data || []
     }
   },
   columns: [
-    { field: 'node_name', title: 'workflow_taskName', fixed: 'left' },
+    { field: 'name', title: 'workflow_taskName', fixed: 'left' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status', title: 'dpTable_status' },
+    { field: 'status.type', title: 'dpTable_status' },
     {
-      field: 'created_at',
+      field: 'execution.started_at',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
@@ -56,25 +60,29 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
-      workflowType: 'allTask',
-      db_id: row.node_id
+      workflowType: 'availableTask',
+      db_id: row.db_id
     }),
     false
   )
 }
 
 async function claimTask(row: any) {
-  if (row.status === '') return
+  if (row.status.type !== 'waiting') return
 
-  await clientApi.instance.post(`/oniflow/api/v1/tasks/instance/${row.process_instance_id}/claim`).then((res: any) => res.data)
-  reload()
+  try {
+    const parms = {
+      user_id: user.userId
+    }
+    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
+    reload()
+  } catch (e) {
+    routerProvider?.message?.error('Unable to claim this task')
+    console.log(e)
+  }
 }
 
-function reloadTable() {
-  reload()
-}
-
-defineExpose({ reloadTable })
+defineExpose({ reload })
 </script>
 
 <template>
@@ -83,7 +91,7 @@ defineExpose({ reloadTable })
       <template #toolbar_buttons>
         <div class="el-col el-col-10 is-guttered grid-cell">
           <el-form-item :label="t('workflow_workflowName')" label-position="top">
-            <el-select clearable v-model="extraParams.definition_id" placeholder="All" @change="reload">
+            <el-select clearable v-model="definition_id" placeholder="All" @change="reload">
               <el-option v-for="item in workflowList" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
