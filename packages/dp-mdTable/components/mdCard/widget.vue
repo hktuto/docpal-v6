@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { Rank } from '@element-plus/icons-vue'
-import { ColumnFieldType } from '../../types/column-types'
+import { mimeTypeToIcon } from '../../../base/utils/browseHelper'
+import { ColumnFieldType, type DocPalDocCellValue } from '../../types/column-types'
 
 type UrlCellValue = {
   text: string
   title: string
 }
+
+const routerProvider = inject(MenuRouterKey, null)
 interface Props {
   row: Record<string, any>
   fields: any[]
@@ -133,6 +136,39 @@ function getUrlLinks(value: unknown): Array<{ href: string; label: string }> {
     .filter((item): item is { href: string; label: string } => Boolean(item))
 }
 
+function isDocPalDocField(field: any) {
+  return field?.business_type === ColumnFieldType.DocPalDoc
+}
+
+function getDocPalDocs(value: unknown): DocPalDocCellValue[] {
+  if (!value) return []
+
+  if (Array.isArray(value)) {
+    return value.filter((item): item is DocPalDocCellValue => Boolean((item as DocPalDocCellValue)?.id))
+  }
+
+  const single = value as DocPalDocCellValue
+  return single?.id ? [single] : []
+}
+
+function getDocIcon(doc: DocPalDocCellValue) {
+  return mimeTypeToIcon(doc.mimeType || '')
+}
+
+function handleOpenDocument(doc: DocPalDocCellValue, event: MouseEvent | KeyboardEvent) {
+  event.stopPropagation()
+  event.preventDefault()
+  if (!routerProvider) return
+
+  routerProvider.navigateTo(
+    createDetailPageParams({
+      idOrPath: doc.id,
+      docName: doc.name || doc.id
+    }),
+    true
+  )
+}
+
 function handleOpenRecord() {
   if(props.row.__deleted) return
   emit('open-record', props.row)
@@ -192,6 +228,25 @@ function handleContextMenu(event: MouseEvent) {
               @click.stop
             >
               {{ link.label }}
+            </a>
+          </span>
+        </template>
+        <template v-else-if="isDocPalDocField(field)">
+          <span v-if="!getDocPalDocs(row?.[field.field_name]).length" class="field-value">--</span>
+          <span v-else class="field-value field-value--links">
+            <a
+              v-for="doc in getDocPalDocs(row?.[field.field_name])"
+              :key="doc.id"
+              class="field-link field-link--doc"
+              href="#"
+              tabindex="0"
+              role="link"
+              :aria-label="doc.name || doc.id"
+              @click.stop="handleOpenDocument(doc, $event)"
+              @keydown.enter.stop.prevent="handleOpenDocument(doc, $event)"
+            >
+              <img class="field-link__icon" :src="getDocIcon(doc)" alt="" aria-hidden="true" />
+              {{ doc.name || doc.id }}
             </a>
           </span>
         </template>
@@ -333,6 +388,19 @@ function handleContextMenu(event: MouseEvent) {
   &:hover {
     text-decoration: underline;
   }
+}
+
+.field-link--doc {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-xs);
+}
+
+.field-link__icon {
+  width: var(--app-space-m);
+  height: var(--app-space-m);
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .card-row.is-title {
