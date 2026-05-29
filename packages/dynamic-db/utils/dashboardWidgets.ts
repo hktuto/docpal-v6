@@ -87,7 +87,8 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       categoryField: '',
       valueField: '',
       aggregation: 'count',
-      rowLimit: 20
+      rowLimit: 20,
+      label: ''
     }
   },
   DbRecentRecords: {

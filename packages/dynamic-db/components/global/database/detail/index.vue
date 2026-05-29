@@ -2,6 +2,7 @@
 import { ElMessage, ElNotification } from 'element-plus'
 import { useImportRelationAnalysisState, dismissGuess } from '../../../../composables/import/useImportRelationAnalysis'
 import type { RelationGuess } from '../../../../composables/import/relationGuesser'
+import ImportRelationConfirmDialog from './ImportRelationConfirmDialog.vue'
 
 const props = defineProps<{
   id: string
@@ -40,6 +41,8 @@ const groupedGuesses = computed(() => {
 
 const analysisPopoverRef = ref()
 const analysisStatusRef = ref<HTMLElement>()
+const confirmDialogRef = ref<InstanceType<typeof ImportRelationConfirmDialog>>()
+const activeGuess = ref<RelationGuess | null>(null)
 
 function analysisStatusLabel() {
   const s = analysis.value.status
@@ -68,6 +71,21 @@ function dismissGuessAndClose(index: number) {
   dismissGuess(index)
   if (pendingGuesses.value.length === 0) {
     analysisPopoverRef.value?.close()
+  }
+}
+
+function openConfirmDialog(guess: RelationGuess) {
+  activeGuess.value = guess
+  analysisPopoverRef.value?.close()
+  nextTick(() => {
+    confirmDialogRef.value?.open()
+  })
+}
+
+function onGuessEstablished(guess: RelationGuess) {
+  const index = analysis.value.guesses.indexOf(guess)
+  if (index !== -1) {
+    dismissGuessAndClose(index)
   }
 }
 
@@ -361,6 +379,13 @@ watch(
                 >
                   Ignore
                 </el-button>
+                <el-button
+                  size="small"
+                  type="primary"
+                  @click="openConfirmDialog(guess)"
+                >
+                  Confirm
+                </el-button>
               </div>
             </div>
           </div>
@@ -374,6 +399,13 @@ watch(
       </div>
     </div>
   </UiPopoverDialog>
+
+  <ImportRelationConfirmDialog
+    ref="confirmDialogRef"
+    :guess="activeGuess"
+    @established="onGuessEstablished"
+    @cancelled="activeGuess = null"
+  />
 </template>
 
 <style lang="scss">

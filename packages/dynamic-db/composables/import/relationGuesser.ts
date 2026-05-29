@@ -39,6 +39,7 @@ export interface RelationGuess {
   /** The newly imported table that would contain the foreign-key column */
   sourceTableId: string
   sourceTableName: string
+  sourceFieldId: string
   sourceFieldName: string
   sourceFieldAlias: string
   sourceFieldType: ColumnFieldType
@@ -48,6 +49,7 @@ export interface RelationGuess {
   targetFieldId: string
   targetFieldName: string
   targetFieldAlias: string
+  targetFieldType: ColumnFieldType
   confidence: number
   reasons: RelationGuessReason[]
   dismissed: boolean
@@ -154,6 +156,7 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
       if (source.tableId === target.tableId) continue
 
       for (const sourceField of source.fields) {
+        const sourceFieldId = sourceField.id || ''
         const sourceFieldName = sourceField.field_name || ''
         const sourceFieldAlias = sourceField.field_name_alias || sourceFieldName
         const sourceFieldType = sourceField.business_type || ''
@@ -167,10 +170,12 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
           const scoreResult = computeScore(
             source.tableName,
             sourceFieldName,
+            sourceFieldAlias,
             sourceFieldType,
             source.sampleRows,
             target.tableName,
             targetFieldName,
+            targetFieldAlias,
             targetFieldType,
             target.sampleRows
           )
@@ -179,6 +184,7 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
             sheetGuesses.push({
               sourceTableId: source.tableId,
               sourceTableName: source.tableName,
+              sourceFieldId,
               sourceFieldName,
               sourceFieldAlias,
               sourceFieldType: sourceFieldType as ColumnFieldType,
@@ -187,6 +193,7 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
               targetFieldId,
               targetFieldName,
               targetFieldAlias,
+              targetFieldType: targetFieldType as ColumnFieldType,
               confidence: scoreResult.confidence,
               reasons: scoreResult.reasons,
               dismissed: false
@@ -200,44 +207,86 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
     guesses.push(...sheetGuesses.slice(0, MAX_GUESSES_PER_SOURCE))
   }
 
+  // Generate inverse guesses so that every detected relation is bidirectional.
+  // If A.field → B.field is a strong match, B.field → A.field should also be suggested.
+  const forwardKeys = new Set(guesses.map((g) => guessKey(g)))
+  const inverses: RelationGuess[] = []
+
+  for (const g of guesses) {
+    const inverseKey = `${g.targetTableId}:${g.targetFieldName}→${g.sourceTableId}:${g.sourceFieldName}`
+    if (forwardKeys.has(inverseKey)) continue // Inverse already exists naturally
+
+    inverses.push({
+      sourceTableId: g.targetTableId,
+      sourceTableName: g.targetTableName,
+      sourceFieldId: g.targetFieldId,
+      sourceFieldName: g.targetFieldName,
+      sourceFieldAlias: g.targetFieldAlias,
+      sourceFieldType: g.targetFieldType,
+      targetTableId: g.sourceTableId,
+      targetTableName: g.sourceTableName,
+      targetFieldId: g.sourceFieldId,
+      targetFieldName: g.sourceFieldName,
+      targetFieldAlias: g.sourceFieldAlias,
+      confidence: g.confidence,
+      reasons: [
+        ...g.reasons,
+        {
+          type: 'name_match',
+          score: 0,
+          detail: `Inverse of ${g.sourceTableName}.${g.sourceFieldAlias} → ${g.targetTableName}.${g.targetFieldAlias}`
+        }
+      ],
+      dismissed: false
+    })
+  }
+
+  guesses.push(...inverses)
   guesses.sort((a, b) => b.confidence - a.confidence)
   return guesses
+}
+
+function guessKey(g: RelationGuess): string {
+  return `${g.sourceTableId}:${g.sourceFieldName}→${g.targetTableId}:${g.targetFieldName}`
 }
 
 function computeScore(
   sourceTableName: string,
   sourceFieldName: string,
+  sourceFieldAlias: string,
   sourceFieldType: string,
   sourceRows: Record<string, any>[],
   targetTableName: string,
   targetFieldName: string,
+  targetFieldAlias: string,
   targetFieldType: string,
   targetRows: Record<string, any>[]
 ): { confidence: number; reasons: RelationGuessReason[] } {
   const reasons: RelationGuessReason[] = []
   let score = 0
 
-  const normalizedSourceField = sourceFieldName.toLowerCase()
-  const normalizedTargetField = targetFieldName.toLowerCase()
+  // Use aliases for name-match heuristics (import may generate opaque field_name values like f_3083_xxx)
+  const normalizedSourceAlias = normalizeName(sourceFieldAlias)
+  const normalizedTargetAlias = normalizeName(targetFieldAlias)
   const normalizedTargetTable = normalizeName(targetTableName)
 
   // ---- Name-match heuristics ----
 
-  if (normalizedSourceField === normalizedTargetField) {
+  if (normalizedSourceAlias === normalizedTargetAlias) {
     score += 0.25
     reasons.push({
       type: 'name_match',
       score: 0.25,
-      detail: `Field name "${sourceFieldName}" exactly matches "${targetFieldName}"`
+      detail: `Field alias "${sourceFieldAlias}" exactly matches "${targetFieldAlias}"`
     })
   }
 
   const idSuffixes = ['_id', '_no', '_code', '_ref']
-  const hasIdSuffix = idSuffixes.some((suf) => normalizedSourceField.endsWith(suf))
+  const hasIdSuffix = idSuffixes.some((suf) => normalizedSourceAlias.endsWith(suf))
   if (hasIdSuffix) {
-    const prefix = normalizedSourceField.replace(/(_id|_no|_code|_ref)$/, '')
+    const prefix = normalizedSourceAlias.replace(/(_id|_no|_code|_ref)$/, '')
     if (
-      prefix === normalizedTargetField ||
+      prefix === normalizedTargetAlias ||
       prefix === normalizedTargetTable ||
       levenshteinSimilarity(prefix, normalizedTargetTable) > 0.8
     ) {
@@ -245,27 +294,27 @@ function computeScore(
       reasons.push({
         type: 'name_match',
         score: 0.35,
-        detail: `Field "${sourceFieldName}" has ID suffix and prefix "${prefix}" matches target table "${targetTableName}"`
+        detail: `Field "${sourceFieldAlias}" has ID suffix and prefix "${prefix}" matches target table "${targetTableName}"`
       })
     }
   }
 
-  if (normalizedSourceField.includes(normalizedTargetTable)) {
+  if (normalizedSourceAlias.includes(normalizedTargetTable)) {
     score += 0.15
     reasons.push({
       type: 'table_name_in_field',
       score: 0.15,
-      detail: `Target table name "${targetTableName}" appears in source field "${sourceFieldName}"`
+      detail: `Target table name "${targetTableName}" appears in source field alias "${sourceFieldAlias}"`
     })
   }
 
-  const fieldSim = levenshteinSimilarity(normalizedSourceField, normalizedTargetField)
+  const fieldSim = levenshteinSimilarity(normalizedSourceAlias, normalizedTargetAlias)
   if (fieldSim > 0.8) {
     score += 0.15
     reasons.push({
       type: 'name_match',
       score: 0.15,
-      detail: `Field names are ${Math.round(fieldSim * 100)}% similar`
+      detail: `Field aliases are ${Math.round(fieldSim * 100)}% similar`
     })
   }
 
@@ -356,7 +405,7 @@ function areTypesCompatible(sourceType: string, targetType: string): boolean {
 function normalizeName(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[\/\\?%*:|"<>\s\-]+/g, '_')
+    .replace(/[\/\\?%*:|"<>\s\-.]+/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_+|_+$/g, '')
 }

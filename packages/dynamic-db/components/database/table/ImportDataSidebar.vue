@@ -1,12 +1,12 @@
 <template>
   <div class="import-data-sidebar">
     <!-- Header -->
-    <div class="sidebar-header">
+    <!-- <div class="sidebar-header">
       <span class="sidebar-title">Import Data</span>
       <button class="sidebar-close" tabindex="0" @click="handleClose" @keydown.enter="handleClose">
         <Icon name="lucide:x" size="16" />
       </button>
-    </div>
+    </div> -->
 
     <!-- Body -->
     <div class="sidebar-body">
@@ -146,9 +146,9 @@
             ... and {{ importResult.errors.length - 20 }} more
           </div>
         </div>
-
-        <div v-if="countdown > 0" class="countdown-msg">
-          Import successful. Page refreshes in {{ countdown }} seconds...
+        <div class="import-success-countdown" >
+          <Icon name="material-symbols:check-circle-outline" />
+          {{`Import successful. Page refreshes in ${countdown} seconds...`}}
         </div>
 
         <div class="step-actions">
@@ -301,16 +301,21 @@ async function startImport() {
     emit('success')
     ElMessage.success(`Import complete: ${result.created} created, ${result.updated} updated, ${result.ignored} ignored`)
 
-    // Start 5-second countdown to page refresh
-    countdown.value = 5
-    if (countdownInterval) clearInterval(countdownInterval)
-    countdownInterval = setInterval(() => {
-      countdown.value--
-      if (countdown.value <= 0) {
-        if (countdownInterval) clearInterval(countdownInterval)
-        window.location.reload()
-      }
-    }, 1000)
+    // Only start countdown if there were actual changes
+    if (result.created === 0 && result.updated === 0) {
+      countdown.value = 0
+    } else {
+      // Start 5-second countdown to page refresh
+      countdown.value = 5
+      if (countdownInterval) clearInterval(countdownInterval)
+      countdownInterval = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          if (countdownInterval) clearInterval(countdownInterval)
+          window.location.reload()
+        }
+      }, 1000)
+    }
   } catch (error: any) {
     console.error('Import error', error)
     ElMessage.error(error?.message || 'Import failed')
@@ -352,6 +357,16 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
+.import-success-countdown{
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-m);
+  color: var(--app-grey-900);
+  font-size: var(--app-font-size-m);
+  background: var(--app-primary-color);
+  padding: var(--app-space-s);
+  border-radius: var(--app-border-radius-s);
+}
 .import-data-sidebar {
   display: flex;
   flex-direction: column;
@@ -639,15 +654,6 @@ onBeforeUnmount(() => {
     color: var(--app-text-color-tertiary);
     padding: var(--app-space-xs) 0;
   }
-}
-
-.countdown-msg {
-  padding: var(--app-space-s) var(--app-space-m);
-  background: var(--el-color-success-light-9);
-  color: var(--el-color-success);
-  border-radius: var(--app-border-radius-s);
-  font-size: var(--app-font-size-s);
-  text-align: center;
 }
 
 .step-actions {
