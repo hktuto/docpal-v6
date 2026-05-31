@@ -3,9 +3,7 @@ import { clientApi, newClientApi } from 'api'
 import type { TriggerSettingDTO, TableFieldDTO } from 'api'
 import { ElMessage } from 'element-plus'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { workflowResponseHelper } from '../../../../../../workflow/utils/jsonConversion'
-import { watch } from 'vue'
 
 const routerProvider = inject(MenuRouterKey)
 const { masterTableId, tableFields, trigger } = defineProps<{
@@ -23,7 +21,7 @@ const state = reactive({
   saving: false,
   fields: [] as TableFieldDTO[]
 })
-const form = reactive({
+const form = ref({
   trigger_name: '',
   description: '',
   event_type: 'record_created',
@@ -31,12 +29,15 @@ const form = reactive({
   match_type: 'all',
   workflow_id: '',
   status: 'A',
-  conditions: [] as Array<{
-    id: string
-    field_name: string
-    operator: string
-    value: string
-  }>
+  conditions: {
+    trigger_rule: [] as Array<{
+      id: string
+      field_name: string
+      operator: string
+      value: string
+    }>
+  },
+  map_workflow_parameters: {}
 })
 const eventTypeOptions = [
   { label: 'Record is created', value: 'record_created', desc: 'When a new record is added to this table.' },
@@ -44,7 +45,6 @@ const eventTypeOptions = [
   { label: 'Record is deleted', value: 'record_deleted', desc: 'When a record is removed from this table.' },
   { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' }
 ]
-const workflowList = ref<any[]>([])
 const workflowErrorMessage = ref<string>('')
 const workflowFormFields = ref<any[]>([])
 
@@ -117,8 +117,8 @@ const fieldOptions = computed(() => {
   }))
 })
 
-const showWatchField = computed(() => form.event_type === 'field_changed')
-const currentEvent = computed(() => eventTypeOptions.find((o) => o.value === form.event_type))
+const showWatchField = computed(() => form.value.event_type === 'field_changed')
+const currentEvent = computed(() => eventTypeOptions.find((o) => o.value === form.value.event_type))
 
 function generateId() {
   return `${Date.now()}`
@@ -132,7 +132,7 @@ function handleFieldChange(condition: any) {
 }
 
 function handleAddCondition() {
-  form.conditions.push({
+  form.value.conditions.trigger_rule.push({
     id: generateId(),
     field_name: '',
     operator: 'eq',
@@ -141,24 +141,29 @@ function handleAddCondition() {
 }
 
 function handleRemoveCondition(index: number) {
-  form.conditions.splice(index, 1)
+  form.value.conditions.trigger_rule.splice(index, 1)
 }
 
 function resetForm() {
-  form.trigger_name = ''
-  form.description = ''
-  form.event_type = 'record_created'
-  form.watch_field = ''
-  form.match_type = 'all'
-  form.workflow_id = ''
-  form.status = 'A'
-  form.conditions = []
+  form.value = {
+    trigger_name: '',
+    description: '',
+    event_type: 'record_created',
+    watch_field: '',
+    match_type: 'all',
+    workflow_id: '',
+    status: 'A',
+    conditions: {
+      trigger_rule: []
+    },
+    map_workflow_parameters: {}
+  }
 }
 
 async function init() {
   await hydrateForm()
 
-  if (!!form.workflow_id && form.workflow_id !== '') {
+  if (!!form.value.workflow_id && form.value.workflow_id !== '') {
     await handleChangeWorkflow()
   }
   workflowFormFields.value = workflowFormFields.value.map((item: any) => {
@@ -168,61 +173,36 @@ async function init() {
 }
 
 async function hydrateForm() {
-  const t = trigger
-  if (!t) {
+  if (!trigger) {
     resetForm()
     return
   }
-  form.trigger_name = t.trigger_name || ''
-  form.description = t.description || ''
-  form.event_type = t.event_type || 'record_created'
-  form.watch_field = t.watch_field || ''
-  form.match_type = t.match_type || 'all'
-  form.workflow_id = t.workflow_id || ''
-  form.status = t.status || 'A'
-  form.conditions = t.conditions?.trigger_rule || []
+  form.value = deepCopy(trigger)
 }
 
 async function handleSave() {
   workflowErrorMessage.value = ''
-  if (!form.trigger_name.trim()) {
+  if (!form.value.trigger_name.trim()) {
     ElMessage.warning('Trigger name is required')
     return
   }
-  if (showWatchField.value && !form.watch_field) {
+  if (showWatchField.value && !form.value.watch_field) {
     ElMessage.warning('Watch field is required for Field Changed event')
     return
   }
-  let map_workflow_parameters = {}
-  if (form.workflow_id !== '') {
-    const set: any[] = []
-    map_workflow_parameters = workflowFormFields.value.reduce((acc: any, item: any) => {
-      if (item.value === '') {
-        set.push(item.name)
-      }
-      acc[item.id] = item.value
-      return acc
-    }, {})
 
-    // 檢查必要參數是否滿足
-    if (set.length > 0) {
-      workflowErrorMessage.value = `Launch workflow is missing the following required parameters [${set.join(',')}].`
-      return
-    }
-  }
-
+  console.log(2222,form.value)
+  return
   const payload = {
-    trigger_name: form.trigger_name,
-    description: form.description,
-    event_type: form.event_type,
-    watch_field: showWatchField.value ? form.watch_field : undefined,
-    conditions: {
-      trigger_rule: form.conditions
-    },
-    match_type: form.match_type,
-    workflow_id: form.workflow_id,
-    map_workflow_parameters: map_workflow_parameters,
-    status: form.status
+    trigger_name: form.value.trigger_name,
+    description: form.value.description,
+    event_type: form.value.event_type,
+    watch_field: showWatchField.value ? form.value.watch_field : undefined,
+    conditions: form.value.conditions,
+    match_type: form.value.match_type,
+    workflow_id: form.value.workflow_id,
+    map_workflow_parameters: form.value.map_workflow_parameters,
+    status: form.value.status
   }
 
   state.saving = true
@@ -257,7 +237,7 @@ function handleCancel() {
 
 async function handleChangeWorkflow() {
   try {
-    const data = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${form.workflow_id}`).then((r: any) => workflowResponseHelper(r))
+    const data = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${form.value.workflow_id}`).then((r: any) => workflowResponseHelper(r))
     if (!data) {
       routerProvider?.message?.error('Failed to get workflow details')
       return
@@ -281,13 +261,8 @@ async function handleChangeWorkflow() {
 }
 
 onMounted(async () => {
-  if (workflowList.value.length === 0) {
-    workflowList.value = await getWorkflowList()
-  }
   await init()
 })
-
-watch(() => trigger, hydrateForm, { deep: true })
 </script>
 
 <template>
@@ -337,7 +312,7 @@ watch(() => trigger, hydrateForm, { deep: true })
         </div>
 
         <div class="conditions-stack">
-          <div v-for="(condition, index) in form.conditions" :key="condition.id" class="condition-line">
+          <div v-for="(condition, index) in form.conditions.trigger_rule" :key="condition.id" class="condition-line">
             <div class="connector-label">
               <span v-if="index === 0">When</span>
               <span v-else>{{ form.match_type === 'all' ? 'And' : 'Or' }}</span>
@@ -375,29 +350,13 @@ watch(() => trigger, hydrateForm, { deep: true })
 
     <!-- Then section -->
     <div class="section-title">Then</div>
+    <div class="then-badge">
+      <Icon name="lucide:arrow-right" size="14" />
+      <span>Action</span>
+    </div>
     <div class="then-card">
-      <div class="then-badge">
-        <Icon name="lucide:arrow-right" size="14" />
-        <span>Action</span>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Run workflow</label>
-        <el-select v-model="form.workflow_id" placeholder="Enter workflow ID" size="small"
-                   @change="handleChangeWorkflow">
-          <el-option v-for="wf in workflowList" :key="wf.id" :label="wf.name" :value="wf.id" />
-        </el-select>
-      </div>
-      <el-form label-width="auto">
-        <template v-for="formField in workflowFormFields" :key="formField.id">
-          <el-form-item :label="formField.name" size="small">
-            <el-select v-model="formField.value">
-              <el-option v-for="field in tableFields" :key="field.field_name"
-                         :label="field.field_name_alias || field.field_name" :value="field.field_name" />
-            </el-select>
-          </el-form-item>
-        </template>
-      </el-form>
-      {{ workflowErrorMessage }}
+      <DatabaseSettingAutomationTriggerFormWorkflow :formData="form" :tableFields="tableFields" />
+
     </div>
 
     <!-- Footer -->
