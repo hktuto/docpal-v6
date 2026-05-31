@@ -4435,6 +4435,11 @@
       "link": "連結",
       "title": "標題",
       "set": "設定連結"
+    },
+    "docPalDoc": {
+      "select": "選擇文件",
+      "selectPlaceholder": "請選擇文件",
+      "required": "請選擇文件"
     }
   }
 }

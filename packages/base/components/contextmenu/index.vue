@@ -68,7 +68,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div ref="contextmenuRef" :class="{contextMenuContainer:true, visible}" :style="{left: position.left + 'px', top: position.top + 'px', ['--context-item-height']: menuItemHeight + 'px'}">
+    <div ref="contextmenuRef" class="vxe-table--ignore-clear" :class="{contextMenuContainer:true, visible}" :style="{left: position.left + 'px', top: position.top + 'px', ['--context-item-height']: menuItemHeight + 'px'}">
         <ContextmenuList v-for="(action, index) in displayActions" :key="index" :items="action" :menuItemHeight="menuItemHeight" :rowData="rowData" />
     </div>
 </template>

@@ -179,7 +179,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       showHeader: false,
       highlight: true,
       trigger: 'cell',
-      visibleMethod: ({ row }: any) => !row.isFolder
+      visibleMethod: ({ row }: any) => !row.isFolder && row.source !== 'tempFile'
     },
 
     rowConfig: {

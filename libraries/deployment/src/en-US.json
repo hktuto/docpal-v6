@@ -4438,6 +4438,11 @@
       "link": "Link",
       "title": "Title",
       "set": "Set link"
+    },
+    "docPalDoc": {
+      "select": "Select document",
+      "selectPlaceholder": "Select a document",
+      "required": "Please select a document"
     }
   }
 }

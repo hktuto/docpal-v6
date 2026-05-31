@@ -105,7 +105,10 @@ function resolveCategoryLabel(rawValue: any, fieldMeta: any): string {
 const config = computed(() => props.setting || {})
 
 const chartTitle = computed(() => {
-  const { categoryField } = config.value
+  const { label, categoryField } = config.value
+  if (label) {
+    return label
+  }
   if (categoryField) {
     return fieldLabel(categoryField)
   }
@@ -236,7 +239,8 @@ watch(
     props.setting?.valueField,
     props.setting?.aggregation,
     props.setting?.chartType,
-    props.setting?.rowLimit
+    props.setting?.rowLimit,
+    props.setting?.label
   ],
   () => {
     fetchData()
