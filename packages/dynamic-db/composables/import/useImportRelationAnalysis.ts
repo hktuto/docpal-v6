@@ -167,3 +167,80 @@ export async function startPostImportAnalysis(
     }, 0)
   })
 }
+
+/**
+ * Run relation analysis on ALL tables in a database.
+ * Unlike startPostImportAnalysis, this does not require a pre-import snapshot.
+ * Every table is treated as both source and target, so existing tables also
+ * receive suggestions pointing to other tables.
+ */
+export async function runRelationAnalysis(databaseId: string) {
+  const state = useImportRelationAnalysisState()
+  resetAnalysis()
+
+  if (!databaseId) {
+    state.value.status = 'error'
+    state.value.error = 'No database context available'
+    state.value.message = 'Analysis failed — no database context'
+    return
+  }
+
+  state.value.status = 'analyzing'
+  state.value.message = 'Fetching table data...'
+  state.value.progress = 20
+  state.value.startedAt = new Date().toISOString()
+
+  const nameMap = await captureTableNameMap(databaseId)
+  const currentSnapshot = await captureTableSnapshot(databaseId)
+  const allTableIds = Array.from(currentSnapshot)
+
+  if (allTableIds.length === 0) {
+    state.value.status = 'completed'
+    state.value.completedAt = new Date().toISOString()
+    state.value.message = 'No tables found in database'
+    state.value.progress = 100
+    return
+  }
+
+  state.value.progress = 50
+
+  const allTables = (
+    await Promise.all(allTableIds.map((id) => fetchTableSnapshot(id, nameMap)))
+  ).filter((t): t is TableSnapshot => t !== null)
+
+  if (allTables.length === 0) {
+    state.value.status = 'error'
+    state.value.error = 'Unable to fetch table data'
+    state.value.message = 'Analysis failed — could not fetch table data'
+    return
+  }
+
+  state.value.progress = 80
+  state.value.message = 'Analyzing relations...'
+
+  // Run scoring in a non-blocking way
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      const guesses = guessRelations(allTables, allTables)
+      state.value.guesses = guesses
+      state.value.status = 'completed'
+      state.value.completedAt = new Date().toISOString()
+      state.value.progress = 100
+      state.value.message =
+        guesses.length > 0
+          ? `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'}`
+          : 'Analysis complete — no strong relations detected'
+
+      if (guesses.length > 0) {
+        ElNotification({
+          title: 'Relations Detected',
+          message: `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'} across all tables.`,
+          type: 'info',
+          duration: 0
+        })
+      }
+
+      resolve()
+    }, 0)
+  })
+}
