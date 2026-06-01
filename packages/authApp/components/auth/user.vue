@@ -93,11 +93,11 @@ function handleOpenUpload(show: boolean = false, action: 'upload' | 'ai' | '' = 
                     <!-- TODO: remove this part from prodction, or mark it avalible only for super admin -->
                     <!-- <Language /> -->
                     <!-- <ElDropdownItem @click="openHelp">{{ $t('adminMenu.help') }}</ElDropdownItem> -->
-                    <!-- <ElDivider /> -->
-                    <!-- <ElDropdownItem v-for="lang in locales" :key="lang.code"
+                     <ElDivider />
+                     <ElDropdownItem v-for="lang in locales" :key="lang.code"
                         :disabled="lang.code === locale" @click="changeLanguage(lang.code)">
                         {{$t(lang.code)}}
-                    </ElDropdownItem> -->
+                    </ElDropdownItem>
                     <ElDivider />
                     <template v-if="showSwitchMenu">
                       <ElDropdownItem @click="switchPlatform()">Switch to {{ appPlatform === 'admin' ? 'Client' : 'Admin' }}</ElDropdownItem>
