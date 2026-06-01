@@ -51,7 +51,10 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     {
       field: 'name',
       title: 'table_name',
-      fixed: 'left'
+      fixed: 'left',
+      formatter:({cellValue}) => {
+        return t(cellValue)
+      }
     },
     {
       field: 'dataType',
