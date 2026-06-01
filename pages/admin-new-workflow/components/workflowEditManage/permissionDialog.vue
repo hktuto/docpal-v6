@@ -26,7 +26,6 @@ const permissions = ref<PermissionRow[]>([])
 const users = ref<TargetOption[]>([])
 const roles = ref<TargetOption[]>([])
 const groups = ref<TargetOption[]>([])
-const services = ref<TargetOption[]>([])
 const targetsLoading = ref(false)
 
 const selectedTarget = ref('')
@@ -56,7 +55,7 @@ const selectGroups = computed(() =>
       label: t('service'),
       type: 5,
       icon: 'lucide:workflow',
-      options: services.value.filter((s) => !isExistingTarget(5, s.id)).map((s) => ({ value: `5:${s.id}`, label: s.name || s.id }))
+      options: !isExistingTarget(5, 'workflow') ? [{ value: '5:workflow', label: t('workflow') }] : []
     }
   ].filter((g) => g.options.length > 0)
 )
@@ -81,8 +80,7 @@ const parsedTarget = computed(() => {
     const g = groups.value.find((x) => x.id === id)
     displayName = g?.name || id
   } else if (type === 5) {
-    const s = services.value.find((x) => x.id === id)
-    displayName = s?.name || id
+    displayName = t('workflow')
   }
   return { type, id, name: displayName }
 })
@@ -147,7 +145,7 @@ async function loadPermissions() {
 async function loadTargets() {
   targetsLoading.value = true
   try {
-    await Promise.all([loadUsers(), loadRoles(), loadGroups(), loadServices()])
+    await Promise.all([loadUsers(), loadRoles(), loadGroups()])
   } finally {
     targetsLoading.value = false
   }
@@ -178,17 +176,6 @@ async function loadGroups() {
   groups.value = (data || []).map((g: any) => ({
     id: g.id,
     name: g.name
-  }))
-}
-
-async function loadServices() {
-  const { data } = await clientApi.instance.post('/oniflow/api/v1/workflow/definitions/page', {
-    page_size: 1000,
-    page_num: 1
-  })
-  services.value = (data?.data?.items || []).map((s: any) => ({
-    id: s.id,
-    name: s.name || s.key || s.id
   }))
 }
 
