@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown trigger="click" placement="top" @command="handleMethodSelect" @click.stop>
+  <el-dropdown v-if="column" trigger="click" placement="top" @command="handleMethodSelect" @click.stop>
     <div class="footer-count">
       <template v-if="selectedCountMethod !== 'none'">
         <span class="method-name">{{ t(`mdTable.countMethod.${selectedCountMethod}`) }}</span>
@@ -78,6 +78,9 @@ const gridRef = mdTable.gridRef
 // Inject gridRef 来获取表格数据
 // 判断是否为数字类型
 const isNumericType = computed(() => {
+  if (!props.column) {
+    return false
+  }
   const type = props.column.business_type
   return [ColumnFieldType.Number, ColumnFieldType.Currency, ColumnFieldType.Percent, ColumnFieldType.AutoNumber, ColumnFieldType.Rating].includes(type)
 })
