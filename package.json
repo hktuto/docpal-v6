@@ -1,7 +1,7 @@
 {
   "name": "docpal-app",
   "private": true,
-  "version": "1.6.11",
+  "version": "1.5.12",
   "workspaces": [
     "libraries/*",
     "packages/*",
