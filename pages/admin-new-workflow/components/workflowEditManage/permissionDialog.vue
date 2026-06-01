@@ -26,6 +26,7 @@ const permissions = ref<PermissionRow[]>([])
 const users = ref<TargetOption[]>([])
 const roles = ref<TargetOption[]>([])
 const groups = ref<TargetOption[]>([])
+const services = ref<TargetOption[]>([])
 const targetsLoading = ref(false)
 
 const selectedTarget = ref('')
@@ -50,6 +51,12 @@ const selectGroups = computed(() =>
       type: 3,
       icon: 'lucide:users',
       options: groups.value.filter((g) => !isExistingTarget(3, g.id)).map((g) => ({ value: `3:${g.id}`, label: g.name || g.id }))
+    },
+    {
+      label: t('service'),
+      type: 5,
+      icon: 'lucide:workflow',
+      options: services.value.filter((s) => !isExistingTarget(5, s.id)).map((s) => ({ value: `5:${s.id}`, label: s.name || s.id }))
     }
   ].filter((g) => g.options.length > 0)
 )
@@ -73,6 +80,9 @@ const parsedTarget = computed(() => {
   } else if (type === 3) {
     const g = groups.value.find((x) => x.id === id)
     displayName = g?.name || id
+  } else if (type === 5) {
+    const s = services.value.find((x) => x.id === id)
+    displayName = s?.name || id
   }
   return { type, id, name: displayName }
 })
@@ -85,6 +95,8 @@ function getTargetIcon(targetType: number): string {
       return 'lucide:shield'
     case 3:
       return 'lucide:users'
+    case 5:
+      return 'lucide:workflow'
     default:
       return 'lucide:user'
   }
@@ -98,6 +110,8 @@ function getTargetLabel(targetType: number): string {
       return t('user_role')
     case 3:
       return t('user_groups')
+    case 5:
+      return t('service')
     default:
       return t('user_users')
   }
@@ -133,7 +147,7 @@ async function loadPermissions() {
 async function loadTargets() {
   targetsLoading.value = true
   try {
-    await Promise.all([loadUsers(), loadRoles(), loadGroups()])
+    await Promise.all([loadUsers(), loadRoles(), loadGroups(), loadServices()])
   } finally {
     targetsLoading.value = false
   }
@@ -164,6 +178,17 @@ async function loadGroups() {
   groups.value = (data || []).map((g: any) => ({
     id: g.id,
     name: g.name
+  }))
+}
+
+async function loadServices() {
+  const { data } = await clientApi.instance.post('/oniflow/api/v1/workflow/definitions/page', {
+    page_size: 1000,
+    page_num: 1
+  })
+  services.value = (data?.data?.items || []).map((s: any) => ({
+    id: s.id,
+    name: s.name || s.key || s.id
   }))
 }
 
@@ -252,7 +277,7 @@ defineExpose({
       <el-form label-position="top">
         <el-form-item :label="t('rbac.permission.targetName')">
           <div class="add-permission-section">
-            <el-select v-model="selectedTarget" placeholder="Search and select user, role or group" filterable clearable :loading="targetsLoading">
+            <el-select v-model="selectedTarget" placeholder="Search and select user, role, group or service" filterable clearable :loading="targetsLoading">
               <el-option-group v-for="group in selectGroups" :key="group.label" :label="group.label">
                 <el-option v-for="opt in group.options" :key="opt.value" :label="opt.label" :value="opt.value">
                   <div class="target-option">
