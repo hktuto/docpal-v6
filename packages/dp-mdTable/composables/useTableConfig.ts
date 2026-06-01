@@ -1,12 +1,9 @@
 // composables/useTableConfig.ts
 import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from 'vue'
-import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
-import { VxeUI } from 'vxe-pc-ui'
+import type { VxeGridProps } from 'vxe-table'
 import type { ColumnConfig } from '../types/column-context'
 import { ColumnFieldType } from '../types/column-types'
-// 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
-
 
 export interface TableConfigOptions {
   extraColumnConfig?: {
@@ -20,42 +17,51 @@ export interface TableConfigOptions {
     columnSortRules: Ref<any[]>
     menuId?: Ref<string> | string
   }
-  /** 是否可编辑表格 */
   canEditTable?: boolean
-  /** 表格高度 */
   height?: string | number
-  /** 是否自动调整大小 */
   autoResize?: boolean
-  /** 是否显示斑马纹 */
   stripe?: boolean
-  /** 是否显示边框 */
   border?: boolean
-  /** 是否可调整列宽 */
   resizable?: boolean
-  /** 是否保持原始数据 */
   keepSource?: boolean
-  /** 行ID字段 */
   rowId?: string
-  /** 编辑配置 */
   editConfig?: boolean | object
-  /** 列配置 */
-  /** 加载状态 */
   loading: Ref<boolean> | ComputedRef<boolean>
-  /** 静默刷新状态：刷新数据但不显示 loading */
   silentRefreshing?: Ref<boolean>
   apiMethod: Function
-  /** 子节点加载方法 */
   childApiMethod?: Function
-  /** 单元格类名函数 */
   cellClassName?: (params: { row: any; column: any; rowIndex: number; columnIndex: number }) => string
 }
+
+const CHECKBOX_COLUMN = {
+  type: 'checkbox',
+  width: 60,
+  fixed: 'left',
+  slots: { checkbox: 'checkboxIndex' },
+  headerAlign: 'right',
+  align: 'center'
+} as const
+
+const SYSTEM_READONLY_FIELD_TYPES = [
+  ColumnFieldType.CreatedTime,
+  ColumnFieldType.LastModifiedTime,
+  ColumnFieldType.CreatedBy,
+  ColumnFieldType.LastModifiedBy
+]
+
+const DISABLED_EDIT_FIELD_TYPES = [
+  ...SYSTEM_READONLY_FIELD_TYPES,
+  ColumnFieldType.VirtualColumn,
+  ColumnFieldType.Formula,
+  ColumnFieldType.Checkbox,
+  ColumnFieldType.Rating
+]
 
 /**
  * 表格配置管理 Composable
  * 封装 VxeGrid 的配置逻辑
  */
 export function useTableConfig(options: TableConfigOptions, gridRef: any) {
-  const tableOptions = options
   const {
     canEditTable = false,
     height = '100%',
@@ -72,86 +78,78 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     childApiMethod,
     cellClassName
   } = options
+
   const { columns } = toRefs(options.extraColumnConfig as any)
   const expandedRowKeys = ref<Array<string | number>>([])
-  const defaultTreeExpandRowKeys: Array<string | number> = []
-  // console.log('columns', columns)
-  // console.log('deleteColumn', deleteColumn)
-  // console.log('updateColumn', updateColumn)
-  // console.log('addColumn', addColumn)
-  const currentView = ref([])
-  /**
-   * 计算表格高度
-   */
+  /** 刷新前快照：reload 后 getTreeExpandRecords 常为空，深层 key 会丢失 */
+  const snapshotExpandRowKeys = ref<string[]>([])
+  const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
+
+  const isGroupingEnabled = computed(() => {
+    const rules = options.extraColumnConfig?.columnGroupRules?.value
+    return !!rules?.length
+  })
+
   const computedHeight = computed(() => {
-    if (typeof height === 'number') {
+    if (typeof height === 'number' || height === '100%') {
       return height
-    }
-    if (height === '100%') {
-      return '100%'
     }
     return 'auto'
   })
 
-  /**
-   * 处理列配置（添加默认编辑配置）
-   */
   const processedColumns = computed(() => {
-    console.log('columns', columns)
-    if (!columns.value) {
+    if (!columns.value?.length) {
       return []
     }
-    const _columns = JSON.parse(JSON.stringify(columns.value ?? []))
-    if (_columns.length === 0) {
-      return []
-    }
-    _columns.unshift({
-      type: 'checkbox',
-      width: 60,
-      fixed: 'left',
-      slots: {
-        checkbox: 'checkboxIndex'
-      },
-      headerAlign: 'right',
-      align: 'center'
-    })
-    const data = _columns
-      .map((col: any) => {
-        if (col.type === 'checkbox') return col
 
-        if (!col.business_type) col.business_type = ColumnFieldType.Text
-        // if (col.field === 'name') col.rowGroupNode = true
+    const sourceColumns = JSON.parse(JSON.stringify(columns.value)) as any[]
+    sourceColumns.unshift({ ...CHECKBOX_COLUMN })
+
+    const data = sourceColumns
+      .map((col: any) => {
+        if (col.type === 'checkbox') {
+          return col
+        }
+
+        if (!col.business_type) {
+          col.business_type = ColumnFieldType.Text
+        }
+
         const colConfig = {
           ...col,
           field: col.field_name,
           title: col.field_name_alias,
           aggFunc: true,
           colId: col.field_name,
-          ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
+          ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure),
+          slots: {
+            footer: 'footerCount',
+            header: 'header'
+          }
         }
-        colConfig.slots = {
-          footer: 'footerCount',
-          header: 'header'
-        }
-        // 数字类型默认右对齐
+
         if (col.business_type === ColumnFieldType.Number) {
           colConfig.align = 'right'
         }
+
         return colConfig
       })
       .filter((col: any) => !col.hidden)
-    if (isGroupingEnabled.value) {
+
+    if (isGroupingEnabled.value && data[1]) {
       data[1].treeNode = true
     }
-    console.log('data', data)
+
     return data
   })
+
   const processedEditRules = computed(() => {
     if (!columns.value) {
       return []
     }
-    const _columns = JSON.parse(JSON.stringify(columns.value ?? []))
-    return _columns.reduce((acc: any, col: any) => {
+
+    const sourceColumns = JSON.parse(JSON.stringify(columns.value)) as any[]
+    return sourceColumns.reduce((acc: any, col: any) => {
       acc[col.field] = rendererManager.getRules(col.type as ColumnFieldType)
       if (col.isRequired) {
         acc[col.field].push({ required: true, message: '必填项' })
@@ -159,41 +157,16 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       return acc
     }, {})
   })
-  // function updateColumns(newRules: any, _columns: any[]) {
-  //   const _newRules = newRules instanceof Array ? newRules : newRules.value
-  //   const columnIndexs: number[] = []
-  //   if (_newRules) {
-  //     _columns.forEach((col, index) => {
-  //       const rule = _newRules.find((rule: any) => rule.field === col.field)
-  //       if (rule) {
-  //         col.rowGroupNode = true
-  //         columnIndexs.push(index)
-  //       } else {
-  //         col.rowGroupNode = false
-  //       }
-  //     })
-  //   }
-  //   columnIndexs.forEach((colIndex, index) => {
-  //     const _col = _columns.splice(colIndex, 1)[0]
-  //     _columns.splice(index, 0, _col)
-  //   })
-  //   return _columns
-  // }
-  /**
-   * 表格配置
-   */
-  const isGroupingEnabled = computed(() => {
-    return (
-      !!options.extraColumnConfig?.columnGroupRules &&
-      options.extraColumnConfig?.columnGroupRules.value &&
-      options.extraColumnConfig?.columnGroupRules.value.length > 0
-    )
+
+  const columnLockSignature = computed(() => {
+    return (lockedRowCell.value ?? [])
+      .filter((lock: any) => lock.editingColumn)
+      .map((lock: any) => `${lock.menuId || ''}:${lock.cellId || ''}`)
+      .join('|')
   })
 
-  const lockedRowCell = useState<any[]>('hocuspocus-locks', () => [])
-
   function getCurrentMenuId() {
-    const menuId = tableOptions.extraColumnConfig?.menuId
+    const menuId = options.extraColumnConfig?.menuId
     return (menuId as Ref<string> | undefined)?.value || menuId
   }
 
@@ -208,16 +181,11 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
 
   function isColumnConfigEditing(column: any) {
     const fieldKey = getColumnFieldKey(column)
-    if (!fieldKey) return false
+    if (!fieldKey) {
+      return false
+    }
     return lockedRowCell.value?.some((lock: any) => isSameMenu(lock) && lock.editingColumn && lock.cellId === fieldKey) ?? false
   }
-
-  const columnLockSignature = computed(() => {
-    return (lockedRowCell.value ?? [])
-      .filter((lock: any) => lock.editingColumn)
-      .map((lock: any) => `${lock.menuId || ''}:${lock.cellId || ''}`)
-      .join('|')
-  })
 
   function isCellEditLocked(row: any, column: any) {
     return (
@@ -245,34 +213,138 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     return isColumnConfigEditing(column) ? 'column-config-editing' : ''
   }
 
-  /**
-   * 树分组用的是 treeConfig，展开状态由「树展开」API 维护；
-   * getRowExpandRecords / setRowExpand 只对应「行展开」（expand 列 / expandConfig），与树无关，故在树模式下会一直为空。
-   */
+  // --- 树分组展开状态恢复 ---
+  // 树分组使用 treeConfig，展开状态由树展开 API 维护；
+  // getRowExpandRecords / setRowExpand 对应行展开（expand 列），与树无关。
+
+  function collectExpandedRowKeysFromGrid(): Array<string | number> {
+    const grid = gridRef.value
+    if (!grid) {
+      return [...expandedRowKeys.value]
+    }
+
+    const keySet = new Set<string>()
+    const keys: Array<string | number> = []
+
+    function addKey(key: string | number | undefined | null) {
+      if (key === undefined || key === null || keySet.has(String(key))) {
+        return
+      }
+      keySet.add(String(key))
+      keys.push(key)
+    }
+
+    function walkRows(rows: any[]) {
+      for (const row of rows || []) {
+        if (grid.isTreeExpandByRow?.(row)) {
+          addKey(row[rowId])
+        }
+        if (row.children?.length) {
+          walkRows(row.children)
+        }
+      }
+    }
+
+    walkRows(grid.getTableData?.()?.fullData ?? [])
+    for (const row of grid.getTreeExpandRecords?.() ?? []) {
+      addKey(row?.[rowId])
+    }
+    return keys
+  }
+
   function updateExpandedRows() {
     if (!isGroupingEnabled.value) {
       return
     }
-    const rows: any[] = gridRef.value?.getTreeExpandRecords?.() ?? []
-    expandedRowKeys.value = rows.map((row) => row?.[rowId]).filter((key): key is string | number => key !== undefined && key !== null)
+    const keys = collectExpandedRowKeysFromGrid()
+    expandedRowKeys.value = keys
+    snapshotExpandRowKeys.value = keys.map(String)
   }
-  async function restoreExpandedRows(rows: any[]) {
-    if (!isGroupingEnabled.value || !rows.length) {
+
+  function getExpandedKeySet() {
+    const keys = snapshotExpandRowKeys.value.length ? snapshotExpandRowKeys.value : expandedRowKeys.value
+    return new Set(keys.map(String))
+  }
+
+  async function expandSavedKeysAmongRows(candidateRoots: any[]) {
+    const grid = gridRef.value
+    const rowKeySet = getExpandedKeySet()
+    if (!grid || !rowKeySet.size || !candidateRoots.length) {
       return
     }
-    const rowKeys = [...new Set([...defaultTreeExpandRowKeys, ...expandedRowKeys.value])]
-    const rowKeySet = new Set(rowKeys.map(String))
-    const rowsToExpand = rows.filter((row) => rowKeySet.has(String(row?.[rowId])))
+
+    const rowsToExpand: any[] = []
+    const seen = new Set<string>()
+
+    function tryAddRow(row: any) {
+      if (!row) {
+        return
+      }
+      const key = String(row[rowId])
+      if (!rowKeySet.has(key) || seen.has(key) || grid.isTreeExpandByRow?.(row)) {
+        return
+      }
+      seen.add(key)
+      rowsToExpand.push(row)
+    }
+
+    function walkCandidates(rows: any[]) {
+      for (const row of rows || []) {
+        tryAddRow(row)
+        if (row.children?.length) {
+          walkCandidates(row.children)
+        }
+      }
+    }
+
+    walkCandidates(candidateRoots)
     if (!rowsToExpand.length) {
       return
     }
     await nextTick()
-    gridRef.value?.setTreeExpand?.(rowsToExpand, true)
+    grid.setTreeExpand?.(rowsToExpand, true)
   }
+
+  async function restoreExpandedChildrenUnderRow(parentRow: any) {
+    const grid = gridRef.value
+    const rowKeySet = getExpandedKeySet()
+    if (!grid || !parentRow || !rowKeySet.size) {
+      return
+    }
+
+    await nextTick()
+    let children: any[] = parentRow.children ?? []
+    if (!children.length) {
+      await nextTick()
+      children = parentRow.children ?? []
+    }
+    if (!children.length) {
+      return
+    }
+
+    const rowsToExpand = children.filter(
+      (child) => child?.hasChild && rowKeySet.has(String(child[rowId])) && !grid.isTreeExpandByRow?.(child)
+    )
+    if (!rowsToExpand.length) {
+      return
+    }
+    await nextTick()
+    grid.setTreeExpand?.(rowsToExpand, true)
+  }
+
+  async function restoreExpandedRowsFromGridRoot() {
+    if (!isGroupingEnabled.value || !getExpandedKeySet().size) {
+      return
+    }
+    await nextTick()
+    const fullData: any[] = gridRef.value?.getTableData?.()?.fullData ?? []
+    await expandSavedKeysAmongRows(fullData)
+  }
+
   const gridOptions = computed<VxeGridProps>(() => {
-    // 依赖协作列锁，锁变化时触发 gridOptions 更新并刷新表头/单元格 class
     void columnLockSignature.value
-    const options: VxeGridProps | any = {
+
+    const gridConfig: VxeGridProps | any = {
       height: computedHeight.value,
       autoResize,
       stripe,
@@ -289,39 +361,26 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       },
       columnDragConfig: {
         disabledMethod({ column }: any) {
-          if (column.type === 'checkbox') {
-            return true
-          }
-          return false
+          return column.type === 'checkbox'
         }
       },
-      // 虚拟滚动配置 - 性能优化
-      // 注意：虚拟滚动与树形懒加载存在兼容性问题，当启用树形结构时，建议禁用虚拟滚动或使用固定行高
       virtualYConfig: {
         enabled: true,
         mode: 'wheel',
-        gt: 0 // 大于20条数据时启用虚拟滚动
+        gt: 0
       },
       virtualXConfig: {
         enabled: true,
         gt: 0
       },
-      'virtual-x-config': {
-        enabled: true,
-        gt: 0
-      },
-      // 工具栏配置
-      toolbarConfig: {
-        visible: false
-      },
+      toolbarConfig: { visible: false },
       sortConfig: {
+        multiple: true,
         showIcon: false
       },
-      // 分组配置
       showFooter: true,
       pagerConfig: {
         enabled: true,
-        // pageSize : params.pageSize || 20
         pageSize: 100
       },
       footerData: [{ type: 'footerData' }],
@@ -331,113 +390,100 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         highlight: true,
         visibleMethod: ({ row }: any) => !row.__deleted
       },
-      'footer-cell-config': {
-        height: 32
-      },
-      'sort-config': {
-        multiple: true,
-        showIcon: false,
-        defaultSort: {
-          field: 'age',
-          order: 'asc'
-        }
-      },
-      menuConfig: {
-        enabled: true
-      },
-      // 行配置 - 固定行高确保虚拟滚动正常工作
+      'footer-cell-config': { height: 32 },
+      menuConfig: { enabled: true },
       rowConfig: {
         keyField: rowId,
         isHover: true,
         useKey: true,
         isCurrent: true
       },
-      // 单元格类名配置 - 用于更新状态视觉反馈与协作列锁高亮
       cellClassName: getCellClassName,
       headerCellClassName: getHeaderCellClassName,
       footerCellClassName: getHeaderCellClassName
     }
 
     if (isGroupingEnabled.value) {
-      options.treeConfig = {
+      gridConfig.treeConfig = {
         rowField: rowId,
         parentField: 'parentId',
         lazy: true,
         hasChildField: 'hasChild',
         loadMethod: treeLoadData,
         expandAll: false,
-        reserve: true,
-        expandRowKeys: defaultTreeExpandRowKeys
+        reserve: true
       }
-      // Must disable virtual scroll when using tree config with lazy loading
-      options.virtualYConfig = { enabled: false }
+      gridConfig.virtualYConfig = { enabled: false }
     }
-    // 编辑配置
-    // 检查是否有列配置了 editRender
-    const hasEditRender = processedColumns.value.some((col: any) => col.editRender)
 
-    // 如果显式传递了 editConfig 或者有列配置了 editRender，则启用编辑功能
-    if (!!editConfig || hasEditRender) {
-      const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
-      const disabledFields = [...systemFieldsTypes, ColumnFieldType.VirtualColumn, ColumnFieldType.Formula, ColumnFieldType.Checkbox, ColumnFieldType.Rating]
-      options.editConfig = {
+    const hasEditRender = processedColumns.value.some((col: any) => col.editRender)
+    if (editConfig || hasEditRender) {
+      gridConfig.editConfig = {
         trigger: 'dblclick',
         mode: 'cell',
         showIcon: false,
         showStatus: false,
         ...((editConfig as any) || {}),
         beforeEditMethod: ({ row, column, $grid }: any) => {
-          // user have no permission to edit
-          if(!canEditTable) return false
+          if (!canEditTable) {
+            return false
+          }
           const isLock = isCellEditLocked(row, column)
-          const value = !row.hasChild && !disabledFields.includes(column.type) && !isLock
-          if (value) {
-            // dispatch event to parent
+          const canEdit = !row.hasChild && !DISABLED_EDIT_FIELD_TYPES.includes(column.type) && !isLock
+          if (canEdit) {
             $grid.dispatchEvent('start-edit', { row, column })
           }
-          return value
+          return canEdit
         }
       }
     }
+
     if (apiMethod) {
-      options.proxyConfig = {
+      gridConfig.proxyConfig = {
         showLoading: !silentRefreshing?.value,
-        ajax: {
-          query: loadData
-        }
+        ajax: { query: loadData }
       }
     }
-    return options
+
+    return gridConfig
   })
 
   async function loadData(args: any) {
     const { page } = args
-    let pageParams: any = {
+    const pageParams = {
       pageSize: page.pageSize,
       pageNum: page.currentPage - 1
     }
     const { entryList, totalSize } = await apiMethod(pageParams)
-    void restoreExpandedRows(entryList)
+
+    if (snapshotExpandRowKeys.value.length) {
+      nextTick(() => {
+        void restoreExpandedRowsFromGridRoot()
+      })
+    }
+
     return {
       result: entryList,
-      page: {
-        total: totalSize
-      }
+      page: { total: totalSize }
     }
   }
+
   async function treeLoadData(params: any) {
-    return new Promise<any[]>(async (resolve) => {
-      try {
-        const { $table, row } = params
-        const rowLevel = $table.getTreeRowLevel(row)
-        const data = await childApiMethod?.({ ...params.row, __level: rowLevel })
-        resolve(data)
-      } catch (error) {
-        console.error('treeLoadData error:', error)
-        resolve([])
-      }
-    })
+    const { row } = params
+    try {
+      const rowLevel = params.$table.getTreeRowLevel(row)
+      const data = (await childApiMethod?.({ ...params.row, __level: rowLevel })) ?? []
+      nextTick(async () => {
+        gridRef.value?.recalculate?.(true)
+        await restoreExpandedChildrenUnderRow(row)
+      })
+      return data
+    } catch (error) {
+      console.error('treeLoadData error:', error)
+      return []
+    }
   }
+
   watch(columnLockSignature, () => {
     nextTick(() => {
       const grid = gridRef.value
@@ -447,8 +493,12 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   })
 
   watch(
-    () => [options.extraColumnConfig?.columnGroupRules, options.extraColumnConfig?.columnFilterRules, options.extraColumnConfig?.columnSortRules],
-    ([newColumnGroupRules, newColumnFilterRules, newColumnSortRules]) => {
+    () => [
+      options.extraColumnConfig?.columnGroupRules,
+      options.extraColumnConfig?.columnFilterRules,
+      options.extraColumnConfig?.columnSortRules
+    ],
+    () => {
       if (silentRefreshing?.value) {
         return
       }
@@ -456,6 +506,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     },
     { deep: true }
   )
+
   return {
     gridOptions,
     updateExpandedRows

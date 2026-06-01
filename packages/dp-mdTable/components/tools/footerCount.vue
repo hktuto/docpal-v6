@@ -74,8 +74,7 @@ const allMethods = computed<MethodOption[]>(() => [
   { value: 'UNIQUE_RATIO' }
 ])
 const mdTable = useMDTableInject()
-const gridRef = mdTable.gridRef
-// Inject gridRef 来获取表格数据
+
 // 判断是否为数字类型
 const isNumericType = computed(() => {
   if (!props.column) {
@@ -93,32 +92,6 @@ const availableMethods = computed(() => {
     return allMethods.value.filter((method) => !method.numericOnly)
   }
 })
-
-function makeFlatData(data: any[], childKey: string) {
-  let result: any = []
-  data.forEach((item) => {
-    if (item[childKey] && item[childKey].length > 0) {
-      const child = makeFlatData(item[childKey], childKey)
-      result.push(...child)
-    }
-    result.push(item)
-  })
-  return result
-}
-// 获取表格数据列表
-const getTableData = (): any[] => {
-  if (gridRef?.value) {
-    try {
-      const result = (gridRef.value as any).getTableData()
-
-      return makeFlatData(result?.fullData || [], '_X_ROW_CHILD')
-    } catch (error) {
-      console.error(t('mdTable.countMethod.getDataError'), error)
-      return []
-    }
-  }
-  return []
-}
 
 const selectedCountMethod = computed<CountMethod>(() => {
   if (!props.column) {
@@ -143,6 +116,7 @@ const handleMethodSelect = async (method: CountMethod) => {
   }
   await mdTable.updateViewColumnCountMethod?.(fullColumn.id, method)
   mdTable.updateExpandedRows?.()
+  mdTable.gridRef?.value?.clearTreeExpandLoaded?.()
   await mdTable.refreshTableData?.({ silent: true, keepPage: true })
   await getAgg({ silent: true })
 }
