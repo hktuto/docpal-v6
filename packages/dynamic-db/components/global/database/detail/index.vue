@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage, ElNotification } from 'element-plus'
-import { useImportRelationAnalysisState, dismissGuess } from '../../../../composables/import/useImportRelationAnalysis'
+import { useImportRelationAnalysisState, dismissGuess, runRelationAnalysis } from '../../../../composables/import/useImportRelationAnalysis'
 import type { RelationGuess } from '../../../../composables/import/relationGuesser'
 import ImportRelationConfirmDialog from './ImportRelationConfirmDialog.vue'
 
@@ -25,7 +25,7 @@ const canOpenSetting = computed(() => {
 
 const analysis = useImportRelationAnalysisState()
 const pendingGuesses = computed(() => analysis.value.guesses.filter((g) => !g.dismissed))
-const showAnalysisStatus = computed(() => analysis.value.status !== 'idle')
+const showAnalysisStatus = computed(() => true)
 
 const groupedGuesses = computed(() => {
   const map = new Map<string, RelationGuess[]>()
@@ -48,6 +48,7 @@ function analysisStatusLabel() {
   const s = analysis.value.status
   if (s === 'analyzing') return 'Analyzing...'
   if (s === 'error') return 'Analysis failed'
+  if (s === 'idle') return 'Analyze Relations'
   const count = pendingGuesses.value.length
   if (count > 0) return `${count} relation${count === 1 ? '' : 's'} found`
   return 'No relations found'
@@ -62,9 +63,19 @@ function analysisDotClass() {
 }
 
 function openAnalysisPopover() {
-  if (analysis.value.status === 'analyzing' || analysis.value.status === 'idle') return
+  if (analysis.value.status === 'analyzing') return
   if (!analysisStatusRef.value) return
   analysisPopoverRef.value?.open(analysisStatusRef.value)
+}
+
+async function onReanalyze() {
+  analysisPopoverRef.value?.close()
+  const dbId = database.value?.id
+  if (!dbId) {
+    ElMessage.warning('No database selected')
+    return
+  }
+  await runRelationAnalysis(dbId)
 }
 
 function dismissGuessAndClose(index: number) {
@@ -393,6 +404,16 @@ watch(
       </div>
       <div class="analysis-popover-footer">
         <el-button size="small" text @click="analysisPopoverRef?.close()">Close</el-button>
+        <el-button
+          v-if="analysis.status === 'idle' || analysis.status === 'completed' || analysis.status === 'error'"
+          size="small"
+          type="primary"
+          text
+          :loading="analysis.status === 'analyzing'"
+          @click="onReanalyze"
+        >
+          Re-analyze
+        </el-button>
         <el-button v-if="pendingGuesses.length > 0" size="small" type="primary" text @click="dismissAllGuesses">
           Dismiss All
         </el-button>
