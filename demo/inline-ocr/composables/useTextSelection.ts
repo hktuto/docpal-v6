@@ -36,6 +36,14 @@ export function useTextSelection(boxes: Ref<SelectableBox[]>) {
     copied.value = false
   }
 
+  function selectOnly(index: number) {
+    if (selectedIndices.value.has(index) && selectedIndices.value.size === 1) {
+      clearSelection()
+    } else {
+      selectSingle(index)
+    }
+  }
+
   function toggleSingle(index: number) {
     const newSet = new Set(selectedIndices.value)
     if (newSet.has(index)) {
@@ -91,6 +99,19 @@ export function useTextSelection(boxes: Ref<SelectableBox[]>) {
   }
 
   async function copyToClipboard(): Promise<boolean> {
+    // Prefer native text selection (character-level) over box selection
+    const nativeSelection = window.getSelection()?.toString() || ''
+    if (nativeSelection) {
+      try {
+        await navigator.clipboard.writeText(nativeSelection)
+        copied.value = true
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    // Fall back to custom box selection
     const text = selectedText.value
     if (!text) return false
     try {
@@ -116,12 +137,17 @@ export function useTextSelection(boxes: Ref<SelectableBox[]>) {
   }
 
   function onWindowKeyDown(e: KeyboardEvent) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'c' && hasSelection.value) {
-      e.preventDefault()
-      copyToClipboard()
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+      // Only intercept if we have a custom selection or native selection exists
+      const nativeSelection = window.getSelection()?.toString() || ''
+      if (nativeSelection || hasSelection.value) {
+        e.preventDefault()
+        copyToClipboard()
+      }
     }
     if (e.key === 'Escape') {
       clearSelection()
+      window.getSelection()?.removeAllRanges()
     }
   }
 
@@ -142,9 +168,14 @@ export function useTextSelection(boxes: Ref<SelectableBox[]>) {
     selectedText,
     isSelecting,
     copied,
+    selectRange,
+    selectSingle,
+    selectOnly,
+    toggleSingle,
+    clearSelection,
     startSelection,
     extendSelection,
-    clearSelection,
+    finalizeSelection,
     isSelected,
     selectAll,
     copyToClipboard,

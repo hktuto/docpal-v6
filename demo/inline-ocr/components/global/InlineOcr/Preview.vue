@@ -39,6 +39,16 @@ const selection = useTextSelection(computed(() => ocrResult.value?.boxes ?? []))
 
 const ocr = usePaddleOcr()
 
+// Click-vs-drag detection for box-level vs character-level selection
+const clickTrack = ref<{
+  startTime: number
+  startX: number
+  startY: number
+  index: number
+  shiftKey: boolean
+  active: boolean
+} | null>(null)
+
 function loadImage(src: string) {
   imageLoaded.value = false
   ocrResult.value = null
@@ -96,6 +106,9 @@ function getBoxStyle(boxPoints: number[][]) {
   const angleRad = Math.atan2(p1[1] - p0[1], p1[0] - p0[0])
   const angleDeg = angleRad * (180 / Math.PI)
 
+  // Estimate font size from box height so text roughly fits
+  const fontSize = Math.min(Math.max(textHeight * 0.85, 8), textHeight)
+
   return {
     position: 'absolute' as const,
     left: `${p0[0]}px`,
@@ -104,16 +117,49 @@ function getBoxStyle(boxPoints: number[][]) {
     height: `${textHeight}px`,
     transform: `rotate(${angleDeg}deg)`,
     transformOrigin: '0 0',
+    fontSize: `${fontSize}px`,
+    lineHeight: `${textHeight}px`,
   }
 }
 
 function onBoxMouseDown(index: number, e: MouseEvent) {
-  const extend = e.shiftKey
-  selection.startSelection(index, extend)
+  clickTrack.value = {
+    startTime: Date.now(),
+    startX: e.clientX,
+    startY: e.clientY,
+    index,
+    shiftKey: e.shiftKey,
+    active: true,
+  }
 }
 
-function onBoxMouseEnter(index: number) {
-  selection.extendSelection(index)
+function onWindowMouseMove(e: MouseEvent) {
+  if (!clickTrack.value?.active) return
+  const dx = e.clientX - clickTrack.value.startX
+  const dy = e.clientY - clickTrack.value.startY
+  if (Math.sqrt(dx * dx + dy * dy) > 8) {
+    // Moved enough — this is a drag (native character selection)
+    clickTrack.value.active = false
+  }
+}
+
+function onWindowMouseUp() {
+  if (!clickTrack.value) return
+  const track = clickTrack.value
+  clickTrack.value = null
+
+  if (!track.active) return // Was a drag, let native selection handle it
+
+  // It was a click (no significant movement)
+  if (track.shiftKey && selection.anchorIndex.value !== null) {
+    // Shift+click = range select boxes
+    window.getSelection()?.removeAllRanges()
+    selection.selectRange(selection.anchorIndex.value, track.index)
+  } else {
+    // Regular click = select/deselect single box, clearing native selection
+    window.getSelection()?.removeAllRanges()
+    selection.selectOnly(track.index)
+  }
 }
 
 function onBoxTouchStart(index: number) {
@@ -126,6 +172,7 @@ function onContainerMouseDown(e: MouseEvent) {
   const target = e.target as HTMLElement
   if (!target.closest('.text-box')) {
     selection.clearSelection()
+    window.getSelection()?.removeAllRanges()
   }
 }
 
@@ -160,6 +207,16 @@ function zoomOut() {
   state.translateX = newTx
   state.translateY = newTy
 }
+
+onMounted(() => {
+  window.addEventListener('mousemove', onWindowMouseMove)
+  window.addEventListener('mouseup', onWindowMouseUp)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', onWindowMouseMove)
+  window.removeEventListener('mouseup', onWindowMouseUp)
+})
 
 watch(() => props.src, (newSrc) => {
   if (newSrc) loadImage(newSrc)
@@ -225,14 +282,15 @@ watch(() => props.src, (newSrc) => {
             v-for="(box, index) in ocrResult.boxes"
             :key="index"
             class="text-box"
-            :class="{ selected: selection.isSelected(index) }"
+            :class="{ 'box-selected': selection.isSelected(index) }"
             :style="getBoxStyle(box.points)"
             :data-text="box.text"
             :data-index="index"
-            @mousedown.stop="onBoxMouseDown(index, $event)"
-            @mouseenter="onBoxMouseEnter(index)"
+            @mousedown="onBoxMouseDown(index, $event)"
             @touchstart.stop="onBoxTouchStart(index)"
-          />
+          >
+            {{ box.text }}
+          </div>
         </div>
       </div>
 
@@ -353,17 +411,34 @@ watch(() => props.src, (newSrc) => {
   position: absolute;
   pointer-events: auto;
   cursor: text;
+  color: transparent;
+  text-shadow: none;
   background: transparent;
   border-radius: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  user-select: text;
+  -webkit-user-select: text;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: normal;
   transition: background 0.15s;
 
   &:hover {
-    background: rgba(233, 69, 96, 0.1);
+    background: rgba(233, 69, 96, 0.06);
   }
 
-  &.selected {
-    background: rgba(233, 69, 96, 0.3);
-    box-shadow: 0 0 0 1px rgba(233, 69, 96, 0.5);
+  // Native character-level selection highlight
+  &::selection {
+    background: rgba(233, 69, 96, 0.4);
+    color: transparent;
+    text-shadow: none;
+  }
+
+  // Custom box-level selection highlight
+  &.box-selected {
+    background: rgba(233, 69, 96, 0.15);
+    box-shadow: 0 0 0 1px rgba(233, 69, 96, 0.35);
   }
 }
 
