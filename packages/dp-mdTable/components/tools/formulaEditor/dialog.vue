@@ -1,12 +1,19 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="t('mdTable.formulaEditor.dialogTitle')" width="900px" :close-on-click-modal="false" @close="handleClose">
+  <el-dialog
+    class="scroll-dialog"
+    v-model="dialogVisible"
+    :title="t('mdTable.formulaEditor.dialogTitle')"
+    width="900px"
+    :close-on-click-modal="false"
+    @close="handleClose"
+  >
     <div class="formula-dialog"></div>
     <ToolsFormulaEditor v-model="formulaText" ref="formulaEditorRef" :variables="variables" />
     <template #footer>
       <div class="dialog-footer">
-        <div class="help-link">
+        <!-- <div class="help-link">
           <a href="https://www.google.com" target="_blank">{{ t('mdTable.formulaEditor.learnMore') }}</a>
-        </div>
+        </div> -->
         <div>
           <el-button @click="handleClose">{{ t('dpButtom_cancel') }}</el-button>
           <el-button type="primary" @click="handleConfirm">{{ t('dpButtom_confirm') }}</el-button>
@@ -18,20 +25,20 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-
-const { t } = useI18n();
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+const { t } = useI18n()
 interface Props {
   modelValue: boolean
   formData: any
 }
 const mdTable = useMDTableInject()
 const columns = mdTable.columns
-const variables = computed(() =>
-  columns.value.map((column: any) => ({
+const variables = computed(() => {
+  return columns.value.filter((v: any) => v?.business_type === ColumnFieldType.Number).map((column: any) => ({
     label: column.title,
     value: column.field
   }))
-)
+})
 const formulaText = ref('')
 const props = defineProps<Props>()
 const emit = defineEmits<{
@@ -57,11 +64,14 @@ function handleConfirm() {
 function handleClose() {
   dialogVisible.value = false
 }
-watch(() => dialogVisible.value, (newVal) => {
-  if (newVal) {
-    formulaText.value = props.formData.formula
+watch(
+  () => dialogVisible.value,
+  (newVal) => {
+    if (newVal) {
+      formulaText.value = props.formData.formula_expression
+    }
   }
-})
+)
 </script>
 
 <style scoped lang="scss"></style>

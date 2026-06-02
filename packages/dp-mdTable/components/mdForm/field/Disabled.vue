@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import { evalFormula } from '@packages/dp-mdTable/components/tools/formulaEditor/formulaHelper'
+// import { evalFormula } from '@packages/dp-mdTable/components/tools/formulaEditor/formulaHelper'
 
 const props = defineProps<{
   formData: any
@@ -47,8 +47,9 @@ const displayFormat = computed(() => {
 
 /** Formula 列根据 returnType 格式化的显示值（空值显示为 '-'） */
 const formulaDisplayValue = computed(() => {
-  const formula = props.column?.display_structure?.formula ?? props.column?.display_structure?.expression ?? ''
-  return evalFormula(formula, props.formData)
+  // const formula = props.column?.display_structure?.formula ?? props.column?.display_structure?.expression ?? ''
+  // return evalFormula(formula, props.formData)
+  return props.formData[props.column.field]
 })
 
 const formulaPlaceholder = '-'

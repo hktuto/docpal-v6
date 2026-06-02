@@ -181,8 +181,8 @@ const handleSubmit = async () => {
     const stateColumn = JSON.parse(JSON.stringify(state.column))
     await formRef.value.validate()
     // 基本字段
-    const basicFields = ['field_name', 'business_type', 'relation_table_id', 'display_field_ids', 'is_array', 'aggregation_field_name', 'aggregation_method']
-    const display_structure_fields = ['relation_table_id', 'display_field_ids']
+    const basicFields = ['field_name', 'business_type', 'relation_table_id', 'display_field_ids', 'is_array', 'aggregation_field_name', 'aggregation_method','formula_expression']
+    const display_structure_fields = ['relation_table_id', 'display_field_ids', 'formula_expression']
     const columnConfig: ColumnConfig = {}
     // 将其他字段保存到 display_structure 中
     const display_structure: Record<string, any> = {}
