@@ -16,7 +16,13 @@ export function useLongPress(
   let timer: ReturnType<typeof setTimeout> | null = null
   let startPos = { x: 0, y: 0 }
 
+  function isTextElement(target: EventTarget | null): boolean {
+    if (!target || !(target instanceof HTMLElement)) return false
+    return target.closest('.text-box') !== null || target.closest('.text-content') !== null
+  }
+
   function start(e: MouseEvent | TouchEvent) {
+    if (isTextElement(e.target)) return
     isPressed.value = true
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY

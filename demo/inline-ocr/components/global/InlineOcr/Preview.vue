@@ -19,7 +19,7 @@ const ocrResult = ref<OcrResult | null>(null)
 const showOverlays = ref(true)
 const isProcessing = ref(false)
 
-const { state, transformStyle, reset, zoomToFit, isDragging } = useCanvasViewport(
+const { state, transformStyle, cursorStyle, reset, zoomToFit, isDragging, isSpacePressed } = useCanvasViewport(
   canvasRef,
   containerRef,
   { minScale: 0.05, maxScale: 20, zoomSpeed: 0.002 }
@@ -175,6 +175,7 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
       ref="containerRef"
       class="viewport"
       :class="{ 'is-dragging': isDragging, 'is-pressed': isPressed }"
+      :style="{ cursor: cursorStyle }"
     >
       <div
         v-if="imageLoaded"
@@ -211,6 +212,10 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
 
       <div v-if="isPressed && !isProcessing" class="long-press-indicator">
         <div class="long-press-ring" />
+      </div>
+
+      <div v-if="isSpacePressed" class="space-hint">
+        Pan mode — drag to move
       </div>
     </div>
 
@@ -280,15 +285,6 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
   position: relative;
   flex: 1;
   overflow: hidden;
-  cursor: grab;
-
-  &.is-dragging {
-    cursor: grabbing;
-  }
-
-  &.is-pressed {
-    cursor: grab;
-  }
 }
 
 .canvas-wrapper {
@@ -313,27 +309,27 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
 .text-box {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   pointer-events: auto;
   cursor: text;
-  border: 1px solid rgba(233, 69, 96, 0.3);
-  background: rgba(233, 69, 96, 0.08);
-  border-radius: 2px;
-  transition: background 0.2s;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 1px 2px;
 
   &:hover {
-    background: rgba(233, 69, 96, 0.2);
-    border-color: rgba(233, 69, 96, 0.6);
+    background: rgba(233, 69, 96, 0.12);
   }
 }
 
 .text-content {
-  font-size: 14px;
+  font-size: 13px;
   color: transparent;
   user-select: text;
   -webkit-user-select: text;
-  line-height: 1.2;
-  text-shadow: 0 0 0 rgba(255, 255, 255, 0.85);
+  line-height: 1.3;
+  text-shadow: 0 0 0 rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
 }
 
 .placeholder {
@@ -366,6 +362,21 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
     transform: scale(1.5);
     opacity: 0;
   }
+}
+
+.space-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  background: rgba(233, 69, 96, 0.9);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 10;
 }
 
 .result-panel {

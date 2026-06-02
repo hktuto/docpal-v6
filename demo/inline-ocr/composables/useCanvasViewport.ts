@@ -26,6 +26,7 @@ export function useCanvasViewport(
   })
 
   const isDragging = ref(false)
+  const isSpacePressed = ref(false)
   const dragStart = ref({ x: 0, y: 0 })
   const translateStart = ref({ x: 0, y: 0 })
 
@@ -33,6 +34,12 @@ export function useCanvasViewport(
     transform: `translate(${state.translateX}px, ${state.translateY}px) scale(${state.scale})`,
     transformOrigin: '0 0',
   }))
+
+  const cursorStyle = computed(() => {
+    if (isDragging.value) return 'grabbing'
+    if (isSpacePressed.value) return 'grab'
+    return 'default'
+  })
 
   function setTransform(s: number, tx: number, ty: number) {
     state.scale = Math.max(minScale, Math.min(maxScale, s))
@@ -88,6 +95,8 @@ export function useCanvasViewport(
 
   function onMouseDown(e: MouseEvent) {
     if (e.button !== 0) return
+    // Only pan when space bar is held
+    if (!isSpacePressed.value) return
     isDragging.value = true
     dragStart.value = { x: e.clientX, y: e.clientY }
     translateStart.value = { x: state.translateX, y: state.translateY }
@@ -159,6 +168,20 @@ export function useCanvasViewport(
     isDragging.value = false
   }
 
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.code === 'Space') {
+      e.preventDefault()
+      isSpacePressed.value = true
+    }
+  }
+
+  function onKeyUp(e: KeyboardEvent) {
+    if (e.code === 'Space') {
+      isSpacePressed.value = false
+      isDragging.value = false
+    }
+  }
+
   onMounted(() => {
     const container = containerRef.value
     if (!container) return
@@ -170,6 +193,8 @@ export function useCanvasViewport(
     container.addEventListener('touchmove', onTouchMove, { passive: false })
     container.addEventListener('touchend', onTouchEnd)
     container.addEventListener('touchcancel', onTouchEnd)
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
   })
 
   onUnmounted(() => {
@@ -183,12 +208,16 @@ export function useCanvasViewport(
     container.removeEventListener('touchmove', onTouchMove)
     container.removeEventListener('touchend', onTouchEnd)
     container.removeEventListener('touchcancel', onTouchEnd)
+    window.removeEventListener('keydown', onKeyDown)
+    window.removeEventListener('keyup', onKeyUp)
   })
 
   return {
     state,
     transformStyle,
+    cursorStyle,
     isDragging,
+    isSpacePressed,
     setTransform,
     reset,
     zoomToFit,

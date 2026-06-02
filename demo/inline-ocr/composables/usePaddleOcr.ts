@@ -73,7 +73,7 @@ export function usePaddleOcr() {
 
       const boxes: OcrTextBox[] = items.map((item: any) => ({
         text: item.text || '',
-        points: item.box?.map((p: any) => [p.x, p.y]) || [],
+        points: item.poly || [],
         score: item.score || 0,
       }))
 
