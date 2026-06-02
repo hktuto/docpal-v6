@@ -52,13 +52,12 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     component: 'LazyDbChartWidget',
     setting: {
       tableId: '',
-      chartType: 'bar',
       xField: '',
-      xTimeGranularity: '',
       series: [
         {
           field: '',
           aggregation: 'sum',
+          type: 'bar',
           label: '',
           color: ''
         }
@@ -67,8 +66,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
         legendPosition: 'bottom',
         stacked: false,
         smooth: false
-      },
-      rowLimit: 20
+      }
     }
   },
   DbPie: {

@@ -8,39 +8,14 @@
         </el-select>
       </el-form-item>
 
-      <!-- Chart Type -->
-      <el-form-item label="Chart Type">
-        <el-select-v2 v-model="form.chartType" :options="chartTypeOptions" style="width: 100%" />
-      </el-form-item>
-
       <!-- X-Axis Grouping -->
       <el-divider>X-Axis (Horizontal Grouping)</el-divider>
 
-      <el-form-item label="Group By">
-        <el-radio-group v-model="xAxisMode" @change="onXAxisModeChange">
-          <el-radio-button label="field">Field Value</el-radio-button>
-          <el-radio-button label="time">Time Period</el-radio-button>
-        </el-radio-group>
-      </el-form-item>
-
-      <!-- Field mode -->
-      <el-form-item v-if="xAxisMode === 'field'" label="Field">
+      <el-form-item label="Field">
         <el-select v-model="form.xField" placeholder="Select field to group by" style="width: 100%" :loading="fieldsLoading">
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
-
-      <!-- Time mode -->
-      <template v-if="xAxisMode === 'time'">
-        <el-form-item label="Date Field">
-          <el-select v-model="form.xField" placeholder="Select date field" style="width: 100%" :loading="fieldsLoading">
-            <el-option v-for="f in dateFields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Time Period">
-          <el-select-v2 v-model="form.xTimeGranularity" :options="timeGranularityOptions" style="width: 100%" />
-        </el-form-item>
-      </template>
 
       <!-- Series -->
       <el-divider>Data Series (Y-Axis Values)</el-divider>
@@ -71,6 +46,9 @@
           <el-form-item label="Aggregation" class="series-field-item">
             <el-select-v2 v-model="series.aggregation" :options="aggregationOptions" style="width: 100%" />
           </el-form-item>
+          <el-form-item label="Type" class="series-field-item">
+            <el-select-v2 v-model="series.type" :options="seriesTypeOptions" style="width: 100%" />
+          </el-form-item>
           <el-form-item label="Label" class="series-field-item">
             <el-input v-model="series.label" placeholder="Series label" />
           </el-form-item>
@@ -94,11 +72,6 @@
           <el-switch v-model="form.appearance.smooth" />
         </el-form-item>
       </div>
-
-      <!-- Row Limit -->
-      <el-form-item label="Row Limit">
-        <el-select-v2 v-model="form.rowLimit" :options="limitOptions" style="width: 100%" />
-      </el-form-item>
     </el-form>
 
     <template #footer>
@@ -116,9 +89,9 @@ import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTable
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { tableOptions, fields, fieldsLoading, loadFields, numericFields, dateFields, isDateField } = useWidgetTableFields()
+const { tableOptions, fields, fieldsLoading, loadFields, numericFields } = useWidgetTableFields()
 
-const chartTypeOptions = [
+const seriesTypeOptions = [
   { label: 'Bar', value: 'bar' },
   { label: 'Line', value: 'line' },
   { label: 'Area', value: 'area' }
@@ -132,13 +105,6 @@ const aggregationOptions = [
   { label: 'Maximum', value: 'max' }
 ]
 
-const timeGranularityOptions = [
-  { label: 'Day', value: 'day' },
-  { label: 'Week', value: 'week' },
-  { label: 'Month', value: 'month' },
-  { label: 'Year', value: 'year' }
-]
-
 const legendPositionOptions = [
   { label: 'None', value: 'none' },
   { label: 'Top', value: 'top' },
@@ -147,18 +113,11 @@ const legendPositionOptions = [
   { label: 'Right', value: 'right' }
 ]
 
-const limitOptions = [
-  { label: '10 rows', value: 10 },
-  { label: '20 rows', value: 20 },
-  { label: '50 rows', value: 50 },
-  { label: '100 rows', value: 100 },
-  { label: '200 rows', value: 200 }
-]
-
 function createDefaultSeries(): any {
   return {
     field: '',
     aggregation: 'sum',
+    type: 'bar',
     label: '',
     color: ''
   }
@@ -166,50 +125,25 @@ function createDefaultSeries(): any {
 
 const form = reactive({
   tableId: '',
-  chartType: 'bar',
   xField: '',
-  xTimeGranularity: '',
   series: [createDefaultSeries()] as any[],
   appearance: {
     legendPosition: 'bottom',
     stacked: false,
     smooth: false
-  },
-  rowLimit: 20
+  }
 })
 
-const xAxisMode = ref<'field' | 'time'>('field')
-
 const showStackedOption = computed(() =>
-  ['bar', 'line', 'area'].includes(form.chartType)
+  form.series.some((s: any) => ['bar', 'line', 'area'].includes(s.type))
 )
 
 const showSmoothOption = computed(() =>
-  ['line', 'area'].includes(form.chartType)
+  form.series.some((s: any) => ['line', 'area'].includes(s.type))
 )
-
-function onXAxisModeChange(mode: 'field' | 'time') {
-  if (mode === 'field') {
-    form.xTimeGranularity = ''
-    // Keep xField if it exists, user can change it
-  } else {
-    form.xTimeGranularity = 'month'
-    // If current xField is not a date field, clear it so user selects a date field
-    if (form.xField && !isDateField(form.xField)) {
-      form.xField = ''
-    }
-    // If no date field selected yet, default to createdTime if available
-    if (!form.xField && dateFields.value.length) {
-      const createdTime = dateFields.value.find((f: any) => f.field_name === 'createdTime')
-      form.xField = createdTime?.field_name || dateFields.value[0]?.field_name || ''
-    }
-  }
-}
 
 async function handleTableChange(tableId: string) {
   form.xField = ''
-  form.xTimeGranularity = ''
-  xAxisMode.value = 'field'
   form.series.forEach((s: any) => {
     s.field = ''
   })
@@ -230,27 +164,22 @@ watch(
     if (isVisible) {
       const raw = setting.value
       form.tableId = raw.tableId || ''
-      form.chartType = raw.chartType || 'bar'
       form.xField = raw.xField || ''
-      form.xTimeGranularity = raw.xTimeGranularity || ''
+
+      // Backward compatibility: copy global chartType to each series if series has no type
+      const oldChartType = raw.chartType || 'bar'
       form.series = (raw.series || [createDefaultSeries()]).map((s: any) => ({
         field: s.field || '',
         aggregation: s.aggregation || 'sum',
+        type: s.type || oldChartType,
         label: s.label || '',
         color: s.color || ''
       }))
+
       form.appearance = {
         legendPosition: raw.appearance?.legendPosition || 'bottom',
         stacked: raw.appearance?.stacked || false,
         smooth: raw.appearance?.smooth || false
-      }
-      form.rowLimit = raw.rowLimit || 20
-
-      // Derive xAxisMode from existing setting
-      if (form.xTimeGranularity) {
-        xAxisMode.value = 'time'
-      } else {
-        xAxisMode.value = 'field'
       }
 
       if (form.tableId) {
@@ -263,12 +192,9 @@ watch(
 function handleSubmit() {
   baseSubmit({
     tableId: form.tableId,
-    chartType: form.chartType,
     xField: form.xField,
-    xTimeGranularity: form.xTimeGranularity,
     series: form.series.map((s: any) => ({ ...s })),
-    appearance: { ...form.appearance },
-    rowLimit: form.rowLimit
+    appearance: { ...form.appearance }
   })
 }
 

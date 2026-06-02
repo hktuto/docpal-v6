@@ -21,15 +21,14 @@
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
 import * as echarts from 'echarts/core'
-import { BarChart, LineChart, PieChart } from 'echarts/charts'
+import { BarChart, LineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import dayjs from 'dayjs'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 
 // Register required modules
-echarts.use([BarChart, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
+echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
 
 const props = withDefaults(
   defineProps<{
@@ -94,21 +93,8 @@ const chartTitle = computed(() => {
   return 'Chart'
 })
 
-function truncateDate(value: any, granularity: string): string {
-  const d = dayjs(value)
-  if (!d.isValid()) return String(value)
-  switch (granularity) {
-    case 'day': return d.format('YYYY-MM-DD')
-    case 'week': return d.startOf('week').format('YYYY-MM-DD')
-    case 'month': return d.format('YYYY-MM')
-    case 'year': return d.format('YYYY')
-    default: return String(value)
-  }
-}
-
 function buildServerSideParams() {
-  const { tableId, xField, series, rowLimit } = config.value
-  const limit = rowLimit || 20
+  const { tableId, xField, series } = config.value
 
   const columns: any[] = [{ name: xField }]
   const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
@@ -127,90 +113,12 @@ function buildServerSideParams() {
     tableId,
     groupBy: { columns: [xField] },
     columns,
-    orderBy: [{ column: xField, desc: false }],
-    pagination: { pageSize: limit, pageNum: 1 }
+    orderBy: [{ column: xField, desc: false }]
   }
-}
-
-function buildClientSideParams() {
-  const { tableId, xField, series, rowLimit } = config.value
-  const limit = rowLimit || 20
-
-  const columns: any[] = [{ name: xField }]
-  const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
-
-  validSeries.forEach((s: any) => {
-    if (s.field) {
-      columns.push({ name: s.field })
-    }
-  })
-
-  return {
-    tableId,
-    columns,
-    pagination: { pageSize: limit, pageNum: 1 }
-  }
-}
-
-function aggregateClientSide(rows: any[], xField: string, granularity: string, series: any[]) {
-  const grouped: Record<string, Record<number, number[]>> = {}
-
-  for (const row of rows) {
-    const rawKey = row[xField] ?? 'Unknown'
-    const key = granularity ? truncateDate(rawKey, granularity) : String(rawKey)
-
-    if (!grouped[key]) grouped[key] = {}
-
-    series.forEach((s: any, index: number) => {
-      if (!grouped[key][index]) grouped[key][index] = []
-      if (s.aggregation === 'count') {
-        grouped[key][index].push(1)
-      } else {
-        const val = parseFloat(row[s.field])
-        if (!isNaN(val)) grouped[key][index].push(val)
-      }
-    })
-  }
-
-  const result = Object.entries(grouped).map(([key, valuesMap]) => {
-    const item: any = { key }
-    series.forEach((s: any, index: number) => {
-      const values = valuesMap[index] || []
-      let value = 0
-      if (s.aggregation === 'count') {
-        value = values.length
-      } else if (values.length === 0) {
-        value = 0
-      } else {
-        switch (s.aggregation) {
-          case 'sum':
-            value = values.reduce((a: number, b: number) => a + b, 0)
-            break
-          case 'avg':
-            value = values.reduce((a: number, b: number) => a + b, 0) / values.length
-            break
-          case 'min':
-            value = Math.min(...values)
-            break
-          case 'max':
-            value = Math.max(...values)
-            break
-          default:
-            value = values.length
-        }
-      }
-      item[`series_${index}`] = Math.round(value * 100) / 100
-    })
-    return item
-  })
-
-  // Sort by key for consistent ordering
-  result.sort((a, b) => String(a.key).localeCompare(String(b.key)))
-  return result
 }
 
 async function fetchData() {
-  const { tableId, xField, series, xTimeGranularity } = config.value
+  const { tableId, xField, series } = config.value
   const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
 
   if (!tableId || !xField || validSeries.length === 0) {
@@ -220,31 +128,20 @@ async function fetchData() {
 
   loading.value = true
   try {
-    let rows: any[] = []
-
-    if (xTimeGranularity) {
-      // Client-side aggregation with date truncation
-      const params = buildClientSideParams()
-      const res: any = await postDynamicActions(params)
-      rows = res.data?.data || []
-      chartData.value = aggregateClientSide(rows, xField, xTimeGranularity, validSeries)
-    } else {
-      // Server-side aggregation
-      const params = buildServerSideParams()
-      const res: any = await postDynamicActions(params)
-      rows = res.data?.data || []
-      chartData.value = rows.map((row: any) => {
-        const item: any = { key: row[xField] ?? 'Unknown' }
-        validSeries.forEach((s: any, index: number) => {
-          if (s.aggregation === 'count') {
-            item[`series_${index}`] = row.__count ?? row[`series_${index}`] ?? 0
-          } else {
-            item[`series_${index}`] = row[`series_${index}`] ?? 0
-          }
-        })
-        return item
+    const params = buildServerSideParams()
+    const res: any = await postDynamicActions(params)
+    const rows = res.data?.data || []
+    chartData.value = rows.map((row: any) => {
+      const item: any = { key: row[xField] ?? 'Unknown' }
+      validSeries.forEach((s: any, index: number) => {
+        if (s.aggregation === 'count') {
+          item[`series_${index}`] = row.__count ?? row[`series_${index}`] ?? 0
+        } else {
+          item[`series_${index}`] = row[`series_${index}`] ?? 0
+        }
       })
-    }
+      return item
+    })
 
     await nextTick()
     initChart()
@@ -279,49 +176,15 @@ function initChart() {
     chartInstance.value.dispose()
   }
 
-  const { chartType, series, appearance } = config.value
+  const { series, appearance } = config.value
   const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
   const instance = echarts.init(chartContainer.value)
   chartInstance.value = instance
 
-  const isPie = false
-  const isLine = chartType === 'line' || chartType === 'area'
-  const isBar = chartType === 'bar'
+  const hasAnyLine = validSeries.some((s: any) => resolveSeriesType(s) === 'line' || resolveSeriesType(s) === 'area')
+  const hasAnyBar = validSeries.some((s: any) => resolveSeriesType(s) === 'bar')
 
   const legendConfig = getLegendConfig()
-
-  if (isPie) {
-    // Pie/Donut uses first series only
-    const firstSeries = validSeries[0]
-    const pieData = chartData.value.map((d) => ({
-      name: d.key,
-      value: d.series_0 ?? 0
-    }))
-
-    const option = {
-      tooltip: { trigger: 'item' },
-      legend: legendConfig,
-      series: [
-        {
-          type: 'pie',
-          radius: chartType === 'donut' ? ['40%', '70%'] : '60%',
-          data: pieData,
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          },
-          label: {
-            show: pieData.length <= 20
-          }
-        }
-      ]
-    }
-    instance.setOption(option)
-    return
-  }
 
   // Cartesian charts (bar, line, area)
   const xData = chartData.value.map((d) => d.key)
@@ -331,22 +194,23 @@ function initChart() {
   const echartsSeries = validSeries.map((s: any, index: number) => {
     const color = s.color || colorPalette[index % colorPalette.length]
     const yData = chartData.value.map((d) => d[`series_${index}`] ?? 0)
+    const seriesType = resolveSeriesType(s)
 
     const baseSeries: any = {
       name: s.label || (s.field ? fieldLabel(s.field) : 'Count'),
-      type: isLine ? 'line' : 'bar',
+      type: seriesType === 'area' ? 'line' : seriesType,
       data: yData,
       stack: isStacked ? 'total' : undefined,
       itemStyle: { color },
       lineStyle: { color }
     }
 
-    if (isLine) {
+    if (seriesType === 'line' || seriesType === 'area') {
       baseSeries.smooth = isSmooth
-      if (chartType === 'area') {
+      if (seriesType === 'area') {
         baseSeries.areaStyle = { opacity: 0.3, color }
       }
-    } else if (isBar) {
+    } else if (seriesType === 'bar') {
       baseSeries.itemStyle.borderRadius = isStacked ? [0, 0, 0, 0] : [4, 4, 0, 0]
     }
 
@@ -356,7 +220,7 @@ function initChart() {
   const option = {
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: isBar ? 'shadow' : 'line' }
+      axisPointer: { type: hasAnyBar ? 'shadow' : 'line' }
     },
     legend: legendConfig,
     grid: {
@@ -377,6 +241,14 @@ function initChart() {
   }
 
   instance.setOption(option)
+}
+
+function resolveSeriesType(s: any): string {
+  if (s.type) return s.type
+  // Backward compatibility: fall back to global chartType
+  const globalType = config.value.chartType
+  if (globalType) return globalType
+  return 'bar'
 }
 
 function handleResize() {
@@ -405,10 +277,7 @@ watch(
   () => [
     props.setting?.tableId,
     props.setting?.xField,
-    props.setting?.xTimeGranularity,
     props.setting?.series,
-    props.setting?.chartType,
-    props.setting?.rowLimit,
     props.setting?.appearance
   ],
   () => {
