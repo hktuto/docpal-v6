@@ -71,65 +71,9 @@ async function loadFieldMeta(tableId: string) {
   fieldMetaMap.value = map
 }
 
-const isAggregationMode = computed(() => !!props.setting?.groupByField)
-
 const gridOptions = computed<VxeGridProps>(() => {
-  const meta = fieldMetaMap.value
-
-  if (isAggregationMode.value) {
-    const groupField = props.setting?.groupByField
-    const aggregations = props.setting?.aggregations || []
-
-    const columns: any[] = []
-
-    // Group by column
-    const groupMeta = meta[groupField]
-    columns.push({
-      field: groupField,
-      title: groupMeta?.field_name_alias || groupField,
-      minWidth: 150
-    })
-
-    // Aggregation columns
-    for (const agg of aggregations) {
-      if (!agg.field) continue
-      const alias = `agg_${agg.field}`
-      const aggMeta = meta[agg.field]
-      const aggLabel = agg.aggFunc?.toUpperCase?.() || 'AGG'
-      columns.push({
-        field: alias,
-        title: `${aggLabel} of ${aggMeta?.field_name_alias || agg.field}`,
-        minWidth: 150,
-        align: 'right'
-      })
-    }
-
-    // Count column
-    columns.push({
-      field: '__count',
-      title: 'Count',
-      minWidth: 100,
-      align: 'right'
-    })
-
-    return {
-      border: true,
-      stripe: true,
-      resizable: true,
-      showOverflow: true,
-      size: 'small',
-      columns,
-      pagerConfig: {
-        enabled: true,
-        currentPage: currentPage.value,
-        pageSize: pageSize.value,
-        total: total.value
-      }
-    }
-  }
-
-  // Normal mode: build columns from selected fields
   const selectedColumns = props.setting?.columns || []
+  const meta = fieldMetaMap.value
 
   const buildColumn = (fieldName: string) => {
     const fieldMeta = meta[fieldName]
@@ -222,80 +166,26 @@ function buildOrderBy(): any[] {
   return result
 }
 
-function buildAggregationParams() {
-  const groupField = props.setting?.groupByField
-  const aggregations = (props.setting?.aggregations || []).filter((a: any) => a.field && a.aggFunc)
-
-  const columns: any[] = [{ name: groupField }]
-
-  for (const agg of aggregations) {
-    const isCount = agg.aggFunc.toLowerCase() === 'count'
-    columns.push({
-      name: isCount ? '*' : agg.field,
-      alias: `agg_${agg.field}`,
-      aggFunc: agg.aggFunc.toUpperCase()
-    })
-  }
-
-  // Always include count
-  columns.push({
-    name: '*',
-    alias: '__count',
-    aggFunc: 'COUNT'
-  })
-
-  const orderBy = buildOrderBy()
-  const fallbackOrderBy = orderBy.length
-    ? orderBy
-    : [{ column: groupField, desc: false }]
-
-  const params: any = {
-    tableId: props.setting.tableId,
-    columns,
-    groupBy: { columns: [groupField] },
-    orderBy: fallbackOrderBy,
-    pagination: {
-      pageSize: pageSize.value,
-      pageNum: currentPage.value
-    }
-  }
-
-  const conditions = buildFilterConditions()
-  if (conditions.length) {
-    params.conditions = conditions
-  }
-
-  return params
-}
-
-function buildNormalParams() {
-  const orderBy = buildOrderBy()
-  const conditions = buildFilterConditions()
-
-  const params: any = {
-    tableId: props.setting.tableId,
-    columns: [{ name: '*' }],
-    orderBy,
-    pagination: {
-      pageSize: pageSize.value,
-      pageNum: currentPage.value
-    }
-  }
-
-  if (conditions.length) {
-    params.conditions = conditions
-  }
-
-  return params
-}
-
 async function fetchData() {
   if (!props.setting?.tableId) return
   loading.value = true
   try {
-    const params = isAggregationMode.value
-      ? buildAggregationParams()
-      : buildNormalParams()
+    const orderBy = buildOrderBy()
+    const conditions = buildFilterConditions()
+
+    const params: any = {
+      tableId: props.setting.tableId,
+      columns: [{ name: '*' }],
+      orderBy,
+      pagination: {
+        pageSize: pageSize.value,
+        pageNum: currentPage.value
+      }
+    }
+
+    if (conditions.length) {
+      params.conditions = conditions
+    }
 
     const { data }: any = await postDynamicActions(params)
     tableData.value = data?.data || []
@@ -341,9 +231,7 @@ watch(
     props.setting?.sortField,
     props.setting?.sortOrder,
     props.setting?.filterRules,
-    props.setting?.sortRules,
-    props.setting?.groupByField,
-    props.setting?.aggregations
+    props.setting?.sortRules
   ],
   () => {
     currentPage.value = 1

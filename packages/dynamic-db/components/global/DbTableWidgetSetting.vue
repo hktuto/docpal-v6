@@ -7,69 +7,33 @@
         </el-select>
       </el-form-item>
 
-      <!-- Aggregation / Grouping -->
-      <el-divider>Aggregation</el-divider>
-
-      <el-form-item label="Group By">
-        <el-select v-model="form.groupByField" placeholder="Select field to group by" style="width: 100%" clearable :loading="fieldsLoading">
+      <el-form-item label="Columns">
+        <el-select v-model="form.columns" multiple collapse-tags placeholder="Select columns" style="width: 100%" :loading="fieldsLoading">
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
 
-      <template v-if="form.groupByField">
-        <div v-for="(agg, index) in form.aggregations" :key="index" class="aggregation-row">
-          <div class="aggregation-header">
-            <span class="aggregation-title">Aggregation {{ index + 1 }}</span>
-            <el-button v-if="form.aggregations.length > 0" type="danger" link size="small" @click="removeAggregation(index)">
-              Remove
-            </el-button>
-          </div>
-          <div class="aggregation-fields">
-            <el-form-item label="Field" class="aggregation-field-item">
-              <el-select v-model="agg.field" placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
-                <el-option v-for="f in numericFields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="Function" class="aggregation-field-item">
-              <el-select-v2 v-model="agg.aggFunc" :options="aggregationOptions" style="width: 100%" />
-            </el-form-item>
-          </div>
-        </div>
-        <el-button type="primary" link @click="addAggregation">+ Add Aggregation</el-button>
-      </template>
-
-      <!-- Columns (only when not grouping) -->
-      <template v-if="!form.groupByField">
-        <el-divider>Columns</el-divider>
-        <el-form-item label="Columns">
-          <el-select v-model="form.columns" multiple collapse-tags placeholder="Select columns" style="width: 100%" :loading="fieldsLoading">
-            <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
-          </el-select>
-        </el-form-item>
-
-        <!-- Column Order -->
-        <el-form-item v-if="orderedColumns.length > 0" label="Column Order">
-          <div class="column-order-list">
-            <div v-for="(col, index) in orderedColumns" :key="col" class="column-order-item">
-              <span class="column-name">{{ fieldLabel(col) }}</span>
-              <div class="column-actions">
-                <el-button link size="small" :disabled="index === 0" @click="moveColumn(index, -1)">
-                  <Icon name="lucide:arrow-up" size="14" />
-                </el-button>
-                <el-button link size="small" :disabled="index === orderedColumns.length - 1" @click="moveColumn(index, 1)">
-                  <Icon name="lucide:arrow-down" size="14" />
-                </el-button>
-                <el-button link type="danger" size="small" @click="removeColumn(index)">
-                  <Icon name="lucide:x" size="14" />
-                </el-button>
-              </div>
+      <!-- Column Order -->
+      <el-form-item v-if="orderedColumns.length > 0" label="Column Order">
+        <div class="column-order-list">
+          <div v-for="(col, index) in orderedColumns" :key="col" class="column-order-item">
+            <span class="column-name">{{ fieldLabel(col) }}</span>
+            <div class="column-actions">
+              <el-button link size="small" :disabled="index === 0" @click="moveColumn(index, -1)">
+                <Icon name="lucide:arrow-up" size="14" />
+              </el-button>
+              <el-button link size="small" :disabled="index === orderedColumns.length - 1" @click="moveColumn(index, 1)">
+                <Icon name="lucide:arrow-down" size="14" />
+              </el-button>
+              <el-button link type="danger" size="small" @click="removeColumn(index)">
+                <Icon name="lucide:x" size="14" />
+              </el-button>
             </div>
           </div>
-        </el-form-item>
-      </template>
+        </div>
+      </el-form-item>
 
       <!-- Sort Rules -->
-      <el-divider>Sort</el-divider>
       <el-form-item label="Sort">
         <div class="rule-list">
           <div v-for="(rule, index) in form.sortRules" :key="index" class="rule-row">
@@ -140,21 +104,13 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { tableOptions, fields, fieldsLoading, loadFields, numericFields } = useWidgetTableFields()
+const { tableOptions, fields, fieldsLoading, loadFields } = useWidgetTableFields()
 
 const limitOptions = [
   { label: '5 rows', value: 5 },
   { label: '10 rows', value: 10 },
   { label: '20 rows', value: 20 },
   { label: '50 rows', value: 50 }
-]
-
-const aggregationOptions = [
-  { label: 'Sum', value: 'sum' },
-  { label: 'Average', value: 'avg' },
-  { label: 'Minimum', value: 'min' },
-  { label: 'Maximum', value: 'max' },
-  { label: 'Count', value: 'count' }
 ]
 
 interface SortRule {
@@ -168,19 +124,12 @@ interface FilterRule {
   value: string
 }
 
-interface AggregationRule {
-  field: string
-  aggFunc: string
-}
-
 const form = reactive({
   tableId: '',
   columns: [] as string[],
   rowLimit: 10,
   sortRules: [] as SortRule[],
-  filterRules: [] as FilterRule[],
-  groupByField: '',
-  aggregations: [] as AggregationRule[]
+  filterRules: [] as FilterRule[]
 })
 
 const orderedColumns = computed(() => form.columns)
@@ -278,20 +227,10 @@ function onFilterFieldChange(rule: FilterRule) {
   rule.value = ''
 }
 
-function addAggregation() {
-  form.aggregations.push({ field: '', aggFunc: 'sum' })
-}
-
-function removeAggregation(index: number) {
-  form.aggregations.splice(index, 1)
-}
-
 async function handleTableChange(tableId: string) {
   form.columns = []
   form.sortRules = []
   form.filterRules = []
-  form.groupByField = ''
-  form.aggregations = []
   await loadFields(tableId)
 }
 
@@ -302,7 +241,6 @@ watch(
       form.tableId = setting.value.tableId || ''
       form.columns = setting.value.columns || []
       form.rowLimit = setting.value.rowLimit || 10
-
       // Migrate old sortField/sortOrder to sortRules
       const oldSortField = setting.value.sortField || ''
       const oldSortOrder = setting.value.sortOrder || 'desc'
@@ -321,12 +259,6 @@ watch(
         value: r.value || ''
       }))
 
-      form.groupByField = setting.value.groupByField || ''
-      form.aggregations = (setting.value.aggregations || []).map((a: any) => ({
-        field: a.field || '',
-        aggFunc: a.aggFunc || 'sum'
-      }))
-
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -337,7 +269,7 @@ watch(
 function handleSubmit() {
   baseSubmit({
     tableId: form.tableId,
-    columns: form.groupByField ? [] : [...form.columns],
+    columns: [...form.columns],
     rowLimit: form.rowLimit,
     sortRules: form.sortRules.filter((r) => r.field).map((r) => ({ field: r.field, order: r.order })),
     filterRules: form.filterRules
@@ -349,11 +281,7 @@ function handleSubmit() {
       })),
     // Clear legacy sort fields when sortRules are used
     sortField: undefined,
-    sortOrder: undefined,
-    groupByField: form.groupByField,
-    aggregations: form.aggregations
-      .filter((a) => a.field && a.aggFunc)
-      .map((a) => ({ field: a.field, aggFunc: a.aggFunc }))
+    sortOrder: undefined
   })
 }
 
@@ -399,29 +327,5 @@ defineExpose({ handleOpen })
 .footer-grid {
   display: flex;
   justify-content: space-between;
-}
-.aggregation-row {
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
-}
-.aggregation-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.aggregation-title {
-  font-weight: 600;
-  font-size: 14px;
-}
-.aggregation-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 12px;
-}
-.aggregation-field-item {
-  margin-bottom: 0;
 }
 </style>
