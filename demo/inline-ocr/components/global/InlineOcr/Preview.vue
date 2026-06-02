@@ -2,6 +2,7 @@
 import { useCanvasViewport } from '../../../composables/useCanvasViewport'
 import { useLongPress } from '../../../composables/useLongPress'
 import { usePaddleOcr } from '../../../composables/usePaddleOcr'
+import { useTextSelection } from '../../../composables/useTextSelection'
 import type { OcrResult } from '../../../composables/usePaddleOcr'
 
 const props = defineProps<{
@@ -34,11 +35,14 @@ const { isPressed } = useLongPress(
   { delay: 600, moveThreshold: 15 }
 )
 
+const selection = useTextSelection(computed(() => ocrResult.value?.boxes ?? []))
+
 const ocr = usePaddleOcr()
 
 function loadImage(src: string) {
   imageLoaded.value = false
   ocrResult.value = null
+  selection.clearSelection()
   const img = new Image()
   img.crossOrigin = 'anonymous'
   img.onload = () => {
@@ -70,6 +74,7 @@ function drawImage(img: HTMLImageElement) {
 async function runOcr() {
   if (!imageRef.value) return
   isProcessing.value = true
+  selection.clearSelection()
   try {
     const result = await ocr.recognize(imageRef.value)
     ocrResult.value = result
@@ -86,16 +91,10 @@ function getBoxStyle(boxPoints: number[][]) {
   const p1 = boxPoints[1]
   const p3 = boxPoints[3]
 
-  // Text runs along p0 -> p1; text height is p0 -> p3
   const textWidth = Math.hypot(p1[0] - p0[0], p1[1] - p0[1])
   const textHeight = Math.hypot(p3[0] - p0[0], p3[1] - p0[1])
-
-  // Rotation angle of the text baseline
   const angleRad = Math.atan2(p1[1] - p0[1], p1[0] - p0[0])
   const angleDeg = angleRad * (180 / Math.PI)
-
-  // Font size proportional to text height, clamped to reasonable range
-  const fontSize = Math.max(8, Math.min(64, textHeight * 0.85))
 
   return {
     position: 'absolute' as const,
@@ -103,9 +102,30 @@ function getBoxStyle(boxPoints: number[][]) {
     top: `${p0[1]}px`,
     width: `${textWidth}px`,
     height: `${textHeight}px`,
-    fontSize: `${fontSize}px`,
     transform: `rotate(${angleDeg}deg)`,
     transformOrigin: '0 0',
+  }
+}
+
+function onBoxMouseDown(index: number, e: MouseEvent) {
+  const extend = e.shiftKey
+  selection.startSelection(index, extend)
+}
+
+function onBoxMouseEnter(index: number) {
+  selection.extendSelection(index)
+}
+
+function onBoxTouchStart(index: number) {
+  // On touch, tap toggles single selection
+  selection.toggleSingle(index)
+}
+
+function onContainerMouseDown(e: MouseEvent) {
+  // Click outside text boxes clears selection
+  const target = e.target as HTMLElement
+  if (!target.closest('.text-box')) {
+    selection.clearSelection()
   }
 }
 
@@ -144,10 +164,6 @@ function zoomOut() {
 watch(() => props.src, (newSrc) => {
   if (newSrc) loadImage(newSrc)
 }, { immediate: true })
-
-watch(() => [state.scale, state.translateX, state.translateY], () => {
-  // Overlays automatically follow the wrapper transform
-})
 </script>
 
 <template>
@@ -185,6 +201,7 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
       class="viewport"
       :class="{ 'is-dragging': isDragging, 'is-pressed': isPressed }"
       :style="{ cursor: cursorStyle }"
+      @mousedown="onContainerMouseDown"
     >
       <div
         v-if="imageLoaded"
@@ -208,10 +225,14 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
             v-for="(box, index) in ocrResult.boxes"
             :key="index"
             class="text-box"
+            :class="{ selected: selection.isSelected(index) }"
             :style="getBoxStyle(box.points)"
-          >
-            <span class="text-content">{{ box.text }}</span>
-          </div>
+            :data-text="box.text"
+            :data-index="index"
+            @mousedown.stop="onBoxMouseDown(index, $event)"
+            @mouseenter="onBoxMouseEnter(index)"
+            @touchstart.stop="onBoxTouchStart(index)"
+          />
         </div>
       </div>
 
@@ -225,6 +246,19 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
 
       <div v-if="isSpacePressed" class="space-hint">
         Pan mode — drag to move
+      </div>
+
+      <div v-if="selection.hasSelection" class="copy-toolbar">
+        <span class="copy-count">{{ selection.selectedCount }} selected</span>
+        <button class="copy-btn" @click="selection.copyToClipboard()">
+          {{ selection.copied ? 'Copied!' : 'Copy' }}
+        </button>
+        <button class="copy-btn secondary" @click="selection.selectAll()">
+          Select All
+        </button>
+        <button class="copy-btn secondary" @click="selection.clearSelection()">
+          Clear
+        </button>
       </div>
     </div>
 
@@ -316,34 +350,21 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
 }
 
 .text-box {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  position: absolute;
   pointer-events: auto;
   cursor: text;
-  border: none;
   background: transparent;
-  border-radius: 0;
-  padding: 0;
+  border-radius: 2px;
+  transition: background 0.15s;
 
   &:hover {
-    background: rgba(233, 69, 96, 0.08);
+    background: rgba(233, 69, 96, 0.1);
   }
-}
 
-.text-content {
-  color: transparent;
-  user-select: text;
-  -webkit-user-select: text;
-  line-height: 1;
-  text-shadow: none;
-  white-space: nowrap;
-  overflow: visible;
-}
-
-.text-content::selection {
-  background: rgba(233, 69, 96, 0.35);
-  color: transparent;
+  &.selected {
+    background: rgba(233, 69, 96, 0.3);
+    box-shadow: 0 0 0 1px rgba(233, 69, 96, 0.5);
+  }
 }
 
 .placeholder {
@@ -391,6 +412,51 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
   border-radius: 20px;
   pointer-events: none;
   z-index: 10;
+}
+
+.copy-toolbar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(22, 33, 62, 0.95);
+  border: 1px solid #0f3460;
+  border-radius: 8px;
+  z-index: 20;
+}
+
+.copy-count {
+  font-size: 12px;
+  color: #a0a0a0;
+  margin-right: 4px;
+}
+
+.copy-btn {
+  padding: 5px 10px;
+  background: #e94560;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #d13650;
+  }
+
+  &.secondary {
+    background: #0f3460;
+    border: 1px solid #e94560;
+
+    &:hover {
+      background: #e94560;
+    }
+  }
 }
 
 .result-panel {
