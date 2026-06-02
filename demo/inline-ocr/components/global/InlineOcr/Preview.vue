@@ -43,9 +43,11 @@ function loadImage(src: string) {
   img.crossOrigin = 'anonymous'
   img.onload = () => {
     imageSize.value = { width: img.width, height: img.height }
-    drawImage(img)
     imageLoaded.value = true
-    nextTick(() => zoomToFit(img.width, img.height))
+    nextTick(() => {
+      drawImage(img)
+      zoomToFit(img.width, img.height)
+    })
   }
   img.onerror = () => {
     console.error('Failed to load image')
@@ -279,9 +281,6 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
   flex: 1;
   overflow: hidden;
   cursor: grab;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   &.is-dragging {
     cursor: grabbing;
@@ -293,7 +292,9 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
 }
 
 .canvas-wrapper {
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 0;
   will-change: transform;
 }
 

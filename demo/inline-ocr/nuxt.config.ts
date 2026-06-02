@@ -6,6 +6,10 @@ export default defineNuxtConfig({
   extends: [],
   vite: {
     optimizeDeps: {
+      include: [
+        'clipper-lib',
+        '@techstark/opencv-js',
+      ],
       exclude: [
         '@paddleocr/paddleocr-js',
         'onnxruntime-web'

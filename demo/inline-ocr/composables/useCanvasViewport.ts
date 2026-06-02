@@ -69,10 +69,10 @@ export function useCanvasViewport(
 
   function onWheel(e: WheelEvent) {
     e.preventDefault()
-    const canvas = canvasRef.value
-    if (!canvas) return
+    const container = containerRef.value
+    if (!container) return
 
-    const rect = canvas.getBoundingClientRect()
+    const rect = container.getBoundingClientRect()
     const mouseX = e.clientX - rect.left
     const mouseY = e.clientY - rect.top
 
