@@ -1,5 +1,5 @@
 <template>
-  <el-form-item label="Relation Table" prop="relation_table_id">
+  <el-form-item :label="t('mdTable.addColumnField.relationTable')" prop="relation_table_id">
     <el-cascader
       v-model="menuIdPaths"
       show-checked-strategy="parent"
@@ -17,8 +17,8 @@
       </template>
     </el-cascader>
   </el-form-item>
-  <el-form-item label="Display Field" prop="display_field_name">
-    <el-select v-model="formData.display_field_name" clearable placeholder="Select Display Field" @change="handleDisplayFieldChange">
+  <el-form-item :label="t('mdTable.addColumnField.displayField')" prop="display_field_name">
+    <el-select v-model="formData.display_field_name" clearable :placeholder="t('mdTable.addColumnField.selectDisplayField')" @change="handleDisplayFieldChange">
       <el-option v-for="field in tableFields" :key="field.id" :label="field.field_name_alias" :value="field.field_name" />
     </el-select>
   </el-form-item>
@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import { onMounted, defineAsyncComponent } from 'vue'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+const { t } = useI18n()
 const props = defineProps<{
   formData: any
 }>()

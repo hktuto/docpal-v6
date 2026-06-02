@@ -2,13 +2,13 @@
   <UiPopoverDialog ref="popoverRef" :width="width" :close-on-click-outside="closeOnClickOutside" @close="handlePopoverClose">
     <div class="add-column-popover">
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" @submit.prevent>
-        <el-form-item label="列标题" prop="field_name">
-          <el-input v-model="formData.field_name" placeholder="请输入列标题" @keydown.enter.prevent="handleSubmit" />
+        <el-form-item :label="t('mdTable.addColumnField.columnTitle')" prop="field_name">
+          <el-input v-model="formData.field_name" :placeholder="t('mdTable.addColumnField.enterColumnTitle')" @keydown.enter.prevent="handleSubmit" />
         </el-form-item>
-        <el-form-item label="数据类型" prop="business_type">
+        <el-form-item :label="t('mdTable.addColumnField.dataType')" prop="business_type">
           <el-select-v2
             v-model="formData.business_type"
-            placeholder="请选择数据类型"
+            :placeholder="t('mdTable.addColumnField.selectDataType')"
             style="width: 100%"
             :options="displayColumnFieldOptions"
             @visible-change="handleSelectVisibleChange"
@@ -18,13 +18,17 @@
           </el-select-v2>
         </el-form-item>
         <component :is="AsyncComponent" v-if="AsyncComponent" :column="state.column" :form-data="formData" />
-        <el-form-item v-if="[ColumnFieldType.Text, ColumnFieldType.MultiText].includes(formData.business_type)" label="Default Value" prop="defaultValue">
+        <el-form-item
+          v-if="[ColumnFieldType.Text, ColumnFieldType.MultiText].includes(formData.business_type)"
+          :label="t('mdTable.addColumnField.defaultValue')"
+          prop="defaultValue"
+        >
           <el-input v-model="formData.defaultValue" />
         </el-form-item>
         <el-form-item>
           <div class="form-actions">
-            <el-button @click="handleCancel">取消</el-button>
-            <el-button type="primary" @click="handleSubmit">确定</el-button>
+            <el-button @click="handleCancel">{{ t('mdTable.addColumnField.cancel') }}</el-button>
+            <el-button type="primary" @click="handleSubmit">{{ t('mdTable.addColumnField.confirm') }}</el-button>
           </div>
         </el-form-item>
       </el-form>
@@ -41,6 +45,7 @@ import { defineAsyncComponent } from 'vue'
 import { getColumnFieldOptions } from './columnBasic'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import type { ColumnConfig } from '@packages/dp-mdTable/types/column-types'
+const { t } = useI18n()
 
 interface Props {
   virtualRef?: HTMLElement | (() => HTMLElement)
@@ -76,7 +81,7 @@ const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 const editingColumnConfig = ref(false)
 const formData = ref<ColumnConfig>({
-  field_name: 'New Field',
+  field_name: t('mdTable.addColumnField.newField'),
   business_type: ColumnFieldType.MultiText
 })
 function show(targetParams: any, column: any) {
@@ -167,7 +172,7 @@ const loadComponent = (value: any) => {
 // 重置表单
 const resetForm = () => {
   formData.value = {
-    field_name: 'New Field',
+    field_name: t('mdTable.addColumnField.newField'),
     business_type: ColumnFieldType.MultiText
   }
   formRef.value?.clearValidate()
@@ -209,10 +214,10 @@ const handleSubmit = async () => {
       // Type changed - warn user about potential data loss
       if (oldType !== newType) {
         try {
-          await ElMessageBox.confirm('Changing column type may cause data loss. Do you want to continue?', 'Warning', {
+          await ElMessageBox.confirm(t('mdTable.addColumnField.typeChangeWarning'), t('mdTable.addColumnField.warning'), {
             type: 'warning',
-            confirmButtonText: 'Continue',
-            cancelButtonText: 'Cancel'
+            confirmButtonText: t('mdTable.addColumnField.continue'),
+            cancelButtonText: t('mdTable.addColumnField.cancel')
           })
         } catch {
           // User cancelled
@@ -235,7 +240,7 @@ const handleSubmit = async () => {
     handleClose()
     emit('refresh')
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error(t('mdTable.addColumnField.formValidationFailed'), error)
   }
 }
 async function updateRelationDisplayFields(column: ColumnConfig) {

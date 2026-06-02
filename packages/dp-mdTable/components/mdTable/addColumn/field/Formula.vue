@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form-item label="Formula">
+    <el-form-item :label="t('mdTable.addColumnField.formula')">
       <ToolsFormulaEditorFormulaInput
         :display-text="formulaDisplayText"
         :variables="variables"
@@ -8,6 +8,13 @@
         :readonly="true"
         @click="handleFormulaClick"
       />
+    </el-form-item>
+    <el-form-item :label="t('vxe.formDesign.alignTitle')">
+      <el-select v-model="formData.align">
+        <el-option :label="t('vxe.formDesign.alignLeft')" value="left" />
+        <el-option :label="t('vxe.formDesign.alignCenter')" value="center" />
+        <el-option :label="t('vxe.formDesign.alignRight')" value="right" />
+      </el-select>
     </el-form-item>
     <ToolsFormulaEditorDialog v-model="dialogVisible" :formData="formData" @confirm="handleFormulaConfirm" />
   </div>

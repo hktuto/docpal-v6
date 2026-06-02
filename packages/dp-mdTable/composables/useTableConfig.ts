@@ -128,7 +128,10 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
           }
         }
 
-        if (col.business_type === ColumnFieldType.Number) {
+        if (col.display_structure?.align) {
+          colConfig.align = col.display_structure.align
+          colConfig.headerAlign = col.display_structure.align
+        } else if (col.business_type === ColumnFieldType.Number) {
           colConfig.align = 'right'
         }
 
