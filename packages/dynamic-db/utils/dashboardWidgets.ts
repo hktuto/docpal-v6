@@ -37,7 +37,9 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       sortField: '',
       sortOrder: 'desc',
       filterRules: [],
-      sortRules: []
+      sortRules: [],
+      groupByField: '',
+      aggregations: []
     }
   },
   DbChart: {
