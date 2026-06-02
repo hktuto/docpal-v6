@@ -82,21 +82,30 @@ async function runOcr() {
 
 function getBoxStyle(boxPoints: number[][]) {
   if (!boxPoints || boxPoints.length < 4) return {}
-  const xs = boxPoints.map((p) => p[0])
-  const ys = boxPoints.map((p) => p[1])
-  const minX = Math.min(...xs)
-  const minY = Math.min(...ys)
-  const maxX = Math.max(...xs)
-  const maxY = Math.max(...ys)
-  const width = maxX - minX
-  const height = maxY - minY
+  const p0 = boxPoints[0]
+  const p1 = boxPoints[1]
+  const p3 = boxPoints[3]
+
+  // Text runs along p0 -> p1; text height is p0 -> p3
+  const textWidth = Math.hypot(p1[0] - p0[0], p1[1] - p0[1])
+  const textHeight = Math.hypot(p3[0] - p0[0], p3[1] - p0[1])
+
+  // Rotation angle of the text baseline
+  const angleRad = Math.atan2(p1[1] - p0[1], p1[0] - p0[0])
+  const angleDeg = angleRad * (180 / Math.PI)
+
+  // Font size proportional to text height, clamped to reasonable range
+  const fontSize = Math.max(8, Math.min(64, textHeight * 0.85))
 
   return {
     position: 'absolute' as const,
-    left: `${minX}px`,
-    top: `${minY}px`,
-    width: `${width}px`,
-    height: `${height}px`,
+    left: `${p0[0]}px`,
+    top: `${p0[1]}px`,
+    width: `${textWidth}px`,
+    height: `${textHeight}px`,
+    fontSize: `${fontSize}px`,
+    transform: `rotate(${angleDeg}deg)`,
+    transformOrigin: '0 0',
   }
 }
 
@@ -315,21 +324,26 @@ watch(() => [state.scale, state.translateX, state.translateY], () => {
   border: none;
   background: transparent;
   border-radius: 0;
-  padding: 1px 2px;
+  padding: 0;
 
   &:hover {
-    background: rgba(233, 69, 96, 0.12);
+    background: rgba(233, 69, 96, 0.08);
   }
 }
 
 .text-content {
-  font-size: 13px;
   color: transparent;
   user-select: text;
   -webkit-user-select: text;
-  line-height: 1.3;
-  text-shadow: 0 0 0 rgba(255, 255, 255, 0.45);
+  line-height: 1;
+  text-shadow: none;
   white-space: nowrap;
+  overflow: visible;
+}
+
+.text-content::selection {
+  background: rgba(233, 69, 96, 0.35);
+  color: transparent;
 }
 
 .placeholder {

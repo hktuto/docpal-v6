@@ -72,6 +72,39 @@ function generateSampleImage(): string {
   ctx.lineWidth = 2
   ctx.strokeRect(30, 220, 740, 340)
 
+  // Rotated text samples
+  ctx.save()
+  ctx.translate(600, 100)
+  ctx.rotate(-15 * Math.PI / 180)
+  ctx.fillStyle = '#1a1a2e'
+  ctx.font = 'bold 22px "Segoe UI", sans-serif'
+  ctx.fillText('Rotated Label', 0, 0)
+  ctx.restore()
+
+  ctx.save()
+  ctx.translate(120, 520)
+  ctx.rotate(12 * Math.PI / 180)
+  ctx.fillStyle = '#e94560'
+  ctx.font = '18px "Segoe UI", sans-serif'
+  ctx.fillText('Stamp: APPROVED', 0, 0)
+  ctx.restore()
+
+  ctx.save()
+  ctx.translate(680, 480)
+  ctx.rotate(-30 * Math.PI / 180)
+  ctx.fillStyle = '#0f3460'
+  ctx.font = '16px "Courier New", monospace'
+  ctx.fillText('QR-Data: DOC-998877', 0, 0)
+  ctx.restore()
+
+  ctx.save()
+  ctx.translate(400, 150)
+  ctx.rotate(8 * Math.PI / 180)
+  ctx.fillStyle = '#555555'
+  ctx.font = '14px "Segoe UI", sans-serif'
+  ctx.fillText('Watermark: DocPal Confidential', 0, 0)
+  ctx.restore()
+
   return canvas.toDataURL('image/png')
 }
 
