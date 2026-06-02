@@ -114,10 +114,11 @@ function buildServerSideParams() {
   const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
 
   validSeries.forEach((s: any, index: number) => {
-    const aggFunc = s.aggregation === 'count' ? 'COUNT' : s.aggregation.toUpperCase()
+    const isCount = s.aggregation === 'count'
+    const aggFunc = isCount ? 'COUNT' : s.aggregation.toUpperCase()
     columns.push({
-      name: aggFunc === 'COUNT' ? '*' : s.field,
-      alias: `series_${index}`,
+      name: isCount ? '*' : s.field,
+      alias: isCount ? '__count' : `series_${index}`,
       aggFunc
     })
   })
@@ -162,8 +163,12 @@ function aggregateClientSide(rows: any[], xField: string, granularity: string, s
 
     series.forEach((s: any, index: number) => {
       if (!grouped[key][index]) grouped[key][index] = []
-      const val = parseFloat(row[s.field])
-      if (!isNaN(val)) grouped[key][index].push(val)
+      if (s.aggregation === 'count') {
+        grouped[key][index].push(1)
+      } else {
+        const val = parseFloat(row[s.field])
+        if (!isNaN(val)) grouped[key][index].push(val)
+      }
     })
   }
 
@@ -230,8 +235,12 @@ async function fetchData() {
       rows = res.data?.data || []
       chartData.value = rows.map((row: any) => {
         const item: any = { key: row[xField] ?? 'Unknown' }
-        validSeries.forEach((_s: any, index: number) => {
-          item[`series_${index}`] = row[`series_${index}`] ?? 0
+        validSeries.forEach((s: any, index: number) => {
+          if (s.aggregation === 'count') {
+            item[`series_${index}`] = row.__count ?? row[`series_${index}`] ?? 0
+          } else {
+            item[`series_${index}`] = row[`series_${index}`] ?? 0
+          }
         })
         return item
       })
@@ -271,7 +280,7 @@ function initChart() {
   }
 
   const { chartType, series, appearance } = config.value
-  const validSeries = (series || []).filter((s: any) => s.field)
+  const validSeries = (series || []).filter((s: any) => s.field || s.aggregation === 'count')
   const instance = echarts.init(chartContainer.value)
   chartInstance.value = instance
 
