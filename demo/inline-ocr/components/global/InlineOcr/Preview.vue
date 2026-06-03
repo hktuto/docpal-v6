@@ -28,7 +28,7 @@ const GRID_ROWS = 16
 const dotCount = GRID_COLS * GRID_ROWS
 let animeInstance: anime.AnimeInstance | null = null
 
-watch(isProcessing, (processing) => {
+watch(isProcessing, (processing:boolean) => {
   if (processing) {
     nextTick(() => {
       const dots = dotGridRef.value?.querySelectorAll('.dot')
@@ -512,12 +512,12 @@ watch(() => props.src, (newSrc) => {
   display: grid;
   grid-template-rows: repeat(16, 1fr);
   gap: 0;
-  padding: 24px;
+  padding: var(--app-padding-s);
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
+  width: 12px;
+  height: 12px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   justify-self: center;
