@@ -507,21 +507,29 @@ watch(() => props.src, (newSrc) => {
 }
 
 .dot-grid {
+  width: 100%;
+  height: 100%;
   display: grid;
-  gap: 10px;
+  grid-template-rows: repeat(16, 1fr);
+  gap: 0;
+  padding: 24px;
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
-  background: #e94560;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
+  justify-self: center;
+  align-self: center;
   will-change: transform;
 }
 
 .ocr-loading-text {
+  position: absolute;
+  bottom: 24px;
   font-size: 14px;
-  color: #e94560;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
 }
 
