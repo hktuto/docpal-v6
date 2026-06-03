@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import anime from 'animejs'
 import { useCanvasViewport } from '../../../composables/useCanvasViewport'
 import { useLongPress } from '../../../composables/useLongPress'
 import { usePaddleOcr } from '../../../composables/usePaddleOcr'
@@ -19,6 +20,37 @@ const imageSize = ref({ width: 0, height: 0 })
 const ocrResult = ref<OcrResult | null>(null)
 const showOverlays = ref(true)
 const isProcessing = ref(false)
+
+// Dot grid loading animation
+const dotGridRef = ref<HTMLElement | null>(null)
+const GRID_COLS = 28
+const GRID_ROWS = 16
+const dotCount = GRID_COLS * GRID_ROWS
+let animeInstance: anime.AnimeInstance | null = null
+
+watch(isProcessing, (processing) => {
+  if (processing) {
+    nextTick(() => {
+      const dots = dotGridRef.value?.querySelectorAll('.dot')
+      if (!dots || !dots.length) return
+      animeInstance = anime({
+        targets: dots,
+        scale: [
+          { value: 0.1, easing: 'easeOutSine', duration: 400 },
+          { value: 1.5, easing: 'easeInOutQuad', duration: 800 },
+          { value: 0.1, easing: 'easeOutSine', duration: 400 },
+        ],
+        delay: anime.stagger(80, { grid: [GRID_COLS, GRID_ROWS], from: 'center' }),
+        loop: true,
+      })
+    })
+  } else {
+    if (animeInstance) {
+      animeInstance.pause()
+      animeInstance = null
+    }
+  }
+})
 
 const { state, transformStyle, cursorStyle, reset, zoomToFit, isDragging, isSpacePressed, getPointOnCanvas } = useCanvasViewport(
   canvasRef,
@@ -286,7 +318,9 @@ watch(() => props.src, (newSrc) => {
       </div>
 
       <div v-if="isProcessing" class="ocr-loading-overlay">
-        <div class="ocr-spinner" />
+        <div ref="dotGridRef" class="dot-grid" :style="{ gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)` }">
+          <div v-for="i in dotCount" :key="i" class="dot" />
+        </div>
         <span class="ocr-loading-text">Processing OCR...</span>
       </div>
 
@@ -460,36 +494,35 @@ watch(() => props.src, (newSrc) => {
 
 .ocr-loading-overlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 24px;
+  background: rgba(22, 33, 62, 0.88);
+  backdrop-filter: blur(4px);
   pointer-events: none;
   z-index: 15;
 }
 
-.ocr-spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(233, 69, 96, 0.2);
-  border-top-color: #e94560;
+.dot-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #e94560;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  will-change: transform;
 }
 
 .ocr-loading-text {
   font-size: 14px;
   color: #e94560;
   font-weight: 600;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .copy-toolbar {
