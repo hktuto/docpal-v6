@@ -20,7 +20,7 @@ const ocrResult = ref<OcrResult | null>(null)
 const showOverlays = ref(true)
 const isProcessing = ref(false)
 
-const { state, transformStyle, cursorStyle, reset, zoomToFit, isDragging, isSpacePressed } = useCanvasViewport(
+const { state, transformStyle, cursorStyle, reset, zoomToFit, isDragging, isSpacePressed, getPointOnCanvas } = useCanvasViewport(
   canvasRef,
   containerRef,
   { minScale: 0.05, maxScale: 20, zoomSpeed: 0.002 }
@@ -28,9 +28,12 @@ const { state, transformStyle, cursorStyle, reset, zoomToFit, isDragging, isSpac
 
 const { isPressed } = useLongPress(
   containerRef,
-  async () => {
+  async (e: MouseEvent | TouchEvent) => {
     if (isProcessing.value) return
-    await runOcr()
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    const point = getPointOnCanvas(clientX, clientY)
+    await runOcr(point)
   },
   { delay: 600, moveThreshold: 15 }
 )
@@ -71,7 +74,18 @@ function drawImage(img: HTMLImageElement) {
   ctx.drawImage(img, 0, 0)
 }
 
-async function runOcr() {
+function isPointInPolygon(px: number, py: number, polygon: number[][]): boolean {
+  let inside = false
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i][0], yi = polygon[i][1]
+    const xj = polygon[j][0], yj = polygon[j][1]
+    const intersect = ((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)
+    if (intersect) inside = !inside
+  }
+  return inside
+}
+
+async function runOcr(pressPoint?: { x: number; y: number }) {
   if (!imageRef.value) return
   isProcessing.value = true
   selection.clearSelection()
@@ -79,6 +93,16 @@ async function runOcr() {
     const result = await ocr.recognize(imageRef.value)
     ocrResult.value = result
     console.log('OCR result:', result.text)
+
+    // Auto-select the text box under the long-press position
+    if (pressPoint) {
+      const autoIndex = result.boxes.findIndex((box) =>
+        isPointInPolygon(pressPoint.x, pressPoint.y, box.points)
+      )
+      if (autoIndex !== -1) {
+        selection.selectSingle(autoIndex)
+      }
+    }
   } catch (err) {
     console.error('OCR failed:', err)
   } finally {

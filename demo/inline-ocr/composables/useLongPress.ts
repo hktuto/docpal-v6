@@ -16,13 +16,7 @@ export function useLongPress(
   let timer: ReturnType<typeof setTimeout> | null = null
   let startPos = { x: 0, y: 0 }
 
-  function isTextElement(target: EventTarget | null): boolean {
-    if (!target || !(target instanceof HTMLElement)) return false
-    return target.closest('.text-box') !== null || target.closest('.text-content') !== null
-  }
-
   function start(e: MouseEvent | TouchEvent) {
-    if (isTextElement(e.target)) return
     isPressed.value = true
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
@@ -58,8 +52,8 @@ export function useLongPress(
   onMounted(() => {
     const el = targetRef.value
     if (!el) return
-    el.addEventListener('mousedown', start)
-    el.addEventListener('touchstart', start, { passive: true })
+    el.addEventListener('mousedown', start, { capture: true })
+    el.addEventListener('touchstart', start, { passive: true, capture: true })
     el.addEventListener('mousemove', move)
     el.addEventListener('touchmove', move, { passive: true })
     el.addEventListener('mouseup', cancel)
@@ -72,8 +66,8 @@ export function useLongPress(
   onUnmounted(() => {
     const el = targetRef.value
     if (!el) return
-    el.removeEventListener('mousedown', start)
-    el.removeEventListener('touchstart', start)
+    el.removeEventListener('mousedown', start, { capture: true })
+    el.removeEventListener('touchstart', start, { capture: true })
     el.removeEventListener('mousemove', move)
     el.removeEventListener('touchmove', move)
     el.removeEventListener('mouseup', cancel)
