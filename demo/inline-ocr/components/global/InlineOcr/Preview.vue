@@ -516,7 +516,6 @@ watch(() => props.src, (newSrc) => {
   justify-content: center;
   gap: 24px;
   /* background: rgba(22, 33, 62, 0.88); */
-  backdrop-filter: blur(4px);
   pointer-events: none;
   z-index: 15;
 }
