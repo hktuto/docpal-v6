@@ -78,6 +78,7 @@ async function runOcr() {
   try {
     const result = await ocr.recognize(imageRef.value)
     ocrResult.value = result
+    console.log('OCR result:', result.text)
   } catch (err) {
     console.error('OCR failed:', err)
   } finally {
@@ -260,6 +261,11 @@ watch(() => props.src, (newSrc) => {
         <span>Loading image...</span>
       </div>
 
+      <div v-if="isProcessing" class="ocr-loading-overlay">
+        <div class="ocr-spinner" />
+        <span class="ocr-loading-text">Processing OCR...</span>
+      </div>
+
       <div v-if="isPressed && !isProcessing" class="long-press-indicator">
         <div class="long-press-ring" />
       </div>
@@ -282,13 +288,7 @@ watch(() => props.src, (newSrc) => {
       </div>
     </div>
 
-    <div v-if="ocrResult" class="result-panel">
-      <div class="result-header">
-        <span class="result-title">Extracted Text</span>
-        <span class="result-count">{{ ocrResult.boxes.length }} regions</span>
-      </div>
-      <pre class="result-text">{{ ocrResult.text }}</pre>
-    </div>
+
   </div>
 </template>
 
@@ -434,6 +434,40 @@ watch(() => props.src, (newSrc) => {
   z-index: 10;
 }
 
+.ocr-loading-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.ocr-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(233, 69, 96, 0.2);
+  border-top-color: #e94560;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.ocr-loading-text {
+  font-size: 14px;
+  color: #e94560;
+  font-weight: 600;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .copy-toolbar {
   position: absolute;
   top: 12px;
@@ -479,41 +513,5 @@ watch(() => props.src, (newSrc) => {
   }
 }
 
-.result-panel {
-  flex-shrink: 0;
-  max-height: 200px;
-  overflow: auto;
-  background: #16213e;
-  border-top: 1px solid #0f3460;
-  padding: 12px 16px;
-}
 
-.result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.result-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #e94560;
-}
-
-.result-count {
-  font-size: 12px;
-  color: #a0a0a0;
-}
-
-.result-text {
-  margin: 0;
-  font-size: 12px;
-  color: #d0d0d0;
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-height: 140px;
-  overflow: auto;
-  font-family: 'Segoe UI', system-ui, sans-serif;
-}
 </style>

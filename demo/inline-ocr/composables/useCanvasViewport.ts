@@ -94,9 +94,12 @@ export function useCanvasViewport(
   }
 
   function onMouseDown(e: MouseEvent) {
-    if (e.button !== 0) return
-    // Only pan when space bar is held
-    if (!isSpacePressed.value) return
+    // Left click + space bar, or middle click anywhere = pan
+    const canPan = (e.button === 0 && isSpacePressed.value) || e.button === 1
+    if (!canPan) return
+    if (e.button === 1) {
+      e.preventDefault()
+    }
     isDragging.value = true
     dragStart.value = { x: e.clientX, y: e.clientY }
     translateStart.value = { x: state.translateX, y: state.translateY }
