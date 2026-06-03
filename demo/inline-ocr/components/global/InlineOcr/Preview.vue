@@ -6,7 +6,7 @@ import { useTextSelection } from '../../../composables/useTextSelection'
 import type { OcrResult } from '../../../composables/usePaddleOcr'
 
 const props = defineProps<{
-  src: string
+  src: string | Blob | File
 }>()
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -51,11 +51,26 @@ const { isPressed } = useLongPress(
 const selection = useTextSelection(computed(() => ocrResult.value?.boxes ?? []))
 
 const ocr = usePaddleOcr()
+const objectUrl = ref<string | null>(null)
 
-function loadImage(src: string) {
+function loadImage(src: string | Blob | File) {
   imageLoaded.value = false
   ocrResult.value = null
   selection.clearSelection()
+
+  if (objectUrl.value) {
+    URL.revokeObjectURL(objectUrl.value)
+    objectUrl.value = null
+  }
+
+  let url: string
+  if (typeof src === 'string') {
+    url = src
+  } else {
+    url = URL.createObjectURL(src)
+    objectUrl.value = url
+  }
+
   const img = new Image()
   img.crossOrigin = 'anonymous'
   img.onload = () => {
@@ -69,7 +84,7 @@ function loadImage(src: string) {
   img.onerror = () => {
     console.error('Failed to load image')
   }
-  img.src = src
+  img.src = url
   imageRef.value = img
 }
 
@@ -212,6 +227,9 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('mouseup', onWindowMouseUp)
   window.removeEventListener('resize', onWindowResize)
+  if (objectUrl.value) {
+    URL.revokeObjectURL(objectUrl.value)
+  }
 })
 
 watch(() => props.src, (newSrc) => {
@@ -335,7 +353,7 @@ watch(() => props.src, (newSrc) => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #1a1a2e;
+  background: var(--app-bg-color-page);
 }
 
 .toolbar {
@@ -343,8 +361,8 @@ watch(() => props.src, (newSrc) => {
   align-items: center;
   gap: 12px;
   padding: 8px 16px;
-  background: #16213e;
-  border-bottom: 1px solid #0f3460;
+  background: var(--app-bg-color);
+  border-bottom: 1px solid var(--app-border-color-dark);
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -356,9 +374,9 @@ watch(() => props.src, (newSrc) => {
 
 .btn {
   padding: 6px 12px;
-  background: #0f3460;
-  color: #e94560;
-  border: 1px solid #e94560;
+  background: var(--app-fill-color-darker);
+  color: var(--app-danger-color);
+  border: 1px solid var(--app-danger-color);
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
@@ -366,8 +384,8 @@ watch(() => props.src, (newSrc) => {
   transition: all 0.2s;
 
   &:hover:not(:disabled) {
-    background: #e94560;
-    color: #fff;
+    background: var(--app-danger-color);
+    color: var(--app-text-color-primary);
   }
 
   &:disabled {
@@ -378,7 +396,7 @@ watch(() => props.src, (newSrc) => {
 
 .status-text {
   font-size: 12px;
-  color: #a0a0a0;
+  color: var(--app-text-color-secondary);
   margin-left: auto;
 }
 
@@ -416,17 +434,17 @@ watch(() => props.src, (newSrc) => {
   transition: background 0.15s;
 
   &:hover {
-    background: rgba(233, 69, 96, 0.08);
+    background: var(--app-danger-alpha-10);
   }
 
   &.selected {
-    background: rgba(233, 69, 96, 0.3);
-    box-shadow: 0 0 0 1px rgba(233, 69, 96, 0.5);
+    background: var(--app-danger-alpha-30);
+    box-shadow: 0 0 0 1px var(--app-danger-alpha-50);
   }
 }
 
 .placeholder {
-  color: #a0a0a0;
+  color: var(--app-text-color-secondary);
   font-size: 16px;
 }
 
@@ -441,7 +459,7 @@ watch(() => props.src, (newSrc) => {
 .long-press-ring {
   width: 60px;
   height: 60px;
-  border: 3px solid #e94560;
+  border: 3px solid var(--app-danger-color);
   border-radius: 50%;
   animation: pulse-ring 0.6s ease-out forwards;
 }
@@ -463,8 +481,8 @@ watch(() => props.src, (newSrc) => {
   left: 50%;
   transform: translateX(-50%);
   padding: 6px 14px;
-  background: rgba(233, 69, 96, 0.9);
-  color: #fff;
+  background: var(--app-danger-color);
+  color: var(--app-text-color-primary);
   font-size: 12px;
   font-weight: 600;
   border-radius: 20px;
@@ -561,7 +579,7 @@ watch(() => props.src, (newSrc) => {
   position: absolute;
   bottom: 24px;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--app-text-color-secondary);
   font-weight: 600;
 }
 
@@ -573,22 +591,22 @@ watch(() => props.src, (newSrc) => {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(22, 33, 62, 0.95);
-  border: 1px solid #0f3460;
+  background: var(--app-bg-color-overlay);
+  border: 1px solid var(--app-border-color-dark);
   border-radius: 8px;
   z-index: 20;
 }
 
 .copy-count {
   font-size: 12px;
-  color: #a0a0a0;
+  color: var(--app-text-color-secondary);
   margin-right: 4px;
 }
 
 .copy-btn {
   padding: 5px 10px;
-  background: #e94560;
-  color: #fff;
+  background: var(--app-danger-color);
+  color: var(--app-text-color-primary);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -597,15 +615,15 @@ watch(() => props.src, (newSrc) => {
   transition: background 0.2s;
 
   &:hover {
-    background: #d13650;
+    background: var(--app-danger-5);
   }
 
   &.secondary {
-    background: #0f3460;
-    border: 1px solid #e94560;
+    background: var(--app-fill-color-darker);
+    border: 1px solid var(--app-danger-color);
 
     &:hover {
-      background: #e94560;
+      background: var(--app-danger-color);
     }
   }
 }
