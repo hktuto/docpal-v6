@@ -8,7 +8,7 @@
 :root {
   /* ==================== Color System - HSL Components ==================== */
   /* Users can change these values dynamically to customize theme colors */
-  
+
   /* Primary Color (Teal) - #15d5b9 */
   --app-primary-h: 173;
   --app-primary-s: 82%;
@@ -47,12 +47,12 @@
   --app-max-width: 1200px;
 
   --app-custom-font: 'Roboto';
-  
+
 }
 
 :root {
 
-  --transparent-factor: 2;
+  --transparent-factor: 1.2;
 
   /* ==================== Base Colors ==================== */
   /* Primary */
@@ -62,12 +62,12 @@
   --app-primary-alpha-50: hsl(var(--app-primary-h), var(--app-primary-s), calc(var(--app-primary-l) * var(--transparent-factor)), 0.5);
   --app-primary-alpha-70: hsl(var(--app-primary-h), var(--app-primary-s), calc(var(--app-primary-l) * var(--transparent-factor)), 0.7);
   --app-primary-alpha-90: hsl(var(--app-primary-h), var(--app-primary-s), calc(var(--app-primary-l) * var(--transparent-factor)), 0.9);
-  
+
   /* Lighter variations: increase lightness, decrease saturation */
   --app-primary-1: hsl(var(--app-primary-h), calc(var(--app-primary-s) * 0.85), calc(var(--app-primary-l) + (95% - var(--app-primary-l)) * 0.15));
   --app-primary-2: hsl(var(--app-primary-h), calc(var(--app-primary-s) * 0.70), calc(var(--app-primary-l) + (95% - var(--app-primary-l)) * 0.30));
   --app-primary-3: hsl(var(--app-primary-h), calc(var(--app-primary-s) * 0.55), calc(var(--app-primary-l) + (95% - var(--app-primary-l)) * 0.45));
-  
+
   /* Darker variations: decrease lightness */
   --app-primary-4: hsl(var(--app-primary-h), var(--app-primary-s), calc(var(--app-primary-l) * 0.75));
   --app-primary-5: hsl(var(--app-primary-h), var(--app-primary-s), calc(var(--app-primary-l) * 0.50));
@@ -80,11 +80,11 @@
   --app-success-alpha-50: hsl(var(--app-success-h), var(--app-success-s), calc(var(--app-success-l) * var(--transparent-factor)), 0.5);
   --app-success-alpha-70: hsl(var(--app-success-h), var(--app-success-s), calc(var(--app-success-l) * var(--transparent-factor)), 0.7);
   --app-success-alpha-90: hsl(var(--app-success-h), var(--app-success-s), calc(var(--app-success-l) * var(--transparent-factor)), 0.9);
-  
+
   --app-success-1: hsl(var(--app-success-h), calc(var(--app-success-s) * 0.85), calc(var(--app-success-l) + (95% - var(--app-success-l)) * 0.15));
   --app-success-2: hsl(var(--app-success-h), calc(var(--app-success-s) * 0.70), calc(var(--app-success-l) + (95% - var(--app-success-l)) * 0.30));
   --app-success-3: hsl(var(--app-success-h), calc(var(--app-success-s) * 0.55), calc(var(--app-success-l) + (95% - var(--app-success-l)) * 0.45));
-  
+
   --app-success-4: hsl(var(--app-success-h), var(--app-success-s), calc(var(--app-success-l) * 0.75));
   --app-success-5: hsl(var(--app-success-h), var(--app-success-s), calc(var(--app-success-l) * 0.50));
   --app-success-6: hsl(var(--app-success-h), var(--app-success-s), calc(var(--app-success-l) * 0.25));
@@ -96,11 +96,11 @@
   --app-warning-alpha-50: hsl(var(--app-warning-h), var(--app-warning-s), calc(var(--app-warning-l) * var(--transparent-factor)), 0.5);
   --app-warning-alpha-70: hsl(var(--app-warning-h), var(--app-warning-s), calc(var(--app-warning-l) * var(--transparent-factor)), 0.7);
   --app-warning-alpha-90: hsl(var(--app-warning-h), var(--app-warning-s), calc(var(--app-warning-l) * var(--transparent-factor)), 0.9);
-  
+
   --app-warning-1: hsl(var(--app-warning-h), calc(var(--app-warning-s) * 0.85), calc(var(--app-warning-l) + (95% - var(--app-warning-l)) * 0.15));
   --app-warning-2: hsl(var(--app-warning-h), calc(var(--app-warning-s) * 0.70), calc(var(--app-warning-l) + (95% - var(--app-warning-l)) * 0.30));
   --app-warning-3: hsl(var(--app-warning-h), calc(var(--app-warning-s) * 0.55), calc(var(--app-warning-l) + (95% - var(--app-warning-l)) * 0.45));
-  
+
   --app-warning-4: hsl(var(--app-warning-h), var(--app-warning-s), calc(var(--app-warning-l) * 0.75));
   --app-warning-5: hsl(var(--app-warning-h), var(--app-warning-s), calc(var(--app-warning-l) * 0.50));
   --app-warning-6: hsl(var(--app-warning-h), var(--app-warning-s), calc(var(--app-warning-l) * 0.25));
@@ -112,11 +112,11 @@
   --app-danger-alpha-50: hsl(var(--app-danger-h), var(--app-danger-s), calc(var(--app-danger-l) * var(--transparent-factor)), 0.5);
   --app-danger-alpha-70: hsl(var(--app-danger-h), var(--app-danger-s), calc(var(--app-danger-l) * var(--transparent-factor)), 0.7);
   --app-danger-alpha-90: hsl(var(--app-danger-h), var(--app-danger-s), calc(var(--app-danger-l) * var(--transparent-factor)), 0.9);
-  
+
   --app-danger-1: hsl(var(--app-danger-h), calc(var(--app-danger-s) * 0.85), calc(var(--app-danger-l) + (95% - var(--app-danger-l)) * 0.15));
   --app-danger-2: hsl(var(--app-danger-h), calc(var(--app-danger-s) * 0.70), calc(var(--app-danger-l) + (95% - var(--app-danger-l)) * 0.30));
   --app-danger-3: hsl(var(--app-danger-h), calc(var(--app-danger-s) * 0.55), calc(var(--app-danger-l) + (95% - var(--app-danger-l)) * 0.45));
-  
+
   --app-danger-4: hsl(var(--app-danger-h), var(--app-danger-s), calc(var(--app-danger-l) * 0.75));
   --app-danger-5: hsl(var(--app-danger-h), var(--app-danger-s), calc(var(--app-danger-l) * 0.50));
   --app-danger-6: hsl(var(--app-danger-h), var(--app-danger-s), calc(var(--app-danger-l) * 0.25));
@@ -128,11 +128,11 @@
   --app-error-alpha-50: hsl(var(--app-error-h), var(--app-error-s), calc(var(--app-error-l) * var(--transparent-factor)), 0.5);
   --app-error-alpha-70: hsl(var(--app-error-h), var(--app-error-s), calc(var(--app-error-l) * var(--transparent-factor)), 0.7);
   --app-error-alpha-90: hsl(var(--app-error-h), var(--app-error-s), calc(var(--app-error-l) * var(--transparent-factor)), 0.9);
-  
+
   --app-error-1: hsl(var(--app-error-h), calc(var(--app-error-s) * 0.85), calc(var(--app-error-l) + (95% - var(--app-error-l)) * 0.15));
   --app-error-2: hsl(var(--app-error-h), calc(var(--app-error-s) * 0.70), calc(var(--app-error-l) + (95% - var(--app-error-l)) * 0.30));
   --app-error-3: hsl(var(--app-error-h), calc(var(--app-error-s) * 0.55), calc(var(--app-error-l) + (95% - var(--app-error-l)) * 0.45));
-  
+
   --app-error-4: hsl(var(--app-error-h), var(--app-error-s), calc(var(--app-error-l) * 0.75));
   --app-error-5: hsl(var(--app-error-h), var(--app-error-s), calc(var(--app-error-l) * 0.50));
   --app-error-6: hsl(var(--app-error-h), var(--app-error-s), calc(var(--app-error-l) * 0.25));
@@ -144,11 +144,11 @@
   --app-info-alpha-50: hsl(var(--app-info-h), var(--app-info-s), calc(var(--app-info-l) * var(--transparent-factor)), 0.5);
   --app-info-alpha-70: hsl(var(--app-info-h), var(--app-info-s), calc(var(--app-info-l) * var(--transparent-factor)), 0.7);
   --app-info-alpha-90: hsl(var(--app-info-h), var(--app-info-s), calc(var(--app-info-l) * var(--transparent-factor)), 0.9);
-  
+
   --app-info-1: hsl(var(--app-info-h), calc(var(--app-info-s) * 0.85), calc(var(--app-info-l) + (95% - var(--app-info-l)) * 0.15));
   --app-info-2: hsl(var(--app-info-h), calc(var(--app-info-s) * 0.70), calc(var(--app-info-l) + (95% - var(--app-info-l)) * 0.30));
   --app-info-3: hsl(var(--app-info-h), calc(var(--app-info-s) * 0.55), calc(var(--app-info-l) + (95% - var(--app-info-l)) * 0.45));
-  
+
   --app-info-4: hsl(var(--app-info-h), var(--app-info-s), calc(var(--app-info-l) * 0.75));
   --app-info-5: hsl(var(--app-info-h), var(--app-info-s), calc(var(--app-info-l) * 0.50));
   --app-info-6: hsl(var(--app-info-h), var(--app-info-s), calc(var(--app-info-l) * 0.25));
@@ -167,7 +167,7 @@
   --el-color-primary-light-8: hsl(var(--app-primary-h), calc(var(--app-primary-s) * 0.55), calc(var(--app-primary-l) + (95% - var(--app-primary-l)) * 0.7)) !important;
   --el-color-primary-light-9: hsl(var(--app-primary-h), calc(var(--app-primary-s) * 0.55), calc(var(--app-primary-l) + (95% - var(--app-primary-l)) * 0.9)) !important;
   --el-color-primary-dark-2: var(--app-primary-4) !important;
-  
+
   --el-color-success: var(--app-success-color) !important;
   --el-color-success-light-3: var(--app-success-1) !important;
   --el-color-success-light-5: var(--app-success-2) !important;
@@ -175,7 +175,7 @@
   --el-color-success-light-8: hsl(var(--app-success-h), calc(var(--app-success-s) * 0.55), calc(var(--app-success-l) + (95% - var(--app-success-l)) * 0.7)) !important;
   --el-color-success-light-9: hsl(var(--app-success-h), calc(var(--app-success-s) * 0.55), calc(var(--app-success-l) + (95% - var(--app-success-l)) * 0.9)) !important;
   --el-color-success-dark-2: var(--app-success-4) !important;
-  
+
   --el-color-warning: var(--app-warning-color) !important;
   --el-color-warning-light-3: var(--app-warning-1) !important;
   --el-color-warning-light-5: var(--app-warning-2) !important;
@@ -183,7 +183,7 @@
   --el-color-warning-light-8: hsl(var(--app-warning-h), calc(var(--app-warning-s) * 0.55), calc(var(--app-warning-l) + (95% - var(--app-warning-l)) * 0.7)) !important;
   --el-color-warning-light-9: hsl(var(--app-warning-h), calc(var(--app-warning-s) * 0.55), calc(var(--app-warning-l) + (95% - var(--app-warning-l)) * 0.7)) !important;
   --el-color-warning-dark-2: var(--app-warning-4) !important;
-  
+
   --el-color-danger: var(--app-danger-color) !important;
   --el-color-danger-light-3: var(--app-danger-1) !important;
   --el-color-danger-light-5: var(--app-danger-2) !important;
@@ -191,7 +191,7 @@
   --el-color-danger-light-8: hsl(var(--app-danger-h), calc(var(--app-danger-s) * 0.55), calc(var(--app-danger-l) + (95% - var(--app-danger-l)) * 0.7)) !important;
   --el-color-danger-light-9: hsl(var(--app-danger-h), calc(var(--app-danger-s) * 0.55), calc(var(--app-danger-l) + (95% - var(--app-danger-l)) * 0.9)) !important;
   --el-color-danger-dark-2: var(--app-danger-4) !important;
-  
+
   --el-color-error: var(--app-error-color) !important;
   --el-color-error-light-3: var(--app-error-1) !important;
   --el-color-error-light-5: var(--app-error-2) !important;
@@ -199,7 +199,7 @@
   --el-color-error-light-8: hsl(var(--app-error-h), calc(var(--app-error-s) * 0.55), calc(var(--app-error-l) + (95% - var(--app-error-l)) * 0.7)) !important;
   --el-color-error-light-9: hsl(var(--app-error-h), calc(var(--app-error-s) * 0.55), calc(var(--app-error-l) + (95% - var(--app-error-l)) * 0.9)) !important;
   --el-color-error-dark-2: var(--app-error-4) !important;
-  
+
   --el-color-info: var(--app-info-color) !important;
   --el-color-info-light-3: var(--app-info-1) !important;
   --el-color-info-light-5: var(--app-info-2) !important;
@@ -207,10 +207,10 @@
   --el-color-info-light-8: hsl(var(--app-info-h), calc(var(--app-info-s) * 0.55), calc(var(--app-info-l) + (95% - var(--app-info-l)) * 0.7)) !important;
   --el-color-info-light-9: hsl(var(--app-info-h), calc(var(--app-info-s) * 0.55), calc(var(--app-info-l) + (95% - var(--app-info-l)) * 0.9)) !important;
   --el-color-info-dark-2: var(--app-info-4) !important;
-  
+
   --el-font-family: var(--app-font-family) !important;
-  
-  
+
+
   --app-bg: radial-gradient(72% 72% at 2% -5%, #ddf2f7 0%, #dae7f1 100%);
 
   /* Simplified Grey Scale - 11 levels for better consistency */
@@ -228,7 +228,7 @@
 
   --app-font-family: var(--app-custom-font), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
 
-  
+
 
   /* ==================== Semantic Colors ==================== */
   /* Text colors - aligned with Element Plus naming */
@@ -287,7 +287,7 @@
   // override element
   --el-border-radius-base: var(--app-border-radius-m);
 
-  
+
 
   // override vxe ui
   --vxe-ui-font-family: var(--app-font-family) !important;
@@ -313,8 +313,8 @@
   --app-line-height: 1.2;
   --app-font-weight: 400;
   --app-font-weight-title: bold;
-  
-  
+
+
 
   // set ap size base on rem;
   --app-border-radius-s: 0.4rem;
