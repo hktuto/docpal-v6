@@ -40,6 +40,35 @@ export function usePaddleOcr() {
     })
   }
 
+  async function preprocessImage(image: HTMLImageElement | HTMLCanvasElement): Promise<{ blob: Blob; scale: number }> {
+    const MAX_SIZE = 1920
+
+    const canvas = document.createElement('canvas')
+    const origWidth = image instanceof HTMLImageElement ? image.naturalWidth : image.width
+    const origHeight = image instanceof HTMLImageElement ? image.naturalHeight : image.height
+    let width = origWidth
+    let height = origHeight
+    let scale = 1
+
+    if (Math.max(width, height) > MAX_SIZE) {
+      scale = MAX_SIZE / Math.max(width, height)
+      width = Math.round(width * scale)
+      height = Math.round(height * scale)
+    }
+
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('Failed to get canvas context')
+    ctx.drawImage(image, 0, 0, width, height)
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Canvas toBlob failed'))), 'image/png')
+    })
+
+    return { blob, scale }
+  }
+
   async function recognize(image: HTMLImageElement | HTMLCanvasElement): Promise<OcrResult> {
     if (!paddleOcrState.isReady) {
       await waitForReady()
@@ -50,21 +79,14 @@ export function usePaddleOcr() {
     }
 
     try {
-      // Convert canvas/image to blob for the SDK
-      let input: Blob | HTMLImageElement | HTMLCanvasElement = image
-      if (image instanceof HTMLCanvasElement) {
-        const blob = await new Promise<Blob>((resolve, reject) => {
-          image.toBlob((b) => (b ? resolve(b) : reject(new Error('Canvas toBlob failed'))), 'image/png')
-        })
-        input = blob
-      }
+      const { blob: input, scale } = await preprocessImage(image)
 
       const [result] = await paddleOcrState.instance.predict(input)
       const items = result?.items || []
 
       const boxes: OcrTextBox[] = items.map((item: any) => ({
         text: item.text || '',
-        points: item.poly || [],
+        points: (item.poly || []).map((p: number[]) => [p[0] / scale, p[1] / scale]),
         score: item.score || 0,
       }))
 
