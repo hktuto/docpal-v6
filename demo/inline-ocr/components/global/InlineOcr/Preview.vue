@@ -33,13 +33,23 @@ function onViewportMouseMove(e: MouseEvent) {
 
 // Dot grid loading animation
 const dotGridRef = ref<HTMLElement | null>(null)
-const GRID_COLS = 28
-const GRID_ROWS = 16
-const dotCount = GRID_COLS * GRID_ROWS
+const gridSize = ref({ cols: 28, rows: 16 })
+const dotCount = computed(() => gridSize.value.cols * gridSize.value.rows)
 let animeInstance: anime.AnimeInstance | null = null
 
-watch(isProcessing, (processing:boolean) => {
+function computeGridSize() {
+  const container = containerRef.value
+  if (!container) return
+  const cellSize = 30
+  gridSize.value = {
+    cols: Math.ceil(container.clientWidth / cellSize),
+    rows: Math.ceil(container.clientHeight / cellSize),
+  }
+}
+
+watch(isProcessing, (processing: boolean) => {
   if (processing) {
+    computeGridSize()
     nextTick(() => {
       const dots = dotGridRef.value?.querySelectorAll('.dot')
       if (!dots || !dots.length) return
@@ -50,7 +60,7 @@ watch(isProcessing, (processing:boolean) => {
           { value: 1.5, easing: 'easeInOutQuad', duration: 800 },
           { value: 0.1, easing: 'easeOutSine', duration: 400 },
         ],
-        delay: anime.stagger(80, { grid: [GRID_COLS, GRID_ROWS], from: 'center' }),
+        delay: anime.stagger(80, { grid: [gridSize.value.cols, gridSize.value.rows], from: 'center' }),
         loop: true,
       })
     })
@@ -333,7 +343,7 @@ watch(() => props.src, (newSrc) => {
       </div>
 
       <div v-if="isProcessing" class="ocr-loading-overlay">
-        <div ref="dotGridRef" class="dot-grid" :style="{ gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)` }">
+        <div ref="dotGridRef" class="dot-grid" :style="{ gridTemplateColumns: `repeat(${gridSize.cols}, 1fr)`, gridTemplateRows: `repeat(${gridSize.rows}, 1fr)` }">
           <div v-for="i in dotCount" :key="i" class="dot" />
         </div>
         <!-- <span class="ocr-loading-text">Processing OCR...</span> -->
