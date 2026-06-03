@@ -39,63 +39,40 @@ const selection = useTextSelection(computed(() => ocrResult.value?.boxes ?? []))
 
 const ocr = usePaddleOcr()
 
-// Click-vs-drag detection for box-level vs character-level selection
-const clickTrack = ref<{
-  startTime: number
-  startX: number
-  startY: number
-  index: number
-  shiftKey: boolean
-  active: boolean
-} | null>(null)
+// Store computed word layout so selection logic can look up word text
+const wordLayouts = ref<Map<string, { word: string; left: number; width: number }[]>>(new Map())
 
-// Cache for canvas text-measurement context (reused across calls)
-let measureCtx: CanvasRenderingContext2D | null = null
+function getBoxWords(text: string): string[] {
+  return text.split(' ').map((w, i, arr) => (i < arr.length - 1 ? w + ' ' : w))
+}
 
-function getMeasureCtx(): CanvasRenderingContext2D {
-  if (!measureCtx) {
-    const canvas = document.createElement('canvas')
-    measureCtx = canvas.getContext('2d')!
+function getWordKey(boxIndex: number): string {
+  return `box-${boxIndex}`
+}
+
+function getWordText(boxIndex: number, wordIndex: number): string {
+  const words = wordLayouts.value.get(getWordKey(boxIndex))
+  return words?.[wordIndex]?.word ?? ''
+}
+
+function getWordStyles(text: string, boxWidth: number): { word: string; left: number; width: number }[] {
+  const words = getBoxWords(text)
+  if (words.length === 0) return []
+  if (words.length === 1) {
+    return [{ word: words[0], left: 0, width: boxWidth }]
   }
-  return measureCtx
-}
 
-interface WordStyle {
-  word: string
-  left: number
-  width: number
-}
-
-function getWordStyles(text: string, fontSize: number, boxWidth: number): WordStyle[] {
-  const ctx = getMeasureCtx()
-  ctx.font = `${fontSize}px 'Segoe UI', system-ui, sans-serif`
-
-  const words = text.split(' ')
-  const result: WordStyle[] = []
+  // Proportional width allocation based on character count
+  const totalChars = words.reduce((sum, w) => sum + w.length, 0)
+  const result: { word: string; left: number; width: number }[] = []
   let currentLeft = 0
 
   for (let i = 0; i < words.length; i++) {
     const word = words[i]
-    const wordWidth = ctx.measureText(word).width
-    const spaceWidth = i < words.length - 1 ? ctx.measureText(' ').width : 0
-
-    result.push({
-      word,
-      left: currentLeft,
-      width: wordWidth,
-    })
-
-    currentLeft += wordWidth + spaceWidth
-  }
-
-  // Scale word positions to fit the detected box width so highlights align with image text
-  const measuredTotal = result.length > 0 ? result[result.length - 1].left + result[result.length - 1].width : 0
-  if (measuredTotal > 0 && Math.abs(measuredTotal - boxWidth) > 1) {
-    const scale = boxWidth / measuredTotal
-    result.forEach((w) => {
-      w.left *= scale
-      w.width *= scale
-    })
+    const ratio = word.length / totalChars
+    const width = boxWidth * ratio
+    result.push({ word, left: currentLeft, width })
+    currentLeft += width
   }
 
   return result
@@ -104,6 +81,7 @@ function getWordStyles(text: string, fontSize: number, boxWidth: number): WordSt
 function loadImage(src: string) {
   imageLoaded.value = false
   ocrResult.value = null
+  wordLayouts.value.clear()
   selection.clearSelection()
   const img = new Image()
   img.crossOrigin = 'anonymous'
@@ -140,6 +118,14 @@ async function runOcr() {
   try {
     const result = await ocr.recognize(imageRef.value)
     ocrResult.value = result
+    // Pre-compute word layouts
+    wordLayouts.value.clear()
+    result.boxes.forEach((box, idx) => {
+      const metrics = getBoxMetrics(box.points)
+      if (metrics) {
+        wordLayouts.value.set(getWordKey(idx), getWordStyles(box.text, metrics.textWidth))
+      }
+    })
   } catch (err) {
     console.error('OCR failed:', err)
   } finally {
@@ -152,20 +138,16 @@ function getBoxMetrics(boxPoints: number[][]) {
   const p0 = boxPoints[0]
   const p1 = boxPoints[1]
   const p3 = boxPoints[3]
-
   const textWidth = Math.hypot(p1[0] - p0[0], p1[1] - p0[1])
   const textHeight = Math.hypot(p3[0] - p0[0], p3[1] - p0[1])
   const angleRad = Math.atan2(p1[1] - p0[1], p1[0] - p0[0])
   const angleDeg = angleRad * (180 / Math.PI)
-  const fontSize = Math.min(Math.max(textHeight * 0.85, 8), textHeight)
-
-  return { p0, textWidth, textHeight, angleDeg, fontSize }
+  return { p0, textWidth, textHeight, angleDeg }
 }
 
 function getBoxStyle(boxPoints: number[][]) {
   const metrics = getBoxMetrics(boxPoints)
   if (!metrics) return {}
-
   return {
     position: 'absolute' as const,
     left: `${metrics.p0[0]}px`,
@@ -174,63 +156,46 @@ function getBoxStyle(boxPoints: number[][]) {
     height: `${metrics.textHeight}px`,
     transform: `rotate(${metrics.angleDeg}deg)`,
     transformOrigin: '0 0',
-    fontSize: `${metrics.fontSize}px`,
-    lineHeight: `${metrics.textHeight}px`,
   }
 }
 
-function getBoxWords(box: { text: string; points: number[][] }): WordStyle[] {
-  const metrics = getBoxMetrics(box.points)
-  if (!metrics) return []
-  return getWordStyles(box.text, metrics.fontSize, metrics.textWidth)
-}
+// --- Custom word selection handlers ---
 
-function onBoxMouseDown(index: number, e: MouseEvent) {
-  clickTrack.value = {
-    startTime: Date.now(),
-    startX: e.clientX,
-    startY: e.clientY,
-    index,
-    shiftKey: e.shiftKey,
-    active: true,
+function onWordMouseDown(boxIndex: number, wordIndex: number, e: MouseEvent) {
+  if (e.shiftKey && selection.anchorBoxIndex.value !== null && selection.anchorWordIndex.value !== null) {
+    // Shift+click = range select
+    selection.selectRange(
+      selection.anchorBoxIndex.value,
+      selection.anchorWordIndex.value,
+      boxIndex,
+      wordIndex,
+      getWordText
+    )
+    return
   }
+  // Start drag selection
+  selection.clearSelection()
+  selection.startSelection(boxIndex, wordIndex)
+  selection.selectWord(boxIndex, wordIndex, getWordText(boxIndex, wordIndex))
 }
 
-function onWindowMouseMove(e: MouseEvent) {
-  if (!clickTrack.value?.active) return
-  const dx = e.clientX - clickTrack.value.startX
-  const dy = e.clientY - clickTrack.value.startY
-  if (Math.sqrt(dx * dx + dy * dy) > 8) {
-    clickTrack.value.active = false
-  }
+function onWordMouseEnter(boxIndex: number, wordIndex: number) {
+  selection.extendSelection(boxIndex, wordIndex, getWordText)
 }
 
-function onWindowMouseUp() {
-  if (!clickTrack.value) return
-  const track = clickTrack.value
-  clickTrack.value = null
-
-  if (!track.active) return // Was a drag, let native selection handle it
-
-  if (track.shiftKey && selection.anchorIndex.value !== null) {
-    window.getSelection()?.removeAllRanges()
-    selection.selectRange(selection.anchorIndex.value, track.index)
-  } else {
-    window.getSelection()?.removeAllRanges()
-    selection.selectOnly(track.index)
-  }
-}
-
-function onBoxTouchStart(index: number) {
-  selection.toggleSingle(index)
+function onWordTouchStart(boxIndex: number, wordIndex: number) {
+  selection.toggleWord(boxIndex, wordIndex, getWordText(boxIndex, wordIndex))
 }
 
 function onContainerMouseDown(e: MouseEvent) {
   const target = e.target as HTMLElement
-  if (!target.closest('.text-box')) {
+  if (!target.closest('.word-hit')) {
     selection.clearSelection()
-    window.getSelection()?.removeAllRanges()
   }
+}
+
+function onWindowMouseUp() {
+  selection.finalizeSelection()
 }
 
 function toggleOverlays() {
@@ -266,12 +231,10 @@ function zoomOut() {
 }
 
 onMounted(() => {
-  window.addEventListener('mousemove', onWindowMouseMove)
   window.addEventListener('mouseup', onWindowMouseUp)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('mousemove', onWindowMouseMove)
   window.removeEventListener('mouseup', onWindowMouseUp)
 })
 
@@ -342,22 +305,22 @@ watch(() => props.src, (newSrc) => {
           :style="{ width: imageSize.width + 'px', height: imageSize.height + 'px' }"
         >
           <div
-            v-for="(box, index) in ocrResult.boxes"
-            :key="index"
+            v-for="(box, boxIndex) in ocrResult.boxes"
+            :key="boxIndex"
             class="text-box"
-            :class="{ 'box-selected': selection.isSelected(index) }"
             :style="getBoxStyle(box.points)"
-            :data-text="box.text"
-            :data-index="index"
-            @mousedown="onBoxMouseDown(index, $event)"
-            @touchstart.stop="onBoxTouchStart(index)"
           >
-            <span
-              v-for="(word, wi) in getBoxWords(box)"
-              :key="wi"
-              class="word"
+            <div
+              v-for="(word, wordIndex) in wordLayouts.get(getWordKey(boxIndex)) ?? []"
+              :key="wordIndex"
+              class="word-hit"
+              :class="{ selected: selection.isWordSelected(boxIndex, wordIndex) }"
               :style="{ left: word.left + 'px', width: word.width + 'px' }"
-            >{{ word.word }}</span>
+              :data-word="word.word"
+              @mousedown.stop="onWordMouseDown(boxIndex, wordIndex, $event)"
+              @mouseenter="onWordMouseEnter(boxIndex, wordIndex)"
+              @touchstart.stop="onWordTouchStart(boxIndex, wordIndex)"
+            />
           </div>
         </div>
       </div>
@@ -379,7 +342,7 @@ watch(() => props.src, (newSrc) => {
         <button class="copy-btn" @click="selection.copyToClipboard()">
           {{ selection.copied ? 'Copied!' : 'Copy' }}
         </button>
-        <button class="copy-btn secondary" @click="selection.selectAll()">
+        <button class="copy-btn secondary" @click="selection.selectAll((b) => getBoxWords(ocrResult?.boxes[b]?.text ?? ''))">
           Select All
         </button>
         <button class="copy-btn secondary" @click="selection.clearSelection()">
@@ -479,48 +442,25 @@ watch(() => props.src, (newSrc) => {
   position: absolute;
   pointer-events: auto;
   cursor: text;
-  color: transparent;
-  text-shadow: none;
-  background: transparent;
-  border-radius: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  user-select: text;
-  -webkit-user-select: text;
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  font-weight: 400;
-  letter-spacing: normal;
-  transition: background 0.15s;
-
-  &:hover {
-    background: rgba(233, 69, 96, 0.06);
-  }
-
-  // Custom box-level selection highlight
-  &.box-selected {
-    background: rgba(233, 69, 96, 0.15);
-    box-shadow: 0 0 0 1px rgba(233, 69, 96, 0.35);
-  }
 }
 
-.word {
+.word-hit {
   position: absolute;
   top: 0;
-  color: transparent;
-  text-shadow: none;
-  white-space: nowrap;
-  overflow: hidden;
-  user-select: text;
-  -webkit-user-select: text;
+  height: 100%;
   pointer-events: auto;
   cursor: text;
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  font-weight: 400;
+  background: transparent;
+  border-radius: 1px;
+  transition: background 0.1s;
 
-  &::selection {
-    background: rgba(233, 69, 96, 0.4);
-    color: transparent;
-    text-shadow: none;
+  &:hover:not(.selected) {
+    background: rgba(233, 69, 96, 0.08);
+  }
+
+  &.selected {
+    background: rgba(233, 69, 96, 0.35);
+    box-shadow: 0 0 0 1px rgba(233, 69, 96, 0.5);
   }
 }
 
