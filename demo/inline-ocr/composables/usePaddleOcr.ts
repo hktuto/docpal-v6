@@ -1,4 +1,5 @@
-import { ref } from 'vue'
+import { computed, watch } from 'vue'
+import { paddleOcrState } from '../plugins/paddleocr.client'
 
 export interface OcrTextBox {
   text: string
@@ -12,51 +13,41 @@ export interface OcrResult {
 }
 
 export function usePaddleOcr() {
-  const isLoading = ref(false)
-  const isReady = ref(false)
-  const error = ref<string | null>(null)
-  const progress = ref('')
+  const isLoading = computed(() => paddleOcrState.isLoading)
+  const isReady = computed(() => paddleOcrState.isReady)
+  const error = computed(() => paddleOcrState.error)
+  const progress = computed(() => paddleOcrState.progress)
 
-  let ocrInstance: any = null
+  async function waitForReady(): Promise<void> {
+    if (paddleOcrState.isReady) return
+    if (paddleOcrState.error) throw new Error(paddleOcrState.error)
 
-  async function init() {
-    if (isReady.value) return
-    isLoading.value = true
-    error.value = null
-    progress.value = 'Loading OCR engine...'
-
-    try {
-      const { PaddleOCR } = await import('@paddleocr/paddleocr-js')
-      progress.value = 'Downloading models (first time may take a while)...'
-      ocrInstance = await PaddleOCR.create({
-        lang: 'ch',
-        ocrVersion: 'PP-OCRv5',
-        ortOptions: {
-          backend: 'auto',
+    return new Promise<void>((resolve, reject) => {
+      const stop = watch(
+        [() => paddleOcrState.isReady, () => paddleOcrState.error],
+        ([ready, err]) => {
+          if (ready) {
+            stop()
+            resolve()
+          }
+          if (err) {
+            stop()
+            reject(new Error(err))
+          }
         },
-      })
-      isReady.value = true
-      progress.value = 'Ready'
-    } catch (err: any) {
-      error.value = err?.message || 'Failed to initialize OCR'
-      console.error('OCR init error:', err)
-    } finally {
-      isLoading.value = false
-    }
+        { immediate: true }
+      )
+    })
   }
 
   async function recognize(image: HTMLImageElement | HTMLCanvasElement): Promise<OcrResult> {
-    if (!isReady.value) {
-      await init()
+    if (!paddleOcrState.isReady) {
+      await waitForReady()
     }
 
-    if (!ocrInstance) {
+    if (!paddleOcrState.instance) {
       throw new Error('OCR module not loaded')
     }
-
-    isLoading.value = true
-    progress.value = 'Recognizing text...'
-    error.value = null
 
     try {
       // Convert canvas/image to blob for the SDK
@@ -68,7 +59,7 @@ export function usePaddleOcr() {
         input = blob
       }
 
-      const [result] = await ocrInstance.predict(input)
+      const [result] = await paddleOcrState.instance.predict(input)
       const items = result?.items || []
 
       const boxes: OcrTextBox[] = items.map((item: any) => ({
@@ -84,11 +75,7 @@ export function usePaddleOcr() {
         boxes,
       }
     } catch (err: any) {
-      error.value = err?.message || 'OCR recognition failed'
       throw err
-    } finally {
-      isLoading.value = false
-      progress.value = ''
     }
   }
 
@@ -97,7 +84,6 @@ export function usePaddleOcr() {
     isReady,
     error,
     progress,
-    init,
     recognize,
   }
 }
