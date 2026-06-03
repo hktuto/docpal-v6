@@ -1,52 +1,26 @@
 <script setup lang="ts">
-import 'viewerjs/dist/viewer.css'
-  const props = withDefaults(defineProps<{
-    images: string [],
-    options: {
-      inline?:boolean,
-      button?:boolean,
-      navbar?:boolean,
-      title?:boolean,
-      toolbar?:boolean,
-      tooltip?:boolean,
-      movable?:boolean,
-      zoomable?:boolean,
-      rotatable?:boolean,
-      scalable?:boolean,
-      transition?:boolean,
-      fullscreen?:boolean,
-      keyboard?:boolean
-    }
-  }>(),{
-    options:{  }
-  })
-const viewer = ref()
-const isFail = ref(false)
-const emits = defineEmits(['fail'])
-
-const renderOptions = computed(() => {
-  return Object.assign(
-    { inline: true, button: false, navbar: false, title: false, toolbar: false, tooltip: false, movable: true, zoomable: true, rotatable: false, scalable: true, transition: true, fullscreen: true, keyboard: true },
-    props.options
-  )
+const props = withDefaults(defineProps<{
+  images: string[]
+  options?: Record<string, any>
+}>(), {
+  options: () => ({})
 })
 
-function show(){
-  viewer.value.show()
-}
+const emits = defineEmits(['fail'])
 
+function show() {
+  // InlineOcrPreview is always visible; no lightbox to show
+}
 </script>
 
 <template>
-<div class="pictureContainer">
-  <div class="viewerContainer" v-viewer="renderOptions">
-    <img v-for="src in images" :src="src" :key="src" hidden @error="$emit('fail')">
+  <div class="pictureContainer">
+    <InlineOcrPreview v-if="images.length" :src="images[0]" />
   </div>
-</div>
 </template>
 
 <style scoped lang="scss">
-.pictureContainer, .viewerContainer{
+.pictureContainer {
   width: 100%;
   height: 100%;
 }
