@@ -39,49 +39,9 @@ const selection = useTextSelection(computed(() => ocrResult.value?.boxes ?? []))
 
 const ocr = usePaddleOcr()
 
-// Store computed word layout so selection logic can look up word text
-const wordLayouts = ref<Map<string, { word: string; left: number; width: number }[]>>(new Map())
-
-function getBoxWords(text: string): string[] {
-  return text.split(' ').map((w, i, arr) => (i < arr.length - 1 ? w + ' ' : w))
-}
-
-function getWordKey(boxIndex: number): string {
-  return `box-${boxIndex}`
-}
-
-function getWordText(boxIndex: number, wordIndex: number): string {
-  const words = wordLayouts.value.get(getWordKey(boxIndex))
-  return words?.[wordIndex]?.word ?? ''
-}
-
-function getWordStyles(text: string, boxWidth: number): { word: string; left: number; width: number }[] {
-  const words = getBoxWords(text)
-  if (words.length === 0) return []
-  if (words.length === 1) {
-    return [{ word: words[0], left: 0, width: boxWidth }]
-  }
-
-  // Proportional width allocation based on character count
-  const totalChars = words.reduce((sum, w) => sum + w.length, 0)
-  const result: { word: string; left: number; width: number }[] = []
-  let currentLeft = 0
-
-  for (let i = 0; i < words.length; i++) {
-    const word = words[i]
-    const ratio = word.length / totalChars
-    const width = boxWidth * ratio
-    result.push({ word, left: currentLeft, width })
-    currentLeft += width
-  }
-
-  return result
-}
-
 function loadImage(src: string) {
   imageLoaded.value = false
   ocrResult.value = null
-  wordLayouts.value.clear()
   selection.clearSelection()
   const img = new Image()
   img.crossOrigin = 'anonymous'
@@ -118,14 +78,6 @@ async function runOcr() {
   try {
     const result = await ocr.recognize(imageRef.value)
     ocrResult.value = result
-    // Pre-compute word layouts
-    wordLayouts.value.clear()
-    result.boxes.forEach((box, idx) => {
-      const metrics = getBoxMetrics(box.points)
-      if (metrics) {
-        wordLayouts.value.set(getWordKey(idx), getWordStyles(box.text, metrics.textWidth))
-      }
-    })
   } catch (err) {
     console.error('OCR failed:', err)
   } finally {
@@ -133,63 +85,48 @@ async function runOcr() {
   }
 }
 
-function getBoxMetrics(boxPoints: number[][]) {
-  if (!boxPoints || boxPoints.length < 4) return null
+function getBoxStyle(boxPoints: number[][]) {
+  if (!boxPoints || boxPoints.length < 4) return {}
   const p0 = boxPoints[0]
   const p1 = boxPoints[1]
   const p3 = boxPoints[3]
+
   const textWidth = Math.hypot(p1[0] - p0[0], p1[1] - p0[1])
   const textHeight = Math.hypot(p3[0] - p0[0], p3[1] - p0[1])
   const angleRad = Math.atan2(p1[1] - p0[1], p1[0] - p0[0])
   const angleDeg = angleRad * (180 / Math.PI)
-  return { p0, textWidth, textHeight, angleDeg }
-}
 
-function getBoxStyle(boxPoints: number[][]) {
-  const metrics = getBoxMetrics(boxPoints)
-  if (!metrics) return {}
   return {
     position: 'absolute' as const,
-    left: `${metrics.p0[0]}px`,
-    top: `${metrics.p0[1]}px`,
-    width: `${metrics.textWidth}px`,
-    height: `${metrics.textHeight}px`,
-    transform: `rotate(${metrics.angleDeg}deg)`,
+    left: `${p0[0]}px`,
+    top: `${p0[1]}px`,
+    width: `${textWidth}px`,
+    height: `${textHeight}px`,
+    transform: `rotate(${angleDeg}deg)`,
     transformOrigin: '0 0',
   }
 }
 
-// --- Custom word selection handlers ---
-
-function onWordMouseDown(boxIndex: number, wordIndex: number, e: MouseEvent) {
-  if (e.shiftKey && selection.anchorBoxIndex.value !== null && selection.anchorWordIndex.value !== null) {
-    // Shift+click = range select
-    selection.selectRange(
-      selection.anchorBoxIndex.value,
-      selection.anchorWordIndex.value,
-      boxIndex,
-      wordIndex,
-      getWordText
-    )
+function onBoxMouseDown(index: number, e: MouseEvent) {
+  if (e.shiftKey && selection.anchorIndex.value !== null) {
+    selection.selectRange(selection.anchorIndex.value, index)
     return
   }
-  // Start drag selection
   selection.clearSelection()
-  selection.startSelection(boxIndex, wordIndex)
-  selection.selectWord(boxIndex, wordIndex, getWordText(boxIndex, wordIndex))
+  selection.startSelection(index)
 }
 
-function onWordMouseEnter(boxIndex: number, wordIndex: number) {
-  selection.extendSelection(boxIndex, wordIndex, getWordText)
+function onBoxMouseEnter(index: number) {
+  selection.extendSelection(index)
 }
 
-function onWordTouchStart(boxIndex: number, wordIndex: number) {
-  selection.toggleWord(boxIndex, wordIndex, getWordText(boxIndex, wordIndex))
+function onBoxTouchStart(index: number) {
+  selection.toggleSingle(index)
 }
 
 function onContainerMouseDown(e: MouseEvent) {
   const target = e.target as HTMLElement
-  if (!target.closest('.word-hit')) {
+  if (!target.closest('.text-box')) {
     selection.clearSelection()
   }
 }
@@ -305,23 +242,17 @@ watch(() => props.src, (newSrc) => {
           :style="{ width: imageSize.width + 'px', height: imageSize.height + 'px' }"
         >
           <div
-            v-for="(box, boxIndex) in ocrResult.boxes"
-            :key="boxIndex"
+            v-for="(box, index) in ocrResult.boxes"
+            :key="index"
             class="text-box"
+            :class="{ selected: selection.isSelected(index) }"
             :style="getBoxStyle(box.points)"
-          >
-            <div
-              v-for="(word, wordIndex) in wordLayouts.get(getWordKey(boxIndex)) ?? []"
-              :key="wordIndex"
-              class="word-hit"
-              :class="{ selected: selection.isWordSelected(boxIndex, wordIndex) }"
-              :style="{ left: word.left + 'px', width: word.width + 'px' }"
-              :data-word="word.word"
-              @mousedown.stop="onWordMouseDown(boxIndex, wordIndex, $event)"
-              @mouseenter="onWordMouseEnter(boxIndex, wordIndex)"
-              @touchstart.stop="onWordTouchStart(boxIndex, wordIndex)"
-            />
-          </div>
+            :data-text="box.text"
+            :data-index="index"
+            @mousedown.stop="onBoxMouseDown(index, $event)"
+            @mouseenter="onBoxMouseEnter(index)"
+            @touchstart.stop="onBoxTouchStart(index)"
+          />
         </div>
       </div>
 
@@ -342,7 +273,7 @@ watch(() => props.src, (newSrc) => {
         <button class="copy-btn" @click="selection.copyToClipboard()">
           {{ selection.copied ? 'Copied!' : 'Copy' }}
         </button>
-        <button class="copy-btn secondary" @click="selection.selectAll((b) => getBoxWords(ocrResult?.boxes[b]?.text ?? ''))">
+        <button class="copy-btn secondary" @click="selection.selectAll()">
           Select All
         </button>
         <button class="copy-btn secondary" @click="selection.clearSelection()">
@@ -442,24 +373,16 @@ watch(() => props.src, (newSrc) => {
   position: absolute;
   pointer-events: auto;
   cursor: text;
-}
-
-.word-hit {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  pointer-events: auto;
-  cursor: text;
   background: transparent;
-  border-radius: 1px;
-  transition: background 0.1s;
+  border-radius: 2px;
+  transition: background 0.15s;
 
-  &:hover:not(.selected) {
+  &:hover {
     background: rgba(233, 69, 96, 0.08);
   }
 
   &.selected {
-    background: rgba(233, 69, 96, 0.35);
+    background: rgba(233, 69, 96, 0.3);
     box-shadow: 0 0 0 1px rgba(233, 69, 96, 0.5);
   }
 }
