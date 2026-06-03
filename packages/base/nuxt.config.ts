@@ -18,7 +18,8 @@ const config = {
     '../assets/styles/main.scss'
   ],
   extends:[
-    "../sql-store"
+    "../sql-store",
+    "../inline-ocr"
   ],
 
   runtimeConfig:{
