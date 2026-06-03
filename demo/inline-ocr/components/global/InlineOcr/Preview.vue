@@ -490,8 +490,8 @@ watch(() => props.src, (newSrc) => {
   inset: -50%;
   width: 200%;
   height: 200%;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 2px, transparent 2.5px);
-  background-size: 30px 30px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+  background-size: 6px 6px;
   background-position: center;
 
   -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
