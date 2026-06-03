@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import anime from 'animejs'
 import { useCanvasViewport } from '../../../composables/useCanvasViewport'
 import { useLongPress } from '../../../composables/useLongPress'
 import { usePaddleOcr } from '../../../composables/usePaddleOcr'
@@ -30,47 +29,6 @@ function onViewportMouseMove(e: MouseEvent) {
   const rect = container.getBoundingClientRect()
   mousePos.value = { x: e.clientX - rect.left, y: e.clientY - rect.top }
 }
-
-// Dot grid loading animation
-const dotGridRef = ref<HTMLElement | null>(null)
-const gridSize = ref({ cols: 28, rows: 16 })
-const dotCount = computed(() => gridSize.value.cols * gridSize.value.rows)
-let animeInstance: anime.AnimeInstance | null = null
-
-function computeGridSize() {
-  const container = containerRef.value
-  if (!container) return
-  const cellSize = 30
-  gridSize.value = {
-    cols: Math.ceil(container.clientWidth / cellSize),
-    rows: Math.ceil(container.clientHeight / cellSize),
-  }
-}
-
-watch(isProcessing, (processing: boolean) => {
-  if (processing) {
-    computeGridSize()
-    nextTick(() => {
-      const dots = dotGridRef.value?.querySelectorAll('.dot')
-      if (!dots || !dots.length) return
-      animeInstance = anime({
-        targets: dots,
-        scale: [
-          { value: 0.1, easing: 'easeOutSine', duration: 400 },
-          { value: 1.5, easing: 'easeInOutQuad', duration: 800 },
-          { value: 0.1, easing: 'easeOutSine', duration: 400 },
-        ],
-        delay: anime.stagger(80, { grid: [gridSize.value.cols, gridSize.value.rows], from: 'center' }),
-        loop: true,
-      })
-    })
-  } else {
-    if (animeInstance) {
-      animeInstance.pause()
-      animeInstance = null
-    }
-  }
-})
 
 const { state, transformStyle, cursorStyle, reset, zoomToFit, isDragging, isSpacePressed, getPointOnCanvas } = useCanvasViewport(
   canvasRef,
@@ -343,10 +301,7 @@ watch(() => props.src, (newSrc) => {
       </div>
 
       <div v-if="isProcessing" class="ocr-loading-overlay">
-        <div ref="dotGridRef" class="dot-grid" :style="{ gridTemplateColumns: `repeat(${gridSize.cols}, 1fr)`, gridTemplateRows: `repeat(${gridSize.rows}, 1fr)` }">
-          <div v-for="i in dotCount" :key="i" class="dot" />
-        </div>
-        <!-- <span class="ocr-loading-text">Processing OCR...</span> -->
+        <div class="dot-grid" />
       </div>
 
       <div v-if="isPressed && !isProcessing" class="long-press-indicator">
@@ -531,22 +486,59 @@ watch(() => props.src, (newSrc) => {
 }
 
 .dot-grid {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-rows: repeat(16, 1fr);
-  gap: 0;
-  padding: var(--app-padding-s);
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 2px, transparent 2.5px);
+  background-size: 30px 30px;
+  background-position: center;
+
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
+  mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
+  -webkit-mask-size: 0% 0%;
+  mask-size: 0% 0%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  animation: rippleExpand 2.2s ease-in-out infinite;
 }
 
-.dot {
-  width: 12px;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  justify-self: center;
-  align-self: center;
-  will-change: transform;
+.dot-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 2px, transparent 2.5px);
+  background-size: 30px 30px;
+  background-position: center;
+
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
+  mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
+  -webkit-mask-size: 0% 0%;
+  mask-size: 0% 0%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  animation: rippleExpand 2.2s ease-in-out infinite;
+  animation-delay: 0.7s;
+  opacity: 0.5;
+}
+
+@keyframes rippleExpand {
+  0%, 100% {
+    -webkit-mask-size: 0% 0%;
+    mask-size: 0% 0%;
+    opacity: 0.4;
+  }
+  50% {
+    -webkit-mask-size: 300% 300%;
+    mask-size: 300% 300%;
+    opacity: 1;
+  }
 }
 
 .ocr-loading-text {
