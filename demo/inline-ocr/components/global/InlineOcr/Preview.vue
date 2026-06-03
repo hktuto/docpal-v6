@@ -268,10 +268,6 @@ watch(() => props.src, (newSrc) => {
         <div class="dot-grid" />
       </div>
 
-      <div v-if="isPressed && !isProcessing" class="long-press-indicator">
-        <div class="long-press-ring" />
-      </div>
-
       <div v-if="isSpacePressed" class="space-hint">
         Pan mode — drag to move
       </div>
@@ -336,33 +332,6 @@ watch(() => props.src, (newSrc) => {
 .placeholder {
   color: var(--app-text-color-secondary);
   font-size: 16px;
-}
-
-.long-press-indicator {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.long-press-ring {
-  width: 60px;
-  height: 60px;
-  border: 3px solid var(--app-danger-color);
-  border-radius: 50%;
-  animation: pulse-ring 0.6s ease-out forwards;
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(0.5);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
 }
 
 .space-hint {
