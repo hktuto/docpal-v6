@@ -3,6 +3,7 @@ import { clientApi, newClientApi } from 'api'
 import type { TriggerSettingDTO, TableFieldDTO } from 'api'
 import { ElMessage } from 'element-plus'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { workflowResponseHelper } from '../../../../../../workflow/utils/jsonConversion'
 
 const routerProvider = inject(MenuRouterKey)
@@ -45,6 +46,7 @@ const eventTypeOptions = [
   { label: 'Record is deleted', value: 'record_deleted', desc: 'When a record is removed from this table.' },
   { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' }
 ]
+const workflowList = ref<any[]>([])
 const workflowErrorMessage = ref<string>('')
 const workflowFormFields = ref<any[]>([])
 
@@ -190,9 +192,24 @@ async function handleSave() {
     ElMessage.warning('Watch field is required for Field Changed event')
     return
   }
+  let map_workflow_parameters = {}
+  if (form.workflow_id !== '') {
+    const set: any[] = []
+    map_workflow_parameters = workflowFormFields.value.reduce((acc: any, item: any) => {
+      if (item.value === '') {
+        set.push(item.name)
+      }
+      acc[item.id] = item.value
+      return acc
+    }, {})
 
-  console.log(2222,form.value)
-  return
+    // 檢查必要參數是否滿足
+    if (set.length > 0) {
+      workflowErrorMessage.value = `Launch workflow is missing the following required parameters [${set.join(',')}].`
+      return
+    }
+  }
+
   const payload = {
     trigger_name: form.value.trigger_name,
     description: form.value.description,
@@ -201,7 +218,7 @@ async function handleSave() {
     conditions: form.value.conditions,
     match_type: form.value.match_type,
     workflow_id: form.value.workflow_id,
-    map_workflow_parameters: form.value.map_workflow_parameters,
+    map_workflow_parameters: map_workflow_parameters,
     status: form.value.status
   }
 
@@ -237,7 +254,9 @@ function handleCancel() {
 
 async function handleChangeWorkflow() {
   try {
-    const data = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${form.value.workflow_id}`).then((r: any) => workflowResponseHelper(r))
+    const data = await clientApi.instance
+      .get(`/oniflow/api/v1/workflow/definitions/instance/${form.value.workflow_id}`)
+      .then((r: any) => workflowResponseHelper(r))
     if (!data) {
       routerProvider?.message?.error('Failed to get workflow details')
       return
@@ -247,7 +266,10 @@ async function handleChangeWorkflow() {
       return
     }
 
-    const startEventNode = data.content?.nodes?.find((item: any) => item.type == 'StartEvent')
+    const startEventNode = data.content?.nodes?.find((item: any) => {
+      if (item.type == 'StartEvent' || item.type.type == 'startevent') return item
+    })
+
     workflowFormFields.value = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
       id: field.id,
       name: field.name,
@@ -261,6 +283,7 @@ async function handleChangeWorkflow() {
 }
 
 onMounted(async () => {
+  workflowList.value = await getWorkflowList()
   await init()
 })
 </script>
@@ -317,13 +340,11 @@ onMounted(async () => {
               <span v-if="index === 0">When</span>
               <span v-else>{{ form.match_type === 'all' ? 'And' : 'Or' }}</span>
             </div>
-            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2"
-                       @change="handleFieldChange(condition)">
+            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2" @change="handleFieldChange(condition)">
               <el-option v-for="opt in fieldOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
             <el-select v-model="condition.operator" placeholder="Operator" size="small" style="flex: 1">
-              <el-option v-for="opt in getOperatorsForField(condition.field_name)" :key="opt.value" :label="opt.label"
-                         :value="opt.value" />
+              <el-option v-for="opt in getOperatorsForField(condition.field_name)" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
             <el-date-picker
               v-if="isDateField(condition.field_name)"
@@ -350,13 +371,27 @@ onMounted(async () => {
 
     <!-- Then section -->
     <div class="section-title">Then</div>
-    <div class="then-badge">
-      <Icon name="lucide:arrow-right" size="14" />
-      <span>Action</span>
-    </div>
     <div class="then-card">
-      <DatabaseSettingAutomationTriggerFormWorkflow :formData="form" :tableFields="tableFields" />
-
+      <div class="then-badge">
+        <Icon name="lucide:arrow-right" size="14" />
+        <span>Action</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Run workflow</label>
+        <el-select v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" @change="handleChangeWorkflow">
+          <el-option v-for="wf in workflowList" :key="wf.id" :label="wf.name" :value="wf.id" />
+        </el-select>
+      </div>
+      <el-form label-width="auto">
+        <template v-for="formField in workflowFormFields" :key="formField.id">
+          <el-form-item :label="formField.name" size="small">
+            <el-select v-model="formField.value">
+              <el-option v-for="field in tableFields" :key="field.field_name" :label="field.field_name_alias || field.field_name" :value="field.field_name" />
+            </el-select>
+          </el-form-item>
+        </template>
+      </el-form>
+      {{ workflowErrorMessage }}
     </div>
 
     <!-- Footer -->
