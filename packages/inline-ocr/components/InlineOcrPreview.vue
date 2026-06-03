@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useCanvasViewport } from '../../../composables/useCanvasViewport'
-import { useLongPress } from '../../../composables/useLongPress'
-import { usePaddleOcr } from '../../../composables/usePaddleOcr'
-import { useTextSelection } from '../../../composables/useTextSelection'
-import type { OcrResult } from '../../../composables/usePaddleOcr'
+import { useCanvasViewport } from '../composables/useCanvasViewport'
+import { useLongPress } from '../composables/useLongPress'
+import { usePaddleOcr } from '../composables/usePaddleOcr'
+import { useTextSelection } from '../composables/useTextSelection'
+import type { OcrResult } from '../composables/usePaddleOcr'
 
 const props = defineProps<{
   src: string | Blob | File
