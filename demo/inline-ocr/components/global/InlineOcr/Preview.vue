@@ -230,12 +230,20 @@ function zoomOut() {
   state.translateY = newTy
 }
 
+function onWindowResize() {
+  if (imageLoaded.value && imageSize.value.width > 0) {
+    zoomToFit(imageSize.value.width, imageSize.value.height)
+  }
+}
+
 onMounted(() => {
   window.addEventListener('mouseup', onWindowMouseUp)
+  window.addEventListener('resize', onWindowResize)
 })
 
 onUnmounted(() => {
   window.removeEventListener('mouseup', onWindowMouseUp)
+  window.removeEventListener('resize', onWindowResize)
 })
 
 watch(() => props.src, (newSrc) => {
