@@ -321,7 +321,7 @@ watch(() => props.src, (newSrc) => {
         <div ref="dotGridRef" class="dot-grid" :style="{ gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)` }">
           <div v-for="i in dotCount" :key="i" class="dot" />
         </div>
-        <span class="ocr-loading-text">Processing OCR...</span>
+        <!-- <span class="ocr-loading-text">Processing OCR...</span> -->
       </div>
 
       <div v-if="isPressed && !isProcessing" class="long-press-indicator">
@@ -500,7 +500,7 @@ watch(() => props.src, (newSrc) => {
   align-items: center;
   justify-content: center;
   gap: 24px;
-  background: rgba(22, 33, 62, 0.88);
+  /* background: rgba(22, 33, 62, 0.88); */
   backdrop-filter: blur(4px);
   pointer-events: none;
   z-index: 15;
@@ -516,8 +516,8 @@ watch(() => props.src, (newSrc) => {
 }
 
 .dot {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   justify-self: center;
