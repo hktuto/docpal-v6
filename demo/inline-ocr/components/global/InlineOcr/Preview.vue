@@ -185,32 +185,11 @@ function onWindowMouseUp() {
   selection.finalizeSelection()
 }
 
-function toggleOverlays() {
-  showOverlays.value = !showOverlays.value
-}
-
-function zoomIn() {
-  const newScale = Math.min(20, state.scale * 1.25)
-  const scaleRatio = newScale / state.scale
-  const cx = mousePos.value.x
-  const cy = mousePos.value.y
-  const newTx = cx - (cx - state.translateX) * scaleRatio
-  const newTy = cy - (cy - state.translateY) * scaleRatio
-  state.scale = newScale
-  state.translateX = newTx
-  state.translateY = newTy
-}
-
-function zoomOut() {
-  const newScale = Math.max(0.05, state.scale / 1.25)
-  const scaleRatio = newScale / state.scale
-  const cx = mousePos.value.x
-  const cy = mousePos.value.y
-  const newTx = cx - (cx - state.translateX) * scaleRatio
-  const newTy = cy - (cy - state.translateY) * scaleRatio
-  state.scale = newScale
-  state.translateX = newTx
-  state.translateY = newTy
+function onViewportDblClick(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  if (!target.closest('.text-box')) {
+    zoomToFit(imageSize.value.width, imageSize.value.height)
+  }
 }
 
 function onWindowResize() {
@@ -239,40 +218,6 @@ watch(() => props.src, (newSrc) => {
 
 <template>
   <div class="inline-ocr-preview">
-    <div class="toolbar">
-      <div class="toolbar-group">
-        <button class="btn" :disabled="!imageLoaded" @click="zoomIn">
-          <span>+</span>
-        </button>
-        <button class="btn" :disabled="!imageLoaded" @click="zoomOut">
-          <span>-</span>
-        </button>
-        <button class="btn" :disabled="!imageLoaded" @click="reset">
-          <span>Reset</span>
-        </button>
-        <button class="btn" :disabled="!imageLoaded" @click="zoomToFit(imageSize.width, imageSize.height)">
-          <span>Fit</span>
-        </button>
-      </div>
-      <div class="toolbar-group">
-        <button
-          class="btn"
-          :disabled="!imageLoaded || ocr.isLoading.value || !ocr.isReady.value"
-          @click="runOcr"
-        >
-          <span v-if="ocr.isLoading.value">Loading OCR...</span>
-          <span v-else-if="!ocr.isReady.value">OCR Initializing...</span>
-          <span v-else>Run OCR</span>
-        </button>
-        <button class="btn" :disabled="!ocrResult" @click="toggleOverlays">
-          <span>{{ showOverlays ? 'Hide Text' : 'Show Text' }}</span>
-        </button>
-      </div>
-      <div v-if="ocr.progress" class="status-text">
-        {{ ocr.progress }}
-      </div>
-    </div>
-
     <div
       ref="containerRef"
       class="viewport"
@@ -280,6 +225,7 @@ watch(() => props.src, (newSrc) => {
       :style="{ cursor: cursorStyle }"
       @mousedown="onContainerMouseDown"
       @mousemove="onViewportMouseMove"
+      @dblclick="onViewportDblClick"
     >
       <div
         v-if="imageLoaded"
@@ -330,18 +276,6 @@ watch(() => props.src, (newSrc) => {
         Pan mode — drag to move
       </div>
 
-      <div v-if="selection.hasSelection" class="copy-toolbar">
-        <span class="copy-count">{{ selection.selectedCount }} selected</span>
-        <button class="copy-btn" @click="selection.copyToClipboard()">
-          {{ selection.copied ? 'Copied!' : 'Copy' }}
-        </button>
-        <button class="copy-btn secondary" @click="selection.selectAll()">
-          Select All
-        </button>
-        <button class="copy-btn secondary" @click="selection.clearSelection()">
-          Clear
-        </button>
-      </div>
     </div>
 
 
@@ -354,50 +288,6 @@ watch(() => props.src, (newSrc) => {
   flex-direction: column;
   height: 100%;
   background: var(--app-bg-color-page);
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  background: var(--app-bg-color);
-  border-bottom: 1px solid var(--app-border-color-dark);
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.toolbar-group {
-  display: flex;
-  gap: 6px;
-}
-
-.btn {
-  padding: 6px 12px;
-  background: var(--app-fill-color-darker);
-  color: var(--app-danger-color);
-  border: 1px solid var(--app-danger-color);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s;
-
-  &:hover:not(:disabled) {
-    background: var(--app-danger-color);
-    color: var(--app-text-color-primary);
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-}
-
-.status-text {
-  font-size: 12px;
-  color: var(--app-text-color-secondary);
-  margin-left: auto;
 }
 
 .viewport {
@@ -574,59 +464,5 @@ watch(() => props.src, (newSrc) => {
     opacity: 1;
   }
 }
-
-.ocr-loading-text {
-  position: absolute;
-  bottom: 24px;
-  font-size: 14px;
-  color: var(--app-text-color-secondary);
-  font-weight: 600;
-}
-
-.copy-toolbar {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--app-bg-color-overlay);
-  border: 1px solid var(--app-border-color-dark);
-  border-radius: 8px;
-  z-index: 20;
-}
-
-.copy-count {
-  font-size: 12px;
-  color: var(--app-text-color-secondary);
-  margin-right: 4px;
-}
-
-.copy-btn {
-  padding: 5px 10px;
-  background: var(--app-danger-color);
-  color: var(--app-text-color-primary);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 0.2s;
-
-  &:hover {
-    background: var(--app-danger-5);
-  }
-
-  &.secondary {
-    background: var(--app-fill-color-darker);
-    border: 1px solid var(--app-danger-color);
-
-    &:hover {
-      background: var(--app-danger-color);
-    }
-  }
-}
-
 
 </style>
