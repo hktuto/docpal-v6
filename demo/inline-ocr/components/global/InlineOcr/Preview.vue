@@ -21,6 +21,16 @@ const ocrResult = ref<OcrResult | null>(null)
 const showOverlays = ref(true)
 const isProcessing = ref(false)
 
+// Track mouse position over viewport for zoom-to-cursor
+const mousePos = ref({ x: 0, y: 0 })
+
+function onViewportMouseMove(e: MouseEvent) {
+  const container = containerRef.value
+  if (!container) return
+  const rect = container.getBoundingClientRect()
+  mousePos.value = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+}
+
 // Dot grid loading animation
 const dotGridRef = ref<HTMLElement | null>(null)
 const GRID_COLS = 28
@@ -198,11 +208,9 @@ function toggleOverlays() {
 
 function zoomIn() {
   const newScale = Math.min(20, state.scale * 1.25)
-  const container = containerRef.value
-  if (!container) return
-  const cx = container.clientWidth / 2
-  const cy = container.clientHeight / 2
   const scaleRatio = newScale / state.scale
+  const cx = mousePos.value.x
+  const cy = mousePos.value.y
   const newTx = cx - (cx - state.translateX) * scaleRatio
   const newTy = cy - (cy - state.translateY) * scaleRatio
   state.scale = newScale
@@ -212,11 +220,9 @@ function zoomIn() {
 
 function zoomOut() {
   const newScale = Math.max(0.05, state.scale / 1.25)
-  const container = containerRef.value
-  if (!container) return
-  const cx = container.clientWidth / 2
-  const cy = container.clientHeight / 2
   const scaleRatio = newScale / state.scale
+  const cx = mousePos.value.x
+  const cy = mousePos.value.y
   const newTx = cx - (cx - state.translateX) * scaleRatio
   const newTy = cy - (cy - state.translateY) * scaleRatio
   state.scale = newScale
@@ -279,6 +285,7 @@ watch(() => props.src, (newSrc) => {
       :class="{ 'is-dragging': isDragging, 'is-pressed': isPressed }"
       :style="{ cursor: cursorStyle }"
       @mousedown="onContainerMouseDown"
+      @mousemove="onViewportMouseMove"
     >
       <div
         v-if="imageLoaded"
