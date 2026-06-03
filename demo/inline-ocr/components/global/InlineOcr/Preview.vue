@@ -494,49 +494,65 @@ watch(() => props.src, (newSrc) => {
   background-size: 6px 6px;
   background-position: center;
 
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
-  mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
-  -webkit-mask-size: 0% 0%;
-  mask-size: 0% 0%;
-  -webkit-mask-position: center;
-  mask-position: center;
+  -webkit-mask-image: linear-gradient(135deg,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 1) 50%,
+    rgba(0, 0, 0, 0) 55%
+  );
+  mask-image: linear-gradient(135deg,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 1) 50%,
+    rgba(0, 0, 0, 0) 55%
+  );
+  -webkit-mask-size: 200% 200%;
+  mask-size: 200% 200%;
+  -webkit-mask-position: 100% 100%;
+  mask-position: 100% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 
-  animation: rippleExpand 2.2s ease-in-out infinite;
+  animation: diagonalWave 2.2s ease-in-out infinite;
 }
 
 .dot-grid::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 2px, transparent 2.5px);
-  background-size: 30px 30px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+  background-size: 6px 6px;
   background-position: center;
 
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
-  mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 50%);
-  -webkit-mask-size: 0% 0%;
-  mask-size: 0% 0%;
-  -webkit-mask-position: center;
-  mask-position: center;
+  -webkit-mask-image: linear-gradient(135deg,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 1) 50%,
+    rgba(0, 0, 0, 0) 55%
+  );
+  mask-image: linear-gradient(135deg,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 1) 50%,
+    rgba(0, 0, 0, 0) 55%
+  );
+  -webkit-mask-size: 200% 200%;
+  mask-size: 200% 200%;
+  -webkit-mask-position: 100% 100%;
+  mask-position: 100% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 
-  animation: rippleExpand 2.2s ease-in-out infinite;
+  animation: diagonalWave 2.2s ease-in-out infinite;
   animation-delay: 0.7s;
   opacity: 0.5;
 }
 
-@keyframes rippleExpand {
+@keyframes diagonalWave {
   0%, 100% {
-    -webkit-mask-size: 0% 0%;
-    mask-size: 0% 0%;
-    opacity: 0.4;
+    -webkit-mask-position: 100% 100%;
+    mask-position: 100% 100%;
+    opacity: 0.3;
   }
   50% {
-    -webkit-mask-size: 300% 300%;
-    mask-size: 300% 300%;
+    -webkit-mask-position: 0% 0%;
+    mask-position: 0% 0%;
     opacity: 1;
   }
 }
