@@ -517,7 +517,7 @@ watch(() => props.src, (newSrc) => {
   gap: 24px;
   /* background: rgba(22, 33, 62, 0.88); */
   pointer-events: none;
-  z-index: 15;
+  z-index: 999;
 }
 
 .dot-grid {
