@@ -16,7 +16,11 @@ export const CheckboxView = ({ options, params }: ViewRenderFunctionParams<boole
   }
   if (iconName) {
     return h(Icon, {
-      class: { 'checkbox-view-icon--active': row[column.field], 'cursor-pointer': true },
+      class: {
+        'checkbox-view-icon': true,
+        'checkbox-view-icon--active': row[column.field],
+        'cursor-pointer': true,
+      },
       name: iconName,
       onClick: () => handleClick()
     })
