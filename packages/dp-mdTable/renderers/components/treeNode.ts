@@ -19,13 +19,12 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
         const title = groupColumnField.field_name_alias + '(' + __count + ')'
         const rawValue = row[groupColumnField.field_name]
         const value = formatTableFieldDisplayValue(rawValue, groupColumnField, row, fullColumn.display_structure) || ''
-        const hList: any[] = []
-        if (rawValue && rawValue !== 0) {
-          hList.push(h('div', { class: 'tree-node-header' }, [h('span', { class: 'tree-node-title' }, title), h('span', { class: 'tree-node-value' }, value)]))
-          const count = formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure)
-          if (count && count !== '-') {
-            hList.push(h('span', { class: 'tree-node-count' }, count))
-          }
+        const hList: any[] = [
+          h('div', { class: 'tree-node-header' }, [h('span', { class: 'tree-node-title' }, title), h('span', { class: 'tree-node-value' }, value)])
+        ]
+        const count = formatCount(countValue, fullColumn.countMethod, fullColumn.display_structure)
+        if (count && count !== '-') {
+          hList.push(h('span', { class: 'tree-node-count' }, count))
         }
         return h('div', { class: 'custom-tree-node' }, hList)
       } catch (error) {

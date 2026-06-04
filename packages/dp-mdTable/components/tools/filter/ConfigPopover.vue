@@ -221,7 +221,6 @@ const getOperatorsForField = (field: string): OperatorOption[] => {
     ]
   } else {
     // 非数字类型操作符
-    console.log('getOperatorsForField', props.availableColumns)
     return [
       { label: t('mdTable.filter.operators.contains'), value: 'LIKE' },
       // { label: 'Does not contain', value: 'NOT_LIKE' },

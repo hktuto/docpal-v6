@@ -5,7 +5,7 @@
       <span>{{ item.label }}</span>
     </div>
   </UiPopoverDialog>
-  <CreateRelationDialog ref="createRelationDialogRef" :source-column="currentFullColumn" />
+  <CreateRelationDialog ref="createRelationDialogRef" :source-column="currentFullColumn" @success="onRelationCreated" />
 </template>
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
@@ -72,6 +72,11 @@ function open(_triggerEl: HTMLElement | null, _column: any) {
   triggerEl = _triggerEl
   currentColumn = _column
   popoverRef.value.open(triggerEl)
+}
+
+function onRelationCreated() {
+  // Refresh the grid to show the newly created relation column
+  gridRef.value?.commitProxy('reload')
 }
 
 const handleClick = (type: string) => {

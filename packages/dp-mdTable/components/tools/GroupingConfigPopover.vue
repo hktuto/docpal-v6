@@ -173,7 +173,6 @@ const getFieldIcon = (type?: ColumnFieldType | string) => {
 
 // 获取排序标签
 const getSortLabel = (field: string, order: 'asc' | 'desc'): string => {
-  console.log('props.availableColumns', props.availableColumns, field)
   const column = props.availableColumns.find((col) => col.field === field)
   const isNumeric = column?.type === ColumnFieldType.Number || column?.type === ColumnFieldType.CreatedTime || column?.type === ColumnFieldType.DateTime
 
