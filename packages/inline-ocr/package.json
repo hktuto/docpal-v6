@@ -10,7 +10,10 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "prepare": "nuxt prepare",
-    "predev": "npm run prepare"
+    "predev": "npm run prepare",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:report": "vitest run --reporter=html --reporter=json"
   },
   "keywords": [],
   "author": "",
@@ -29,7 +32,8 @@
     "happy-dom": "^15.7.3",
     "playwright-core": "^1.47.0",
     "sass": "^1.78.0",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "vitest": "3.1.4"
   },
   "engines": {
     "pnpm": ">=8.5.0",
