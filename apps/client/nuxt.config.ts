@@ -74,7 +74,8 @@ export default defineNuxtConfig({
 
     // demo packages
     // "../../demo/database",
-    // "../../demo/workspaces"
+    // "../../demo/workspaces",
+    // "../../demo/inline-ocr"
   ],
   features: {
     inlineStyles: true
