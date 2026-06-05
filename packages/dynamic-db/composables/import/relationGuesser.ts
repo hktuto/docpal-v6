@@ -6,6 +6,28 @@ const EXISTING_SAMPLE_ROW_COUNT = 50
 const CONFIDENCE_THRESHOLD = 0.45
 const MAX_GUESSES_PER_SOURCE = 5
 
+/**
+ * Build a map of table IDs to table names from the database menu.
+ */
+export async function captureTableNameMap(databaseId: string): Promise<Map<string, string>> {
+  try {
+    const res: any = await newClientApi.getDynamicDbMenusTree({
+      referenceEntityType: 'case',
+      referenceEntityId: databaseId
+    })
+    const menus: MenuDTO[] = res?.data ?? []
+    const map = new Map<string, string>()
+    for (const item of flattenMenuItems(menus)) {
+      if (item.item_type === 'master_table' && item.item_id) {
+        map.set(item.item_id, item.name || item.item_id)
+      }
+    }
+    return map
+  } catch {
+    return new Map()
+  }
+}
+
 export interface TableSnapshot {
   tableId: string
   tableName: string
@@ -19,13 +41,17 @@ export interface RelationGuess {
   /** The newly imported table that would contain the foreign-key column */
   sourceTableId: string
   sourceTableName: string
+  sourceFieldId: string
   sourceFieldName: string
+  sourceFieldAlias: string
   sourceFieldType: ColumnFieldType
   /** The table being referenced (existing or also newly imported) */
   targetTableId: string
   targetTableName: string
   targetFieldId: string
   targetFieldName: string
+  targetFieldAlias: string
+  targetFieldType: ColumnFieldType
   confidence: number
   reasons: RelationGuessReason[]
   dismissed: boolean
@@ -87,7 +113,10 @@ export async function resolveNewTables(
 /**
  * Fetch a single table snapshot (fields + sample rows).
  */
-export async function fetchTableSnapshot(tableId: string): Promise<TableSnapshot | null> {
+export async function fetchTableSnapshot(
+  tableId: string,
+  nameMap?: Map<string, string>
+): Promise<TableSnapshot | null> {
   try {
     const fieldsRes: any = await newClientApi.getDynamicDbTableTableidFields(tableId)
     const fields: TableFieldDTO[] = fieldsRes?.data ?? []
@@ -96,16 +125,15 @@ export async function fetchTableSnapshot(tableId: string): Promise<TableSnapshot
     try {
       const rowsRes: any = await postDynamicActions({
         tableId,
-        columns: [],
-        pagination: { pageNum: 1, pageSize: EXISTING_SAMPLE_ROW_COUNT }
+        columns: [{ name: '*' }],
+        pagination: { pageNum: 0, pageSize: EXISTING_SAMPLE_ROW_COUNT }
       })
       sampleRows = rowsRes?.data?.data ?? []
     } catch {
       // Best-effort: continue with fields only
     }
 
-    // Resolve table name from first field or fallback to tableId
-    const tableName = fields[0]?.field_name ? tableId : tableId
+    const tableName = nameMap?.get(tableId) || tableId
 
     // Collect existing relations so re-analysis can skip them
     const existingRelationTargetIds = new Set(
@@ -144,21 +172,26 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
         // Skip fields that are already relation fields
         if (sourceField.business_type === ColumnFieldType.Relation) continue
 
+        const sourceFieldId = sourceField.id || ''
         const sourceFieldName = sourceField.field_name || ''
+        const sourceFieldAlias = sourceField.field_name_alias || sourceFieldName
         const sourceFieldType = sourceField.business_type || ''
 
         for (const targetField of target.fields) {
           const targetFieldName = targetField.field_name || ''
+          const targetFieldAlias = targetField.field_name_alias || targetFieldName
           const targetFieldId = targetField.id || ''
           const targetFieldType = targetField.business_type || ''
 
           const scoreResult = computeScore(
             source.tableName,
             sourceFieldName,
+            sourceFieldAlias,
             sourceFieldType,
             source.sampleRows,
             target.tableName,
             targetFieldName,
+            targetFieldAlias,
             targetFieldType,
             target.sampleRows
           )
@@ -167,12 +200,16 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
             sheetGuesses.push({
               sourceTableId: source.tableId,
               sourceTableName: source.tableName,
+              sourceFieldId,
               sourceFieldName,
+              sourceFieldAlias,
               sourceFieldType: sourceFieldType as ColumnFieldType,
               targetTableId: target.tableId,
               targetTableName: target.tableName,
               targetFieldId,
               targetFieldName,
+              targetFieldAlias,
+              targetFieldType: targetFieldType as ColumnFieldType,
               confidence: scoreResult.confidence,
               reasons: scoreResult.reasons,
               dismissed: false
@@ -186,44 +223,86 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
     guesses.push(...sheetGuesses.slice(0, MAX_GUESSES_PER_SOURCE))
   }
 
+  // Generate inverse guesses so that every detected relation is bidirectional.
+  // If A.field → B.field is a strong match, B.field → A.field should also be suggested.
+  const forwardKeys = new Set(guesses.map((g) => guessKey(g)))
+  const inverses: RelationGuess[] = []
+
+  for (const g of guesses) {
+    const inverseKey = `${g.targetTableId}:${g.targetFieldName}→${g.sourceTableId}:${g.sourceFieldName}`
+    if (forwardKeys.has(inverseKey)) continue // Inverse already exists naturally
+
+    inverses.push({
+      sourceTableId: g.targetTableId,
+      sourceTableName: g.targetTableName,
+      sourceFieldId: g.targetFieldId,
+      sourceFieldName: g.targetFieldName,
+      sourceFieldAlias: g.targetFieldAlias,
+      sourceFieldType: g.targetFieldType,
+      targetTableId: g.sourceTableId,
+      targetTableName: g.sourceTableName,
+      targetFieldId: g.sourceFieldId,
+      targetFieldName: g.sourceFieldName,
+      targetFieldAlias: g.sourceFieldAlias,
+      confidence: g.confidence,
+      reasons: [
+        ...g.reasons,
+        {
+          type: 'name_match',
+          score: 0,
+          detail: `Inverse of ${g.sourceTableName}.${g.sourceFieldAlias} → ${g.targetTableName}.${g.targetFieldAlias}`
+        }
+      ],
+      dismissed: false
+    })
+  }
+
+  guesses.push(...inverses)
   guesses.sort((a, b) => b.confidence - a.confidence)
   return guesses
+}
+
+function guessKey(g: RelationGuess): string {
+  return `${g.sourceTableId}:${g.sourceFieldName}→${g.targetTableId}:${g.targetFieldName}`
 }
 
 function computeScore(
   sourceTableName: string,
   sourceFieldName: string,
+  sourceFieldAlias: string,
   sourceFieldType: string,
   sourceRows: Record<string, any>[],
   targetTableName: string,
   targetFieldName: string,
+  targetFieldAlias: string,
   targetFieldType: string,
   targetRows: Record<string, any>[]
 ): { confidence: number; reasons: RelationGuessReason[] } {
   const reasons: RelationGuessReason[] = []
   let score = 0
 
-  const normalizedSourceField = sourceFieldName.toLowerCase()
-  const normalizedTargetField = targetFieldName.toLowerCase()
+  // Use aliases for name-match heuristics (import may generate opaque field_name values like f_3083_xxx)
+  const normalizedSourceAlias = normalizeName(sourceFieldAlias)
+  const normalizedTargetAlias = normalizeName(targetFieldAlias)
   const normalizedTargetTable = normalizeName(targetTableName)
 
   // ---- Name-match heuristics ----
 
-  if (normalizedSourceField === normalizedTargetField) {
+  if (normalizedSourceAlias === normalizedTargetAlias) {
     score += 0.25
     reasons.push({
       type: 'name_match',
       score: 0.25,
-      detail: `Field name "${sourceFieldName}" exactly matches "${targetFieldName}"`
+      detail: `Field alias "${sourceFieldAlias}" exactly matches "${targetFieldAlias}"`
     })
   }
 
   const idSuffixes = ['_id', '_no', '_code', '_ref']
-  const hasIdSuffix = idSuffixes.some((suf) => normalizedSourceField.endsWith(suf))
+  const hasIdSuffix = idSuffixes.some((suf) => normalizedSourceAlias.endsWith(suf))
   if (hasIdSuffix) {
-    const prefix = normalizedSourceField.replace(/(_id|_no|_code|_ref)$/, '')
+    const prefix = normalizedSourceAlias.replace(/(_id|_no|_code|_ref)$/, '')
     if (
-      prefix === normalizedTargetField ||
+      prefix === normalizedTargetAlias ||
       prefix === normalizedTargetTable ||
       levenshteinSimilarity(prefix, normalizedTargetTable) > 0.8
     ) {
@@ -231,27 +310,27 @@ function computeScore(
       reasons.push({
         type: 'name_match',
         score: 0.35,
-        detail: `Field "${sourceFieldName}" has ID suffix and prefix "${prefix}" matches target table "${targetTableName}"`
+        detail: `Field "${sourceFieldAlias}" has ID suffix and prefix "${prefix}" matches target table "${targetTableName}"`
       })
     }
   }
 
-  if (normalizedSourceField.includes(normalizedTargetTable)) {
+  if (normalizedSourceAlias.includes(normalizedTargetTable)) {
     score += 0.15
     reasons.push({
       type: 'table_name_in_field',
       score: 0.15,
-      detail: `Target table name "${targetTableName}" appears in source field "${sourceFieldName}"`
+      detail: `Target table name "${targetTableName}" appears in source field alias "${sourceFieldAlias}"`
     })
   }
 
-  const fieldSim = levenshteinSimilarity(normalizedSourceField, normalizedTargetField)
+  const fieldSim = levenshteinSimilarity(normalizedSourceAlias, normalizedTargetAlias)
   if (fieldSim > 0.8) {
     score += 0.15
     reasons.push({
       type: 'name_match',
       score: 0.15,
-      detail: `Field names are ${Math.round(fieldSim * 100)}% similar`
+      detail: `Field aliases are ${Math.round(fieldSim * 100)}% similar`
     })
   }
 
@@ -342,7 +421,7 @@ function areTypesCompatible(sourceType: string, targetType: string): boolean {
 function normalizeName(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[\/\\?%*:|"<>\s\-]+/g, '_')
+    .replace(/[\/\\?%*:|"<>\s\-.]+/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_+|_+$/g, '')
 }

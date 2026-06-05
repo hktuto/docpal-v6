@@ -66,6 +66,14 @@
           v-if="panelType === 'auditLog'"
           :master-table-id="tableId"
         />
+        <DatabaseTableImportDataSidebar
+          v-if="panelType === 'importData'"
+          :table-id="tableId"
+          :table-name="tableName"
+          :table-fields="tableFields"
+          @close="handleClosePanel"
+          @success="handleImportSuccess"
+        />
       </div>
     </div>
   </div>
@@ -85,6 +93,10 @@ const props = defineProps<{
   canManageTable: boolean,
 }>()
 const tableId = computed(() => props.dataTableId)
+const tableName = computed(() => {
+  const item = findItemById(menuState.value.items, tableId.value)
+  return item?.name || ''
+})
 const {
   currentView,
   tableFields,
@@ -401,10 +413,16 @@ const panelType = ref<string | null>(null)
 const panelTitle = computed(() => {
   const titles: Record<string, string> = {
     automation: 'Automation',
-    auditLog: 'Audit Log'
+    auditLog: 'Audit Log',
+    importData: 'Import Data'
   }
   return titles[panelType.value || ''] || 'Panel'
 })
+
+function handleImportSuccess() {
+  // Sidebar stays open on result step with countdown and auto-refresh
+  // No action needed here
+}
 
 const openSidePanelBus = useEventBus(EventType.OPEN_SIDE_PANEL)
 const closeSidePanelBus = useEventBus(EventType.CLOSE_SIDE_PANEL)

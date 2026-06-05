@@ -1,15 +1,13 @@
 <template>
   <div class="formula-editor">
-    <!-- 顶部输入框 -->
+    <!-- 顶部输入�?-->
     <div class="formula-input-section">
       <div class="input-label">{{ t('mdTable.formulaEditor.inputLabel') }}</div>
-      <el-input
+      <FormulaInput
         ref="formulaInputRef"
-        v-model="formulaText"
-        type="textarea"
-        :rows="3"
+        v-model:display-text="formulaDisplayText"
+        :variables="variableList"
         :placeholder="t('mdTable.formulaEditor.inputPlaceholder')"
-        class="formula-input"
         @input="handleFormulaInput"
       />
       <div v-if="formulaValidateResult?.message" class="formula-error-tip">
@@ -30,6 +28,7 @@
               v-for="item in category.items"
               :key="category.type === 'variable' ? item.value : item.name"
               :class="['item', { active: isItemActive(category.type, item) }]"
+              @mousedown.prevent
               @click="selectItem(category.type, item)"
             >
               <span class="item-label">{{ category.type === 'variable' ? item.label : item.name }}</span>
@@ -86,9 +85,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
-import { textFunctions, numberFunctions, dateFunctions, logicalFunctions } from './formulaHelper'
+import { ref, computed, watch, nextTick } from 'vue'
+import { getTextFunctions, getNumberFunctions, getDateFunctions, getLogicalFunctions } from './formulaHelper'
 import { validateFormula, type ValidateResult } from './formulaValid'
+import { formulaIdsToLabels, formulaLabelsToIds } from './formulaTransform'
+import FormulaInput from './FormulaInput.vue'
 
 const { t } = useI18n()
 interface Variable {
@@ -130,47 +131,53 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-const formulaText = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+const formulaDisplayText = ref('')
 const formulaValidateResult = ref<ValidateResult | null>(null)
 const formulaInputRef = ref()
 const selectedItem = ref<SelectedItem | null>(null)
+const variableList = computed(() => props.variables || [])
 
-// 获取变量列表
-const variables = computed(() => props.variables || [])
+function syncDisplayFromModel() {
+  formulaDisplayText.value = formulaIdsToLabels(props.modelValue, variableList.value)
+}
+
+watch(() => props.modelValue, syncDisplayFromModel, { immediate: true })
+watch(() => props.variables, syncDisplayFromModel, { deep: true })
+
+function getStorageFormula() {
+  return formulaLabelsToIds(formulaDisplayText.value, variableList.value)
+}
 
 // 分类列表
 const categoryList = computed<Category[]>(() => [
   {
     type: 'variable',
-    title: 'Variables',
-    items: variables.value
+    title: t('mdTable.formulaEditor.category.variable'),
+    items: variableList.value
   },
-  {
-    type: 'text',
-    title: 'Text Functions',
-    items: textFunctions
-  },
+  // {
+  //   type: 'text',
+  //   title: t('mdTable.formulaEditor.category.text'),
+  //   items: getTextFunctions(t)
+  // },
   {
     type: 'number',
-    title: 'Number Functions',
-    items: numberFunctions
+    title: t('mdTable.formulaEditor.category.number'),
+    items: getNumberFunctions(t)
   },
-  {
-    type: 'date',
-    title: 'Date Functions',
-    items: dateFunctions
-  },
-  {
-    type: 'logical',
-    title: 'Logical Functions',
-    items: logicalFunctions
-  }
+  // {
+  //   type: 'date',
+  //   title: t('mdTable.formulaEditor.category.date'),
+  //   items: getDateFunctions(t)
+  // },
+  // {
+  //   type: 'logical',
+  //   title: t('mdTable.formulaEditor.category.logical'),
+  //   items: getLogicalFunctions(t)
+  // }
 ])
 
-// 判断项目是否激活
+// 判断项目是否激�?
 function isItemActive(type: string, item: any): boolean {
   if (type === 'variable') {
     return selectedItem.value?.type === 'variable' && selectedItem.value?.value === item.value
@@ -181,12 +188,18 @@ function isItemActive(type: string, item: any): boolean {
 
 // 处理公式输入变化
 function handleFormulaInput() {
+  const storageFormula = getStorageFormula()
+  emit('update:modelValue', storageFormula)
+  const displayText = formulaIdsToLabels(storageFormula, variableList.value)
+  if (displayText !== formulaDisplayText.value) {
+    formulaDisplayText.value = displayText
+  }
   nextTick(() => {
-    formulaValidateResult.value = validateFormula(formulaText.value, variables.value)
+    formulaValidateResult.value = validateFormula(storageFormula, variableList.value)
   })
 }
 
-// 选择项
+// 选择�?
 function selectItem(type: 'variable' | 'text' | 'number' | 'date' | 'logical', item: any) {
   if (type === 'variable') {
     selectedItem.value = {
@@ -195,10 +208,9 @@ function selectItem(type: 'variable' | 'text' | 'number' | 'date' | 'logical', i
       value: item.value,
 
       description: `Variable: ${item.label}`,
-      usage: `{${item.value}}`
+      usage: item.label
     }
-    // 插入变量到公式，光标在 } 右侧
-    const variableText = `{${item.value}}`
+    const variableText = item.label
     insertToFormula(variableText, variableText.length)
   } else {
     selectedItem.value = {
@@ -209,41 +221,16 @@ function selectItem(type: 'variable' | 'text' | 'number' | 'date' | 'logical', i
       params: item.params,
       example: item.example
     }
-    // 插入函数到公式，需要插入函数名 + ( + )，光标在 ( 和 ) 之间
+    // 插入函数到公式，需要插入函数名 + ( + )，光标在 ( �?) 之间
     const functionName = item.usage.split('(')[0]
     const functionText = `${functionName}()`
-    // 光标应该在 ( 后面，也就是 functionName.length + 1 的位置
+    // 光标应该�?( 后面，也就是 functionName.length + 1 的位�?
     insertToFormula(functionText, functionName.length + 1)
   }
 }
 
-// 插入到公式
-// @param text - 要插入的文本
-// @param cursorOffset - 光标偏移量，相对于插入文本开始位置的偏移（默认在文本末尾）
 function insertToFormula(text: string, cursorOffset?: number) {
-  const inputComponent = formulaInputRef.value
-  if (inputComponent) {
-    const textarea = inputComponent.$el?.querySelector('textarea') as HTMLTextAreaElement
-    if (textarea) {
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const currentText = formulaText.value || ''
-      const newText = currentText.substring(0, start) + text + currentText.substring(end)
-      formulaText.value = newText
-      // 设置光标位置
-      // 如果没有指定 cursorOffset，默认在文本末尾
-      const finalCursorPosition = start + (cursorOffset !== undefined ? cursorOffset : text.length)
-      nextTick(() => {
-        textarea.focus()
-        textarea.setSelectionRange(finalCursorPosition, finalCursorPosition)
-        handleFormulaInput()
-      })
-      return
-    }
-  }
-  // 如果无法获取 textarea，直接追加到末尾
-  formulaText.value = (formulaText.value || '') + text
-  handleFormulaInput()
+  formulaInputRef.value?.insertToFormula(text, cursorOffset)
 }
 function checkFormulaValid() {
   return formulaValidateResult.value?.valid
@@ -260,13 +247,6 @@ defineExpose({ checkFormulaValid })
       font-size: 14px;
       color: var(--el-text-color-primary);
       margin-bottom: 8px;
-    }
-
-    .formula-input {
-      :deep(.el-textarea__inner) {
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-      }
     }
   }
 

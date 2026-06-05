@@ -29,6 +29,7 @@ export enum ColumnFieldType {
   LastModifiedBy = '24', // 修改人
   //OneWayLink = 26,     // 单向关联
   AggVirtualColumn = '27', // 聚合虚拟列
+  DocPalDoc = '28', // DocPal 文档
 }
 export const reverseColumnFieldType = Object.fromEntries(
   Object.entries(ColumnFieldType).map(([key, value]) => [value, key])
@@ -104,6 +105,14 @@ export type DocumentConfig = {
   isMultiple: boolean
 }
 
+export type DocPalDocCellValue = {
+  id: string
+  name: string
+  mimeType?: string
+}
+
+export type DocPalDocConfig = Record<string, never>
+
 export type URLConfig = {
   openInNewTab: boolean
 }
@@ -172,6 +181,7 @@ export type ColumnConfig =
   | MultiSelectConfig
   | DateTimeConfig
   | DocumentConfig
+  | DocPalDocConfig
   | URLConfig
   | EmailConfig
   | PhoneConfig

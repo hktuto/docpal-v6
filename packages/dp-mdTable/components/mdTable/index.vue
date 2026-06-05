@@ -241,7 +241,6 @@ const gridEvents = computed<VxeGridListeners>(() => ({
 
   'start-edit': (params: any) => {
     const { row, column } = params
-    console.log('start-edit')
     emit('start-edit', { row, column })
   },
   columnDragend({ newColumn, oldColumn, dragPos }) {
@@ -249,9 +248,8 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     const oldFullColumn = columns.value.find((item: any) => item.field_name === oldColumn.field)
     props.extraColumnConfig.saveColumnOrder(oldFullColumn.id, newFullColumn.id, dragPos)
   },
-  'cell-menu': ({ row, column, $event }: any) => {
+  'cell-menu': ({ row, $event }: any) => {
     $event?.preventDefault()
-    console.log('cell-menu', $event)
     rightClickCellPopoverRef.value?.open($event, { ...row })
   },
   'checkbox-all': ({ checked }: any) => {
@@ -288,6 +286,7 @@ const filteredSlots = computed(() => {
 
 const handleRefresh = async () => {
   updateExpandedRows()
+  gridRef.value?.clearTreeExpandLoaded?.()
   await refreshTableData({ silent: true, keepPage: true })
   await getAgg()
   emit('refresh')
@@ -339,9 +338,7 @@ const mdTableHeaderPopoverRef = ref()
 const virtualColumnDialogRef = ref()
 const checkboxIndexRef = ref()
 provide('mdTableHeaderPopover', mdTableHeaderPopoverRef)
-function handleClick() {
-  console.log('handleClick', mdTableHeaderPopoverRef)
-}
+
 // Handle virtual column selection from dialog
 const handleVirtualColumnSelect = async (relationFieldName: string, displayFieldName: string) => {
   // Use the injected addVirtualColumn or fall back to context

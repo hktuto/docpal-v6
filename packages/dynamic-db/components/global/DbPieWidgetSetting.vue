@@ -1,6 +1,10 @@
 <template>
   <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="420px" @close="handleClose">
     <el-form label-position="top">
+      <el-form-item label="Label">
+        <el-input v-model="form.label" placeholder="e.g. Sales by Region" />
+      </el-form-item>
+
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
           <el-option v-for="table in tableOptions" :key="table.item_id" :label="table.name" :value="table.item_id" />
@@ -74,7 +78,8 @@ const form = reactive({
   categoryField: '',
   valueField: '',
   aggregation: 'count',
-  rowLimit: 20
+  rowLimit: 20,
+  label: ''
 })
 
 async function handleTableChange(tableId: string) {
@@ -93,6 +98,7 @@ watch(
       form.valueField = setting.value.valueField || ''
       form.aggregation = setting.value.aggregation || 'count'
       form.rowLimit = setting.value.rowLimit || 20
+      form.label = setting.value.label || ''
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -107,7 +113,8 @@ function handleSubmit() {
     categoryField: form.categoryField,
     valueField: form.valueField,
     aggregation: form.aggregation,
-    rowLimit: form.rowLimit
+    rowLimit: form.rowLimit,
+    label: form.label
   })
 }
 

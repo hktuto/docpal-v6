@@ -15,9 +15,7 @@
       <template v-slot:caseEchart>
         <FormSlotEchart v-if="state.echartShow" ref="EchartRef" :componentName="componentName" :setting="state.realTimeSetting" />
       </template>
-      <template v-slot:CaseStatsTable>
-        <FormSlotCaseStatsTable ref="CaseStatsTableRef" />
-      </template>
+
     </FormRenderer>
     <template #footer>
       <div class="footer-grid">
@@ -100,12 +98,7 @@ function handleFormChange({ fieldName, newValue, formModel, oldValue }: any) {
     // })
   }
 }
-const CaseStatsTableRef = ref()
 function handleDisplayColumnChange(data: any) {
-  if (CaseStatsTableRef.value) {
-    console.log('handleDisplayColumnChange', CaseStatsTableRef.value)
-    CaseStatsTableRef.value.initColumns(data)
-  }
 }
 async function handleDelete() {
   const action = await ElMessageBox.confirm(`${$i18n.t('msg_confirmWhetherToDelete')}`).catch((action) => action)

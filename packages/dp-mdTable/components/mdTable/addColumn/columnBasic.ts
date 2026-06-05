@@ -115,6 +115,11 @@ export const columnBasic: Partial<Record<ColumnFieldType, ColumnBasicFieldConfig
       tooltip: '【${relation_field_name_alias}-${display_field_name_alias}】Aggregate Virtual Column',
       class: 'indicator-agg-virtual'
     }
+  },
+  [ColumnFieldType.DocPalDoc]: {
+    label: 'DocPalDoc',
+    isBasic: true,
+    order: 10
   }
 }
 

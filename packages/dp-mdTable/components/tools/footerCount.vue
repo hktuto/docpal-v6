@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown trigger="click" placement="top" @command="handleMethodSelect" @click.stop>
+  <el-dropdown v-if="column" trigger="click" placement="top" @command="handleMethodSelect" @click.stop>
     <div class="footer-count">
       <template v-if="selectedCountMethod !== 'none'">
         <span class="method-name">{{ t(`mdTable.countMethod.${selectedCountMethod}`) }}</span>
@@ -74,10 +74,12 @@ const allMethods = computed<MethodOption[]>(() => [
   { value: 'UNIQUE_RATIO' }
 ])
 const mdTable = useMDTableInject()
-const gridRef = mdTable.gridRef
-// Inject gridRef 来获取表格数据
+
 // 判断是否为数字类型
 const isNumericType = computed(() => {
+  if (!props.column) {
+    return false
+  }
   const type = props.column.business_type
   return [ColumnFieldType.Number, ColumnFieldType.Currency, ColumnFieldType.Percent, ColumnFieldType.AutoNumber, ColumnFieldType.Rating].includes(type)
 })
@@ -91,33 +93,10 @@ const availableMethods = computed(() => {
   }
 })
 
-function makeFlatData(data: any[], childKey: string) {
-  let result: any = []
-  data.forEach((item) => {
-    if (item[childKey] && item[childKey].length > 0) {
-      const child = makeFlatData(item[childKey], childKey)
-      result.push(...child)
-    }
-    result.push(item)
-  })
-  return result
-}
-// 获取表格数据列表
-const getTableData = (): any[] => {
-  if (gridRef?.value) {
-    try {
-      const result = (gridRef.value as any).getTableData()
-
-      return makeFlatData(result?.fullData || [], '_X_ROW_CHILD')
-    } catch (error) {
-      console.error(t('mdTable.countMethod.getDataError'), error)
-      return []
-    }
-  }
-  return []
-}
-
 const selectedCountMethod = computed<CountMethod>(() => {
+  if (!props.column) {
+    return
+  }
   const viewColumns = mdTable.columns.value
   const viewColumn = viewColumns.find((item: any) => String(item.field_name) === String(props.column.field))
   return (viewColumn?.countMethod || 'none') as CountMethod
@@ -137,6 +116,7 @@ const handleMethodSelect = async (method: CountMethod) => {
   }
   await mdTable.updateViewColumnCountMethod?.(fullColumn.id, method)
   mdTable.updateExpandedRows?.()
+  mdTable.gridRef?.value?.clearTreeExpandLoaded?.()
   await mdTable.refreshTableData?.({ silent: true, keepPage: true })
   await getAgg({ silent: true })
 }

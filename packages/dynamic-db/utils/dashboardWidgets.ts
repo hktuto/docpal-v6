@@ -1,8 +1,10 @@
 import type { DashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
+import { dashboardWidgetSetting as dpDashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
 
 export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = {
   DbStat: {
     label: 'DbStat',
+    type: 'database' as any,
     minW: 2,
     minH: 2,
     maxW: 4,
@@ -20,6 +22,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
   },
   DbTable: {
     label: 'DbTable',
+    type: 'database' as any,
     minW: 4,
     minH: 4,
     maxW: 12,
@@ -39,6 +42,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
   },
   DbChart: {
     label: 'DbChart',
+    type: 'database' as any,
     minW: 4,
     minH: 4,
     maxW: 12,
@@ -48,13 +52,12 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     component: 'LazyDbChartWidget',
     setting: {
       tableId: '',
-      chartType: 'bar',
       xField: '',
-      xTimeGranularity: '',
       series: [
         {
           field: '',
           aggregation: 'sum',
+          type: 'bar',
           label: '',
           color: ''
         }
@@ -63,12 +66,12 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
         legendPosition: 'bottom',
         stacked: false,
         smooth: false
-      },
-      rowLimit: 20
+      }
     }
   },
   DbPie: {
     label: 'DbPie',
+    type: 'database' as any,
     minW: 4,
     minH: 4,
     maxW: 12,
@@ -82,11 +85,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       categoryField: '',
       valueField: '',
       aggregation: 'count',
-      rowLimit: 20
+      rowLimit: 20,
+      label: ''
     }
   },
   DbRecentRecords: {
     label: 'DbRecentRecords',
+    type: 'database' as any,
     minW: 3,
     minH: 3,
     maxW: 6,
@@ -104,6 +109,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
   },
   DbProgress: {
     label: 'DbProgress',
+    type: 'database' as any,
     minW: 3,
     minH: 2,
     maxW: 6,
@@ -128,6 +134,17 @@ export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSett
 
   Object.keys(dbDashboardWidgetSetting).forEach((key) => {
     result.database.push(dbDashboardWidgetSetting[key])
+  })
+
+  Object.keys(dpDashboardWidgetSetting).forEach((key) => {
+    const widget = dpDashboardWidgetSetting[key]
+    const type = widget.type || 'default'
+    // Skip case and common widgets since these features are not used in DB dashboards
+    if (type === 'case' || type === 'caseCount' || type === 'default') return
+    if (!result[type]) {
+      result[type] = []
+    }
+    result[type].push(widget)
   })
 
   return result

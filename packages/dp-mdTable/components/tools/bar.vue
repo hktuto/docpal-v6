@@ -88,6 +88,7 @@ const handleAddRowSubmit = async (data: any) => {
     return
   }
   await addRow(data)
+  emit('refresh')
 }
 // 暴露方法
 defineExpose({})

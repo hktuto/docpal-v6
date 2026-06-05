@@ -285,9 +285,9 @@ export interface ContactGroupRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -645,9 +645,9 @@ export interface TableDataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
     /** Master Table ID */
     master_table_id?: string;
@@ -1003,9 +1003,9 @@ export interface CaseTypeRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
     /** Case schema definition (JSON) */
     case_schema?: Record<string, any>;
@@ -1156,9 +1156,9 @@ export interface PersonalDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -1660,9 +1660,9 @@ export interface MTRecordRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -1862,9 +1862,9 @@ export interface CompanyChopRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -2053,9 +2053,9 @@ export interface CmmnDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -2260,9 +2260,9 @@ export interface DocumentTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -2374,9 +2374,9 @@ export interface RetentionPolicyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -2473,9 +2473,9 @@ export interface HoldPolicyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -2642,8 +2642,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    isMultiple?: boolean;
     validationRuleName?: string;
+    isMultiple?: boolean;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -2979,15 +2979,15 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
+    fileContentExtension?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentName?: string;
     fileContentMimeType?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentExtension?: string;
 }
 
 export interface FileContentDTO {
@@ -3281,9 +3281,9 @@ export interface QueryWorkflowJobRequest {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -3501,9 +3501,9 @@ export interface ProcessVersionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -3619,9 +3619,9 @@ export interface ProcessDefinitionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -4248,10 +4248,10 @@ export interface SubNotificationRequest {
 }
 
 export interface PageNotificationRecord {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -4267,12 +4267,12 @@ export interface PageNotificationRecord {
 }
 
 export interface PageableObject {
-    unpaged?: boolean;
-    paged?: boolean;
     /** @format int32 */
     pageNumber?: number;
+    paged?: boolean;
     /** @format int32 */
     pageSize?: number;
+    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -4313,9 +4313,9 @@ export interface QueryNotificationRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -4378,17 +4378,17 @@ export interface QueryFileOverviewRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
 export interface PageUploadBatchDTO {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -4622,9 +4622,9 @@ export interface ExternalProfileRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
@@ -4691,9 +4691,9 @@ export interface ExternalStorageRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
@@ -4744,9 +4744,9 @@ export interface ExternalStorageImportJobRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -4802,11 +4802,11 @@ export interface WhatsAppMessageRequestDTO {
     languageCode?: string;
     components?: {
         /** @deprecated */
-        relatedArray?: any;
-        /** @deprecated */
         componentType?: {
             typeName?: string;
         };
+        /** @deprecated */
+        relatedArray?: any;
         empty?: boolean;
         first?: any;
         last?: any;
@@ -4827,6 +4827,81 @@ export interface ResultSendMessageResponseDTO {
 export interface SendMessageResponseDTO {
     successCallWhatsAppApi?: boolean;
     messageId?: string;
+}
+
+/** List Lock Request DTO */
+export interface ListLockRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
+    sort?: SortObject;
+    /** Filter by lock owner */
+    lock_owner?: string;
+}
+
+export interface PaginationDTORecordLockDTO {
+    entryList?: RecordLockDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+/** Record Lock DTO */
+export interface RecordLockDTO {
+    /** Data record ID */
+    record_id?: string;
+    /** Master Table ID */
+    table_id?: string;
+    /** Lock owner user ID */
+    lock_owner?: string;
+    /** Lock acquired timestamp (ISO 8601) */
+    locked_at?: string;
+    /** Lock expiration timestamp (ISO 8601) */
+    expires_at?: string;
+    /**
+     * Remaining lock TTL in seconds
+     * @format int64
+     */
+    ttl_seconds?: number;
+    /** Whether the record is currently locked */
+    is_locked?: boolean;
+    /** Client metadata (tab ID, device, etc.) */
+    client_info?: Record<string, any>;
+}
+
+export interface ResultPaginationDTORecordLockDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTORecordLockDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 /** Create Trigger Setting Request */
@@ -4939,9 +5014,9 @@ export interface ListTriggerSettingsRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
     /** Filter by event type: record_created, record_updated, record_deleted, field_changed */
     event_type?: string;
@@ -4966,6 +5041,28 @@ export interface ResultPaginationDTOTriggerSettingDTO {
     code?: number;
     message?: string;
     data?: PaginationDTOTriggerSettingDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Acquire Lock Request DTO */
+export interface AcquireLockRequestDTO {
+    /**
+     * Custom lock TTL in seconds (default from application.properties, max capped)
+     * @format int32
+     */
+    ttl_seconds?: number;
+    /** Client metadata (tab ID, device info, etc.) */
+    client_info?: Record<string, any>;
+}
+
+export interface ResultRecordLockDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Record Lock DTO */
+    data?: RecordLockDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -5009,9 +5106,9 @@ export interface TableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
     /** URL name (unique per entity_id) */
     url_name?: string;
@@ -5153,6 +5250,44 @@ export interface MenuRequestDTO {
     view_type?: string;
     /** View condition (JSON) */
     view_condition?: Record<string, any>;
+    /** Whether to create a default field 'Title' when creating a table; the default value is true. */
+    create_default_fields?: boolean;
+}
+
+/** Auto-Relation Establish Request DTO */
+export interface RelationEstablishRequestDTO {
+    /**
+     * Source table ID — the table where the relation field will be created
+     * @minLength 1
+     */
+    source_table_id: string;
+    /**
+     * Target table ID — the referenced table
+     * @minLength 1
+     */
+    target_table_id: string;
+    /**
+     * Source match field id — database column id in source table used for matching
+     * @minLength 1
+     */
+    source_match_field_id: string;
+    /**
+     * Target match field id — database column id in target table used for matching
+     * @minLength 1
+     */
+    target_match_field_id: string;
+    /**
+     * Display name for the new relation field (e.g. 'Employee Details')
+     * @minLength 1
+     */
+    relation_field_name: string;
+    /**
+     * Field IDs from target table to display in the relation
+     * @minItems 1
+     */
+    display_field_ids: string[];
+    /** Whether the relation supports multiple linked records (default true = one-to-many) */
+    is_array?: boolean;
 }
 
 export interface PaginationDTOCaseTypeDTO {
@@ -5266,9 +5401,9 @@ export interface WorkflowJobRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -5394,9 +5529,9 @@ export interface UserDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -5467,9 +5602,9 @@ export interface PluginRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -5579,9 +5714,9 @@ export interface OcrTransactionLogRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -5885,10 +6020,10 @@ export interface ResultWMKTemplateRequestDTO {
 }
 
 export interface PageWatermarkSettingsTemplate {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -6089,9 +6224,9 @@ export interface IdTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -6363,9 +6498,9 @@ export interface CmmnProcessRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -6886,9 +7021,9 @@ export interface EmailTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -6967,9 +7102,9 @@ export interface EmailLayoutRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -7096,9 +7231,9 @@ export interface SmartFolderRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -7173,12 +7308,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    watermarkedLocalPath?: string;
+    watermarkTemplateId?: string;
+    conversionId?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
-    watermarkTemplateId?: string;
-    conversionId?: string;
+    watermarkedLocalPath?: string;
 }
 
 /** EasyShare (Request) */
@@ -7420,9 +7555,9 @@ export interface BasePageRequest {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -7482,8 +7617,8 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    ocr?: boolean;
     updateChildName?: boolean;
+    ocr?: boolean;
     folder?: boolean;
     be_index?: boolean;
     create_by?: string;
@@ -7551,9 +7686,9 @@ export interface RetentionPolicyDocumentRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -7664,9 +7799,9 @@ export interface HoldDocumentRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -7781,9 +7916,9 @@ export interface MasterTableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -7802,9 +7937,9 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
+    read?: boolean;
     create?: boolean;
     edit?: boolean;
-    read?: boolean;
     enable?: boolean;
 }
 
@@ -7875,9 +8010,9 @@ export interface MTAuditLogRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -7949,9 +8084,9 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
+    read?: boolean;
     create?: boolean;
     edit?: boolean;
-    read?: boolean;
     enable?: boolean;
 }
 
@@ -8394,8 +8529,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Document (Request) */
@@ -8476,9 +8611,9 @@ export interface ContactRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -8526,9 +8661,9 @@ export interface CaseInstanceRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -8625,9 +8760,9 @@ export interface FormDesignRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -8728,9 +8863,9 @@ export interface EasyFormResultRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -8809,9 +8944,9 @@ export interface EasyFormEmailQueryRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -8905,8 +9040,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Versioning (Request) */
@@ -8952,9 +9087,9 @@ export interface TrashRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -9207,15 +9342,15 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
+    fileContentExtension?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentName?: string;
     fileContentMimeType?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentExtension?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9464,9 +9599,9 @@ export interface CompanyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -9653,15 +9788,15 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
-    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
+    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -9881,9 +10016,9 @@ export interface DocFolderCabinetRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -9937,8 +10072,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -10189,9 +10324,9 @@ export interface CmmnVersionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -10268,9 +10403,9 @@ export interface CaseTableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -10476,9 +10611,9 @@ export interface PlanItemInstanceRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -10854,9 +10989,9 @@ export interface CaptureProjFormSettingRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -10944,9 +11079,9 @@ export interface CaptureProjRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -11150,9 +11285,9 @@ export interface CaptureQueryBatchListRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -11230,6 +11365,11 @@ export interface GenericAuditLogQueryRequestDTO {
      * @example "login"
      */
     source_id?: string;
+    /**
+     * General search keyword
+     * @example "login"
+     */
+    ref_id?: string;
 }
 
 /** Generic Audit Log Request */
@@ -11284,6 +11424,11 @@ export interface GenericAuditLogRequestDTO {
      * @example "usr-89012"
      */
     source_id?: string;
+    /**
+     * Reference ID
+     * @example "usr-89345"
+     */
+    ref_id?: string;
 }
 
 export interface PaginationDTOGenericAuditLogRequestDTO {
@@ -11404,6 +11549,7 @@ export interface PasswordConfigDTO {
     containLowerAndUppercase?: boolean;
     containNumericDigits?: boolean;
     containSpecialCharacters?: boolean;
+    disallowPersonalInfoInPassword?: boolean;
     forceResetPassword?: boolean;
     enableExpirationTime?: boolean;
     /**
@@ -11478,10 +11624,10 @@ export interface BusinessResultRecord {
 }
 
 export interface PageBusinessResultRecord {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -11698,9 +11844,9 @@ export interface MessageTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -12028,9 +12174,9 @@ export interface QueryMetadataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -12105,9 +12251,9 @@ export interface MetadataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -12234,9 +12380,9 @@ export interface DocPalTypeRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     sortOrModifiedDate?: SortObject;
     orderByValue?: string;
-    desc?: boolean;
     sort?: SortObject;
 }
 
@@ -12526,10 +12672,10 @@ export interface ResultListProcessDefinitionDraft {
 }
 
 export interface PageSearchHistory {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -12863,6 +13009,8 @@ export interface PermissionMemberDTO {
     isInherit?: boolean;
     /** Resource ID from which this permission is inherited */
     inheritFrom?: string;
+    /** Permission source: 'database' for DB Owner/Manager (read-only), 'menu' for menu-level permissions */
+    permissionSource?: string;
     /**
      * Creation timestamp
      * @format date-time
@@ -12886,6 +13034,49 @@ export interface ResultListMenuDTO {
     code?: number;
     message?: string;
     data?: MenuDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Relation Establish Result DTO */
+export interface RelationEstablishResultDTO {
+    /** Job status: pending, processing, completed, failed */
+    status?: string;
+    /** Job ID */
+    job_id?: string;
+    /** Created relation field database column id (available when completed) */
+    relation_field_id?: string;
+    /**
+     * Total rows in source table
+     * @format int32
+     */
+    total_source_rows?: number;
+    /**
+     * Number of source rows that matched at least one target row
+     * @format int32
+     */
+    matched_rows?: number;
+    /**
+     * Number of source rows with no match
+     * @format int32
+     */
+    unmatched_rows?: number;
+    /**
+     * Total data ID links written across all matched rows
+     * @format int32
+     */
+    total_links_created?: number;
+    /** Error message (only present when status=failed) */
+    error_message?: string;
+}
+
+export interface ResultRelationEstablishResultDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Relation Establish Result DTO */
+    data?: RelationEstablishResultDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -14254,11 +14445,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
+    pending?: number;
+    completed?: number;
     finish?: number;
     error?: number;
     create?: number;
-    pending?: number;
-    completed?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -20659,6 +20850,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DynamicDBTableController
+         * @name PostDynamicDbTableTableidLocksPage
+         * @summary Query Table Lock List
+         * @request POST:/api/dynamic-db/table/{tableId}/locks/page
+         */
+        postDynamicDbTableTableidLocksPage: (tableId: string, data: ListLockRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTORecordLockDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/locks/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
          * @name GetDynamicDbTableTableidFields
          * @summary List Fields for Master Table
          * @request GET:/api/dynamic-db/table/{tableId}/fields
@@ -20761,6 +20969,44 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultPaginationDTOTriggerSettingDTO, any>({
                 path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Acquire or renew an exclusive lock on a data record
+         *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTableRecordsRecordidLock
+         * @summary Acquire Record Lock
+         * @request POST:/api/dynamic-db/table/records/{recordId}/lock
+         */
+        postDynamicDbTableRecordsRecordidLock: (
+            recordId: string,
+            data: AcquireLockRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultRecordLockDTO, any>({
+                path: `/api/dynamic-db/table/records/${recordId}/lock`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Release an active lock.
+         *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTableRecordsIdUnlock
+         * @summary Release Record Lock
+         * @request POST:/api/dynamic-db/table/records/{id}/unlock
+         */
+        postDynamicDbTableRecordsIdUnlock: (id: string, data: any, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/records/${id}/unlock`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20871,6 +21117,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 body: data,
                 type: ContentType.FormData,
                 format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Async: creates relation field + matches data. Returns jobId for polling.
+         *
+         * @tags DynamicDBImportController
+         * @name PostDynamicDbImportRelationsEstablish
+         * @summary Submit auto-relation establishment job
+         * @request POST:/api/dynamic-db/import/relations/establish
+         */
+        postDynamicDbImportRelationsEstablish: (data: RelationEstablishRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringString, any>({
+                path: `/api/dynamic-db/import/relations/establish`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -24670,7 +24933,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsPublicUploadRequestFiles: (
             data: {
                 password: string;
-                taskId: string;
                 files: File[];
             },
             params: RequestParams = {},
@@ -25822,7 +26084,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @duplicate
          */
         postDmsFacadeFilingDocument2: (data: GeneratedFilingDocRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
+            this.request<object, any>({
                 path: `/api/dms/facade/filing-document`,
                 method: "POST",
                 body: data,
@@ -29119,11 +29381,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaptureProjFormSettingController
-         * @name PostCaptureProjformsettingTestform
+         * @name PostCaptureProjformsettingTestForm
          * @summary Test Form
-         * @request POST:/api/capture/projFormSetting/testForm
+         * @request POST:/api/capture/projFormSetting/test-form
          */
-        postCaptureProjformsettingTestform: (
+        postCaptureProjformsettingTestForm: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -29137,7 +29399,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultCaptureDocDetailResponseDTO, any>({
-                path: `/api/capture/projFormSetting/testForm`,
+                path: `/api/capture/projFormSetting/test-form`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -29148,16 +29410,16 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaptureProjFormSettingController
-         * @name PostCaptureProjformsettingSplitpage
+         * @name PostCaptureProjformsettingSplitPage
          * @summary Split Page
-         * @request POST:/api/capture/projFormSetting/splitPage
+         * @request POST:/api/capture/projFormSetting/split-page
          */
-        postCaptureProjformsettingSplitpage: (
+        postCaptureProjformsettingSplitPage: (
             data: CaptureProjFormSettingSplitPageRequestDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultListString, any>({
-                path: `/api/capture/projFormSetting/splitPage`,
+                path: `/api/capture/projFormSetting/split-page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -29224,11 +29486,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaptureFileController
-         * @name PostCaptureFileUploadtempfiletobatch
+         * @name PostCaptureFileUploadTempFileToBatch
          * @summary Upload TempFile to Batch
-         * @request POST:/api/capture/file/uploadTempFileToBatch
+         * @request POST:/api/capture/file/upload-temp-file-to-batch
          */
-        postCaptureFileUploadtempfiletobatch: (
+        postCaptureFileUploadTempFileToBatch: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -29238,7 +29500,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringString, any>({
-                path: `/api/capture/file/uploadTempFileToBatch`,
+                path: `/api/capture/file/upload-temp-file-to-batch`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -29249,11 +29511,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaptureFileController
-         * @name PostCaptureFileUploadexampletoform
+         * @name PostCaptureFileUploadExampleToForm
          * @summary Upload Example to form
-         * @request POST:/api/capture/file/uploadExampleToForm
+         * @request POST:/api/capture/file/upload-example-to-form
          */
-        postCaptureFileUploadexampletoform: (
+        postCaptureFileUploadExampleToForm: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -29265,7 +29527,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultListString, any>({
-                path: `/api/capture/file/uploadExampleToForm`,
+                path: `/api/capture/file/upload-example-to-form`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -29276,11 +29538,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaptureFileController
-         * @name PostCaptureFileQuerycapturefilebypath
+         * @name PostCaptureFileQueryCaptureFileByPath
          * @summary Query Capture File By Path
-         * @request POST:/api/capture/file/queryCaptureFileByPath
+         * @request POST:/api/capture/file/query-capture-file-by-path
          */
-        postCaptureFileQuerycapturefilebypath: (
+        postCaptureFileQueryCaptureFileByPath: (
             data: {
                 /** @format string */
                 path?: string;
@@ -29288,7 +29550,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<string, any>({
-                path: `/api/capture/file/queryCaptureFileByPath`,
+                path: `/api/capture/file/query-capture-file-by-path`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -32201,6 +32463,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DynamicDBTableController
+         * @name GetDynamicDbTableRecordsIdLock
+         * @summary Query Single Record Lock Status
+         * @request GET:/api/dynamic-db/table/records/{id}/lock
+         */
+        getDynamicDbTableRecordsIdLock: (id: string, params: RequestParams = {}) =>
+            this.request<ResultRecordLockDTO, any>({
+                path: `/api/dynamic-db/table/records/${id}/lock`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
          * @name GetDynamicDbTableList
          * @request GET:/api/dynamic-db/table/list
          */
@@ -32358,6 +32635,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getDynamicDbImportJobidErrorReport: (jobId: string, params: RequestParams = {}) =>
             this.request<void, File>({
                 path: `/api/dynamic-db/import/${jobId}/error-report`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Poll the status of an async relation establishment job.
+         *
+         * @tags DynamicDBImportController
+         * @name GetDynamicDbImportRelationsJobidStatus
+         * @summary Get relation establishment job status
+         * @request GET:/api/dynamic-db/import/relations/{jobId}/status
+         */
+        getDynamicDbImportRelationsJobidStatus: (jobId: string, params: RequestParams = {}) =>
+            this.request<ResultRelationEstablishResultDTO, any>({
+                path: `/api/dynamic-db/import/relations/${jobId}/status`,
                 method: "GET",
                 ...params,
             }),
@@ -37539,13 +37831,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaptureProjFormSettingController
-         * @name GetCaptureProjformsettingSplitpageFormid
+         * @name GetCaptureProjformsettingSplitPageFormid
          * @summary Get Capture Proj Form Setting Split File List
-         * @request GET:/api/capture/projFormSetting/splitPage/{formId}
+         * @request GET:/api/capture/projFormSetting/split-page/{formId}
          */
-        getCaptureProjformsettingSplitpageFormid: (formId: string, params: RequestParams = {}) =>
+        getCaptureProjformsettingSplitPageFormid: (formId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringString, any>({
-                path: `/api/capture/projFormSetting/splitPage/${formId}`,
+                path: `/api/capture/projFormSetting/split-page/${formId}`,
                 method: "GET",
                 ...params,
             }),
@@ -37554,13 +37846,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaptureProjFormSettingController
-         * @name GetCaptureProjformsettingGetdropdownlistbyprojidProjid
+         * @name GetCaptureProjformsettingGetDropdownListByProjectIdProjid
          * @summary Query projectFormSetting Drop Down by ProjId
-         * @request GET:/api/capture/projFormSetting/getDropDownListByProjId/{projId}
+         * @request GET:/api/capture/projFormSetting/get-dropdown-list-by-project-id/{projId}
          */
-        getCaptureProjformsettingGetdropdownlistbyprojidProjid: (projId: string, params: RequestParams = {}) =>
+        getCaptureProjformsettingGetDropdownListByProjectIdProjid: (projId: string, params: RequestParams = {}) =>
             this.request<ResultListCaptureProjFormSettingDropDownResponseDTO, any>({
-                path: `/api/capture/projFormSetting/getDropDownListByProjId/${projId}`,
+                path: `/api/capture/projFormSetting/get-dropdown-list-by-project-id/${projId}`,
                 method: "GET",
                 ...params,
             }),
@@ -38429,11 +38721,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaptureFileController
-         * @name DeleteCaptureFileTempfilefrombatch
+         * @name DeleteCaptureFileTempFileFromBatch
          * @summary Remove File From Temp Batch By FileName
-         * @request DELETE:/api/capture/file/TempFileFromBatch
+         * @request DELETE:/api/capture/file/temp-file-from-batch
          */
-        deleteCaptureFileTempfilefrombatch: (
+        deleteCaptureFileTempFileFromBatch: (
             query: {
                 batchId: string;
                 fileName: string;
@@ -38447,7 +38739,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, any>({
-                path: `/api/capture/file/TempFileFromBatch`,
+                path: `/api/capture/file/temp-file-from-batch`,
                 method: "DELETE",
                 query: query,
                 body: data,

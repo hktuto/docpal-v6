@@ -1,5 +1,5 @@
 <template>
-  <el-form-item label="Relation Table" prop="relation_table_id">
+  <el-form-item :label="t('mdTable.addColumnField.relationTable')" prop="relation_table_id">
     <el-cascader
       v-model="menuIdPaths"
       show-checked-strategy="parent"
@@ -17,7 +17,7 @@
       </template>
     </el-cascader>
   </el-form-item>
-  <el-form-item label="Allow Multiple" prop="multiple">
+  <el-form-item :label="t('mdTable.addColumnField.allowMultiple')" prop="multiple">
     <el-switch v-model="formData.multiple" />
   </el-form-item>
   <!-- Existing relation warning -->
@@ -32,6 +32,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+const { t } = useI18n()
 const props = defineProps<{
   formData: any
 }>()

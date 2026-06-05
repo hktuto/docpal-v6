@@ -6,6 +6,7 @@ import { EventType, useEventBus } from 'eventbus'
 import { updateRelationFields } from '../utils/relationHelper'
 import { findRowAndAncestors, matchesGroupRow, patchGroupNode, patchChildRowInMap } from '../utils/groupRowSync'
 import { getAggColumns } from './useCount'
+import { useUpdateStatus } from './useUpdateStatus'
 // import { createGroupTree } from '../utils/treeDataHelper'
 function withoutOrderBy(params: Record<string, any> = {}) {
   const { orderBy: _orderBy, ...rest } = params
@@ -182,13 +183,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     extraParams?: any,
     options: TableDataFetchOptions = {}
   ): Promise<{ entryList: any[]; totalSize: number } | undefined> => {
-    // if (columnGroupRules.value?.length > 0) {
-    //   tableData.value = getAggregateData(params)
-    //   return {
-    //     entryList: tableData.value,
-    //     totalSize: tableData.value.length
-    //   }
-    // }
     const shouldShowLoading = !options.silent && !silentRefreshing.value
     try {
       if (shouldShowLoading) {
@@ -296,6 +290,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     const currentColumn = columnGroupRules.value[_level]
     const nextColumn = columnGroupRules.value[_level + 1]
     let basicParams: any = {}
+    console.log('getAggChildData nextColumn', nextColumn)
     if (nextColumn) {
       additionParams.groupBy = {
         columns: [nextColumn.field]
@@ -332,15 +327,22 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
           acc[condition.column] = condition.value
           return acc
         }, {})
-        const newData = data.data.map((item: any) => ({
-          ...item,
-          hasChild: true,
-          ...extraData,
-          id: getRowIdForGroup({ ...item, ...extraData }, _level + 1, columnGroupRules.value)
-        }))
+        const newData = data.data.map((item: any) => {
+          const count = item.__count ?? item.count ?? 0
+          return {
+            ...item,
+            ...extraData,
+            __count: count,
+            hasChild: count > 0,
+            id: getRowIdForGroup({ ...item, ...extraData }, _level + 1, columnGroupRules.value)
+          }
+        })
         return newData
       }
-      return data.data
+      return (data.data ?? []).map((item: any) => ({
+        ...item,
+        hasChild: false
+      }))
     } catch (error) {
       console.error('getAggChildData error', error)
     }
@@ -523,7 +525,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     } = {}
   ) {
     const rules = viewTools?.columnGroupRules?.value
-    console.log('syncRowAndGroupAncestors', rowId, rules)
     if (!rules?.length) {
       // when no group, update table data directly
       const row = tableData.value.find((r) => r.id === rowId)
@@ -542,7 +543,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
 
     const liveRow = await fetchRowById(rowId)
-    console.log('live row', liveRow)
     if (!liveRow) {
       return null
     }
@@ -551,10 +551,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     const grid = options.gridRef?.value
     if (grid) {
       const fullData = grid.getTableData?.()?.fullData || []
-      console.log('full data', fullData)
       treeResult = findRowAndAncestors(fullData, rowId)
       if (treeResult?.row) {
-        console.log('tree result', treeResult)
         Object.assign(treeResult.row, liveRow)
       }
     }
@@ -590,7 +588,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     const m = viewTools?.menuId
     return m?.value || m
   }
-  const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
+  const { setSuccess } = useUpdateStatus()
   async function handleRemoteChangeEvent(event: any) {
     const { change, userName } = event
     const currentMenuId = getCurrentMenuId()

@@ -84,6 +84,17 @@
             value-format="x"
             @change="handleEditRule(rule)"
           />
+          <el-select
+            v-else-if="isSelectField(rule.field) && !isValueEmptyOperator(rule.operator)"
+            v-model="rule.value"
+            :placeholder="t('mdTable.filter.placeholderValue')"
+            :multiple="isMultiSelectField(rule.field)"
+            size="small"
+            class="value-input"
+            @change="handleEditRule(rule)"
+          >
+            <el-option v-for="option in getOptionsForField(rule.field)" :key="option.id" :label="option.label" :value="option.id" />
+          </el-select>
           <el-input
             v-else-if="!isValueEmptyOperator(rule.operator)"
             v-model="rule.value"
@@ -117,7 +128,7 @@ export interface FilterRule {
   connector: 'AND' | 'OR'
   field: string
   operator: string
-  value: string | number
+  value: string | number | Array<string | number>
 }
 
 interface OperatorOption {
@@ -192,6 +203,27 @@ const isDateField = (field: string): boolean => {
   const type = column.business_type
   return type === ColumnFieldType.DateTime || type === ColumnFieldType.CreatedTime || type === ColumnFieldType.LastModifiedTime
 }
+
+const isSelectField = (field: string): boolean => {
+  const column = props.availableColumns.find((col) => col.field === field)
+  if (!column) return false
+  return column.business_type === ColumnFieldType.SingleSelect || column.business_type === ColumnFieldType.MultiSelect
+}
+
+const isMultiSelectField = (field: string): boolean => {
+  const column = props.availableColumns.find((col) => col.field === field)
+  if (!column) return false
+  return column.business_type === ColumnFieldType.MultiSelect
+}
+
+const getOptionsForField = (field: string): Array<{ id: string | number; label: string }> => {
+  const column = props.availableColumns.find((col) => col.field === field)
+  const options = column?.display_structure?.options
+  if (!Array.isArray(options)) {
+    return []
+  }
+  return options
+}
 // 获取字段的操作符选项
 const getOperatorsForField = (field: string): OperatorOption[] => {
   console.log('getOperatorsForField', field)
@@ -221,7 +253,6 @@ const getOperatorsForField = (field: string): OperatorOption[] => {
     ]
   } else {
     // 非数字类型操作符
-    console.log('getOperatorsForField', props.availableColumns)
     return [
       { label: t('mdTable.filter.operators.contains'), value: 'LIKE' },
       // { label: 'Does not contain', value: 'NOT_LIKE' },
@@ -251,7 +282,7 @@ function handleEditRule(rule: FilterRule) {
   if (rule.field && rule.operator) {
     if (isValueEmptyOperator(rule.operator)) {
       handleRuleChange()
-    } else if (rule.value) {
+    } else if (Array.isArray(rule.value) ? rule.value.length > 0 : rule.value !== '' && rule.value !== null && rule.value !== undefined) {
       handleRuleChange()
     }
   }
@@ -276,7 +307,7 @@ const handleFieldChange = (rule: FilterRule) => {
   if (operators.length > 0) {
     rule.operator = operators[0].value
   }
-  rule.value = ''
+  rule.value = isMultiSelectField(rule.field) ? [] : ''
   handleEditRule(rule)
 }
 

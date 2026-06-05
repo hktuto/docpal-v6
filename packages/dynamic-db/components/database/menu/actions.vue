@@ -109,10 +109,7 @@ async function handleImportSuccess(tables: { id: string; name: string }[]) {
   await menuContext.getMenuFromDb()
 }
 
-function handleAddView() {
-  close()
-  createViewDialogRef.value?.open()
-}
+
 
 // deprecated
 async function handleViewCreated(data: { name: string; tableId: string; viewType: ViewType; viewSettings: ViewSettings }) {
@@ -160,10 +157,6 @@ defineExpose({ open, close })
           <Icon name="material-symbols:table-outline" />
           <span>Add Table</span>
         </div>
-        <div class="action-item" @click="handleAddView">
-          <Icon name="material-symbols:view-list-outline" />
-          <span>Add View</span>
-        </div>
         <div class="action-item" @click="handleAddItem('dashboard')">
           <Icon name="material-symbols:dashboard-outline" />
           <span>Add Dashboard</span>
@@ -200,10 +193,7 @@ defineExpose({ open, close })
             <Icon name="material-symbols:table-outline" />
             <span>Add Table</span>
           </div>
-          <div class="action-item" @click="handleAddView">
-            <Icon name="material-symbols:view-list-outline" />
-            <span>Add View</span>
-          </div>
+
           <div class="action-item" @click="handleAddItem('dashboard')">
             <Icon name="material-symbols:dashboard-outline" />
             <span>Add Dashboard</span>

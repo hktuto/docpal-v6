@@ -5,6 +5,7 @@ export const RelationView = ({ options, params }: ViewRenderFunctionParams<strin
   const { $table, $grid, row, column } = params
   const relationOptions = options?.props
   const viewTools: any = inject('viewTools')
+  if(!relationOptions.display_field_ids || relationOptions.display_field_ids.length === 0) return h('span', '-')
   const displayFieldId = relationOptions.display_field_ids[0]
   const displayField = viewTools?.getRelationFieldConfig(relationOptions.relation_table_id, displayFieldId)
   if (!displayField) return h('span', '-')

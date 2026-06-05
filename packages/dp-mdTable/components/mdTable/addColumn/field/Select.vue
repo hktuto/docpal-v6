@@ -1,6 +1,6 @@
 <template>
   <div class="select-options-config">
-    <div class="config-title">此列的值将转换为以下选项</div>
+    <div class="config-title">{{ t('mdTable.addColumnField.selectConvertHint') }}</div>
     <div class="options-list">
       <draggable v-model="options" item-key="id" handle=".drag-handle" :animation="200" ghost-class="ghost-item" @change="handleOptionsChange">
         <template #item="{ element, index }">
@@ -22,7 +22,7 @@
               @change="updateFormData"
               @click.stop
             />
-            <el-input v-model="element.label" ref="labelInputRef" placeholder="请输入选项名称" class="option-input" @input="handleOptionInput(index)" />
+            <el-input v-model="element.label" ref="labelInputRef" :placeholder="t('mdTable.addColumnField.enterOptionName')" class="option-input" @input="handleOptionInput(index)" />
             <el-button type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteOption(index)" />
           </div>
         </template>
@@ -30,7 +30,9 @@
     </div>
     <!-- 添加选项按钮 -->
     <div class="action-buttons">
-      <el-button type="primary" :icon="Plus" size="small" text class="add-option-btn" @click="handleAddOption"> 添加一个选项 </el-button>
+      <el-button type="primary" :icon="Plus" size="small" text class="add-option-btn" @click="handleAddOption">
+        {{ t('mdTable.addColumnField.addOption') }}
+      </el-button>
       <el-button
         type="warning"
         :icon="Close"
@@ -40,7 +42,7 @@
         :disabled="!hasDefaultValue"
         @click="handleClearDefaultValue"
       >
-        清除默认值
+        {{ t('mdTable.addColumnField.clearDefaultValue') }}
       </el-button>
     </div>
   </div>
@@ -52,6 +54,7 @@ import { Delete, Plus, Close } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import { ElMessageBox } from 'element-plus'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+const { t } = useI18n()
 const props = defineProps<{
   formData: any
   column: any

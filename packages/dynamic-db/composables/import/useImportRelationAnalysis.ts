@@ -1,7 +1,9 @@
 import { useState } from '#imports'
 import type { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { ElNotification } from 'element-plus'
 import {
   captureTableSnapshot,
+  captureTableNameMap,
   resolveNewTables,
   fetchTableSnapshot,
   guessRelations,
@@ -63,7 +65,7 @@ export function dismissGuess(index: number) {
  * Capture a snapshot of current table IDs before import.
  * Call this immediately before `importExcelFile`.
  */
-export { captureTableSnapshot }
+export { captureTableSnapshot, captureTableNameMap }
 
 /**
  * Start the post-import relation analysis.
@@ -106,9 +108,12 @@ export async function startPostImportAnalysis(
   state.value.progress = 30
   state.value.message = 'Fetching table data...'
 
+  // Build a name map so snapshots can resolve real table names
+  const nameMap = await captureTableNameMap(databaseId)
+
   // Fetch snapshots for new tables
   const newTables = (
-    await Promise.all(newTableIds.map((id) => fetchTableSnapshot(id)))
+    await Promise.all(newTableIds.map((id) => fetchTableSnapshot(id, nameMap)))
   ).filter((t): t is TableSnapshot => t !== null)
 
   if (newTables.length === 0) {
@@ -127,7 +132,7 @@ export async function startPostImportAnalysis(
     .slice(0, MAX_EXISTING_TABLES)
 
   const existingTables = (
-    await Promise.all(existingTableIds.map((id) => fetchTableSnapshot(id)))
+    await Promise.all(existingTableIds.map((id) => fetchTableSnapshot(id, nameMap)))
   ).filter((t): t is TableSnapshot => t !== null)
 
   state.value.progress = 80
@@ -148,6 +153,16 @@ export async function startPostImportAnalysis(
         guesses.length > 0
           ? `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'}`
           : 'Analysis complete — no strong relations detected'
+
+      if (guesses.length > 0) {
+        ElNotification({
+          title: 'Relations Detected',
+          message: `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'} between imported tables.`,
+          type: 'info',
+          duration: 0
+        })
+      }
+
       resolve()
     }, 0)
   })
@@ -201,8 +216,10 @@ export async function startReAnalysis(databaseId?: string) {
   state.value.progress = 40
   state.value.message = 'Fetching table data...'
 
+  const nameMap = await captureTableNameMap(databaseId)
+
   const sourceTables = (
-    await Promise.all(tablesToAnalyse.map((id) => fetchTableSnapshot(id)))
+    await Promise.all(tablesToAnalyse.map((id) => fetchTableSnapshot(id, nameMap)))
   ).filter((t): t is TableSnapshot => t !== null)
 
   if (sourceTables.length === 0) {
@@ -224,7 +241,7 @@ export async function startReAnalysis(databaseId?: string) {
       .slice(0, MAX_EXISTING_TABLES)
 
     const existingTables = (
-      await Promise.all(existingTableIds.map((id) => fetchTableSnapshot(id)))
+      await Promise.all(existingTableIds.map((id) => fetchTableSnapshot(id, nameMap)))
     ).filter((t): t is TableSnapshot => t !== null)
 
     targetTables = [...existingTables, ...sourceTables]
@@ -244,6 +261,93 @@ export async function startReAnalysis(databaseId?: string) {
         guesses.length > 0
           ? `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'}`
           : 'Analysis complete — no new relations detected'
+
+      if (guesses.length > 0) {
+        ElNotification({
+          title: 'Relations Detected',
+          message: `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'} on re-analysis.`,
+          type: 'info',
+          duration: 0
+        })
+      }
+
+      resolve()
+    }, 0)
+  })
+}
+
+/**
+ * Run relation analysis on ALL tables in a database.
+ * Unlike startPostImportAnalysis, this does not require a pre-import snapshot.
+ * Every table is treated as both source and target, so existing tables also
+ * receive suggestions pointing to other tables.
+ */
+export async function runRelationAnalysis(databaseId: string) {
+  const state = useImportRelationAnalysisState()
+  resetAnalysis()
+
+  if (!databaseId) {
+    state.value.status = 'error'
+    state.value.error = 'No database context available'
+    state.value.message = 'Analysis failed — no database context'
+    return
+  }
+
+  state.value.status = 'analyzing'
+  state.value.message = 'Fetching table data...'
+  state.value.progress = 20
+  state.value.startedAt = new Date().toISOString()
+
+  const nameMap = await captureTableNameMap(databaseId)
+  const currentSnapshot = await captureTableSnapshot(databaseId)
+  const allTableIds = Array.from(currentSnapshot)
+
+  if (allTableIds.length === 0) {
+    state.value.status = 'completed'
+    state.value.completedAt = new Date().toISOString()
+    state.value.message = 'No tables found in database'
+    state.value.progress = 100
+    return
+  }
+
+  state.value.progress = 50
+
+  const allTables = (
+    await Promise.all(allTableIds.map((id) => fetchTableSnapshot(id, nameMap)))
+  ).filter((t): t is TableSnapshot => t !== null)
+
+  if (allTables.length === 0) {
+    state.value.status = 'error'
+    state.value.error = 'Unable to fetch table data'
+    state.value.message = 'Analysis failed — could not fetch table data'
+    return
+  }
+
+  state.value.progress = 80
+  state.value.message = 'Analyzing relations...'
+
+  // Run scoring in a non-blocking way
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      const guesses = guessRelations(allTables, allTables)
+      state.value.guesses = guesses
+      state.value.status = 'completed'
+      state.value.completedAt = new Date().toISOString()
+      state.value.progress = 100
+      state.value.message =
+        guesses.length > 0
+          ? `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'}`
+          : 'Analysis complete — no strong relations detected'
+
+      if (guesses.length > 0) {
+        ElNotification({
+          title: 'Relations Detected',
+          message: `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'} across all tables.`,
+          type: 'info',
+          duration: 0
+        })
+      }
+
       resolve()
     }, 0)
   })

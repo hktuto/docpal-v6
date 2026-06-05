@@ -740,6 +740,12 @@
   },
   "dashboard": {
     "Browse": "Browse",
+    "DbChart": "DB Chart",
+    "DbPie": "DB Pie Chart",
+    "DbProgress": "DB Progress",
+    "DbRecentRecords": "DB Recent Records",
+    "DbStat": "DB Stat",
+    "DbTable": "DB Table",
     "CalendarWidget": "Calendar",
     "PersonalCase": "Case",
     "PersonalCaseCreate": "New Case",
@@ -827,6 +833,7 @@
   "dashboardType": {
     "case": "@:adminMenu.caseManagement",
     "caseCount": "Case Statistics",
+    "database": "Database",
     "default": "Common",
     "document": "Document",
     "documentCount": "File Statistics",
@@ -2437,6 +2444,56 @@
       "addFromTable": "Add related records from \"{tableLabel}\"",
       "loading": "Loading..."
     },
+    "addColumnField": {
+      "columnTitle": "Column Title",
+      "enterColumnTitle": "Please enter column title",
+      "dataType": "Data Type",
+      "selectDataType": "Select data type",
+      "newField": "New Field",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "continue": "Continue",
+      "warning": "Warning",
+      "typeChangeWarning": "Changing column type may cause data loss. Do you want to continue?",
+      "formValidationFailed": "Form validation failed:",
+      "formula": "Formula",
+      "unit": "Unit",
+      "symbolAlign": "Symbol Alignment",
+      "selectSymbolAlign": "Select symbol alignment",
+      "alignLeft": "Left Align",
+      "alignRight": "Right Align",
+      "alignDefault": "Default Align",
+      "precision": "Precision",
+      "selectPrecision": "Select precision",
+      "defaultValue": "Default Value",
+      "showThousandSeparator": "Show thousand separator",
+      "iconForTrue": "Icon for True",
+      "dateFormat": "Date Format",
+      "selectDateFormat": "Select date format",
+      "showTimeAndRegion": "Show time and region",
+      "selectTime": "Select time",
+      "hour12": "12-hour",
+      "hour24": "24-hour",
+      "selectTimezone": "Select timezone",
+      "showTimezoneMark": "Show timezone indicator",
+      "maxValue": "Max Value",
+      "allowHalf": "Allow half star",
+      "relationTable": "Relation Table",
+      "allowMultiple": "Allow Multiple",
+      "displayField": "Display Field",
+      "selectDisplayField": "Select Display Field",
+      "selectConvertHint": "Values in this column will be converted to the following options",
+      "enterOptionName": "Please enter option name",
+      "addOption": "Add an option",
+      "clearDefaultValue": "Clear default value",
+      "allowMultipleMembers": "Allow adding multiple members"
+    },
+    "formula": {
+      "category": {
+        "number": "Number Functions",
+        "variable": "Variables"
+      }
+    },
     "formulaEditor": {
       "category": {
         "date": "Date Functions",
@@ -2445,18 +2502,186 @@
         "text": "Text Functions",
         "variable": "Variables"
       },
+      "dialogTitle": "Formula Editor",
       "description": "Description",
       "emptyText": "Please select a function or variable to view details",
       "example": "Example",
       "inputLabel": "Please enter the formula",
-      "inputPlaceholder": "Please enter the formula, for example: IF({field1} > 100, 'High', 'Low')",
+      "inputPlaceholder": "Please enter the formula, for example: ROUND(priceBeforeTax * (1 + taxRate), 2)",
       "learnMore": "Learn More",
       "missingOperator": "Missing operator between variables or functions",
+      "missingClosingParen": "Mismatched parentheses: missing closing parenthesis",
+      "unexpectedClosingParen": "Mismatched parentheses: unexpected closing parenthesis",
+      "incompleteVariable": "Incomplete variable: missing }",
+      "invalidFormula": "Invalid formula. Please check the syntax",
       "params": "Parameters",
       "sidebarTitle": "Select a field or function",
       "unrecognizedVariable": "Unrecognized variable {0}",
       "usage": "Usage",
-      "variableDescription": "Variable: {label}"
+      "variableDescription": "Variable: {label}",
+      "fn": {
+        "CONCAT": {
+          "description": "Concatenates multiple text strings together.",
+          "param": { "text1": "First text string", "text2": "Second text string" },
+          "example": "CONCAT('Hello', ' ', 'World') returns 'Hello World'"
+        },
+        "LEFT": {
+          "description": "Extracts a specified number of characters from the left side of a text string.",
+          "param": { "text": "The text string to extract from", "num_chars": "Number of characters to extract" },
+          "example": "LEFT('Hello World', 5) returns 'Hello'"
+        },
+        "RIGHT": {
+          "description": "Extracts a specified number of characters from the right side of a text string.",
+          "param": { "text": "The text string to extract from", "num_chars": "Number of characters to extract" },
+          "example": "RIGHT('Hello World', 5) returns 'World'"
+        },
+        "LEN": {
+          "description": "Returns the number of characters in a text string.",
+          "param": { "text": "The text string to measure" },
+          "example": "LEN('Hello') returns 5"
+        },
+        "UPPER": {
+          "description": "Converts a text string to uppercase.",
+          "param": { "text": "The text string to convert" },
+          "example": "UPPER('hello') returns 'HELLO'"
+        },
+        "LOWER": {
+          "description": "Converts a text string to lowercase.",
+          "param": { "text": "The text string to convert" },
+          "example": "LOWER('HELLO') returns 'hello'"
+        },
+        "TRIM": {
+          "description": "Removes leading and trailing spaces from a text string.",
+          "param": { "text": "The text string to trim" },
+          "example": "TRIM('  Hello  ') returns 'Hello'"
+        },
+        "GREATEST": {
+          "description": "Returns the largest value from a set of numbers.",
+          "param": { "number1": "First number", "number2": "Second number" },
+          "example": "GREATEST(10, 20, 30) returns 30"
+        },
+        "LEAST": {
+          "description": "Returns the smallest value from a set of numbers.",
+          "param": { "number1": "First number", "number2": "Second number" },
+          "example": "LEAST(10, 20, 30) returns 10"
+        },
+        "ROUND": {
+          "description": "Rounds a number to a specified number of decimal places.",
+          "param": { "number": "The number to round", "num_digits": "Number of decimal places" },
+          "example": "ROUND(3.14159, 2) returns 3.14"
+        },
+        "CEIL": {
+          "description": "Rounds a number up to the nearest integer.",
+          "param": { "number": "The number to round up" },
+          "example": "CEIL(3.2) returns 4"
+        },
+        "FLOOR": {
+          "description": "Rounds a number down to the nearest integer.",
+          "param": { "number": "The number to round down" },
+          "example": "FLOOR(3.8) returns 3"
+        },
+        "ABS": {
+          "description": "Returns the absolute value of a number.",
+          "param": { "number": "The number to take the absolute value of" },
+          "example": "ABS({diff}), returns 5 when diff is -5"
+        },
+        "SQRT": {
+          "description": "Returns the square root of a number.",
+          "param": { "number": "The number to take the square root of (must be >= 0)" },
+          "example": "SQRT({area}), returns empty when the argument is negative"
+        },
+        "POWER": {
+          "description": "Returns the result of a number raised to a power.",
+          "param": { "base": "Base number", "exponent": "Exponent" },
+          "example": "POWER({side}, 2) calculates square; POWER(x, 0.5) is equivalent to square root"
+        },
+        "MOD": {
+          "description": "Returns the remainder of a division.",
+          "param": { "dividend": "Dividend", "divisor": "Divisor (cannot be 0)" },
+          "example": "MOD({seq}, 10), returns 3 when seq is 23"
+        },
+        "COALESCE": {
+          "description": "Returns the default value if the first argument is empty.",
+          "param": { "value": "Value to check", "default_value": "Default value" },
+          "example": "COALESCE({fieldA}, 100) returns 100 if {fieldA} is empty"
+        },
+        "FORMAT_DATE": {
+          "description": "Formats a date value using a format string.",
+          "param": { "date": "Date value", "format": "Format string" },
+          "example": "FORMAT_DATE(TODAY(), \"YYYY-MM-DD\") returns the current date, e.g. 2024-01-15"
+        },
+        "TODAY": {
+          "description": "Returns the current date.",
+          "example": "TODAY() returns the current date, e.g. 2024-01-15"
+        },
+        "NOW": {
+          "description": "Returns the current date and time.",
+          "example": "NOW() returns the current date and time, e.g. 2024-01-15 14:30:00"
+        },
+        "YEAR": {
+          "description": "Extracts the year from a date. Returns the current year if no argument is provided.",
+          "param": { "date": "Date value (optional, defaults to current date)" },
+          "example": "YEAR() or YEAR(TODAY()) returns the current year, e.g. 2024"
+        },
+        "MONTH": {
+          "description": "Extracts the month (1-12) from a date. Returns the current month if no argument is provided.",
+          "param": { "date": "Date value (optional, defaults to current date)" },
+          "example": "MONTH() or MONTH(TODAY()) returns the current month, e.g. 1"
+        },
+        "DAY": {
+          "description": "Extracts the day (1-31) from a date. Returns the current day if no argument is provided.",
+          "param": { "date": "Date value (optional, defaults to current date)" },
+          "example": "DAY() or DAY(TODAY()) returns the current day, e.g. 15"
+        },
+        "DATEDIF": {
+          "description": "Calculates the difference between two dates.",
+          "param": { "start_date": "Start date", "end_date": "End date", "unit": "Unit (\"Y\" for years, \"M\" for months, \"D\" for days)" },
+          "example": "DATEDIF('2024-01-01', '2024-12-31', 'D') returns 365"
+        },
+        "IF": {
+          "description": "Returns one value if a condition is true, and another value if it is false.",
+          "param": { "logical": "Logical condition, an expression that evaluates to true or false", "value1": "Value returned when the condition is true", "value2": "Value returned when the condition is false" },
+          "example": "IF(10 > 5, 'Yes', 'No') returns 'Yes'"
+        },
+        "CASE": {
+          "description": "Evaluates conditions in order and returns the result of the first true condition. An optional default value can be specified.",
+          "param": { "condition1": "Condition 1 (true/false)", "result1": "Result when condition 1 is true", "default": "Default value if no condition is met (optional)" },
+          "example": "CASE({score} >= 90, 'A', {score} >= 60, 'B', 'C')"
+        },
+        "AND": {
+          "description": "Returns true if all arguments are true; otherwise returns false.",
+          "param": { "logical1": "First logical condition", "logical2": "Second logical condition" },
+          "example": "AND(10 > 5, 20 > 15) returns TRUE"
+        },
+        "OR": {
+          "description": "Returns true if any argument is true; otherwise returns false.",
+          "param": { "logical1": "First logical condition", "logical2": "Second logical condition" },
+          "example": "OR(10 > 20, 5 > 3) returns TRUE"
+        },
+        "NOT": {
+          "description": "Reverses the logical value.",
+          "param": { "logical": "Logical value to reverse" },
+          "example": "NOT(TRUE) returns FALSE"
+        },
+        "TRUE": {
+          "description": "Returns the logical value TRUE.",
+          "example": "TRUE() returns TRUE"
+        },
+        "FALSE": {
+          "description": "Returns the logical value FALSE.",
+          "example": "FALSE() returns FALSE"
+        },
+        "IS_BLANK": {
+          "description": "Checks whether a value is empty.",
+          "param": { "value": "Value to check" },
+          "example": "IS_BLANK('') returns TRUE"
+        },
+        "IS_ERROR": {
+          "description": "Checks whether a value is an error.",
+          "param": { "value": "Value to check" },
+          "example": "IS_ERROR(1/0) returns TRUE"
+        }
+      }
     },
     "cardStyle": {
       "title": "Card appearance",
@@ -3688,6 +3913,10 @@
     },
     "formDesign": {
       "defFormTitle": "Unnamed form",
+      "alignTitle": "Alignment",
+      "alignLeft": "On the left",
+      "alignCenter": "Center",
+      "alignRight": "On the right",
       "error": {
         "wdFormUni": "This type of control is allowed to add only one in the form",
         "wdSubUni": "This type of control is allowed to add only one in the subtable"
@@ -4390,7 +4619,6 @@
   "workflow_editorVersionHistory": "Version History",
   "workflow_editorViewProductionVersion": "View Production Version",
   "workflow_editorViewVersionHistory": "View Version History",
-  "workflow_editorPermission": "Permission",
   "workflow_form": "Form",
   "workflow_graph": "Flowchart",
   "workflow_holdPolicy": "Hold Policy",
@@ -4426,5 +4654,17 @@
   "所有內容": "Everything",
   "收藏夹": "Collection",
   "文件Keywords": "Keywords",
-  "檔案內容": "Content"
+  "檔案內容": "Content",
+  "editor": {
+    "url": {
+      "link": "Link",
+      "title": "Title",
+      "set": "Set link"
+    },
+    "docPalDoc": {
+      "select": "Select document",
+      "selectPlaceholder": "Select a document",
+      "required": "Please select a document"
+    }
+  }
 }

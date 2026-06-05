@@ -247,6 +247,10 @@ export function formatFieldValueByType(value: any, field: Pick<FieldInfo, 'type'
     case ColumnFieldType.User:
       return formatFieldValue(value)
 
+    case ColumnFieldType.DocPalDoc: {
+      return value?.name || value?.id || '-'
+    }
+
     default:
       if (Array.isArray(value)) return value.join(', ')
       if (typeof value === 'object') return JSON.stringify(value)

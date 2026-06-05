@@ -2,6 +2,8 @@
  * 公式校验工具
  */
 
+import { scanVariableMatches } from './formulaTransform'
+
 /**
  * 变量接口
  */
@@ -22,16 +24,6 @@ export interface ValidateResult {
  * 运算符正则表达式：匹配所有支持的运算符
  */
 const OPERATOR_PATTERN = /(>=|<=|==|!=|&&|\|\||[+\-*/><=,])/
-
-/**
- * 变量正则表达式：匹配 {字段名} 格式
- */
-const VARIABLE_PATTERN = /\{[^}]+\}/g
-
-/**
- * 不完整变量正则表达式：匹配 {字段名 但没有 } 的情况
- */
-const INCOMPLETE_VARIABLE_PATTERN = /\{[^}]*$/
 
 /**
  * 函数名正则表达式：匹配函数名（字母/下划线开头，后跟字母/数字/下划线）
@@ -85,6 +77,74 @@ function hasOperator(str: string): boolean {
   return OPERATOR_PATTERN.test(str)
 }
 
+function getFormulaEditorMessage(key: string, fallback: string): string {
+  try {
+    const i18n = useNuxtApp().$i18n as any
+    return i18n.t(`mdTable.formulaEditor.${key}`, fallback)
+  } catch {
+    return fallback
+  }
+}
+
+/**
+ * 校验圆括号是否成对（跳过字符串与变量名）
+ */
+function validateParentheses(formulaNoSpace: string, variables?: Variable[]): string | null {
+  const variableRanges = variables ? scanVariableMatches(formulaNoSpace, variables, 'value') : []
+
+  function isInsideVariable(index: number) {
+    return variableRanges.some((range) => index >= range.start && index < range.end)
+  }
+
+  let depth = 0
+  let inString = false
+  let stringChar = ''
+
+  for (let i = 0; i < formulaNoSpace.length; i++) {
+    if (isInsideVariable(i)) {
+      continue
+    }
+
+    const char = formulaNoSpace[i]
+
+    if (!inString && (char === "'" || char === '"')) {
+      inString = true
+      stringChar = char
+      continue
+    }
+
+    if (inString) {
+      if (char === '\\') {
+        i++
+        continue
+      }
+      if (char === stringChar) {
+        inString = false
+        stringChar = ''
+      }
+      continue
+    }
+
+    if (char === '(') {
+      depth++
+      continue
+    }
+
+    if (char === ')') {
+      depth--
+      if (depth < 0) {
+        return getFormulaEditorMessage('unexpectedClosingParen', '括号不匹配：多余的右括号')
+      }
+    }
+  }
+
+  if (depth > 0) {
+    return getFormulaEditorMessage('missingClosingParen', '括号不匹配：缺少右括号')
+  }
+
+  return null
+}
+
 /**
  * 元素接口：表示公式中的变量或函数
  */
@@ -105,12 +165,10 @@ function validateVariable(variableValue: string, validVariableValues: Set<string
   if (validVariableValues.size > 0 && !validVariableValues.has(variableValue)) {
     try {
       const i18n = useNuxtApp().$i18n as any
-      const translated = i18n.t('mdTable.formulaEditor.unrecognizedVariable', `{${variableValue}}`)
-      // 如果翻译函数没有自动替换占位符，手动替换
-      return translated.includes('{0}') ? translated.replace('{0}', `{${variableValue}}`) : translated
+      const translated = i18n.t('mdTable.formulaEditor.unrecognizedVariable', variableValue)
+      return translated.includes('{0}') ? translated.replace('{0}', variableValue) : translated
     } catch (e) {
-      // 如果 i18n 不可用，使用默认中文消息
-      return `未识别{${variableValue}}`
+      return `未识别变量 ${variableValue}`
     }
   }
   return null
@@ -121,24 +179,13 @@ function validateVariable(variableValue: string, validVariableValues: Set<string
  * @param formulaNoSpace - 去除空格后的公式
  * @returns 变量元素数组
  */
-function findVariables(formulaNoSpace: string): Element[] {
-  const elements: Element[] = []
-  const matches = formulaNoSpace.matchAll(VARIABLE_PATTERN)
-
-  for (const match of matches) {
-    const varStartNoSpace = match.index!
-    const varEndNoSpace = varStartNoSpace + match[0].length - 1
-    const variableValue = match[0].slice(1, -1) // 去除 { }
-
-    elements.push({
-      type: 'variable',
-      startNoSpace: varStartNoSpace,
-      endNoSpace: varEndNoSpace,
-      variableValue: variableValue
-    })
-  }
-
-  return elements
+function findVariables(formulaNoSpace: string, variables: Variable[]): Element[] {
+  return scanVariableMatches(formulaNoSpace, variables, 'value').map((match) => ({
+    type: 'variable' as const,
+    startNoSpace: match.start,
+    endNoSpace: match.end - 1,
+    variableValue: match.variable.value
+  }))
 }
 
 /**
@@ -157,13 +204,15 @@ function findFunctions(formulaNoSpace: string): Element[] {
     // 查找函数结束位置（匹配右括号）
     const funcEndNoSpace = findFunctionEnd(formulaNoSpace, leftParenNoSpace)
 
-    if (funcEndNoSpace > 0) {
-      elements.push({
-        type: 'function',
-        startNoSpace: funcNameStartNoSpace,
-        endNoSpace: funcEndNoSpace
-      })
+    if (funcEndNoSpace < 0) {
+      continue
     }
+
+    elements.push({
+      type: 'function',
+      startNoSpace: funcNameStartNoSpace,
+      endNoSpace: funcEndNoSpace
+    })
   }
 
   return elements
@@ -208,7 +257,6 @@ function validateBetweenElements(current: Element, next: Element, formulaNoSpace
  * @returns 校验结果
  */
 export function validateFormula(formula: string, variables?: Variable[]): ValidateResult {
-  console.log('formula', formula)
   // 空公式校验通过
   if (!formula || formula.trim().length === 0) {
     return { valid: true }
@@ -221,78 +269,9 @@ export function validateFormula(formula: string, variables?: Variable[]): Valida
     return { valid: true }
   }
 
-  // 检查是否有不完整的变量（有 { 但没有 }）
-  // 需要跳过字符串字面量中的内容
-  let inString = false
-  let stringChar = ''
-  
-  for (let i = 0; i < formulaNoSpace.length; i++) {
-    const char = formulaNoSpace[i]
-    
-    if (!inString && (char === "'" || char === '"')) {
-      inString = true
-      stringChar = char
-      continue
-    }
-    
-    if (inString) {
-      if (char === '\\') {
-        i++ // 跳过转义字符
-        continue
-      }
-      if (char === stringChar) {
-        inString = false
-        stringChar = ''
-      }
-      continue
-    }
-    
-    // 不在字符串中，检查是否有不完整的变量
-    if (char === '{') {
-      // 查找对应的 }，需要跳过字符串字面量
-      let found = false
-      let inStr = false
-      let strChar = ''
-      
-      for (let j = i + 1; j < formulaNoSpace.length; j++) {
-        const nextChar = formulaNoSpace[j]
-        
-        if (!inStr && (nextChar === "'" || nextChar === '"')) {
-          inStr = true
-          strChar = nextChar
-          continue
-        }
-        
-        if (inStr) {
-          if (nextChar === '\\') {
-            j++ // 跳过转义字符
-            continue
-          }
-          if (nextChar === strChar) {
-            inStr = false
-            strChar = ''
-          }
-          continue
-        }
-        
-        // 不在字符串中
-        if (nextChar === '}') {
-          found = true
-          i = j // 跳过这个完整的变量
-          break
-        }
-      }
-      
-      // 如果没有找到对应的 }，说明变量不完整
-      if (!found) {
-        try {
-          const i18n = useNuxtApp().$i18n as any
-          return { valid: false, message: i18n.t('mdTable.formulaEditor.incompleteVariable', '变量格式不完整，缺少 }') }
-        } catch (e) {
-          return { valid: false, message: '变量格式不完整，缺少 }' }
-        }
-      }
-    }
+  const parenthesesError = validateParentheses(formulaNoSpace, variables)
+  if (parenthesesError) {
+    return { valid: false, message: parenthesesError }
   }
 
   // 构建合法变量值的集合
@@ -304,7 +283,7 @@ export function validateFormula(formula: string, variables?: Variable[]): Valida
   }
 
   // 查找所有变量和函数
-  const variableElements = findVariables(formulaNoSpace)
+  const variableElements = variables?.length ? findVariables(formulaNoSpace, variables) : []
   const functionElements = findFunctions(formulaNoSpace)
 
   // 合并并排序所有元素
