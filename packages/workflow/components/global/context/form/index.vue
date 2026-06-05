@@ -107,9 +107,9 @@ async function previewForm() {
 
   await getFormJson()
   formRenderVisible.value = true
-  nextTick(() => {
+  setTimeout(() => {
     fromRenderRef.value.setForm(formJson.value)
-  })
+  }, 100)
 }
 
 function handleUpdateFormField(field: any) {
