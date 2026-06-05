@@ -171,22 +171,23 @@ export const getTaskItemConfig = {
 export function getUrlOrigin() {
   const {
     public: {
-      endPoint: {
-        clientUrl
-      }
+      endPoint: { clientUrl }
     }
   } = useRuntimeConfig()
   return clientUrl
 }
 
-// TODO get config setting
 export function generatorHTTPRequestTaskHeaders() {
-  // TODO : 從當前瀏覽器的User setting 獲取x-tenant-id
+  // 從authApp的nuxt.config中獲取
+  const {
+    public: { serverName, serverKey, xApiKey, xTenantId }
+  } = useRuntimeConfig()
+
   return {
     'Content-Type': 'application/json',
-    ServerName: 'docpal-api',
-    ServerKey: '14ecdf56081AGSDghw',
-    'x-api-key': 'bf77bd45b0a82691b911054d2f9ca50d3b70dc964782b419456e7fdd9ddc0a5ca19b0638d42662a0e22c4734ce8d787c',
-    'x-tenant-id': 'demo'
+    ServerName: serverName,
+    ServerKey: serverKey,
+    'x-api-key': xApiKey,
+    'x-tenant-id': xTenantId
   }
 }
