@@ -152,3 +152,99 @@ export async function startPostImportAnalysis(
     }, 0)
   })
 }
+
+/**
+ * Re-run relation analysis for tables that were already identified as new.
+ *
+ * This is useful after the user has created some relations and wants to
+ * discover more. Already-created relations are automatically excluded:
+ * - Source fields with business_type === 'relation' are skipped
+ * - Target tables that the source already relates to are skipped
+ */
+export async function startReAnalysis(databaseId?: string) {
+  const state = useImportRelationAnalysisState()
+  const newTableIds = state.value.newTableIds
+
+  state.value.status = 'analyzing'
+  state.value.message = 'Refreshing table data...'
+  state.value.progress = 20
+  state.value.startedAt = new Date().toISOString()
+  state.value.error = null
+  state.value.guesses = []
+
+  if (!databaseId) {
+    state.value.status = 'error'
+    state.value.error = 'No database context available'
+    state.value.message = 'Re-analysis failed — no database context'
+    return
+  }
+
+  // If we don't have stored newTableIds, fall back to analysing all tables
+  // against each other (still excluding existing relations).
+  let tablesToAnalyse: string[] = newTableIds
+  let isFullScan = false
+
+  if (tablesToAnalyse.length === 0) {
+    const currentSnapshot = await captureTableSnapshot(databaseId)
+    tablesToAnalyse = Array.from(currentSnapshot).slice(0, MAX_EXISTING_TABLES + 20)
+    isFullScan = true
+  }
+
+  if (tablesToAnalyse.length === 0) {
+    state.value.status = 'completed'
+    state.value.completedAt = new Date().toISOString()
+    state.value.message = 'No tables available for analysis'
+    state.value.progress = 100
+    return
+  }
+
+  state.value.progress = 40
+  state.value.message = 'Fetching table data...'
+
+  const sourceTables = (
+    await Promise.all(tablesToAnalyse.map((id) => fetchTableSnapshot(id)))
+  ).filter((t): t is TableSnapshot => t !== null)
+
+  if (sourceTables.length === 0) {
+    state.value.status = 'error'
+    state.value.error = 'Unable to fetch data for tables'
+    state.value.message = 'Re-analysis failed — could not fetch table data'
+    return
+  }
+
+  state.value.progress = 60
+
+  // For a normal re-analysis we still want existing tables as targets.
+  // For a full-scan fallback every table is both source and target.
+  let targetTables: TableSnapshot[] = sourceTables
+  if (!isFullScan) {
+    const currentSnapshot = await captureTableSnapshot(databaseId)
+    const existingTableIds = Array.from(currentSnapshot)
+      .filter((id) => !tablesToAnalyse.includes(id))
+      .slice(0, MAX_EXISTING_TABLES)
+
+    const existingTables = (
+      await Promise.all(existingTableIds.map((id) => fetchTableSnapshot(id)))
+    ).filter((t): t is TableSnapshot => t !== null)
+
+    targetTables = [...existingTables, ...sourceTables]
+  }
+
+  state.value.progress = 80
+  state.value.message = 'Analyzing relations...'
+
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      const guesses = guessRelations(sourceTables, targetTables)
+      state.value.guesses = guesses
+      state.value.status = 'completed'
+      state.value.completedAt = new Date().toISOString()
+      state.value.progress = 100
+      state.value.message =
+        guesses.length > 0
+          ? `Found ${guesses.length} potential relation${guesses.length === 1 ? '' : 's'}`
+          : 'Analysis complete — no new relations detected'
+      resolve()
+    }, 0)
+  })
+}

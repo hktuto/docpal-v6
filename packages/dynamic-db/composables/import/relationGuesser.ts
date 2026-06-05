@@ -11,6 +11,8 @@ export interface TableSnapshot {
   tableName: string
   fields: TableFieldDTO[]
   sampleRows: Record<string, any>[]
+  /** Target table IDs that this source table already has relation fields pointing to */
+  existingRelationTargetIds?: Set<string>
 }
 
 export interface RelationGuess {
@@ -105,7 +107,15 @@ export async function fetchTableSnapshot(tableId: string): Promise<TableSnapshot
     // Resolve table name from first field or fallback to tableId
     const tableName = fields[0]?.field_name ? tableId : tableId
 
-    return { tableId, tableName, fields, sampleRows }
+    // Collect existing relations so re-analysis can skip them
+    const existingRelationTargetIds = new Set(
+      fields
+        .filter((f) => f.business_type === ColumnFieldType.Relation)
+        .map((f) => f.relation_table_id || f.display_structure?.relation_table_id)
+        .filter((id): id is string => !!id)
+    )
+
+    return { tableId, tableName, fields, sampleRows, existingRelationTargetIds }
   } catch {
     return null
   }
@@ -122,12 +132,18 @@ export function guessRelations(sources: TableSnapshot[], targets: TableSnapshot[
 
   for (const source of sources) {
     const sheetGuesses: RelationGuess[] = []
+    const alreadyRelatedTargets = source.existingRelationTargetIds ?? new Set<string>()
 
     for (const target of targets) {
       // Do not compare a table to itself
       if (source.tableId === target.tableId) continue
+      // Skip if this source already has a relation to the target
+      if (alreadyRelatedTargets.has(target.tableId)) continue
 
       for (const sourceField of source.fields) {
+        // Skip fields that are already relation fields
+        if (sourceField.business_type === ColumnFieldType.Relation) continue
+
         const sourceFieldName = sourceField.field_name || ''
         const sourceFieldType = sourceField.business_type || ''
 
