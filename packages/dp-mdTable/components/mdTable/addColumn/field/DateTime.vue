@@ -1,29 +1,30 @@
 <template>
   <div>
-    <el-form-item label="日期格式">
-      <el-select v-model="formData.dateFormat" filterable placeholder="请选择日期格式" @visible-change="onSelectVisibleChange">
+    <el-form-item :label="t('mdTable.addColumnField.dateFormat')">
+      <el-select v-model="formData.dateFormat" filterable :placeholder="t('mdTable.addColumnField.selectDateFormat')" @visible-change="onSelectVisibleChange">
         <el-option v-for="option in dateFormatOptions" :key="option.value" :label="option.label" :value="option.value" />
       </el-select>
     </el-form-item>
     <div class="switch-container">
-      <div>显示时间与地区</div>
+      <div>{{ t('mdTable.addColumnField.showTimeAndRegion') }}</div>
       <el-switch v-model="formData.includeTime" @change="onIncludeTimeChange" />
     </div>
     <template v-if="formData.includeTime">
-      <el-select v-model="formData.dateTimeFormat" style="margin-bottom: var(--app-space-s)" placeholder="请选择时间" @visible-change="onSelectVisibleChange">
-        <el-option label="12小时" value="hh:mm A" />
-        <el-option label="24小时" value="HH:mm" />
+      <el-select v-model="formData.dateTimeFormat" style="margin-bottom: var(--app-space-s)" :placeholder="t('mdTable.addColumnField.selectTime')" @visible-change="onSelectVisibleChange">
+        <el-option :label="t('mdTable.addColumnField.hour12')" value="hh:mm A" />
+        <el-option :label="t('mdTable.addColumnField.hour24')" value="HH:mm" />
       </el-select>
-      <el-select v-model="formData.timezone" placeholder="请选择时区" @visible-change="onSelectVisibleChange">
+      <el-select v-model="formData.timezone" :placeholder="t('mdTable.addColumnField.selectTimezone')" @visible-change="onSelectVisibleChange">
         <el-option v-for="option in timezoneOptions" :key="option.value" :label="option.label" :value="option.value" />
       </el-select>
     </template>
-    <el-checkbox v-model="formData.includeTimeZone">显示时区标识</el-checkbox>
+    <el-checkbox v-model="formData.includeTimeZone">{{ t('mdTable.addColumnField.showTimezoneMark') }}</el-checkbox>
   </div>
 </template>
 
 <script setup lang="ts">
 import { inject } from 'vue'
+const { t } = useI18n()
 const props = defineProps<{
   formData: any
 }>()

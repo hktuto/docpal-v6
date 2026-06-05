@@ -44,7 +44,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     }
   },
   Rating: {
-    both: {
+    view: {
       render({ options, params }) {
         const { $table, row, column } = params
         const props = options.props || {}
@@ -153,12 +153,12 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     }
   },
   CreatedTime: {
-    both: {
+    view: {
       render: (params: any) => TreeNode(params, DateTimeView)
     }
   },
   LastModifiedTime: {
-    both: {
+    view: {
       render: (params: any) => TreeNode(params, DateTimeView)
     }
   },
@@ -171,12 +171,12 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     }
   },
   CreatedBy: {
-    both: {
+    view: {
       render: (params: any) => TreeNode(params, UserView)
     }
   },
   LastModifiedBy: {
-    both: {
+    view: {
       render: (params: any) => TreeNode(params, UserView)
     }
   },
@@ -251,17 +251,17 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     }
   },
   Formula: {
-    both: {
+    view: {
       render: (params: any) => TreeNode(params, FormulaView)
     }
   },
   Checkbox: {
-    both: {
+    view: {
       render: (params: any) => TreeNode(params, CheckboxView)
     }
   },
   Document: {
-    both: {
+    view: {
       render: (params: any) => TreeNode(params, DocumentView)
     }
   },

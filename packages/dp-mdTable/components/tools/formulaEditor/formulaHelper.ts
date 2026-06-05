@@ -2,6 +2,9 @@
  * 公式函数定义
  */
 import dayjs from 'dayjs'
+
+type TFunction = (key: string) => string
+
 export interface FunctionItem {
   name: string
   description: string
@@ -15,7 +18,7 @@ export interface FunctionItem {
 }
 
 /**
- * 检查表达式括号与字符串是否闭合（避免 new Function 触发语法错误）
+ * 检查表达式括号与字符串是否闭合（避�?new Function 触发语法错误�?
  * @param expression - 表达式字符串
  * @returns 是否闭合
  */
@@ -63,182 +66,305 @@ function isExpressionBalanced(expression: string): boolean {
 /**
  * 文本函数列表
  */
-export const textFunctions: FunctionItem[] = [
-  {
-    name: 'CONCAT',
-    description: '将多个文本字符串连接在一起。',
-    usage: 'CONCAT(text1, text2, ...)',
-    params: [
-      { name: 'text1', description: '第一个文本字符串' },
-      { name: 'text2', description: '第二个文本字符串' }
-    ],
-    example: "CONCAT('Hello', ' ', 'World') 返回 'Hello World'",
-    func: (...args: any[]) => {
-      return args.join('')
+export function getTextFunctions(t: TFunction): FunctionItem[] {
+  return [
+    {
+      name: 'CONCAT',
+      description: t('mdTable.formulaEditor.fn.CONCAT.description'),
+      usage: 'CONCAT(text1, text2, ...)',
+      params: [
+        { name: 'text1', description: t('mdTable.formulaEditor.fn.CONCAT.param.text1') },
+        { name: 'text2', description: t('mdTable.formulaEditor.fn.CONCAT.param.text2') }
+      ],
+      example: t('mdTable.formulaEditor.fn.CONCAT.example'),
+      func: (...args: any[]) => {
+        return args.join('')
+      }
+    },
+    {
+      name: 'LEFT',
+      description: t('mdTable.formulaEditor.fn.LEFT.description'),
+      usage: 'LEFT(text, num_chars)',
+      params: [
+        { name: 'text', description: t('mdTable.formulaEditor.fn.LEFT.param.text') },
+        { name: 'num_chars', description: t('mdTable.formulaEditor.fn.LEFT.param.num_chars') }
+      ],
+      example: t('mdTable.formulaEditor.fn.LEFT.example'),
+      func: (...args: any[]) => {
+        return args[0].slice(0, args[1])
+      }
+    },
+    {
+      name: 'RIGHT',
+      description: t('mdTable.formulaEditor.fn.RIGHT.description'),
+      usage: 'RIGHT(text, num_chars)',
+      params: [
+        { name: 'text', description: t('mdTable.formulaEditor.fn.RIGHT.param.text') },
+        { name: 'num_chars', description: t('mdTable.formulaEditor.fn.RIGHT.param.num_chars') }
+      ],
+      example: t('mdTable.formulaEditor.fn.RIGHT.example'),
+      func: (...args: any[]) => {
+        return args[0].slice(-args[1])
+      }
+    },
+    {
+      name: 'LEN',
+      description: t('mdTable.formulaEditor.fn.LEN.description'),
+      usage: 'LEN(text)',
+      params: [{ name: 'text', description: t('mdTable.formulaEditor.fn.LEN.param.text') }],
+      example: t('mdTable.formulaEditor.fn.LEN.example'),
+      func: (...args: any[]) => {
+        return args[0].length
+      }
+    },
+    {
+      name: 'UPPER',
+      description: t('mdTable.formulaEditor.fn.UPPER.description'),
+      usage: 'UPPER(text)',
+      params: [{ name: 'text', description: t('mdTable.formulaEditor.fn.UPPER.param.text') }],
+      example: t('mdTable.formulaEditor.fn.UPPER.example'),
+      func: (...args: any[]) => {
+        return args[0].toUpperCase()
+      }
+    },
+    {
+      name: 'LOWER',
+      description: t('mdTable.formulaEditor.fn.LOWER.description'),
+      usage: 'LOWER(text)',
+      params: [{ name: 'text', description: t('mdTable.formulaEditor.fn.LOWER.param.text') }],
+      example: t('mdTable.formulaEditor.fn.LOWER.example'),
+      func: (...args: any[]) => {
+        return args[0].toLowerCase()
+      }
+    },
+    {
+      name: 'TRIM',
+      description: t('mdTable.formulaEditor.fn.TRIM.description'),
+      usage: 'TRIM(text)',
+      params: [{ name: 'text', description: t('mdTable.formulaEditor.fn.TRIM.param.text') }],
+      example: t('mdTable.formulaEditor.fn.TRIM.example'),
+      func: (...args: any[]) => {
+        return args[0].trim()
+      }
     }
-  },
-  {
-    name: 'LEFT',
-    description: '从文本字符串的左侧提取指定数量的字符。',
-    usage: 'LEFT(text, num_chars)',
-    params: [
-      { name: 'text', description: '要提取字符的文本字符串' },
-      { name: 'num_chars', description: '要提取的字符数量' }
-    ],
-    example: "LEFT('Hello World', 5) 返回 'Hello'",
-    func: (...args: any[]) => {
-      return args[0].slice(0, args[1])
-    }
-  },
-  {
-    name: 'RIGHT',
-    description: '从文本字符串的右侧提取指定数量的字符。',
-    usage: 'RIGHT(text, num_chars)',
-    params: [
-      { name: 'text', description: '要提取字符的文本字符串' },
-      { name: 'num_chars', description: '要提取的字符数量' }
-    ],
-    example: "RIGHT('Hello World', 5) 返回 'World'",
-    func: (...args: any[]) => {
-      return args[0].slice(-args[1])
-    }
-  },
-  {
-    name: 'LEN',
-    description: '返回文本字符串的字符长度。',
-    usage: 'LEN(text)',
-    params: [{ name: 'text', description: '要计算长度的文本字符串' }],
-    example: "LEN('Hello') 返回 5",
-    func: (...args: any[]) => {
-      return args[0].length
-    }
-  },
-  {
-    name: 'UPPER',
-    description: '将文本字符串转换为大写。',
-    usage: 'UPPER(text)',
-    params: [{ name: 'text', description: '要转换为大写的文本字符串' }],
-    example: "UPPER('hello') 返回 'HELLO'",
-    func: (...args: any[]) => {
-      return args[0].toUpperCase()
-    }
-  },
-  {
-    name: 'LOWER',
-    description: '将文本字符串转换为小写。',
-    usage: 'LOWER(text)',
-    params: [{ name: 'text', description: '要转换为小写的文本字符串' }],
-    example: "LOWER('HELLO') 返回 'hello'",
-    func: (...args: any[]) => {
-      return args[0].toLowerCase()
-    }
-  },
-  {
-    name: 'TRIM',
-    description: '移除文本字符串首尾的空格。',
-    usage: 'TRIM(text)',
-    params: [{ name: 'text', description: '要移除空格的文本字符串' }],
-    example: "TRIM('  Hello  ') 返回 'Hello'",
-    func: (...args: any[]) => {
-      return args[0].trim()
-    }
-  }
-]
+  ]
+}
 
 /**
- * 数值函数列表
+ * 数值函数列�?
  */
-export const numberFunctions: FunctionItem[] = [
+function toFiniteNumber(value: any, fallback = 0): number {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : fallback
+}
+
+function toNonEmptyValue(value: any): any {
+  if (value === null || value === undefined) {
+    return null
+  }
+  if (typeof value === 'string' && value.trim() === '') {
+    return null
+  }
+  return value
+}
+
+export function getNumberFunctions(t: TFunction): FunctionItem[] {
+  return [
+  // {
+  //   name: 'SUM',
+  //   description: '计算一组数值的总和�?,
+  //   usage: 'SUM(number1, number2, ...)',
+  //   params: [
+  //     { name: 'number1', description: '第一个数�? },
+  //     { name: 'number2', description: '第二个数�? }
+  //   ],
+  //   example: 'SUM(10, 20, 30) 返回 60',
+  //   func: (...args: any[]) => {
+  //     return args.reduce((acc, curr) => acc + toFiniteNumber(curr, 0), 0)
+  //   }
+  // },
+  // {
+  //   name: 'AVERAGE',
+  //   description: '计算一组数值的平均值�?,
+  //   usage: 'AVERAGE(number1, number2, ...)',
+  //   params: [
+  //     { name: 'number1', description: '第一个数�? },
+  //     { name: 'number2', description: '第二个数�? }
+  //   ],
+  //   example: 'AVERAGE(10, 20, 30) 返回 20',
+  //   func: (...args: any[]) => {
+  //     if (!args.length) {
+  //       return 0
+  //     }
+  //     const values = args.map((item) => toFiniteNumber(item, 0))
+  //     return values.reduce((acc, curr) => acc + curr, 0) / values.length
+  //   }
+  // },
   {
-    name: 'SUM',
-    description: '计算一组数值的总和。',
-    usage: 'SUM(number1, number2, ...)',
+    name: 'GREATEST',
+    description: t('mdTable.formulaEditor.fn.GREATEST.description'),
+    usage: 'GREATEST(number1, number2, ...)',
     params: [
-      { name: 'number1', description: '第一个数值' },
-      { name: 'number2', description: '第二个数值' }
+      { name: 'number1', description: t('mdTable.formulaEditor.fn.GREATEST.param.number1') },
+      { name: 'number2', description: t('mdTable.formulaEditor.fn.GREATEST.param.number2') }
     ],
-    example: 'SUM(10, 20, 30) 返回 60',
+    example: t('mdTable.formulaEditor.fn.GREATEST.example'),
     func: (...args: any[]) => {
-      return args.reduce((acc, curr) => acc + curr, 0)
+      if (!args.length) {
+        return 0
+      }
+      return Math.max(...args.map((item) => toFiniteNumber(item, Number.NEGATIVE_INFINITY)))
     }
   },
   {
-    name: 'AVERAGE',
-    description: '计算一组数值的平均值。',
-    usage: 'AVERAGE(number1, number2, ...)',
+    name: 'LEAST',
+    description: t('mdTable.formulaEditor.fn.LEAST.description'),
+    usage: 'LEAST(number1, number2, ...)',
     params: [
-      { name: 'number1', description: '第一个数值' },
-      { name: 'number2', description: '第二个数值' }
+      { name: 'number1', description: t('mdTable.formulaEditor.fn.LEAST.param.number1') },
+      { name: 'number2', description: t('mdTable.formulaEditor.fn.LEAST.param.number2') }
     ],
-    example: 'AVERAGE(10, 20, 30) 返回 20',
+    example: t('mdTable.formulaEditor.fn.LEAST.example'),
     func: (...args: any[]) => {
-      return args.reduce((acc, curr) => acc + curr, 0) / args.length
-    }
-  },
-  {
-    name: 'MAX',
-    description: '返回一组数值中的最大值。',
-    usage: 'MAX(number1, number2, ...)',
-    params: [
-      { name: 'number1', description: '第一个数值' },
-      { name: 'number2', description: '第二个数值' }
-    ],
-    example: 'MAX(10, 20, 30) 返回 30',
-    func: (...args: any[]) => {
-      return Math.max(...args)
-    }
-  },
-  {
-    name: 'MIN',
-    description: '返回一组数值中的最小值。',
-    usage: 'MIN(number1, number2, ...)',
-    params: [
-      { name: 'number1', description: '第一个数值' },
-      { name: 'number2', description: '第二个数值' }
-    ],
-    example: 'MIN(10, 20, 30) 返回 10',
-    func: (...args: any[]) => {
-      return Math.min(...args)
+      if (!args.length) {
+        return 0
+      }
+      return Math.min(...args.map((item) => toFiniteNumber(item, Number.POSITIVE_INFINITY)))
     }
   },
   {
     name: 'ROUND',
-    description: '将数值四舍五入到指定的小数位数。',
+    description: t('mdTable.formulaEditor.fn.ROUND.description'),
     usage: 'ROUND(number, num_digits)',
     params: [
-      { name: 'number', description: '要四舍五入的数值' },
-      { name: 'num_digits', description: '小数位数' }
+      { name: 'number', description: t('mdTable.formulaEditor.fn.ROUND.param.number') },
+      { name: 'num_digits', description: t('mdTable.formulaEditor.fn.ROUND.param.num_digits') }
     ],
-    example: 'ROUND(3.14159, 2) 返回 3.14',
+    example: t('mdTable.formulaEditor.fn.ROUND.example'),
     func: (...args: any[]) => {
-      return Math.round(args[0])
+      const number = toFiniteNumber(args[0], 0)
+      const numDigits = Math.trunc(toFiniteNumber(args[1], 0))
+      if (numDigits >= 0) {
+        const factor = Math.pow(10, Math.min(numDigits, 20))
+        return Math.round((number + Number.EPSILON) * factor) / factor
+      }
+      const factor = Math.pow(10, Math.min(Math.abs(numDigits), 20))
+      return Math.round((number + Number.EPSILON) / factor) * factor
+    }
+  },
+  {
+    name: 'CEIL',
+    description: t('mdTable.formulaEditor.fn.CEIL.description'),
+    usage: 'CEIL(number)',
+    params: [{ name: 'number', description: t('mdTable.formulaEditor.fn.CEIL.param.number') }],
+    example: t('mdTable.formulaEditor.fn.CEIL.example'),
+    func: (...args: any[]) => {
+      return Math.ceil(toFiniteNumber(args[0], 0))
+    }
+  },
+  {
+    name: 'FLOOR',
+    description: t('mdTable.formulaEditor.fn.FLOOR.description'),
+    usage: 'FLOOR(number)',
+    params: [{ name: 'number', description: t('mdTable.formulaEditor.fn.FLOOR.param.number') }],
+    example: t('mdTable.formulaEditor.fn.FLOOR.example'),
+    func: (...args: any[]) => {
+      return Math.floor(toFiniteNumber(args[0], 0))
     }
   },
   {
     name: 'ABS',
-    description: '返回数值的绝对值。',
+    description: t('mdTable.formulaEditor.fn.ABS.description'),
     usage: 'ABS(number)',
-    params: [{ name: 'number', description: '要计算绝对值的数值' }],
-    example: 'ABS(-10) 返回 10',
+    params: [{ name: 'number', description: t('mdTable.formulaEditor.fn.ABS.param.number') }],
+    example: t('mdTable.formulaEditor.fn.ABS.example'),
     func: (...args: any[]) => {
-      return Math.abs(args[0])
+      return Math.abs(toFiniteNumber(args[0], 0))
+    }
+  },
+  {
+    name: 'SQRT',
+    description: t('mdTable.formulaEditor.fn.SQRT.description'),
+    usage: 'SQRT(number)',
+    params: [{ name: 'number', description: t('mdTable.formulaEditor.fn.SQRT.param.number') }],
+    example: t('mdTable.formulaEditor.fn.SQRT.example'),
+    func: (...args: any[]) => {
+      const number = toFiniteNumber(args[0], 0)
+      if (number < 0) {
+        return ''
+      }
+      const result = Math.sqrt(number)
+      return Number.isFinite(result) ? result : ''
+    }
+  },
+  {
+    name: 'POWER',
+    description: t('mdTable.formulaEditor.fn.POWER.description'),
+    usage: 'POWER(base, exponent)',
+    params: [
+      { name: 'base', description: t('mdTable.formulaEditor.fn.POWER.param.base') },
+      { name: 'exponent', description: t('mdTable.formulaEditor.fn.POWER.param.exponent') }
+    ],
+    example: t('mdTable.formulaEditor.fn.POWER.example'),
+    func: (...args: any[]) => {
+      const base = toFiniteNumber(args[0], 0)
+      const exponent = toFiniteNumber(args[1], 0)
+      const result = Math.pow(base, exponent)
+      return Number.isFinite(result) ? result : ''
+    }
+  },
+  {
+    name: 'MOD',
+    description: t('mdTable.formulaEditor.fn.MOD.description'),
+    usage: 'MOD(dividend, divisor)',
+    params: [
+      { name: 'dividend', description: t('mdTable.formulaEditor.fn.MOD.param.dividend') },
+      { name: 'divisor', description: t('mdTable.formulaEditor.fn.MOD.param.divisor') }
+    ],
+    example: t('mdTable.formulaEditor.fn.MOD.example'),
+    func: (...args: any[]) => {
+      const dividend = toFiniteNumber(args[0], 0)
+      const divisor = toFiniteNumber(args[1], 0)
+      if (divisor === 0) {
+        return ''
+      }
+      return dividend % divisor
+    }
+  },
+  {
+    name: 'COALESCE',
+    description: t('mdTable.formulaEditor.fn.COALESCE.description'),
+    usage: 'COALESCE(value, default_value)',
+    params: [
+      { name: 'value', description: t('mdTable.formulaEditor.fn.COALESCE.param.value') },
+      { name: 'default_value', description: t('mdTable.formulaEditor.fn.COALESCE.param.default_value') }
+    ],
+    example: t('mdTable.formulaEditor.fn.COALESCE.example'),
+    func: (...args: any[]) => {
+      const value = toNonEmptyValue(args[0])
+      if (value === null) {
+        return args[1] ?? ''
+      }
+      return value
     }
   }
-]
+  ]
+}
 
 /**
  * 日期函数列表
  */
-export const dateFunctions: FunctionItem[] = [
+export function getDateFunctions(t: TFunction): FunctionItem[] {
+  return [
   {
     name: 'FORMAT_DATE',
-    description: '返回当前日期。',
+    description: t('mdTable.formulaEditor.fn.FORMAT_DATE.description'),
     usage: 'FORMAT_DATE(date, format)',
     params: [
-      { name: 'date', description: '日期值' },
-      { name: 'format', description: '格式字符串' }
+      { name: 'date', description: t('mdTable.formulaEditor.fn.FORMAT_DATE.param.date') },
+      { name: 'format', description: t('mdTable.formulaEditor.fn.FORMAT_DATE.param.format') }
     ],
-    example: 'FORMAT_DATE(TODAY(), "YYYY-MM-DD") 返回当前日期，例如 2024-01-15',
+    example: t('mdTable.formulaEditor.fn.FORMAT_DATE.example'),
     func: (...args: any[]) => {
       if(!args[0]) {
         return ''
@@ -248,28 +374,28 @@ export const dateFunctions: FunctionItem[] = [
   },
   {
     name: 'TODAY',
-    description: '返回当前日期。',
+    description: t('mdTable.formulaEditor.fn.TODAY.description'),
     usage: 'TODAY()',
-    example: 'TODAY() 返回当前日期，例如 2024-01-15',
+    example: t('mdTable.formulaEditor.fn.TODAY.example'),
     func: () => {
       return new Date().toISOString().split('T')[0]
     }
   },
   {
     name: 'NOW',
-    description: '返回当前日期和时间。',
+    description: t('mdTable.formulaEditor.fn.NOW.description'),
     usage: 'NOW()',
-    example: 'NOW() 返回当前日期和时间，例如 2024-01-15 14:30:00',
+    example: t('mdTable.formulaEditor.fn.NOW.example'),
     func: () => {
       return new Date().toISOString()
     }
   },
   {
     name: 'YEAR',
-    description: '从日期中提取年份。如果没有参数，返回当前年份。',
+    description: t('mdTable.formulaEditor.fn.YEAR.description'),
     usage: 'YEAR(date)',
-    params: [{ name: 'date', description: '日期值（可选，默认为当前日期）' }],
-    example: 'YEAR() 或 YEAR(TODAY()) 返回当前年份，例如 2024',
+    params: [{ name: 'date', description: t('mdTable.formulaEditor.fn.YEAR.param.date') }],
+    example: t('mdTable.formulaEditor.fn.YEAR.example'),
     func: (...args: any[]) => {
       const date = args.length > 0 && args[0] ? args[0] : new Date()
       return new Date(date).getFullYear()
@@ -277,10 +403,10 @@ export const dateFunctions: FunctionItem[] = [
   },
   {
     name: 'MONTH',
-    description: '从日期中提取月份（1-12）。如果没有参数，返回当前月份。',
+    description: t('mdTable.formulaEditor.fn.MONTH.description'),
     usage: 'MONTH(date)',
-    params: [{ name: 'date', description: '日期值（可选，默认为当前日期）' }],
-    example: 'MONTH() 或 MONTH(TODAY()) 返回当前月份，例如 1',
+    params: [{ name: 'date', description: t('mdTable.formulaEditor.fn.MONTH.param.date') }],
+    example: t('mdTable.formulaEditor.fn.MONTH.example'),
     func: (...args: any[]) => {
       const date = args.length > 0 && args[0] ? args[0] : new Date()
       return new Date(date).getMonth() + 1
@@ -288,10 +414,10 @@ export const dateFunctions: FunctionItem[] = [
   },
   {
     name: 'DAY',
-    description: '从日期中提取日期（1-31）。如果没有参数，返回当前日期。',
+    description: t('mdTable.formulaEditor.fn.DAY.description'),
     usage: 'DAY(date)',
-    params: [{ name: 'date', description: '日期值（可选，默认为当前日期）' }],
-    example: 'DAY() 或 DAY(TODAY()) 返回当前日期，例如 15',
+    params: [{ name: 'date', description: t('mdTable.formulaEditor.fn.DAY.param.date') }],
+    example: t('mdTable.formulaEditor.fn.DAY.example'),
     func: (...args: any[]) => {
       const date = args.length > 0 && args[0] ? args[0] : new Date()
       return new Date(date).getDate()
@@ -299,14 +425,14 @@ export const dateFunctions: FunctionItem[] = [
   },
   {
     name: 'DATEDIF',
-    description: '计算两个日期之间的差值。',
+    description: t('mdTable.formulaEditor.fn.DATEDIF.description'),
     usage: 'DATEDIF(start_date, end_date, unit)',
     params: [
-      { name: 'start_date', description: '开始日期' },
-      { name: 'end_date', description: '结束日期' },
-      { name: 'unit', description: '单位（"Y"年，"M"月，"D"天）' }
+      { name: 'start_date', description: t('mdTable.formulaEditor.fn.DATEDIF.param.start_date') },
+      { name: 'end_date', description: t('mdTable.formulaEditor.fn.DATEDIF.param.end_date') },
+      { name: 'unit', description: t('mdTable.formulaEditor.fn.DATEDIF.param.unit') }
     ],
-    example: "DATEDIF('2024-01-01', '2024-12-31', 'D') 返回 365",
+    example: t('mdTable.formulaEditor.fn.DATEDIF.example'),
     func: (...args: any[]) => {
       const unitRaw = String(args[2] ?? '')
         .trim()
@@ -329,112 +455,160 @@ export const dateFunctions: FunctionItem[] = [
       if (!start.isValid() || !end.isValid()) {
         return ''
       }
-      // 依照 Excel 语义，计算 end - start
+      // 依照 Excel 语义，计�?end - start
       return end.diff(start, unit)
     }
   }
-]
+  ]
+}
+
+function isFormulaValueMatch(left: any, right: any): boolean {
+  if (left === right) {
+    return true
+  }
+  if (left != null && right != null && String(left) === String(right)) {
+    return true
+  }
+  const leftNum = Number(left)
+  const rightNum = Number(right)
+  return Number.isFinite(leftNum) && Number.isFinite(rightNum) && leftNum === rightNum
+}
+
+/** CASE(condition1, result1, condition2, result2, ..., [default]) */
+function evalCase(args: any[]): any {
+  if (!args.length) {
+    return ''
+  }
+
+  const hasDefault = args.length % 2 === 1
+  const defaultValue = hasDefault ? args[args.length - 1] : ''
+  const branchCount = hasDefault ? (args.length - 1) / 2 : args.length / 2
+
+  for (let i = 0; i < branchCount; i++) {
+    const condition = args[i * 2]
+    const result = args[i * 2 + 1]
+    if (condition) {
+      return result
+    }
+  }
+  return defaultValue
+}
 
 /**
  * 逻辑函数列表
  */
-export const logicalFunctions: FunctionItem[] = [
+export function getLogicalFunctions(t: TFunction): FunctionItem[] {
+  return [
   {
     name: 'IF',
-    description: '判断是否满足某个条件，如果满足则返回第一个值，如果不满足则返回第二个值。',
+    description: t('mdTable.formulaEditor.fn.IF.description'),
     usage: 'IF(logical, value1, value2)',
     params: [
-      { name: 'logical', description: '逻辑条件，一个计算结果为真或假的表达式' },
-      { name: 'value1', description: '当逻辑条件为真时的返回值' },
-      { name: 'value2', description: '当逻辑条件为假时的返回值' }
+      { name: 'logical', description: t('mdTable.formulaEditor.fn.IF.param.logical') },
+      { name: 'value1', description: t('mdTable.formulaEditor.fn.IF.param.value1') },
+      { name: 'value2', description: t('mdTable.formulaEditor.fn.IF.param.value2') }
     ],
-    example: "IF(10 > 5, '是', '否') 返回 '是'",
+    example: t('mdTable.formulaEditor.fn.IF.example'),
     func: (...args: any[]) => {
       return args[0] ? args[1] : args[2]
     }
   },
   {
+    name: 'CASE',
+    description: t('mdTable.formulaEditor.fn.CASE.description'),
+    usage: 'CASE(condition1, result1, condition2, result2, ..., default)',
+    params: [
+      { name: 'condition1', description: t('mdTable.formulaEditor.fn.CASE.param.condition1') },
+      { name: 'result1', description: t('mdTable.formulaEditor.fn.CASE.param.result1') },
+      { name: 'default', description: t('mdTable.formulaEditor.fn.CASE.param.default') }
+    ],
+    example: t('mdTable.formulaEditor.fn.CASE.example'),
+    func: evalCase
+  },
+  {
     name: 'AND',
-    description: '如果所有参数都为真，则返回真；否则返回假。',
+    description: t('mdTable.formulaEditor.fn.AND.description'),
     usage: 'AND(logical1, logical2, ...)',
     params: [
-      { name: 'logical1', description: '第一个逻辑条件' },
-      { name: 'logical2', description: '第二个逻辑条件' }
+      { name: 'logical1', description: t('mdTable.formulaEditor.fn.AND.param.logical1') },
+      { name: 'logical2', description: t('mdTable.formulaEditor.fn.AND.param.logical2') }
     ],
-    example: 'AND(10 > 5, 20 > 15) 返回 TRUE',
+    example: t('mdTable.formulaEditor.fn.AND.example'),
     func: (...args: any[]) => {
       return args.every((arg) => arg)
     }
   },
   {
     name: 'OR',
-    description: '如果任一参数为真，则返回真；否则返回假。',
+    description: t('mdTable.formulaEditor.fn.OR.description'),
     usage: 'OR(logical1, logical2, ...)',
     params: [
-      { name: 'logical1', description: '第一个逻辑条件' },
-      { name: 'logical2', description: '第二个逻辑条件' }
+      { name: 'logical1', description: t('mdTable.formulaEditor.fn.OR.param.logical1') },
+      { name: 'logical2', description: t('mdTable.formulaEditor.fn.OR.param.logical2') }
     ],
-    example: 'OR(10 > 20, 5 > 3) 返回 TRUE',
+    example: t('mdTable.formulaEditor.fn.OR.example'),
     func: (...args: any[]) => {
       return args.some((arg) => arg)
     }
   },
   {
     name: 'NOT',
-    description: '对逻辑值取反。',
+    description: t('mdTable.formulaEditor.fn.NOT.description'),
     usage: 'NOT(logical)',
-    params: [{ name: 'logical', description: '要取反的逻辑值' }],
-    example: 'NOT(TRUE) 返回 FALSE',
+    params: [{ name: 'logical', description: t('mdTable.formulaEditor.fn.NOT.param.logical') }],
+    example: t('mdTable.formulaEditor.fn.NOT.example'),
     func: (...args: any[]) => {
       return !args[0]
     }
   },
   {
     name: 'TRUE',
-    description: '返回逻辑值真。',
+    description: t('mdTable.formulaEditor.fn.TRUE.description'),
     usage: 'TRUE()',
-    example: 'TRUE() 返回 TRUE',
+    example: t('mdTable.formulaEditor.fn.TRUE.example'),
     func: () => {
       return true
     }
   },
   {
     name: 'FALSE',
-    description: '返回逻辑值假。',
+    description: t('mdTable.formulaEditor.fn.FALSE.description'),
     usage: 'FALSE()',
-    example: 'FALSE() 返回 FALSE',
+    example: t('mdTable.formulaEditor.fn.FALSE.example'),
     func: () => {
       return false
     }
   },
   {
     name: 'IS_BLANK',
-    description: '检查值是否为空。',
+    description: t('mdTable.formulaEditor.fn.IS_BLANK.description'),
     usage: 'IS_BLANK(value)',
-    params: [{ name: 'value', description: '要检查的值' }],
-    example: "IS_BLANK('') 返回 TRUE",
+    params: [{ name: 'value', description: t('mdTable.formulaEditor.fn.IS_BLANK.param.value') }],
+    example: t('mdTable.formulaEditor.fn.IS_BLANK.example'),
     func: (...args: any[]) => {
       return args[0] === ''
     }
   },
   {
     name: 'IS_ERROR',
-    description: '检查值是否为错误。',
+    description: t('mdTable.formulaEditor.fn.IS_ERROR.description'),
     usage: 'IS_ERROR(value)',
-    params: [{ name: 'value', description: '要检查的值' }],
-    example: 'IS_ERROR(1/0) 返回 TRUE',
+    params: [{ name: 'value', description: t('mdTable.formulaEditor.fn.IS_ERROR.param.value') }],
+    example: t('mdTable.formulaEditor.fn.IS_ERROR.example'),
     func: (...args: any[]) => {
       return args[0] === 'error'
     }
   }
-]
+  ]
+}
 
 /**
  * 合并所有函数到一个映射中
  */
 function getAllFunctions(): Map<string, FunctionItem> {
+  const identity = (key: string) => key
   const functionMap = new Map<string, FunctionItem>()
-  const allFunctions = [...textFunctions, ...numberFunctions, ...dateFunctions, ...logicalFunctions]
+  const allFunctions = [...getTextFunctions(identity), ...getNumberFunctions(identity), ...getDateFunctions(identity), ...getLogicalFunctions(identity)]
   allFunctions.forEach((func) => {
     if (func.func) {
       functionMap.set(func.name.toUpperCase(), func)
@@ -444,10 +618,10 @@ function getAllFunctions(): Map<string, FunctionItem> {
 }
 
 /**
- * 查找函数调用的结束位置（匹配括号）
- * @param str - 要搜索的字符串
- * @param startPos - 开始位置（左括号的位置）
- * @returns 函数调用的结束位置（右括号的位置），如果未找到返回 -1
+ * 查找函数调用的结束位置（匹配括号�?
+ * @param str - 要搜索的字符�?
+ * @param startPos - 开始位置（左括号的位置�?
+ * @returns 函数调用的结束位置（右括号的位置），如果未找到返�?-1
  */
 function findFunctionEnd(str: string, startPos: number): number {
   if (startPos < 0 || startPos >= str.length || str[startPos] !== '(') {
@@ -483,8 +657,8 @@ function findFunctionEnd(str: string, startPos: number): number {
 
 /**
  * 解析函数参数
- * @param argsStr - 参数字符串
- * @param rowdata - 行数据
+ * @param argsStr - 参数字符�?
+ * @param rowdata - 行数�?
  * @param functionMap - 函数映射
  * @returns 解析后的参数数组
  */
@@ -516,7 +690,7 @@ function parseFunctionArgs(argsStr: string, rowdata: any, functionMap: Map<strin
       depth--
       currentArg += char
     } else if (!inString && depth === 0 && char === ',') {
-      // 找到参数分隔符，递归计算参数值
+      // 找到参数分隔符，递归计算参数�?
       // 判断currentArg是否为日期类型，日期类型转换为时间戳
 
       if (dayjs(currentArg.trim()).isValid()) {
@@ -539,30 +713,81 @@ function parseFunctionArgs(argsStr: string, rowdata: any, functionMap: Map<strin
 }
 
 /**
- * 替换变量引用为实际值
- * @param formula - 公式字符串
- * @param rowdata - 行数据
+ * 替换变量引用为实际�?
+ * @param formula - 公式字符�?
+ * @param rowdata - 行数�?
  * @returns 替换后的公式
  */
+function formatVariableValue(value: unknown): string {
+  if (value === undefined || value === null) {
+    return '""'
+  }
+  if (typeof value === 'string') {
+    return `"${value.replace(/"/g, '\\"')}"`
+  }
+  return String(value)
+}
+
 function replaceVariables(formula: string, rowdata: any): string {
-  const variablePattern = /\{([^}]+)\}/g
-  return formula.replace(variablePattern, (match, fieldName) => {
-    const value = rowdata?.[fieldName]
-    if (value === undefined || value === null) {
-      return '""'
+  const fieldNames = Object.keys(rowdata || {}).sort((a, b) => b.length - a.length)
+  if (!fieldNames.length) {
+    return formula
+  }
+
+  let result = ''
+  let index = 0
+  let inString = false
+  let stringChar = ''
+
+  while (index < formula.length) {
+    const char = formula[index]
+
+    if (!inString && (char === '"' || char === "'")) {
+      inString = true
+      stringChar = char
+      result += char
+      index++
+      continue
     }
-    // 如果是字符串，需要加引号
-    if (typeof value === 'string') {
-      return `"${value.replace(/"/g, '\\"')}"`
+
+    if (inString) {
+      result += char
+      if (char === '\\' && index + 1 < formula.length) {
+        result += formula[index + 1]
+        index += 2
+        continue
+      }
+      if (char === stringChar) {
+        inString = false
+        stringChar = ''
+      }
+      index++
+      continue
     }
-    return String(value)
-  })
+
+    let matched = false
+    for (const fieldName of fieldNames) {
+      if (formula.startsWith(fieldName, index)) {
+        result += formatVariableValue(rowdata[fieldName])
+        index += fieldName.length
+        matched = true
+        break
+      }
+    }
+
+    if (!matched) {
+      result += char
+      index++
+    }
+  }
+
+  return result
 }
 
 /**
- * 替换函数调用为实际值
- * @param formula - 公式字符串
- * @param rowdata - 行数据
+ * 替换函数调用为实际�?
+ * @param formula - 公式字符�?
+ * @param rowdata - 行数�?
  * @param functionMap - 函数映射
  * @returns 替换后的公式
  */
@@ -571,12 +796,12 @@ function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string
   let result = formula
   let changed = true
 
-  // 循环处理，直到没有更多函数调用需要替换
+  // 循环处理，直到没有更多函数调用需要替�?
   while (changed) {
     changed = false
     const matches: Array<{ name: string; start: number; end: number; argsStr: string }> = []
 
-    // 重置正则表达式，使用 matchAll 来避免 exec 的状态问题
+    // 重置正则表达式，使用 matchAll 来避�?exec 的状态问�?
     const allMatches = Array.from(result.matchAll(functionNamePattern))
 
     for (const match of allMatches) {
@@ -627,7 +852,7 @@ function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string
 
         if (beforeReplace !== result) {
           changed = true
-          // 只替换一个函数就退出循环，重新查找所有函数调用
+          // 只替换一个函数就退出循环，重新查找所有函数调�?
           break
         }
       } catch (error) {
@@ -644,8 +869,8 @@ function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string
 
 /**
  * 计算公式
- * @param formula - 公式字符串
- * @param rowdata - 行数据对象
+ * @param formula - 公式字符�?
+ * @param rowdata - 行数据对�?
  * @returns 计算结果
  */
 export function evalFormula(formula: string, rowdata: any = {}): any {
@@ -653,11 +878,12 @@ export function evalFormula(formula: string, rowdata: any = {}): any {
     return ''
   }
 
+  let processedFormula = formula
   try {
-    let processedFormula = formula
+    processedFormula = formula
     // 第一步：替换变量引用
     const functionMap = getAllFunctions()
-    // 第二步：替换函数调用（需要递归处理嵌套函数）
+    // 第二步：替换函数调用（需要递归处理嵌套函数�?
     processedFormula = replaceVariables(formula, rowdata)
     let lastFormula = ''
     let iterations = 0
@@ -666,11 +892,11 @@ export function evalFormula(formula: string, rowdata: any = {}): any {
       processedFormula = replaceFunctions(processedFormula, rowdata, functionMap)
       iterations++
     }
-    // 第三步：处理字符串连接（将字符串的 + 转换为连接操作）
-    // 由于我们已经将字符串用引号包裹，JavaScript 的 + 运算符会自动处理字符串连接
+    // 第三步：处理字符串连接（将字符串�?+ 转换为连接操作）
+    // 由于我们已经将字符串用引号包裹，JavaScript �?+ 运算符会自动处理字符串连�?
   
-    // 第四步：安全地执行计算
-    // 使用 Function 构造函数而不是 eval，相对更安全
+    // 第四步：安全地执行计�?
+    // 使用 Function 构造函数而不�?eval，相对更安全
     if (!isExpressionBalanced(processedFormula)) {
       return ''
     }
@@ -679,7 +905,7 @@ export function evalFormula(formula: string, rowdata: any = {}): any {
     }
     console.log('processedFormula', processedFormula)
     const result = new Function('return (' + processedFormula + ')')()
-    // 返回结果，确保不是 undefined
+    // 返回结果，确保不�?undefined
     return result !== undefined ? result : ''
   } catch (error) {
     console.error('Formula evaluation error:', error)

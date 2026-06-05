@@ -80,6 +80,9 @@
     cursor: pointer;
   }
 }
+.checkbox-view-icon {
+  color: var(--app-text-color-secondary);
+}
 .checkbox-view-icon--active {
   color: var(--el-color-primary);
 }

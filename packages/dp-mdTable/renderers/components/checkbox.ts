@@ -12,11 +12,15 @@ export const CheckboxView = ({ options, params }: ViewRenderFunctionParams<boole
   const { updateRow } = useMDTableInject()
   const handleClick = () => {
     row[column.field] = !row[column.field]
-    updateRow(row)
+    updateRow(row.id, { [column.field]: row[column.field] })
   }
   if (iconName) {
     return h(Icon, {
-      class: { 'checkbox-view-icon--active': row[column.field], 'cursor-pointer': true },
+      class: {
+        'checkbox-view-icon': true,
+        'checkbox-view-icon--active': row[column.field],
+        'cursor-pointer': true,
+      },
       name: iconName,
       onClick: () => handleClick()
     })
