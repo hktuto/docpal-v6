@@ -126,7 +126,7 @@ export const getTaskItemConfig = {
       headers: {},
       body: {}
     },
-    input_mapping:{},
+    input_mapping: {},
     output_mapping: {}
   },
   InsertDynamicDatabase: {
@@ -169,8 +169,14 @@ export const getTaskItemConfig = {
 }
 
 export function getUrlOrigin() {
-  // return 'https://sit-v3.wclsolution.com'
-  return window?.location?.origin || ''
+  const {
+    public: {
+      endPoint: {
+        clientUrl
+      }
+    }
+  } = useRuntimeConfig()
+  return clientUrl
 }
 
 // TODO get config setting
