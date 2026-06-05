@@ -169,8 +169,8 @@ export const getTaskItemConfig = {
 }
 
 export function getUrlOrigin() {
-  return 'https://sit-v3.wclsolution.com'
-  // return window?.location?.origin || ''
+  // return 'https://sit-v3.wclsolution.com'
+  return window?.location?.origin || ''
 }
 
 // TODO get config setting
