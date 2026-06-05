@@ -58,14 +58,30 @@ const formattedValue = computed(() => {
 })
 
 async function fetchValue() {
-  const { tableId, aggregation, field } = props.setting || {}
+  const { tableId, aggregation, field, filterField, filterValue } = props.setting || {}
   if (!tableId) return
   loading.value = true
   try {
+    const conditions = filterField && filterValue
+      ? [
+          {
+            value: [
+              {
+                column: filterField,
+                type: 'EQ',
+                value: filterValue
+              }
+            ],
+            type: 'AND'
+          }
+        ]
+      : undefined
+
     if (aggregation === 'count') {
       const { data }: any = await postDynamicActions({
         tableId,
         columns: [{ name: '*' }],
+        conditions,
         pagination: { pageSize: 1, pageNum: 1 }
       })
       value.value = data?.meta?.total || 0
@@ -82,7 +98,8 @@ async function fetchValue() {
           alias: 'agg_value',
           aggFunc
         }
-      ]
+      ],
+      conditions
     })
 
     const row = data?.data?.[0]
@@ -111,7 +128,7 @@ function handleRefresh(newSetting: any) {
 }
 
 watch(
-  () => [props.setting?.tableId, props.setting?.aggregation, props.setting?.field],
+  () => [props.setting?.tableId, props.setting?.aggregation, props.setting?.field, props.setting?.filterField, props.setting?.filterValue],
   () => {
     fetchValue()
   },

@@ -17,6 +17,19 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Filter Field">
+        <el-select v-model="form.filterField" clearable placeholder="Select field" style="width: 100%" :loading="fieldsLoading" @change="handleFilterFieldChange">
+          <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Filter Value">
+        <el-select v-if="filterOptions.length > 0" v-model="form.filterValue" placeholder="Select value" style="width: 100%">
+          <el-option v-for="opt in filterOptions" :key="opt.id" :label="opt.label" :value="opt.id" />
+        </el-select>
+        <el-input v-else v-model="form.filterValue" placeholder="e.g. completed" />
+      </el-form-item>
+
       <el-form-item label="Label">
         <el-input v-model="form.label" placeholder="e.g. Total Sales" />
       </el-form-item>
@@ -40,7 +53,7 @@ import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTable
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { tableOptions, numericFields, fieldsLoading, loadFields } = useWidgetTableFields()
+const { tableOptions, numericFields, fields, fieldsLoading, loadFields } = useWidgetTableFields()
 
 const aggregationOptions = [
   { label: 'Count', value: 'count' },
@@ -61,12 +74,30 @@ const form = reactive({
   tableId: '',
   aggregation: 'count',
   field: '',
+  filterField: '',
+  filterValue: '',
   label: 'Records',
   color: 'primary'
 })
 
+const filterOptions = computed(() => {
+  const field = fields.value.find((f: any) => f.field_name === form.filterField)
+  if (!field) return []
+  const isSelect = field.business_type === '3' || field.business_type === '4' ||
+    field.business_type === 'SingleSelect' || field.business_type === 'MultiSelect'
+  if (!isSelect) return []
+  const options = field.display_structure?.options || field.properties?.options || []
+  return Array.isArray(options) ? options : []
+})
+
+function handleFilterFieldChange() {
+  form.filterValue = ''
+}
+
 async function handleTableChange(tableId: string) {
   form.field = ''
+  form.filterField = ''
+  form.filterValue = ''
   await loadFields(tableId)
 }
 
@@ -77,6 +108,8 @@ watch(
       form.tableId = setting.value.tableId || ''
       form.aggregation = setting.value.aggregation || 'count'
       form.field = setting.value.field || ''
+      form.filterField = setting.value.filterField || ''
+      form.filterValue = setting.value.filterValue || ''
       form.label = setting.value.label || 'Records'
       form.color = setting.value.color || 'primary'
       if (form.tableId) {
@@ -91,6 +124,8 @@ function handleSubmit() {
     tableId: form.tableId,
     aggregation: form.aggregation,
     field: form.field,
+    filterField: form.filterField,
+    filterValue: form.filterValue,
     label: form.label,
     color: form.color
   })
