@@ -34,6 +34,11 @@ async function handleFormSubmit() {
     jsonValue: JSON.stringify(json),
     versionId: '0'
   }
+  const formKey = node.getData().config.human_task.form_key
+  if (!!formKey && formKey != '') {
+    params.id = formKey
+    params.versionId = String(Number(params.versionId) + 1)
+  }
   const data: any = await newClientApi.postDmsFormPropertiesSave(params).then((r) => r.data)
   emits('submit', data.id)
   formDialogVisible.value = false
