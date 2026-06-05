@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="420px" @close="handleClose">
+  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="520px" @close="handleClose">
     <el-form label-position="top">
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
@@ -17,17 +17,33 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Filter Field">
-        <el-select v-model="form.filterField" clearable placeholder="Select field" style="width: 100%" :loading="fieldsLoading" @change="handleFilterFieldChange">
-          <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="Filter Value">
-        <el-select v-if="filterOptions.length > 0" v-model="form.filterValue" placeholder="Select value" style="width: 100%">
-          <el-option v-for="opt in filterOptions" :key="opt.id" :label="opt.label" :value="opt.id" />
-        </el-select>
-        <el-input v-else v-model="form.filterValue" placeholder="e.g. completed" />
+      <!-- Filter Rules -->
+      <el-form-item label="Filters">
+        <div class="rule-list">
+          <div v-for="(rule, index) in form.filterRules" :key="index" class="rule-row filter-rule-row">
+            <el-select v-model="rule.field" placeholder="Field" size="small" style="flex: 1" :loading="fieldsLoading" @change="onFilterFieldChange(rule)">
+              <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
+            </el-select>
+            <el-select v-model="rule.operator" placeholder="Op" size="small" style="width: 120px">
+              <el-option v-for="op in getOperatorsForField(rule.field)" :key="op.value" :label="op.label" :value="op.value" />
+            </el-select>
+            <el-input
+              v-if="!isValuelessOperator(rule.operator)"
+              v-model="rule.value"
+              placeholder="Value"
+              size="small"
+              style="flex: 1"
+            />
+            <span v-else style="flex: 1; color: var(--el-text-color-secondary); font-size: 12px; line-height: 24px;">—</span>
+            <el-button link type="danger" size="small" @click="removeFilterRule(index)">
+              <Icon name="lucide:x" size="14" />
+            </el-button>
+          </div>
+          <el-button link size="small" @click="addFilterRule">
+            <Icon name="lucide:plus" size="14" />
+            Add filter
+          </el-button>
+        </div>
       </el-form-item>
 
       <el-form-item label="Label">
@@ -50,6 +66,7 @@
 <script setup lang="ts">
 import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
 import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
@@ -70,34 +87,90 @@ const colorOptions = [
   { label: 'Danger', value: 'danger' }
 ]
 
+interface FilterRule {
+  field: string
+  operator: string
+  value: string
+}
+
 const form = reactive({
   tableId: '',
   aggregation: 'count',
   field: '',
-  filterField: '',
-  filterValue: '',
+  filterRules: [] as FilterRule[],
   label: 'Records',
   color: 'primary'
 })
 
-const filterOptions = computed(() => {
-  const field = fields.value.find((f: any) => f.field_name === form.filterField)
-  if (!field) return []
-  const isSelect = field.business_type === '3' || field.business_type === '4' ||
-    field.business_type === 'SingleSelect' || field.business_type === 'MultiSelect'
-  if (!isSelect) return []
-  const options = field.display_structure?.options || field.properties?.options || []
-  return Array.isArray(options) ? options : []
-})
+function getFieldType(fieldName: string): string {
+  const field = fields.value.find((f: any) => f.field_name === fieldName)
+  return field?.business_type || ''
+}
 
-function handleFilterFieldChange() {
-  form.filterValue = ''
+function isDateField(fieldName: string): boolean {
+  const type = getFieldType(fieldName)
+  return type === ColumnFieldType.DateTime || type === '5'
+}
+
+function isNumericField(fieldName: string): boolean {
+  const type = getFieldType(fieldName)
+  return type === ColumnFieldType.Number || type === '2' || type === ColumnFieldType.Rating || type === '12'
+}
+
+function getOperatorsForField(fieldName: string): { label: string; value: string }[] {
+  if (!fieldName) return []
+  if (isDateField(fieldName)) {
+    return [
+      { label: 'Equals', value: 'EQ' },
+      { label: 'After', value: 'GT' },
+      { label: 'After or equals', value: 'GTE' },
+      { label: 'Before', value: 'LT' },
+      { label: 'Before or equals', value: 'LTE' },
+      { label: 'Is empty', value: 'IS_NULL' },
+      { label: 'Is not empty', value: 'IS_NOT_NULL' }
+    ]
+  }
+  if (isNumericField(fieldName)) {
+    return [
+      { label: '=', value: 'EQ' },
+      { label: '≠', value: 'NE' },
+      { label: '>', value: 'GT' },
+      { label: '≥', value: 'GTE' },
+      { label: '<', value: 'LT' },
+      { label: '≤', value: 'LTE' },
+      { label: 'Is empty', value: 'IS_NULL' },
+      { label: 'Is not empty', value: 'IS_NOT_NULL' }
+    ]
+  }
+  return [
+    { label: 'Contains', value: 'LIKE' },
+    { label: 'Equals', value: 'EQ' },
+    { label: 'Not equals', value: 'NE' },
+    { label: 'Is empty', value: 'IS_NULL' },
+    { label: 'Is not empty', value: 'IS_NOT_NULL' }
+  ]
+}
+
+function isValuelessOperator(operator: string): boolean {
+  return ['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(operator)
+}
+
+function onFilterFieldChange(rule: FilterRule) {
+  rule.operator = ''
+  rule.value = ''
+}
+
+function addFilterRule() {
+  form.filterRules.push({ field: '', operator: '', value: '' })
+}
+
+function removeFilterRule(index: number) {
+  form.filterRules.splice(index, 1)
 }
 
 async function handleTableChange(tableId: string) {
   form.field = ''
-  form.filterField = ''
-  form.filterValue = ''
+  form.filterRules = []
   await loadFields(tableId)
 }
 
@@ -108,8 +181,11 @@ watch(
       form.tableId = setting.value.tableId || ''
       form.aggregation = setting.value.aggregation || 'count'
       form.field = setting.value.field || ''
-      form.filterField = setting.value.filterField || ''
-      form.filterValue = setting.value.filterValue || ''
+      form.filterRules = (setting.value.filterRules || []).map((r: any) => ({
+        field: r.field || '',
+        operator: r.operator || '',
+        value: r.value || ''
+      }))
       form.label = setting.value.label || 'Records'
       form.color = setting.value.color || 'primary'
       if (form.tableId) {
@@ -124,8 +200,13 @@ function handleSubmit() {
     tableId: form.tableId,
     aggregation: form.aggregation,
     field: form.field,
-    filterField: form.filterField,
-    filterValue: form.filterValue,
+    filterRules: form.filterRules
+      .filter((r) => r.field && r.operator)
+      .map((r) => ({
+        field: r.field,
+        operator: r.operator,
+        value: r.value
+      })),
     label: form.label,
     color: form.color
   })
@@ -135,6 +216,19 @@ defineExpose({ handleOpen })
 </script>
 
 <style scoped lang="scss">
+.rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rule-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-rule-row {
+  flex-wrap: wrap;
+}
 .footer-grid {
   display: flex;
   justify-content: space-between;

@@ -57,31 +57,43 @@ const formattedValue = computed(() => {
   return v.toFixed(2)
 })
 
+function buildFilterConditions(): any[] {
+  const filterRules = props.setting?.filterRules || []
+  if (!filterRules.length) return []
+
+  const value = filterRules
+    .filter((rule: any) => rule.field && rule.operator)
+    .map((rule: any) => {
+      const params: any = {
+        column: rule.field,
+        type: rule.operator
+      }
+      if (!['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(rule.operator)) {
+        let val = rule.value
+        if (rule.operator === 'LIKE' && val) {
+          val = `%${val}%`
+        }
+        params.value = val
+      }
+      return params
+    })
+
+  if (!value.length) return []
+  return [{ type: 'AND', value }]
+}
+
 async function fetchValue() {
-  const { tableId, aggregation, field, filterField, filterValue } = props.setting || {}
+  const { tableId, aggregation, field } = props.setting || {}
   if (!tableId) return
   loading.value = true
   try {
-    const conditions = filterField && filterValue
-      ? [
-          {
-            value: [
-              {
-                column: filterField,
-                type: 'EQ',
-                value: filterValue
-              }
-            ],
-            type: 'AND'
-          }
-        ]
-      : undefined
+    const conditions = buildFilterConditions()
 
     if (aggregation === 'count') {
       const { data }: any = await postDynamicActions({
         tableId,
         columns: [{ name: '*' }],
-        conditions,
+        conditions: conditions.length ? conditions : undefined,
         pagination: { pageSize: 1, pageNum: 1 }
       })
       value.value = data?.meta?.total || 0
@@ -99,7 +111,7 @@ async function fetchValue() {
           aggFunc
         }
       ],
-      conditions
+      conditions: conditions.length ? conditions : undefined
     })
 
     const row = data?.data?.[0]
@@ -128,7 +140,7 @@ function handleRefresh(newSetting: any) {
 }
 
 watch(
-  () => [props.setting?.tableId, props.setting?.aggregation, props.setting?.field, props.setting?.filterField, props.setting?.filterValue],
+  () => [props.setting?.tableId, props.setting?.aggregation, props.setting?.field, props.setting?.filterRules],
   () => {
     fetchValue()
   },
