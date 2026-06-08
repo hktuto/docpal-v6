@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { type BaseOption, getGroupsSelectOption, getRoleSelectOption, getUserSelectOption } from '#imports'
+import { getUserSelectOption, getGroupsSelectOption, getRoleSelectOption, type BaseOption } from '#imports'
 
-const { t } = useI18n()
 const { node } = defineProps<{
   node: Node
 }>()
@@ -11,82 +10,47 @@ if (!graphProvider) {
   throw createError('provider not found')
 }
 const { getVariablesByDisplayTypes } = useVariablesProvide()
-const radio = ref<string>('user')
-const allUser = ref<BaseOption[]>([])
+const assignFieldList = ref<any[]>([])
+const checkedTypes = ref<string[]>(['User'])
 const allUserRole = ref<BaseOption[]>([])
 const allUserGroup = ref<BaseOption[]>([])
+const candidateUsers = ref<string>('')
+const candidateGroups = ref<string[]>([])
+const candidateRoles = ref<string[]>([])
 
-async function getSelect() {
-  allUser.value = await getUserSelectOption()
-  allUserRole.value = await getRoleSelectOption()
-  allUserGroup.value = await getGroupsSelectOption()
-}
-
-const assignFieldList = computed(() => {
-  const stringVariables = getVariablesByDisplayTypes(['text'], true)
-
-  return [
-    {
-      label: 'Variables',
-      options: stringVariables
-    },
-    {
-      label: 'User',
-      options: allUser.value.map((item: any) => ({
-        id: item.value,
-        name: item.label
-      }))
-    }
-  ]
-})
-
-const formData = ref({
-  assignee: '',
-  candidateRoles: [],
-  candidateGroup: []
-})
-
-function handelRadio() {
-  switch (radio.value) {
-    case 'user':
-      formData.value.assignee = '${__system__user_creator_id}'
-      formData.value.candidateRoles = []
-      formData.value.candidateGroup = []
-      break
-    case 'roles':
-      formData.value.assignee = ''
-      formData.value.candidateGroup = []
-      break
-    case 'groups':
-      formData.value.assignee = ''
-      formData.value.candidateRoles = []
-      break
-    default:
-  }
-  updateData()
-}
+const typeOptions = [
+  { label: 'User', value: 'User' },
+  { label: 'Groups', value: 'Groups' },
+  { label: 'Roles', value: 'Roles' }
+]
 
 function initData() {
   const data = node.getData()
-  radio.value = 'user'
-  if (data.config?.human_task?.assignee) {
-    formData.value.assignee = data.config?.human_task?.assignee
+  const humanTask = data.config?.human_task || {}
+
+  if (!!humanTask.assignee) {
+    candidateUsers.value = humanTask.assignee
   } else {
-    formData.value.assignee = '${__system__user_creator_id}'
+    candidateUsers.value = '${__system__user_creator_id}'
   }
 
-  if (data.config?.human_task?.candidate_roles?.length > 0) {
-    radio.value = 'roles'
-    formData.value.candidateRoles = data.config?.human_task?.candidate_roles
-    return
+  candidateGroups.value = humanTask.candidate_groups || []
+  candidateRoles.value = humanTask.candidate_roles || []
+
+  const types: string[] = []
+  if (candidateUsers.value.length > 0 || humanTask.assignee) {
+    types.push('User')
   }
-  if (data.config?.human_task?.candidate_groups?.length > 0) {
-    radio.value = 'groups'
-    formData.value.candidateGroup = data.config?.human_task?.candidate_groups
+  if (candidateGroups.value.length > 0) {
+    types.push('Groups')
   }
+  if (candidateRoles.value.length > 0) {
+    types.push('Roles')
+  }
+  checkedTypes.value = types.length > 0 ? types : ['User']
 }
 
-function updateData() {
+function updateNodeData() {
   graphProvider?.graph.value?.startBatch('update-form-assignee-data')
   const nodeData = node.getData()
   const newData = {
@@ -95,20 +59,52 @@ function updateData() {
       ...nodeData.config,
       human_task: {
         ...nodeData.config.human_task,
-        assignee: formData.value.assignee,
-        candidate_roles: formData.value.candidateRoles,
-        candidate_groups: formData.value.candidateGroup
+        assignee: checkedTypes.value.includes('User') ? candidateUsers.value : '${__system__user_creator_id}',
+        candidate_roles: checkedTypes.value.includes('Groups') ? candidateGroups.value : [],
+        candidate_groups: checkedTypes.value.includes('Roles') ? candidateRoles.value : []
       }
     },
     version: (nodeData.version || 0) + 1
   }
+
   node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-form-assignee-data')
 }
 
+function handleCheckboxChange(val: string[]) {
+  if (val.length === 0) {
+    checkedTypes.value = ['User']
+  }
+  updateNodeData()
+}
+
+async function getAssignFieldList() {
+  const stringVariables = getVariablesByDisplayTypes(['text'], true)
+  const userList = await getUserSelectOption()
+
+  assignFieldList.value = [
+    {
+      label: 'Variables',
+      options: stringVariables
+    },
+    {
+      label: 'User',
+      options: userList.map((item: any) => ({
+        id: item.value,
+        name: item.label
+      }))
+    }
+  ]
+}
+
+async function getSelect() {
+  await getAssignFieldList()
+  allUserRole.value = await getRoleSelectOption()
+  allUserGroup.value = await getGroupsSelectOption()
+}
+
 onMounted(async () => {
   await getSelect()
-  // useWorkflowAdditionalContext(initData)
 })
 
 watch(
@@ -127,34 +123,41 @@ watch(
 
 <template>
   <el-form label-position="top" label-width="100px" size="small" :disabled="graphProvider.readonly.value">
-    <el-form-item label="Auto Assignee">
-      <el-radio-group v-model="radio" @change="handelRadio">
-        <el-radio value="user">User</el-radio>
-        <el-radio value="roles">Roles</el-radio>
-        <el-radio value="groups">Groups</el-radio>
-      </el-radio-group>
+    <el-form-item label="Assignee Type">
+      <el-checkbox-group v-model="checkedTypes" @change="handleCheckboxChange">
+        <el-checkbox v-for="item in typeOptions" :key="item.value" :label="item.value">
+          {{ item.label }}
+        </el-checkbox>
+      </el-checkbox-group>
     </el-form-item>
 
-    <el-form-item v-if="radio === 'user'" label="User">
-      <el-select v-model="formData.assignee" placeholder="Select Field" filterable @change="updateData">
-        <el-option-group v-for="group in assignFieldList" :key="group.label" :label="group.label">
-          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
-        </el-option-group>
-      </el-select>
-    </el-form-item>
-    <el-form-item v-if="radio === 'roles'" :label="t('Candidate Role')">
-      <el-select v-model="formData.candidateRoles" placeholder="Select Role" filterable multiple
-                 @change="updateData">
-        <el-option v-for="item in allUserRole" :key="item.value" :label="item.label" :value="item.value" />
-      </el-select>
-    </el-form-item>
-    <el-form-item v-if="radio === 'groups'" label="Candidate Group">
-      <el-select v-model="formData.candidateGroup" placeholder="Select Group" filterable multiple
-                 @change="updateData">
-        <el-option v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
-      </el-select>
-    </el-form-item>
+    <template v-if="checkedTypes.includes('User')">
+      <el-form-item label="Candidate Users" :required="checkedTypes.length == 1">
+        <el-select v-model="candidateUsers" placeholder="Select Field" filterable clearable @change="updateNodeData">
+          <el-option-group v-for="group in assignFieldList" :key="group.label" :label="group.label">
+            <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+          </el-option-group>
+        </el-select>
+      </el-form-item>
+    </template>
+
+    <template v-if="checkedTypes.includes('Groups')">
+      <el-form-item label="Candidate Groups">
+        <el-select v-model="candidateGroups" placeholder="Select Groups" filterable clearable multiple @change="updateNodeData">
+          <el-option v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+    </template>
+
+    <template v-if="checkedTypes.includes('Roles')">
+      <el-form-item label="Candidate Roles">
+        <el-select v-model="candidateRoles" placeholder="Select Roles" filterable clearable multiple @change="updateNodeData">
+          <el-option v-for="item in allUserRole" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+    </template>
   </el-form>
+  <el-divider />
 </template>
 
 <style lang="scss" scoped></style>
