@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { FilterRule } from './ConfigPopover.vue'
+import type { FilterRules } from './ConfigPopover.vue'
 import type { ColumnConfig } from '../../types/column-context'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
@@ -8,12 +8,26 @@ const { t } = useI18n()
 
 interface Props {
   availableColumns: ColumnConfig[]
+  columnFilterRules?: FilterRules
   disabled?: boolean
 }
 const props = defineProps<Props>()
 const emits = defineEmits<{
-  (e: 'filter-change', rules: FilterRule[]): void
+  (e: 'filter-change', rules: FilterRules): void
+  (e: 'filter-change-search', rules: FilterRules): void
 }>()
+
+const isSearchMode = computed(() => props.columnFilterRules === undefined)
+
+const popoverFilterRules = computed<FilterRules | []>(() =>
+  isSearchMode.value ? [] : props.columnFilterRules!
+)
+
+const searchFilterRules = ref<FilterRules>({ conditions: [], conjunction: 'AND' })
+
+const displayFilterRules = computed(() =>
+  isSearchMode.value ? searchFilterRules.value : props.columnFilterRules
+)
 
 const canFilterColumns = computed(() => {
   if (!props.availableColumns) return []
@@ -25,10 +39,8 @@ const canFilterColumns = computed(() => {
 const buttonRef = ref<InstanceType<typeof ElButton>>()
 const popoverRef = ref<InstanceType<typeof FilterConfigPopover>>()
 
-const { columnFilterRules } = inject('viewTools')
-
 const filterButtonLabel = computed(() => {
-  const n = columnFilterRules.value?.conditions?.length ?? 0
+  const n = displayFilterRules.value?.conditions?.length ?? 0
   if (n > 0) {
     return t('mdTable.filter.buttonWithCount', { count: n })
   }
@@ -44,9 +56,13 @@ const handleButtonClick = () => {
 }
 
 // 处理筛选配置变化
-const handleFilterChange = (rules: FilterRule[]) => {
-  columnFilterRules.value = rules
-  emits('filter-change', rules)
+const handleFilterChange = (rules: FilterRules) => {
+  if (isSearchMode.value) {
+    searchFilterRules.value = rules
+    emits('filter-change-search', rules)
+  } else {
+    emits('filter-change', rules)
+  }
 }
 </script>
 
@@ -61,7 +77,14 @@ const handleFilterChange = (rules: FilterRule[]) => {
     >
       {{ filterButtonLabel }}
     </el-button>
-    <ToolsFilterConfigPopover ref="popoverRef" :available-columns="canFilterColumns" width="600" placement="bottom-start" @filter-change="handleFilterChange" />
+    <ToolsFilterConfigPopover
+      ref="popoverRef"
+      :available-columns="canFilterColumns"
+      :column-filter-rules="popoverFilterRules"
+      width="600"
+      placement="bottom-start"
+      @filter-change="handleFilterChange"
+    />
   </div>
 </template>
 

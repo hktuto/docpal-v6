@@ -60,7 +60,8 @@ export function useMDTable(props: any) {
     getAggChildData,
     syncRowAndGroupAncestors,
     currentEditing,
-    silentRefreshing
+    silentRefreshing,
+    setSearchExtraParams
   } = useTableData(props.tableId, gridRef)
 
   // Get update status helper for cell styling
@@ -162,6 +163,8 @@ export function useMDTable(props: any) {
     gridOptions,
     gridRef,
     refreshTableData,
+    getTableData,
+    setSearchExtraParams,
     tableData,
     editable,
     currentEditing,

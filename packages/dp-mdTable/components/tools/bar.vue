@@ -4,18 +4,22 @@
       <slot name="toolbar-left-before" />
       <ToolsColumnConfigPopover v-if="showColumnConfig" :disabled="disabled" />
       <ToolsGroupingButton
-        v-if="showGroupingButton"
-        :disabled="disabled"
+        v-if="showGroupingButton && showMirrorButton"
         :groupableColumns="columns"
         :groupMaxCount="groupMaxCount"
         @grouping-change="(v) => handleRefresh('groupInfo', v)"
       />
-      <ToolsFilterButton :disabled="disabled" :available-columns="columns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
-      <ToolsSortButton :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
+      <ToolsFilterButton v-if="!showMirrorButton" :available-columns="columns" @filter-change-search="handleFilterChangeSearch" />
+      <ToolsFilterButton
+        v-else
+        :disabled="disabled"
+        :available-columns="columns"
+        :column-filter-rules="columnFilterRules"
+        @filter-change="(v) => handleRefresh('filterInfo', v)"
+      />
+      <ToolsSortButton v-if="showMirrorButton" :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
-        <el-button v-if="showAddRowButton" :icon="Plus" type="primary" @click="handleAddRow">
-          Add Row
-        </el-button>
+        <el-button v-if="showAddRowButton" :icon="Plus" type="primary" @click="handleAddRow"> Add Row </el-button>
       </slot>
     </div>
     <div class="toolbar-right">
@@ -32,6 +36,7 @@
 import { computed, ref, watch } from 'vue'
 import { Refresh, Search, Download, Upload, Operation, DataAnalysis, Plus } from '@element-plus/icons-vue'
 import type { FilterGroup, SortRule } from '#imports'
+import type { FilterRules } from './filter/ConfigPopover.vue'
 
 interface ColumnConfig {
   field: string
@@ -55,8 +60,9 @@ interface Props {
 interface Emits {
   (e: 'refresh'): void
   (e: 'add-row'): void
+  (e: 'filter-change-search', rules: FilterRules): void
 }
-const { columns, updateViewFilterSortGroup, systemFieldsTypes } = inject('viewTools')
+const { columns, columnFilterRules, updateViewFilterSortGroup, systemFieldsTypes } = inject('viewTools')
 const tableDataContext = useTableDataInject({ required: false })
 const addRow = tableDataContext?.addRow
 if (!updateViewFilterSortGroup) {
@@ -79,6 +85,10 @@ const handleRefresh = (type: 'sortInfo' | 'groupInfo' | 'filterInfo', value: any
   updateViewFilterSortGroup(type, value)
   emit('refresh')
 }
+const handleFilterChangeSearch = (rules: FilterRules) => {
+  emit('filter-change', rules)
+}
+
 const MdFormPopoverRef = ref()
 const handleAddRow = () => {
   MdFormPopoverRef.value.open({})
