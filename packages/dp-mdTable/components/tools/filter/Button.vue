@@ -10,6 +10,7 @@ interface Props {
   availableColumns: ColumnConfig[]
   columnFilterRules?: FilterRules
   disabled?: boolean
+  tip?: string
 }
 const props = defineProps<Props>()
 const emits = defineEmits<{
@@ -81,6 +82,7 @@ const handleFilterChange = (rules: FilterRules) => {
       ref="popoverRef"
       :available-columns="canFilterColumns"
       :column-filter-rules="popoverFilterRules"
+      :tip="tip"
       width="600"
       placement="bottom-start"
       @filter-change="handleFilterChange"

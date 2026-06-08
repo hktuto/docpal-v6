@@ -2401,6 +2401,7 @@
       "addCondition": "Add filter condition",
       "and": "And",
       "autoSaveTip": "View configuration is auto-saved. Your changes are saved in real time and synced to other members.",
+      "mirrorTip": "Filter only, not saved to view settings.",
       "button": "Filter",
       "buttonWithCount": "{count} filters",
       "connectorWhen": "When",

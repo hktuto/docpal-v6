@@ -2398,6 +2398,7 @@
       "addCondition": "新增篩選條件",
       "and": "且",
       "autoSaveTip": "視圖設定正處於自動儲存中，你的操作會即時儲存並同步給其他成員",
+      "mirrorTip": "僅篩選，不儲存到視圖設定",
       "button": "篩選",
       "buttonWithCount": "{count}個篩選",
       "connectorWhen": "當",

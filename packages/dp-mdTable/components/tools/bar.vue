@@ -9,14 +9,13 @@
         :groupMaxCount="groupMaxCount"
         @grouping-change="(v) => handleRefresh('groupInfo', v)"
       />
-      <ToolsFilterButton v-if="!showMirrorButton" :available-columns="columns" @filter-change-search="handleFilterChangeSearch" />
       <ToolsFilterButton
-        v-else
-        :disabled="disabled"
+        v-if="!showMirrorButton"
+        tip="mdTable.filter.mirrorTip"
         :available-columns="columns"
-        :column-filter-rules="columnFilterRules"
-        @filter-change="(v) => handleRefresh('filterInfo', v)"
+        @filter-change-search="handleFilterChangeSearch"
       />
+      <ToolsFilterButton v-else :available-columns="columns" :column-filter-rules="columnFilterRules" @filter-change="(v) => handleRefresh('filterInfo', v)" />
       <ToolsSortButton v-if="showMirrorButton" :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
         <el-button v-if="showAddRowButton" :icon="Plus" type="primary" @click="handleAddRow"> Add Row </el-button>

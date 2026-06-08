@@ -9,7 +9,7 @@
     <div class="filter-config-popover">
       <!-- 标题和提示信息 -->
       <div class="popover-header">
-        <div class="auto-save-tip">{{ t('mdTable.filter.autoSaveTip') }}</div>
+        <div class="auto-save-tip">{{ props.tip ? t(props.tip) : t('mdTable.filter.autoSaveTip') }}</div>
       </div>
 
       <!-- 筛选规则列表 -->
@@ -146,6 +146,7 @@ interface Props {
   columnFilterRules?: FilterRules
   width?: number | string
   placement?: string
+  tip?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -155,7 +156,8 @@ const props = withDefaults(defineProps<Props>(), {
     conjunction: 'AND'
   }),
   width: 600,
-  placement: 'bottom-start'
+  placement: 'bottom-start',
+  tip: ''
 })
 
 const emit = defineEmits<{

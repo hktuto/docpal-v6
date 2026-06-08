@@ -2400,6 +2400,7 @@
       "addCondition": "添加筛选条件",
       "and": "且",
       "autoSaveTip": "视图配置处于自动保存中，你的操作会实时保存并同步给其他成员",
+      "mirrorTip": "仅筛选，不保存到视图配置",
       "button": "筛选",
       "buttonWithCount": "{count}个筛选",
       "connectorWhen": "当",
