@@ -118,11 +118,7 @@ watch(
       <el-button v-loading="loading" style="width: 100%" type="primary" id="Workflow__Start__EditForm" @click="editForm">
         {{ $t('Edit Start Form') }}
       </el-button>
-      <el-popconfirm
-        class="box-item"s
-        title="Are you sure you want to delete this form?"
-        placement="top"
-      >
+      <el-popconfirm class="box-item" title="Are you sure you want to delete this form?" placement="top">
         <template #reference>
           <el-button type="danger" style="width: 100%; margin-top: 5px" @click="handleDeleteFormKey">{{ $t('Delete Start Form') }}</el-button>
         </template>
@@ -131,7 +127,7 @@ watch(
   </div>
 
   <LazyContextVariableManageDialog ref="variableManageDialogRef" />
-  <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variables" :processKey="workflowKey" @submit="handelSubmitForm" />
+  <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variables" :processKey="workflowKey" :formKey="formKey" @submit="handelSubmitForm" />
 </template>
 
 <style scoped lang="scss">

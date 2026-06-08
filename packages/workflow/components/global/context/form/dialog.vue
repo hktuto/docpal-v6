@@ -2,10 +2,11 @@
 import type { Node } from '@antv/x6'
 import { newClientApi } from 'api'
 
-const { node, processKey, variables } = defineProps<{
+const { node, processKey, variables, formKey } = defineProps<{
   node: Node
   processKey: string
   variables: any
+  formKey: string
 }>()
 const emits = defineEmits(['submit'])
 const FormDesignRef = ref()
@@ -34,7 +35,6 @@ async function handleFormSubmit() {
     jsonValue: JSON.stringify(json),
     versionId: '0'
   }
-  const formKey = node.getData().config.human_task.form_key
   if (!!formKey && formKey != '') {
     params.id = formKey
     params.versionId = String(Number(params.versionId) + 1)
