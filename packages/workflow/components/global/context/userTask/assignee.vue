@@ -60,8 +60,8 @@ function updateNodeData() {
       human_task: {
         ...nodeData.config.human_task,
         assignee: checkedTypes.value.includes('User') ? candidateUsers.value : '${__system__user_creator_id}',
-        candidate_roles: checkedTypes.value.includes('Groups') ? candidateGroups.value : [],
-        candidate_groups: checkedTypes.value.includes('Roles') ? candidateRoles.value : []
+        candidate_groups: checkedTypes.value.includes('Groups') ? candidateGroups.value : [],
+        candidate_roles: checkedTypes.value.includes('Roles') ? candidateRoles.value : []
       }
     },
     version: (nodeData.version || 0) + 1
