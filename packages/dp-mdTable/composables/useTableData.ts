@@ -195,9 +195,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
       }
-      const mergedExtraParams = mergeParams(searchExtraParams.value, extraParams)
-      if (mergedExtraParams) {
-        additionalParams = mergeParams(additionalParams, mergedExtraParams)
+      const searchParams = extraParams ?? searchExtraParams.value
+      if (searchParams) {
+        additionalParams = mergeParams(additionalParams, searchParams)
       }
       if (!additionalParams.groupBy) {
         if (params.pageSize) {
@@ -257,9 +257,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
           }
         }
       }
-      const mergedExtraParams = mergeParams(searchExtraParams.value, extraParams)
-      if (mergedExtraParams) {
-        additionalParams = mergeParams(additionalParams, mergedExtraParams)
+      const searchParams = extraParams ?? searchExtraParams.value
+      if (searchParams) {
+        additionalParams = mergeParams(additionalParams, searchParams)
       }
       const { data } = await postDynamicActions({
         tableId,
