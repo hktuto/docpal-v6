@@ -144,6 +144,14 @@ const config = {
             'accept-encoding': 'identity'
           }
         },
+        '/oniflow':{
+          target: process.env.WORKFLOW_PROXY,
+          changeOrigin: true,
+          prependPath: true,
+          headers: {
+            'accept-encoding': 'identity'
+          }
+        }
       }
       // routeRules: {
       //     '/dashboard/**': {

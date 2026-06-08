@@ -1,6 +1,155 @@
+<script lang="ts" setup>
+import { ArrowDown } from '@element-plus/icons-vue'
+import { newClientApi } from 'api'
+import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
+import { conversionFormDataByVariables, newWorkflowStartPage } from '#imports'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
+
+const vFormRef = ref()
+const workflowEditorRef = ref()
+const routerProvider = inject(MenuRouterKey)
+const isFullScreen = ref(false)
+const activeName = ref('Form')
+const state = reactive({
+  formDialogVisible: false,
+  selectedWorkflow: {},
+  formVariables: [],
+  loading: false
+})
+const emits = defineEmits(['reload'])
+const openWorkflowEdit = ref(false)
+const userId = useUserId()
+const workflowList = await getWorkflowList()
+
+async function workflowClickHandler(workflowItem: any) {
+  state.loading = true
+  openWorkflowEdit.value = false
+  openWorkflowEdit.value = true
+  try {
+    const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))
+    if (!data) return
+    if (data.published_version < 1) {
+      state.loading = false
+      routerProvider?.message.error('Workflow has not been released.')
+      return
+    }
+
+    state.selectedWorkflow = deepCopy(data)
+
+    // Workflow 未發佈
+    if (Object.keys(data.content).length === 0) {
+      state.loading = false
+      routerProvider?.message.error('Workflow has not been released.')
+      return
+    }
+
+    const startTask = data.content.nodes.find((item: any) => item.id === 'system_start_event')
+    if (!startTask) {
+      state.loading = false
+      routerProvider?.message.error('Start Task missing')
+      return
+    }
+
+    // 未配置流程
+    if (startTask.flow.outgoing.length === 0) {
+      routerProvider?.message.error('Workflow No process')
+      return
+    }
+
+    // Start Task has no set E-Form
+    if (!startTask.config?.initialise?.form_key || startTask.config?.initialise?.form_key === '') {
+      await directlyStart(data.id)
+      state.loading = false
+      return
+    }
+
+    // Open in new page
+    if (startTask.metadata.openInNewPage) {
+      state.loading = false
+      const link = newWorkflowStartPage(data.name, data.id, startTask)
+      routerProvider?.navigateTo(link)
+      return
+    }
+
+    state.formVariables = startTask.config?.initialise?.form_fields || []
+    state.formDialogVisible = true
+    await initForm(startTask)
+  } catch (e) {
+    routerProvider?.message.error('Failed to start workflow.')
+    console.log(e)
+  }
+}
+
+async function directlyStart(definition_id: string) {
+  try {
+    const formParams = {
+      start_user_id: userId.value,
+      definition_id: definition_id,
+      variables: {
+        __system__user_creator_id: userId.value
+      }
+    }
+    await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+async function initForm(taskNode: any) {
+  const formKey = taskNode.config.initialise.form_key
+
+  const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
+  if (!formJson || !formJson.jsonValue) return {}
+  state.loading = false
+  // @ts-ignore
+  nextTick(() => {
+    vFormRef.value.setForm(formJson.jsonValue)
+  })
+}
+
+async function checkAndSubmit() {
+  state.loading = true
+  const formData = await vFormRef.value.getFormData()
+
+  if (!!formData) {
+    // conversion FormData
+    const cFormData = conversionFormDataByVariables(formData, state.formVariables)
+
+    const formParams = {
+      start_user_id: userId.value,
+      definition_id: state.selectedWorkflow.id,
+      variables: {
+        ...cFormData,
+        __system__user_creator_id: userId.value
+      }
+    }
+
+    try {
+      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
+
+      setTimeout(async () => {
+        // Check workflow running status
+        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
+        if (newVar.state === 'running') {
+          routerProvider?.message.success('Workflow created')
+        }
+      }, 100)
+    } catch (e) {
+      routerProvider?.message.error('Failed to start workflow, please contact the administrator! ')
+      console.log(e)
+    } finally {
+      state.formDialogVisible = false
+    }
+  }
+  state.loading = false
+  emits('reload')
+}
+
+defineExpose({ workflowClickHandler })
+</script>
+
 <template>
-  <el-dropdown id="Workflow__NewWorkflow" popper-class="popover-auto" trigger="click"
-               @command="workflowClickHandler">
+  <el-dropdown id="Workflow__NewWorkflow" popper-class="popover-auto" trigger="click" @command="workflowClickHandler">
     <el-button type="primary" :loading="state.loading">
       {{ $t('workflow_newWorkflow') }}
       <el-icon class="el-icon--right">
@@ -9,18 +158,22 @@
     </el-button>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item v-for="wf in state.availableWorkflow" :key="wf.id" :command="wf">
+        <el-dropdown-item v-for="wf in workflowList" :key="wf.id" :command="wf">
           {{ wf.name }}
         </el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
-  <el-dialog v-model="state.formDialogVisible" :title="state.selectedWorkflow.name"
-             destroy-on-close append-to-body width="60%"
-             :close-on-click-modal="false"
-             :fullscreen="isFullScreen"
-             @close="isFullScreen = false"
-             class="scroll-dialog big"
+
+  <el-dialog
+    v-model="state.formDialogVisible"
+    :title="state.selectedWorkflow.name"
+    destroy-on-close
+    append-to-body
+    :close-on-click-modal="false"
+    :fullscreen="isFullScreen"
+    @close="isFullScreen = false"
+    class="scroll-dialog big"
   >
     <template #header>
       <div class="dialog-title">
@@ -30,209 +183,30 @@
         </div>
       </div>
     </template>
-    <ElTabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading"
-            @tab-change="tabChangeHandler">
-      <ElTabPane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
-        <WorkflowDetailFormRender ref="vFormRef" />
-      </ElTabPane>
-      <ElTabPane :label="$t('workflow_graph')" name="Graph">
-        <BpmnViewer v-if="activeName === 'Graph'" ref="graphEl" class="graphContent" step="start"
-                    @graphReady="graphReady" />
-      </ElTabPane>
-    </ElTabs>
+    <el-tabs v-if="state.formDialogVisible" v-model="activeName" v-loading="state.loading">
+      <el-tab-pane v-loading="state.loading" :label="$t('workflow_form')" name="Form">
+        <ContextFormRender ref="vFormRef" />
+      </el-tab-pane>
+<!--      <el-tab-pane :label="$t('workflow_graph')" name="Graph">-->
+<!--        <div v-if="openWorkflowEdit" class="pageContainer">-->
+<!--          <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="state.selectedWorkflow" :readonly="true" :showSidebar="false" />-->
+<!--        </div>-->
+<!--      </el-tab-pane>-->
+    </el-tabs>
+
     <template #footer>
-      <el-button v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
-                 id="Workflow__NewWorkflow__StartWorkflow" type="primary" :disabled="state.loading"
-                 @click="checkAndSubmit">
-        <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
-          {{ pageButtonSetting.submitButtonLabel }}
-        </template>
-        <template v-else>
-          {{ $t('common_submit') }}
-        </template>
+      <el-button id="Workflow__NewWorkflow__StartWorkflow" type="primary" :disabled="state.loading" @click="checkAndSubmit">
+        {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>
 </template>
 
-<script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { ArrowDown } from '@element-plus/icons-vue'
-// @ts-ignore
-import { newClientApi } from 'api'
-
-const { formStartHandle } = useWorkflow()
-const isFullScreen = ref(false)
-// @ts-ignore
-const graphEl = ref()
-const emits = defineEmits(['created'])
-// @ts-ignore
-const activeName = ref('Form')
-// @ts-ignore
-const state = reactive({
-  availableWorkflow: [],
-  formDialogVisible: false,
-  selectedWorkflow: {},
-  bpmnXml: null,
-  loading: false
-})
-
-const routerProvider = inject(MenuRouterKey)
-
-function tabChangeHandler() {
-  if (activeName.value === 'Graph') {
-    // @ts-ignore
-    nextTick(async () => {
-      console.log(state.selectedWorkflow)
-      graphEl.value.init(state.bpmnXml)
-    })
-  }
-}
-
-async function getAvailableWorkflow() {
-  state.availableWorkflow = await newClientApi.postDocpalWorkflowProcessList().then(res => res.data) as any || []
-}
-
-async function workflowClickHandler(item: any) {
-  let step = 'Start'
-  state.loading = true
-
-  //TODO : get xml and check if need to open new page
-  const xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(item.versionId)
-  const { flatObj } = bpmnStringToJson(xml)
-  const startEvent = flatObj.Start
-  state.formDialogVisible = true
-  // check start event additional setting
-  if (startEvent?.extensionElements && startEvent?.extensionElements['docpal:additionaSetting']) {
-    const openInNewPage = startEvent.extensionElements['docpal:additionaSetting'].attr_openInNewPage
-    if (openInNewPage) {
-      state.formDialogVisible = false
-      state.loading = false
-      const link = newWorkflowStartPage(item.name, step, item.key, item.versionId)
-      routerProvider?.navigateTo(link)
-      return
-    }
-  }
-  // get bpmn
-  if (formStartHandle.value[item.key]) {
-    const result = formStartHandle.value[item.key].cb(item.key)
-    if (result && result.step) {
-      step = result.step
-    }
-    if (!formStartHandle.value[item.key].isContinue) {
-      return
-    }
-  }
-
-  // @ts-ignore
-  state.selectedWorkflow = deepCopy(item)
-  await initForm(item.key, item.versionId)
-  state.loading = false
-  // createWorkflowForm.value = await workflowStore.getFromProperties(item.key)
-
-  // opened.value = true
-
-  // // vform
-  // const formData = await formInit(createWorkflowForm.value)
-  // const formJson = await handleTaskFormJsonGet(selectedWorkflow.value)
-  // VformRenderRef.value.setFormDataAndJson(formJson, formData, createWorkflowForm.value)
-}
-
-// #region module: vform
-// @ts-ignore
-const vFormRef = ref()
-
-async function checkAndSubmit() {
-  state.loading = true
-  const data = await vFormRef.value.getFormData()
-  if (data) {
-
-    const form = {
-      processKey: state.selectedWorkflow.key,
-      businessKey: data.businessKey || '',
-      properties: Object.entries(data).reduce((newObj, [key, val]) => {
-        if (val || val === false || val == '0') newObj[key] = val
-        return newObj
-      }, {})
-    }
-
-    try {
-      await newClientApi.postDocpalWorkflowProcessStart(form).then(res => res.data)
-      state.formDialogVisible = false
-      ElMessage.success('Workflow created')
-      emits('created')
-    } catch (error) {
-
-    }
-  }
-  state.loading = false
-}
-
-type AdditionalButton = {
-  props: any
-  component: string
-}
-const additionalButton = ref<AdditionalButton[]>([])
-const pageButtonSetting = ref<any>(null)
-
-async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any) {
-  const {
-    buttons,
-    components,
-    signatureSetting,
-    buttonSetting
-  } = await getBpmnAdditionalElement(xml, 'Start', taskDetail, formData)
-  additionalButton.value = buttons
-  if (buttonSetting) {
-    pageButtonSetting.value = buttonSetting
-  }
-}
-
-async function initForm(processKey: string, versionId: string) {
-  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then(res => res.data)
-  const formData = formDataGet(props)
-  const formJson = await formJsonGet('start', processKey, versionId)
-  setTimeout(() => {
-    vFormRef.value.setForm(formJson, formData, props)
-  })
-  const blob: any = await newClientApi.postDocpalWorkflowProcessModel({ processKey }, {
-    format: 'blob'
-  })
-  const text = await blob.text()
-  state.bpmnXml = text
-  await handleAdditionalSetting(text, processKey, {}, {})
-}
-
-function graphReady() {
-  graphEl.value.autoLayout(state.bpmnXml)
-}
-
-function formDataGet(propList = []) {
-  return propList.reduce((prev, item) => {
-    prev[item.id] = item.value
-    return prev
-  }, {})
-}
-
-async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  const response: any = await newClientApi.getDmsFormPropertiesQuery({
-    userTaskId,
-    processKey,
-    versionId
-  }).then(res => res.data)
-  if (!response[0] ||
-    response[0] && !response[0].jsonValue) return {}
-  return JSON.parse(response[0].jsonValue)
-}
-
-// #endregion
-// @ts-ignore
-onMounted(() => {
-  getAvailableWorkflow()
-})
-defineExpose({ workflowClickHandler })
-</script>
 <style lang="scss" scoped>
+.pageContainer {
+  width: 100%;
+  height: 100%;
+}
 .dialog-title {
   display: flex;
   justify-content: space-between;
@@ -245,7 +219,6 @@ defineExpose({ workflowClickHandler })
 .graphContent {
   height: 500px;
 }
-
 </style>
 <style lang="scss">
 .popover-auto {

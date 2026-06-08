@@ -16,16 +16,13 @@ function initEditor(initOptions: TipTapOptions, json?: any) {
   if (editor.value) {
     editor.value.destroy()
   }
-
   const normalizeOption = normalizeTipTapOptions(initOptions)
   const extensions = clientEditorExtensions(normalizeOption)
 
   editor.value = new Editor({
     content: json,
     autofocus: true,
-    extensions: [
-      ...extensions
-    ],
+    extensions: [...extensions],
     editable: false
   })
 }
@@ -36,14 +33,18 @@ onMounted(() => {
   }
 })
 
-watch(props.json, (newVal) => {
-  if (newVal) {
-    initEditor(props.options, newVal)
+watch(
+  props.json,
+  (newVal) => {
+    if (newVal) {
+      const options = props.options ? props.options : {}
+      initEditor(options, newVal)
+    }
+  },
+  {
+    deep: true
   }
-},{
-  deep: true,
-})
-
+)
 onUnmounted(() => {
   if (editor.value) {
     editor.value.destroy()
@@ -58,8 +59,10 @@ defineExpose({ initEditor })
 </script>
 
 <template>
-  <div class="editorContainer"
-       :style="`--margin-top: ${props.options.pageSetting?.defaultMarginConfig?.top}mm; --margin-bottom: ${props.options.pageSetting?.defaultMarginConfig?.bottom}mm; --margin-left: ${props.options.pageSetting?.defaultMarginConfig?.left}mm; --margin-right: ${props.options.pageSetting?.defaultMarginConfig?.right}mm;`">
+  <div
+    class="editorContainer"
+    :style="`--margin-top: ${props.options.pageSetting?.defaultMarginConfig?.top}mm; --margin-bottom: ${props.options.pageSetting?.defaultMarginConfig?.bottom}mm; --margin-left: ${props.options.pageSetting?.defaultMarginConfig?.left}mm; --margin-right: ${props.options.pageSetting?.defaultMarginConfig?.right}mm;`"
+  >
     <div class="editorBody">
       <EditorContent :editor="editor" />
     </div>
@@ -94,7 +97,7 @@ defineExpose({ initEditor })
     margin-top: 0;
   }
   li {
-    &::marker{
+    &::marker {
       font-size: 12px;
     }
   }
@@ -155,7 +158,7 @@ defineExpose({ initEditor })
     }
 
     &:before {
-      content: "";
+      content: '';
       width: 20px;
       height: 20px;
       position: absolute;
@@ -167,7 +170,7 @@ defineExpose({ initEditor })
     }
 
     &:after {
-      content: "";
+      content: '';
       width: 20px;
       height: 20px;
       position: absolute;
@@ -186,7 +189,7 @@ defineExpose({ initEditor })
     break-inside: avoid;
 
     &:before {
-      content: "";
+      content: '';
       width: 20px;
       height: 20px;
       position: absolute;
@@ -198,7 +201,7 @@ defineExpose({ initEditor })
     }
 
     &:after {
-      content: "";
+      content: '';
       width: 20px;
       height: 20px;
       position: absolute;
@@ -212,7 +215,17 @@ defineExpose({ initEditor })
 
   /* 确保段落和块级元素不会在页面中间断开 */
 
-  p, div, h1, h2, h3, h4, h5, h6, blockquote, pre, table {
+  p,
+  div,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  blockquote,
+  pre,
+  table {
     page-break-inside: avoid;
     break-inside: avoid;
   }
@@ -221,7 +234,12 @@ defineExpose({ initEditor })
   }
   /* 允许标题在页面顶部断开 */
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     page-break-after: avoid;
     break-after: avoid;
   }
@@ -235,7 +253,9 @@ defineExpose({ initEditor })
 
   /* 图片和媒体元素的分页控制 */
 
-  img, video, canvas {
+  img,
+  video,
+  canvas {
     page-break-inside: avoid;
     break-inside: avoid;
     max-width: 100%;
@@ -244,7 +264,8 @@ defineExpose({ initEditor })
 
   /* 列表的分页控制 */
 
-  ul, ol {
+  ul,
+  ol {
     page-break-inside: avoid;
     break-inside: avoid;
   }

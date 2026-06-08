@@ -1,0 +1,77 @@
+<script lang="ts" setup>
+import { watchDebounced } from '@vueuse/core'
+
+const { idList } = defineProps<{
+  idList: string[]
+}>()
+const routerProvider = inject(MenuRouterKey)
+const { t } = useI18n()
+const platform = useAppPlatform()
+let extraParams: any = ref({
+  interrelatedUserId: useUserId()
+})
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+  id: 'd-workflow-active',
+  zoom: false,
+  api: (pageParams: any) => getData(pageParams),
+  columns: [
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } }
+  ],
+  dblClickAction: ({ row, column, event }: any) => {
+    handleDblclick(row)
+  },
+  saveColumnOrder: false
+})
+
+async function getData(params: any = {}) {
+  if (platform.value === 'admin') return
+  const settingParams: any = {}
+  if (idList.length > 0) {
+    settingParams.processKeys = idList
+  }
+  // const res = await newClientApi.postDocpalWorkflowTasksUser({ ...params, ...extraParams.value, ...settingParams }).then((res) => res.data)
+
+  const data = await $api.get(`/oniflow/api/v1/task/overview/active/${userId}`).then((r: any) => r.data.data)
+  return {
+    data: {
+      entryList: data || []
+    }
+  }
+}
+function handleDblclick(row: any) {
+  if (platform.value === 'admin') return
+  try {
+    routerProvider?.navigateTo(
+      routeWorkflowDetail({
+        ...row,
+        workflowType: 'activeTask',
+        db_id: row.node_id
+      }),
+      false
+    )
+  } catch (error: any) {
+    console.error(error)
+  }
+}
+
+watchDebounced(
+  () => idList,
+  (newValue, oldValue) => {
+    if (!oldValue) return
+    if (JSON.stringify(oldValue) === JSON.stringify(newValue)) return
+    reload()
+  },
+  { debounce: 200, maxWait: 500, immediate: true }
+)
+
+defineExpose({ query, reload })
+</script>
+
+<template>
+  <div class="table-container">
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" />
+  </div>
+</template>
+
+<style lang="scss" scoped></style>

@@ -1,5 +1,4 @@
 export default defineAppConfig({
-
   appMenu: [
     {
       name: 'client-work-panel',
@@ -15,10 +14,9 @@ export default defineAppConfig({
       name: 'client-browse',
       icon: 'dp-icon:browse-outline',
       hoverIcon: 'dp-icon:browse-fill',
-      children:[
-
+      children: [
         {
-          name: 'client-browse',
+          name: 'client-browse'
         },
         {
           name: 'client-collections'
@@ -32,17 +30,16 @@ export default defineAppConfig({
 
         {
           name: 'client-folder-cabinet'
-        },
-
+        }
       ]
     },
     {
       name: 'client-search'
     },
     {
-      label:"share.share",
+      label: 'share.share',
       icon: 'lucide:share-2',
-      children:[
+      children: [
         {
           name: 'client-share'
         },
@@ -51,7 +48,7 @@ export default defineAppConfig({
         },
         {
           name: 'client-share-other'
-        },
+        }
       ]
     },
     {
@@ -61,8 +58,11 @@ export default defineAppConfig({
     //     name: "client-smartFolder"
     // },
 
+    // {
+    //   name: 'client-workflow'
+    // },
     {
-      name: 'client-workflow'
+      name: 'client-new-workflow'
     },
     {
       label: 'client_retention_item',
@@ -99,8 +99,11 @@ export default defineAppConfig({
       name: 'contact-book'
     },
     {
-      name: 'dynamic-db'
+      name: 'client-scan'
     },
+    {
+      name:"dynamic-db"
+    }
   ],
   adminMenu: [
     {
@@ -163,7 +166,7 @@ export default defineAppConfig({
         },
         {
           name: 'admin-master-table'
-        },
+        }
       ]
     },
     {
@@ -182,25 +185,32 @@ export default defineAppConfig({
         // }
       ]
     },
+    // {
+    //   label: 'adminMenu.workflow',
+    //   icon: 'dp-icon:flow-outline',
+    //   children: [
+    //     {
+    //       name: 'admin-workflow-manage'
+    //     },
+    //     {
+    //       name: 'admin-workflow-retry'
+    //     },
+    //     {
+    //       name: 'admin-workflow-editor'
+    //     }
+    //     // {
+    //     //     name: "super-workflow-form"
+    //     // }
+    //   ]
+    // },
     {
       label: 'adminMenu.workflow',
       icon: 'dp-icon:flow-outline',
       children: [
-        {
-          name: 'admin-workflow-manage'
-        },
-        {
-          name: 'admin-workflow-retry'
-        },
-        {
-          name: 'admin-workflow-editor'
-        }
-        // {
-        //     name: "super-workflow-form"
-        // }
+        { name: 'admin-new-workflow-manage' },
+        { name: 'admin-new-workflow-edit-manage' }
       ]
     },
-
     {
       label: 'adminMenu.templateManagement',
       icon: 'lucide:layout-template',
@@ -219,12 +229,6 @@ export default defineAppConfig({
     {
       name: 'admin-case-management'
     },
-    {
-      name: 'admin-case-management-import-export'
-    },
-    // {
-    //   name: 'admin-dashboard'
-    // },
     {
       label: 'client_retention_item',
       icon: 'lucide:book-lock',
@@ -250,9 +254,9 @@ export default defineAppConfig({
         {
           name: 'admin-password-policy'
         },
-        {
-          name: 'admin-log-manage'
-        },
+        // {
+        //   name: 'admin-log-manage'
+        // },
         {
           name: 'admin-audit'
         },
@@ -264,9 +268,6 @@ export default defineAppConfig({
         }
       ]
     },
-
-
-
     {
       name: 'admin-unique-id-generator'
     },
@@ -274,9 +275,6 @@ export default defineAppConfig({
     {
       name: 'admin-external-storage'
     },
-    // {
-    //   name: 'admin-bulk-import'
-    // },
     {
       name: 'admin-import-jobs'
     },
@@ -288,12 +286,11 @@ export default defineAppConfig({
     {
       name: 'admin-easy-form'
     },
-    {
-      name: 'admin-calendar-setting'
-    },
     // {
-    //   name: 'admin-database-list'
+    //   name: 'admin-calendar-setting'
     // },
-
+    {
+      name: 'admin-scan'
+    }
   ]
 })

@@ -28,7 +28,9 @@ const URL = ADMINURL.replace('/admin/api', '')
 
 async function loginAdmin() {
   try {
-    const { data } = await fetch(`${URL}/api/auth/login`, {
+    const path = `${URL}/api/auth/login`
+    console.log("try to login admin", path)
+    const { data } = await fetch(path, {
       method: 'POST',
       body: JSON.stringify({
         username: SUPERADMIN,
@@ -41,6 +43,7 @@ async function loginAdmin() {
     return data.access_token
   } catch (e) {
     console.log('--login error', e)
+    throw e
   }
 }
 

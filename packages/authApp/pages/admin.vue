@@ -17,7 +17,6 @@ defaultTab.value =  {
   props: {}
 }
 
-
 watch(logedIn, (boo) => {
   if (boo) {
     const usserIsAdmin = useIsAdmin()

@@ -13693,7 +13693,7 @@ var _app_options = __webpack_require__(5);
 var _pdf_link_service = __webpack_require__(7);
 var _app = __webpack_require__(2);
 const pdfjsVersion = '3.4.0';
-const pdfjsBuild = 'fdbe1585';
+const pdfjsBuild = 'f6363d93b';
 const AppConstants = exports.PDFViewerApplicationConstants = {
   LinkTarget: _pdf_link_service.LinkTarget,
   RenderingStates: _ui_utils.RenderingStates,
@@ -13840,6 +13840,11 @@ document.onreadystatechange = function () {
     window.addEventListener("message", messageFromParent, false);
     sendMessageToParent("ready");
     window.pdfReady = true;
+    window.addEventListener('afterprint', () => {
+      sendMessageToParent("print", {
+        pageNumber: _app.PDFViewerApplication.page
+      });
+    });
   } else {}
 };
 function messageFromParent(ev) {

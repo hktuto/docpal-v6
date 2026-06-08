@@ -31,7 +31,6 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import {ElMessage} from "element-plus";
 import {routeEasyFormDesigner} from "~/util/easyFormRouterHelper";
 
 const emits = defineEmits(["email-update"])

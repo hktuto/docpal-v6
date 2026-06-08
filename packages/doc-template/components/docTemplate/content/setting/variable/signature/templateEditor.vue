@@ -10,23 +10,19 @@ const form = defineModel<SignatureSetting>('modelValue', {
   required: true
 })
 
-const templateVariableOption = [
-  'username',
-  'firstName',
-  'lastName',
-  'signDate(yyyy-mm-dd)'
-] as const
+const templateVariableOption = ['username', 'firstName', 'lastName', 'signDate(yyyy-mm-dd)'] as const
 
 const companyChopList = ref<any[]>([])
 
 async function getCompanyChopList(companyId: string) {
-  companyChopList.value = await newAdminApi.getDmsCompanyprofilesCompanyidChops(companyId, {
-    requestDTO: {
-      pageNum: 1,
-      pageSize: 1000,
-      status: 'A'
-    }
-  }).then(r => r.data) || []
+  companyChopList.value =
+    (await newAdminApi
+      .getDmsCompanyprofilesCompanyidChops(companyId, {
+        pageNum: 1,
+        pageSize: 1000,
+        status: 'A'
+      })
+      .then((r) => r.data)) || []
 }
 
 function handleCompanyChange(newCompany: string) {
@@ -35,24 +31,26 @@ function handleCompanyChange(newCompany: string) {
   }
 }
 
-function addVariable(variable: typeof templateVariableOption[number], type: 'prefix' | 'suffix') {
+function addVariable(variable: (typeof templateVariableOption)[number], type: 'prefix' | 'suffix') {
   if (form.value) {
     form.value[type] = (form.value[type] || '') + '${' + variable + '}'
   }
 }
 
-watch(() => form.value?.company, (newCompany) => {
-  if (newCompany) {
-    getCompanyChopList(newCompany)
+watch(
+  () => form.value?.company,
+  (newCompany) => {
+    if (newCompany) {
+      getCompanyChopList(newCompany)
+    }
   }
-})
+)
 
 onMounted(() => {
   if (form.value?.company) {
     getCompanyChopList(form.value.company)
   }
 })
-
 </script>
 
 <template>
@@ -65,19 +63,9 @@ onMounted(() => {
       <ElRow :gutter="20">
         <ElCol :span="24">
           <ElFormItem label="Prefix Text">
-            <ElInput
-              v-model="form.prefix"
-              type="textarea"
-              :rows="3"
-              :autosize="{ minRows: 3, maxRows: 6 }"
-            />
+            <ElInput v-model="form.prefix" type="textarea" :rows="3" :autosize="{ minRows: 3, maxRows: 6 }" />
             <div class="variableTextContainer">
-              <ElButton
-                v-for="variable in templateVariableOption"
-                :key="variable"
-                type="link"
-                @click="addVariable(variable, 'prefix')"
-              >
+              <ElButton v-for="variable in templateVariableOption" :key="variable" type="link" @click="addVariable(variable, 'prefix')">
                 {{ variable }}
               </ElButton>
             </div>
@@ -100,24 +88,14 @@ onMounted(() => {
           <ElCol :span="12">
             <ElFormItem label="Company">
               <ElSelect v-model="form.company" @change="handleCompanyChange">
-                <ElOption
-                  v-for="company in companyListOptions"
-                  :key="company.id"
-                  :label="company.name"
-                  :value="company.id"
-                />
+                <ElOption v-for="company in companyListOptions" :key="company.id" :label="company.name" :value="company.id" />
               </ElSelect>
             </ElFormItem>
           </ElCol>
           <ElCol :span="12">
             <ElFormItem label="Company Chop">
               <ElSelect v-model="form.signatureId">
-                <ElOption
-                  v-for="chop in companyChopList"
-                  :key="chop.id"
-                  :label="chop.name"
-                  :value="chop.id"
-                />
+                <ElOption v-for="chop in companyChopList" :key="chop.id" :label="chop.name" :value="chop.id" />
               </ElSelect>
             </ElFormItem>
           </ElCol>
@@ -127,19 +105,9 @@ onMounted(() => {
       <ElRow :gutter="20">
         <ElCol :span="24">
           <ElFormItem label="Suffix Text">
-            <ElInput
-              v-model="form.suffix"
-              type="textarea"
-              :rows="3"
-              :autosize="{ minRows: 3, maxRows: 6 }"
-            />
+            <ElInput v-model="form.suffix" type="textarea" :rows="3" :autosize="{ minRows: 3, maxRows: 6 }" />
             <div class="variableTextContainer">
-              <ElButton
-                v-for="variable in templateVariableOption"
-                :key="variable"
-                type="link"
-                @click="addVariable(variable, 'suffix')"
-              >
+              <ElButton v-for="variable in templateVariableOption" :key="variable" type="link" @click="addVariable(variable, 'suffix')">
                 {{ variable }}
               </ElButton>
             </div>

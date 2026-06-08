@@ -43,7 +43,7 @@ const ReaderDialog = {
 describe('[admin-dashboard]DashboardManagePage', () => {
   let wrapper: any
   const mockTabProvider = {}
- console.log(process.env)
+  console.log(process.env)
   beforeEach(async () => {
     wrapper = mount(DashboardManagePage, {
       props: {
@@ -108,4 +108,3 @@ describe('[admin-dashboard]DashboardManagePage', () => {
     expect(wrapper.vm.ResponsiveFilterRef.init).toHaveBeenCalled()
   })
 })
-

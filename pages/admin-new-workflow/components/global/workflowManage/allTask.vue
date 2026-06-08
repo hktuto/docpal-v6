@@ -1,0 +1,82 @@
+<script lang="ts" setup>
+import { clientApi } from 'api'
+import { workflowResponseHelper, getWorkflowList } from '#imports'
+
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
+const workflowList = await getWorkflowList()
+const { t } = useI18n()
+const reassignTaskRef = ref()
+
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+  id: 'manage_all_task',
+  api: async (pageParams: any) => {
+    const response = await clientApi.instance.get('/oniflow/api/v1/task/overview/available').then((r: any) => workflowResponseHelper(r))
+    return {
+      data: response
+    }
+  },
+  columns: [
+    {
+      field: 'definition_id',
+      title: 'Workflow Name',
+      fixed: 'left',
+      formatter({ cellValue }: any) {
+        const find = workflowList.find((item: any) => item.id === cellValue)
+        return !!find ? find.name : cellValue
+      }
+    },
+    { field: 'node_name', title: 'workflow_taskName' },
+    { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
+    { field: 'status.type', title: 'Status' },
+    {
+      field: 'created_at',
+      title: 'workflow_createDate',
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
+    },
+    {
+      field: 'updated_at',
+      title: 'workflow_dueDate',
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
+    }
+  ],
+  bodyActions: [
+    [
+      // {
+      //   code: 'delete',
+      //   name: t('common_delete'),
+      //   visible: true,
+      //   disabled: false,
+      //   action: async ({ row }: any) => {
+      //     await clientApi.instance.delete(`/oniflow/api/v1/processes/instance/${row.process_instance_id}`).then((r: any) => r.data)
+      //     reload()
+      //   }
+      // }
+    ]
+  ],
+  dblClickAction: ({ row, column, event }: any) => {
+    if (row.status.type !== 'assignee') {
+      reassignTaskRef.value.open(row)
+    }
+  }
+})
+</script>
+
+<template>
+  <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+    <template #toolbar_buttons> </template>
+    <template #assignee="{ row }">
+      <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
+    </template>
+  </VxeGrid>
+
+  <LazyWorkflowManageReassignTask ref="reassignTaskRef" />
+</template>
+
+<style lang="scss" scoped></style>

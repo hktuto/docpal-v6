@@ -18,10 +18,18 @@ async function submit() {
   try {
     loading.value = true
     errorMessage.value = ''
-    const data = await newClientApi.postAuthLogin({
-      username: form.username,
-      password: form.password
-    }).then((res) => res.data)
+    const checkUserLock: any = await newClientApi.getUcenterPasswordHasLockUserid(form.username).then((r) => r.data)
+    if (!!checkUserLock && checkUserLock.lockStatus) {
+      errorMessage.value = `The user is locked, please try again after ${checkUserLock.lockMinutes} minutes.`
+      return
+    }
+
+    const data = await newClientApi
+      .postAuthLogin({
+        username: form.username,
+        password: form.password
+      })
+      .then((res) => res.data)
     localStorage.setItem('access_token', data.access_token)
     localStorage.setItem('token', data.access_token)
     localStorage.setItem('refresh_token', data.refresh_token)
@@ -47,6 +55,8 @@ async function submit() {
     window.location.href = url
   } catch (error) {
     errorMessage.value = 'Username or password is incorrect'
+    // login失敗添加失敗次數
+    await newClientApi.getUcenterPasswordCheckLockUserUserid(form.username, { skipAddLoginCount: false }).then((r) => r.data)
   } finally {
     loading.value = false
   }
@@ -67,6 +77,7 @@ async function initLoginPage() {
       if (usernameEl.value) usernameEl.value.focus()
     })
   } catch (error) {
+    console.log("error to fetch language", error)
     systemError.value = 'Failed to load language'
     throw createError({
       message: 'Failed to load language',

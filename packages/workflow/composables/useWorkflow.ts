@@ -1,4 +1,5 @@
-import { useState, createError } from '#imports'
+import { createError, useState } from '#imports'
+
 type FormRenderSlotsType = {
   name: string
   component: any // FormRenderSlots
@@ -48,6 +49,27 @@ export const useWorkflow = () => {
     customStartCallBack,
     customWorkflowHandler,
     formRenderSlots,
-    formStartHandle,
+    formStartHandle
   }
+}
+
+export const useWorkflowAdditionalContext = (f: Function) => {
+  const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+  if (!graphProvider) {
+    throw createError('graph provider not found')
+  }
+
+  function setUpListener() {
+    graphProvider?.graph.value?.on('history:undo', () => {
+      f()
+    })
+    graphProvider?.graph.value?.on('history:redo', () => {
+      f()
+    })
+  }
+
+  onMounted(() => {
+    setUpListener()
+    f()
+  })
 }

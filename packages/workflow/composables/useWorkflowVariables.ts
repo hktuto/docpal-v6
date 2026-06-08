@@ -1,0 +1,328 @@
+import type { Graph, Node } from '@antv/x6'
+import dayjs from 'dayjs'
+
+/**
+ * 動態變量的數據類型
+ */
+export type VariableItemType = 'string' | 'number' | 'boolean' | 'date' | 'array' | 'object'
+export const VariableItemDisplayType = {
+  string: [
+    'text',
+    'file'
+    // , 'url', 'email', 'phone'
+  ],
+  number: ['number'],
+  boolean: ['boolean'],
+  date: ['date'],
+  array: ['dateRange', 'array'],
+  object: ['object']
+}
+
+export const VariableTypeOptions = [
+  {
+    group: 'DATA',
+    options: [
+      {
+        label: 'Text',
+        type: 'string',
+        display_type: 'text',
+        validation: {
+          max_length: 255,
+          min_length: 1
+        },
+        component: 'ContextVariableDataTypeString'
+      },
+      {
+        label: 'File',
+        type: 'string',
+        display_type: 'file',
+        validation: {
+          max_length: 255,
+          min_length: 1
+        },
+        component: 'ContextVariableDataTypeString'
+      },
+      {
+        label: 'Number',
+        type: 'number',
+        display_type: 'number',
+        validation: {
+          max_value: 100,
+          min_value: 1,
+          decimal_places: 0
+        },
+        component: 'ContextVariableDataTypeNumber'
+      },
+      {
+        label: 'Boolean',
+        type: 'boolean',
+        display_type: 'boolean',
+        validation: {},
+        component: 'ContextVariableDataTypeBoolean'
+      },
+      {
+        label: 'Date',
+        type: 'date',
+        display_type: 'date',
+        validation: {
+          pattern: 'YYYY-MM-DD hh:mm:ss'
+        },
+        component: 'ContextVariableDataTypeDate'
+      },
+      {
+        label: 'Date Range',
+        type: 'array ',
+        display_type: 'dateRange',
+        validation: {},
+        component: 'ContextVariableDataTypeDateRange'
+      },
+      {
+        label: 'Array',
+        type: 'array',
+        display_type: 'array',
+        validation: {},
+        component: 'ContextVariableDataTypeArray'
+      },
+      {
+        label: 'Object',
+        type: 'object',
+        display_type: 'object',
+        validation: {},
+        component: 'ContextVariableDataTypeObject'
+      }
+    ]
+  }
+]
+
+export type VariableItem = {
+  id: string
+  name: string
+  description: string
+  type: VariableItemType
+  display_type: string
+  required: boolean
+  default_value?: string | boolean | number
+  validation?: {
+    pattern?: string
+    max_length?: number
+    min_length?: number
+    max_value?: number
+    min_value?: number
+    decimal_places?: number
+  }
+  minItems?: number
+  items?: {
+    type: 'object' | 'string' | 'number' | 'boolean' | 'date'
+    properties: any
+  }
+  display_option?: {}
+}
+
+export type VariableSelectItem = {
+  id: string
+  name: string
+  type: VariableItemType
+  display_type: string
+  required: boolean
+}
+
+export type WorkflowVariablesObj = Record<string, Omit<VariableItem, 'id'>>
+
+export type WorkflowVariablesProvideContext = {
+  variables: ReturnType<typeof ref<VariableItem[]>>
+  addVariableItem: (node: Node, variableItem: VariableItem) => void
+  updateVariableItem: (node: Node, variableItem: VariableItem) => void
+  deleteVariableItem: (node: Node, variableItemId: string) => void
+  saveStartEventFormFields: (node: Node) => void
+  getVariablesByDisplayTypes: (displayTypeList?: string[], status?: boolean) => VariableSelectItem[]
+}
+
+/**
+ * When submitting data, the data format of formData is forced to be converted according to the data type of form Fields.
+ *
+ * @param formData formData original data
+ * @param formFields form Fields
+ */
+export function conversionFormDataByVariables(formData: any, formFields: VariableItem[]) {
+  try {
+    const variableSchema = formFields.reduce((acc: any, item: VariableItem) => {
+      acc[item.id] = { type: item.type }
+      return acc
+    }, {})
+
+    const formattedVariables: any = {}
+
+    for (const key in formData) {
+      const value = formData[key]
+      const definition = variableSchema[key]
+
+      if (!definition) {
+        formattedVariables[key] = value
+        continue
+      }
+
+      switch (definition.type) {
+        case 'number':
+          const num = Number(value)
+          formattedVariables[key] = isNaN(num) ? 0 : num
+          break
+        case 'boolean':
+          if (typeof value === 'string') {
+            formattedVariables[key] = value.toLowerCase() === 'true'
+          } else {
+            formattedVariables[key] = Boolean(value)
+          }
+          break
+        case 'string':
+          formattedVariables[key] = value !== null ? String(value) : ''
+          break
+        case 'date':
+          formattedVariables[key] = dayjs(value).valueOf()
+          break
+        default:
+          formattedVariables[key] = value
+      }
+    }
+    return formattedVariables
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+export const useVariablesProvide = () => {
+  const ctx = inject<WorkflowVariablesProvideContext>('WorkflowVariablesProvide')
+  if (!ctx) {
+    throw new Error('WorkflowVariablesProvide is not provided')
+  }
+  const { variables, addVariableItem, updateVariableItem, deleteVariableItem, saveStartEventFormFields, getVariablesByDisplayTypes } = ctx
+  return {
+    variables,
+    addVariableItem,
+    updateVariableItem,
+    deleteVariableItem,
+    saveStartEventFormFields,
+    getVariablesByDisplayTypes
+  }
+}
+
+export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
+  const variables = ref<VariableItem[]>([])
+
+  /**
+   * 把workflow Json 中 variables 轉成數組
+   * @param variablesObj workflowJson.variables
+   */
+  function setVariables(variablesObj: any) {
+    if (!!variablesObj) {
+      variables.value = Object.keys(variablesObj).map((key) => ({
+        id: key,
+        ...variablesObj[key]
+      }))
+    }
+  }
+
+  /**
+   * Add variable to variables and workflowJson variables
+   * @param variableItem 變量對象
+   * @param node Node
+   */
+  function addVariableItem(node: Node, variableItem: VariableItem) {
+    variables.value.push(variableItem)
+    updateNode(node, toWorkflowVariablesObj(variables.value))
+  }
+
+  /**
+   * Update variable to variables and workflowJson variables
+   * @param variableItem 變量對象
+   * @param node node
+   */
+  function updateVariableItem(node: Node, variableItem: VariableItem) {
+    const index = variables.value.findIndex((item: VariableItem) => item.id === variableItem.id)
+    if (index !== -1) {
+      variables.value[index] = variableItem
+    }
+    updateNode(node, toWorkflowVariablesObj(variables.value))
+  }
+
+  /**
+   * Delete variable from variables and workflowJson variables
+   * @param variableItemId 變量ID
+   * @param node node
+   */
+  function deleteVariableItem(node: Node, variableItemId: string) {
+    const index = variables.value.findIndex((item: VariableItem) => item.id === variableItemId)
+    if (index !== -1) {
+      variables.value.splice(index, 1)
+    }
+    updateNode(node, toWorkflowVariablesObj(variables.value))
+  }
+
+  /**
+   * 根據數據類型返回對應的數據類型
+   * @param displayTypeList 變量的數據類型 VariableItemDisplayType 的子類型
+   * @param status 是否是變量
+   */
+  function getVariablesByDisplayTypes(displayTypeList?: string[], status = false): VariableSelectItem[] {
+    let list: VariableItem[] = variables.value
+
+    if (displayTypeList?.length) {
+      list = variables.value.filter((item: VariableItem) => displayTypeList.includes(item.display_type))
+    }
+
+    return list.map((item: VariableItem) => ({
+      id: status ? '${' + item.id + '}' : item.id,
+      name: item.name,
+      type: item.type,
+      display_type: item.display_type,
+      required: item.required
+    }))
+  }
+
+  function updateNode(node: Node, variables: WorkflowVariablesObj) {
+    const data = node.getData()
+    const newData = {
+      ...data,
+      variables,
+      version: (data.version || 0) + 1
+    }
+    node.setData(newData, { overwrite: true, deep: true, silent: false })
+  }
+
+  function saveStartEventFormFields(startNode: Node) {
+    const formFields = variables.value.filter((item: any) => item.required && !item.id.startsWith('__system__'))
+    const data = startNode.getData()
+    const newData = {
+      ...data,
+      config: {
+        ...data.config,
+        initialise: {
+          ...data.config.initialise,
+          form_fields: formFields
+        }
+      },
+      version: (data.version || 0) + 1
+    }
+    startNode.setData(newData, { overwrite: true, deep: true, silent: false })
+  }
+
+  provide('WorkflowVariablesProvide', {
+    variables,
+    addVariableItem,
+    updateVariableItem,
+    deleteVariableItem,
+    saveStartEventFormFields,
+    getVariablesByDisplayTypes
+  })
+
+  return {
+    setVariables
+  }
+}
+
+export function toWorkflowVariablesObj(variables: VariableItem[]): WorkflowVariablesObj {
+  return variables.reduce((acc: WorkflowVariablesObj, curr: VariableItem) => {
+    const { id, ...rest } = curr
+    acc[id] = rest
+    return acc
+  }, {})
+}

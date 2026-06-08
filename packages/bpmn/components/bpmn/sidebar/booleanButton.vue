@@ -16,7 +16,7 @@ const buttonStyle = ['primary', 'success', 'warning', 'danger', 'info', 'text']
 const form = ref<any>([])
 
 const buttonSetting = ref({
-  showSumBitButton: true,
+  showSubmitButton: true,
   submitButtonLabel: 'Submit',
   showSaveDraft: true,
   saveDraftLabel: 'Save Draft'
@@ -139,7 +139,7 @@ watch(buttonSetting, () => {
       <span>Button Setting</span>
       <el-form label-position="top">
         <el-form-item label="Show Submit Button">
-          <el-switch v-model="buttonSetting.showSumBitButton" />
+          <el-switch v-model="buttonSetting.showSubmitButton" />
         </el-form-item>
         <el-form-item label="Submit Button Label">
           <el-input v-model="buttonSetting.submitButtonLabel" />

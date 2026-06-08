@@ -8,7 +8,17 @@ import type { UserDTO } from 'api/src/generate/client'
 export const useDesktopMode = () => useState<boolean>('is-desktop')
 export const useUserState = () => useState<UserDTO | null>('auth-user')
 
-export const usePublicPageState = () => useState<string[]>('auth-public-page', () => ['/forgetPassword', '/forgetPassword/', '/resetPassword/', '/resetPassword', '/login/', '/login', '/initPassword/', '/initPassword'])
+export const usePublicPageState = () =>
+  useState<string[]>('auth-public-page', () => [
+    '/forgetPassword',
+    '/forgetPassword/',
+    '/resetPassword/',
+    '/resetPassword',
+    '/login/',
+    '/login',
+    '/initPassword/',
+    '/initPassword',
+  ])
 export const useLoginHook = () => useState<any>(() => shallowRef([]))
 
 export const useUserId = () => useState<string>(() => '')
@@ -38,7 +48,6 @@ export const userDisplayTimeSetting = () => {
 }
 
 export async function verifly() {
-
   const logedIn = useLoginState()
   const isDesktopMode = useDesktopMode()
   const isMac = useIsMac()
@@ -63,11 +72,7 @@ export async function verifly() {
   const userId = useUserId()
   const user = useUserState()
 
-  const {
-    create,
-    findOne,
-    deleteTable
-  } = useSqliteTable({
+  const { create, findOne, deleteTable } = useSqliteTable({
     schema: {
       name: 'auth_user',
       columns: [
@@ -118,7 +123,6 @@ function parseJwt(token: string) {
 export async function login() {
   // const keyCloakState = useKeyCloakState()
 
-
   // check route is superAdmin
   try {
     // get access token from local storage
@@ -131,7 +135,6 @@ export async function login() {
     token.value = storageToken
     await verifly()
     await checkPassword()
-
   } catch (error) {
     console.log('login error', error)
     logout()
@@ -144,14 +147,13 @@ async function checkPassword() {
   //   firstLoginForceResetPassword: true
   // }
   try {
-    const data = await newClientApi.getUcenterPasswordUserStatus().then(r => r.data)
+    const data = await newClientApi.getUcenterPasswordUserStatus().then((r) => r.data)
     console.log(data)
     if (data?.firstLoginForceResetPassword || data?.accountExpire) {
       const router = useRouter()
       router.push('/resetPassword')
     }
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 
 export function getOCRSetting() {
@@ -166,7 +168,6 @@ export function canOCR(extension: string): boolean {
 }
 
 export function logout() {
-
   const logedIn = useLoginState()
 
   const userState = useUserState()
@@ -184,7 +185,6 @@ export function logout() {
 
   localStorage.clear()
   logedIn.value = false
-
 }
 
 /**
@@ -192,7 +192,7 @@ export function logout() {
  */
 async function getFeature() {
   const features = useFeature()
-  const data = await globalApi.getDmsFeatureGetfeatures().then(r => r.data)
+  const data = await globalApi.getDmsFeatureGetfeatures().then((r) => r.data)
   if (!data) throw new Error('get license feature error')
   features.value = data
 }
@@ -252,7 +252,7 @@ const uiSize = [
  */
 export async function getUserPreference() {
   const preference = useUserPreference()
-  const data = await newClientApi.getDmsUserSetting().then(r => r.data)
+  const data = await newClientApi.getDmsUserSetting().then((r) => r.data)
   if (!data) {
     throw new Error('get user preference fail')
   }
@@ -301,7 +301,7 @@ async function getUser() {
   const user = useUserState()
   const userId = useUserId()
   const userRole = useUserRole()
-  const data: any = await newClientApi.getDmsUserGetapplication().then(r => r.data)
+  const data: any = await newClientApi.getDmsUserGetapplication().then((r) => r.data)
   if (!data) {
     throw new Error('Get Application Is Null')
   }

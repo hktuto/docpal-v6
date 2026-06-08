@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TriggerSettingDTO } from 'api'
+import { newClientApi, TriggerSettingDTO } from 'api'
 import TriggerList from './automation/TriggerList.vue'
 import TriggerForm from './automation/TriggerForm.vue'
 import TriggerTest from './automation/TriggerTest.vue'
@@ -13,7 +13,7 @@ type DrawerMode = 'form' | 'test' | null
 const drawerMode = ref<DrawerMode>(null)
 const selectedTrigger = ref<TriggerSettingDTO | undefined>(undefined)
 const listRef = ref<InstanceType<typeof TriggerList> | null>(null)
-
+const tableFields = ref<any[]>([])
 const drawerVisible = computed({
   get: () => drawerMode.value !== null,
   set: (val) => {
@@ -41,8 +41,8 @@ function handleEdit(trigger: TriggerSettingDTO) {
   drawerMode.value = 'form'
 }
 
-function handleTest(trigger: TriggerSettingDTO) {
-  selectedTrigger.value = trigger
+function handleTest() {
+  // selectedTrigger.value = trigger
   drawerMode.value = 'test'
 }
 
@@ -60,39 +60,33 @@ function handleCancel() {
 function handleBack() {
   drawerVisible.value = false
 }
+
+async function getTableFields() {
+  try {
+    tableFields.value = await newClientApi.getDynamicDbTableTableidFields(props.masterTableId).then((r: any) => r.data)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+onMounted(async () => {
+  await getTableFields()
+})
 </script>
 
 <template>
   <div class="automation-root">
-    <TriggerList
-      ref="listRef"
-      :master-table-id="masterTableId"
-      @add="handleAdd"
-      @edit="handleEdit"
-      @test="handleTest"
-    />
-
-    <el-drawer
-      v-model="drawerVisible"
-      :title="drawerTitle"
-      size="520px"
-      :destroy-on-close="true"
-      :append-to-body="true"
-    >
+    <TriggerList ref="listRef" :master-table-id="masterTableId" @add="handleAdd" @edit="handleEdit" @test="handleTest" />
+    <el-drawer v-model="drawerVisible" :title="drawerTitle" size="520px" :destroy-on-close="true" :append-to-body="true">
       <TriggerForm
         v-if="drawerMode === 'form'"
+        :tableFields="tableFields"
         :master-table-id="masterTableId"
         :trigger="selectedTrigger"
         @saved="handleSaved"
         @cancel="handleCancel"
       />
-
-      <TriggerTest
-        v-else-if="drawerMode === 'test' && selectedTrigger"
-        :master-table-id="masterTableId"
-        :trigger="selectedTrigger"
-        @back="handleBack"
-      />
+      <TriggerTest v-else-if="drawerMode === 'test'" :tableFields="tableFields" :master-table-id="masterTableId" @back="handleBack" />
     </el-drawer>
   </div>
 </template>

@@ -31,18 +31,6 @@ function openEditInfo() {
     BrowseActionsEditRef.value.openDialog()
   }
 }
-function ocrPermission(doc: any) {
-  try {
-    if (!allowFeature('OCR') || !doc.properties['file_content'] || !doc.properties['file_content']['mime-type']) return false
-
-    const ext = doc.properties['file_content']['mime-type']
-    const extension = '.' + mime.extension(ext)
-    return canOCR(extension)
-  } catch (error) {
-    console.log(error)
-    return false
-  }
-}
 
 async function docUpdated(forceRefresh?: boolean = false) {
   if (props.listData && doc.value.id === props.listData.doc.id && !forceRefresh) {
@@ -117,9 +105,6 @@ watch(
         </el-tab-pane>
         <el-tab-pane :label="$t('rightDetail_activities')" name="activities">
           <BrowseInfoActivities v-if="currentTab === 'activities'" :doc="detail" />
-        </el-tab-pane>
-        <el-tab-pane v-if="ocrPermission(detail)" :label="$t('rightDetail_ocr')" name="ocr">
-          <BrowseInfoOcr v-if="currentTab === 'ocr'" :doc="detail" />
         </el-tab-pane>
         <el-tab-pane v-if="allowFeature('DOC_COMMENT')" class="pane--comment" :label="$t('rightDetail_comments')" name="comments">
           <!-- TODO: rbac check permission :disabled="checkPermission(permission)" -->

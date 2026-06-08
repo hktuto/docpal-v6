@@ -12,7 +12,7 @@
             })
           }}
         </div>
-        <el-form-item :label="$t('passwordPolicy.oldPassword')" prop="oldPassword">
+        <el-form-item v-if="!tokenRef" :label="$t('passwordPolicy.oldPassword')" prop="oldPassword">
           <el-input
             v-model="form.oldPassword"
             type="password"
@@ -58,9 +58,11 @@ const form = reactive({
   newPassword: '',
   confirmPassword: ''
 })
+const route = useRoute()
 const ready = ref(false)
 const passwordPolicy = ref<any>({})
 const rules = ref<any>({})
+const tokenRef = ref<string>()
 async function getPasswordPolicy() {
   let config: any = {}
   try {
@@ -79,11 +81,23 @@ async function getPasswordPolicy() {
 async function onSubmit() {
   try {
     await formRef.value.validate()
-    const res = await newClientApi.patchUcenterPasswordUpdatePassword({
-        oldPassword: form.oldPassword,
-        newPassword: form.newPassword
-      })
-      .then((res) => res.data)
+    let res
+    if (!!tokenRef.value && tokenRef.value !== '') {
+      res = await newClientApi
+        .postUcenterPasswordResetPassword({
+          token: tokenRef.value,
+          newPassword: form.newPassword
+        })
+        .then((r) => r.data)
+    } else {
+      res = await newClientApi
+        .patchUcenterPasswordUpdatePassword({
+          oldPassword: form.oldPassword,
+          newPassword: form.newPassword
+        })
+        .then((res) => res.data)
+    }
+
     if (!!res) {
       ElMessage.success(t('passwordPolicy.updatePasswordSuccess'))
       const router = useRouter()
@@ -98,7 +112,7 @@ async function onSubmit() {
 onMounted(async () => {
   await isLocaleFinished()
   await getPasswordPolicy()
-  // Need to wait for translation 
+  // Need to wait for translation
   rules.value = {
     oldPassword: [{ required: true, message: t('render.hint.fieldRequired', { name: t('passwordPolicy.oldPassword') }), trigger: 'blur' }],
     newPassword: [
@@ -139,7 +153,7 @@ onMounted(async () => {
   if (passwordPolicy.value.containSpecialCharacters) {
     rules.value.newPassword.push({
       validator: (rule: any, value: string) => {
-        return /^(?=.*[!@#$%&*]).+$/.test(value)
+        return /^(?=.*[!@#$%^&*()\-+=\[\]{}:;'",.<>/\\|]).+$/.test(value)
       },
       message: t('passwordPolicy.containSpecialCharacters'),
       trigger: 'blur'
@@ -147,14 +161,17 @@ onMounted(async () => {
   }
   ready.value = true
   // formRef.value.resetFields()
+  if (!!route.query.token) {
+    tokenRef.value = route.query.token
+  }
 })
 </script>
 
 <style scoped>
 .logo {
   --icon-size: clamp(100px, 80%, 200px);
-    max-width: 200px;
-    margin: 0 auto var(--app-space-s) auto;
+  max-width: 200px;
+  margin: 0 auto var(--app-space-s) auto;
 }
 .title {
   font-size: 1.5rem;
@@ -163,7 +180,7 @@ onMounted(async () => {
 }
 .tip {
   font-size: 1rem;
-  color: var(--app-grey-950);
+  color: #d58512;
   margin-bottom: 12px;
 }
 .reset-password-form {

@@ -79,6 +79,27 @@ function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreEx
   panelRouteUpdate(tab.value.parent, lastId, tab.value)
 }
 
+function replace(param: RouterParams) {
+  if (appNeedUpdate.value) {
+    window.location.reload()
+    return
+  }
+  refeshActions.value = []
+  forwardHistory.value = []
+  const lastId = tab.value.id
+  tab.value = {
+    ...param,
+    parent: tab.value.parent,
+    id: tab.value.id,
+    initized: true
+  }
+  console.log('replace', tab.value)
+  if (errorBoundary.value) {
+    errorBoundary.value?.clearError()
+  }
+  panelRouteUpdate(tab.value.parent, lastId, tab.value)
+}
+
 function getHistory() {
   return history.value
 }
@@ -243,6 +264,7 @@ watch(
 
 provide(MenuRouterKey, {
   navigateTo,
+  replace,
   updateProps,
   updateTabName,
   routerContainer,
