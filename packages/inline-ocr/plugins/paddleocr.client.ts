@@ -26,6 +26,12 @@ async function loadPaddleOcr() {
     const instance = await PaddleOCR.create({
       lang: 'ch',
       ocrVersion: 'PP-OCRv5',
+      textDetectionModelAsset: {
+        url: '/models/PP-OCRv5_mobile_det_onnx.tar',
+      },
+      textRecognitionModelAsset: {
+        url: '/models/PP-OCRv5_mobile_rec_onnx.tar',
+      },
       ortOptions: {
         backend: 'auto',
       },
