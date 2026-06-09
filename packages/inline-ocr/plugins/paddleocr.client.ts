@@ -24,11 +24,11 @@ async function loadPaddleOcr() {
     const { PaddleOCR } = await import('@paddleocr/paddleocr-js')
     paddleOcrState.progress = 'Downloading models (first time may take a while)...'
     const instance = await PaddleOCR.create({
-      lang: 'ch',
-      ocrVersion: 'PP-OCRv5',
+      textDetectionModelName: 'PP-OCRv5_mobile_det',
       textDetectionModelAsset: {
         url: '/models/PP-OCRv5_mobile_det_onnx.tar',
       },
+      textRecognitionModelName: 'PP-OCRv5_mobile_rec',
       textRecognitionModelAsset: {
         url: '/models/PP-OCRv5_mobile_rec_onnx.tar',
       },
