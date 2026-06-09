@@ -2,7 +2,7 @@
 import { ElMessage } from 'element-plus'
 import { useSingleWorkspaceContext } from '../../../../../composables/useSingleWorkspace'
 
-const { database, saveWorkspaceToDb } = useSingleDatabaseContext()
+const { database, updateDatabase } = useSingleDatabaseContext()
 const loading = ref(false)
 const formData = ref({
   name: '',
@@ -27,7 +27,7 @@ async function handleSaveGeneral() {
 
   try {
     loading.value = true
-    await saveWorkspaceToDb({
+    await updateDatabase({
       ...database.value,
       name: formData.value.name,
       description: formData.value.description,
