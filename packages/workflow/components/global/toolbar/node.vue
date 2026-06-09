@@ -145,39 +145,32 @@ onMounted(() => {
       <Icon name="lucide:settings-2" />
       <div class="label">Edit</div>
     </div>
-    <div
-      class="contextAction"
-      v-if="contextSelectedNode && ![WorkflowElementType.StartEvent, WorkflowElementType.EndEvent].includes(contextSelectedNode.data.type)"
-      @click="copy"
-    >
-      <Icon name="lucide:clipboard-copy" />
-      <div class="label">Copy</div>
-    </div>
-    <div
-      class="contextAction"
-      v-if="
-        contextSelectedNode &&
-        [WorkflowElementType.UserTask, WorkflowElementType.StartEvent].includes(contextSelectedNode.data.type) &&
-        graphProvider.copyKey.value &&
-        graphProvider.copyKey.value !== contextSelectedNode.data.id
-      "
-      @click="paste"
-    >
-      <Icon name="lucide:clipboard-paste" />
-      <div class="label">Paste</div>
-    </div>
-    <el-popconfirm
-      v-if="contextSelectedNode && ![WorkflowElementType.StartEvent, WorkflowElementType.EndEvent].includes(contextSelectedNode.data.type)"
-      title="Are you sure to delete this item?"
-      @confirm="deleteItem"
-    >
-      <template #reference>
-        <div class="contextAction">
-          <Icon name="lucide:trash" />
-          <div class="label">Delete</div>
+
+    <div v-if="contextSelectedNode">
+      <div v-if="[WorkflowElementType.UserTask].includes(contextSelectedNode.data.type)">
+        <div class="contextAction" @click="copy">
+          <Icon name="lucide:clipboard-copy" />
+          <div class="label">Copy</div>
         </div>
-      </template>
-    </el-popconfirm>
+        <div class="contextAction" v-if="graphProvider.copyKey.value && graphProvider.copyKey.value !== contextSelectedNode.data.id" @click="paste">
+          <Icon name="lucide:clipboard-paste" />
+          <div class="label">Paste</div>
+        </div>
+      </div>
+      <el-popconfirm
+        v-if="![WorkflowElementType.StartEvent, WorkflowElementType.EndEvent].includes(contextSelectedNode.data.type)"
+        width="200px"
+        title="Are you sure to delete this item?"
+        @confirm="deleteItem"
+      >
+        <template #reference>
+          <div class="contextAction">
+            <Icon name="lucide:trash" />
+            <div class="label">Delete</div>
+          </div>
+        </template>
+      </el-popconfirm>
+    </div>
   </div>
 </template>
 

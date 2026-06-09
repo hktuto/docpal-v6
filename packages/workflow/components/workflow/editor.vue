@@ -295,7 +295,7 @@ async function copyForm(node: Node, nodeSetting: any) {
 }
 
 function pasteForm(node: Node) {
-  graph.value?.startBatch('update-from-data')
+  graph.value?.startBatch('paste-update-from-data')
   const data = node.getData()
   const newData = {
     ...data,
@@ -304,7 +304,7 @@ function pasteForm(node: Node) {
     version: (data.version || 0) + 1
   }
   node.setData(newData, { overwrite: true, deep: true, silent: false })
-  graph.value?.stopBatch('update-from-data')
+  graph.value?.stopBatch('paste-update-from-data')
 }
 
 function updateActivate() {

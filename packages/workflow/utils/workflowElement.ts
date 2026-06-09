@@ -180,6 +180,29 @@ export enum contextMenuComponentType {
   TransformTask = 'LazyContextTransform'
 }
 
+const taskTitle: any = {
+  StartEvent: 'Start Event',
+  EndEvent: 'End Event',
+  UserTask: 'User Task',
+  SignatureTask: 'Signature Task',
+  ExclusiveGateway: 'Exclusive Gateway',
+  ParallelGateway: 'Parallel Gateway',
+  InclusiveGateway: 'Inclusive Gateway',
+  HTTPTask: 'HTTP Task',
+  ValidateTask: 'Validate Task',
+  MessageTask: 'Message Task',
+  UploadFile: 'Upload File',
+  SubProcess: 'Sub Process',
+  DocumentGenerationTask: 'Document Generation Task',
+  FilingDocuments: 'Filing Documents Task',
+  UniqueIdGenerator: 'Unique Id Generator',
+  InsertDynamicDatabase: 'Insert Dynamic Database',
+  UpdateDynamicDatabase: 'Update Dynamic Database',
+  EmailTask: 'Email Task',
+  ConditionTask: 'Condition Task',
+  TransformTask: 'Transform Task'
+}
+
 interface portsItems {
   id: string
   group: string
@@ -418,7 +441,6 @@ const PORT_END_IN = { items: [{ id: 'from', group: 'from' }] }
  */
 function graphItemFromWorkflowNode(
   workflowNodeItem: NodeItem,
-  title: string,
   options?: {
     ports?: { items: portsItems[] }
     dataExtra?: Record<string, unknown>
@@ -429,6 +451,7 @@ function graphItemFromWorkflowNode(
   const dh = metadata.height || 64
   const bgColor = metadata.bgColor || '#fff'
   const textColor = metadata.textColor || '#000'
+  const title: string = taskTitle[workflowNodeItem.metadata.type as string] || workflowNodeItem.metadata.type
 
   return {
     id: workflowNodeItem.id,
@@ -460,24 +483,22 @@ export const workflowElement: WorkflowElement = {
     embed: false,
     toolbar: [],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
-      graphItemFromWorkflowNode(workflowNodeItem, 'Start Event', {
+      graphItemFromWorkflowNode(workflowNodeItem, {
         ports: PORT_START_OUT,
         dataExtra: { version: 0 }
       }),
-    clickHandler: () => {
-    },
+    clickHandler: () => {},
     contextMenuComponent: 'LazyContextStartEvent'
   },
   EndEvent: {
     embed: false,
     toolbar: [],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) =>
-      graphItemFromWorkflowNode(workflowNodeItem, 'End Event', {
+      graphItemFromWorkflowNode(workflowNodeItem, {
         ports: PORT_END_IN,
         dataExtra: { version: 0 }
       }),
-    clickHandler: () => {
-    },
+    clickHandler: () => {},
     contextMenuComponent: 'LazyContextEndEvent'
   },
   UserTask: {
@@ -498,12 +519,8 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const title = workflowNodeItem.metadata.type === CellType.signatureTask ? 'User Signature Task' : 'User Task'
-      return graphItemFromWorkflowNode(workflowNodeItem, title)
-    },
-    clickHandler: () => {
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       if (workflowNodeItem.metadata.type === CellType.signatureTask) {
         return contextMenuComponentType.signatureTask
@@ -536,11 +553,9 @@ export const workflowElement: WorkflowElement = {
       //   order: 0
       // }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
-    clickHandler: () => {
-    },
-    contextMenuComponent: () => {
-    }
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
+    contextMenuComponent: () => {}
   },
   ConditionTask: {
     embed: false,
@@ -553,9 +568,8 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
-    clickHandler: () => {
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       return contextMenuComponentType.ConditionTask
     }
@@ -571,9 +585,8 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
-    clickHandler: () => {
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       return contextMenuComponentType.TransformTask
     }
@@ -589,9 +602,8 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
-    clickHandler: () => {
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       return 'LazyContextServiceTask'
     }
@@ -649,9 +661,8 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
-    clickHandler: () => {
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       return 'LazyContextServiceTask'
     }
@@ -667,9 +678,8 @@ export const workflowElement: WorkflowElement = {
       //   order: 0
       // },
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
-    clickHandler: () => {
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       return 'LazyContextServiceTask'
     }
@@ -692,9 +702,8 @@ export const workflowElement: WorkflowElement = {
         order: 0
       }
     ],
-    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem, workflowNodeItem.name),
-    clickHandler: () => {
-    },
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       if (workflowNodeItem.metadata.type in contextMenuComponentType) {
         return contextMenuComponentType[workflowNodeItem.metadata.type as keyof typeof contextMenuComponentType]
@@ -756,7 +765,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   SignatureTask: {
-    ...createNodeShell('New_SignatureTask', 'Signature Task', 'Signature Task', '/icons/signature.svg'),
+    ...createNodeShell('New_SignatureTask', 'Signature Task', 'New Signature Task', '/icons/signature.svg'),
     data: {
       id: '',
       name: 'New Signature Task',
