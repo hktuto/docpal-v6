@@ -220,10 +220,10 @@ watch(
 
     <el-divider v-if="updateFieldsList.length > 0" />
 
-    <template v-loading="loading" v-for="item in updateFieldsList">
-      <el-form-item :label="item.name">
-        <el-select v-model="item.value" filterable clearable @change="update" :placeholder="t('common_selectOccupancyContent')">
-          <el-option v-for="item in getVariables(item.type)" :key="item.id" :label="item.name" :value="item.id" />
+    <template v-loading="loading" v-for="field in updateFieldsList">
+      <el-form-item :label="field.name">
+        <el-select v-model="field.value" filterable clearable @change="update" :placeholder="t('common_selectOccupancyContent')">
+          <el-option v-for="item in getVariables(field.type)" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
     </template>

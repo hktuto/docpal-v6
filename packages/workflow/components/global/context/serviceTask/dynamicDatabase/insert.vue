@@ -95,7 +95,9 @@ function update() {
   const data: any = {}
 
   tableFieldList.value.forEach((item: any) => {
-    data[item.id] = item.value
+    if (item.value !== '') {
+      data[item.id] = item.value
+    }
   })
 
   const newData = {
@@ -145,7 +147,7 @@ async function getDataBaseList() {
       status: 'A',
       pageNum: 0,
       pageSize: 1000
-    } as CaseTypeRequestDTO
+    }
     const data = await newAdminApi.postDynamicDbCaseTypesPage(parms).then((r: any) => r.data)
     dataBaseList.value = data.entryList
   } catch (e) {
@@ -162,7 +164,7 @@ async function getTableList() {
       },
       pageNum: 0,
       pageSize: 1000
-    } as CaseTypeRequestDTO
+    }
     tableList.value = await newClientApi.getDynamicDbTableList(pageParams).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
@@ -229,10 +231,10 @@ watch(
     </el-form-item>
     <el-divider />
 
-    <template v-for="item in tableFieldList">
-      <el-form-item :label="item.name">
-        <el-select v-model="item.value" filterable clearable @change="update">
-          <el-option v-for="item in getVariables(item.type)" :key="item.id" :label="item.name" :value="item.id" />
+    <template v-for="field in tableFieldList">
+      <el-form-item :label="field.name">
+        <el-select v-model="field.value" filterable clearable @change="update">
+          <el-option v-for="item in getVariables(field.type)" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
     </template>
