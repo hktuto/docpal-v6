@@ -24,10 +24,6 @@
         <el-input v-model="form.label" placeholder="e.g. Completion Rate" />
       </el-form-item>
 
-      <el-form-item label="Color">
-        <el-select-v2 v-model="form.color" :options="colorOptions" style="width: 100%" />
-      </el-form-item>
-
       <el-divider>Annotation</el-divider>
 
       <el-form-item label="Subtitle">
@@ -36,6 +32,10 @@
 
       <el-form-item label="Footer">
         <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
+      </el-form-item>
+
+      <el-form-item label="Color">
+        <el-select-v2 v-model="form.color" :options="colorOptions" style="width: 100%" />
       </el-form-item>
     </el-form>
     <template #footer>

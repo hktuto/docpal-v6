@@ -5,6 +5,16 @@
         <el-input v-model="form.label" placeholder="e.g. Sales by Region" />
       </el-form-item>
 
+      <el-divider>Annotation</el-divider>
+
+      <el-form-item label="Subtitle">
+        <el-input v-model="form.subtitle" placeholder="e.g. Q1 2024 overview" />
+      </el-form-item>
+
+      <el-form-item label="Footer">
+        <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
+      </el-form-item>
+
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
           <el-option v-for="table in tableOptions" :key="table.item_id" :label="table.name" :value="table.item_id" />
@@ -33,16 +43,6 @@
 
       <el-form-item label="Row Limit">
         <el-select-v2 v-model="form.rowLimit" :options="limitOptions" style="width: 100%" />
-      </el-form-item>
-
-      <el-divider>Annotation</el-divider>
-
-      <el-form-item label="Subtitle">
-        <el-input v-model="form.subtitle" placeholder="e.g. Q1 2024 overview" />
-      </el-form-item>
-
-      <el-form-item label="Footer">
-        <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -90,6 +90,13 @@ const form = reactive({
   aggregation: 'count',
   rowLimit: 20,
   label: '',
+  appearance: {
+    innerRadius: 0,
+    outerRadius: 70,
+    showPercentage: true,
+    showAbsolute: true,
+    bucketThreshold: 0
+  },
   subtitle: '',
   footer: ''
 })
@@ -111,6 +118,13 @@ watch(
       form.aggregation = setting.value.aggregation || 'count'
       form.rowLimit = setting.value.rowLimit || 20
       form.label = setting.value.label || ''
+      form.appearance = {
+        innerRadius: setting.value.appearance?.innerRadius ?? (setting.value.chartType === 'donut' ? 40 : 0),
+        outerRadius: setting.value.appearance?.outerRadius ?? 70,
+        showPercentage: setting.value.appearance?.showPercentage ?? true,
+        showAbsolute: setting.value.appearance?.showAbsolute ?? true,
+        bucketThreshold: setting.value.appearance?.bucketThreshold ?? 0
+      }
       form.subtitle = setting.value.subtitle || ''
       form.footer = setting.value.footer || ''
       if (form.tableId) {
@@ -129,6 +143,7 @@ function handleSubmit() {
     aggregation: form.aggregation,
     rowLimit: form.rowLimit,
     label: form.label,
+    appearance: { ...form.appearance },
     subtitle: form.subtitle,
     footer: form.footer
   })
@@ -138,6 +153,11 @@ defineExpose({ handleOpen })
 </script>
 
 <style scoped lang="scss">
+.appearance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
 .footer-grid {
   display: flex;
   justify-content: space-between;

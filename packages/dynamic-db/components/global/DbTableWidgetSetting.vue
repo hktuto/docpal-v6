@@ -88,6 +88,10 @@
         <el-select-v2 v-model="form.rowLimit" :options="limitOptions" style="width: 100%" />
       </el-form-item>
 
+      <el-form-item label="Title">
+        <el-input v-model="form.title" placeholder="e.g. Table View" />
+      </el-form-item>
+
       <el-divider>Annotation</el-divider>
 
       <el-form-item label="Subtitle">
@@ -140,6 +144,7 @@ const form = reactive({
   rowLimit: 10,
   sortRules: [] as SortRule[],
   filterRules: [] as FilterRule[],
+  title: '',
   subtitle: '',
   footer: ''
 })
@@ -270,6 +275,7 @@ watch(
         operator: r.operator || '',
         value: r.value || ''
       }))
+      form.title = setting.value.title || ''
       form.subtitle = setting.value.subtitle || ''
       form.footer = setting.value.footer || ''
 
@@ -296,6 +302,7 @@ function handleSubmit() {
     // Clear legacy sort fields when sortRules are used
     sortField: undefined,
     sortOrder: undefined,
+    title: form.title,
     subtitle: form.subtitle,
     footer: form.footer
   })

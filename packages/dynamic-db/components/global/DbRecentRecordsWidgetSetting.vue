@@ -23,6 +23,10 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Title">
+        <el-input v-model="form.title" placeholder="e.g. Recent Records" />
+      </el-form-item>
+
       <el-divider>Annotation</el-divider>
 
       <el-form-item label="Subtitle">
@@ -61,6 +65,7 @@ const form = reactive({
   fields: [] as string[],
   limit: 5,
   sortField: 'createdTime',
+  title: '',
   subtitle: '',
   footer: ''
 })
@@ -79,6 +84,7 @@ watch(
       form.fields = setting.value.fields || []
       form.limit = setting.value.limit || 5
       form.sortField = setting.value.sortField || 'createdTime'
+      form.title = setting.value.title || ''
       form.subtitle = setting.value.subtitle || ''
       form.footer = setting.value.footer || ''
       if (form.tableId) {
@@ -94,6 +100,7 @@ function handleSubmit() {
     fields: [...form.fields],
     limit: form.limit,
     sortField: form.sortField,
+    title: form.title,
     subtitle: form.subtitle,
     footer: form.footer
   })

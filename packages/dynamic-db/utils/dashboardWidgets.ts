@@ -40,6 +40,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       sortOrder: 'desc',
       filterRules: [],
       sortRules: [],
+      title: '',
       subtitle: '',
       footer: ''
     }
@@ -71,6 +72,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
         stacked: false,
         smooth: false
       },
+      title: '',
       subtitle: '',
       footer: ''
     }
@@ -113,6 +115,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       limit: 5,
       sortField: '',
       sortOrder: 'desc',
+      title: '',
       subtitle: '',
       footer: ''
     }
