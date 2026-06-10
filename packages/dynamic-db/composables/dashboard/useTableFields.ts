@@ -28,7 +28,13 @@ export function useTableFields() {
 
   function getNumericFields(tableId: string): Promise<any[]> {
     return getFields(tableId).then((fields) =>
-      fields.filter((f: any) => f.business_type === '2' || f.business_type === 'number')
+      fields.filter((f: any) => {
+        const bt = String(f.business_type || '')
+        return bt === '2' || bt === 'number' ||
+          bt === '12' || bt === 'rating' ||
+          bt === '16' || bt === 'formula' ||
+          bt === '27' || bt === 'aggVirtualColumn'
+      })
     )
   }
 

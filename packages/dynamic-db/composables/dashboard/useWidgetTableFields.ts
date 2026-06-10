@@ -41,11 +41,13 @@ export function useWidgetTableFields() {
   }
 
   const numericFields = computed(() =>
-    fields.value.filter((f: any) =>
-      f.business_type === '2' || f.business_type === 'number' ||
-      f.business_type === '12' || f.business_type === 'rating' ||
-      f.business_type === '16' || f.business_type === 'formula'
-    )
+    fields.value.filter((f: any) => {
+      const bt = String(f.business_type || '')
+      return bt === '2' || bt === 'number' ||
+        bt === '12' || bt === 'rating' ||
+        bt === '16' || bt === 'formula' ||
+        bt === '27' || bt === 'aggVirtualColumn'
+    })
   )
 
   const dateFields = computed(() =>
