@@ -60,8 +60,20 @@
         <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
       </el-form-item>
 
+      <el-form-item label="Target Value">
+        <el-input-number v-model="form.target" :min="0" :controls="false" style="width: 100%" placeholder="e.g. 1000" />
+      </el-form-item>
+
+      <el-form-item label="Conditional Color">
+        <el-switch v-model="form.conditionalColor" />
+      </el-form-item>
+
+      <el-form-item label="Show Progress Bar">
+        <el-switch v-model="form.showProgress" />
+      </el-form-item>
+
       <el-form-item label="Color">
-        <el-select-v2 v-model="form.color" :options="colorOptions" style="width: 100%" />
+        <el-select-v2 v-model="form.color" :options="colorOptions" style="width: 100%" :disabled="form.conditionalColor" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -111,7 +123,10 @@ const form = reactive({
   label: 'Records',
   color: 'primary',
   subtitle: '',
-  footer: ''
+  footer: '',
+  target: undefined as number | undefined,
+  conditionalColor: false,
+  showProgress: false
 })
 
 function getFieldType(fieldName: string): string {
@@ -202,6 +217,9 @@ watch(
       form.color = setting.value.color || 'primary'
       form.subtitle = setting.value.subtitle || ''
       form.footer = setting.value.footer || ''
+      form.target = setting.value.target ?? undefined
+      form.conditionalColor = setting.value.conditionalColor || false
+      form.showProgress = setting.value.showProgress || false
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -224,7 +242,10 @@ function handleSubmit() {
     label: form.label,
     color: form.color,
     subtitle: form.subtitle,
-    footer: form.footer
+    footer: form.footer,
+    target: form.target,
+    conditionalColor: form.conditionalColor,
+    showProgress: form.showProgress
   })
 }
 

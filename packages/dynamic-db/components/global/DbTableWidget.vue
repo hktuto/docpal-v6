@@ -11,6 +11,14 @@
     @refresh="handleRefresh"
   >
     <div class="db-table-widget">
+      <!-- Bulk action toolbar -->
+      <div v-if="selectedCount > 0" class="bulk-toolbar">
+        <span class="bulk-count">{{ selectedCount }} selected</span>
+        <el-button type="danger" size="small" @click="handleBulkDelete">
+          <Icon name="lucide:trash-2" size="14" />
+          Delete
+        </el-button>
+      </div>
       <VxeGrid
         ref="gridRef"
         v-bind="gridOptions"
@@ -18,6 +26,7 @@
         :loading="loading"
         height="100%"
         @page-change="handlePageChange"
+        @cell-click="handleCellClick"
       />
     </div>
   </DashboardCard>
@@ -25,12 +34,14 @@
 </template>
 
 <script setup lang="ts">
-import { postDynamicActions } from 'api'
+import { postDynamicActions, newClientApi } from 'api'
 import type { VxeGridProps } from 'vxe-table'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 import { rendererManager } from '@packages/dp-mdTable/renderers/registry-manager'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { SingleDatabaseContextKey } from '../../composables/useSignleDatabase'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const props = withDefaults(
   defineProps<{
@@ -53,10 +64,11 @@ const total = ref(0)
 const gridRef = ref()
 const settingRef = ref()
 const cardRef = ref()
+const selectedCount = ref(0)
 
 const displayTitle = computed(() => props.setting?.title || 'Table View')
 
-// Full field metadata indexed by field_name (includes business_type, display_structure, etc.)
+// Full field metadata indexed by field_name
 const fieldMetaMap = ref<Record<string, any>>({})
 const { getFields } = useTableFields()
 
@@ -73,19 +85,34 @@ async function loadFieldMeta(tableId: string) {
   fieldMetaMap.value = map
 }
 
+const hiddenColumns = computed(() => new Set(props.setting?.hiddenColumns || []))
+const columnWidths = computed<Record<string, number>>(() => props.setting?.columnWidths || {})
+
 const gridOptions = computed<VxeGridProps>(() => {
   const selectedColumns = props.setting?.columns || []
   const meta = fieldMetaMap.value
 
+  const checkboxCol = {
+    type: 'checkbox',
+    width: 44,
+    fixed: 'left',
+    align: 'center'
+  }
+
   const buildColumn = (fieldName: string) => {
     const fieldMeta = meta[fieldName]
     const title = fieldMeta?.field_name_alias || fieldName
+    const storedWidth = columnWidths.value[fieldName]
+    const isHidden = hiddenColumns.value.has(fieldName)
+
     let base: any
     if (!fieldMeta) {
       base = {
         field: fieldName,
         title,
-        minWidth: 120
+        minWidth: 120,
+        width: storedWidth || undefined,
+        visible: !isHidden
       }
     } else {
       const type = (fieldMeta.business_type as ColumnFieldType) || ColumnFieldType.Text
@@ -96,13 +123,15 @@ const gridOptions = computed<VxeGridProps>(() => {
         title: fieldMeta.field_name_alias,
         aggFunc: true,
         colId: fieldMeta.field_name,
+        width: storedWidth || undefined,
+        visible: !isHidden,
         ...rendererManager.getColumnConfig(type, displayStructure, displayStructure)
       }
     }
     return base
   }
 
-  const columns = selectedColumns.length
+  const cols = selectedColumns.length
     ? selectedColumns.map((field: string) => buildColumn(field))
     : []
 
@@ -112,7 +141,11 @@ const gridOptions = computed<VxeGridProps>(() => {
     resizable: true,
     showOverflow: true,
     size: 'small',
-    columns,
+    columns: [checkboxCol, ...cols],
+    checkboxConfig: {
+      highlight: true,
+      trigger: 'cell'
+    },
     pagerConfig: {
       enabled: true,
       currentPage: currentPage.value,
@@ -157,7 +190,6 @@ function buildOrderBy(): any[] {
     }
   }
 
-  // Backward compatibility: old sortField/sortOrder
   if (!result.length && props.setting?.sortField) {
     result.push({
       column: props.setting.sortField,
@@ -209,6 +241,42 @@ function handlePageChange({ currentPage: page, pageSize: size }: any) {
   fetchData()
 }
 
+const dbContext = inject(SingleDatabaseContextKey, null)
+
+function handleCellClick({ row }: any) {
+  // Update selection count on any cell click (checkbox click triggers this)
+  nextTick(() => {
+    selectedCount.value = gridRef.value?.getCheckboxRecords().length || 0
+  })
+}
+
+async function handleBulkDelete() {
+  const records = gridRef.value?.getCheckboxRecords() || []
+  if (!records.length) return
+
+  try {
+    await ElMessageBox.confirm(
+      `Delete ${records.length} selected row(s)? This action cannot be undone.`,
+      'Confirm Delete',
+      { confirmButtonText: 'Delete', cancelButtonText: 'Cancel', type: 'warning' }
+    )
+
+    const ids = records.map((r: any) => r.id).filter(Boolean)
+    if (!ids.length) return
+
+    await newClientApi.deleteDynamicDbTableTableidDataBatch(props.setting.tableId, { ids })
+    ElMessage.success(`${ids.length} row(s) deleted`)
+    gridRef.value?.clearCheckboxRow()
+    selectedCount.value = 0
+    await fetchData()
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      console.error('Failed to delete rows:', error)
+      ElMessage.error('Failed to delete rows')
+    }
+  }
+}
+
 function handleDelete() {
   emit('delete')
 }
@@ -233,7 +301,10 @@ watch(
     props.setting?.sortField,
     props.setting?.sortOrder,
     props.setting?.filterRules,
-    props.setting?.sortRules
+    props.setting?.sortRules,
+    props.setting?.columns,
+    props.setting?.hiddenColumns,
+    props.setting?.columnWidths
   ],
   () => {
     currentPage.value = 1
@@ -264,5 +335,21 @@ defineExpose({
 .db-table-widget {
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.bulk-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-s);
+  padding: var(--app-space-xs) var(--app-space-s);
+  background-color: var(--el-fill-color-light);
+  border-bottom: 1px solid var(--el-border-color-light);
+  flex-shrink: 0;
+}
+.bulk-count {
+  font-size: var(--app-font-size-s);
+  font-weight: 600;
+  color: var(--el-color-primary);
 }
 </style>

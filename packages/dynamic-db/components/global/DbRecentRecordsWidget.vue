@@ -18,10 +18,18 @@
             <span class="header-label">{{ fieldLabel(field) }}</span>
           </template>
         </div>
-        <div v-for="record in records" :key="record.id" class="record-item">
+        <div
+          v-for="record in records"
+          :key="record.id"
+          class="record-item"
+          :class="{ clickable: true }"
+          @click="handleRowClick(record)"
+        >
           <div class="record-fields">
             <template v-for="field in displayFields" :key="field">
-              <span class="field-value">{{ record[field] }}</span>
+              <span class="field-value" :title="formatCellValue(record, field)">
+                {{ formatCellValue(record, field) }}
+              </span>
             </template>
           </div>
         </div>
@@ -36,6 +44,8 @@
 import { postDynamicActions } from 'api'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import { formatTableFieldDisplayValue } from '@packages/dp-mdTable/utils/fieldValueFormat'
+import { SingleDatabaseContextKey } from '../../composables/useSignleDatabase'
 
 const props = withDefaults(
   defineProps<{
@@ -65,24 +75,40 @@ const displayFields = computed(() => {
   return ['name']
 })
 
-const fieldMap = ref<Record<string, string>>({})
+const fieldMap = ref<Record<string, any>>({})
 const { getFields } = useTableFields()
 
-async function loadFieldLabels(tableId: string) {
+async function loadFieldMeta(tableId: string) {
   if (!tableId) {
     fieldMap.value = {}
     return
   }
   const fields = await getFields(tableId)
-  const map: Record<string, string> = {}
+  const map: Record<string, any> = {}
   for (const f of fields) {
-    map[f.field_name] = f.field_name_alias || f.field_name
+    map[f.field_name] = f
   }
   fieldMap.value = map
 }
 
 function fieldLabel(fieldName: string): string {
-  return fieldMap.value[fieldName] || fieldName
+  return fieldMap.value[fieldName]?.field_name_alias || fieldName
+}
+
+function formatCellValue(record: any, fieldName: string): string {
+  const field = fieldMap.value[fieldName]
+  if (!field) return record[fieldName] ?? ''
+  return formatTableFieldDisplayValue(record[fieldName], field, record)
+}
+
+const dbContext = inject(SingleDatabaseContextKey, null)
+
+function handleRowClick(record: any) {
+  if (!dbContext || !props.setting?.tableId || !record.id) return
+  dbContext.databaseMenuRouteParams.value.detailType = 'record'
+  dbContext.databaseMenuRouteParams.value.recordId = record.id
+  dbContext.databaseMenuRouteParams.value.tableId = props.setting.tableId
+  dbContext.databaseMenuRouteParams.value.pageType = 'detail'
 }
 
 async function fetchRecords() {
@@ -125,7 +151,7 @@ function handleRefresh(newSetting: any) {
 watch(
   () => props.setting?.tableId,
   (tableId) => {
-    loadFieldLabels(tableId)
+    loadFieldMeta(tableId)
   },
   { immediate: true }
 )
@@ -173,6 +199,13 @@ defineExpose({
   border-bottom: 1px solid var(--app-grey-900);
   &:last-child {
     border-bottom: none;
+  }
+  &.clickable {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    &:hover {
+      background-color: var(--el-fill-color-light);
+    }
   }
 }
 .record-fields {

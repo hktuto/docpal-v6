@@ -14,6 +14,17 @@
       <div class="stat-value" :style="{ color: countColor }">
         {{ formattedValue }}
       </div>
+      <div v-if="targetInfo" class="stat-target">
+        {{ targetInfo }}
+      </div>
+      <el-progress
+        v-if="showProgress && targetValue > 0"
+        :percentage="Math.min(100, Math.round((value / targetValue) * 100))"
+        :color="progressColors"
+        :show-text="false"
+        :stroke-width="8"
+        style="width: 80%; margin-top: 8px"
+      />
     </div>
   </DashboardCard>
   <DbStatWidgetSetting ref="settingRef" @refresh="handleRefresh" @delete="handleDelete" />
@@ -43,7 +54,17 @@ const cardRef = ref()
 
 const displayLabel = computed(() => props.setting?.label || 'Records')
 
+const targetValue = computed(() => Number(props.setting?.target) || 0)
+const useConditionalColor = computed(() => props.setting?.conditionalColor || false)
+const showProgress = computed(() => props.setting?.showProgress || false)
+
 const countColor = computed(() => {
+  if (useConditionalColor.value && targetValue.value > 0) {
+    const ratio = value.value / targetValue.value
+    if (ratio >= 1) return 'var(--el-color-success)'
+    if (ratio >= 0.7) return 'var(--el-color-warning)'
+    return 'var(--el-color-danger)'
+  }
   const colorMap: Record<string, string> = {
     primary: 'var(--el-color-primary)',
     success: 'var(--el-color-success)',
@@ -51,6 +72,18 @@ const countColor = computed(() => {
     danger: 'var(--el-color-danger)'
   }
   return colorMap[props.setting?.color] || 'var(--el-color-primary)'
+})
+
+const progressColors = [
+  { color: 'var(--el-color-danger)', percentage: 20 },
+  { color: 'var(--el-color-warning)', percentage: 70 },
+  { color: 'var(--el-color-success)', percentage: 100 }
+]
+
+const targetInfo = computed(() => {
+  if (!targetValue.value) return ''
+  const pct = Math.round((value.value / targetValue.value) * 100)
+  return `Target: ${targetValue.value} (${pct}%)`
 })
 
 const formattedValue = computed(() => {
@@ -170,5 +203,10 @@ defineExpose({
   font-size: 48px;
   font-weight: 700;
   line-height: 1;
+}
+.stat-target {
+  margin-top: var(--app-space-xs);
+  font-size: var(--app-font-size-s);
+  color: var(--app-text-color-secondary);
 }
 </style>
