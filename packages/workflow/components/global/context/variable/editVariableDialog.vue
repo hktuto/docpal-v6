@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { VariableTypeOptions, type VariableItem } from '#imports'
-import { VariableItemDisplayType } from '@packages/workflow/composables/useWorkflowVariables'
+import { type VariableItem, VariableTypeOptions } from '#imports'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
@@ -146,7 +145,7 @@ function typeChanged(displayType: string) {
       case 'array':
         filedData.minItems = 0
         if (isEdit.value) {
-          filedData.items = !!formData.value.items ? filedData.items : { type: 'string', properties: {} }
+          filedData.items = !!formData.value.items ? formData.value.items : { type: 'string', properties: {} }
         } else {
           filedData.items = { type: 'string', properties: {} }
         }
