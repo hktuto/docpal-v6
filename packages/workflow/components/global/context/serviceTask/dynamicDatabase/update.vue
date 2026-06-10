@@ -14,27 +14,53 @@ const { getVariablesByDisplayTypes } = useVariablesProvide()
 const databaseId = ref('')
 const tableId = ref('')
 const dataId = ref('')
-const tableFieldList = ref([])
-const dataBaseList = ref([])
-const tableList = ref([])
+const tableFieldList = ref<
+  {
+    id: string
+    name: string
+    value: string
+    type: string
+    field_type: string
+    isRequired: boolean
+    isUnique: boolean
+  }[]
+>([])
+const dataBaseList = ref<
+  {
+    id: string
+    name: string
+  }[]
+>([])
+const tableList = ref<
+  {
+    id: string
+    name: string
+  }[]
+>([])
 const fieldsList = ref<string[]>([])
 const updateFieldsList = computed(() => {
   return fieldsList.value.map((fieldId: string) => tableFieldList.value.find((item: any) => item.id === fieldId)).filter(Boolean)
 })
 
 function getVariables(status: string) {
-  let type: VariableItemType
+  let displayTypeList: string[]
   switch (status) {
+    case 'string':
+      displayTypeList = ['text']
+      break
     case 'integer':
-      type = 'number'
+      displayTypeList = ['number']
       break
     case 'number':
-      type = 'number'
+      displayTypeList = ['number']
+      break
+    case 'array':
+      displayTypeList = ['array']
       break
     default:
-      type = 'text'
+      displayTypeList = []
   }
-  return getVariablesByDisplayTypes([type], true)
+  return getVariablesByDisplayTypes(displayTypeList, true)
 }
 
 async function init() {
@@ -161,6 +187,7 @@ async function getTableConfig() {
       id: item.field_name,
       name: item.field_name_alias,
       type: item.validation_rules.type,
+      field_type: item.field_type,
       isRequired: item.is_required,
       isUnique: item.is_unique,
       value: ''
@@ -220,7 +247,7 @@ watch(
 
     <el-divider v-if="updateFieldsList.length > 0" />
 
-    <template v-loading="loading" v-for="field in updateFieldsList">
+    <template v-for="field in updateFieldsList">
       <el-form-item :label="field.name">
         <el-select v-model="field.value" filterable clearable @change="update" :placeholder="t('common_selectOccupancyContent')">
           <el-option v-for="item in getVariables(field.type)" :key="item.id" :label="item.name" :value="item.id" />

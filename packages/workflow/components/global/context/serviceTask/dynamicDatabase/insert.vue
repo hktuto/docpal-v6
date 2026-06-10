@@ -27,24 +27,35 @@ const tableList = ref<
 >([])
 const tableFieldList = ref<
   {
+    id: string
     name: string
     value: string
+    type: string
+    field_type: string
+    isRequired: boolean
+    isUnique: boolean
   }[]
 >([])
 
 function getVariables(status: string) {
-  let type: VariableItemType
+  let displayTypeList: string[]
   switch (status) {
+    case 'string':
+      displayTypeList = ['text']
+      break
     case 'integer':
-      type = 'number'
+      displayTypeList = ['number']
       break
     case 'number':
-      type = 'number'
+      displayTypeList = ['number']
+      break
+    case 'array':
+      displayTypeList = ['array']
       break
     default:
-      type = 'text'
+      displayTypeList = []
   }
-  return getVariablesByDisplayTypes([type], true)
+  return getVariablesByDisplayTypes(displayTypeList, true)
 }
 
 async function init() {
@@ -184,6 +195,7 @@ async function getTableConfig() {
       id: item.field_name,
       name: item.field_name_alias,
       type: item.validation_rules.type,
+      field_type: item.field_type,
       isRequired: item.is_required,
       isUnique: item.is_unique,
       value: ''
