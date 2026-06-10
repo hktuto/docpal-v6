@@ -286,8 +286,7 @@ function initChart() {
 
   instance.setOption(option)
 
-  instance.off('click')
-  instance.on('click', handleChartClick)
+  // Drill-down click handler hidden per request
 }
 
 function resolveSeriesType(s: any): string {
@@ -296,18 +295,6 @@ function resolveSeriesType(s: any): string {
   const globalType = config.value.chartType
   if (globalType) return globalType
   return 'bar'
-}
-
-function handleChartClick(params: any) {
-  emit('refreshSetting', {
-    ...props.setting,
-    __drillContext: {
-      type: 'chart',
-      xValue: params.name,
-      seriesName: params.seriesName,
-      value: params.value
-    }
-  })
 }
 
 function handleResize() {

@@ -243,17 +243,7 @@ function initChart() {
 
   instance.setOption(option)
 
-  instance.off('click')
-  instance.on('click', (params: any) => {
-    emit('refreshSetting', {
-      ...props.setting,
-      __drillContext: {
-        type: 'pie',
-        categoryValue: params.name,
-        value: params.value
-      }
-    })
-  })
+  // Drill-down click handler hidden per request
 }
 
 function handleResize() {
