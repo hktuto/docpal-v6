@@ -2,6 +2,8 @@
   <DashboardCard
     ref="cardRef"
     :title="chartTitle"
+    :subtitle="config.subtitle"
+    :footer="config.footer"
     :hide-setting="hideSetting"
     :setting="setting"
     :setting-ref="settingRef"
@@ -9,9 +11,7 @@
     @refresh="handleRefresh"
   >
     <div class="db-chart-widget">
-      <div v-if="!chartData.length" class="empty-state">
-        <el-empty description="No data available" />
-      </div>
+      <DbWidgetEmptyState v-if="!chartData.length" />
       <div v-else ref="chartContainer" class="chart-container" />
     </div>
   </DashboardCard>
@@ -26,6 +26,8 @@ import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from
 import { CanvasRenderer } from 'echarts/renderers'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import { useChartExport } from '../../composables/dashboard/useChartExport'
+import DbWidgetEmptyState from './DbWidgetEmptyState.vue'
 
 // Register required modules
 echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
@@ -257,6 +259,12 @@ function handleResize() {
   }
 }
 
+const { exportChart } = useChartExport()
+
+function handleExport() {
+  exportChart(chartInstance.value, chartTitle.value || 'chart')
+}
+
 function handleDelete() {
   emit('delete')
 }
@@ -310,12 +318,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
 }
-.empty-state {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* removed empty-state style; replaced by DbWidgetEmptyState */
 .chart-container {
   flex: 1;
   min-height: 0;

@@ -87,6 +87,16 @@
       <el-form-item label="Row Limit">
         <el-select-v2 v-model="form.rowLimit" :options="limitOptions" style="width: 100%" />
       </el-form-item>
+
+      <el-divider>Annotation</el-divider>
+
+      <el-form-item label="Subtitle">
+        <el-input v-model="form.subtitle" placeholder="e.g. Q1 2024 overview" />
+      </el-form-item>
+
+      <el-form-item label="Footer">
+        <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <div class="footer-grid">
@@ -129,7 +139,9 @@ const form = reactive({
   columns: [] as string[],
   rowLimit: 10,
   sortRules: [] as SortRule[],
-  filterRules: [] as FilterRule[]
+  filterRules: [] as FilterRule[],
+  subtitle: '',
+  footer: ''
 })
 
 const orderedColumns = computed(() => form.columns)
@@ -258,6 +270,8 @@ watch(
         operator: r.operator || '',
         value: r.value || ''
       }))
+      form.subtitle = setting.value.subtitle || ''
+      form.footer = setting.value.footer || ''
 
       if (form.tableId) {
         await loadFields(form.tableId)
@@ -281,7 +295,9 @@ function handleSubmit() {
       })),
     // Clear legacy sort fields when sortRules are used
     sortField: undefined,
-    sortOrder: undefined
+    sortOrder: undefined,
+    subtitle: form.subtitle,
+    footer: form.footer
   })
 }
 

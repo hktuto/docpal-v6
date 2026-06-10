@@ -53,6 +53,16 @@
       <el-form-item label="Color">
         <el-select-v2 v-model="form.color" :options="colorOptions" style="width: 100%" />
       </el-form-item>
+
+      <el-divider>Annotation</el-divider>
+
+      <el-form-item label="Subtitle">
+        <el-input v-model="form.subtitle" placeholder="e.g. Q1 2024 overview" />
+      </el-form-item>
+
+      <el-form-item label="Footer">
+        <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <div class="footer-grid">
@@ -99,7 +109,9 @@ const form = reactive({
   field: '',
   filterRules: [] as FilterRule[],
   label: 'Records',
-  color: 'primary'
+  color: 'primary',
+  subtitle: '',
+  footer: ''
 })
 
 function getFieldType(fieldName: string): string {
@@ -188,6 +200,8 @@ watch(
       }))
       form.label = setting.value.label || 'Records'
       form.color = setting.value.color || 'primary'
+      form.subtitle = setting.value.subtitle || ''
+      form.footer = setting.value.footer || ''
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -208,7 +222,9 @@ function handleSubmit() {
         value: r.value
       })),
     label: form.label,
-    color: form.color
+    color: form.color,
+    subtitle: form.subtitle,
+    footer: form.footer
   })
 }
 

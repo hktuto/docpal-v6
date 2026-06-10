@@ -2,6 +2,8 @@
   <DashboardCard
     ref="cardRef"
     :title="chartTitle"
+    :subtitle="config.subtitle"
+    :footer="config.footer"
     :hide-setting="hideSetting"
     :setting="setting"
     :setting-ref="settingRef"
@@ -9,9 +11,7 @@
     @refresh="handleRefresh"
   >
     <div class="db-pie-widget">
-      <div v-if="!chartData.length" class="empty-state">
-        <el-empty description="No data available" />
-      </div>
+      <DbWidgetEmptyState v-if="!chartData.length" />
       <div v-else ref="chartContainer" class="chart-container" />
     </div>
   </DashboardCard>
@@ -26,6 +26,7 @@ import { TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import DbWidgetEmptyState from './DbWidgetEmptyState.vue'
 
 // Register required modules
 echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer])
@@ -272,12 +273,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
 }
-.empty-state {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* removed empty-state style; replaced by DbWidgetEmptyState */
 .chart-container {
   flex: 1;
   min-height: 0;

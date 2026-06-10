@@ -22,6 +22,16 @@
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
+
+      <el-divider>Annotation</el-divider>
+
+      <el-form-item label="Subtitle">
+        <el-input v-model="form.subtitle" placeholder="e.g. Q1 2024 overview" />
+      </el-form-item>
+
+      <el-form-item label="Footer">
+        <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <div class="footer-grid">
@@ -50,7 +60,9 @@ const form = reactive({
   tableId: '',
   fields: [] as string[],
   limit: 5,
-  sortField: 'createdTime'
+  sortField: 'createdTime',
+  subtitle: '',
+  footer: ''
 })
 
 async function handleTableChange(tableId: string) {
@@ -67,6 +79,8 @@ watch(
       form.fields = setting.value.fields || []
       form.limit = setting.value.limit || 5
       form.sortField = setting.value.sortField || 'createdTime'
+      form.subtitle = setting.value.subtitle || ''
+      form.footer = setting.value.footer || ''
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -79,7 +93,9 @@ function handleSubmit() {
     tableId: form.tableId,
     fields: [...form.fields],
     limit: form.limit,
-    sortField: form.sortField
+    sortField: form.sortField,
+    subtitle: form.subtitle,
+    footer: form.footer
   })
 }
 

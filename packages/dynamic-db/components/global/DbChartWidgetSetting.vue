@@ -59,6 +59,17 @@
       </div>
       <el-button type="primary" link @click="addSeries">+ Add Series</el-button>
 
+      <!-- Annotation -->
+      <el-divider>Annotation</el-divider>
+      <div class="appearance-grid">
+        <el-form-item label="Subtitle">
+          <el-input v-model="form.subtitle" placeholder="Widget subtitle" />
+        </el-form-item>
+        <el-form-item label="Footer">
+          <el-input v-model="form.footer" placeholder="Widget footer annotation" />
+        </el-form-item>
+      </div>
+
       <!-- Appearance -->
       <el-divider>Appearance</el-divider>
       <div class="appearance-grid">
@@ -131,7 +142,9 @@ const form = reactive({
     legendPosition: 'bottom',
     stacked: false,
     smooth: false
-  }
+  },
+  subtitle: '',
+  footer: ''
 })
 
 const showStackedOption = computed(() =>
@@ -182,6 +195,9 @@ watch(
         smooth: raw.appearance?.smooth || false
       }
 
+      form.subtitle = raw.subtitle || ''
+      form.footer = raw.footer || ''
+
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -194,7 +210,9 @@ function handleSubmit() {
     tableId: form.tableId,
     xField: form.xField,
     series: form.series.map((s: any) => ({ ...s })),
-    appearance: { ...form.appearance }
+    appearance: { ...form.appearance },
+    subtitle: form.subtitle,
+    footer: form.footer
   })
 }
 
