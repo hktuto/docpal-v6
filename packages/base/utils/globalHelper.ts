@@ -19,7 +19,6 @@ export function downloadBlob(blob: any, name: string, type = 'application/octet-
   }else{
     blobStream = new Blob([blob], { type });
   }
-  console.log('blobStream', blobStream)
   const fileName = calFileNameAndExt(blobStream.type, name);
   const url = window.URL.createObjectURL(blobStream);
   downloadUrl(url, fileName);

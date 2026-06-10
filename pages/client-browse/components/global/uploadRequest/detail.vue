@@ -8,71 +8,45 @@ const routerProvider = inject(MenuRouterKey)
 const props = defineProps(['paramKey', 'id'])
 const router = useRouter()
 const state = reactive<any>({
-  applyDocumentType: '',
+  uploadId: '',
+  applyDocumentType: 'File',
   fileTypes: [],
   errorFileNum: 0,
   loading: false,
   submitLoading: false,
   selectedRow: {},
   selectedRows: [],
-  detail: {
-    email: '',
-    documentId: '',
-    submittedDate: ''
-  },
+
   checkAll: false,
   tableData: []
 })
 const MetaFormRef = ref()
 const paramKey = (props.paramKey ? props.paramKey : 'processInstanceId') as string
-
+const userId = useUserId()
 // #region module: 1. table and init
 async function getData() {
   state.loading = true
   try {
-    const response: any = await newClientApi.postWorkflowProperties({ [paramKey]: props.id }).then((res) => res.data)
-    const index = response.findIndex((item: any) => item.id === 'files')
-    if (index !== -1) state.tableData = await revertUploadFile(response[index].value)
+    const response: any = await newClientApi.getDmsUploadRequestId(props.id).then((res) => res.data)
+    state.uploadId = response.uploadId
+    const data = await newClientApi
+      .postDmsUploadQueryItems({
+        userId: userId.value,
+        uploadId: state.uploadId
+      })
+      .then((res) => res.data)
+    state.tableData = data.map((item: any) => ({
+      ...item,
+      approved: item.approved || false,
+      documentType: item.aiAnalysisDocument?.documentType || 'File',
+      properties: item.aiAnalysisDocument?.properties || {}
+    }))
     if (state.tableData.length > 0) handleDblclick(state.tableData[0])
-    // 从properties获取email,documentId,submittedDate
-    getRQDetail(['email', 'documentId', 'submittedDate'], response)
   } catch (error) {
     state.tableData = []
     state.selectedRow = []
   } finally {
     state.loading = false
-  }
-
-  function getRQDetail(keys: any[], propsArr: any[]) {
-    keys.forEach((key) => {
-      const index = propsArr.findIndex((item) => item.id === key)
-      state.detail[key] = propsArr[index].value
-    })
-  }
-
-  async function revertUploadFile(fileIds: string) {
-    const pList: any = []
-    const result: any = []
-    if (!fileIds) return result
-    const ids: string[] = fileIds.split(',')
-    for (const item of ids) {
-      const pItem = newClientApi.getWorkflowTaskAttachmentInfo({ attachmentId: item }).then((res) => res.data)
-      pList.push(pItem)
-    }
-    const response = await Promise.all(pList)
-    state.errorFileNum = 0
-    response.forEach((item) => {
-      if (!!item) {
-        result.push({
-          id: item.contentId,
-          name: item.name,
-          initName: item.name,
-          approved: true,
-          documentType: 'File'
-        })
-      } else state.errorFileNum++
-    })
-    return result
   }
 }
 
@@ -90,32 +64,19 @@ async function handleSubmit() {
   state.submitLoading = true
   try {
     const param = {
-      [paramKey]: props.id,
-      properties: {
-        approved: getParams()
-      }
+      uploadId: state.uploadId,
+      userId: userId.value,
+      batchItemList: state.tableData.map((item: any) => ({
+        id: item.id,
+        docName: item.initName || item.name,
+        approve: item.approved || false,
+        documentType: item.documentType
+      }))
     }
-    const res = await newClientApi.postWorkflowFormSubmit(param).then((res: any) => res.result)
+    const res = await newClientApi.postDmsUploadRequestApproval(param).then((res: any) => res.result)
     if (!!res) routerProvider?.navigateTo(createUploadRequestPageParams({}))
   } catch (error) {}
   state.submitLoading = false
-}
-
-function getParams() {
-  const result: any = {}
-  state.tableData.forEach((item: any) => {
-    result[item.id] = {
-      approved: item.approved,
-      documentType: item.documentType,
-      properties: { ...item.properties, 'dc:title': getFileName(item.name) }
-    }
-  })
-  return JSON.stringify(result)
-}
-
-function getFileName(name: any) {
-  const result = `[${state.detail.submittedDate} ${state.detail.email}] ${name}`
-  return result
 }
 
 // #endregion
@@ -138,7 +99,6 @@ function applyToSelect(key: string, value: string, docType?: string) {
     state.selectedRows.forEach(async (item: any) => {
       item.documentType = value
       item.properties = {}
-      console.log('applyToSelect', '???')
     })
   }
   handleDocTypeChange(state.selectedRow)
@@ -152,7 +112,6 @@ function handleApply(formModel: any) {
     if (item.documentType === state.selectedRow.documentType) {
       if (!item.properties) item.properties = {}
       item.properties[formModel.name] = formModel.value
-      console.log('handleApply', '???')
     }
   })
 }
@@ -184,12 +143,9 @@ async function handleDblclick(row: any) {
     previewFile.loading = true
     try {
       previewFile.name = row.initName
-      previewFile.blob = await newClientApi.getWorkflowTaskAttachmentPreview(
-        { attachmentId: row.id },
-        {
-          format: 'blob'
-        }
-      )
+      previewFile.blob = await newClientApi.getDmsUploadTmpFileIdDownload(row.id, {
+        format: 'blob'
+      })
     } catch (error) {}
     previewFile.loading = false
     previewFile.id = row.id
@@ -199,13 +155,10 @@ async function handleDblclick(row: any) {
 async function handleDownload(file: any) {
   try {
     file.downloadLoading = true
-    const blob: any = await newClientApi.getWorkflowTaskAttachment(
-      { attachmentId: file.id },
-      {
-        format: 'blob'
-      }
-    )
-    downloadBlob(blob, file.name || file.title, blob.type)
+    const blob: any = await newClientApi.getDmsUploadTmpFileIdDownload(file.id, {
+      format: 'blob'
+    })
+    downloadBlob(blob, file.name || state.selectedRow.name, blob.type)
   } catch (error) {
   } finally {
     file.downloadLoading = false
@@ -349,7 +302,12 @@ onMounted(async () => {
   width: 100%;
 
   &--title {
+    min-width: 0;
+    display: block;
     max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &--right {
@@ -359,7 +317,12 @@ onMounted(async () => {
   }
 
   &--documentType {
+    min-width: 0;
+    display: block;
     max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

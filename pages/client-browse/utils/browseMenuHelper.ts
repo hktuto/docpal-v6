@@ -74,7 +74,7 @@ export const createUploadRequestDetailParams = (params:any) => {
         component: "LazyUploadRequestDetail",
         props: {
             ...params,
-            id: params.taskId
+            id: params.id
         }
     }
 }
