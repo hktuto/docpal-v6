@@ -213,8 +213,11 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 6,
     component: 'LazyDbKanbanWidget',
     setting: {
-      viewId: '',
+      tableId: '',
       groupField: '',
+      titleField: '',
+      limit: 100,
+      label: '',
       subtitle: '',
       footer: ''
     }
@@ -230,8 +233,12 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 6,
     component: 'LazyDbCalendarWidget',
     setting: {
-      viewId: '',
-      dateField: '',
+      tableId: '',
+      startField: '',
+      endField: '',
+      titleField: '',
+      limit: 200,
+      label: '',
       subtitle: '',
       footer: ''
     }
