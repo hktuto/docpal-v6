@@ -82,15 +82,16 @@ async function fetchData() {
   if (!tableId || !categoryField) return
   loading.value = true
   try {
-    const columns: any[] = [{ name: categoryField, alias: 'category' }]
+    const columns: any[] = [{ name: categoryField }]
+    const metricAlias = aggregation === 'count' ? '__count' : '__agg'
 
     if (aggregation === 'count') {
-      columns.push({ name: '*', alias: 'metric', aggFunc: 'COUNT' })
+      columns.push({ name: '*', alias: '__count', aggFunc: 'COUNT' })
     } else {
       const aggFunc = aggregation.toUpperCase()
       columns.push({
         name: valueField || '*',
-        alias: 'metric',
+        alias: '__agg',
         aggFunc
       })
     }
@@ -102,7 +103,7 @@ async function fetchData() {
       tableId,
       columns,
       orderBy,
-      groupBy: [categoryField],
+      groupBy: { columns: [categoryField] },
       pagination: {
         pageSize: limit || 10,
         pageNum: 1
@@ -113,8 +114,8 @@ async function fetchData() {
     // Sort client-side by metric descending to show true "top" order
     const sorted = rows
       .map((row: any) => ({
-        name: row.category,
-        value: row.metric
+        name: row[categoryField],
+        value: row[metricAlias]
       }))
       .sort((a: any, b: any) => (Number(b.value) || 0) - (Number(a.value) || 0))
 
