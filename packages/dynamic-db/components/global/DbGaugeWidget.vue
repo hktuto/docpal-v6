@@ -62,7 +62,7 @@ const hasValue = computed(() => !loading.value && props.setting?.tableId)
 const { exportChart } = useChartExport()
 
 function initChart() {
-  if (!chartContainer.value) return
+  if (!chartContainer.value) return false
   if (chartInstance.value) {
     chartInstance.value.dispose()
   }
@@ -135,6 +135,7 @@ function initChart() {
   instance.on('dblclick', () => {
     exportChart(instance, `${displayLabel.value || 'gauge'}.png`)
   })
+  return true
 }
 
 async function fetchValue() {
@@ -200,22 +201,24 @@ watch(
 watch(
   () => [value.value, minVal.value, maxVal.value, targetVal.value, displayLabel.value],
   () => {
-    if (chartInstance.value) {
-      chartInstance.value.setOption({
-        series: [
-          {
-            min: minVal.value,
-            max: maxVal.value,
-            data: [{ value: value.value, name: displayLabel.value }]
-          }
-        ]
-      })
+    if (!chartInstance.value) {
+      nextTick(() => initChart())
+      return
     }
+    chartInstance.value.setOption({
+      series: [
+        {
+          min: minVal.value,
+          max: maxVal.value,
+          data: [{ value: value.value, name: displayLabel.value }]
+        }
+      ]
+    })
   }
 )
 
 onMounted(() => {
-  initChart()
+  nextTick(() => initChart())
 })
 
 onUnmounted(() => {
