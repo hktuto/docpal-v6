@@ -176,7 +176,6 @@ function initChart() {
     chartInstance.value.dispose()
   }
 
-  const { chartType } = config.value
   const instance = echarts.init(chartContainer.value)
   chartInstance.value = instance
 
