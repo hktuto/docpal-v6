@@ -48,13 +48,13 @@ const props = withDefaults(
 const emit = defineEmits(['delete', 'refreshSetting'])
 
 const value = ref(0)
+const targetValue = ref(0)
 const loading = ref(false)
 const settingRef = ref()
 const cardRef = ref()
 
 const displayLabel = computed(() => props.setting?.label || 'Records')
 
-const targetValue = computed(() => Number(props.setting?.target) || 0)
 const useConditionalColor = computed(() => props.setting?.conditionalColor || false)
 const showProgress = computed(() => props.setting?.showProgress || false)
 
@@ -83,7 +83,7 @@ const progressColors = [
 const targetInfo = computed(() => {
   if (!targetValue.value) return ''
   const pct = Math.round((value.value / targetValue.value) * 100)
-  return `Target: ${targetValue.value} (${pct}%)`
+  return `${value.value} / ${targetValue.value} (${pct}%)`
 })
 
 const formattedValue = computed(() => {
@@ -92,9 +92,8 @@ const formattedValue = computed(() => {
   return v.toFixed(2)
 })
 
-function buildFilterConditions(): any[] {
-  const filterRules = props.setting?.filterRules || []
-  if (!filterRules.length) return []
+function buildConditions(filterRules: any[]): any[] {
+  if (!filterRules?.length) return []
 
   const value = filterRules
     .filter((rule: any) => rule.field && rule.operator)
@@ -122,7 +121,7 @@ async function fetchValue() {
   if (!tableId) return
   loading.value = true
   try {
-    const conditions = buildFilterConditions()
+    const conditions = buildConditions(props.setting?.filterRules || [])
 
     if (aggregation === 'count') {
       const { data }: any = await postDynamicActions({
@@ -132,35 +131,53 @@ async function fetchValue() {
         pagination: { pageSize: 1, pageNum: 1 }
       })
       value.value = data?.meta?.total || 0
-      return
+    } else {
+      const aggFunc = aggregation.toUpperCase()
+      const { data }: any = await postDynamicActions({
+        tableId,
+        columns: [
+          {
+            name: field || '*',
+            alias: 'agg_value',
+            aggFunc
+          }
+        ],
+        conditions: conditions.length ? conditions : undefined
+      })
+
+      const row = data?.data?.[0]
+      const rawValue = row?.agg_value
+      if (rawValue === null || rawValue === undefined) {
+        value.value = 0
+      } else {
+        const num = Number(rawValue)
+        value.value = isNaN(num) ? 0 : num
+      }
     }
 
-    // Server-side aggregation for sum/avg/min/max
-    const aggFunc = aggregation.toUpperCase()
-    const { data }: any = await postDynamicActions({
-      tableId,
-      columns: [
-        {
-          name: field || '*',
-          alias: 'agg_value',
-          aggFunc
-        }
-      ],
-      conditions: conditions.length ? conditions : undefined
-    })
-
-    const row = data?.data?.[0]
-    const rawValue = row?.agg_value
-    if (rawValue === null || rawValue === undefined) {
-      value.value = 0
-      return
+    // Compute target / total
+    const targetMode = props.setting?.targetMode || 'total'
+    if (targetMode === 'filtered') {
+      const targetConditions = buildConditions(props.setting?.targetFilterRules || [])
+      const { data }: any = await postDynamicActions({
+        tableId,
+        columns: [{ name: '*' }],
+        conditions: targetConditions.length ? targetConditions : undefined,
+        pagination: { pageSize: 1, pageNum: 1 }
+      })
+      targetValue.value = data?.meta?.total || 0
+    } else {
+      const { data }: any = await postDynamicActions({
+        tableId,
+        columns: [{ name: '*' }],
+        pagination: { pageSize: 1, pageNum: 1 }
+      })
+      targetValue.value = data?.meta?.total || 0
     }
-
-    const num = Number(rawValue)
-    value.value = isNaN(num) ? 0 : num
   } catch (error) {
     console.error('Failed to fetch stat:', error)
     value.value = 0
+    targetValue.value = 0
   } finally {
     loading.value = false
   }
@@ -175,7 +192,14 @@ function handleRefresh(newSetting: any) {
 }
 
 watch(
-  () => [props.setting?.tableId, props.setting?.aggregation, props.setting?.field, props.setting?.filterRules],
+  () => [
+    props.setting?.tableId,
+    props.setting?.aggregation,
+    props.setting?.field,
+    props.setting?.filterRules,
+    props.setting?.targetMode,
+    props.setting?.targetFilterRules
+  ],
   () => {
     fetchValue()
   },
@@ -196,6 +220,7 @@ defineExpose({
 .db-stat-widget {
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }

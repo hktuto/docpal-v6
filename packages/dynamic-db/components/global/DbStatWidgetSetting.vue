@@ -17,7 +17,7 @@
         </el-select>
       </el-form-item>
 
-      <!-- Filter Rules -->
+      <!-- Value Filters -->
       <el-form-item label="Filters">
         <div class="rule-list">
           <div v-for="(rule, index) in form.filterRules" :key="index" class="rule-row filter-rule-row">
@@ -60,10 +60,6 @@
         <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
       </el-form-item>
 
-      <el-form-item label="Target Value">
-        <el-input-number v-model="form.target" :min="0" :controls="false" style="width: 100%" placeholder="e.g. 1000" />
-      </el-form-item>
-
       <el-form-item label="Conditional Color">
         <el-switch v-model="form.conditionalColor" />
       </el-form-item>
@@ -71,6 +67,41 @@
       <el-form-item label="Show Progress Bar">
         <el-switch v-model="form.showProgress" />
       </el-form-item>
+
+      <!-- Target / Total config -->
+      <template v-if="form.showProgress || form.conditionalColor">
+        <el-form-item label="Target Mode">
+          <el-select-v2 v-model="form.targetMode" :options="targetModeOptions" style="width: 100%" />
+        </el-form-item>
+
+        <el-form-item v-if="form.targetMode === 'filtered'" label="Target Filters">
+          <div class="rule-list">
+            <div v-for="(rule, index) in form.targetFilterRules" :key="index" class="rule-row filter-rule-row">
+              <el-select v-model="rule.field" placeholder="Field" size="small" style="flex: 1" :loading="fieldsLoading" @change="onFilterFieldChange(rule)">
+                <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
+              </el-select>
+              <el-select v-model="rule.operator" placeholder="Op" size="small" style="width: 120px">
+                <el-option v-for="op in getOperatorsForField(rule.field)" :key="op.value" :label="op.label" :value="op.value" />
+              </el-select>
+              <el-input
+                v-if="!isValuelessOperator(rule.operator)"
+                v-model="rule.value"
+                placeholder="Value"
+                size="small"
+                style="flex: 1"
+              />
+              <span v-else style="flex: 1; color: var(--el-text-color-secondary); font-size: 12px; line-height: 24px;">—</span>
+              <el-button link type="danger" size="small" @click="removeTargetFilterRule(index)">
+                <Icon name="lucide:x" size="14" />
+              </el-button>
+            </div>
+            <el-button link size="small" @click="addTargetFilterRule">
+              <Icon name="lucide:plus" size="14" />
+              Add filter
+            </el-button>
+          </div>
+        </el-form-item>
+      </template>
 
       <el-form-item label="Color">
         <el-select-v2 v-model="form.color" :options="colorOptions" style="width: 100%" :disabled="form.conditionalColor" />
@@ -109,6 +140,11 @@ const colorOptions = [
   { label: 'Danger', value: 'danger' }
 ]
 
+const targetModeOptions = [
+  { label: 'Total Records', value: 'total' },
+  { label: 'Filtered Count', value: 'filtered' }
+]
+
 interface FilterRule {
   field: string
   operator: string
@@ -124,9 +160,10 @@ const form = reactive({
   color: 'primary',
   subtitle: '',
   footer: '',
-  target: undefined as number | undefined,
   conditionalColor: false,
-  showProgress: false
+  showProgress: false,
+  targetMode: 'total' as 'total' | 'filtered',
+  targetFilterRules: [] as FilterRule[]
 })
 
 function getFieldType(fieldName: string): string {
@@ -195,9 +232,18 @@ function removeFilterRule(index: number) {
   form.filterRules.splice(index, 1)
 }
 
+function addTargetFilterRule() {
+  form.targetFilterRules.push({ field: '', operator: '', value: '' })
+}
+
+function removeTargetFilterRule(index: number) {
+  form.targetFilterRules.splice(index, 1)
+}
+
 async function handleTableChange(tableId: string) {
   form.field = ''
   form.filterRules = []
+  form.targetFilterRules = []
   await loadFields(tableId)
 }
 
@@ -217,9 +263,14 @@ watch(
       form.color = setting.value.color || 'primary'
       form.subtitle = setting.value.subtitle || ''
       form.footer = setting.value.footer || ''
-      form.target = setting.value.target ?? undefined
       form.conditionalColor = setting.value.conditionalColor || false
       form.showProgress = setting.value.showProgress || false
+      form.targetMode = setting.value.targetMode || 'total'
+      form.targetFilterRules = (setting.value.targetFilterRules || []).map((r: any) => ({
+        field: r.field || '',
+        operator: r.operator || '',
+        value: r.value || ''
+      }))
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -243,9 +294,18 @@ function handleSubmit() {
     color: form.color,
     subtitle: form.subtitle,
     footer: form.footer,
-    target: form.target,
     conditionalColor: form.conditionalColor,
-    showProgress: form.showProgress
+    showProgress: form.showProgress,
+    targetMode: form.targetMode,
+    targetFilterRules: form.targetFilterRules
+      .filter((r) => r.field && r.operator)
+      .map((r) => ({
+        field: r.field,
+        operator: r.operator,
+        value: r.value
+      })),
+    // Clear legacy static target
+    target: undefined
   })
 }
 
