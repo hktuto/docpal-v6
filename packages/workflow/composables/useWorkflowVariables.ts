@@ -274,7 +274,8 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
       name: item.name,
       type: item.type,
       display_type: item.display_type,
-      required: item.required
+      required: item.required,
+      items: item.items
     }))
   }
 

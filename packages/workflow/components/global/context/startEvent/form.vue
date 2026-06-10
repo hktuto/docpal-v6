@@ -9,6 +9,12 @@ const { t } = useI18n()
 const { node } = defineProps<{
   node: Node
 }>()
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
+const formRenderVisible = ref<boolean>(false)
+const fromRenderRef = ref()
 const formDialogRef = ref()
 const variableManageDialogRef = ref()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
@@ -24,7 +30,7 @@ const variables = computed(() => {
   return {
     labelKey: 'name',
     nameKey: 'id',
-    data: variableList.filter((item: VariableItem) => !item.id.startsWith('__system__'))
+    data: variableList.filter((item: VariableItem) => !item.id.startsWith('__system__')) || []
   }
 })
 const isEdit = computed(() => {
@@ -61,10 +67,23 @@ function createForm() {
 }
 
 async function editForm() {
-  loading.vale = true
+  loading.value = true
   await getFormJson()
   formDialogRef.value.openDialog(formJson.value)
-  loading.vale = false
+  loading.value = false
+}
+
+async function previewForm() {
+  if (!formKey.value && formKey.value == '') {
+    routerProvider?.message.error('Form not configured')
+    return
+  }
+
+  await getFormJson()
+  formRenderVisible.value = true
+  setTimeout(() => {
+    fromRenderRef.value.setForm(formJson.value)
+  }, 100)
 }
 
 function handelSubmitForm(id: string) {
@@ -118,6 +137,10 @@ watch(
       <el-button v-loading="loading" style="width: 100%" type="primary" id="Workflow__Start__EditForm" @click="editForm">
         {{ $t('Edit Start Form') }}
       </el-button>
+      <el-button style="width: 100%" type="primary" id="Workflow__Start__PreviewForm" @click="previewForm">
+        {{ $t('Preview Form') }}
+      </el-button>
+
       <el-popconfirm class="box-item" title="Are you sure you want to delete this form?" placement="top">
         <template #reference>
           <el-button type="danger" style="width: 100%; margin-top: 5px" @click="handleDeleteFormKey">{{ $t('Delete Start Form') }}</el-button>
@@ -128,6 +151,9 @@ watch(
 
   <LazyContextVariableManageDialog ref="variableManageDialogRef" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variables" :processKey="workflowKey" :formKey="formKey" @submit="handelSubmitForm" />
+  <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
+    <LazyContextFormRender ref="fromRenderRef" />
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">

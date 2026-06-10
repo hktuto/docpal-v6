@@ -19,7 +19,7 @@ if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 const formDialogRef = ref()
-const formRenderVisible = ref()
+const formRenderVisible = ref<boolean>(false)
 const fromRenderRef = ref()
 const formTitle = ref<string>('')
 const contextFormFieldManageDialogRef = ref()
