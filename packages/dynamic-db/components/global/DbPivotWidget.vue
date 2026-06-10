@@ -29,7 +29,10 @@
 
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
+import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import { resolveSelectLabel } from '@packages/dp-mdTable/utils/fieldValueFormat'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 
 const props = withDefaults(
   defineProps<{
@@ -57,6 +60,40 @@ const columnField = computed(() => props.setting?.columnField || '')
 const valueField = computed(() => props.setting?.valueField || '')
 const aggregation = computed(() => props.setting?.aggregation || 'sum')
 
+// Field metadata for label resolution
+const fieldMetaMap = ref<Record<string, any>>({})
+const { getFields } = useTableFields()
+
+async function loadFieldMeta(tableId: string) {
+  if (!tableId) {
+    fieldMetaMap.value = {}
+    return
+  }
+  const fields = await getFields(tableId)
+  const map: Record<string, any> = {}
+  for (const f of fields) {
+    map[f.field_name] = f
+  }
+  fieldMetaMap.value = map
+}
+
+function getFieldLabel(fieldName: string): string {
+  return fieldMetaMap.value[fieldName]?.field_name_alias || fieldName
+}
+
+function formatAxisValue(value: any, fieldName: string): string {
+  const field = fieldMetaMap.value[fieldName]
+  if (!field) return String(value ?? '(blank)')
+  const bt = String(field.business_type || '')
+  const isSelect = bt === ColumnFieldType.SingleSelect || bt === '3' ||
+    bt === ColumnFieldType.MultiSelect || bt === '4'
+  if (isSelect) {
+    const options = field.display_structure?.options || field.properties?.options || []
+    return resolveSelectLabel(value, options) || String(value ?? '(blank)')
+  }
+  return String(value ?? '(blank)')
+}
+
 const pivotRows = computed(() => {
   const rField = rowField.value
   const cField = columnField.value
@@ -68,8 +105,8 @@ const pivotRows = computed(() => {
   const rowMap = new Map<string, Map<string, number[]>>()
 
   for (const row of rawData.value) {
-    const rVal = String(row[rField] ?? '(blank)')
-    const cVal = String(row[cField] ?? '(blank)')
+    const rVal = formatAxisValue(row[rField], rField)
+    const cVal = formatAxisValue(row[cField], cField)
     const vRaw = row[vField]
     const vNum = vRaw === null || vRaw === undefined || vRaw === '' ? NaN : Number(vRaw)
 
@@ -138,14 +175,14 @@ const pivotColumns = computed(() => {
 
   const colValues = new Set<string>()
   for (const row of rawData.value) {
-    colValues.add(String(row[cField] ?? '(blank)'))
+    colValues.add(formatAxisValue(row[cField], cField))
   }
   const sortedColValues = Array.from(colValues).sort()
 
   const cols: any[] = [
     {
       field: rField,
-      title: rField,
+      title: getFieldLabel(rField),
       width: 140,
       fixed: 'left'
     }
@@ -200,6 +237,14 @@ function handleDelete() {
 function handleRefresh(newSetting: any) {
   emit('refreshSetting', newSetting)
 }
+
+watch(
+  () => props.setting?.tableId,
+  (tableId) => {
+    loadFieldMeta(tableId)
+  },
+  { immediate: true }
+)
 
 watch(
   () => [
