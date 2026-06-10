@@ -182,26 +182,6 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       footer: ''
     }
   },
-  DbScatter: {
-    label: 'DbScatter',
-    type: 'database' as any,
-    minW: 4,
-    minH: 4,
-    maxW: 12,
-    maxH: 12,
-    w: 6,
-    h: 6,
-    component: 'LazyDbScatterWidget',
-    setting: {
-      tableId: '',
-      xField: '',
-      yField: '',
-      categoryField: '',
-      rowLimit: 100,
-      subtitle: '',
-      footer: ''
-    }
-  },
   DbPivot: {
     label: 'DbPivot',
     type: 'database' as any,
