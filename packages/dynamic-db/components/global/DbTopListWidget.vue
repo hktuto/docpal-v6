@@ -83,11 +83,9 @@ async function fetchData() {
   loading.value = true
   try {
     const columns: any[] = [{ name: categoryField, alias: 'category' }]
-    let orderBy: any[] = []
 
     if (aggregation === 'count') {
       columns.push({ name: '*', alias: 'metric', aggFunc: 'COUNT' })
-      orderBy = [{ column: 'metric', desc: true }]
     } else {
       const aggFunc = aggregation.toUpperCase()
       columns.push({
@@ -95,8 +93,10 @@ async function fetchData() {
         alias: 'metric',
         aggFunc
       })
-      orderBy = [{ column: 'metric', desc: true }]
     }
+
+    // When groupBy is used, orderBy must reference the group column
+    const orderBy = [{ column: categoryField, desc: true }]
 
     const { data }: any = await postDynamicActions({
       tableId,
@@ -110,10 +110,15 @@ async function fetchData() {
     })
 
     const rows = data?.data || []
-    rawData.value = rows.map((row: any) => ({
-      name: row.category,
-      value: row.metric
-    }))
+    // Sort client-side by metric descending to show true "top" order
+    const sorted = rows
+      .map((row: any) => ({
+        name: row.category,
+        value: row.metric
+      }))
+      .sort((a: any, b: any) => (Number(b.value) || 0) - (Number(a.value) || 0))
+
+    rawData.value = sorted
   } catch (error) {
     console.error('Failed to fetch top list:', error)
     rawData.value = []
