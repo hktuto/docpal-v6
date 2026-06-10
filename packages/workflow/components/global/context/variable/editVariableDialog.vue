@@ -73,11 +73,11 @@ function idChanged(rule: any, value: any, callback: any) {
   }
 
   if (value.startsWith('_')) {
-    return callback(new Error('ID cannot start with \'_\''))
+    return callback(new Error("ID cannot start with '_'"))
   }
 
   if (value.startsWith('__system__')) {
-    return callback(new Error('ID cannot start with \'__system__\''))
+    return callback(new Error("ID cannot start with '__system__'"))
   }
 
   // check if id has space and other special characters
@@ -145,7 +145,11 @@ function typeChanged(displayType: string) {
         break
       case 'array':
         filedData.minItems = 0
-        filedData.items = isEdit.value ? formData.value.items : { type: 'string', properties: {} }
+        if (isEdit.value) {
+          filedData.items = !!formData.value.items ? filedData.items : { type: 'string', properties: {} }
+        } else {
+          filedData.items = { type: 'string', properties: {} }
+        }
         break
       case 'object':
         filedData.items = {
@@ -202,8 +206,7 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="opened" append-to-body destroy-on-close :close-on-click-modal="false"
-             :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
+  <el-dialog v-model="opened" append-to-body destroy-on-close :close-on-click-modal="false" :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
     <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top" status-icon @submit.stop>
       <el-form-item label="ID" prop="id">
         <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />
@@ -214,8 +217,7 @@ defineExpose({
       <el-form-item label="Type" prop="type">
         <el-select v-model="formData.display_type" placeholder="Select" @change="typeChanged">
           <el-option-group v-for="group in VariableTypeOptions" :key="group.group" :label="$t(group.group)">
-            <el-option v-for="option in group.options" :key="option.display_type" :label="$t(option.label)"
-                       :value="option.display_type" />
+            <el-option v-for="option in group.options" :key="option.display_type" :label="$t(option.label)" :value="option.display_type" />
           </el-option-group>
         </el-select>
       </el-form-item>
