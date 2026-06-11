@@ -187,32 +187,32 @@ function dataDeArray(formDatas: any) {
     return prev
   }, {})
   // const data = deepCopy(formDatas)
-  Object.keys(data).forEach((key, _index) => {
-    const _data = toRaw(formDatas[key])
-    if (_data instanceof Array) {
-      if (arrWidgetKeys.some((wid: any) => wid.name === key)) {
-        data[key] = JSON.stringify(_data)
-      } else if (_data.length > 0 && (!!_data[0].response || !!_data[0].id)) {
-        const values = _data.reduce((prev, item) => {
-          if (item.response) {
-            item.response = item.response.data ? item.response.data : item.response
-            const responseData = item.response instanceof Array ? item.response[0] : item.response
-            prev.push(responseData.contentId || responseData.id)
-          } else {
-            prev.push(item.id)
-          }
-          return prev
-        }, [])
-        data[key] = values.join(',')
-      } else {
-        const values = _data.reduce((prev, item) => {
-          prev.push(item)
-          return prev
-        }, [])
-        data[key] = values.join(',')
-      }
-    }
-  })
+  // Object.keys(data).forEach((key, _index) => {
+  //   const _data = toRaw(formDatas[key])
+  //   if (_data instanceof Array) {
+  //     if (arrWidgetKeys.some((wid: any) => wid.name === key)) {
+  //       data[key] = JSON.stringify(_data)
+  //     } else if (_data.length > 0 && (!!_data[0].response || !!_data[0].id)) {
+  //       const values = _data.reduce((prev, item) => {
+  //         if (item.response) {
+  //           item.response = item.response.data ? item.response.data : item.response
+  //           const responseData = item.response instanceof Array ? item.response[0] : item.response
+  //           prev.push(responseData.contentId || responseData.id)
+  //         } else {
+  //           prev.push(item.id)
+  //         }
+  //         return prev
+  //       }, [])
+  //       data[key] = values.join(',')
+  //     } else {
+  //       const values = _data.reduce((prev, item) => {
+  //         prev.push(item)
+  //         return prev
+  //       }, [])
+  //       data[key] = values.join(',')
+  //     }
+  //   }
+  // })
   return data
 }
 

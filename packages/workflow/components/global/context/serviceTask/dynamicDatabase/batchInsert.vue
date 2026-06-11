@@ -41,7 +41,7 @@ const tableFieldList = ref<
 const arrayVariables = computed(() => {
   return getVariablesByDisplayTypes(['array'], true)
 })
-const arrayVariableOption = ref<[]>([])
+const arrayVariableOption = ref<any[]>([])
 
 function getArrayVariables(status: string) {
   let displayTypeList: string[]
@@ -61,7 +61,8 @@ function getArrayVariables(status: string) {
     default:
       displayTypeList = []
   }
-  return displayTypeList
+  // console.log(123, arrayVariableOption.value)
+  return arrayVariableOption.value.filter((item: any) => displayTypeList.includes(item.display_type))
 }
 
 async function init() {
@@ -72,23 +73,23 @@ async function init() {
   }
 
   const { pathname } = new URL(data.config.http_request.url)
-  const match = pathname.match(/\/table\/([^/]+)\/record\/?$/)
+  const match = pathname.match(/\/table\/([^\/]+)\/record\/batch-transactional\/?$/)
   tableId.value = match ? match[1] : ''
   if (tableId.value != '') {
     await getTableConfig()
   }
 
-  // Set tableFieldList data
   if (tableId.value !== '') {
-    const dataVariable = data.config.http_request.body.data
+    const body = data.config.http_request.body
+    dataList.value = body.data
+    getArrayVariablesOption()
     tableFieldList.value = tableFieldList.value.map((item: any) => {
-      if (item.id in dataVariable) {
-        item.value = dataVariable[item.id]
+      if (item.id in body.mapping) {
+        item.value = body.mapping[item.id]
       }
       return item
     })
   }
-
   const keys = Object.keys(data.config.output_mapping)
   if (keys.length > 0) {
     keys.forEach((key: string) => {
@@ -101,7 +102,7 @@ async function init() {
   }
 }
 
-const path = ref('/apis/v1/dynamic-db/table/{tableID}/record')
+const path = ref('/apis/v1/dynamic-db/table/{tableID}/record/batch-transactional')
 
 function update() {
   graphProvider?.graph.value?.startBatch('update-insert-dynamic-database-data')
@@ -109,11 +110,11 @@ function update() {
   const origin = new URL(nodeData.config.http_request.url).origin
   const newUrl = origin + path.value.replace('{tableID}', tableId.value)
 
-  const data: any = {}
+  const mapping: any = {}
 
   tableFieldList.value.forEach((item: any) => {
     if (item.value !== '') {
-      data[item.id] = item.value
+      mapping[item.id] = item.value
     }
   })
 
@@ -124,7 +125,10 @@ function update() {
       http_request: {
         ...nodeData.config.http_request,
         url: newUrl,
-        body: { data: data }
+        body: {
+          mapping: mapping,
+          data: dataList.value
+        }
       },
       input_mapping: {},
       output_mapping: {}
@@ -212,11 +216,24 @@ async function getTableConfig() {
 }
 
 function handleDataListChange() {
-  const anyObject = arrayVariables.value.find((item: any) => item.id === dataList) as VariableItem
+  getArrayVariablesOption()
+  update()
+}
+
+function getArrayVariablesOption() {
+  if (!dataList.value) return
+
+  const anyObject = arrayVariables.value.find((item: any) => item.id === dataList.value) as VariableItem
 
   if (!!anyObject && anyObject?.items?.type === 'object') {
-    console.log(123, anyObject.items.properties)
-    arrayVariableOption.value = anyObject.items.properties
+    arrayVariableOption.value =
+      Object.entries(anyObject.items.properties).map(([id, field]) => ({
+        id,
+        name: field.name,
+        type: field.type,
+        display_type: field.display_type,
+        required: field.required
+      })) || []
   }
 }
 

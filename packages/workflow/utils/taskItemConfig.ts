@@ -139,6 +139,19 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
+  BatchInsertDynamicDatabase: {
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/batch-transactional`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {
+        mapping: {},
+        data: ''
+      }
+    },
+    input_mapping: {},
+    output_mapping: {}
+  },
   UpdateDynamicDatabase: {
     http_request: {
       method: 'PUT',

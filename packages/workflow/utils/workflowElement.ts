@@ -145,6 +145,7 @@ export enum CellType {
   validateTask = 'ValidateTask',
   filingDocuments = 'FilingDocuments',
   insertDynamicDatabase = 'InsertDynamicDatabase',
+  batchInsertDynamicDatabase = 'BatchInsertDynamicDatabase',
   updateDynamicDatabase = 'UpdateDynamicDatabase',
   uniqueIdGenerator = 'UniqueIdGenerator',
   documentGenerationTask = 'DocumentGenerationTask',
@@ -171,6 +172,7 @@ export enum contextMenuComponentType {
   FilingDocuments = 'LazyContextServiceTaskFilingDocuments',
   UniqueIdGenerator = 'LazyContextServiceTaskUniqueIdGenerator',
   InsertDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseInsert',
+  BatchInsertDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseBatchInsert',
   UpdateDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseUpdate',
   EmailTask = 'LazyContextServiceTaskEmail',
 
@@ -197,6 +199,7 @@ const taskTitle: any = {
   FilingDocuments: 'Filing Documents Task',
   UniqueIdGenerator: 'Unique Id Generator',
   InsertDynamicDatabase: 'Insert Dynamic Database',
+  BatchInsertDynamicDatabase: 'Batch Insert Dynamic Database',
   UpdateDynamicDatabase: 'Update Dynamic Database',
   EmailTask: 'Email Task',
   ConditionTask: 'Condition Task',
@@ -695,6 +698,13 @@ export const workflowElement: WorkflowElement = {
         order: 0
       },
       {
+        id: CellType.batchInsertDynamicDatabase,
+        icon: 'mdi:database-arrow-left',
+        label: 'Batch Insert Dynamic Database',
+        group: '',
+        order: 0
+      },
+      {
         id: CellType.updateDynamicDatabase,
         icon: 'mdi:database-edit',
         label: 'Update Dynamic Database',
@@ -1015,7 +1025,7 @@ const workflowCellElementTemplate: CellTypeItem = {
     }
   },
   InsertDynamicDatabase: {
-    ...createNodeShell('New_DynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/insertDatabase.svg', 260),
+    ...createNodeShell('New_InsertDynamicDatabase', 'Insert Dynamic Database', 'New Insert Dynamic Database', '/icons/insertDatabase.svg', 260),
     data: {
       id: '',
       name: 'New Insert Dynamic Database',
@@ -1032,8 +1042,32 @@ const workflowCellElementTemplate: CellTypeItem = {
       }
     }
   },
+  BatchInsertDynamicDatabase: {
+    ...createNodeShell(
+      'New_BatchInsertDynamicDatabase',
+      'Batch Insert Dynamic Database',
+      'New Batch Insert Dynamic Database',
+      '/icons/insertDatabase.svg',
+      280
+    ),
+    data: {
+      id: '',
+      name: 'New Batch Insert Dynamic Database',
+      documentation: '',
+      execution: { ...LONG_RUNNING_EXECUTION },
+      type: WorkflowElementType.ServiceTask,
+      config: getTaskItemConfig[CellType.batchInsertDynamicDatabase],
+      metadata: {
+        type: CellType.batchInsertDynamicDatabase,
+        tags: WorkflowElementType.HTTPRequestTask,
+        icon: '/icons/insertDatabase.svg',
+        width: 280,
+        databaseId: ''
+      }
+    }
+  },
   UpdateDynamicDatabase: {
-    ...createNodeShell('New_DynamicDatabase', 'Update Dynamic Database', 'New Update Dynamic Database', '/icons/updateDatabase.svg', 260),
+    ...createNodeShell('New_UpdateDynamicDatabase', 'Update Dynamic Database', 'New Update Dynamic Database', '/icons/updateDatabase.svg', 260),
     data: {
       id: '',
       name: 'New Update Dynamic Database',
