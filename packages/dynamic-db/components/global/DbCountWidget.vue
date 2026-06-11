@@ -2,6 +2,8 @@
   <DashboardCard
     ref="cardRef"
     :title="displayLabel"
+    :subtitle="props.setting?.subtitle"
+    :footer="props.setting?.footer"
     :hide-setting="hideSetting"
     :setting="setting"
     @delete="handleDelete"

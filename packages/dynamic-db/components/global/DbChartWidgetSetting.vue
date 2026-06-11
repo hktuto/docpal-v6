@@ -8,6 +8,21 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Title">
+        <el-input v-model="form.title" placeholder="Widget title" />
+      </el-form-item>
+
+      <!-- Annotation -->
+      <el-divider>Annotation</el-divider>
+      <div class="appearance-grid">
+        <el-form-item label="Subtitle">
+          <el-input v-model="form.subtitle" placeholder="Widget subtitle" />
+        </el-form-item>
+        <el-form-item label="Footer">
+          <el-input v-model="form.footer" placeholder="Widget footer annotation" />
+        </el-form-item>
+      </div>
+
       <!-- X-Axis Grouping -->
       <el-divider>X-Axis (Horizontal Grouping)</el-divider>
 
@@ -65,13 +80,52 @@
         <el-form-item label="Legend Position">
           <el-select-v2 v-model="form.appearance.legendPosition" :options="legendPositionOptions" style="width: 100%" />
         </el-form-item>
+        <el-form-item label="Orientation">
+          <el-select-v2 v-model="form.appearance.orientation" :options="[{ label: 'Vertical', value: 'vertical' }, { label: 'Horizontal', value: 'horizontal' }]" style="width: 100%" />
+        </el-form-item>
         <el-form-item v-if="showStackedOption" label="Stacked">
           <el-switch v-model="form.appearance.stacked" />
         </el-form-item>
         <el-form-item v-if="showSmoothOption" label="Smooth Lines">
           <el-switch v-model="form.appearance.smooth" />
         </el-form-item>
+        <el-form-item label="Data Labels">
+          <el-switch v-model="form.appearance.showDataLabels" />
+        </el-form-item>
       </div>
+
+      <el-divider>Y-Axis Format</el-divider>
+      <div class="appearance-grid">
+        <el-form-item label="Precision">
+          <el-input-number v-model="form.appearance.yAxisFormat.precision" :min="0" :max="6" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="Prefix">
+          <el-input v-model="form.appearance.yAxisFormat.prefix" placeholder="e.g. $" />
+        </el-form-item>
+        <el-form-item label="Suffix">
+          <el-input v-model="form.appearance.yAxisFormat.suffix" placeholder="e.g. %" />
+        </el-form-item>
+      </div>
+
+      <el-divider>Reference Lines</el-divider>
+      <div v-for="(line, index) in form.appearance.referenceLines" :key="index" class="series-row">
+        <div class="series-fields">
+          <el-form-item label="Value" class="series-field-item">
+            <el-input-number v-model="line.value" style="width: 100%" />
+          </el-form-item>
+          <el-form-item label="Label" class="series-field-item">
+            <el-input v-model="line.label" placeholder="Line label" />
+          </el-form-item>
+          <el-form-item label="Style" class="series-field-item">
+            <el-select-v2 v-model="line.lineStyle" :options="[{ label: 'Dashed', value: 'dashed' }, { label: 'Solid', value: 'solid' }, { label: 'Dotted', value: 'dotted' }]" style="width: 100%" />
+          </el-form-item>
+          <el-form-item label="Color" class="series-field-item">
+            <el-color-picker v-model="line.color" />
+          </el-form-item>
+        </div>
+        <el-button type="danger" link size="small" @click="form.appearance.referenceLines.splice(index, 1)">Remove</el-button>
+      </div>
+      <el-button type="primary" link @click="form.appearance.referenceLines.push({ value: 0, label: '', lineStyle: 'dashed', color: '#999' })">+ Add Reference Line</el-button>
     </el-form>
 
     <template #footer>
@@ -94,7 +148,8 @@ const { tableOptions, fields, fieldsLoading, loadFields, numericFields } = useWi
 const seriesTypeOptions = [
   { label: 'Bar', value: 'bar' },
   { label: 'Line', value: 'line' },
-  { label: 'Area', value: 'area' }
+  { label: 'Area', value: 'area' },
+  { label: 'Scatter', value: 'scatter' }
 ]
 
 const aggregationOptions = [
@@ -130,8 +185,15 @@ const form = reactive({
   appearance: {
     legendPosition: 'bottom',
     stacked: false,
-    smooth: false
-  }
+    smooth: false,
+    orientation: 'vertical',
+    showDataLabels: false,
+    yAxisFormat: { precision: 0, prefix: '', suffix: '' },
+    referenceLines: [] as any[]
+  },
+  title: '',
+  subtitle: '',
+  footer: ''
 })
 
 const showStackedOption = computed(() =>
@@ -179,8 +241,16 @@ watch(
       form.appearance = {
         legendPosition: raw.appearance?.legendPosition || 'bottom',
         stacked: raw.appearance?.stacked || false,
-        smooth: raw.appearance?.smooth || false
+        smooth: raw.appearance?.smooth || false,
+        orientation: raw.appearance?.orientation || 'vertical',
+        showDataLabels: raw.appearance?.showDataLabels || false,
+        yAxisFormat: raw.appearance?.yAxisFormat || { precision: 0, prefix: '', suffix: '' },
+        referenceLines: raw.appearance?.referenceLines || []
       }
+
+      form.title = raw.title || ''
+      form.subtitle = raw.subtitle || ''
+      form.footer = raw.footer || ''
 
       if (form.tableId) {
         await loadFields(form.tableId)
@@ -194,7 +264,10 @@ function handleSubmit() {
     tableId: form.tableId,
     xField: form.xField,
     series: form.series.map((s: any) => ({ ...s })),
-    appearance: { ...form.appearance }
+    appearance: { ...form.appearance },
+    title: form.title,
+    subtitle: form.subtitle,
+    footer: form.footer
   })
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="420px" @close="handleClose">
+  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="520px" @close="handleClose">
     <el-form label-position="top">
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
@@ -7,24 +7,18 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Fields to Display">
-        <el-select v-model="form.fields" multiple collapse-tags placeholder="Select fields" style="width: 100%" :loading="fieldsLoading">
-          <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
+      <el-form-item label="Aggregation">
+        <el-select-v2 v-model="form.aggregation" :options="aggregationOptions" style="width: 100%" />
+      </el-form-item>
+
+      <el-form-item v-if="form.aggregation !== 'count'" label="Numeric Field">
+        <el-select v-model="form.field" placeholder="Select a numeric field" style="width: 100%" :loading="fieldsLoading">
+          <el-option v-for="f in numericFields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Row Limit">
-        <el-select-v2 v-model="form.limit" :options="limitOptions" style="width: 100%" />
-      </el-form-item>
-
-      <el-form-item label="Sort By">
-        <el-select v-model="form.sortField" clearable placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
-          <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="Title">
-        <el-input v-model="form.title" placeholder="e.g. Recent Records" />
+      <el-form-item label="Label">
+        <el-input v-model="form.label" placeholder="e.g. CPU Usage" />
       </el-form-item>
 
       <el-divider>Annotation</el-divider>
@@ -35,6 +29,18 @@
 
       <el-form-item label="Footer">
         <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
+      </el-form-item>
+
+      <el-form-item label="Min">
+        <el-input-number v-model="form.min" :controls="false" style="width: 100%" />
+      </el-form-item>
+
+      <el-form-item label="Max">
+        <el-input-number v-model="form.max" :controls="false" style="width: 100%" />
+      </el-form-item>
+
+      <el-form-item label="Target">
+        <el-input-number v-model="form.target" :controls="false" style="width: 100%" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -52,27 +58,30 @@ import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTable
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { tableOptions, fields, fieldsLoading, loadFields } = useWidgetTableFields()
+const { tableOptions, numericFields, fieldsLoading, loadFields } = useWidgetTableFields()
 
-const limitOptions = [
-  { label: '3 rows', value: 3 },
-  { label: '5 rows', value: 5 },
-  { label: '10 rows', value: 10 }
+const aggregationOptions = [
+  { label: 'Count', value: 'count' },
+  { label: 'Sum', value: 'sum' },
+  { label: 'Average', value: 'avg' },
+  { label: 'Minimum', value: 'min' },
+  { label: 'Maximum', value: 'max' }
 ]
 
 const form = reactive({
   tableId: '',
-  fields: [] as string[],
-  limit: 5,
-  sortField: 'createdTime',
-  title: '',
+  aggregation: 'sum',
+  field: '',
+  label: 'Metric',
   subtitle: '',
-  footer: ''
+  footer: '',
+  min: 0,
+  max: 100,
+  target: 80
 })
 
 async function handleTableChange(tableId: string) {
-  form.fields = []
-  form.sortField = 'createdTime'
+  form.field = ''
   await loadFields(tableId)
 }
 
@@ -81,12 +90,14 @@ watch(
   async (isVisible) => {
     if (isVisible) {
       form.tableId = setting.value.tableId || ''
-      form.fields = setting.value.fields || []
-      form.limit = setting.value.limit || 5
-      form.sortField = setting.value.sortField || 'createdTime'
-      form.title = setting.value.title || ''
+      form.aggregation = setting.value.aggregation || 'sum'
+      form.field = setting.value.field || ''
+      form.label = setting.value.label || 'Metric'
       form.subtitle = setting.value.subtitle || ''
       form.footer = setting.value.footer || ''
+      form.min = setting.value.min ?? 0
+      form.max = setting.value.max ?? 100
+      form.target = setting.value.target ?? 80
       if (form.tableId) {
         await loadFields(form.tableId)
       }
@@ -97,12 +108,14 @@ watch(
 function handleSubmit() {
   baseSubmit({
     tableId: form.tableId,
-    fields: [...form.fields],
-    limit: form.limit,
-    sortField: form.sortField,
-    title: form.title,
+    aggregation: form.aggregation,
+    field: form.field,
+    label: form.label,
     subtitle: form.subtitle,
-    footer: form.footer
+    footer: form.footer,
+    min: form.min,
+    max: form.max,
+    target: form.target
   })
 }
 

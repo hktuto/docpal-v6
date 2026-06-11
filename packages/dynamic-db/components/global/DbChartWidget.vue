@@ -2,6 +2,8 @@
   <DashboardCard
     ref="cardRef"
     :title="chartTitle"
+    :subtitle="config.subtitle"
+    :footer="config.footer"
     :hide-setting="hideSetting"
     :setting="setting"
     :setting-ref="settingRef"
@@ -9,9 +11,7 @@
     @refresh="handleRefresh"
   >
     <div class="db-chart-widget">
-      <div v-if="!chartData.length" class="empty-state">
-        <el-empty description="No data available" />
-      </div>
+      <DbWidgetEmptyState v-if="!chartData.length" />
       <div v-else ref="chartContainer" class="chart-container" />
     </div>
   </DashboardCard>
@@ -21,14 +21,16 @@
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
 import * as echarts from 'echarts/core'
-import { BarChart, LineChart } from 'echarts/charts'
-import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
+import { BarChart, LineChart, ScatterChart } from 'echarts/charts'
+import { GridComponent, TooltipComponent, LegendComponent, TitleComponent, MarkLineComponent, DataZoomComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import { useChartExport } from '../../composables/dashboard/useChartExport'
+import DbWidgetEmptyState from './DbWidgetEmptyState.vue'
 
 // Register required modules
-echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
+echarts.use([BarChart, LineChart, ScatterChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, MarkLineComponent, DataZoomComponent, CanvasRenderer])
 
 const props = withDefaults(
   defineProps<{
@@ -78,6 +80,7 @@ function fieldLabel(fieldName: string): string {
 }
 
 const chartTitle = computed(() => {
+  if (config.value.title) return config.value.title
   const { xField } = config.value
   const seriesLabels = (config.value.series || [])
     .map((s: any) => {
@@ -170,6 +173,26 @@ function getLegendConfig() {
   return base
 }
 
+function formatYAxisValue(value: number): string {
+  const fmt = config.value.appearance?.yAxisFormat
+  if (!fmt) return String(value)
+  let result = value.toFixed(fmt.precision ?? 0)
+  if (fmt.prefix) result = fmt.prefix + result
+  if (fmt.suffix) result = result + fmt.suffix
+  return result
+}
+
+function buildReferenceLines(): any[] {
+  const refs = config.value.appearance?.referenceLines || []
+  return refs
+    .filter((r: any) => r.value !== undefined && r.value !== '')
+    .map((r: any) => ({
+      yAxis: Number(r.value),
+      label: { formatter: r.label || '{c}', position: 'insideEndTop' },
+      lineStyle: { type: r.lineStyle || 'dashed', color: r.color || '#999' }
+    }))
+}
+
 function initChart() {
   if (!chartContainer.value) return
   if (chartInstance.value) {
@@ -183,13 +206,16 @@ function initChart() {
 
   const hasAnyLine = validSeries.some((s: any) => resolveSeriesType(s) === 'line' || resolveSeriesType(s) === 'area')
   const hasAnyBar = validSeries.some((s: any) => resolveSeriesType(s) === 'bar')
+  const hasAnyScatter = validSeries.some((s: any) => resolveSeriesType(s) === 'scatter')
 
   const legendConfig = getLegendConfig()
 
-  // Cartesian charts (bar, line, area)
+  // Cartesian charts (bar, line, area, scatter)
   const xData = chartData.value.map((d) => d.key)
   const isStacked = appearance?.stacked || false
   const isSmooth = appearance?.smooth || false
+  const isHorizontal = appearance?.orientation === 'horizontal'
+  const showDataLabels = appearance?.showDataLabels || false
 
   const echartsSeries = validSeries.map((s: any, index: number) => {
     const color = s.color || colorPalette[index % colorPalette.length]
@@ -200,9 +226,10 @@ function initChart() {
       name: s.label || (s.field ? fieldLabel(s.field) : 'Count'),
       type: seriesType === 'area' ? 'line' : seriesType,
       data: yData,
-      stack: isStacked ? 'total' : undefined,
+      stack: isStacked && seriesType !== 'scatter' ? 'total' : undefined,
       itemStyle: { color },
-      lineStyle: { color }
+      lineStyle: { color },
+      label: showDataLabels ? { show: true, position: isHorizontal ? 'right' : 'top' } : undefined
     }
 
     if (seriesType === 'line' || seriesType === 'area') {
@@ -211,16 +238,33 @@ function initChart() {
         baseSeries.areaStyle = { opacity: 0.3, color }
       }
     } else if (seriesType === 'bar') {
-      baseSeries.itemStyle.borderRadius = isStacked ? [0, 0, 0, 0] : [4, 4, 0, 0]
+      baseSeries.itemStyle.borderRadius = isStacked ? [0, 0, 0, 0] : (isHorizontal ? [0, 4, 4, 0] : [4, 4, 0, 0])
+    } else if (seriesType === 'scatter') {
+      baseSeries.symbolSize = 10
     }
 
     return baseSeries
   })
 
-  const option = {
+  const referenceLines = buildReferenceLines()
+  if (referenceLines.length && echartsSeries.length) {
+    echartsSeries[0].markLine = { data: referenceLines }
+  }
+
+  const categoryAxis: any = {
+    type: 'category',
+    data: xData,
+    axisLabel: { rotate: !isHorizontal && xData.length > 10 ? 45 : 0 }
+  }
+  const valueAxis: any = {
+    type: 'value',
+    axisLabel: { formatter: (v: number) => formatYAxisValue(v) }
+  }
+
+  const option: any = {
     tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: hasAnyBar ? 'shadow' : 'line' }
+      trigger: hasAnyScatter ? 'item' : 'axis',
+      axisPointer: hasAnyBar && !hasAnyScatter ? { type: 'shadow' } : undefined
     },
     legend: legendConfig,
     grid: {
@@ -230,17 +274,19 @@ function initChart() {
       top: legendConfig.show && (config.value.appearance?.legendPosition === 'top') ? '12%' : '3%',
       containLabel: true
     },
-    xAxis: {
-      type: 'category',
-      data: xData,
-      axisLabel: { rotate: xData.length > 10 ? 45 : 0 }
-    },
-    yAxis: { type: 'value' },
+    xAxis: isHorizontal ? valueAxis : categoryAxis,
+    yAxis: isHorizontal ? categoryAxis : valueAxis,
     series: echartsSeries,
     color: colorPalette
   }
 
+  if (xData.length > 20) {
+    option.dataZoom = [{ type: 'inside', start: 0, end: 100 }]
+  }
+
   instance.setOption(option)
+
+  // Drill-down click handler hidden per request
 }
 
 function resolveSeriesType(s: any): string {
@@ -255,6 +301,12 @@ function handleResize() {
   if (chartInstance.value) {
     chartInstance.value.resize()
   }
+}
+
+const { exportChart } = useChartExport()
+
+function handleExport() {
+  exportChart(chartInstance.value, chartTitle.value || 'chart')
 }
 
 function handleDelete() {
@@ -310,12 +362,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
 }
-.empty-state {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* removed empty-state style; replaced by DbWidgetEmptyState */
 .chart-container {
   flex: 1;
   min-height: 0;

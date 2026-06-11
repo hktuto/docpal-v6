@@ -8,6 +8,9 @@ const props = withDefaults(
     showSkeleton?: boolean
     hideSetting?: boolean
     title?: string
+    subtitle?: string
+    footer?: string
+    additionalStyle?: Record<string, any>
     settingRef?: any
     setting?: any
     mode?: 'mock' | 'real'
@@ -19,6 +22,9 @@ const props = withDefaults(
     showSkeleton: false,
     hideSetting: false,
     title: '',
+    subtitle: '',
+    footer: '',
+    additionalStyle: () => ({}),
     extraParams: [],
     mode: 'real',
     showRefreshIcon: true,
@@ -83,13 +89,16 @@ defineExpose({
 </script>
 
 <template>
-  <ElCard ref="cardRef" :class="['dp-dashboard--card', { fullscreen: fullscreen }]">
+  <ElCard ref="cardRef" :class="['dp-dashboard--card', { fullscreen: fullscreen }]" :style="additionalStyle">
     <template #header>
       <slot name="header">
-        <h4 class="dp-dashboard--card__title">
-          {{ title }}
-          <slot name="title_suffix"></slot>
-        </h4>
+        <div class="dp-dashboard--card__title-wrap">
+          <h4 class="dp-dashboard--card__title">
+            {{ title }}
+            <slot name="title_suffix"></slot>
+          </h4>
+          <p v-if="subtitle" class="dp-dashboard--card__subtitle">{{ subtitle }}</p>
+        </div>
 
         <div class="flex-x-end">
           <slot name="action_prefix"></slot>
@@ -107,6 +116,11 @@ defineExpose({
     </template>
     <el-skeleton v-if="showSkeleton" :rows="5"> </el-skeleton>
     <slot v-else></slot>
+    <div v-if="footer || $slots.footer" class="dp-dashboard--card__footer">
+      <slot name="footer">
+        <span>{{ footer }}</span>
+      </slot>
+    </div>
   </ElCard>
 </template>
 
@@ -144,13 +158,25 @@ defineExpose({
   .svgIcon + .svgIcon {
     margin-left: var(--app-space-xxs);
   }
-  .dp-dashboard--card__title {
+  .dp-dashboard--card__title-wrap {
     max-width: calc(100% - 4rem);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .dp-dashboard--card__title {
     font-size: var(--app-font-size-l);
     .el-dropdown {
       padding-top: 3px;
     }
+  }
+  .dp-dashboard--card__subtitle {
+    font-size: var(--app-font-size-s);
+    color: var(--app-text-color-secondary);
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
   }
 }
 .dp-dashboard--card__padding {
@@ -172,6 +198,15 @@ defineExpose({
   margin: 0 auto;
   width: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.dp-dashboard--card__footer {
+  padding: var(--app-space-xs) var(--app-space-s);
+  border-top: 1px solid var(--app-grey-900);
+  font-size: var(--app-font-size-s);
+  color: var(--app-text-color-secondary);
+  text-align: center;
 }
 :deep(h4) {
   padding: unset;
