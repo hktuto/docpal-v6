@@ -1,10 +1,6 @@
 import type { ViewRenderFunctionParams } from '../../../types/column-types'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 import { ElDatePicker } from 'element-plus'
-dayjs.extend(utc)
-dayjs.extend(timezone)
+import { formatDateTime } from '../../../utils/fieldValueFormat'
 export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $grid, row, column } = params
   const { dateFormat, includeTime, dateTimeFormat, timezone, includeTimeZone } = options?.props
@@ -14,14 +10,13 @@ export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<strin
     'title': ''
   }, '')
 
-  const format = includeTime ? dateFormat + ' ' + dateTimeFormat : dateFormat
-  let displayValue = dayjs(row[column.field]).format(format || 'YYYY-MM-DD')
-  if (includeTime && timezone) {
-    displayValue = dayjs(row[column.field]).tz(timezone).format(format)
-  }
-  if (includeTimeZone) {
-    displayValue += ' (' + timezone + ')'
-  }
+  const displayValue = formatDateTime(value, {
+    dateFormat,
+    includeTime,
+    dateTimeFormat,
+    timezone,
+    includeTimeZone
+  })
   return h(
     'div',
     {

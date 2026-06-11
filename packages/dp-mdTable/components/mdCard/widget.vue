@@ -2,6 +2,7 @@
 import { Rank } from '@element-plus/icons-vue'
 import { mimeTypeToIcon } from '../../../base/utils/browseHelper'
 import { ColumnFieldType, type DocPalDocCellValue } from '../../types/column-types'
+import { formatDateTime } from '../../utils/fieldValueFormat'
 
 type UrlCellValue = {
   text: string
@@ -140,6 +141,18 @@ function isDocPalDocField(field: any) {
   return field?.business_type === ColumnFieldType.DocPalDoc
 }
 
+function isDateTimeField(field: any) {
+  return [ColumnFieldType.DateTime, ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime].includes(field?.business_type)
+}
+
+function formatDateTimeFieldValue(value: any, field: any) {
+  if (value === null || value === undefined || value === '') {
+    return '--'
+  }
+  const formatted = formatDateTime(value, field?.display_structure || field?.properties || {})
+  return formatted === '-' ? '--' : formatted
+}
+
 function getDocPalDocs(value: unknown): DocPalDocCellValue[] {
   if (!value) return []
 
@@ -250,6 +263,7 @@ function handleContextMenu(event: MouseEvent) {
             </a>
           </span>
         </template>
+        <span v-else-if="isDateTimeField(field)" class="field-value">{{ formatDateTimeFieldValue(row?.[field.field_name], field) }}</span>
         <span v-else class="field-value">{{ formatValue(row?.[field.field_name]) }}</span>
       </div>
     </div>

@@ -25,12 +25,15 @@ export interface SelectOptionLike {
 export function formatDateTime(value: any, properties: Record<string, any> = {}): string {
   if (!value) return '-'
   const _value = isNaN(Number(value)) ? value : Number(value)
-  const { dateFormat, includeTime, dateTimeFormat, timezone: tz } = properties
+  const { dateFormat, includeTime, dateTimeFormat, timezone: tz, includeTimeZone } = properties
   try {
-    const format = includeTime && dateTimeFormat ? `${dateFormat || 'YYYY-MM-DD'} ${dateTimeFormat}` : dateFormat || 'YYYY-MM-DD'
+    const format = includeTime ? `${dateFormat || 'YYYY-MM-DD'} ${dateTimeFormat || 'HH:mm'}` : (dateFormat || 'YYYY-MM-DD')
     let displayValue = dayjs(_value).format(format)
     if (includeTime && tz) {
       displayValue = dayjs(_value).tz(tz).format(format)
+    }
+    if (includeTimeZone && tz) {
+      displayValue += ` (${tz})`
     }
     return displayValue
   } catch {
