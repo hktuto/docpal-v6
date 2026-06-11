@@ -137,7 +137,7 @@ watch(
       <el-button v-loading="loading" style="width: 100%" type="primary" id="Workflow__Start__EditForm" @click="editForm">
         {{ $t('Edit Start Form') }}
       </el-button>
-      <el-button style="width: 100%" type="primary" id="Workflow__Start__PreviewForm" @click="previewForm">
+      <el-button style="width: 100%" type="success" id="Workflow__Start__PreviewForm" @click="previewForm">
         {{ $t('Preview Form') }}
       </el-button>
 
@@ -151,8 +151,10 @@ watch(
 
   <LazyContextVariableManageDialog ref="variableManageDialogRef" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variables" :processKey="workflowKey" :formKey="formKey" @submit="handelSubmitForm" />
-  <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
-    <LazyContextFormRender ref="fromRenderRef" />
+  <el-dialog v-model="formRenderVisible" class="big" distory-on-close append-to-body>
+    <div style="height: 800px">
+      <LazyContextFormRender ref="fromRenderRef" />
+    </div>
   </el-dialog>
 </template>
 

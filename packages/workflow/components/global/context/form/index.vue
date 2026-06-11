@@ -160,7 +160,7 @@ watch(
     <div class="actionsContainer">
       <el-button type="primary" id="Workflow__UserTask__EditField" @click="editField">Edit Form Field</el-button>
       <el-button type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</el-button>
-      <el-button type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
+      <el-button type="success" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
     </div>
     <div class="actionsContainer">
       <el-button size="small" @click="copyFormAndFieldSetting">Copy Form</el-button>
@@ -170,8 +170,10 @@ watch(
 
   <LazyContextFormFieldManageDialog ref="contextFormFieldManageDialogRef" :form-field="formField" @updateFormField="handleUpdateFormField" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variablesData" :processKey="workflowKey" :formKey="formKey" @submit="handelSubmitForm" />
-  <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable append-to-body>
-    <LazyContextFormRender ref="fromRenderRef" />
+  <el-dialog v-model="formRenderVisible" class="big" distory-on-close append-to-body>
+    <div style="height: 800px">
+      <LazyContextFormRender ref="fromRenderRef" />
+    </div>
   </el-dialog>
 </template>
 

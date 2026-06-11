@@ -112,93 +112,34 @@
         "hidden": false,
         "clearable": true,
         "filterable": true,
-        "allowCreate": false,
+        "allowCreate": true,
         "popperClass": "",
         "remote": false,
         "automaticDropdown": false,
         "multiple": false,
         "multipleLimit": 0,
         "optionItems": [
-          {
-            "value": "yyyy",
-            "label": "yyyy"
-          },
-          {
-            "value": "MM",
-            "label": "MM"
-          },
-          {
-            "value": "dd",
-            "label": "dd"
-          },
-          {
-            "value": "HH",
-            "label": "HH"
-          },
-          {
-            "value": "mm",
-            "label": "mm"
-          },
-          {
-            "value": "ss",
-            "label": "ss"
-          },
-          {
-            "value": "HH:mm",
-            "label": "HH:mm"
-          },
-          {
-            "value": "HH:mm:ss",
-            "label": "HH:mm:ss"
-          },
-          {
-            "value": "dd/MM/yyyy",
-            "label": "dd/MM/yyyy"
-          },
-          {
-            "value": "dd/MM/yyyy HH:mm",
-            "label": "dd/MM/yyyy HH:mm"
-          },
-          {
-            "value": "dd/MM/yyyy HH:mm:ss",
-            "label": "dd/MM/yyyy HH:mm:ss"
-          },
-          {
-            "value": "dd-MM-yyyy",
-            "label": "dd-MM-yyyy"
-          },
-          {
-            "value": "dd-MM-yyyy HH:mm",
-            "label": "dd-MM-yyyy HH:mm"
-          },
-          {
-            "value": "dd-MM-yyyy HH:mm:ss",
-            "label": "dd-MM-yyyy HH:mm:ss"
-          },
-          {
-            "value": "yyyy/MM/dd",
-            "label": "yyyy/MM/dd"
-          },
-          {
-            "value": "yyyy/MM/dd HH:mm",
-            "label": "yyyy/MM/dd HH:mm"
-          },
-          {
-            "value": "yyyy/MM/dd HH:mm:ss",
-            "label": "yyyy/MM/dd HH:mm:ss"
-          },
-          {
-            "value": "yyyy-MM-dd",
-            "label": "yyyy-MM-dd"
-          },
-          {
-            "value": "yyyy-MM-dd HH:mm",
-            "label": "yyyy-MM-dd HH:mm"
-          },
-          {
-            "value": "yyyy-MM-dd HH:mm:ss",
-            "label": "yyyy-MM-dd HH:mm:ss"
-          }
+          { "value": "yyyy", "label": "yyyy" },
+          { "value": "YY", "label": "YY" },
+          { "value": "MM", "label": "MM" },
+          { "value": "dd", "label": "dd" },
+          { "value": "HH", "label": "HH" },
+          { "value": "mm", "label": "mm" },
+          { "value": "ss", "label": "ss" },
+          { "value": "HH:mm", "label": "HH:mm" },
+          { "value": "HH:mm:ss", "label": "HH:mm:ss" },
+          { "value": "dd/MM/yyyy", "label": "dd/MM/yyyy" },
+          { "value": "dd/MM/yyyy HH:mm", "label": "dd/MM/yyyy HH:mm" },
+          { "value": "dd/MM/yyyy HH:mm:ss", "label": "dd/MM/yyyy HH:mm:ss" },
+          { "value": "dd-MM-yyyy", "label": "dd-MM-yyyy" },
+          { "value": "dd-MM-yyyy HH:mm", "label": "dd-MM-yyyy HH:mm" },
+          { "value": "dd-MM-yyyy HH:mm:ss", "label": "dd-MM-yyyy HH:mm:ss" },
+          { "value": "yyyy/MM/dd", "label": "yyyy/MM/dd" },
+          { "value": "yyyy/MM/dd HH:mm", "label": "yyyy/MM/dd HH:mm" },
+          { "value": "yyyy/MM/dd HH:mm:ss", "label": "yyyy/MM/dd HH:mm:ss" },
+          { "value": "yyyy-MM-dd", "label": "yyyy-MM-dd" },
+          { "value": "yyyy-MM-dd HH:mm", "label": "yyyy-MM-dd HH:mm" },
+          { "value": "yyyy-MM-dd HH:mm:ss", "label": "yyyy-MM-dd HH:mm:ss" }
         ],
         "required": true,
         "requiredHint": "",
@@ -347,43 +288,17 @@
     "dhList": [
       {
         "id": 65638,
-        "fieldConditionList": [
-          {
-            "fieldName": "isShow",
-            "condition": "===",
-            "value": true
-          }
-        ],
+        "fieldConditionList": [{ "fieldName": "isShow", "condition": "===", "value": true }],
         "hiddenList": [
-          {
-            "id": 53617,
-            "fieldName": "variableName",
-            "required": true
-          },
-          {
-            "id": 88918,
-            "fieldName": "variableValue",
-            "required": true
-          }
+          { "id": 53617, "fieldName": "variableName", "required": true },
+          { "id": 88918, "fieldName": "variableValue", "required": true }
         ],
         "disabledList": []
       },
       {
         "id": 80067,
-        "fieldConditionList": [
-          {
-            "fieldName": "isShow",
-            "condition": "!==",
-            "value": true
-          }
-        ],
-        "hiddenList": [
-          {
-            "id": 99425,
-            "fieldName": "dateFormat",
-            "required": true
-          }
-        ],
+        "fieldConditionList": [{ "fieldName": "isShow", "condition": "!==", "value": true }],
+        "hiddenList": [{ "id": 99425, "fieldName": "dateFormat", "required": true }],
         "disabledList": []
       }
     ],
