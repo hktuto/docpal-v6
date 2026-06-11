@@ -64,7 +64,7 @@ export interface SingleDatabaseCopntext {
   updateDatabase: (database?: CaseTypeRecord) => Promise<void>
   getPermissions: () => Promise<void>
   getMenuItemPermissions: (resourceId?: string) => Promise<void>
-  getAllMenuItemPermissions: () => Promise<void>
+  ensureMenuItemPermission: (id: string) => Promise<void>
   getCurrentUserMenuItemPermission: (id: string) => MenuItemPermissionLevel | null
   checkMenuItemPermission: (id: string, right: MenuItemPermissionLevel) => boolean
   openMenuItemActions: (data: { item: TreeItem | null; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) => void
@@ -134,6 +134,9 @@ export const useSingleDatabase = () => {
   }
 
   function openMenuItemActions(data: { item: TreeItem | null; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) {
+    if (data.item?.id) {
+      ensureMenuItemPermission(data.item.id)
+    }
     menuActionsRef.value?.open(data, target, highlight)
   }
 
@@ -202,10 +205,12 @@ export const useSingleDatabase = () => {
         (p) => p.targetType === 1 && p.targetId === currentUserId.value
       )
       currentMenuItemPermission.value = userPerm?.permissionLevel || null
+      menuItemPermissionMap.value[id] = userPerm?.permissionLevel || null
     } catch (error) {
       console.error('Failed to load menu item permissions:', error)
       menuItemPermissions.value = []
       currentMenuItemPermission.value = null
+      menuItemPermissionMap.value[id] = null
     } finally {
       menuItemPermissionsLoading.value = false
     }
@@ -311,31 +316,20 @@ export const useSingleDatabase = () => {
   }
 
   /**
-   * Fetch current user's permissions for all menu items
+   * Fetch current user's permission for a single menu item if not already cached
    */
-  async function getAllMenuItemPermissions() {
+  async function ensureMenuItemPermission(id: string) {
+    if (id in menuItemPermissionMap.value) return
 
-    const allItems = menuState.value.items
-    if (!allItems.length) return
-
-    const ids = flattenMenuItemIds(allItems)
-    const map: Record<string, MenuItemPermissionLevel | null> = {}
-
-    await Promise.allSettled(
-      ids.map(async (id) => {
-        try {
-          const { data }: any = await newClientApi.getDynamicDbPermissionsMenuMenuidPermissions(id)
-
-          const userPerm = data.find(
-            (p: any) => p.targetType === 1 && p.targetId === currentUserId.value
-          )
-          map[id] = userPerm?.permissionLevel || null
-        } catch {
-          map[id] = null
-        }
-      })
-    )
-    menuItemPermissionMap.value = map
+    try {
+      const { data }: any = await newClientApi.getDynamicDbPermissionsMenuMenuidPermissions(id)
+      const userPerm = data.find(
+        (p: any) => p.targetType === 1 && p.targetId === currentUserId.value
+      )
+      menuItemPermissionMap.value[id] = userPerm?.permissionLevel || null
+    } catch {
+      menuItemPermissionMap.value[id] = null
+    }
   }
 
   /**
@@ -376,7 +370,6 @@ export const useSingleDatabase = () => {
     })
     const list = (res as ResultListMenuDTO).data ?? []
     menuState.value.items = list
-    await getAllMenuItemPermissions()
   }
 
   function findItemById(items: MenuDTO[], id: string): MenuDTO | undefined {
@@ -469,7 +462,6 @@ export const useSingleDatabase = () => {
     if (type !== 'view') {
       startEdit(data.id)
     }
-    getAllMenuItemPermissions()
     return data
   }
 
@@ -485,6 +477,7 @@ export const useSingleDatabase = () => {
       databaseMenuRouteParams.value.detailType = 'root'
       return
     }
+    ensureMenuItemPermission(item.id)
     switch (item.item_type) {
       case MenuType.folder:
         databaseMenuRouteParams.value.detailId = item.id
@@ -599,7 +592,7 @@ export const useSingleDatabase = () => {
     updateDatabase,
     getPermissions,
     getMenuItemPermissions,
-    getAllMenuItemPermissions,
+    ensureMenuItemPermission,
     getCurrentUserMenuItemPermission,
     checkMenuItemPermission,
     openMenuItemActions,
