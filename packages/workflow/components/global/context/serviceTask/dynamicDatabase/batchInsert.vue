@@ -67,6 +67,7 @@ function getArrayVariables(status: string) {
 
 async function init() {
   const data = node.getData()
+  tableFieldList.value = []
   databaseId.value = data.metadata.databaseId
   if (databaseId.value !== '') {
     await getTableList()
