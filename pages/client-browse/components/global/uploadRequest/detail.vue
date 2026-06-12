@@ -70,7 +70,8 @@ async function handleSubmit() {
         id: item.id,
         docName: item.initName || item.name,
         approve: item.approved || false,
-        documentType: item.documentType
+        documentType: item.documentType,
+        metadatas: item.properties || {}
       }))
     }
     const res = await newClientApi.postDmsUploadRequestApproval(param).then((res: any) => res.result)
