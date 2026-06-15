@@ -20,6 +20,26 @@ export interface SelectOptionLike {
 }
 
 /**
+ * 根据列类型从行数据中取单元格值（系统时间字段映射到 created_at / updated_at）
+ */
+export function getRowCellValue(row: Record<string, any>, column: Record<string, any>): any {
+  const columnType = column.business_type ?? column.cellRender?.name
+  if (columnType === ColumnFieldType.CreatedTime || columnType === 'CreatedTime') {
+    return row.created_at
+  }
+  if (columnType === ColumnFieldType.LastModifiedTime || columnType === 'LastModifiedTime') {
+    return row.updated_at
+  }
+  if (columnType === ColumnFieldType.CreatedBy || columnType === 'CreatedBy') {
+    return row.created_by
+  }
+  if (columnType === ColumnFieldType.LastModifiedBy || columnType === 'LastModifiedBy') {
+    return row.updated_by
+  }
+  return row[column.field]
+}
+
+/**
  * 按字段配置格式化日期时间（支持 dateFormat、includeTime、dateTimeFormat、timezone）
  */
 export function formatDateTime(value: any, properties: Record<string, any> = {}): string {

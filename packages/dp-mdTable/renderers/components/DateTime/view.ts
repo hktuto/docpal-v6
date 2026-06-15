@@ -1,10 +1,10 @@
 import type { ViewRenderFunctionParams } from '../../../types/column-types'
 import { ElDatePicker } from 'element-plus'
-import { formatDateTime } from '../../../utils/fieldValueFormat'
+import { formatDateTime, getRowCellValue } from '../../../utils/fieldValueFormat'
 export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $grid, row, column } = params
   const { dateFormat, includeTime, dateTimeFormat, timezone, includeTimeZone } = options?.props
-  const value = row[column.field]
+  const value = getRowCellValue(row, column)
   if(!value) return h('div', {
     class: 'date-time-view mb-table-cell',
     'title': ''
