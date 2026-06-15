@@ -2,7 +2,7 @@
 import { Rank } from '@element-plus/icons-vue'
 import { mimeTypeToIcon } from '../../../base/utils/browseHelper'
 import { ColumnFieldType, type DocPalDocCellValue } from '../../types/column-types'
-import { formatDateTime } from '../../utils/fieldValueFormat'
+import { formatDateTime, formatFieldValue, getRowCellValue } from '../../utils/fieldValueFormat'
 
 type UrlCellValue = {
   text: string
@@ -110,11 +110,7 @@ function getUrlLinks(value: unknown): Array<{ href: string; label: string }> {
     return []
   }
 
-  const items = Array.isArray(value)
-    ? value
-    : typeof value === 'string'
-      ? [{ text: value, title: value }]
-      : [value]
+  const items = Array.isArray(value) ? value : typeof value === 'string' ? [{ text: value, title: value }] : [value]
 
   return items
     .map((item) => {
@@ -139,6 +135,12 @@ function getUrlLinks(value: unknown): Array<{ href: string; label: string }> {
 
 function isDocPalDocField(field: any) {
   return field?.business_type === ColumnFieldType.DocPalDoc
+}
+
+const systemFieldTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
+
+function isSystemUserField(field: any) {
+  return systemFieldTypes.includes(field?.business_type)
 }
 
 function isDateTimeField(field: any) {
@@ -183,7 +185,7 @@ function handleOpenDocument(doc: DocPalDocCellValue, event: MouseEvent | Keyboar
 }
 
 function handleOpenRecord() {
-  if(props.row.__deleted) return
+  if (props.row.__deleted) return
   emit('open-record', props.row)
 }
 
@@ -263,7 +265,7 @@ function handleContextMenu(event: MouseEvent) {
             </a>
           </span>
         </template>
-        <span v-else-if="isDateTimeField(field)" class="field-value">{{ formatDateTimeFieldValue(row?.[field.field_name], field) }}</span>
+        <span v-else-if="isSystemUserField(field)" class="field-value">{{ getRowCellValue(row, field) }}</span>
         <span v-else class="field-value">{{ formatValue(row?.[field.field_name]) }}</span>
       </div>
     </div>
@@ -279,10 +281,10 @@ function handleContextMenu(event: MouseEvent) {
   transition: all 0.2s ease;
   outline: none;
   position: relative;
-  &.is-deleted{
-      text-decoration: line-through;
-      background: var(--app-grey-900);
-      cursor: not-allowed;
+  &.is-deleted {
+    text-decoration: line-through;
+    background: var(--app-grey-900);
+    cursor: not-allowed;
   }
   &.is-bordered {
     border: 1px solid #ebeef5;
