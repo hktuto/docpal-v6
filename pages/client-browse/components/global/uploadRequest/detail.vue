@@ -66,13 +66,16 @@ async function handleSubmit() {
     const param = {
       uploadId: state.uploadId,
       userId: userId.value,
-      batchItemList: state.tableData.map((item: any) => ({
-        id: item.id,
-        docName: item.initName || item.name,
-        approve: item.approved || false,
-        documentType: item.documentType,
-        metadatas: item.properties || {}
-      }))
+      batchItemList: state.tableData.map((item: any) => {
+        const metadatas = item.properties || {}
+        return {
+          id: item.id,
+          docName: item.initName || item.name,
+          approve: item.approved || false,
+          documentType: item.documentType,
+          metadatas: JSON.stringify(item.properties)
+        }
+      })
     }
     const res = await newClientApi.postDmsUploadRequestApproval(param).then((res: any) => res.result)
     if (!!res) routerProvider?.navigateTo(createUploadRequestPageParams({}))
