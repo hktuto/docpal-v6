@@ -221,6 +221,7 @@ watch(() => props.src, (newSrc) => {
     <div
       ref="containerRef"
       class="viewport"
+      tabindex="0"
       :class="{ 'is-dragging': isDragging, 'is-pressed': isPressed }"
       :style="{ cursor: cursorStyle }"
       @mousedown="onContainerMouseDown"

@@ -171,11 +171,29 @@ export function useCanvasViewport(
     isDragging.value = false
   }
 
+  function isInputElement(el: Element | null): boolean {
+    if (!el) return false
+    const tagName = el.tagName
+    return (
+      tagName === 'INPUT' ||
+      tagName === 'TEXTAREA' ||
+      tagName === 'SELECT' ||
+      el.getAttribute('contenteditable') === 'true'
+    )
+  }
+
+  function isPreviewFocused(): boolean {
+    const container = containerRef.value
+    const active = document.activeElement
+    if (!container || !active) return false
+    return container === active || container.contains(active)
+  }
+
   function onKeyDown(e: KeyboardEvent) {
-    if (e.code === 'Space') {
-      e.preventDefault()
-      isSpacePressed.value = true
-    }
+    if (e.code !== 'Space') return
+    if (!isPreviewFocused() || isInputElement(document.activeElement)) return
+    e.preventDefault()
+    isSpacePressed.value = true
   }
 
   function onKeyUp(e: KeyboardEvent) {

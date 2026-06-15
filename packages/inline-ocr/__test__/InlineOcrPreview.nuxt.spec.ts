@@ -392,4 +392,69 @@ describe('InlineOcrPreview', () => {
     wrapper.unmount()
     expect(URL.revokeObjectURL).toHaveBeenCalled()
   })
+
+  it('activates pan mode on space when viewport is focused', async () => {
+    const wrapper = mount(InlineOcrPreview, {
+      props: { src: 'http://example.com/image.png' },
+      attachTo: document.body,
+    })
+    await flushPromises()
+    await nextTick()
+    await nextTick()
+
+    const viewport = wrapper.find('.viewport').element
+    viewport.focus()
+    expect(document.activeElement).toBe(viewport)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true }))
+
+    const vm = wrapper.vm as any
+    expect(vm.isSpacePressed).toBe(true)
+
+    wrapper.unmount()
+  })
+
+  it('does not activate pan mode on space when an input is focused', async () => {
+    const wrapper = mount(InlineOcrPreview, {
+      props: { src: 'http://example.com/image.png' },
+      attachTo: document.body,
+    })
+    await flushPromises()
+    await nextTick()
+    await nextTick()
+
+    const input = document.createElement('input')
+    document.body.appendChild(input)
+    input.focus()
+    expect(document.activeElement).toBe(input)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true }))
+
+    const vm = wrapper.vm as any
+    expect(vm.isSpacePressed).toBe(false)
+
+    input.remove()
+    wrapper.unmount()
+  })
+
+  it('does not activate pan mode on space when viewport is not focused', async () => {
+    const wrapper = mount(InlineOcrPreview, {
+      props: { src: 'http://example.com/image.png' },
+      attachTo: document.body,
+    })
+    await flushPromises()
+    await nextTick()
+    await nextTick()
+
+    // Ensure focus is not inside the viewport
+    document.body.focus?.()
+    const vm = wrapper.vm as any
+    expect(vm.isSpacePressed).toBe(false)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true }))
+
+    expect(vm.isSpacePressed).toBe(false)
+
+    wrapper.unmount()
+  })
 })
