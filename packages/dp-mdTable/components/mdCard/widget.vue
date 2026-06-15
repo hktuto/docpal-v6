@@ -2,7 +2,7 @@
 import { Rank } from '@element-plus/icons-vue'
 import { mimeTypeToIcon } from '../../../base/utils/browseHelper'
 import { ColumnFieldType, type DocPalDocCellValue } from '../../types/column-types'
-import { formatDateTime, formatFieldValue, getRowCellValue } from '../../utils/fieldValueFormat'
+import { formatDateTime, getRowCellValue } from '../../utils/fieldValueFormat'
 
 type UrlCellValue = {
   text: string
@@ -265,7 +265,8 @@ function handleContextMenu(event: MouseEvent) {
             </a>
           </span>
         </template>
-        <span v-else-if="isSystemUserField(field)" class="field-value">{{ getRowCellValue(row, field) }}</span>
+        <span v-else-if="isDateTimeField(field)" class="field-value">{{ formatDateTimeFieldValue(getRowCellValue(row, field), field) }}</span>
+        <span v-else-if="isSystemUserField(field)" class="field-value">{{ getRowCellValue(row, field) || '--' }}</span>
         <span v-else class="field-value">{{ formatValue(row?.[field.field_name]) }}</span>
       </div>
     </div>

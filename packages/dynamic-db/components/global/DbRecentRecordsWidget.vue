@@ -46,6 +46,7 @@ import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 import { formatTableFieldDisplayValue } from '@packages/dp-mdTable/utils/fieldValueFormat'
 import { SingleDatabaseContextKey } from '../../composables/useSignleDatabase'
+import { normalizeSystemDateField, normalizeSystemDateFieldName } from '../../composables/dashboard/useWidgetTableFields'
 
 const props = withDefaults(
   defineProps<{
@@ -70,7 +71,7 @@ const displayTitle = computed(() => props.setting?.title || 'Recent Records')
 const displayFields = computed(() => {
   const fields = props.setting?.fields
   if (Array.isArray(fields) && fields.length > 0) {
-    return fields
+    return fields.map(normalizeSystemDateFieldName)
   }
   return ['name']
 })
@@ -86,19 +87,22 @@ async function loadFieldMeta(tableId: string) {
   const fields = await getFields(tableId)
   const map: Record<string, any> = {}
   for (const f of fields) {
-    map[f.field_name] = f
+    const field = normalizeSystemDateField(f)
+    map[field.field_name] = field
   }
   fieldMap.value = map
 }
 
 function fieldLabel(fieldName: string): string {
-  return fieldMap.value[fieldName]?.field_name_alias || fieldName
+  const normalizedFieldName = normalizeSystemDateFieldName(fieldName)
+  return fieldMap.value[normalizedFieldName]?.field_name_alias || normalizedFieldName
 }
 
 function formatCellValue(record: any, fieldName: string): string {
-  const field = fieldMap.value[fieldName]
-  if (!field) return record[fieldName] ?? ''
-  return formatTableFieldDisplayValue(record[fieldName], field, record)
+  const normalizedFieldName = normalizeSystemDateFieldName(fieldName)
+  const field = fieldMap.value[normalizedFieldName]
+  if (!field) return record[normalizedFieldName] ?? ''
+  return formatTableFieldDisplayValue(record[normalizedFieldName], field, record)
 }
 
 const dbContext = inject(SingleDatabaseContextKey, null)
@@ -118,7 +122,7 @@ async function fetchRecords() {
     const orderBy: any[] = []
     if (props.setting?.sortField) {
       orderBy.push({
-        column: props.setting.sortField,
+        column: normalizeSystemDateFieldName(props.setting.sortField),
         desc: true
       })
     }

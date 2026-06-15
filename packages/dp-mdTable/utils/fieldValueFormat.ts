@@ -20,24 +20,36 @@ export interface SelectOptionLike {
 }
 
 /**
- * 根据列类型从行数据中取单元格值（系统时间字段映射到 created_at / updated_at）
+ * 根据列类型解析行数据字段名（系统字段映射到后端固定字段）
  */
-export function getRowCellValue(row: Record<string, any>, column: Record<string, any>): any {
-  const columnType = column.business_type ?? column.cellRender?.name
-  const properties = column.display_structure || {}
-  if (columnType === ColumnFieldType.CreatedTime || columnType === 'CreatedTime') {
-    return formatDateTime(row.created_at, properties)
-  }
-  if (columnType === ColumnFieldType.LastModifiedTime || columnType === 'LastModifiedTime') {
-    return formatDateTime(row.updated_at, properties)
-  }
-  if (columnType === ColumnFieldType.CreatedBy || columnType === 'CreatedBy') {
-    return row.created_by
-  }
-  if (columnType === ColumnFieldType.LastModifiedBy || columnType === 'LastModifiedBy') {
-    return row.updated_by
-  }
-  return row[column.field]
+const SYSTEM_FIELD_NAME_MAP: Record<string, string> = {
+  [ColumnFieldType.CreatedTime]: 'created_at',
+  [ColumnFieldType.LastModifiedTime]: 'updated_at',
+  [ColumnFieldType.CreatedBy]: 'created_by',
+  [ColumnFieldType.LastModifiedBy]: 'updated_by',
+  CreatedTime: 'created_at',
+  LastModifiedTime: 'updated_at',
+  CreatedBy: 'created_by',
+  LastModifiedBy: 'updated_by'
+}
+
+export function getSystemFieldName(columnType: unknown): string | undefined {
+  if (columnType === null || columnType === undefined) return undefined
+  return SYSTEM_FIELD_NAME_MAP[String(columnType)]
+}
+
+export function resolveColumnDataField(column: any, fieldName = 'field'): string | undefined {
+  const columnType = column?.business_type ?? column?.type ?? column?.cellRender?.name
+  return getSystemFieldName(columnType) ?? column?.[fieldName] ?? column?.field ?? column?.field_name ?? column?.fieldName
+}
+
+/**
+ * 根据列类型从行数据中取单元格原始值
+ */
+export function getRowCellValue(row: Record<string, any> | undefined, column: any): any {
+  const dataField = resolveColumnDataField(column)
+  if (!dataField) return undefined
+  return row?.[dataField]
 }
 
 /**
@@ -177,20 +189,21 @@ export function formatTableFieldDisplayValue(
   row?: Record<string, any>,
   options: FormatTableFieldDisplayOptions = {}
 ): string {
-  if (rawValue === null || rawValue === undefined || rawValue === '') {
-    return ''
-  }
-
   const businessType = field.business_type?.toString()
   const displayStructure = field.display_structure || {}
   const separator = options.separator ?? ', '
+  const displayValue = row ? getRowCellValue(row, field) : rawValue
+
+  if (displayValue === null || displayValue === undefined || displayValue === '') {
+    return ''
+  }
 
   if (businessType === ColumnFieldType.SingleSelect) {
-    return resolveSelectLabel(rawValue, displayStructure.options || [])
+    return resolveSelectLabel(displayValue, displayStructure.options || [])
   }
 
   if (businessType === ColumnFieldType.MultiSelect) {
-    const ids = Array.isArray(rawValue) ? rawValue : [rawValue]
+    const ids = Array.isArray(displayValue) ? displayValue : [displayValue]
     return ids
       .map((id) => resolveSelectLabel(id, displayStructure.options || []))
       .filter(Boolean)
@@ -207,7 +220,7 @@ export function formatTableFieldDisplayValue(
         return labels.join(separator)
       }
     }
-    return formatFieldValue(rawValue)
+    return formatFieldValue(displayValue)
   }
 
   if ((businessType === ColumnFieldType.VirtualColumn || businessType === ColumnFieldType.AggVirtualColumn) && row) {
@@ -220,7 +233,7 @@ export function formatTableFieldDisplayValue(
     }
   }
 
-  return formatFieldValueByType(rawValue, {
+  return formatFieldValueByType(displayValue, {
     type: businessType as FieldInfo['type'],
     properties: displayStructure
   })

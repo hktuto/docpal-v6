@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
-import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
+import { normalizeSystemDateFieldName, useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
@@ -60,11 +60,13 @@ const limitOptions = [
   { label: '10 rows', value: 10 }
 ]
 
+const defaultSortField = 'created_at'
+
 const form = reactive({
   tableId: '',
   fields: [] as string[],
   limit: 5,
-  sortField: 'createdTime',
+  sortField: defaultSortField,
   title: '',
   subtitle: '',
   footer: ''
@@ -72,7 +74,7 @@ const form = reactive({
 
 async function handleTableChange(tableId: string) {
   form.fields = []
-  form.sortField = 'createdTime'
+  form.sortField = defaultSortField
   await loadFields(tableId)
 }
 
@@ -81,9 +83,9 @@ watch(
   async (isVisible) => {
     if (isVisible) {
       form.tableId = setting.value.tableId || ''
-      form.fields = setting.value.fields || []
+      form.fields = (setting.value.fields || []).map(normalizeSystemDateFieldName)
       form.limit = setting.value.limit || 5
-      form.sortField = setting.value.sortField || 'createdTime'
+      form.sortField = normalizeSystemDateFieldName(setting.value.sortField || defaultSortField)
       form.title = setting.value.title || ''
       form.subtitle = setting.value.subtitle || ''
       form.footer = setting.value.footer || ''
@@ -97,9 +99,9 @@ watch(
 function handleSubmit() {
   baseSubmit({
     tableId: form.tableId,
-    fields: [...form.fields],
+    fields: form.fields.map(normalizeSystemDateFieldName),
     limit: form.limit,
-    sortField: form.sortField,
+    sortField: normalizeSystemDateFieldName(form.sortField),
     title: form.title,
     subtitle: form.subtitle,
     footer: form.footer
