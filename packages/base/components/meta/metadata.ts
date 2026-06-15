@@ -39,7 +39,6 @@ export const useMetadata = () => {
   // get document type metadata
   const getDocumentMetadata = async (type: string, isInitOption = true): Promise<any> => {
     try {
-      // type = 'testOy'
       const { data }: any = await newClientApi.getDmsDocpalTypeDocpaltypenameSchema(type, {
         headers: { noThrowError: 'true' }
       })
@@ -419,7 +418,8 @@ const ignoreDisplayList = [
   'dpc:fileModifiedDate',
   'maskList',
   'readonlyList',
-  'folderCabinetId'
+  'folderCabinetId',
+  'file_content'
 ]
 
 export function getDisplayProperties(properties: Record<string, any>) {
