@@ -3,10 +3,8 @@
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="actionsButtonsContainer">
-          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name"
-                            inputPlaceHolder="documentType_filter" />
+          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="documentType_filter" />
           <div class="btns">
-
             <el-button id="DocumentType__CreateNewDocumentType" type="primary" @click="handleCreate">
               {{ $t('docType.new') }}
             </el-button>
@@ -57,7 +55,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
         if (row.isFolder === 'Yes') {
           icon = '/icons/doc/folder.svg'
         }
-        return `<span class="browseNameCell"><img src="${icon}" class="browseFileIcon" /> ${cellValue}</span> `
+        return `<span class="browseNameCell"><img src="${icon}" class="browseFileIcon" /> ${t(cellValue)}</span> `
       }
     },
     { field: 'category', title: 'docType.category' },
@@ -147,7 +145,12 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
 
 function handleDblclick(row) {
   // TODO : update dupliate dialog iwth new api
-  routerProvider?.navigateTo(routeDocDetail(row), false)
+  const params = {
+    name: t(row.name),
+    id: row.id,
+    metadataName: row.name
+  }
+  routerProvider?.navigateTo(routeDocDetail(params), false)
 }
 
 const DocTypeDialogDuplicateRef = ref()
@@ -158,10 +161,12 @@ function handleDuplicate(row: any) {
 }
 
 async function handleActive(row: any, isActive: boolean) {
-  const result = await newAdminApi.patchDmsDocpalTypeActive({
-    name: row.name,
-    enable: isActive
-  }).then((res) => res.data)
+  const result = await newAdminApi
+    .patchDmsDocpalTypeActive({
+      name: row.name,
+      enable: isActive
+    })
+    .then((res) => res.data)
   if (!!result) {
     row.active = isActive ? 'Active' : 'Inactive'
   }
@@ -226,13 +231,16 @@ async function handleExport() {
     text: t('metadata.export_loading'),
     background: 'rgba(0, 0, 0, 0.7)'
   })
-  const result = await newAdminApi.postDmsDocpalTypeExportCvs({
-    pageNum: 0,
-    pageSize: 1000
-  }, {
-    format: 'blob',
-    timeout: 0
-  })
+  const result = await newAdminApi.postDmsDocpalTypeExportCvs(
+    {
+      pageNum: 0,
+      pageSize: 1000
+    },
+    {
+      format: 'blob',
+      timeout: 0
+    }
+  )
   downloadBlob(result, 'documentType', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
   exportLoading.close()
 }
@@ -242,7 +250,7 @@ onMounted(() => {
 })
 </script>
 <style lang="scss" scoped>
-:deep(.vxe-buttons--wrapper ) {
+:deep(.vxe-buttons--wrapper) {
   display: flex;
   justify-content: space-between;
 }
@@ -269,5 +277,4 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
-
 </style>

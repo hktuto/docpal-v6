@@ -3,21 +3,23 @@
     <div class="metaSetting-container">
       <div class="meta-setting-info">
         <BrowseItemIcon style="--icon-size: 80px" class="meta-setting-info-icon el-icon--left" :documentBasicType="state.docTypeDetail.dataType" />
+
         <el-form label-position="top" class="meta-setting-info-form">
-          <el-form-item :label="$t('search.type')">
+          <LanguageUnitForm ref="LanguageUnitFormRef" class="meta-setting-info-language" :lKey="name" />
+          <!-- <el-form-item :label="$t('search.type')">
             <el-input
               v-model="state.form.docpalTypeName"
               @input="handleInput('docpalTypeName')"
               @keyup.enter="handleSubmit('docpalTypeName')"
               :disabled="state.loading"
             ></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('docType.category')">
+          </el-form-item> -->
+          <el-form-item class="meta-setting-info-category" :label="$t('docType.category')">
             <el-select :loading="categoryLoading" v-model="state.form.category" :disabled="state.loading" filterable @change="handleSubmit('category')">
               <el-option v-for="item in categoryOpts" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item :label="$t('dpTable_permission')">
+          <el-form-item class="meta-setting-info-permission" :label="$t('dpTable_permission')">
             <el-select
               v-model="state.form.permission"
               placeholder="Select"
@@ -32,7 +34,7 @@
               </el-option-group>
             </el-select>
           </el-form-item>
-          <el-form-item :label="$t('doc.isFolder')">
+          <el-form-item class="meta-setting-info-isFolder" :label="$t('doc.isFolder')">
             <el-switch
               v-model="state.form.isFolder"
               :active-text="$t('el.popconfirm.confirmButtonText')"
@@ -42,11 +44,10 @@
             />
           </el-form-item>
         </el-form>
-        <LanguageUnitForm ref="LanguageUnitFormRef" class="meta-setting-info-language" :lKey="name" />
       </div>
       <el-tabs v-model="state.activeTabName" class="dp-tabs--auto">
         <el-tab-pane :label="$t('docType_displayMeta')" name="metadata">
-          <DocTypeDisplayMetaTable :documentType="name" :id="id" @refresh="initDocType" @updateDetail="initDocType" />
+          <DocTypeDisplayMetaTable :documentType="metadataName" :id="id" @refresh="initDocType" @updateDetail="initDocType" />
         </el-tab-pane>
         <!-- <el-tab-pane :label="$t('docType_relatedDocument')" name="related">
           <DocTypeRelatedTypeTable :docTypeDetail="state.docTypeDetail" :name="name"></DocTypeRelatedTypeTable>
@@ -62,9 +63,10 @@ import { useDebounceFn } from '@vueuse/core'
 import { initCategoryOpts, categoryOpts } from '@/composables/useDocumentTypeOptioins'
 import { convertPermissionObjectByPermissions, convertPermissionsByPermissionObject, getPermissionSelectOption } from '#imports'
 // const { getLanguageListStore } = useLanguage()
-const { name, id } = defineProps<{
+const { name, metadataName, id } = defineProps<{
   name: string
   id: string
+  metadataName: string
 }>()
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -191,31 +193,28 @@ onMounted(async () => {
 }
 
 .meta-setting-info {
-  display: grid;
-  gap: calc(var(--app-space-xs) * 2);
-  margin-bottom: var(--app-space-xs);
-  grid-template-columns: min-content 1fr;
-  grid-template-rows: repeat(2, min-content);
-  grid-column-gap: var(--app-space-s);
-  grid-row-gap: 0px;
+  display: flex;
   align-items: center;
-
-  &-icon {
-    grid-area: 1 / 1 / 3 / 2;
+  gap: var(--app-space-xs);
+}
+.meta-setting-info-form {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-column-gap: var(--app-space-xs);
+  grid-row-gap: 0px;
+  .meta-setting-info-language {
+    grid-area: 1 / 1 / 2 / 4;
   }
-
-  &-form {
-    grid-area: 1 / 2 / 2 / 3;
+  .meta-setting-info-category {
+    grid-area: 2 / 1 / 3 / 2;
   }
-
-  &-language {
+  .meta-setting-info-permission {
     grid-area: 2 / 2 / 3 / 3;
   }
-}
-
-.meta-setting-info-form {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--app-space-xs);
+  .meta-setting-info-isFolder {
+    grid-area: 2 / 3 / 3 / 4;
+  }
 }
 </style>

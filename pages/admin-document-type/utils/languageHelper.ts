@@ -67,7 +67,7 @@ export async function saveMetaI18n(lKey: string, lKeyValueMap: any) {
     _languageListMap[locale].languageContent = JSON.stringify(languages)
     delete _languageListMap[locale].languages
     try {
-      await newAdminApi.postDmsFormPropertiesLanguage(_languageListMap[locale]).then((r) => r.data)
+      await newClientApi.postDmsFormPropertiesLanguage(_languageListMap[locale]).then((r) => r.data)
       languageListMap[locale].languages = recordLanguage
     } catch (error) {
     }

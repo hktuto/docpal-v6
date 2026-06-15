@@ -1,6 +1,5 @@
 <template>
-  <el-dialog v-model="visible" :title="t('metadata.new')" class="scroll-dialog" append-to-body
-             :close-on-click-modal="false" destroy-on-close>
+  <el-dialog v-model="visible" :title="t('metadata.new')" class="scroll-dialog" append-to-body :close-on-click-modal="false" destroy-on-close>
     <el-form :model="formData" ref="elFormRef" label-position="top">
       <el-form-item :label="t('table_name')" prop="name" required>
         <el-input v-model="formData.name" />
@@ -8,8 +7,7 @@
       <el-form-item :label="t('metadata.dataType')" required>
         <el-select v-model="selectedType" placeholder="Select" @change="handleTypeChanged">
           <el-option-group v-for="group in METADATA_OPTIONS" :key="group.group" :label="t(group.group)">
-            <el-option v-for="option in group.options" :key="option.name" :label="t(option.name)"
-                       :value="option.name" />
+            <el-option v-for="option in group.options" :key="option.name" :label="t(option.name)" :value="option.name" />
           </el-option-group>
         </el-select>
       </el-form-item>
@@ -23,8 +21,7 @@
       <h4>{{ t('meta.mask') }}</h4>
       <el-form-item :label="t('meta.mask_type')" required>
         <el-select v-model="formData.maskRule.maskType" placeholder="Select">
-          <el-option v-for="option in MASK_OPTIONS" :key="option.value" :label="t(option.label)"
-                     :value="option.value" />
+          <el-option v-for="option in MASK_OPTIONS" :key="option.value" :label="t(option.label)" :value="option.value" />
         </el-select>
       </el-form-item>
       <el-form-item :label="t('meta.maskLength')" required>
@@ -32,8 +29,7 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button id="DocumentType__CreateNewDocumentType__Create__NewMetadata" :loading="loading" type="primary"
-                 @click="handleCreate">
+      <el-button id="DocumentType__CreateNewDocumentType__Create__NewMetadata" :loading="loading" type="primary" @click="handleCreate">
         {{ $t('submit') }}
       </el-button>
     </template>
@@ -43,11 +39,7 @@
 <script lang="ts" setup>
 import { ElMessage, type FormInstance } from 'element-plus'
 import { newAdminApi } from 'api'
-import {
-  METADATA_OPTIONS,
-  MASK_OPTIONS,
-  type MetadataOption
-} from '../../../../../../packages/dp-datatype/utils/dataTypeHelper'
+import { METADATA_OPTIONS, MASK_OPTIONS, type MetadataOption } from '../../../../../../packages/dp-datatype/utils/dataTypeHelper'
 import { mapDataType, getDefaultByType } from '../../../../../../packages/dp-datatype/utils/globalDataTypeHelper'
 
 const { t } = useI18n()
@@ -112,7 +104,7 @@ async function handleCreate() {
           })
         )
         close()
-        // wait 1 second to reload for backend delay 
+        // wait 1 second to reload for backend delay
         setTimeout(() => {
           emits('reload', result)
         }, 1000)

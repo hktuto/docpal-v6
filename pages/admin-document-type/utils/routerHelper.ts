@@ -7,7 +7,8 @@ export const routeDocDetail  = function(params: any){
     component: 'LazyDocTypeDetail',
     props: {
       name: params.name,
-      id: params.id
+      id: params.id,
+      metadataName: params.metadataName
     }
   } as TabItem
 }
