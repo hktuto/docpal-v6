@@ -82,9 +82,11 @@
 }
 .checkbox-view-icon {
   color: var(--app-text-color-secondary);
+  opacity: 0.2;
 }
 .checkbox-view-icon--active {
   color: var(--el-color-primary);
+  opacity: 1;
 }
 .table-tag {
   padding: var(--app-space-xs) var(--app-space-s);
