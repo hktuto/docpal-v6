@@ -5,7 +5,7 @@
         <BrowseItemIcon style="--icon-size: 80px" class="meta-setting-info-icon el-icon--left" :documentBasicType="state.docTypeDetail.dataType" />
 
         <el-form label-position="top" class="meta-setting-info-form">
-          <LanguageUnitForm ref="LanguageUnitFormRef" class="meta-setting-info-language" :lKey="name" />
+          <LanguageUnitForm ref="LanguageUnitFormRef" class="meta-setting-info-language" :lKey="metadataName" />
           <!-- <el-form-item :label="$t('search.type')">
             <el-input
               v-model="state.form.docpalTypeName"
