@@ -17,6 +17,7 @@
           default-first-option
           clearable
           filterable
+          @change="handleMetadataChange"
         >
           <template #default="{ item }">
             <span style="margin-right: 8px">{{ $t(item.label) }}</span>
@@ -53,6 +54,8 @@
           <DocTypePermission v-model="formData.metadataPermission[item]" :permissionType="item" />
         </el-col>
       </el-row>
+      <h4>{{ t('languageSet') }}</h4>
+      <LanguageUnitForm ref="LanguageUnitFormRef" class="meta-setting-info-language" :lKey="state.metadataName" />
     </el-form>
 
     <template #footer>
@@ -91,6 +94,7 @@ const state = reactive({
   isEdit: false,
   lKey: '',
   setting: {},
+  metadataName: '',
   metadataList: [] as any[]
 })
 
@@ -168,6 +172,11 @@ function handleCancel() {
   resetForm()
 }
 
+function handleMetadataChange(value: string) {
+  const metadata = availableMetadata.value.find((item: any) => item.value === value)
+  state.metadataName = metadata?.label || ''
+}
+
 function resetForm() {
   formData.metadataId = ''
   formData.display = true
@@ -180,6 +189,7 @@ async function handleOpen(exitList: any[], data: any) {
   state.isEdit = !!data
   // If editing, populate form with existing data
   if (!!data) {
+    state.metadataName = data.name
     formData.metadataId = data.id
     formData.display = data.display
     formData.metadataPermission = {

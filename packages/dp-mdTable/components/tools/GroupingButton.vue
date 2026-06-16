@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import GroupingConfigPopover from './GroupingConfigPopover.vue'
 import type { GroupingRule } from './GroupingConfigPopover.vue'
 import type { ColumnConfig } from '../../types/column-context'
+import { ColumnFieldType } from '../../types/column-types'
 
 const { t } = useI18n()
 
@@ -27,11 +28,20 @@ const groupingButtonLabel = computed(() => {
   }
   return t('mdTable.grouping.button')
 })
-
+const arrayField = [
+  ColumnFieldType.MultiSelect,
+  ColumnFieldType.Relation,
+  ColumnFieldType.VirtualColumn,
+  ColumnFieldType.Formula,
+  ColumnFieldType.AggVirtualColumn
+]
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
   if (props.groupableColumns) {
-    return props.groupableColumns
+    return props.groupableColumns.filter((column) => {
+      const businessType = column.business_type?.toString()
+      return !arrayField.includes(businessType)
+    })
   }
   return []
 })
@@ -60,13 +70,7 @@ defineExpose({
 
 <template>
   <div class="grouping-button-wrapper" v-if="groupingRules">
-    <el-button
-      ref="buttonRef"
-      type="primary"
-      :disabled="disabled"
-      :aria-label="groupingButtonLabel"
-      @click="handleButtonClick"
-    >
+    <el-button ref="buttonRef" type="primary" :disabled="disabled" :aria-label="groupingButtonLabel" @click="handleButtonClick">
       {{ groupingButtonLabel }}
     </el-button>
     <GroupingConfigPopover

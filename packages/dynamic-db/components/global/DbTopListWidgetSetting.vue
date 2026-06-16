@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="420px" @close="handleClose">
+  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="520px" @close="handleClose">
     <el-form label-position="top">
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
@@ -7,24 +7,28 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Fields to Display">
-        <el-select v-model="form.fields" multiple collapse-tags placeholder="Select fields" style="width: 100%" :loading="fieldsLoading">
+      <el-form-item label="Category Field">
+        <el-select v-model="form.categoryField" placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Row Limit">
+      <el-form-item label="Aggregation">
+        <el-select-v2 v-model="form.aggregation" :options="aggregationOptions" style="width: 100%" />
+      </el-form-item>
+
+      <el-form-item v-if="form.aggregation !== 'count'" label="Value Field">
+        <el-select v-model="form.valueField" placeholder="Select a numeric field" style="width: 100%" :loading="fieldsLoading">
+          <el-option v-for="f in numericFields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Limit">
         <el-select-v2 v-model="form.limit" :options="limitOptions" style="width: 100%" />
       </el-form-item>
 
-      <el-form-item label="Sort By">
-        <el-select v-model="form.sortField" clearable placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
-          <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="Title">
-        <el-input v-model="form.title" placeholder="e.g. Recent Records" />
+      <el-form-item label="Label">
+        <el-input v-model="form.label" placeholder="e.g. Top Customers" />
       </el-form-item>
 
       <el-divider>Annotation</el-divider>
@@ -48,33 +52,41 @@
 
 <script setup lang="ts">
 import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
-import { normalizeSystemDateFieldName, useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
+import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { tableOptions, fields, fieldsLoading, loadFields } = useWidgetTableFields()
+const { tableOptions, numericFields, fields, fieldsLoading, loadFields } = useWidgetTableFields()
 
-const limitOptions = [
-  { label: '3 rows', value: 3 },
-  { label: '5 rows', value: 5 },
-  { label: '10 rows', value: 10 }
+const aggregationOptions = [
+  { label: 'Count', value: 'count' },
+  { label: 'Sum', value: 'sum' },
+  { label: 'Average', value: 'avg' },
+  { label: 'Minimum', value: 'min' },
+  { label: 'Maximum', value: 'max' }
 ]
 
-const defaultSortField = 'created_at'
+const limitOptions = [
+  { label: '5', value: 5 },
+  { label: '10', value: 10 },
+  { label: '15', value: 15 },
+  { label: '20', value: 20 }
+]
 
 const form = reactive({
   tableId: '',
-  fields: [] as string[],
-  limit: 5,
-  sortField: defaultSortField,
-  title: '',
+  categoryField: '',
+  valueField: '',
+  aggregation: 'sum',
+  limit: 10,
+  label: '',
   subtitle: '',
   footer: ''
 })
 
 async function handleTableChange(tableId: string) {
-  form.fields = []
-  form.sortField = defaultSortField
+  form.categoryField = ''
+  form.valueField = ''
   await loadFields(tableId)
 }
 
@@ -83,10 +95,11 @@ watch(
   async (isVisible) => {
     if (isVisible) {
       form.tableId = setting.value.tableId || ''
-      form.fields = (setting.value.fields || []).map(normalizeSystemDateFieldName)
-      form.limit = setting.value.limit || 5
-      form.sortField = normalizeSystemDateFieldName(setting.value.sortField || defaultSortField)
-      form.title = setting.value.title || ''
+      form.categoryField = setting.value.categoryField || ''
+      form.valueField = setting.value.valueField || ''
+      form.aggregation = setting.value.aggregation || 'sum'
+      form.limit = setting.value.limit || 10
+      form.label = setting.value.label || ''
       form.subtitle = setting.value.subtitle || ''
       form.footer = setting.value.footer || ''
       if (form.tableId) {
@@ -99,10 +112,11 @@ watch(
 function handleSubmit() {
   baseSubmit({
     tableId: form.tableId,
-    fields: form.fields.map(normalizeSystemDateFieldName),
+    categoryField: form.categoryField,
+    valueField: form.valueField,
+    aggregation: form.aggregation,
     limit: form.limit,
-    sortField: normalizeSystemDateFieldName(form.sortField),
-    title: form.title,
+    label: form.label,
     subtitle: form.subtitle,
     footer: form.footer
   })

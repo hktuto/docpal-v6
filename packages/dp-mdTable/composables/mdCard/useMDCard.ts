@@ -39,7 +39,8 @@ export function useMDCard(props: MDCardProps) {
     loadMore,
     getAggChildData,
     currentEditing,
-    syncRowAndGroupAncestors
+    syncRowAndGroupAncestors,
+    setSearchExtraParams
   } = useTableData(props.tableId, cardRef)
 
   // 计算封面字段
@@ -72,6 +73,7 @@ export function useMDCard(props: MDCardProps) {
     tableData,
     cardRef,
     getTableData,
+    setSearchExtraParams,
     loadMore,
     hasMore,
     loadingMore,

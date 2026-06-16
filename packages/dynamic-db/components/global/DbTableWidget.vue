@@ -2,6 +2,8 @@
   <DashboardCard
     ref="cardRef"
     :title="displayTitle"
+    :subtitle="props.setting?.subtitle"
+    :footer="props.setting?.footer"
     :hide-setting="hideSetting"
     :setting="setting"
     :setting-ref="settingRef"
@@ -54,7 +56,7 @@ const cardRef = ref()
 
 const displayTitle = computed(() => props.setting?.title || 'Table View')
 
-// Full field metadata indexed by field_name (includes business_type, display_structure, etc.)
+// Full field metadata indexed by field_name
 const fieldMetaMap = ref<Record<string, any>>({})
 const { getFields } = useTableFields()
 
@@ -71,6 +73,9 @@ async function loadFieldMeta(tableId: string) {
   fieldMetaMap.value = map
 }
 
+const hiddenColumns = computed(() => new Set(props.setting?.hiddenColumns || []))
+const columnWidths = computed<Record<string, number>>(() => props.setting?.columnWidths || {})
+
 const gridOptions = computed<VxeGridProps>(() => {
   const selectedColumns = props.setting?.columns || []
   const meta = fieldMetaMap.value
@@ -78,12 +83,17 @@ const gridOptions = computed<VxeGridProps>(() => {
   const buildColumn = (fieldName: string) => {
     const fieldMeta = meta[fieldName]
     const title = fieldMeta?.field_name_alias || fieldName
+    const storedWidth = columnWidths.value[fieldName]
+    const isHidden = hiddenColumns.value.has(fieldName)
+
     let base: any
     if (!fieldMeta) {
       base = {
         field: fieldName,
         title,
-        minWidth: 120
+        minWidth: 120,
+        width: storedWidth || undefined,
+        visible: !isHidden
       }
     } else {
       const type = (fieldMeta.business_type as ColumnFieldType) || ColumnFieldType.Text
@@ -94,6 +104,8 @@ const gridOptions = computed<VxeGridProps>(() => {
         title: fieldMeta.field_name_alias,
         aggFunc: true,
         colId: fieldMeta.field_name,
+        width: storedWidth || undefined,
+        visible: !isHidden,
         ...rendererManager.getColumnConfig(type, displayStructure, displayStructure)
       }
     }
@@ -155,7 +167,6 @@ function buildOrderBy(): any[] {
     }
   }
 
-  // Backward compatibility: old sortField/sortOrder
   if (!result.length && props.setting?.sortField) {
     result.push({
       column: props.setting.sortField,
@@ -231,7 +242,10 @@ watch(
     props.setting?.sortField,
     props.setting?.sortOrder,
     props.setting?.filterRules,
-    props.setting?.sortRules
+    props.setting?.sortRules,
+    props.setting?.columns,
+    props.setting?.hiddenColumns,
+    props.setting?.columnWidths
   ],
   () => {
     currentPage.value = 1

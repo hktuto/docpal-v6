@@ -2,6 +2,8 @@
   <DashboardCard
     ref="cardRef"
     :title="chartTitle"
+    :subtitle="config.subtitle"
+    :footer="config.footer"
     :hide-setting="hideSetting"
     :setting="setting"
     :setting-ref="settingRef"
@@ -9,9 +11,7 @@
     @refresh="handleRefresh"
   >
     <div class="db-pie-widget">
-      <div v-if="!chartData.length" class="empty-state">
-        <el-empty description="No data available" />
-      </div>
+      <DbWidgetEmptyState v-if="!chartData.length" />
       <div v-else ref="chartContainer" class="chart-container" />
     </div>
   </DashboardCard>
@@ -26,6 +26,7 @@ import { TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import DbWidgetEmptyState from './DbWidgetEmptyState.vue'
 
 // Register required modules
 echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer])
@@ -175,14 +176,46 @@ function initChart() {
     chartInstance.value.dispose()
   }
 
-  const { chartType } = config.value
   const instance = echarts.init(chartContainer.value)
   chartInstance.value = instance
 
-  const pieData = chartData.value.map((d) => ({ name: d.name, value: d.value }))
+  const { chartType, appearance } = config.value
+  let pieData = chartData.value.map((d) => ({ name: d.name, value: d.value }))
+
+  // Auto-bucket small slices into "Other"
+  const bucketThreshold = appearance?.bucketThreshold ?? 0
+  if (bucketThreshold > 0 && pieData.length > 1) {
+    const total = pieData.reduce((sum, d) => sum + (Number(d.value) || 0), 0)
+    const thresholdValue = total * (bucketThreshold / 100)
+    const mainSlices = pieData.filter((d) => (Number(d.value) || 0) >= thresholdValue)
+    const otherSlices = pieData.filter((d) => (Number(d.value) || 0) < thresholdValue)
+    if (otherSlices.length > 1) {
+      const otherValue = otherSlices.reduce((sum, d) => sum + (Number(d.value) || 0), 0)
+      pieData = [...mainSlices, { name: 'Other', value: otherValue }]
+    }
+  }
+
+  const showPercentage = appearance?.showPercentage ?? true
+  const showAbsolute = appearance?.showAbsolute ?? true
+  const innerRadius = appearance?.innerRadius ?? (chartType === 'donut' ? 40 : 0)
+  const outerRadius = appearance?.outerRadius ?? 70
+
+  const labelFormatter = (params: any) => {
+    const parts: string[] = []
+    if (showAbsolute) parts.push(params.name)
+    if (showPercentage) parts.push(`${params.percent}%`)
+    return parts.join('\n')
+  }
 
   const option = {
-    tooltip: { trigger: 'item' },
+    tooltip: {
+      trigger: 'item',
+      formatter: (params: any) => {
+        const parts = [`${params.name}: ${params.value}`]
+        if (showPercentage) parts.push(`(${params.percent}%)`)
+        return parts.join(' ')
+      }
+    },
     legend: {
       show: true,
       orient: 'horizontal',
@@ -191,7 +224,7 @@ function initChart() {
     series: [
       {
         type: 'pie',
-        radius: chartType === 'donut' ? ['40%', '70%'] : '60%',
+        radius: innerRadius > 0 ? [`${innerRadius}%`, `${outerRadius}%`] : [`0%`, `${outerRadius}%`],
         data: pieData,
         emphasis: {
           itemStyle: {
@@ -201,13 +234,16 @@ function initChart() {
           }
         },
         label: {
-          show: pieData.length <= 20
+          show: pieData.length <= 20 || appearance?.forceLabels,
+          formatter: labelFormatter
         }
       }
     ]
   }
 
   instance.setOption(option)
+
+  // Drill-down click handler hidden per request
 }
 
 function handleResize() {
@@ -240,7 +276,8 @@ watch(
     props.setting?.aggregation,
     props.setting?.chartType,
     props.setting?.rowLimit,
-    props.setting?.label
+    props.setting?.label,
+    props.setting?.appearance
   ],
   () => {
     fetchData()
@@ -272,12 +309,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
 }
-.empty-state {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* removed empty-state style; replaced by DbWidgetEmptyState */
 .chart-container {
   flex: 1;
   min-height: 0;

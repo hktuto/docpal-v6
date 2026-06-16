@@ -1,7 +1,7 @@
 import { useTableViewsInject } from './useTableViews'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import dayjs from 'dayjs'
 import { getAggColumns } from '@packages/dp-mdTable/composables/useCount'
+import { convertFilterRuleToCondition } from '../../utils/PostgreSQLHelper'
 export function useDBParams() {
   const { currentView, columnFilterRules, columnSortRules, columnGroupRules, updateViewFilterSortGroup, viewStyleConfig } = useTableViewsInject()
   const columns = computed(() => currentView.value?.displayColumns)
@@ -16,49 +16,7 @@ export function useDBParams() {
     const filterRules = {
       value:
         columnFilterRules.value?.conditions
-          ?.map((rule: any) => {
-            if (isDateField(rule.field)) {
-              let value = rule.value
-              if (rule.operator === 'EQ') {
-                return {
-                  type: 'AND',
-                  value: [
-                    {
-                      column: rule.field,
-                      type: 'GTE',
-                      value: dayjs(value).startOf('day').valueOf()
-                    },
-                    {
-                      column: rule.field,
-                      type: 'LTE',
-                      value: dayjs(value).endOf('day').valueOf()
-                    }
-                  ]
-                }
-              } else if (['GT', 'LTE'].includes(rule.operator)) {
-                value = dayjs(value).endOf('day').valueOf()
-              }
-              return {
-                column: rule.field,
-                type: rule.operator,
-                value
-              }
-            } else {
-              let params: any = {}
-              if (!['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(rule.operator)) {
-                params.value = rule.value
-                if (rule.operator === 'LIKE') {
-                  params.value = rule.value ? `%${rule.value}%` : ''
-                }
-              }
-
-              return {
-                column: rule.field,
-                type: rule.operator,
-                ...params
-              }
-            }
-          })
+          ?.map((rule: any) => convertFilterRuleToCondition(rule, isDateField))
           .filter((rule: any) => rule.column && rule.type) || [],
       type: columnFilterRules.value?.conjunction || 'AND'
     }

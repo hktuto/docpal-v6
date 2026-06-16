@@ -1,8 +1,8 @@
 <template>
   <MdFormItem v-bind="props" :rules="rules">
     <ElInput
-      v-if="formData && column[fieldName]"
-      v-model="formData[column[fieldName]]"
+      v-if="formData && modelField"
+      v-model="formData[modelField]"
       :placeholder="column.placeholder"
       :disabled="disabled"
       clearable
@@ -13,12 +13,14 @@
 
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { resolveColumnDataField } from '@packages/dp-mdTable/utils/fieldValueFormat'
 const props = defineProps<{
   formData: any
   column: any
   fieldName: string
   disabled: boolean
 }>()
+const modelField = computed(() => resolveColumnDataField(props.column, props.fieldName))
 const rules = computed(() => {
   if (!props.column) {
     return []

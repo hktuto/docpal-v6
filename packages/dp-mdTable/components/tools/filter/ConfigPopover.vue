@@ -9,26 +9,26 @@
     <div class="filter-config-popover">
       <!-- 标题和提示信息 -->
       <div class="popover-header">
-        <div class="auto-save-tip">{{ t('mdTable.filter.autoSaveTip') }}</div>
+        <div class="auto-save-tip">{{ props.tip ? t(props.tip) : t('mdTable.filter.autoSaveTip') }}</div>
       </div>
 
       <!-- 筛选规则列表 -->
       <div class="filter-rules">
-        <div v-for="(rule, index) in columnFilterRules.conditions" :key="rule.id" class="filter-rule-item">
+        <div v-for="(rule, index) in localFilterRules.conditions" :key="rule.id" class="filter-rule-item">
           <!-- 第一列：逻辑连接符 -->
           <div class="logic-connector">
             <el-button v-if="index !== 1" disabled size="small" class="connector-btn">
               {{
                 index === 0
                   ? t('mdTable.filter.connectorWhen')
-                  : columnFilterRules.conjunction === 'AND'
+                  : localFilterRules.conjunction === 'AND'
                     ? t('mdTable.filter.and')
                     : t('mdTable.filter.or')
               }}
             </el-button>
             <el-select
               v-else
-              v-model="columnFilterRules.conjunction"
+              v-model="localFilterRules.conjunction"
               size="small"
               class="connector-select"
               :disabled="index > 1"
@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import { Delete, Plus, Document, Clock } from '@element-plus/icons-vue'
 import type { ColumnConfig } from '@packages/dp-mdTable/types/column-context'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
@@ -131,6 +131,11 @@ export interface FilterRule {
   value: string | number | Array<string | number>
 }
 
+export interface FilterRules {
+  conditions: FilterRule[]
+  conjunction: 'AND' | 'OR'
+}
+
 interface OperatorOption {
   label: string
   value: string
@@ -138,14 +143,21 @@ interface OperatorOption {
 
 interface Props {
   availableColumns?: ColumnConfig[]
+  columnFilterRules?: FilterRules
   width?: number | string
   placement?: string
+  tip?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   availableColumns: () => [],
+  columnFilterRules: () => ({
+    conditions: [],
+    conjunction: 'AND'
+  }),
   width: 600,
-  placement: 'bottom-start'
+  placement: 'bottom-start',
+  tip: ''
 })
 
 const emit = defineEmits<{
@@ -160,7 +172,23 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const popoverRef = ref()
-const { columnFilterRules } = inject('viewTools')
+const localFilterRules = ref<FilterRules>({
+  conditions: [],
+  conjunction: 'AND'
+})
+
+const normalizeFilterRules = (rules?: FilterRules): FilterRules => ({
+  conditions: [...(rules?.conditions || [])],
+  conjunction: rules?.conjunction || 'AND'
+})
+
+watch(
+  () => props.columnFilterRules,
+  (rules) => {
+    localFilterRules.value = normalizeFilterRules(rules)
+  },
+  { immediate: true, deep: true }
+)
 
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
@@ -289,10 +317,10 @@ function handleEditRule(rule: FilterRule) {
 }
 // 处理规则变化
 const handleRuleChange = () => {
-  console.log('handleRuleChange', columnFilterRules.value)
+  console.log('handleRuleChange', localFilterRules.value)
   emit('filter-change', {
-    conditions: [...(columnFilterRules.value?.conditions || [])],
-    conjunction: columnFilterRules.value?.conjunction || 'AND'
+    conditions: [...(localFilterRules.value?.conditions || [])],
+    conjunction: localFilterRules.value?.conjunction || 'AND'
   })
 }
 
@@ -313,7 +341,7 @@ const handleFieldChange = (rule: FilterRule) => {
 
 // 处理删除规则
 const handleDeleteRule = (index: number) => {
-  columnFilterRules.value.conditions.splice(index, 1)
+  localFilterRules.value.conditions.splice(index, 1)
   handleRuleChange()
 }
 
@@ -321,15 +349,15 @@ const handleDeleteRule = (index: number) => {
 const handleAddRule = () => {
   const newRule: FilterRule = {
     id: `filter-${Date.now()}-${Math.random()}`,
-    connector: columnFilterRules.value?.conjunction || 'AND',
+    connector: localFilterRules.value?.conjunction || 'AND',
     field: '',
     operator: '',
     value: ''
   }
 
-  columnFilterRules.value = {
-    conjunction: columnFilterRules.value?.conjunction || 'AND',
-    conditions: [...(columnFilterRules.value?.conditions || []), newRule]
+  localFilterRules.value = {
+    conjunction: localFilterRules.value?.conjunction || 'AND',
+    conditions: [...(localFilterRules.value?.conditions || []), newRule]
   }
 }
 

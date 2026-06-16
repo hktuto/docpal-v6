@@ -1,11 +1,11 @@
 <template>
   <MdFormItem v-bind="_props" :rules="rules">
     <el-date-picker
-      v-if="formData && column && column[fieldName]"
-      v-model="formData[column[fieldName]]"
+      v-if="formData && modelField"
+      v-model="formData[modelField]"
       :type="properties.includeTime ? 'datetime' : 'date'"
       :format="displayFormat"
-      :disabled="disabledFields.includes(column.type) || disabled"
+      :disabled="disabledFields.includes(columnType) || disabled"
       value-format="x"
       :placeholder="column.placeholder ?? (properties.includeTime ? '选择日期和时间' : '选择日期')"
       clearable
@@ -15,8 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import type { DateTimeConfig, TimeZone } from '@packages/dp-mdTable/types/column-types'
+import type { TimeZone } from '@packages/dp-mdTable/types/column-types'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { resolveColumnDataField } from '@packages/dp-mdTable/utils/fieldValueFormat'
 const props = defineProps<{
   formData: any
   column: any
@@ -24,6 +25,8 @@ const props = defineProps<{
   disabled: boolean
 }>()
 const disabledFields = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime]
+const columnType = computed(() => props.column?.business_type ?? props.column?.type)
+const modelField = computed(() => resolveColumnDataField(props.column, props.fieldName))
 const _props = computed(() => {
   const columnItem = JSON.parse(JSON.stringify(props.column))
   if (!columnItem?.display_structure) return columnItem

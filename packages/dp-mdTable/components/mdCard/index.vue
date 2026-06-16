@@ -2,6 +2,9 @@
 import { Refresh, Plus, Grid, Brush } from '@element-plus/icons-vue'
 import MdCardView from './view.vue'
 import type { MDCardProps } from '../../composables/mdCard/useMDCard'
+import type { FilterRules } from '../tools/filter/ConfigPopover.vue'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { convertFilterRuleToCondition } from '@packages/dynamic-db/utils/PostgreSQLHelper'
 type Props = {
   tableId: string
   editable: boolean
@@ -33,13 +36,43 @@ const emit = defineEmits<{
   'exit-edit-row': [row?: any]
 }>()
 const refreshLoading = ref(false)
-const { columns, cardRef, getTableData, addRow, systemFieldsTypes, currentEditing } = useMDCard(props)
+const { columns, cardRef, getTableData, setSearchExtraParams, addRow, systemFieldsTypes, currentEditing } = useMDCard(props)
 
 const rightClickCellPopoverRef = ref()
 const isGroupingEnabled = computed(() => {
   return props.extraColumnConfig?.columnGroupRules?.value?.length > 0
 })
 async function handleRefresh() {
+  refreshLoading.value = true
+  await getTableData({ pageNum: 0 })
+  emit('refresh')
+  setTimeout(() => {
+    refreshLoading.value = false
+  }, 300)
+}
+
+async function handleRefreshSearch(rules: FilterRules) {
+  const isDateField = (field: string) => {
+    const column = columns.value?.find((col: any) => col.field === field)
+    return column?.business_type === ColumnFieldType.DateTime
+  }
+  const conditionItems = (rules?.conditions || [])
+    .filter((rule) => rule.field && rule.operator)
+    .flatMap((rule) => {
+      const condition = convertFilterRuleToCondition(rule as any, isDateField) as any
+      return condition?.type === 'AND' ? condition.value || [] : [condition]
+    })
+  const extraParams = conditionItems.length
+    ? {
+        conditions: [
+          {
+            type: rules?.conjunction || 'AND',
+            value: conditionItems
+          }
+        ]
+      }
+    : undefined
+  setSearchExtraParams(extraParams)
   refreshLoading.value = true
   await getTableData({ pageNum: 0 })
   emit('refresh')
@@ -74,6 +107,7 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       :showColumnConfig="false"
       :showAddRowButton="canEditTable"
       @refresh="handleRefresh"
+      @filter-change="handleRefreshSearch"
       @add-row="handleAddRow"
     >
       <template #toolbar-left-before>

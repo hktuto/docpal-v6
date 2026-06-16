@@ -20,17 +20,53 @@ export interface SelectOptionLike {
 }
 
 /**
+ * 根据列类型解析行数据字段名（系统字段映射到后端固定字段）
+ */
+const SYSTEM_FIELD_NAME_MAP: Record<string, string> = {
+  [ColumnFieldType.CreatedTime]: 'created_at',
+  [ColumnFieldType.LastModifiedTime]: 'updated_at',
+  [ColumnFieldType.CreatedBy]: 'created_by',
+  [ColumnFieldType.LastModifiedBy]: 'updated_by',
+  CreatedTime: 'created_at',
+  LastModifiedTime: 'updated_at',
+  CreatedBy: 'created_by',
+  LastModifiedBy: 'updated_by'
+}
+
+export function getSystemFieldName(columnType: unknown): string | undefined {
+  if (columnType === null || columnType === undefined) return undefined
+  return SYSTEM_FIELD_NAME_MAP[String(columnType)]
+}
+
+export function resolveColumnDataField(column: any, fieldName = 'field'): string | undefined {
+  const columnType = column?.business_type ?? column?.type ?? column?.cellRender?.name
+  return getSystemFieldName(columnType) ?? column?.[fieldName] ?? column?.field ?? column?.field_name ?? column?.fieldName
+}
+
+/**
+ * 根据列类型从行数据中取单元格原始值
+ */
+export function getRowCellValue(row: Record<string, any> | undefined, column: any): any {
+  const dataField = resolveColumnDataField(column)
+  if (!dataField) return undefined
+  return row?.[dataField]
+}
+
+/**
  * 按字段配置格式化日期时间（支持 dateFormat、includeTime、dateTimeFormat、timezone）
  */
 export function formatDateTime(value: any, properties: Record<string, any> = {}): string {
   if (!value) return '-'
   const _value = isNaN(Number(value)) ? value : Number(value)
-  const { dateFormat, includeTime, dateTimeFormat, timezone: tz } = properties
+  const { dateFormat, includeTime, dateTimeFormat, timezone: tz, includeTimeZone } = properties
   try {
-    const format = includeTime && dateTimeFormat ? `${dateFormat || 'YYYY-MM-DD'} ${dateTimeFormat}` : dateFormat || 'YYYY-MM-DD'
+    const format = includeTime ? `${dateFormat || 'YYYY-MM-DD'} ${dateTimeFormat || 'HH:mm'}` : dateFormat || 'YYYY-MM-DD'
     let displayValue = dayjs(_value).format(format)
     if (includeTime && tz) {
       displayValue = dayjs(_value).tz(tz).format(format)
+    }
+    if (includeTimeZone && tz) {
+      displayValue += ` (${tz})`
     }
     return displayValue
   } catch {
@@ -95,9 +131,7 @@ export interface FormatTableFieldDisplayOptions {
 }
 
 export function resolveSelectLabel(val: unknown, options: SelectOptionLike[]): string {
-  const option = options.find(
-    (o) => o.id === val || (o as any).value === val || o.label === val || (o as any).name === val
-  )
+  const option = options.find((o) => o.id === val || (o as any).value === val || o.label === val || (o as any).name === val)
   return option?.label ?? option?.name ?? String(val ?? '')
 }
 
@@ -155,20 +189,21 @@ export function formatTableFieldDisplayValue(
   row?: Record<string, any>,
   options: FormatTableFieldDisplayOptions = {}
 ): string {
-  if (rawValue === null || rawValue === undefined || rawValue === '') {
-    return ''
-  }
-
   const businessType = field.business_type?.toString()
   const displayStructure = field.display_structure || {}
   const separator = options.separator ?? ', '
+  const displayValue = row ? getRowCellValue(row, field) : rawValue
+
+  if (displayValue === null || displayValue === undefined || displayValue === '') {
+    return ''
+  }
 
   if (businessType === ColumnFieldType.SingleSelect) {
-    return resolveSelectLabel(rawValue, displayStructure.options || [])
+    return resolveSelectLabel(displayValue, displayStructure.options || [])
   }
 
   if (businessType === ColumnFieldType.MultiSelect) {
-    const ids = Array.isArray(rawValue) ? rawValue : [rawValue]
+    const ids = Array.isArray(displayValue) ? displayValue : [displayValue]
     return ids
       .map((id) => resolveSelectLabel(id, displayStructure.options || []))
       .filter(Boolean)
@@ -177,26 +212,18 @@ export function formatTableFieldDisplayValue(
 
   if (businessType === ColumnFieldType.Relation && row) {
     const displayFieldId = displayStructure.display_field_ids?.[0]
-    const displayField = options.viewTools?.getRelationFieldConfig?.(
-      displayStructure.relation_table_id,
-      displayFieldId
-    )
+    const displayField = options.viewTools?.getRelationFieldConfig?.(displayStructure.relation_table_id, displayFieldId)
     if (displayField) {
       const relationArray = buildRelationArray(row, field.field_name, displayField.field_name)
-      const labels = relationArray
-        .map((item) => item[displayField.field_name])
-        .filter((v) => v != null && v !== '' && v !== '-')
+      const labels = relationArray.map((item) => item[displayField.field_name]).filter((v) => v != null && v !== '' && v !== '-')
       if (labels.length) {
         return labels.join(separator)
       }
     }
-    return formatFieldValue(rawValue)
+    return formatFieldValue(displayValue)
   }
 
-  if (
-    (businessType === ColumnFieldType.VirtualColumn || businessType === ColumnFieldType.AggVirtualColumn) &&
-    row
-  ) {
+  if ((businessType === ColumnFieldType.VirtualColumn || businessType === ColumnFieldType.AggVirtualColumn) && row) {
     const relationFieldName = displayStructure.relation_field_name
     const displayFieldName = displayStructure.display_field_name
     if (relationFieldName && displayFieldName) {
@@ -206,7 +233,7 @@ export function formatTableFieldDisplayValue(
     }
   }
 
-  return formatFieldValueByType(rawValue, {
+  return formatFieldValueByType(displayValue, {
     type: businessType as FieldInfo['type'],
     properties: displayStructure
   })
@@ -224,7 +251,10 @@ export function formatFieldValueByType(value: any, field: Pick<FieldInfo, 'type'
     case ColumnFieldType.MultiSelect: {
       const ids = Array.isArray(value) ? value : [value]
       const options: SelectOptionLike[] = properties.options || []
-      return ids.map((id) => resolveSelectLabel(id, options)).filter(Boolean).join(', ')
+      return ids
+        .map((id) => resolveSelectLabel(id, options))
+        .filter(Boolean)
+        .join(', ')
     }
 
     case ColumnFieldType.CreatedTime:

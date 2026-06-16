@@ -1,6 +1,26 @@
 import { useTableFields } from './useTableFields'
 import { useSingleDatabaseContext } from '../useSignleDatabase'
 
+const SYSTEM_DATE_FIELD_NAMES: Record<string, string> = {
+  createdTime: 'created_at',
+  lastModifiedTime: 'updated_at'
+}
+
+const SYSTEM_DATE_FIELD_NAMES_BY_TYPE: Record<string, string> = {
+  '21': 'created_at',
+  '22': 'updated_at'
+}
+
+export function normalizeSystemDateFieldName(fieldName: string): string {
+  return SYSTEM_DATE_FIELD_NAMES[fieldName] ?? fieldName
+}
+
+export function normalizeSystemDateField(field: any) {
+  const systemFieldName = SYSTEM_DATE_FIELD_NAMES_BY_TYPE[String(field?.business_type ?? '')]
+  const fieldName = systemFieldName ?? normalizeSystemDateFieldName(field?.field_name)
+  return fieldName === field?.field_name ? field : { ...field, field_name: fieldName }
+}
+
 export function useWidgetTableFields() {
   const { menuState } = useSingleDatabaseContext()
   const { getFields, loading: fieldsLoading } = useTableFields()
@@ -21,20 +41,21 @@ export function useWidgetTableFields() {
   const fields = ref<any[]>([])
 
   const SYSTEM_DATE_FIELDS = [
-    { field_name: 'createdTime', field_name_alias: 'Created At', business_type: '21', display_structure: {} },
-    { field_name: 'lastModifiedTime', field_name_alias: 'Updated At', business_type: '22', display_structure: {} }
+    { field_name: 'created_at', field_name_alias: 'Created At', business_type: '21', display_structure: {} },
+    { field_name: 'updated_at', field_name_alias: 'Updated At', business_type: '22', display_structure: {} }
   ]
 
   async function loadFields(tableId: string) {
     if (tableId) {
       const apiFields = await getFields(tableId)
-      const hasCreatedTime = apiFields.some((f: any) => f.field_name === 'createdTime' || f.business_type === '21')
-      const hasLastModifiedTime = apiFields.some((f: any) => f.field_name === 'lastModifiedTime' || f.business_type === '22')
+      const normalizedApiFields = apiFields.map(normalizeSystemDateField)
+      const hasCreatedTime = normalizedApiFields.some((f: any) => f.field_name === 'created_at' || f.business_type === '21')
+      const hasLastModifiedTime = normalizedApiFields.some((f: any) => f.field_name === 'updated_at' || f.business_type === '22')
       const injected = [
         ...(hasCreatedTime ? [] : [SYSTEM_DATE_FIELDS[0]]),
         ...(hasLastModifiedTime ? [] : [SYSTEM_DATE_FIELDS[1]])
       ]
-      fields.value = [...apiFields, ...injected]
+      fields.value = [...normalizedApiFields, ...injected]
     } else {
       fields.value = []
     }
@@ -63,12 +84,14 @@ export function useWidgetTableFields() {
   )
 
   function getFieldLabel(fieldName: string): string {
-    const field = fields.value.find((f: any) => f.field_name === fieldName)
-    return field?.field_name_alias || fieldName
+    const normalizedFieldName = normalizeSystemDateFieldName(fieldName)
+    const field = fields.value.find((f: any) => f.field_name === normalizedFieldName)
+    return field?.field_name_alias || normalizedFieldName
   }
 
   function isDateField(fieldName: string): boolean {
-    return dateFields.value.some((f: any) => f.field_name === fieldName)
+    const normalizedFieldName = normalizeSystemDateFieldName(fieldName)
+    return dateFields.value.some((f: any) => f.field_name === normalizedFieldName)
   }
 
   return {

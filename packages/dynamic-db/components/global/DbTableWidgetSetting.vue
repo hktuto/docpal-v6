@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="520px" @close="handleClose">
+  <el-dialog v-model="visible" :title="$t('dashboard.setting')" append-to-body width="560px" @close="handleClose">
     <el-form label-position="top">
       <el-form-item label="Table">
         <el-select v-model="form.tableId" placeholder="Select a table" style="width: 100%" @change="handleTableChange">
@@ -13,16 +13,26 @@
         </el-select>
       </el-form-item>
 
-      <!-- Column Order -->
-      <el-form-item v-if="orderedColumns.length > 0" label="Column Order">
-        <div class="column-order-list">
-          <div v-for="(col, index) in orderedColumns" :key="col" class="column-order-item">
-            <span class="column-name">{{ fieldLabel(col) }}</span>
-            <div class="column-actions">
+      <!-- Column config (width + visibility) -->
+      <el-form-item v-if="form.columnConfig.length > 0" label="Column Settings">
+        <div class="column-config-list">
+          <div v-for="(col, index) in form.columnConfig" :key="col.field" class="column-config-item">
+            <span class="column-name">{{ fieldLabel(col.field) }}</span>
+            <div class="column-controls">
+              <el-input-number
+                v-model="col.width"
+                :min="60"
+                :max="800"
+                :controls="false"
+                size="small"
+                style="width: 80px"
+                placeholder="Auto"
+              />
+              <el-switch v-model="col.visible" size="small" active-text="Show" inactive-text="Hide" />
               <el-button link size="small" :disabled="index === 0" @click="moveColumn(index, -1)">
                 <Icon name="lucide:arrow-up" size="14" />
               </el-button>
-              <el-button link size="small" :disabled="index === orderedColumns.length - 1" @click="moveColumn(index, 1)">
+              <el-button link size="small" :disabled="index === form.columnConfig.length - 1" @click="moveColumn(index, 1)">
                 <Icon name="lucide:arrow-down" size="14" />
               </el-button>
               <el-button link type="danger" size="small" @click="removeColumn(index)">
@@ -87,6 +97,20 @@
       <el-form-item label="Row Limit">
         <el-select-v2 v-model="form.rowLimit" :options="limitOptions" style="width: 100%" />
       </el-form-item>
+
+      <el-form-item label="Title">
+        <el-input v-model="form.title" placeholder="e.g. Table View" />
+      </el-form-item>
+
+      <el-divider>Annotation</el-divider>
+
+      <el-form-item label="Subtitle">
+        <el-input v-model="form.subtitle" placeholder="e.g. Q1 2024 overview" />
+      </el-form-item>
+
+      <el-form-item label="Footer">
+        <el-input v-model="form.footer" placeholder="e.g. Data refreshed daily" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <div class="footer-grid">
@@ -124,15 +148,38 @@ interface FilterRule {
   value: string
 }
 
+interface ColumnConfigItem {
+  field: string
+  width: number | undefined
+  visible: boolean
+}
+
 const form = reactive({
   tableId: '',
   columns: [] as string[],
+  columnConfig: [] as ColumnConfigItem[],
   rowLimit: 10,
   sortRules: [] as SortRule[],
-  filterRules: [] as FilterRule[]
+  filterRules: [] as FilterRule[],
+  title: '',
+  subtitle: '',
+  footer: ''
 })
 
-const orderedColumns = computed(() => form.columns)
+function syncColumnConfig() {
+  // Preserve existing config for fields that are still selected
+  const existing = new Map(form.columnConfig.map((c) => [c.field, c]))
+  form.columnConfig = form.columns.map((field) => {
+    const prev = existing.get(field)
+    return {
+      field,
+      width: prev?.width ?? undefined,
+      visible: prev?.visible ?? true
+    }
+  })
+}
+
+watch(() => form.columns, syncColumnConfig, { deep: true })
 
 function fieldLabel(fieldName: string): string {
   const field = fields.value.find((f: any) => f.field_name === fieldName)
@@ -141,16 +188,21 @@ function fieldLabel(fieldName: string): string {
 
 function moveColumn(index: number, direction: number) {
   const newIndex = index + direction
-  if (newIndex < 0 || newIndex >= form.columns.length) return
-  const cols = [...form.columns]
+  if (newIndex < 0 || newIndex >= form.columnConfig.length) return
+  const cols = [...form.columnConfig]
   const temp = cols[index]
   cols[index] = cols[newIndex]
   cols[newIndex] = temp
-  form.columns = cols
+  form.columnConfig = cols
+  // Sync columns order
+  form.columns = cols.map((c) => c.field)
 }
 
 function removeColumn(index: number) {
-  form.columns.splice(index, 1)
+  const field = form.columnConfig[index]?.field
+  form.columnConfig.splice(index, 1)
+  const colIndex = form.columns.indexOf(field)
+  if (colIndex !== -1) form.columns.splice(colIndex, 1)
 }
 
 function addSortRule() {
@@ -229,6 +281,7 @@ function onFilterFieldChange(rule: FilterRule) {
 
 async function handleTableChange(tableId: string) {
   form.columns = []
+  form.columnConfig = []
   form.sortRules = []
   form.filterRules = []
   await loadFields(tableId)
@@ -240,8 +293,17 @@ watch(
     if (isVisible) {
       form.tableId = setting.value.tableId || ''
       form.columns = setting.value.columns || []
+
+      // Restore column config from saved widths/visibility
+      const savedWidths = setting.value.columnWidths || {}
+      const savedHidden = new Set(setting.value.hiddenColumns || [])
+      form.columnConfig = form.columns.map((field: string) => ({
+        field,
+        width: savedWidths[field] ?? undefined,
+        visible: !savedHidden.has(field)
+      }))
+
       form.rowLimit = setting.value.rowLimit || 10
-      // Migrate old sortField/sortOrder to sortRules
       const oldSortField = setting.value.sortField || ''
       const oldSortOrder = setting.value.sortOrder || 'desc'
       const existingSortRules = setting.value.sortRules || []
@@ -258,6 +320,9 @@ watch(
         operator: r.operator || '',
         value: r.value || ''
       }))
+      form.title = setting.value.title || ''
+      form.subtitle = setting.value.subtitle || ''
+      form.footer = setting.value.footer || ''
 
       if (form.tableId) {
         await loadFields(form.tableId)
@@ -267,9 +332,21 @@ watch(
 )
 
 function handleSubmit() {
+  const columnWidths: Record<string, number> = {}
+  const hiddenColumns: string[] = []
+  const orderedFields: string[] = []
+
+  for (const col of form.columnConfig) {
+    orderedFields.push(col.field)
+    if (col.width) columnWidths[col.field] = col.width
+    if (!col.visible) hiddenColumns.push(col.field)
+  }
+
   baseSubmit({
     tableId: form.tableId,
-    columns: [...form.columns],
+    columns: orderedFields,
+    columnWidths,
+    hiddenColumns,
     rowLimit: form.rowLimit,
     sortRules: form.sortRules.filter((r) => r.field).map((r) => ({ field: r.field, order: r.order })),
     filterRules: form.filterRules
@@ -279,9 +356,11 @@ function handleSubmit() {
         operator: r.operator,
         value: r.value
       })),
-    // Clear legacy sort fields when sortRules are used
     sortField: undefined,
-    sortOrder: undefined
+    sortOrder: undefined,
+    title: form.title,
+    subtitle: form.subtitle,
+    footer: form.footer
   })
 }
 
@@ -289,12 +368,15 @@ defineExpose({ handleOpen })
 </script>
 
 <style scoped lang="scss">
-.column-order-list {
+.column-config-list {
   border: 1px solid var(--el-border-color-light);
   border-radius: 8px;
   padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.column-order-item {
+.column-config-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -307,9 +389,10 @@ defineExpose({ handleOpen })
 .column-name {
   font-size: 14px;
 }
-.column-actions {
+.column-controls {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 8px;
 }
 .rule-list {
   display: flex;

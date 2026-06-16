@@ -69,6 +69,7 @@ export interface TableDataContext {
   // 方法
   getTableData: (params?: any, extraParams?: any, options?: TableDataFetchOptions) => Promise<{ entryList: any[]; totalSize: number } | undefined>
   loadMore: (extraParams?: any) => Promise<void>
+  setSearchExtraParams: (extraParams?: any) => void
   refresh: (options?: TableDataRefreshOptions) => Promise<void>
   addRow: (row: any) => void
   updateRow: (rowId: string, data: any, mdTableId?: string) => Promise<boolean>
@@ -149,6 +150,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
 
   /** 翻页时复用的查询条件（不含 pageNum） */
   const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
+  /** 搜索模式下的额外查询参数，供 proxy reload 复用 */
+  const searchExtraParams = ref<any>()
   const relationRefreshBus = useEventBus(EventType.RELATION_NEED_REFRESH)
 
   const hasMore = computed(() => {
@@ -192,8 +195,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       if (viewTools?.getPageParams) {
         additionalParams = viewTools?.getPageParams()
       }
-      if (extraParams) {
-        additionalParams = mergeParams(additionalParams, extraParams)
+      const searchParams = extraParams ?? searchExtraParams.value
+      if (searchParams) {
+        additionalParams = mergeParams(additionalParams, searchParams)
       }
       if (!additionalParams.groupBy) {
         if (params.pageSize) {
@@ -253,8 +257,9 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
           }
         }
       }
-      if (extraParams) {
-        additionalParams = mergeParams(additionalParams, extraParams)
+      const searchParams = extraParams ?? searchExtraParams.value
+      if (searchParams) {
+        additionalParams = mergeParams(additionalParams, searchParams)
       }
       const { data } = await postDynamicActions({
         tableId,
@@ -357,6 +362,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     }
     return id
   }
+  const setSearchExtraParams = (extraParams?: any) => {
+    searchExtraParams.value = extraParams
+  }
+
   /**
    * 刷新数据
    */
@@ -684,6 +693,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     // 方法
     getTableData,
     loadMore,
+    setSearchExtraParams,
     queryRecordById,
     getAggChildData,
     syncRowAndGroupAncestors,
@@ -709,6 +719,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     queryRecordById,
     getTableData,
     loadMore,
+    setSearchExtraParams,
     syncRowAndGroupAncestors,
     refresh,
     addRow,

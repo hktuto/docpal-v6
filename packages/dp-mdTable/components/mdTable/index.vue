@@ -9,6 +9,7 @@
       :showAddRowButton="canEditTable"
       @refresh="handleRefresh"
       @add-row="handleAddRow"
+      @filter-change="handleRefreshSearch"
     >
       <template #toolbar-left>
         <slot name="toolbar-left" />
@@ -81,8 +82,10 @@ import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import RecordCardDialog from './RecordCardDialog.vue'
 import { onClickOutside } from '@vueuse/core'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { convertFilterRuleToCondition } from '@packages/dynamic-db/utils/PostgreSQLHelper'
 import type { ColumnConfig } from '../../types/column-context'
 import type { SortRule } from '../tools/sort/configPopover.vue'
+import type { FilterRules } from '../tools/filter/ConfigPopover.vue'
 import { createFieldId } from '../../utils/mdTableHelper'
 import { useMDTable } from '../../composables/useMDTable'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
@@ -165,6 +168,7 @@ const {
   gridOptions,
   gridRef,
   refreshTableData,
+  setSearchExtraParams,
   updateRow,
   syncRowAndGroupAncestors,
   currentEditing,
@@ -288,6 +292,35 @@ const handleRefresh = async () => {
   updateExpandedRows()
   gridRef.value?.clearTreeExpandLoaded?.()
   await refreshTableData({ silent: true, keepPage: true })
+  await getAgg()
+  emit('refresh')
+}
+
+const handleRefreshSearch = async (rules: FilterRules) => {
+  const isDateField = (field: string) => {
+    const column = columns.value?.find((col: any) => col.field === field)
+    return column?.business_type === ColumnFieldType.DateTime
+  }
+  const conditionItems = (rules?.conditions || [])
+    .filter((rule) => rule.field && rule.operator)
+    .flatMap((rule) => {
+      const condition = convertFilterRuleToCondition(rule as any, isDateField) as any
+      return condition?.type === 'AND' ? condition.value || [] : [condition]
+    })
+  const extraParams = conditionItems.length
+    ? {
+        conditions: [
+          {
+            type: rules?.conjunction || 'AND',
+            value: conditionItems
+          }
+        ]
+      }
+    : undefined
+  setSearchExtraParams(extraParams)
+  updateExpandedRows()
+  gridRef.value?.clearTreeExpandLoaded?.()
+  await refreshTableData({ silent: false })
   await getAgg()
   emit('refresh')
 }

@@ -17,7 +17,9 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       field: '',
       aggregation: 'count',
       label: 'Records',
-      color: 'primary'
+      color: 'primary',
+      subtitle: '',
+      footer: ''
     }
   },
   DbTable: {
@@ -37,7 +39,10 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       sortField: '',
       sortOrder: 'desc',
       filterRules: [],
-      sortRules: []
+      sortRules: [],
+      title: '',
+      subtitle: '',
+      footer: ''
     }
   },
   DbChart: {
@@ -66,7 +71,10 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
         legendPosition: 'bottom',
         stacked: false,
         smooth: false
-      }
+      },
+      title: '',
+      subtitle: '',
+      footer: ''
     }
   },
   DbPie: {
@@ -86,7 +94,9 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       valueField: '',
       aggregation: 'count',
       rowLimit: 20,
-      label: ''
+      label: '',
+      subtitle: '',
+      footer: ''
     }
   },
   DbRecentRecords: {
@@ -104,7 +114,10 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       fields: [],
       limit: 5,
       sortField: '',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      title: '',
+      subtitle: '',
+      footer: ''
     }
   },
   DbProgress: {
@@ -122,7 +135,112 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       filterField: '',
       filterValue: '',
       label: '',
-      color: 'primary'
+      color: 'primary',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DbGauge: {
+    label: 'DbGauge',
+    type: 'database' as any,
+    minW: 3,
+    minH: 3,
+    maxW: 6,
+    maxH: 6,
+    w: 4,
+    h: 4,
+    component: 'LazyDbGaugeWidget',
+    setting: {
+      tableId: '',
+      field: '',
+      aggregation: 'sum',
+      label: 'Metric',
+      min: 0,
+      max: 100,
+      target: 80,
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DbTopList: {
+    label: 'DbTopList',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 8,
+    maxH: 12,
+    w: 4,
+    h: 6,
+    component: 'LazyDbTopListWidget',
+    setting: {
+      tableId: '',
+      categoryField: '',
+      valueField: '',
+      aggregation: 'sum',
+      limit: 10,
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DbPivot: {
+    label: 'DbPivot',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 6,
+    component: 'LazyDbPivotWidget',
+    setting: {
+      tableId: '',
+      rowField: '',
+      columnField: '',
+      valueField: '',
+      aggregation: 'sum',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DbKanban: {
+    label: 'DbKanban',
+    type: 'database' as any,
+    minW: 6,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 6,
+    component: 'LazyDbKanbanWidget',
+    setting: {
+      tableId: '',
+      groupField: '',
+      titleField: '',
+      limit: 100,
+      label: '',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DbCalendar: {
+    label: 'DbCalendar',
+    type: 'database' as any,
+    minW: 6,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 6,
+    component: 'LazyDbCalendarWidget',
+    setting: {
+      tableId: '',
+      startField: '',
+      endField: '',
+      titleField: '',
+      limit: 200,
+      label: '',
+      subtitle: '',
+      footer: ''
     }
   }
 }
