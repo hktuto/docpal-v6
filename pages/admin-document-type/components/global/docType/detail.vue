@@ -35,7 +35,6 @@
 import { newAdminApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 import { initCategoryOpts, categoryOpts } from '@/composables/useDocumentTypeOptioins'
-import { convertPermissionObjectByPermissions, convertPermissionsByPermissionObject, getPermissionSelectOption } from '#imports'
 const { name, metadataName, id } = defineProps<{
   name: string
   id: string
