@@ -170,7 +170,7 @@ watch(
 
   <LazyContextFormFieldManageDialog ref="contextFormFieldManageDialogRef" :form-field="formField" @updateFormField="handleUpdateFormField" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variablesData" :processKey="workflowKey" :formKey="formKey" @submit="handelSubmitForm" />
-  <el-dialog v-model="formRenderVisible" class="big" distory-on-close append-to-body>
+  <el-dialog v-model="formRenderVisible" class="big" distory-on-close append-to-body draggable>
     <div style="height: 800px">
       <LazyContextFormRender ref="fromRenderRef" />
     </div>

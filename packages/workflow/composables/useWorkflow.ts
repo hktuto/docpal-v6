@@ -14,23 +14,39 @@ export const useWorkflow = () => {
     shallowRef<FormRenderSlotsType[]>([
       {
         name: 'calendar',
-        component: 'formWidgetCalendar'
+        component: 'FormWidgetCalendar'
       },
       {
         name: 'folderCabinet',
-        component: 'formWidgetBrowse'
+        component: 'FormWidgetBrowse'
       },
       {
         name: 'caseInfo',
-        component: 'formWidgetCaseInfo'
+        component: 'FormWidgetCaseInfo'
       },
       {
         name: 'updateDocument',
-        component: 'formWidgetUpdateDocument'
+        component: 'FormWidgetUpdateDocument'
       },
       {
         name: 'uploadFromDocpal',
-        component: 'formWidgetUploadFromDocpal'
+        component: 'FormWidgetUploadFromDocpal'
+      },
+      {
+        name: 'sampleRequestInfo',
+        component: 'FormWidgetSampleRequestInfo'
+      },
+      {
+        name: 'sampleRequestPaInquireWithSuppliers',
+        component: 'FormWidgetSampleRequestPaInquireWithSuppliers'
+      },
+      {
+        name: 'sampleRequestPaFollowUp',
+        component: 'FormWidgetSampleRequestPaFollowUp'
+      },
+      {
+        name: 'sampleRequestSalespersonShipsGoods',
+        component: 'FormWidgetSampleRequestSalespersonShipsGoods'
       }
     ])
   )

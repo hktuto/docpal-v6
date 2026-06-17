@@ -11,6 +11,7 @@ const state = reactive<any>({
   writableIds: [],
   readonly: false
 })
+const { formData, formJson } = toRefs(state)
 // @ts-ignore
 const { formRenderSlots } = useWorkflow()
 const emit = defineEmits(['formChange'])
@@ -132,8 +133,9 @@ const formRenderSlotsRef = ref<any>({})
 async function getFormData(needValidation = true, onlyWritable = false) {
   try {
     let formData
-    if (!needValidation) formData = await FormRendererRef.value.getFormData(false)
-    else {
+    if (!needValidation) {
+      formData = await FormRendererRef.value.getFormData(false)
+    } else {
       formData = await FormRendererRef.value
         .getFormData()
         .then((res: any) => {
@@ -257,10 +259,13 @@ async function updateData(newData: any) {
   FormRendererRef.value.setFormData(_data)
 }
 
-onMounted(() => {})
-const { formData, formJson } = toRefs(state)
-defineExpose({ setForm, getFormData, disableForm, enableForm })
+function formDataChange(newFormData: any) {
+  emit('formChange', newFormData)
+  formData.value = newFormData.formModel
+}
 
+onMounted(() => {})
+defineExpose({ setForm, getFormData, disableForm, enableForm })
 provide('workflowFormRender', {
   updateData,
   getFormData
@@ -275,7 +280,7 @@ provide('workflowFormRender', {
       :formJson="formJson"
       :data="formData"
       @previewFileInit="handlePreviewFileInit"
-      @formChange="$emit('formChange')"
+      @formChange="formDataChange"
     >
       <template v-slot:previewFile="{ data }">
         <LazyContextFormReaderDocument class="WorkflowDetailReader" ref="WorkflowReaderDocumentRef" />
@@ -285,7 +290,7 @@ provide('workflowFormRender', {
           :is="item.component"
           :ref="(el: any) => (formRenderSlotsRef[item.name] = el)"
           :disabled="state.readonly"
-          :formData="state.formData"
+          :formData="formData"
           :options="data.options?.dynamicConfig"
           :vformOptions="data.options"
           :taskDetail="props.taskDetail"
