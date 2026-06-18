@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Plus, Delete, Switch } from '@element-plus/icons-vue'
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -12,21 +11,22 @@ const data = ref<any[]>([
   {
     line_number: '',
     vendor: '',
-    part_number: '',
-    series: '',
     purpose: '',
-    pcs_unit: 1,
+    series: '',
+    part_number: '',
     fcst_qty: 1,
     request_qty: 1,
     run_rate: 1,
     packaged: 'N',
-    car_use: 'N',
-    cust_selected_parts: 'Introduced by Sales',
-    actual_received_qty: '',
     competitor_name: '',
+    car_use: 'Y',
     competitor_pn: '',
-    competitor_unit_price: '',
-    remarks: ''
+    cust_selected_parts: 'Introduced by Sales',
+    competitor_unit_price: 1,
+    remarks: '',
+    tracking_number: '',
+    received_date: '',
+    email_alert: 'Y'
   }
 ])
 
@@ -34,16 +34,6 @@ function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
 
-watch(
-  () => data.value,
-  () => {
-    console.log(123, data.value)
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 </script>
 
 <template>
@@ -147,7 +137,7 @@ watch(
 
           <el-col :span="8">
             <el-form-item label="送樣通知">
-              <el-switch v-model="item.Email_Alert" active-text="Yes" active-value="YES" inactive-text="No" inactive-value="NO" />
+              <el-switch v-model="item.email_alert" active-text="Yes" active-value="YES" inactive-text="No" inactive-value="NO" />
             </el-form-item>
           </el-col>
         </el-row>

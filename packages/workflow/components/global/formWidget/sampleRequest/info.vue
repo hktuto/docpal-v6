@@ -35,14 +35,19 @@ function handleAdd(index?: number) {
     line_number: `${formData.proj_owner}-${formData.cust_num}-${Date.now()}`,
     vendor: '',
     part_number: '',
-    pcs_unit: 1,
-    fcst_qty: '',
-    request_qty: '',
-    run_rate: '',
+    series: '',
     purpose: '',
-    packaged: true,
-    car_use: true,
-    cust_selected_parts: true,
+    pcs_unit: 1,
+    fcst_qty: 1,
+    request_qty: 1,
+    run_rate: 1,
+    packaged: 'N',
+    car_use: 'N',
+    cust_selected_parts: 'Introduced by Sales',
+    actual_received_qty: '',
+    competitor_name: '',
+    competitor_pn: '',
+    competitor_unit_price: '',
     remarks: ''
   }
 
@@ -67,16 +72,6 @@ function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
 
-watch(
-  () => data.value,
-  () => {
-    console.log(123, data.value)
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 </script>
 
 <template>

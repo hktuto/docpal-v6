@@ -13,20 +13,15 @@ const data = ref<any[]>([
     vendor: '',
     part_number: '',
     series: '',
-    received_date:''
+    pm: '',
+    packaged: 'N',
+    sales_admin: '',
+    received_date: '',
+    vendor_attn: '',
+    actual_received_qty: 1
   }
 ])
 
-watch(
-  () => data.value,
-  () => {
-    console.log(123, data.value)
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 </script>
 
 <template>
@@ -56,7 +51,7 @@ watch(
 
           <el-col :span="8">
             <el-form-item label="產品經理">
-              <el-input disabled/>
+              <el-input v-model="item.pm" disabled />
             </el-form-item>
             <el-form-item label="整盤">
               <el-switch v-model="item.packaged" active-text="Yes" active-value="Y" inactive-text="No" inactive-value="N" />
@@ -65,7 +60,7 @@ watch(
 
           <el-col :span="8">
             <el-form-item label="銷售經理">
-              <el-input disabled/>
+              <el-input v-model="item.sales_admin" disabled />
             </el-form-item>
 
             <el-form-item label="收到供應商樣品時間">
@@ -75,10 +70,10 @@ watch(
 
           <el-col :span="8">
             <el-form-item label="供應商聯係人">
-              <el-input disabled/>
+              <el-input v-model="item.vendor_attn" disabled />
             </el-form-item>
             <el-form-item label="實際接收數量">
-              <el-input-number controls-position="right" :min="1" />
+              <el-input-number v-model="item.actual_received_qty" controls-position="right" :min="1" />
             </el-form-item>
           </el-col>
         </el-row>
