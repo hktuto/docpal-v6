@@ -63,14 +63,17 @@ const fieldSettingComponentMap: Partial<Record<ColumnFieldType, Component>> = {
   [ColumnFieldType.Number]: defineAsyncComponent(() => import('./Number.vue')),
   [ColumnFieldType.DateTime]: defineAsyncComponent(() => import('./DateTime.vue'))
 }
-const fieldTypesWithDisplayStructure: Partial<Record<ColumnFieldType, boolean>> = {
-  [ColumnFieldType.Number]: true,
-  [ColumnFieldType.DateTime]: true,
-  [ColumnFieldType.SingleSelect]: true,
-  [ColumnFieldType.MultiSelect]: true,
-  [ColumnFieldType.Checkbox]: true,
-  [ColumnFieldType.Rating]: true
-}
+const virtualColumnBaseKeys = new Set([
+  'field_name',
+  'business_type',
+  'relation_table_id',
+  'relation_field_name',
+  'display_field_id',
+  'display_field_name',
+  'display_field_type',
+  'aggregation_field_name',
+  'aggregation_method'
+])
 const displayFieldType = computed(() => normalizeFieldType(props.formData.display_field_type))
 const shouldShowFieldSetting = computed(() => showSettingList.includes(displayFieldType.value))
 
@@ -82,13 +85,20 @@ function loadFieldComponent(fieldType: ColumnFieldType | string | number) {
   AsyncComponent.value = fieldSettingComponentMap[normalizeFieldType(fieldType)] || null
 }
 
-function buildInitialFieldSettings(selectedField: TableField) {
-  const sourceProps = selectedField?.display_structure || {}
-  if (fieldTypesWithDisplayStructure[normalizeFieldType(selectedField.business_type)]) {
-    return sourceProps
-  }
-  return {}
+function clearExtraFormDataProps() {
+  Object.keys(props.formData).forEach((key) => {
+    if (!virtualColumnBaseKeys.has(key)) {
+      delete props.formData[key]
+    }
+  })
 }
+
+function getAppendDisplayStructure(selectedField: TableField) {
+  return Object.fromEntries(
+    Object.entries(selectedField.display_structure || {}).filter(([key]) => !virtualColumnBaseKeys.has(key))
+  )
+}
+
 // Relation Table Change
 async function handleRTChange(value: string[]) {
   try {
@@ -105,14 +115,18 @@ async function handleRTChange(value: string[]) {
 }
 function handleDisplayFieldChange(value: string) {
   const selectedField = tableFields.value.find((field) => field.field_name === value)
+  clearExtraFormDataProps()
   if (!selectedField) {
     AsyncComponent.value = null
+    props.formData.display_field_id = ''
+    props.formData.display_field_name = ''
+    props.formData.display_field_type = ''
     return
   }
   props.formData.display_field_id = selectedField.id
   props.formData.display_field_name = selectedField.field_name
   props.formData.display_field_type = selectedField.business_type
-  Object.assign(props.formData, buildInitialFieldSettings(selectedField))
+  Object.assign(props.formData, getAppendDisplayStructure(selectedField))
   loadFieldComponent(selectedField.business_type)
   if (isAgg.value) {
     props.formData.aggregation_field_name = selectedField.field_name
