@@ -22,7 +22,7 @@
       <el-option v-for="field in tableFields" :key="field.id" :label="field.field_name_alias" :value="field.field_name" />
     </el-select>
   </el-form-item>
-  <component :is="AsyncComponent" v-if="AsyncComponent" :form-data="formData" />
+  <component :is="AsyncComponent" v-if="AsyncComponent && showSettingList.includes(formData.display_field_type)" :form-data="formData" />
 </template>
 
 <script setup lang="ts">
@@ -42,6 +42,7 @@ const { menus, menuIdPaths, isAgg, getTableFields, relationTables, updateRelatio
   props.formData.relation_table_id,
   props.formData.business_type
 )
+const showSettingList = [ColumnFieldType.DateTime,ColumnFieldType.Number]
 const componentMap: Record<number, string> = {
   [ColumnFieldType.Number]: 'Number',
   [ColumnFieldType.DateTime]: 'DateTime',
