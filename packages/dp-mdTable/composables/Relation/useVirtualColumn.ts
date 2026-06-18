@@ -59,11 +59,9 @@ export const useVirtualColumn = (relationTableId: string, businessType: ColumnFi
     // }
   }
   onMounted(async () => {
-    console.log('relationTableId', relationTableId)
     relationTables.value = getRelationTables()
     await getMenuFromDb()
     if (relationTableId) menuIdPaths.value = findPath(menus.value, relationTableId)
-    console.log(relationTables.value)
   })
   return {
     isAgg,

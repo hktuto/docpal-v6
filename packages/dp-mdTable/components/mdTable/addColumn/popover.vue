@@ -277,6 +277,8 @@ defineExpose({
 
 <style scoped lang="scss">
 .add-column-popover {
+  max-height: 60vh;
+  overflow-y: auto;
   padding: 12px;
   min-width: 300px;
 
