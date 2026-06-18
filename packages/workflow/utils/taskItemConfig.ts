@@ -178,6 +178,14 @@ export const getTaskItemConfig = {
     },
     input_mapping: {},
     output_mapping: {}
+  },
+  ScriptTask: {
+    script: {
+      language: 'javascript',
+      script: ''
+    },
+    input_mapping: {},
+    output_mapping: {}
   }
 }
 

@@ -47,6 +47,10 @@ export const useWorkflow = () => {
       {
         name: 'sampleRequestSalespersonShipsGoods',
         component: 'FormWidgetSampleRequestSalespersonShipsGoods'
+      },
+      {
+        name: 'sampleRequestSalespersonFollowUp',
+        component: 'FormWidgetSampleRequestSalespersonFollowUp'
       }
     ])
   )
