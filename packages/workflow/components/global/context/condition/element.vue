@@ -19,14 +19,7 @@ const selectedType = computed(() => {
   return formData.value?.type || 'string_validation'
 })
 const allVariables = computed(() => {
-  let typeList = []
-  if (formData.value?.val_type === 'is_null') {
-    typeList = []
-  } else {
-    typeList.push(formData.value?.val_type)
-  }
-
-  return getVariablesByDisplayTypes(typeList)
+  return getVariablesByDisplayTypes()
 })
 const typeOptions = ref([
   { label: 'Is Empty', value: 'is_null', condition: [{ label: 'Equal', value: '==' }] },

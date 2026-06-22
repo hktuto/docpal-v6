@@ -12,7 +12,8 @@ export enum WorkflowElementType {
   TransformTask = 'TransformTask',
   MessageTask = 'MessageTask',
   ConditionTask = 'ConditionTask',
-  ValidateTask = 'ValidateTask'
+  ValidateTask = 'ValidateTask',
+  ScriptTask = 'ScriptTask'
 }
 
 Graph.registerNode(
@@ -149,7 +150,8 @@ export enum CellType {
   updateDynamicDatabase = 'UpdateDynamicDatabase',
   uniqueIdGenerator = 'UniqueIdGenerator',
   documentGenerationTask = 'DocumentGenerationTask',
-  emailTask = 'EmailTask'
+  emailTask = 'EmailTask',
+  scriptTask = 'ScriptTask'
 }
 
 // 組件Map
@@ -179,7 +181,9 @@ export enum contextMenuComponentType {
   // Condition
   ConditionTask = 'LazyContextCondition',
   // Transform
-  TransformTask = 'LazyContextTransform'
+  TransformTask = 'ContextTransform',
+  // Script
+  ScriptTask = 'LazyContextScriptTask'
 }
 
 const taskTitle: any = {
@@ -203,7 +207,8 @@ const taskTitle: any = {
   UpdateDynamicDatabase: 'Update Dynamic Database',
   EmailTask: 'Email Task',
   ConditionTask: 'Condition Task',
-  TransformTask: 'Transform Task'
+  TransformTask: 'Transform Task',
+  ScriptTask: 'Script Task'
 }
 
 interface portsItems {
@@ -719,6 +724,25 @@ export const workflowElement: WorkflowElement = {
         return contextMenuComponentType[workflowNodeItem.metadata.type as keyof typeof contextMenuComponentType]
       }
     }
+  },
+  ScriptTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.scriptTask,
+        icon: 'streamline-sharp:script-1',
+        label: 'Script Task',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      if (workflowNodeItem.metadata.type in contextMenuComponentType) {
+        return contextMenuComponentType[workflowNodeItem.metadata.type as keyof typeof contextMenuComponentType]
+      }
+    }
   }
 }
 
@@ -1096,6 +1120,22 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.emailTask,
         tags: WorkflowElementType.ServiceTask,
+        icon: '/icons/email.svg'
+      }
+    }
+  },
+  ScriptTask: {
+    ...createNodeShell('New_ScriptTask', 'Script Task', 'New Script Task', '/icons/script.svg'),
+    data: {
+      id: '',
+      name: 'New Script Task',
+      documentation: '',
+      type: WorkflowElementType.ScriptTask,
+      config: getTaskItemConfig[CellType.scriptTask],
+      execution: { ...LONG_RUNNING_EXECUTION },
+      metadata: {
+        type: CellType.scriptTask,
+        tags: WorkflowElementType.ScriptTask,
         icon: '/icons/email.svg'
       }
     }

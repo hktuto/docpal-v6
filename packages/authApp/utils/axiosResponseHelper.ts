@@ -12,17 +12,18 @@ function getBaseUrl(baseURL: string) {
   if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY
   if (baseURL === '/client') baseURL = CLIENT_PROXY
   if (baseURL === '/admin/api') baseURL = ADMIN_PROXY
+  if (baseURL === '/apis') baseURL = DOCPAL_GATEWAY_PROXY
   if (baseURL === '/api') baseURL = PROXY
   if (baseURL === '/adminApi/api') baseURL = ADMIN_PROXY
   if (baseURL === '/docpalApi') baseURL = PROXY
   if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
   if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
-  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY  as string
+  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string
   return baseURL
 }
 
 // TODO: workflow 僅支持X-tenant-id的請求方式
-const workflowPath = "/oniflow/api/v1/"
+const workflowPath = '/oniflow/api/v1/'
 
 export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) => {
   // const {locale} = useI18n()
@@ -153,7 +154,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     if (error.response.status === 401 || error.response.status === 403) {
       logout()
     }
-    return  Promise.reject(error)
+    return Promise.reject(error)
   }
 
   return Promise.reject(error)

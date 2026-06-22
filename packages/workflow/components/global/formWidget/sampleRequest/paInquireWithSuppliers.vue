@@ -13,20 +13,16 @@ const data = ref<any[]>([
     vendor: '',
     part_number: '',
     series: '',
-    received_date: ''
+    received_date: '',
+    pm: '',
+    vendor_coo: '',
+    sales_admin: '',
+    etd: '',
+    vendor_attn: '',
+    eta: ''
   }
 ])
 
-watch(
-  () => data.value,
-  () => {
-    console.log(123, data.value)
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 </script>
 
 <template>
@@ -56,28 +52,28 @@ watch(
 
           <el-col :span="8">
             <el-form-item label="產品經理">
-              <el-input />
+              <el-input v-model="item.pm" />
             </el-form-item>
             <el-form-item label="供應商產地">
-              <el-input />
+              <el-input v-model="item.vendor_coo" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
             <el-form-item label="銷售經理">
-              <el-input />
+              <el-input v-model="item.sales_admin" />
             </el-form-item>
             <el-form-item label="供應商預計發貨時間">
-              <el-date-picker v-model="item.date" type="date" placeholder="Pick a day" />
+              <el-date-picker v-model="item.etd" type="date" placeholder="Pick a day" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
             <el-form-item label="供應商聯係人">
-              <el-input />
+              <el-input v-model="item.vendor_attn" />
             </el-form-item>
             <el-form-item label="供應商樣品預計到達時間">
-              <el-date-picker v-model="item.date" type="date" placeholder="Pick a day" />
+              <el-date-picker v-model="item.eta" type="date" placeholder="Pick a day" />
             </el-form-item>
           </el-col>
         </el-row>

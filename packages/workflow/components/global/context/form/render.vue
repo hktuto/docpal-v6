@@ -74,29 +74,31 @@ async function setForm(json: string | object, data?: object, properties: any[] =
 }
 
 async function handleData(data: any) {
+  const result: any = {}
+  const pList: any = []
+  Object.keys(data).forEach((key) => {
+    pList.push(revert(result, key, data[key]))
+  })
+  await Promise.all(pList)
+  return result
+}
+
+async function revert(result: any, key: string, value: string) {
   // 处理sub-form
   const arrWidgetKeys = getWidgetNames(WidgetNames.arr)
   const uploadWidgetKeys = getWidgetNames(WidgetNames.upload)
   const numberWidgetKeys = getWidgetNames(WidgetNames.number)
   const selectWidgetKeys = getWidgetNames(WidgetNames.select, true)
   selectWidgetKeys.push(...getWidgetNames(WidgetNames.arrSelect))
-  const result: any = {}
-  const pList: any = []
-  Object.keys(data).forEach((key) => {
-    pList.push(revert(key, data[key]))
-  })
-  await Promise.all(pList)
-  return result
-  async function revert(key: string, value: string) {
-    if (arrWidgetKeys.find((item: any) => item.name === key)) result[key] = value ? JSON.parse(value) : []
-    else if (uploadWidgetKeys.find((item: any) => item.name === key)) {
-      const uploadWidget = uploadWidgetKeys.find((item: any) => item.name === key)
-      const mode = uploadWidget.uploadName === 'file' ? 'nuxeo' : 'workflow'
-      result[key] = await revertUploadFile(value, mode)
-    } else if (selectWidgetKeys.find((item: any) => item.name === key)) result[key] = value ? value.split(',') : ''
-    else if (numberWidgetKeys.find((item: any) => item.name === key)) result[key] = value || value === 0 ? Number(value) : value
-    else if (value !== null) result[key] = value
-  }
+
+  if (arrWidgetKeys.find((item: any) => item.name === key)) result[key] = value || []
+  else if (uploadWidgetKeys.find((item: any) => item.name === key)) {
+    const uploadWidget = uploadWidgetKeys.find((item: any) => item.name === key)
+    const mode = uploadWidget.uploadName === 'file' ? 'nuxeo' : 'workflow'
+    result[key] = await revertUploadFile(value, mode)
+  } else if (selectWidgetKeys.find((item: any) => item.name === key)) result[key] = value || []
+  else if (numberWidgetKeys.find((item: any) => item.name === key)) result[key] = value || value == 0 ? Number(value) : value
+  else if (value !== null) result[key] = value
 }
 
 async function revertUploadFile(ids: any, mode: 'workflow' | 'nuxeo' = 'workflow') {

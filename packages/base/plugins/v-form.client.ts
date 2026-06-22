@@ -1,4 +1,4 @@
-import { clientApi, adminApi } from 'api';
+import { clientApi } from 'api';
 import dayjs from 'dayjs';
 
 // @ts-ignore
@@ -7,15 +7,15 @@ export default defineNuxtPlugin(async nuxtApp => {
   // @ts-expect-error - v-form doesn't have type declarations
   const VForm3Module = await import('v-form-designer');
   await import('v-form-designer/dist/designer.style.css');
-  
+
   // @ts-ignore
   const VForm3 = VForm3Module.default;
   nuxtApp.vueApp.use(VForm3);
-  
+
   if (window) {
     const pathname = window.location.pathname
     // @ts-ignore
-    window.$api = pathname.includes('admin') ? adminApi?.instance : clientApi?.instance;
+    window.$api = clientApi?.instance;
     // @ts-ignore
     window.$i18n = nuxtApp.$i18n;
 

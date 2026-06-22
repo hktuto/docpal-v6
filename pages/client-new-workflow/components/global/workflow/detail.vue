@@ -94,7 +94,6 @@ async function initForm(node: any) {
     routerProvider?.message.error('The form does not exist!')
     return
   }
-
   fromRenderRef.value.setForm(formJsonData.jsonValue, variablesData.value)
   handleDisabledForm()
 }
@@ -411,8 +410,7 @@ onMounted(() => {
       <h3>{{ state.title }}</h3>
       <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
-          <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail"
-                                      :state="workflowType" />
+          <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail" :state="workflowType" />
           <WorkflowDetailInfo v-else :taskDetail="taskDetail" @change="handleTaskInfoChange" />
         </el-tab-pane>
 
@@ -426,15 +424,13 @@ onMounted(() => {
               <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'" size="20" @click="toggleShowForm" />
             </div>
             <div v-if="nodeType === CellType.signatureTask" class="toggleFullScreenButton">
-              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20"
-                    @click="toggleFullScreenForm" />
+              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
             </div>
             <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" @formChange="handleFormChange">
               <template #action>
                 <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
                   <template v-for="(item, index) in additionalButton" :key="index">
-                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props"
-                               @submit="addTonalSubmit" />
+                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
                   </template>
                   <!--   TODO:  Save Draft is not supported.           -->
                   <!-- <el-button
@@ -481,8 +477,7 @@ onMounted(() => {
             </div>
 
             <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
-              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'"
-                         @click="handleCancel">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'" @click="handleCancel">
                 {{ $t('cancelText') }}
               </el-button>
               <el-button
@@ -493,21 +488,19 @@ onMounted(() => {
               >
                 {{ $t('workflow_resign') }}
               </el-button>
-              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary"
-                         :disabled="workflowType === 'completeTask'" @click="handleSubmit">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleSubmit">
                 {{ $t('common_submit') }}
               </el-button>
             </div>
-            <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail"
-                                     @confirm="handleApplySignature" />
+            <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
           </template>
         </el-tab-pane>
 
-<!--        <el-tab-pane :label="$t('workflow_graph')" name="graph">-->
-<!--          &lt;!&ndash; need to use v-if for bpmn, if not  svg graph will not show &ndash;&gt;-->
-<!--          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail"-->
-<!--                                :content-json="contentData" autoplay />-->
-<!--        </el-tab-pane>-->
+        <!--        <el-tab-pane :label="$t('workflow_graph')" name="graph">-->
+        <!--          &lt;!&ndash; need to use v-if for bpmn, if not  svg graph will not show &ndash;&gt;-->
+        <!--          <WorkflowReplayViewer v-if="state.activeTab === 'graph'" ref="viewerRef" :taskDetail="taskDetail"-->
+        <!--                                :content-json="contentData" autoplay />-->
+        <!--        </el-tab-pane>-->
       </el-tabs>
     </div>
   </div>
