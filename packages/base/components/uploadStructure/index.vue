@@ -1,13 +1,5 @@
 <template>
-  <ElDrawer
-    v-model="drawerOpen"
-    :title="$t('upload.upload')"
-    :with-header="true"
-    :size="300"
-    :show-close="true"
-    class="uploadStructureDrawer"
-    :modal="false"
-  >
+  <ElDrawer v-model="drawerOpen" :title="$t('upload.upload')" :with-header="true" :size="300" :show-close="true" class="uploadStructureDrawer" :modal="false">
     <el-collapse v-model="activeNames">
       <el-collapse-item v-for="(item, index) in uploadState.uploadRequestList" :key="item.id" :name="index.toString()">
         <template #title>
@@ -120,8 +112,12 @@ function getPercentage(finish, total) {
 function getRequestTitle(uploadRequestItem) {
   const percentage = getPercentage(uploadRequestItem.finishCount, uploadRequestItem.docList.length)
   if (percentage !== 100) return percentage + '%'
-  else if (!uploadRequestItem.aiFinish) return allowFeature('AI_CLASSIFICATION') ? $i18n.t('ai.waitForAi') : $i18n.t('upload.complete')
-  else return allowFeature('AI_CLASSIFICATION') ? $i18n.t('ai.uploadcomplete') : $i18n.t('upload.complete')
+  else if (!uploadRequestItem.aiFinish) return isAIFeature ? $i18n.t('ai.waitForAi') : $i18n.t('upload.complete')
+  else return isAIFeature ? $i18n.t('ai.uploadcomplete') : $i18n.t('upload.complete')
+}
+function isAIFeature() {
+  return false
+  // return allowFeature('AI_CLASSIFICATION')
 }
 watch(
   uploadState,
