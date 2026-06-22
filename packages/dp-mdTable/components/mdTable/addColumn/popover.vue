@@ -19,7 +19,7 @@
         </el-form-item>
         <component :is="AsyncComponent" v-if="AsyncComponent" :column="state.column" :form-data="formData" />
         <el-form-item
-          v-if="[ColumnFieldType.Text, ColumnFieldType.MultiText].includes(formData.business_type)"
+          v-if="[ColumnFieldType.Text, ColumnFieldType.MultiText, ColumnFieldType.Email, ColumnFieldType.Phone, ColumnFieldType.URL].includes(formData.business_type)"
           :label="t('mdTable.addColumnField.defaultValue')"
           prop="defaultValue"
         >

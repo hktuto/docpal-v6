@@ -82,6 +82,28 @@ const displayColumns = ref([])
 
 const unEditableFields = [ColumnFieldType.VirtualColumn, ColumnFieldType.Formula, ColumnFieldType.AggVirtualColumn]
 const formRef = ref()
+const hasOwn = (target: Record<string, any>, key: string) => Object.prototype.hasOwnProperty.call(target, key)
+const getColumnFieldName = (column: any) => column.field_name ?? column.field
+const getColumnDefaultValue = (column: any) => {
+  const displayStructure = column.display_structure ?? column.display_struture
+  if (!displayStructure || !hasOwn(displayStructure, 'defaultValue')) return undefined
+  const defaultValue = displayStructure.defaultValue
+  if (Array.isArray(defaultValue)) return [...defaultValue]
+  if (defaultValue && typeof defaultValue === 'object') return { ...defaultValue }
+  return defaultValue
+}
+const applyDefaultValues = (columns: any[]) => {
+  if (!props.formData) return
+  columns.forEach((column: any) => {
+    const fieldName = getColumnFieldName(column)
+    if (!fieldName || hasOwn(props.formData, fieldName)) return
+
+    const defaultValue = getColumnDefaultValue(column)
+    if (defaultValue !== undefined) {
+      props.formData[fieldName] = defaultValue
+    }
+  })
+}
 const getFormData = async () => {
   try {
     const valid = await formRef.value.validate()
@@ -92,7 +114,7 @@ const getFormData = async () => {
     const newFormData = props.columns
       .filter((column: any) => !props.systemFieldsTypes.includes(column.business_type) && !unEditableFields.includes(column.business_type))
       .reduce((acc: any, column: any) => {
-        acc[column.field_name] = props.formData[column.field_name] || null
+        acc[column.field_name] = props.formData[column.field_name] ?? null
         return acc
       }, {})
     return newFormData
@@ -108,12 +130,11 @@ function handleOriginalClick(id: any) {
   //   MdFormPopoverRef.value.open(id)
   // }, 1000)
 }
-function handleOriginalSubmit(data: any) {
-  console.log('handleOriginalSubmit', data)
+function handleOriginalSubmit() {
 }
 watch(
   () => props.columns,
-  (newVal) => {
+  () => {
     if (!props.columns) return []
     // 在这里那relation的配置
     const normalizedColumns = props.columns.map((column: any) => {
@@ -125,6 +146,16 @@ watch(
     })
     hiddenColumns.value = normalizedColumns.filter((column: any) => column.hidden)
     displayColumns.value = normalizedColumns.filter((column: any) => !column.hidden)
+    applyDefaultValues(displayColumns.value)
+  },
+  {
+    immediate: true
+  }
+)
+watch(
+  () => props.formData,
+  () => {
+    applyDefaultValues(displayColumns.value)
   },
   {
     immediate: true

@@ -137,12 +137,14 @@ export type PhoneConfig = {
 export type CheckboxConfig = {
   trueIcon: string
   falseIcon: string
+  defaultValue?: boolean
 }
 
 export type RatingConfig = {
   maxRating: number
   allowHalf: boolean
   allowClear: boolean
+  defaultValue?: number
 }
 
 export type MemberConfig = {
