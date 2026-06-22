@@ -68,7 +68,7 @@ const componentMap = {
   LastModifiedTime: resolveComponent('LazyMdFormFieldDateTime'),
   CreatedBy: resolveComponent('LazyMdFormFieldText'),
   LastModifiedBy: resolveComponent('LazyMdFormFieldText'),
-  Document: resolveComponent('LazyMdFormFieldDocument'),
+  Attachment: resolveComponent('LazyMdFormFieldDisabled'),
   DocPalDoc: resolveComponent('LazyMdFormFieldDocPalDoc'),
   User: resolveComponent('LazyMdFormFieldUser'),
   Rating: resolveComponent('LazyMdFormFieldRating')

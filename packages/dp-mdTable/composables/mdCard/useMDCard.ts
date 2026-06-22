@@ -45,7 +45,7 @@ export function useMDCard(props: MDCardProps) {
 
   // 计算封面字段
   const coverField = computed(() => {
-    const fileColumn = props.extraColumnConfig?.columns.value.find((column: any) => column.field_type === ColumnFieldType.Document)
+    const fileColumn = props.extraColumnConfig?.columns.value.find((column: any) => column.field_type === ColumnFieldType.Attachment)
     return fileColumn?.field_name ?? ''
   })
   provide(MDCardContextKey, {
