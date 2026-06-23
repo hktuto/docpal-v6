@@ -12,7 +12,7 @@
               :percentage="getPercentage(item.finishCount, item.docList.length)"
               :stroke-width="6"
               :show-text="false"
-              :striped="!item.aiFinish"
+              :striped="!item.aiFinish && isAIFeature()"
               :striped-flow="!item.aiFinish"
             />
           </div>
@@ -112,8 +112,8 @@ function getPercentage(finish, total) {
 function getRequestTitle(uploadRequestItem) {
   const percentage = getPercentage(uploadRequestItem.finishCount, uploadRequestItem.docList.length)
   if (percentage !== 100) return percentage + '%'
-  else if (!uploadRequestItem.aiFinish) return isAIFeature ? $i18n.t('ai.waitForAi') : $i18n.t('upload.complete')
-  else return isAIFeature ? $i18n.t('ai.uploadcomplete') : $i18n.t('upload.complete')
+  else if (!uploadRequestItem.aiFinish) return isAIFeature() ? $i18n.t('ai.waitForAi') : $i18n.t('upload.complete')
+  else return isAIFeature() ? $i18n.t('ai.uploadcomplete') : $i18n.t('upload.complete')
 }
 function isAIFeature() {
   return false
