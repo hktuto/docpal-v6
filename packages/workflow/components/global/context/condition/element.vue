@@ -10,19 +10,51 @@ const { getVariablesByDisplayTypes } = useVariablesProvide()
 const emits = defineEmits(['delete', 'update'])
 const formData = ref<{
   type: 'is_null' | 'string_validation' | 'numbering_validation' | 'bool_validation'
-  val_type: 'is_null' | 'text' | 'number' | 'boolean'
+  val_type: 'string' | 'number' | 'boolean' | 'array' | 'object'
   field: string
-  condition: '==' | '>' | '>=' | '<' | '<='
-  value: string | number | boolean
-}>()
+  condition: 'contains' | '==' | '>' | '>=' | '<' | '<=' | 'is_null'
+  value: string | number | boolean | null | []
+}>({
+  type: 'string_validation',
+  val_type: 'string',
+  field: '',
+  condition: '==',
+  value: ''
+})
 const selectedType = computed(() => {
   return formData.value?.type || 'string_validation'
 })
-const allVariables = computed(() => {
-  return getVariablesByDisplayTypes()
-})
+
+function getVariables(type: string) {
+  let displayTypes: any[]
+  switch (type) {
+    case 'is_null':
+      displayTypes = []
+      break
+    case 'string_validation':
+      displayTypes = ['text']
+      break
+    case 'numbering_validation':
+      displayTypes = ['number']
+      break
+    case 'bool_validation':
+      displayTypes = ['boolean']
+      break
+    default:
+      displayTypes = []
+  }
+  return getVariablesByDisplayTypes(displayTypes)
+}
+
 const typeOptions = ref([
-  { label: 'Is Empty', value: 'is_null', condition: [{ label: 'Equal', value: '==' }] },
+  {
+    label: 'Is Empty',
+    value: 'is_null',
+    condition: [
+      { label: 'Is Null', value: 'is_null' }
+      // { label: 'Not Null', value: 'notNull' }
+    ]
+  },
   {
     label: 'String Validation',
     value: 'string_validation',
@@ -53,11 +85,12 @@ function typeChange() {
   formData.value.condition = '=='
   switch (selectedType.value) {
     case 'is_null':
-      formData.value.val_type = 'is_null'
-      formData.value.value = 'null'
+      formData.value.condition = 'is_null'
+      formData.value.val_type = 'string'
+      formData.value.value = ''
       break
     case 'string_validation':
-      formData.value.val_type = 'text'
+      formData.value.val_type = 'string'
       formData.value.value = ''
       break
     case 'numbering_validation':
@@ -70,6 +103,32 @@ function typeChange() {
       break
     default:
   }
+  update()
+}
+
+function fieldChange(type: string) {
+  if (type !== 'is_null') return
+
+  const v_list = getVariables(type)
+  const find = v_list.find((item) => item.id === formData.value.field)
+  if (!!find) {
+    formData.value.val_type = find.type
+    if (find.type === 'array') {
+      formData.value.value = []
+    } else if (find.type === 'number' || find.type === 'boolean' || find.type === 'object') {
+      formData.value.value = null
+    } else {
+      formData.value.value = ''
+    }
+  } else {
+    formData.value.val_type = 'string'
+    formData.value.value = ''
+  }
+  update()
+}
+
+function update() {
+  emits('update', formData.value)
 }
 
 watch(
@@ -78,18 +137,6 @@ watch(
     if (!element) return
     if (JSON.stringify(element) !== JSON.stringify(formData.value)) {
       formData.value = JSON.parse(JSON.stringify(element))
-    }
-  },
-  {
-    immediate: true,
-    deep: true
-  }
-)
-watch(
-  () => formData,
-  () => {
-    if (JSON.stringify(formData.value) !== JSON.stringify(element)) {
-      emits('update', JSON.parse(JSON.stringify(formData.value)))
     }
   },
   {
@@ -111,45 +158,30 @@ watch(
         </el-select>
       </el-form-item>
       <el-form-item label="Field" prop="id">
-        <el-select v-model="formData.field" placeholder="Select form field" filterable>
-          <el-option v-for="item in allVariables" :key="item.id" :label="item.name" :value="item.id" />
+        <el-select v-model="formData.field" placeholder="Select form field" filterable @change="fieldChange(formData.type)">
+          <el-option v-for="item in getVariables(formData.type)" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="Condition" prop="condition">
-        <el-select v-model="formData.condition" placeholder="Select form condition" filterable>
+        <el-select v-model="formData.condition" placeholder="Select form condition" filterable @change="update">
           <el-option v-for="condition in conditionOption" :key="condition.value" :label="condition.label" :value="condition.value" />
         </el-select>
       </el-form-item>
 
       <template v-if="!!selectedType">
-        <template v-if="selectedType === 'is_null'">
-          <el-form-item label="Value" prop="value">
-            <el-select v-model="formData.value" placeholder="Select" filterable clearable>
-              <el-option
-                v-for="(item, index) in [
-                  { label: 'Is Null', value: 'null' },
-                  { label: 'Not Null', value: 'notNull' }
-                ]"
-                :key="index"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </template>
         <template v-if="selectedType === 'string_validation'">
           <el-form-item label="Value" prop="value">
-            <el-input v-model="formData.value" />
+            <el-input v-model="formData.value" @change="update" />
           </el-form-item>
         </template>
         <template v-if="selectedType === 'numbering_validation'">
           <el-form-item label="Value" prop="value">
-            <el-input-number v-model="formData.value" />
+            <el-input-number v-model="formData.value" @change="update" />
           </el-form-item>
         </template>
         <template v-if="selectedType === 'bool_validation'">
           <el-form-item label="Value" prop="value">
-            <el-switch v-model="formData.value" active-text="True" inactive-text="False" />
+            <el-switch v-model="formData.value" active-text="True" inactive-text="False" @change="update" />
           </el-form-item>
         </template>
       </template>
