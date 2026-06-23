@@ -71,7 +71,15 @@ async function workflowClickHandler(workflowItem: any) {
       return
     }
 
-    state.formVariables = startTask.config?.initialise?.form_fields || []
+    if (startTask.config?.initialise?.form_fields?.length > 0) {
+      state.formVariables = startTask.config?.initialise?.form_fields
+    } else {
+      state.formVariables = Object.entries(data.content.variables).map(([key, value]) => ({
+        id: key,
+        ...value
+      })) as any[]
+    }
+
     state.formDialogVisible = true
     await initForm(startTask)
   } catch (e) {
