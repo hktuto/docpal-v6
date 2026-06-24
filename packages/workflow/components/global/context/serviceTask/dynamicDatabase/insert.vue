@@ -37,17 +37,18 @@ const tableFieldList = ref<
   }[]
 >([])
 
-function getVariables(status: string) {
+function getVariables(field: any) {
+  const field_type: string = field.field_type
   let displayTypeList: string[]
-  switch (status) {
-    case 'string':
-      displayTypeList = ['text']
+  switch (field_type) {
+    case 'varchar':
+      displayTypeList = ['text', 'date']
       break
-    case 'integer':
+    case 'numeric':
       displayTypeList = ['number']
       break
-    case 'number':
-      displayTypeList = ['number']
+    case 'timestamp':
+      displayTypeList = ['timestamp']
       break
     case 'array':
       displayTypeList = ['array']
@@ -246,7 +247,7 @@ watch(
     <template v-for="field in tableFieldList">
       <el-form-item :label="field.name">
         <el-select v-model="field.value" filterable clearable @change="update">
-          <el-option v-for="item in getVariables(field.type)" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in getVariables(field)" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
     </template>
