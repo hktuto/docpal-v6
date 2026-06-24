@@ -69,7 +69,7 @@ defineExpose({
   <el-dialog v-model="dialogVisible" title="Data Mapping" append-to-body :close-on-click-modal="false">
     <el-form ref="formRef" :model="dataMapping" :rules="rules" label-position="top">
       <el-form-item label="Mapping Key" prop="key">
-        <el-select v-model="dataMapping.key" placeholder="Select Mapping Key">
+        <el-select v-model="dataMapping.key" placeholder="Select Mapping Key" filterable>
           <el-option v-for="item in variableList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>

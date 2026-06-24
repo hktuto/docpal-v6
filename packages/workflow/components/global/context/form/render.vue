@@ -183,41 +183,12 @@ function writableDataDeArray(formDatas: any) {
 }
 
 function dataDeArray(formDatas: any) {
-  const arrWidgetKeys = getWidgetNames(WidgetNames.arr)
-  const data = Object.keys(formDatas).reduce((prev: any, key: string) => {
+  return Object.keys(formDatas).reduce((prev: any, key: string) => {
     if (formDatas[key] == '0' || formDatas[key] == 'false' || !!formDatas[key]) {
       prev[key] = formDatas[key]
     }
     return prev
   }, {})
-  // const data = deepCopy(formDatas)
-  // Object.keys(data).forEach((key, _index) => {
-  //   const _data = toRaw(formDatas[key])
-  //   if (_data instanceof Array) {
-  //     if (arrWidgetKeys.some((wid: any) => wid.name === key)) {
-  //       data[key] = JSON.stringify(_data)
-  //     } else if (_data.length > 0 && (!!_data[0].response || !!_data[0].id)) {
-  //       const values = _data.reduce((prev, item) => {
-  //         if (item.response) {
-  //           item.response = item.response.data ? item.response.data : item.response
-  //           const responseData = item.response instanceof Array ? item.response[0] : item.response
-  //           prev.push(responseData.contentId || responseData.id)
-  //         } else {
-  //           prev.push(item.id)
-  //         }
-  //         return prev
-  //       }, [])
-  //       data[key] = values.join(',')
-  //     } else {
-  //       const values = _data.reduce((prev, item) => {
-  //         prev.push(item)
-  //         return prev
-  //       }, [])
-  //       data[key] = values.join(',')
-  //     }
-  //   }
-  // })
-  return data
 }
 
 function getWidgetNames(widgetNames: string[], checkMultiple: boolean = false, checkNuxeo: boolean = false) {

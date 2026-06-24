@@ -241,7 +241,7 @@ watch(
     <el-divider />
 
     <el-form-item label="Add Fields">
-      <el-select v-model="fieldsList" :placeholder="t('common_selectOccupancyContent')" multiple collapse-tags collapse-tags-tooltip>
+      <el-select v-model="fieldsList" :placeholder="t('common_selectOccupancyContent')" multiple collapse-tags collapse-tags-tooltip filterable>
         <el-option v-for="item in tableFieldList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
