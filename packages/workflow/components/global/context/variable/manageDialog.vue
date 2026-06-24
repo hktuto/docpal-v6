@@ -40,6 +40,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   zoom: false,
   virtualScroll: true,
   api: () => {
+    console.log('variables', variables.value)
     return variables.value
   },
   columns: [
@@ -49,7 +50,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { title: 'Required', field: 'required' }
   ],
   dblClickAction: ({ row, column, event }: any) => {
-    console.log('dblClickAction', row, column, event)
+    handleDblclick(row)
   },
   bodyActions: [
     [

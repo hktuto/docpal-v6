@@ -116,13 +116,14 @@ async function initForm(taskNode: any) {
 }
 
 async function checkAndSubmit() {
-  state.loading = true
+  // state.loading = true
   const formData = await vFormRef.value.getFormData()
 
   if (!!formData) {
     // conversion FormData
     const cFormData = conversionFormDataByVariables(formData, state.formVariables)
-
+    console.log(123, formData, cFormData)
+    return
     const formParams = {
       start_user_id: userId.value,
       definition_id: state.selectedWorkflow.id,

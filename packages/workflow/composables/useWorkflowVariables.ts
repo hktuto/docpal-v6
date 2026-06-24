@@ -11,7 +11,7 @@ export const VariableItemDisplayType = {
     'file'
     // , 'url', 'email', 'phone'
   ],
-  number: ['number'],
+  number: ['number', 'timestamp'],
   boolean: ['boolean'],
   date: ['date'],
   array: ['dateRange', 'array'],
@@ -52,6 +52,17 @@ export const VariableTypeOptions = [
           decimal_places: 0
         },
         component: 'ContextVariableDataTypeNumber'
+      },
+      {
+        label: 'Timestamp',
+        type: 'number',
+        display_type: 'timestamp',
+        validation: {
+          max_value: 9999999999999,
+          min_value: 1000000000000,
+          decimal_places: 0
+        },
+        component: 'ContextVariableDataTypeTimestamp'
       },
       {
         label: 'Boolean',
@@ -146,7 +157,7 @@ export type WorkflowVariablesProvideContext = {
 export function conversionFormDataByVariables(formData: any, formFields: VariableItem[]) {
   try {
     const variableSchema = formFields.reduce((acc: any, item: VariableItem) => {
-      acc[item.id] = { type: item.type }
+      acc[item.id] = item
       return acc
     }, {})
 
@@ -154,30 +165,43 @@ export function conversionFormDataByVariables(formData: any, formFields: Variabl
 
     for (const key in formData) {
       const value = formData[key]
-      const definition = variableSchema[key]
+      const definition: VariableItem = variableSchema[key]
 
       if (!definition) {
         formattedVariables[key] = value
         continue
       }
-
-      switch (definition.type) {
+      switch (definition.display_type) {
+        case 'timestamp':
+          formattedVariables[key] = dayjs(value).valueOf()
+          break
         case 'number':
           const num = Number(value)
           formattedVariables[key] = isNaN(num) ? 0 : num
           break
         case 'boolean':
           if (typeof value === 'string') {
-            formattedVariables[key] = value.toLowerCase() === 'true'
+            formattedVariables[key] = value.toLowerCase() === 'true' || value.toLowerCase() === 'y'
           } else {
             formattedVariables[key] = Boolean(value)
           }
           break
-        case 'string':
+        case 'text':
           formattedVariables[key] = value !== null ? String(value) : ''
           break
         case 'date':
-          formattedVariables[key] = dayjs(value).valueOf()
+          formattedVariables[key] = dayjs(value).format(definition?.validation?.pattern)
+          break
+        case 'dateRange':
+          formattedVariables[key] = value.map((item: string) => {
+            return dayjs(value).format(definition?.items?.properties?.start?.validation?.pattern)
+          })
+          break
+        case 'array':
+          formattedVariables[key] = value
+          break
+        case 'object':
+          formattedVariables[key] = value
           break
         default:
           formattedVariables[key] = value

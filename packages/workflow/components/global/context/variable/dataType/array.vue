@@ -61,6 +61,15 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   bodyActions: [
     [
       {
+        code: 'edit',
+        name: 'common_edit',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => {
+          handleEdit(row)
+        }
+      },
+      {
         code: 'remove',
         name: 'common_remove',
         visible: true,

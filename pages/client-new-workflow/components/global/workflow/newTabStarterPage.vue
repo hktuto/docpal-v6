@@ -45,6 +45,7 @@ async function handleSubmit() {
     let formData = await vFormRef.value.getFormData(true, false)
     if (!formData) throw new Error(`${t('incompleteData')}`)
 
+    // TODO 需要校驗數據，但是 form_fields 的數據可能存在錯誤的數據格式提交
     const cFormData = conversionFormDataByVariables(formData, taskNode.config.initialise.form_fields)
 
     const formParams = {
