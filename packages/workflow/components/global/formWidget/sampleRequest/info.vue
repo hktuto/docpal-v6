@@ -10,7 +10,7 @@ const isSeries = ref<boolean>(false)
 
 const data = ref<any[]>([
   {
-    line_number: '',
+    line_number: 1,
     vendor: '',
     part_number: '',
     series: '',
@@ -22,7 +22,6 @@ const data = ref<any[]>([
     packaged: 'N',
     car_use: 'N',
     cust_selected_parts: 'Introduced by Sales',
-    actual_received_qty: '',
     competitor_name: '',
     competitor_pn: '',
     competitor_unit_price: '',
@@ -32,7 +31,7 @@ const data = ref<any[]>([
 
 function handleAdd(index?: number) {
   const newValue = {
-    line_number: `${formData.proj_owner}-${formData.cust_num}-${Date.now()}`,
+    line_number: data.value.length + 1,
     vendor: '',
     part_number: '',
     series: '',
@@ -44,7 +43,6 @@ function handleAdd(index?: number) {
     packaged: 'N',
     car_use: 'N',
     cust_selected_parts: 'Introduced by Sales',
-    actual_received_qty: '',
     competitor_name: '',
     competitor_pn: '',
     competitor_unit_price: '',
@@ -72,10 +70,15 @@ function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
 
+function getFormData() {
+  return { sample_info_list: data.value }
+}
+
+defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form label-position="top" :disabled="formData.disabled">
+  <el-form label-position="top" :disabled="formData.disabledInfo">
     <el-button v-if="data.length === 0" type="primary" @click="handleAdd">Add Sample Info</el-button>
     <template v-for="(item, index) in data">
       <div class="info-item-card">

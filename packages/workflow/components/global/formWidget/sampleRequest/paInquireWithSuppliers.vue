@@ -5,11 +5,27 @@ const { disabled, formData, options } = defineProps<{
   options: any
 }>()
 
-const isSeries = ref<boolean>(false)
+function isSeries(item: any) {
+  return item.series !== ''
+}
 
-const data = ref<any[]>([
+type dataType = {
+  line_number: number
+  vendor: string
+  part_number: string
+  series: string
+  received_date: string
+  pm: string
+  vendor_coo: string
+  sales_admin: string
+  etd: string
+  vendor_attn: string
+  eta: string
+}
+
+const data = ref<dataType[]>([
   {
-    line_number: '',
+    line_number: 0,
     vendor: '',
     part_number: '',
     series: '',
@@ -23,6 +39,19 @@ const data = ref<any[]>([
   }
 ])
 
+function info() {
+  data.value = formData.pa_with_suppliers_list
+}
+
+function getFormData() {
+  return { pa_with_suppliers_list: data.value }
+}
+
+onMounted(() => {
+  info()
+})
+
+defineExpose({ getFormData })
 </script>
 
 <template>
@@ -37,9 +66,9 @@ const data = ref<any[]>([
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="isSeries ? '系列' : '型號'">
+            <el-form-item :label="isSeries(item) ? '系列' : '型號'">
               <div class="partNumber-series-change">
-                <el-select disabled v-if="isSeries" v-model="item.series">
+                <el-select disabled v-if="isSeries(item)" v-model="item.series">
                   <el-option />
                 </el-select>
                 <el-select disabled v-else v-model="item.part_number">

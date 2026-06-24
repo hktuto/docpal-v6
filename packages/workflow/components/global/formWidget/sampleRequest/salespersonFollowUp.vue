@@ -33,6 +33,20 @@ const data = ref<any[]>([
 function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
+
+function info(){
+
+}
+
+function getFormData() {
+  return { list: data.value }
+}
+
+onMounted(() => {
+  info()
+})
+
+defineExpose({ getFormData })
 </script>
 
 <template>
