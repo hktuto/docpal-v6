@@ -10,7 +10,6 @@ const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{
-    modelValue: AttachmentCellValue[]
     dataId?: string
     fieldName: string
     disabled?: boolean
@@ -29,9 +28,7 @@ const props = withDefaults(
   }
 )
 
-const emit = defineEmits<{
-  'update:modelValue': [value: AttachmentCellValue[]]
-}>()
+const attachments = defineModel<AttachmentCellValue[]>({ default: () => [] })
 
 const uploadingCount = ref(0)
 const deletingAttachmentId = ref<string | null>(null)
@@ -70,8 +67,15 @@ function mergeAttachments(current: AttachmentCellValue[], incoming: AttachmentCe
   return merged
 }
 
-function setAttachments(nextAttachments: AttachmentCellValue[]) {
-  emit('update:modelValue', nextAttachments)
+async function uploadAttachment(rawFile: File, dataId: string, fieldName: string) {
+  try {
+    const response = await clientApi.api.postDynamicDbTableDataDataidAttachments(dataId, {}, { file: rawFile, field_name: fieldName })
+    const payload = (response as { data?: unknown })?.data ?? response
+    attachments.value = mergeAttachments(attachments.value, toAttachmentList(payload))
+    ElMessage.success(t('mdTable.attachment.uploadSuccess'))
+  } catch {
+    ElMessage.error(t('mdTable.attachment.uploadFailed'))
+  }
 }
 
 function isDeleting(attachmentId: string) {
@@ -95,17 +99,6 @@ function formatAttachmentSize(size?: number) {
 function toAttachmentList(payload: unknown): AttachmentCellValue[] {
   if (!payload) return []
   return (Array.isArray(payload) ? payload : [payload]) as AttachmentCellValue[]
-}
-
-async function uploadAttachment(rawFile: File, dataId: string, fieldName: string) {
-  try {
-    const response = await clientApi.api.postDynamicDbTableDataDataidAttachments(dataId, {}, { file: rawFile, field_name: fieldName })
-    const payload = (response as { data?: unknown })?.data ?? response
-    setAttachments(mergeAttachments(props.modelValue, toAttachmentList(payload)))
-    ElMessage.success(t('mdTable.attachment.uploadSuccess'))
-  } catch {
-    ElMessage.error(t('mdTable.attachment.uploadFailed'))
-  }
 }
 
 function handleUploadChange(file: UploadFile) {
@@ -179,32 +172,41 @@ async function handleDeleteAttachment(attachment: AttachmentCellValue, e?: Mouse
   e?.stopPropagation()
   if (!props.fieldName || isDeleting(attachment.id)) return
 
-  try {
-    await ElMessageBox.confirm(t('mdTable.attachment.deleteConfirm', { fileName: attachment.file_name }), {
-      confirmButtonClass: 'el-button el-button--warning',
-      confirmButtonText: t('common_confirmDelete'),
-    })
-  } catch {
-    return
-  }
-
   if (isFormMode.value) {
-    setAttachments(props.modelValue.filter((item) => item.id !== attachment.id))
+    attachments.value = attachments.value.filter((item) => item.id !== attachment.id)
     return
   }
 
   if (!props.dataId) return
 
+  try {
+    await ElMessageBox.confirm(t('mdTable.attachment.deleteConfirm', { fileName: attachment.file_name }), {
+      confirmButtonClass: 'el-button el-button--warning',
+      confirmButtonText: t('common_confirmDelete'),
+      customClass: props.ignoreClear ? 'vxe-table--ignore-clear' : undefined,
+      modalClass: props.ignoreClear ? 'vxe-table--ignore-clear' : undefined,
+    })
+  } catch {
+    return
+  }
   deletingAttachmentId.value = attachment.id
   try {
-    await clientApi.api.deleteDynamicDbTableDataDataidAttachmentsAttachmentid(props.dataId, attachment.id, {
-      field_name: props.fieldName
-    })
-    setAttachments(props.modelValue.filter((item) => item.id !== attachment.id))
-    ElMessage.success(t('mdTable.attachment.deleteSuccess'))
+    await clientApi.api.deleteDynamicDbTableDataDataidAttachmentsAttachmentid(
+      props.dataId,
+      attachment.id,
+      {
+        field_name: props.fieldName
+      },
+      {
+        headers: {
+          noThrowError: 'true'
+        }
+      }
+    )
   } catch {
-    ElMessage.error(t('mdTable.attachment.deleteFailed'))
   } finally {
+    attachments.value = attachments.value.filter((item) => item.id !== attachment.id)
+    ElMessage.success(t('mdTable.attachment.deleteSuccess'))
     deletingAttachmentId.value = null
   }
 }
@@ -229,9 +231,9 @@ async function handleDeleteAttachment(attachment: AttachmentCellValue, e?: Mouse
       <div v-else class="attachment-upload__dropzone-text">{{ uploadText }}</div>
     </ElUpload>
 
-    <div v-if="modelValue.length" class="attachment-upload__list">
+    <div v-if="attachments.length" class="attachment-upload__list">
       <div
-        v-for="attachment in modelValue"
+        v-for="attachment in attachments"
         :key="attachment.id"
         class="attachment-upload__item"
         v-loading="isDeleting(attachment.id) || isDownloading(attachment.id) || isPreviewing(attachment.id)"

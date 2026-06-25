@@ -17,17 +17,25 @@ const { t } = useI18n()
 const mdTableContext = useTableDataInject()
 const dialogVisible = ref(false)
 
-const attachments = computed(() => normalizeAttachmentValue(props.row[props.column.field] ?? props.modelValue))
+const emit = defineEmits<{
+  'update:modelValue': [value: AttachmentCellValue[]]
+}>()
 
-function setAttachments(nextAttachments: AttachmentCellValue[]) {
+function applyAttachments(nextAttachments: AttachmentCellValue[]) {
   props.row[props.column.field] = nextAttachments
-  const params = {
-    [props.column.field]: nextAttachments
-  }
+  emit('update:modelValue', nextAttachments)
+
   if (mdTableContext.updateRow && props.row?.id) {
-    mdTableContext.updateRow(props.row.id, params)
+    mdTableContext.updateRow(props.row.id, {
+      [props.column.field]: nextAttachments
+    })
   }
 }
+
+const attachments = computed({
+  get: () => normalizeAttachmentValue(props.row[props.column.field] ?? props.modelValue),
+  set: applyAttachments
+})
 
 function handleOpenDialog(e?: MouseEvent | KeyboardEvent) {
   e?.stopPropagation()
@@ -67,11 +75,10 @@ function handleOpenDialog(e?: MouseEvent | KeyboardEvent) {
       @click.stop
     >
       <AttachmentUpload
-        :model-value="attachments"
+        v-model="attachments"
         :data-id="row.id"
         :field-name="column.field"
         ignore-clear
-        @update:model-value="setAttachments"
       />
     </ElDialog>
   </div>

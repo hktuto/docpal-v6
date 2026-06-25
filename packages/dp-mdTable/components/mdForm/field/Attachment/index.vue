@@ -15,9 +15,16 @@ const props = defineProps<{
 
 const modelField = computed(() => resolveColumnDataField(props.column, props.fieldName))
 
-const attachments = computed(() => {
-  if (!props.formData || !modelField.value) return []
-  return normalizeAttachmentValue(props.formData[modelField.value])
+const attachments = computed({
+  get: () => {
+    if (!props.formData || !modelField.value) return []
+    return normalizeAttachmentValue(props.formData[modelField.value])
+  },
+  set: (value) => {
+    if (props.formData && modelField.value) {
+      props.formData[modelField.value] = value
+    }
+  }
 })
 
 const canUpload = computed(() => Boolean(props.formData?.id && modelField.value && !props.disabled))
@@ -37,25 +44,19 @@ const rules = computed(() => {
     }
   ]
 })
-
-function setAttachments(nextAttachments: AttachmentCellValue[]) {
-  if (!props.formData || !modelField.value) return
-  props.formData[modelField.value] = nextAttachments
-}
 </script>
 
 <template>
   <MdFormItem v-if="formData && modelField" v-bind="props" :rules="rules">
     <AttachmentUpload
+      v-model="attachments"
       mode="form"
-      :model-value="attachments"
       :data-id="formData.id"
       :field-name="modelField"
       :disabled="disabled"
       :show-upload="!disabled"
       :upload-disabled="!canUpload"
       :upload-hint="canUpload ? undefined : t('mdTable.attachment.saveBeforeUpload')"
-      @update:model-value="setAttachments"
     />
   </MdFormItem>
 </template>
