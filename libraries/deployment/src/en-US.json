@@ -2445,6 +2445,23 @@
       "addFromTable": "Add related records from \"{tableLabel}\"",
       "loading": "Loading..."
     },
+    "attachment": {
+      "add": "Add attachment",
+      "listTitle": "Attachments",
+      "dragOrClickToUpload": "Drag files here or click to upload",
+      "delete": "Delete attachment",
+      "download": "Download attachment",
+      "preview": "Preview attachment",
+      "noAttachments": "No attachments",
+      "uploadSuccess": "Attachment uploaded successfully",
+      "uploadFailed": "Failed to upload attachment",
+      "downloadFailed": "Failed to download attachment",
+      "previewFailed": "Failed to preview attachment",
+      "deleteSuccess": "Attachment deleted",
+      "deleteFailed": "Failed to delete attachment",
+      "uploadRequired": "Please upload an attachment",
+      "saveBeforeUpload": "Please save the record before uploading attachments"
+    },
     "addColumnField": {
       "columnTitle": "Column Title",
       "enterColumnTitle": "Please enter column title",

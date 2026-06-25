@@ -2442,6 +2442,23 @@
       "addFromTable": "從「{tableLabel}」添加關聯記錄",
       "loading": "載入中..."
     },
+    "attachment": {
+      "add": "添加附件",
+      "listTitle": "附件列表",
+      "dragOrClickToUpload": "將文件拖拽或點擊此處進行上傳",
+      "delete": "刪除附件",
+      "download": "下載附件",
+      "preview": "預覽附件",
+      "noAttachments": "暫無附件",
+      "uploadSuccess": "附件上傳成功",
+      "uploadFailed": "附件上傳失敗",
+      "downloadFailed": "附件下載失敗",
+      "previewFailed": "附件預覽失敗",
+      "deleteSuccess": "附件已刪除",
+      "deleteFailed": "附件刪除失敗",
+      "uploadRequired": "請上傳附件",
+      "saveBeforeUpload": "請先保存記錄後再上傳附件"
+    },
     "addColumnField": {
       "columnTitle": "欄標題",
       "enterColumnTitle": "請輸入欄標題",
