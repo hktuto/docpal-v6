@@ -120,7 +120,9 @@ export const useUploadAIStore = () => {
         const formData = new FormData()
         formData.append('file', doc.file)
         formData.append('uploadTempFileRequestStr', JSON.stringify(_document))
-        const result = await newClientApi.postDmsUploadTmpFile(formData).then((res) => res.data)
+        const result = await newClientApi.postDmsUploadTmpFile(formData, {
+          timeout: 0
+        }).then((res) => res.data)
       }
       doc.status = 'success'
     } catch (error) {
