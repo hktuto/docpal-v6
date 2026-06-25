@@ -2449,6 +2449,7 @@
       "listTitle": "附件列表",
       "dragOrClickToUpload": "将文件拖拽或点击此处进行上传",
       "delete": "删除附件",
+      "deleteConfirm": "确定要删除附件「{fileName}」吗？",
       "download": "下载附件",
       "preview": "预览附件",
       "noAttachments": "暂无附件",

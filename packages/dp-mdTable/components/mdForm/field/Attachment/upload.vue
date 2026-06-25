@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Delete, Download, View } from '@element-plus/icons-vue'
-import { ElMessage, type UploadFile } from 'element-plus'
+import { ElMessage, ElMessageBox, type UploadFile } from 'element-plus'
 import { clientApi } from 'api'
 import { formatFileSize, mimeTypeToIcon } from '../../../../../base/utils/browseHelper'
 import { downloadBlob } from '../../../../../base/utils/globalHelper'
@@ -177,7 +177,23 @@ async function handleDownloadAttachment(attachment: AttachmentCellValue, e?: Mou
 
 async function handleDeleteAttachment(attachment: AttachmentCellValue, e?: MouseEvent | KeyboardEvent) {
   e?.stopPropagation()
-  if (!props.dataId || !props.fieldName || isDeleting(attachment.id)) return
+  if (!props.fieldName || isDeleting(attachment.id)) return
+
+  try {
+    await ElMessageBox.confirm(t('mdTable.attachment.deleteConfirm', { fileName: attachment.file_name }), {
+      confirmButtonClass: 'el-button el-button--warning',
+      confirmButtonText: t('common_confirmDelete'),
+    })
+  } catch {
+    return
+  }
+
+  if (isFormMode.value) {
+    setAttachments(props.modelValue.filter((item) => item.id !== attachment.id))
+    return
+  }
+
+  if (!props.dataId) return
 
   deletingAttachmentId.value = attachment.id
   try {

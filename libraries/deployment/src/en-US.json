@@ -2450,6 +2450,7 @@
       "listTitle": "Attachments",
       "dragOrClickToUpload": "Drag files here or click to upload",
       "delete": "Delete attachment",
+      "deleteConfirm": "Are you sure you want to delete \"{fileName}\"?",
       "download": "Download attachment",
       "preview": "Preview attachment",
       "noAttachments": "No attachments",
