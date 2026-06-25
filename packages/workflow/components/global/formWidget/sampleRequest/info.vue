@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { clientApi, newClientApi } from 'api'
 import { Plus, Delete, Switch } from '@element-plus/icons-vue'
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -7,7 +8,6 @@ const { disabled, formData, options } = defineProps<{
 }>()
 
 const isSeries = ref<boolean>(false)
-
 const data = ref<any[]>([
   {
     line_number: 1,
@@ -28,6 +28,7 @@ const data = ref<any[]>([
     remarks: ''
   }
 ])
+const partList = ref<any[]>([])
 
 function handleAdd(index?: number) {
   const newValue = {
@@ -74,6 +75,65 @@ function getFormData() {
   return { sample_info_list: data.value }
 }
 
+async function getPartList() {
+  const list = await getDbData('12ba8480-6936-11f1-922e-adee4ecc74b2')
+  partList.value = list.map((item: any) => ({
+    id: item.inventory_item_id,
+    label: item.segment1,
+    value: item.segment1,
+    brand: item.attribute8
+  }))
+}
+
+async function getDbData(tableId: string) {
+  // Get Filed Mapping
+  const filedData = await newClientApi
+    .getDocpalMasterTableUserConfig({
+      tableId: tableId,
+      userId: 'master',
+      type: 'detail'
+    })
+    .then((res) => res.data)
+  const filedMapping: any = {}
+  filedData.tableFields.forEach((item: any) => {
+    filedMapping[item.field_name as string] = item.field_name_alias
+  })
+
+  const param = {
+    tableId: tableId,
+    columns: [
+      {
+        name: '*'
+      }
+    ],
+    pagination: {
+      pageSize: 1000,
+      pageNum: 0
+    }
+  }
+
+  // Get BD Data
+  const dbData = await clientApi.instance.post('/apis/v1/dynamic-actions', param).then((res: any) => res.data.data)
+
+  // 匹配數據
+  return dbData.map((row: any) => {
+    const out = {}
+    for (const [fromKey, toKey] of Object.entries(filedMapping)) {
+      if (fromKey in row) out[toKey] = row[fromKey]
+    }
+    return out
+  })
+}
+
+function changePartNumber(item: any) {
+  const find = partList.value.find((part) => part.value === item.part_number)
+  item.vendor = find?.brand || ''
+}
+
+onMounted(async () => {
+  await getPartList()
+})
+
 defineExpose({ getFormData })
 </script>
 
@@ -92,7 +152,7 @@ defineExpose({ getFormData })
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="品牌">
-              <el-input v-model="item.vendor" />
+              <el-input v-model="item.vendor" disabled />
             </el-form-item>
             <el-form-item label="單機用量">
               <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" />
@@ -112,8 +172,8 @@ defineExpose({ getFormData })
                 <el-select v-if="isSeries" v-model="item.series">
                   <el-option />
                 </el-select>
-                <el-select v-else v-model="item.part_number">
-                  <el-option />
+                <el-select v-else v-model="item.part_number" @change="changePartNumber(item)">
+                  <el-option v-for="part in partList" :key="part.id" :label="part.label" :value="part.value" />
                 </el-select>
                 <el-button :icon="Switch" type="primary" @click="changePartNumberAndSeries(item)" />
               </div>

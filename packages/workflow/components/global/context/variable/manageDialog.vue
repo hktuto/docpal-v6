@@ -70,7 +70,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
           deleteVariableItem(node.value, row.id)
           const startNode = graphProvider?.graph.value?.getCellById('system_start_event')
           saveStartEventFormFields(startNode)
-          reload()
+          filter()
         }
       }
     ]
@@ -146,10 +146,10 @@ defineExpose({
           <template #toolbar_buttons>
             <el-form :inline="true" class="variable-filter-form">
               <el-form-item label="ID">
-                <el-input v-model="searchData.id" @blur="filter" clearable />
+                <el-input v-model="searchData.id" @change="filter" clearable />
               </el-form-item>
               <el-form-item label="Name">
-                <el-input v-model="searchData.name" @blur="filter" clearable />
+                <el-input v-model="searchData.name" @change="filter" clearable />
               </el-form-item>
               <el-form-item label="Type">
                 <el-select v-model="searchData.type" @change="filter" clearable>

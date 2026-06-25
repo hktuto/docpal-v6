@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { clientApi, newClientApi } from 'api'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -39,17 +41,92 @@ const data = ref<dataType[]>([
   }
 ])
 
-function info() {
-  data.value = formData.pa_with_suppliers_list
+async function info() {
+  if (!formData.sample_request_id || formData.sample_request_id === '') return
+
+  const data = await getDbData('a38fddb0-6a18-11f1-bb31-59e406a19732', formData.sample_request_id)
+  data.map((item: any) => ({
+    id: '',
+    line_number: item.line_number,
+    vendor: item.vendor,
+    part_number: item.part_number,
+    series: item.series,
+    pm: '',
+    vendor_coo: '',
+    sales_admin: '',
+    etd: '',
+    vendor_attn: '',
+    eta: ''
+  }))
+}
+
+async function getDbData(tableId: string, sampleRequestId: string) {
+  // Get Filed Mapping
+  const filedData = await newClientApi
+    .getDocpalMasterTableUserConfig({
+      tableId: tableId,
+      userId: 'master',
+      type: 'detail'
+    })
+    .then((res) => res.data)
+  const filedMapping: any = {}
+  filedData.tableFields.forEach((item: any) => {
+    filedMapping[item.field_name as string] = item.field_name_alias
+  })
+
+  const param = {
+    tableId: tableId,
+    conditions: [
+      {
+        type: 'EQ',
+        column: 'f_6437_37ef7432',
+        value: sampleRequestId
+      }
+    ],
+    columns: [
+      {
+        name: '*'
+      }
+    ],
+    pagination: {
+      pageSize: 1000,
+      pageNum: 0
+    }
+  }
+
+  // Get BD Data
+  const dbData = await clientApi.instance.post('/apis/v1/dynamic-actions', param).then((res: any) => res.data.data)
+
+  // 匹配數據
+  return dbData.map((row: any) => {
+    const out = {}
+    for (const [fromKey, toKey] of Object.entries(filedMapping)) {
+      if (fromKey in row) out[toKey] = row[fromKey]
+    }
+    return out
+  })
 }
 
 function getFormData() {
   return { pa_with_suppliers_list: data.value }
 }
 
-onMounted(() => {
-  info()
+onMounted(async () => {
+  // await info()
 })
+
+watch(
+  () => formData.sampleRequestId,
+  (value, oldValue) => {
+    if (!!value && value !== '') {
+      info()
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
 
 defineExpose({ getFormData })
 </script>

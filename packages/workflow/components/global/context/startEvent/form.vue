@@ -94,11 +94,9 @@ function handelSubmitForm(id: string) {
 async function getFormJson() {
   formJson.value = {}
   try {
-    if (!!formKey.value && formKey.value !== '') {
-      const data: any = await newClientApi.getDmsFormPropertiesId(Number(formKey.value)).then((r) => r.data)
-      if (!data) return {}
-      formJson.value = data.jsonValue
-    }
+    const data: any = await newClientApi.getDmsFormPropertiesId(Number(formKey.value)).then((r) => r.data)
+    if (!data) return {}
+    formJson.value = data.jsonValue
   } catch (e) {
     console.log(e)
   }
