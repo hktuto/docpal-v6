@@ -34,7 +34,11 @@ function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
 
-function info(){
+const disabledReceivedDate = computed(()=>{
+  return formData.status != 5
+})
+
+function info() {
 
 }
 
@@ -138,8 +142,8 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="客戶收到樣品日期">
-              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" />
+            <el-form-item label="客戶收到樣品日期" required>
+              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" :disabled="disabledReceivedDate" />
             </el-form-item>
           </el-col>
           <el-col :span="8"> </el-col>

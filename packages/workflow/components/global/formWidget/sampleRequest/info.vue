@@ -58,6 +58,7 @@ function handleAdd(index?: number) {
 }
 
 function changePartNumberAndSeries(item: any) {
+  item.vendor = ''
   item.part_number = ''
   item.series = ''
   isSeries.value = !isSeries.value
@@ -211,7 +212,7 @@ defineExpose({ getFormData })
           </el-col>
           <el-col :span="8">
             <el-form-item label="是否用於汽車" :required="['MMC', 'NCC'].includes(item.vendor.toUpperCase())" prop="car_use">
-              <el-switch v-model="item.car_use" active-text="Yes" active-value="Y" inactive-text="No" inactive-value="N" />
+              <el-switch v-model="item.car_use" active-text="Yes" active-value="Yes" inactive-text="No" inactive-value="No" />
             </el-form-item>
             <el-form-item label="競爭者型號" prop="competitor_pn">
               <el-input v-model="item.competitor_pn" />
