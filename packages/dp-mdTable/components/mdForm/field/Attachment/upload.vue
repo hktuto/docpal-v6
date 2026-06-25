@@ -72,7 +72,9 @@ async function uploadAttachment(rawFile: File, dataId: string, fieldName: string
     const response = await clientApi.api.postDynamicDbTableDataDataidAttachments(dataId, {}, { file: rawFile, field_name: fieldName })
     const payload = (response as { data?: unknown })?.data ?? response
     attachments.value = mergeAttachments(attachments.value, toAttachmentList(payload))
-    ElMessage.success(t('mdTable.attachment.uploadSuccess'))
+    if (!isFormMode.value) {
+      ElMessage.success(t('mdTable.attachment.uploadSuccess'))
+    }
   } catch {
     ElMessage.error(t('mdTable.attachment.uploadFailed'))
   }
