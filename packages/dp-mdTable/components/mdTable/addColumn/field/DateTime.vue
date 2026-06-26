@@ -19,11 +19,21 @@
       </el-select>
     </template>
     <el-checkbox v-model="formData.includeTimeZone">{{ t('mdTable.addColumnField.showTimezoneMark') }}</el-checkbox>
+    <el-form-item :label="t('mdTable.addColumnField.defaultValue')" prop="defaultValue">
+      <el-date-picker
+        v-model="formData.defaultValue"
+        :type="formData.includeTime ? 'datetime' : 'date'"
+        :format="defaultValueFormat"
+        value-format="x"
+        clearable
+        style="width: 100%"
+      />
+    </el-form-item>
   </div>
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 const { t } = useI18n()
 const props = defineProps<{
   formData: any
@@ -33,6 +43,10 @@ const dateFormatOptions = [
   { label: formatDate(new Date(), 'YYYY/MM/DD'), value: 'YYYY/MM/DD' },
   { label: formatDate(new Date(), 'YYYY-MMM-DD'), value: 'YYYY-MMM-DD' }
 ]
+const defaultValueFormat = computed(() => {
+  const dateFormat = props.formData.dateFormat || 'YYYY-MM-DD'
+  return props.formData.includeTime ? `${dateFormat} ${props.formData.dateTimeFormat || 'HH:mm'}` : dateFormat
+})
 // 从父组件获取select visible change处理函数
 const handleSelectVisibleChange = inject<(visible: boolean) => void>('handleSelectVisibleChange')
 

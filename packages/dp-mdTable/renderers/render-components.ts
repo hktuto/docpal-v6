@@ -21,10 +21,29 @@ import { VirtualColumnView } from './components/VirtualColumn/view'
 import { AggVirtualColumnView } from './components/VirtualColumn/agg'
 import { FormulaView } from './components/formula'
 import { CheckboxView } from './components/checkbox'
-import { DocumentView } from './components/document'
+import { AttachmentView } from './components/Attachment/view'
+import AttachmentEditVue from './components/Attachment/edit.vue'
 import { DocPalDocView } from './components/docPalDoc/view'
 import DocPalDocEditVue from './components/docPalDoc/edit.vue'
 import { TreeNode } from './components/treeNode'
+
+function renderAttachmentEdit({ params }: ViewRenderFunctionParams<string>): VNode {
+  const { $grid, row, column } = params
+  return h(AttachmentEditVue, {
+    row,
+    column,
+    modelValue: row[column.field],
+    onMouseenter: (e: MouseEvent) => {
+      $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
+    },
+    onMouseleave: (e: MouseEvent) => {
+      $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
+    },
+    'onUpdate:modelValue': (value: any) => {
+      row[column.field] = value
+    }
+  })
+}
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
@@ -103,10 +122,10 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           'onUpdate:modelValue': (value: any) => {
             row[column.field] = value
           },
-          onMouseenter: (e) => {
+          onMouseenter: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
-          onMouseleave: (e) => {
+          onMouseleave: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
           }
         })
@@ -131,10 +150,10 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           'onUpdate:modelValue': (value: any) => {
             row[column.field] = value
           },
-          onMouseenter: (e) => {
+          onMouseenter: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
-          onMouseleave: (e) => {
+          onMouseleave: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
           }
         })
@@ -190,10 +209,10 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           row: row,
           column: column,
           modelValue: row[column.field],
-          onMouseenter: (e) => {
+          onMouseenter: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
-          onMouseleave: (e) => {
+          onMouseleave: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
           },
           'onUpdate:modelValue': (value: string[] | string | null) => {
@@ -223,7 +242,9 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $grid, row, column } = params
-        const { getUserList, userList } = useMDTableInject()
+        const mdTableContext = useMDTableInject()
+        if (!mdTableContext) return h('div')
+        const { getUserList, userList } = mdTableContext
         return h(SelectEdit, {
           options: userList,
           multiple: true,
@@ -235,10 +256,10 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           'onUpdate:modelValue': (value: any) => {
             row[column.field] = value
           },
-          onMouseenter: (e) => {
+          onMouseenter: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
-          onMouseleave: (e) => {
+          onMouseleave: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
           },
           onVnodeMounted: () => {
@@ -260,9 +281,12 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render: (params: any) => TreeNode(params, CheckboxView)
     }
   },
-  Document: {
+  Attachment: {
     view: {
-      render: (params: any) => TreeNode(params, DocumentView)
+      render: (params: any) => TreeNode(params, AttachmentView)
+    },
+    edit: {
+      render: renderAttachmentEdit
     }
   },
   DocPalDoc: {

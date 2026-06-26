@@ -37,11 +37,11 @@ function updatePartial(payload: Record<string, any>) {
 }
 
 const coverOptions = computed(() => {
-  const documentTypes = new Set([ColumnFieldType.Document, Number(ColumnFieldType.Document), 'Document', 'document'])
-  const documentFields = (tableFields.value || []).filter((field: any) => {
-    return documentTypes.has(field.business_type)
+  const attachmentTypes = new Set([ColumnFieldType.Attachment, Number(ColumnFieldType.Attachment), 'Attachment', 'attachment'])
+  const attachmentFields = (tableFields.value || []).filter((field: any) => {
+    return attachmentTypes.has(field.business_type)
   })
-  return documentFields.map((field: any) => ({
+  return attachmentFields.map((field: any) => ({
     label: field.field_name_alias || field.field_name,
     value: field.field_name
   }))

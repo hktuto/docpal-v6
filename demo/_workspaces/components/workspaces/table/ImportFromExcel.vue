@@ -454,7 +454,7 @@ function mapToDatabaseType(type: ColumnFieldType): string {
     case ColumnFieldType.Relation:
       return 'uuid'
     case ColumnFieldType.MultiSelect:
-    case ColumnFieldType.Document:
+    case ColumnFieldType.Attachment:
       return 'jsonb'
     default:
       return 'text'

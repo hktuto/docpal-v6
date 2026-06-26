@@ -152,8 +152,8 @@ export function formatCellValue(value: any, field: TableField): any {
       return parts.length ? parts : String(value)
     }
 
-    case ColumnFieldType.Document:
-    case String(ColumnFieldType.Document): {
+    case ColumnFieldType.Attachment:
+    case String(ColumnFieldType.Attachment): {
       if (Array.isArray(value)) return value
       return String(value)
     }
