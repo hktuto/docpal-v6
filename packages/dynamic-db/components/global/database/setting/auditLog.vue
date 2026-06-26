@@ -11,7 +11,7 @@ const props = defineProps<{
 }>()
 
 const list = ref<any[]>([])
-const pageNum = ref(1)
+const pageNum = ref(0)
 const pageSize = ref(20)
 const loading = ref(false)
 const hasMore = ref(true)
@@ -45,7 +45,7 @@ async function fetchAuditLogs(reset = false) {
   }
   if (reset) {
     list.value = []
-    pageNum.value = 1
+    pageNum.value = 0
     hasMore.value = true
     expandedIds.value = new Set()
     pendingReset.value = false

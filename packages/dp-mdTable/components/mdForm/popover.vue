@@ -209,7 +209,7 @@ function handleSourceClick() {
 
 // Audit log timeline
 const list = ref<any[]>([])
-const pageNum = ref(1)
+const pageNum = ref(0)
 const pageSize = ref(20)
 const loading = ref(false)
 const hasMore = ref(true)
@@ -242,7 +242,7 @@ async function fetchAuditLogs(reset = false) {
   }
   if (reset) {
     list.value = []
-    pageNum.value = 1
+    pageNum.value = 0
     hasMore.value = true
     expandedIds.value = new Set()
     pendingReset.value = false
@@ -287,11 +287,13 @@ function handleToggleExpand(eventId: string) {
 }
 
 watch(
-  () => formData.value.id,
-  (id) => {
-    if (!id) {
-      list.value = []
-      hasMore.value = false
+  [() => formData.value.id, () => activeTab.value],
+  ([id, tab]) => {
+    if (!id || tab !== 'auditLog') {
+      if (!id) {
+        list.value = []
+        hasMore.value = false
+      }
       return
     }
     fetchAuditLogs(true)
