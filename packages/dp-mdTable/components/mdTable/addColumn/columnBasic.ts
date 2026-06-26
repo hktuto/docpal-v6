@@ -73,6 +73,11 @@ export const columnBasic: Partial<Record<ColumnFieldType, ColumnBasicFieldConfig
     isBasic: true,
     component: 'Checkbox'
   },
+  [ColumnFieldType.Attachment]: {
+    label: 'Attachment',
+    isBasic: true,
+    order: 9
+  },
   [ColumnFieldType.User]: {
     label: 'Member',
     isBasic: true,

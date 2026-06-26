@@ -2444,6 +2444,24 @@
       "addFromTable": "从「{tableLabel}」添加关联记录",
       "loading": "加载中..."
     },
+    "attachment": {
+      "add": "添加附件",
+      "listTitle": "附件列表",
+      "dragOrClickToUpload": "将文件拖拽或点击此处进行上传",
+      "delete": "删除附件",
+      "deleteConfirm": "确定要删除附件「{fileName}」吗？",
+      "download": "下载附件",
+      "preview": "预览附件",
+      "noAttachments": "暂无附件",
+      "uploadSuccess": "附件上传成功",
+      "uploadFailed": "附件上传失败",
+      "downloadFailed": "附件下载失败",
+      "previewFailed": "附件预览失败",
+      "deleteSuccess": "附件已删除",
+      "deleteFailed": "附件删除失败",
+      "uploadRequired": "请上传附件",
+      "saveBeforeUpload": "请先保存记录后再上传附件"
+    },
     "addColumnField": {
       "columnTitle": "列标题",
       "enterColumnTitle": "请输入列标题",
@@ -4668,5 +4686,14 @@
       "selectPlaceholder": "请选择文档",
       "required": "请选择文档"
     }
-  }
+  },
+  "dynamicdb_update_data": "Update Data",
+  "dynamicdb_test_trigger_setting": "Test Trigger Setting",
+  "dynamicdb_batch_delete_data": "Batch Delete Data",
+  "dynamicdb_create_data": "Create Data",
+  "dynamicdb_create_field": "Create Field",
+  "dynamicdb_update_trigger_setting": "Update Trigger Setting",
+  "dynamicdb_create_trigger_setting": "Create Trigger Setting",
+  "common_form":"Form",
+  "auditLog_title": "Audit Log"
 }

@@ -7,7 +7,7 @@ export enum ColumnFieldType {
   SingleSelect = '3', // 单选
   MultiSelect = '4', // 多选
   DateTime = '5', // 日期
-  Document = '6', // 附件
+  Attachment = '6', // 附件
   //TwoWayLink = 7,      // 双向关联
   URL = '8', // 网址
   Email = '9', // 邮箱
@@ -101,8 +101,17 @@ export type DateTimeConfig = {
   timeFormat: number
 }
 
-export type DocumentConfig = {
+export type AttachmentConfig = {
   isMultiple: boolean
+}
+
+export type AttachmentCellValue = {
+  id: string
+  file_name: string
+  mime_type: string
+  size?: number
+  uploaded_by?: string
+  uploaded_at?: string
 }
 
 export type DocPalDocCellValue = {
@@ -128,12 +137,14 @@ export type PhoneConfig = {
 export type CheckboxConfig = {
   trueIcon: string
   falseIcon: string
+  defaultValue?: boolean
 }
 
 export type RatingConfig = {
   maxRating: number
   allowHalf: boolean
   allowClear: boolean
+  defaultValue?: number
 }
 
 export type MemberConfig = {
@@ -180,7 +191,7 @@ export type ColumnConfig =
   | SingleSelectConfig
   | MultiSelectConfig
   | DateTimeConfig
-  | DocumentConfig
+  | AttachmentConfig
   | DocPalDocConfig
   | URLConfig
   | EmailConfig

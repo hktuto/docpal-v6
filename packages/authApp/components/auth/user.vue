@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { newClientApi } from 'api'
+import {ElMessage} from 'element-plus'
 import {logout} from '#imports'
 const routerProvider = inject(MenuRouterKey)
 const user = useUserState()
@@ -93,7 +94,7 @@ function handleOpenUpload(show: boolean = false, action: 'upload' | 'ai' | '' = 
                     <!-- TODO: remove this part from prodction, or mark it avalible only for super admin -->
                     <!-- <Language /> -->
                     <!-- <ElDropdownItem @click="openHelp">{{ $t('adminMenu.help') }}</ElDropdownItem> -->
-                     <ElDivider />
+                    <!-- <ElDivider /> -->
                      <ElDropdownItem v-for="lang in locales" :key="lang.code"
                         :disabled="lang.code === locale" @click="changeLanguage(lang.code)">
                         {{$t(lang.code)}}

@@ -18,6 +18,7 @@
 .email-view,
 .date-time-view,
 .url-view,
+.attachment-view,
 .docpal-doc-view {
   width: 100%;
   text-overflow: ellipsis;
@@ -53,6 +54,21 @@
     color: var(--el-color-primary);
     text-decoration: underline;
     cursor: pointer;
+  }
+}
+.attachment-view {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xs);
+  min-width: 0;
+  overflow: hidden;
+
+  &__file-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: block;
+    object-fit: contain;
   }
 }
 .docpal-doc-view {

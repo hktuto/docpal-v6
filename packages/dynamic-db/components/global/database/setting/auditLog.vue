@@ -1,69 +1,222 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
+import { ElMessage } from 'element-plus'
+import { Loading } from '@element-plus/icons-vue'
+import { computed, formatDate, groupAuditLogsByDate, ref, watch } from '#imports'
+import dayjs from 'dayjs'
+
+const { t } = useI18n()
+
 const props = defineProps<{
   masterTableId: string
 }>()
 
-const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
-  id: 'auditListTableSetting',
-  api: (pageParams: any) => {
-    const extraParams = {
-      ref_id: props.masterTableId
+const list = ref<any[]>([])
+const pageNum = ref(0)
+const pageSize = ref(20)
+const loading = ref(false)
+const hasMore = ref(true)
+const expandedIds = ref<Set<string>>(new Set())
+const pendingReset = ref(false)
+
+const itemKeyMap = new WeakMap<object, string>()
+let itemKeyCounter = 0
+
+function ensureItemKey(item: any) {
+  if (item.event_id) return item.event_id
+  if (!itemKeyMap.has(item)) {
+    itemKeyMap.set(item, `audit-log-${itemKeyCounter++}`)
+  }
+  return itemKeyMap.get(item)!
+}
+
+const keyedList = computed(() =>
+  list.value.map((item) => ({
+    ...item,
+    _key: ensureItemKey(item),
+  }))
+)
+
+const groupedList = computed(() => groupAuditLogsByDate(keyedList.value))
+
+async function fetchAuditLogs(reset = false) {
+  if (loading.value) {
+    if (reset) pendingReset.value = true
+    return
+  }
+  if (reset) {
+    list.value = []
+    pageNum.value = 0
+    hasMore.value = true
+    expandedIds.value = new Set()
+    pendingReset.value = false
+  }
+  if (!hasMore.value) return
+  loading.value = true
+  try {
+    const res: any = await clientApi.api.postAuditLogPage({
+      page_size: pageSize.value,
+      page_num: pageNum.value,
+      ref_id: props.masterTableId,
+    })
+    const rows = res?.data?.entryList || []
+    rows.forEach((row: any) => ensureItemKey(row))
+    list.value.push(...rows)
+    hasMore.value = res?.data?.isNextPageAvailable ?? false
+    pageNum.value += 1
+  } catch (e) {
+    ElMessage.error(t('auditLog_loadError'))
+  } finally {
+    loading.value = false
+    if (pendingReset.value) {
+      pendingReset.value = false
+      await fetchAuditLogs(true)
     }
-    const p = {
-      page_size: pageParams.pageSize,
-      page_num: pageParams.pageNum
-    }
-    return clientApi.api.postAuditLogPage({ ...p, ...extraParams })
-  },
-  columns: [
-    {
-      field: 'user_id',
-      title: 'User',
-      fixed: 'left',
-      width: "80"
-    },
-    {
-      field: 'event_category',
-      title: 'Category'
-    },
-    {
-      field:'source_id', title:'Source Id'
-    },
-    { field: 'event_type', title: 'Type' },
-    {
-      field: 'timestamp', title: 'log_auditFilterDate',
-      formatter({ cellValue }: any) {
-        return formatDate(cellValue)
-      }
-    }
-  ]
-})
+  }
+}
+
+function handleLoadMore() {
+  fetchAuditLogs(false)
+}
+
+function handleToggleExpand(eventId: string) {
+  const next = new Set(expandedIds.value)
+  if (next.has(eventId)) {
+    next.delete(eventId)
+  } else {
+    next.add(eventId)
+  }
+  expandedIds.value = next
+}
+
+function formatAuditTime(date: string): string {
+  if (!date) return '-'
+
+
+  return dayjs(date).format('YYYY-MM-DD')
+}
+
+watch(
+  () => props.masterTableId,
+  () => fetchAuditLogs(true),
+  { immediate: true }
+)
 </script>
 
 <template>
-  <div class="audit-log-root">
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-
-    </VxeGrid>
+  <div
+    class="audit-log-root"
+    v-infinite-scroll="handleLoadMore"
+    :infinite-scroll-disabled="!hasMore || loading"
+    :infinite-scroll-immediate="false"
+    infinite-scroll-distance="3"
+    v-loading="loading && list.length === 0"
+  >
+    <el-empty v-if="!loading && list.length === 0" :description="t('auditLog_empty')" />
+    <el-timeline v-else>
+      <template v-for="group in groupedList" :key="group.date">
+        <el-timeline-item class="date-header-item">
+          <template #dot>
+            <div class="date-dot" />
+          </template>
+          <div class="date-header">{{ group.date === 'Unknown' ? t('auditLog_unknownDate') : formatAuditTime(group.date) }}</div>
+        </el-timeline-item>
+        <el-timeline-item
+          v-for="item in group.items"
+          :key="item._key"
+          :timestamp="formatDate(item.timestamp, 'HH:mm')"
+        >
+          <div
+            class="timeline-summary"
+            role="button"
+            tabindex="0"
+            :aria-expanded="expandedIds.has(item._key)"
+            :aria-label="t('auditLog_toggleDetails')"
+            @click="handleToggleExpand(item._key)"
+            @keydown.enter.space.prevent="handleToggleExpand(item._key)"
+          >
+            <span class="user">{{ item.user_id }}</span>
+            <span class="action">{{ t(item.event_type) }}</span>
+          </div>
+          <div
+            v-if="expandedIds.has(item._key)"
+            class="payload"
+          >
+            <pre>{{ JSON.stringify(item.details, null, 2) }}</pre>
+          </div>
+        </el-timeline-item>
+      </template>
+    </el-timeline>
+    <div v-if="loading && list.length > 0" class="load-more-indicator">
+      <el-icon class="is-loading"><Loading /></el-icon>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .audit-log-root {
   height: 100%;
+  overflow: auto;
 }
 
-.audit-log-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--app-space-m);
+.date-header-item {
+  :deep(.el-timeline-item__content) {
+    padding-top: 0;
+  }
+}
 
-  h4 {
-    margin: 0;
-    font-size: var(--app-font-size-m);
+.date-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--el-color-primary);
+}
+
+.date-header {
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.load-more-indicator {
+  display: flex;
+  justify-content: center;
+  padding: var(--app-space-s);
+}
+
+.timeline-summary {
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-xs);
+  align-items: center;
+
+  &:focus-visible {
+    outline: 2px solid var(--el-color-primary);
+    outline-offset: 2px;
+  }
+
+  .user {
     font-weight: 600;
+  }
+
+  .action {
+    color: var(--el-text-color-regular);
+  }
+}
+
+.payload {
+  margin-top: var(--app-space-xs);
+  max-height: 200px;
+  overflow: auto;
+  background-color: var(--el-fill-color-light);
+  border-radius: var(--el-border-radius-base);
+  padding: var(--app-space-xs);
+
+  pre {
+    margin: 0;
+    font-size: var(--app-font-size-s);
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 }
 </style>
