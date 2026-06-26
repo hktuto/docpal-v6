@@ -76,9 +76,7 @@ export default defineAppConfig({
         }
       ]
     },
-    {
-      name: 'client-case-manage'
-    },
+
     {
       name: 'client-master-table'
     },
@@ -226,9 +224,7 @@ export default defineAppConfig({
         }
       ]
     },
-    {
-      name: 'admin-case-management'
-    },
+
     {
       label: 'client_retention_item',
       icon: 'lucide:book-lock',
