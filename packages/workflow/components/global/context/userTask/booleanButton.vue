@@ -134,8 +134,8 @@ onMounted(() => {
             <el-switch v-model="item.applyState" active-text="True" inactive-text="False" @change="updateData" />
           </el-form-item>
           <el-form-item label="Button Color">
-            <el-select v-model="item.buttonStyle" placeholder="Button Style" filterable>
-              <el-option v-for="item in buttonStyle" :key="item" :label="item" :value="item" @change="updateData">
+            <el-select v-model="item.buttonStyle" placeholder="Button Style" filterable @change="updateData">
+              <el-option v-for="item in buttonStyle" :key="item" :label="item" :value="item">
                 <div class="flex items-center">
                   <el-button :type="item" size="small">{{ item }}</el-button>
                 </div>
