@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
-import { ElMessage, computed, formatDate, groupAuditLogsByDate, ref, watch } from '#imports'
+import { ElMessage } from 'element-plus'
+import { computed, formatDate, groupAuditLogsByDate, ref, watch } from '#imports'
 
 const props = defineProps<{
   masterTableId: string
