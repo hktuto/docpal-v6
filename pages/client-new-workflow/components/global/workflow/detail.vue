@@ -24,8 +24,13 @@ const state = reactive<any>({
   title: ''
 })
 const fromRenderRef = ref()
-const taskDetail = ref({})
-const variables = ref({})
+const taskDetail = ref({
+  process_id: '',
+  db_id: '',
+  config: {},
+  status: {}
+})
+const variables = ref<VariableItem[]>([])
 const variablesData = ref({})
 const contentData = ref({})
 const nodeType = ref<'UserTask' | 'SignatureTask'>('UserTask')
@@ -145,7 +150,6 @@ function handleDisabledForm() {
       fromRenderRef.value.disableForm()
       return
     }
-    fromRenderRef.value.enableForm()
   })
 }
 
@@ -188,7 +192,7 @@ async function handleSubmit() {
   try {
     if (!isAssigneeUser.value) {
       await clientApi.instance
-        .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, {
+        .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/claim`, {
           user_id: userId
         })
         .then((res: any) => res.data)
@@ -332,7 +336,7 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
   state.loading = true
   if (!isAssigneeUser.value) {
     await clientApi.instance
-      .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, {
+      .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/claim`, {
         user_id: userId
       })
       .then((res: any) => res.data)
@@ -356,7 +360,7 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
   const cFormData = conversionFormDataByVariables(formData, variables.value)
 
   clientApi.instance
-    .post(`/oniflow/api/v1/processes/instance/${detail.process_instance_id}/tasks/${taskDetail.value.db_id}/complete`, {
+    .post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/complete`, {
       process_id: taskDetail.value.process_id,
       user_id: userId,
       variables: { ...cFormData }

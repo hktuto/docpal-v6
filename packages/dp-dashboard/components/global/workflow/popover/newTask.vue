@@ -6,10 +6,8 @@ import { conversionFormDataByVariables, newWorkflowStartPage } from '#imports'
 import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const vFormRef = ref()
-const workflowEditorRef = ref()
 const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
-const activeName = ref('Form')
 const state = reactive({
   formDialogVisible: false,
   selectedWorkflow: {},

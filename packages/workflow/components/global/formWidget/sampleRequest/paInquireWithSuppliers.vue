@@ -112,7 +112,7 @@ function getFormData() {
 }
 
 onMounted(async () => {
-  // await info()
+  await info()
 })
 
 watch(

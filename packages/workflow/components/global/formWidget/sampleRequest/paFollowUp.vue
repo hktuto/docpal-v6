@@ -14,7 +14,7 @@ const data = ref<any[]>([
     part_number: '',
     series: '',
     pm: '',
-    packaged: 'N',
+    packaged: 0,
     sales_admin: '',
     received_date: '',
     vendor_attn: '',
@@ -66,7 +66,7 @@ defineExpose({ getFormData })
               <el-input v-model="item.pm" disabled />
             </el-form-item>
             <el-form-item label="整盤">
-              <el-switch v-model="item.packaged" active-text="Yes" active-value="Y" inactive-text="No" inactive-value="N" />
+              <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" />
             </el-form-item>
           </el-col>
 

@@ -19,7 +19,7 @@ const data = ref<any[]>([
     fcst_qty: 1,
     request_qty: 1,
     run_rate: 1,
-    packaged: 'N',
+    packaged: 0,
     car_use: 'N',
     cust_selected_parts: 'Introduced by Sales',
     competitor_name: '',
@@ -29,6 +29,7 @@ const data = ref<any[]>([
   }
 ])
 const partList = ref<any[]>([])
+const seriesList = ref<any[]>([])
 
 function handleAdd(index?: number) {
   const newValue = {
@@ -41,7 +42,7 @@ function handleAdd(index?: number) {
     fcst_qty: 1,
     request_qty: 1,
     run_rate: 1,
-    packaged: 'N',
+    packaged: 0,
     car_use: 'N',
     cust_selected_parts: 'Introduced by Sales',
     competitor_name: '',
@@ -86,9 +87,19 @@ async function getPartList() {
   }))
 }
 
+async function getSeriesList() {
+  const list = await getDbData('c13ccf90-7101-11f1-a5ba-a73b7858cef3')
+  seriesList.value = list.map((item: any) => ({
+    id: item.id,
+    label: item.mfg_part_num,
+    value: item.mfg_part_num,
+    brand: ''
+  }))
+}
+
 async function getDbData(tableId: string) {
   // Get Filed Mapping
-  const filedData = await newClientApi
+  const filedData: any = await newClientApi
     .getDocpalMasterTableUserConfig({
       tableId: tableId,
       userId: 'master',
@@ -133,6 +144,7 @@ function changePartNumber(item: any) {
 
 onMounted(async () => {
   await getPartList()
+  await getSeriesList()
 })
 
 defineExpose({ getFormData })
@@ -156,7 +168,7 @@ defineExpose({ getFormData })
               <el-input v-model="item.vendor" disabled />
             </el-form-item>
             <el-form-item label="單機用量">
-              <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" />
+              <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
             <el-form-item v-if="checkPurpose(item.vendor)" label="目的" prop="purpose" required>
               <el-select v-model="item.purpose">
@@ -171,7 +183,7 @@ defineExpose({ getFormData })
             <el-form-item :label="isSeries ? '系列' : '型號'">
               <div class="partNumber-series-change">
                 <el-select v-if="isSeries" v-model="item.series">
-                  <el-option />
+                  <el-option v-for="part in seriesList" :key="part.id" :label="part.label" :value="part.value" />
                 </el-select>
                 <el-select v-else v-model="item.part_number" @change="changePartNumber(item)">
                   <el-option v-for="part in partList" :key="part.id" :label="part.label" :value="part.value" />
@@ -181,7 +193,7 @@ defineExpose({ getFormData })
             </el-form-item>
 
             <el-form-item label="月用量(K/M)">
-              <el-input-number v-model="item.fcst_qty" controls-position="right" :min="1">
+              <el-input-number v-model="item.fcst_qty" controls-position="right" :min="1" :step="1" step-strictly>
                 <template #suffix>
                   <span>K/M</span>
                 </template>
@@ -191,10 +203,10 @@ defineExpose({ getFormData })
 
           <el-col :span="8">
             <el-form-item label="申請數量">
-              <el-input-number v-model="item.request_qty" controls-position="right" :min="1" />
+              <el-input-number v-model="item.request_qty" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
             <el-form-item label="客戶月用量(K/M)">
-              <el-input-number v-model="item.run_rate" controls-position="right" :min="1">
+              <el-input-number v-model="item.run_rate" controls-position="right" :min="1" :step="1" step-strictly>
                 <template #suffix>
                   <span>K/M</span>
                 </template>
@@ -204,7 +216,7 @@ defineExpose({ getFormData })
 
           <el-col :span="8">
             <el-form-item label="整盤">
-              <el-switch v-model="item.packaged" active-text="Yes" active-value="Y" inactive-text="No" inactive-value="N" />
+              <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" />
             </el-form-item>
             <el-form-item label="競爭者名稱" prop="competitor_name">
               <el-input v-model="item.competitor_name" />
@@ -229,7 +241,7 @@ defineExpose({ getFormData })
               />
             </el-form-item>
             <el-form-item label="競爭者價格">
-              <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="1" />
+              <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
           </el-col>
 

@@ -10,6 +10,7 @@ export async function getButtonAdditionalElement(nodes: any[], metadata: any, fo
 
   try {
     if (!!metadata.buttonSetting?.booleanButton) {
+      console.log(metadata.buttonSetting.booleanButton)
       metadata.buttonSetting.booleanButton.forEach((item: any) => {
         // Add Additional Button Setting
         buttons.push({
