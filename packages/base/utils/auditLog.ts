@@ -29,7 +29,7 @@ export function groupAuditLogsByDate<T extends { timestamp?: string }>(
     }
   }
 
-  const sortedDates = Array.from(groups.keys()).sort()
+  const sortedDates = Array.from(groups.keys()).sort((a, b) => b.localeCompare(a))
   const result: GroupedAuditLog<T>[] = sortedDates.map((date) => ({
     date,
     items: groups.get(date)!,

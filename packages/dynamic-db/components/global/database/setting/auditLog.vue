@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
+import { Loading } from '@element-plus/icons-vue'
 import { computed, formatDate, groupAuditLogsByDate, ref, watch } from '#imports'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   masterTableId: string
@@ -61,7 +64,7 @@ async function fetchAuditLogs(reset = false) {
     hasMore.value = res?.data?.isNextPageAvailable ?? false
     pageNum.value += 1
   } catch (e) {
-    ElMessage.error($t('auditLog_loadError'))
+    ElMessage.error(t('auditLog_loadError'))
   } finally {
     loading.value = false
     if (pendingReset.value) {
@@ -108,7 +111,7 @@ watch(
           <template #dot>
             <div class="date-dot" />
           </template>
-          <div class="date-header">{{ formatDate(group.date) }}</div>
+          <div class="date-header">{{ group.date === 'Unknown' ? t('auditLog_unknownDate') : formatDate(group.date) }}</div>
         </el-timeline-item>
         <el-timeline-item
           v-for="item in group.items"
@@ -136,6 +139,9 @@ watch(
         </el-timeline-item>
       </template>
     </el-timeline>
+    <div v-if="loading && list.length > 0" class="load-more-indicator">
+      <el-icon class="is-loading"><Loading /></el-icon>
+    </div>
   </div>
 </template>
 
@@ -161,6 +167,12 @@ watch(
 .date-header {
   font-weight: 600;
   color: var(--el-text-color-primary);
+}
+
+.load-more-indicator {
+  display: flex;
+  justify-content: center;
+  padding: var(--app-space-s);
 }
 
 .timeline-summary {

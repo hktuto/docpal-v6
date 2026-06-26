@@ -52,7 +52,7 @@
                 <template #dot>
                   <div class="date-dot" />
                 </template>
-                <div class="date-header">{{ formatDate(group.date) }}</div>
+                <div class="date-header">{{ group.date === 'Unknown' ? t('auditLog_unknownDate') : formatDate(group.date) }}</div>
               </el-timeline-item>
               <el-timeline-item
                 v-for="item in group.items"

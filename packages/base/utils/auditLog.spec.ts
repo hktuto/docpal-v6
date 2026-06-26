@@ -35,25 +35,25 @@ describe('groupAuditLogsByDate', () => {
 
     expect(result).toHaveLength(2)
 
-    expect(result[0].date).toBe('2024-01-15')
-    expect(result[0].items).toHaveLength(2)
+    expect(result[0].date).toBe('2024-01-16')
+    expect(result[0].items).toHaveLength(1)
     expect(result[0].items[0]).toEqual({
+      timestamp: '2024-01-16T09:00:00Z',
+      user_id: 'u3',
+      action: 'update',
+    })
+
+    expect(result[1].date).toBe('2024-01-15')
+    expect(result[1].items).toHaveLength(2)
+    expect(result[1].items[0]).toEqual({
       timestamp: '2024-01-15T10:30:00Z',
       user_id: 'u1',
       action: 'login',
     })
-    expect(result[0].items[1]).toEqual({
+    expect(result[1].items[1]).toEqual({
       timestamp: '2024-01-15T14:00:00Z',
       user_id: 'u2',
       action: 'logout',
-    })
-
-    expect(result[1].date).toBe('2024-01-16')
-    expect(result[1].items).toHaveLength(1)
-    expect(result[1].items[0]).toEqual({
-      timestamp: '2024-01-16T09:00:00Z',
-      user_id: 'u3',
-      action: 'update',
     })
   })
 
@@ -103,11 +103,11 @@ describe('groupAuditLogsByDate', () => {
     const result = groupAuditLogsByDate(logs) as GroupedAuditLog[]
 
     expect(result).toHaveLength(2)
-    expect(result[0].date).toBe('2024-01-15')
-    expect(result[0].items.map((item) => item.user_id)).toEqual(['u2', 'u1'])
+    expect(result[0].date).toBe('2024-01-16')
+    expect(result[0].items.map((item) => item.user_id)).toEqual(['u3', 'u4'])
 
-    expect(result[1].date).toBe('2024-01-16')
-    expect(result[1].items.map((item) => item.user_id)).toEqual(['u3', 'u4'])
+    expect(result[1].date).toBe('2024-01-15')
+    expect(result[1].items.map((item) => item.user_id)).toEqual(['u2', 'u1'])
   })
 
   it('does not mutate the input array', () => {

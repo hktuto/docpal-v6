@@ -10,6 +10,7 @@ export default defineI18nLocale((locale:string) => {
         auditLog_loadError: "Failed to load audit log",
         auditLog_toggleDetails: "Toggle audit log details",
         auditLog_title: "Audit Log",
+        auditLog_unknownDate: "Unknown date",
         common_goToSourceTable: "Go to Source Table",
         common_form: "Form",
         common_moveUp: "Move up",
