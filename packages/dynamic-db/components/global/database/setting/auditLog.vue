@@ -104,7 +104,7 @@ watch(
     infinite-scroll-distance="3"
     v-loading="loading && list.length === 0"
   >
-    <el-empty v-if="!loading && list.length === 0" :description="$t('auditLog_empty')" />
+    <el-empty v-if="!loading && list.length === 0" :description="t('auditLog_empty')" />
     <el-timeline v-else>
       <template v-for="group in groupedList" :key="group.date">
         <el-timeline-item class="date-header-item">
@@ -123,7 +123,7 @@ watch(
             role="button"
             tabindex="0"
             :aria-expanded="expandedIds.has(item._key)"
-            :aria-label="$t('auditLog_toggleDetails')"
+            :aria-label="t('auditLog_toggleDetails')"
             @click="handleToggleExpand(item._key)"
             @keydown.enter.space.prevent="handleToggleExpand(item._key)"
           >

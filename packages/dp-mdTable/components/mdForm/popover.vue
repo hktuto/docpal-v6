@@ -10,7 +10,7 @@
             :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'"
             role="button"
             tabindex="0"
-            :aria-label="$t('common_moveUp')"
+            :aria-label="t('common_moveUp')"
             :aria-disabled="disabledUp"
             @click="!disabledUp && handleMove('up')"
             @keydown.enter.space.prevent="!disabledUp && handleMove('up')"
@@ -22,7 +22,7 @@
             :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'"
             role="button"
             tabindex="0"
-            :aria-label="$t('common_moveDown')"
+            :aria-label="t('common_moveDown')"
             :aria-disabled="disabledDown"
             @click="!disabledDown && handleMove('down')"
             @keydown.enter.space.prevent="!disabledDown && handleMove('down')"
@@ -33,10 +33,10 @@
       </div>
     </template>
     <el-tabs v-model="activeTab" class="md-form-tabs">
-      <el-tab-pane :label="$t('common_form')" name="form">
+      <el-tab-pane :label="t('common_form')" name="form">
         <MdForm ref="formRef" :columns="formColumns" :systemFieldsTypes="systemFieldsTypes" :form-data="formData" :mode="mode" />
       </el-tab-pane>
-      <el-tab-pane v-if="formData.id" :label="$t('auditLog_title')" name="auditLog">
+      <el-tab-pane v-if="formData.id" :label="t('auditLog_title')" name="auditLog">
         <div
           class="audit-log-panel"
           v-infinite-scroll="handleLoadMore"
@@ -45,7 +45,7 @@
           infinite-scroll-distance="3"
           v-loading="loading && list.length === 0"
         >
-          <el-empty v-if="!loading && list.length === 0" :description="$t('auditLog_empty')" />
+          <el-empty v-if="!loading && list.length === 0" :description="t('auditLog_empty')" />
           <el-timeline v-else>
             <template v-for="group in groupedList" :key="group.date">
               <el-timeline-item class="date-header-item">
@@ -64,7 +64,7 @@
                   role="button"
                   tabindex="0"
                   :aria-expanded="expandedIds.has(item._key)"
-                  :aria-label="$t('auditLog_toggleDetails')"
+                  :aria-label="t('auditLog_toggleDetails')"
                   @click="handleToggleExpand(item._key)"
                   @keydown.enter.space.prevent="handleToggleExpand(item._key)"
                 >
