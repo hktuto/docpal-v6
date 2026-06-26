@@ -5,7 +5,10 @@ export default defineI18nLocale((locale:string) => {
         loading: "Loading...",
         'en-US':"ENG",
         'zh-CN':'簡',
-        'zh-HK':"繁"
+        'zh-HK':"繁",
+        auditLog_empty: "No audit logs",
+        auditLog_loadError: "Failed to load audit log",
+        auditLog_toggleDetails: "Toggle audit log details"
     }
     switch(locale){
         case 'zh-CN':
