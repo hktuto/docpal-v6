@@ -4686,5 +4686,14 @@
       "selectPlaceholder": "请选择文档",
       "required": "请选择文档"
     }
-  }
+  },
+  "dynamicdb_update_data": "Update Data",
+  "dynamicdb_test_trigger_setting": "Test Trigger Setting",
+  "dynamicdb_batch_delete_data": "Batch Delete Data",
+  "dynamicdb_create_data": "Create Data",
+  "dynamicdb_create_field": "Create Field",
+  "dynamicdb_update_trigger_setting": "Update Trigger Setting",
+  "dynamicdb_create_trigger_setting": "Create Trigger Setting",
+  "common_form":"Form",
+  "auditLog_title": "Audit Log"
 }

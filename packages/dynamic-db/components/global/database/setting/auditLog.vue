@@ -3,6 +3,7 @@ import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import { computed, formatDate, groupAuditLogsByDate, ref, watch } from '#imports'
+import dayjs from 'dayjs'
 
 const { t } = useI18n()
 
@@ -88,6 +89,13 @@ function handleToggleExpand(eventId: string) {
   expandedIds.value = next
 }
 
+function formatAuditTime(date: string): string {
+  if (!date) return '-'
+
+
+  return dayjs(date).format('YYYY-MM-DD')
+}
+
 watch(
   () => props.masterTableId,
   () => fetchAuditLogs(true),
@@ -111,7 +119,7 @@ watch(
           <template #dot>
             <div class="date-dot" />
           </template>
-          <div class="date-header">{{ group.date === 'Unknown' ? t('auditLog_unknownDate') : formatDate(group.date) }}</div>
+          <div class="date-header">{{ group.date === 'Unknown' ? t('auditLog_unknownDate') : formatAuditTime(group.date) }}</div>
         </el-timeline-item>
         <el-timeline-item
           v-for="item in group.items"
@@ -128,7 +136,7 @@ watch(
             @keydown.enter.space.prevent="handleToggleExpand(item._key)"
           >
             <span class="user">{{ item.user_id }}</span>
-            <span class="action">{{ item.event_type }}</span>
+            <span class="action">{{ t(item.event_type) }}</span>
           </div>
           <div
             v-if="expandedIds.has(item._key)"
