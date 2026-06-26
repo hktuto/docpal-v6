@@ -1,5 +1,5 @@
 <template>
-<el-dialog v-model="state.dialogVisible" class="reader-dialog big"
+<el-dialog v-model="state.dialogVisible" class="reader-dialog" fullscreen
     append-to-body destroy-on-close>
     <template #header>
         <div class="flex-x-between">
@@ -77,14 +77,11 @@ defineExpose({ handleOpen, handleClose })
 </style>
 <style lang="scss">
 .reader-dialog {
-    --el-dialog-margin-top: var(--app-space-xs) !important;
-    --el-dialog-width: calc(100vw - 2 * var(--app-space-xs)) !important;
-    height: calc( 100vh - 2 * var(--app-space-xs) - 50px);
-    // max-width: 1024px;
-    max-height: 1024px;
     display: grid;
     grid-template-rows: min-content 1fr min-content;
-    &-main{
+    height: 100%;
+
+    &-main {
         width: 100%;
         height: 100%;
         margin: auto;
@@ -93,10 +90,26 @@ defineExpose({ handleOpen, handleClose })
         justify-content: center;
         align-items: center;
     }
-    .el-dialog__body{
-        overflow: auto;
+
+    .el-dialog__body {
+        overflow: hidden;
         display: flex;
+        flex: 1;
+        min-height: 0;
         padding: var(--app-space-xs) var(--el-dialog-padding-primary);
+    }
+
+    .el-dialog__headerbtn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgb(0 0 0 / 45%);
+        position: absolute;
+        top: var(--app-space-s);
+        right: var(--app-space-s);
+        .el-dialog__close {
+            color: var(--el-color-white);
+        }
     }
 }
 </style>

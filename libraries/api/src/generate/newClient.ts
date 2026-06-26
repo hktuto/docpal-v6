@@ -2979,15 +2979,15 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
-    /** @format int64 */
-    fileContentLength?: number;
-    fileContentName?: string;
-    fileContentMimeType?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
+    fileContentExtension?: string;
+    /** @format int64 */
+    fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
 }
 
 export interface FileContentDTO {
@@ -3708,6 +3708,43 @@ export interface VerificationPermissionReq {
     operation?: string;
 }
 
+export interface AbbyySoapConfig {
+    serviceUrl?: string;
+    username?: string;
+    password?: string;
+    /** @format int32 */
+    projectId?: number;
+    projectName?: string;
+    /** @format int32 */
+    roleTypeId?: number;
+    /** @format int32 */
+    stationTypeId?: number;
+    outputFileExtension?: string;
+    /** @format int32 */
+    waitTime?: number;
+}
+
+export interface AbbyyOcrResp {
+    /** @format int32 */
+    sessionId?: number;
+    /** @format int32 */
+    projectId?: number;
+    /** @format int32 */
+    batchId?: number;
+    /** @format int32 */
+    batchTypeId?: number;
+    batchName?: string;
+    fileName?: string;
+}
+
+export interface ResultAbbyyOcrResp {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AbbyyOcrResp;
+}
+
 /** Entity for storing user search history records */
 export interface SearchHistory {
     /** @format int64 */
@@ -4253,10 +4290,10 @@ export interface PageNotificationRecord {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: NotificationRecord[];
@@ -4268,9 +4305,9 @@ export interface PageNotificationRecord {
 
 export interface PageableObject {
     paged?: boolean;
-    unpaged?: boolean;
     /** @format int32 */
     pageNumber?: number;
+    unpaged?: boolean;
     /** @format int32 */
     pageSize?: number;
     /** @format int64 */
@@ -4390,10 +4427,10 @@ export interface PageUploadBatchDTO {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: UploadBatchDTO[];
@@ -4827,6 +4864,41 @@ export interface ResultSendMessageResponseDTO {
 export interface SendMessageResponseDTO {
     successCallWhatsAppApi?: boolean;
     messageId?: string;
+}
+
+/** Batch Insert Request DTO */
+export interface BatchInsertRequestDTO {
+    /** Mapping of DB field name to data key (e.g., {'activity_date_xxx': 'activity_date'}) */
+    mapping?: Record<string, string>;
+    /**
+     * List of data records to insert (each record is a map of field_name → value)
+     * @minItems 1
+     */
+    data: Record<string, any>[];
+}
+
+/** Batch Insert Result DTO */
+export interface BatchInsertResultDTO {
+    /**
+     * Number of successfully inserted records
+     * @format int32
+     */
+    insertedCount?: number;
+    /** List of successfully inserted records with populated IDs */
+    insertedDataIds?: string[];
+    /** List of error details (if any) */
+    errors?: any[];
+}
+
+export interface ResultBatchInsertResultDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Batch Insert Result DTO */
+    data?: BatchInsertResultDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 /** List Lock Request DTO */
@@ -6025,10 +6097,10 @@ export interface PageWatermarkSettingsTemplate {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: WatermarkSettingsTemplate[];
@@ -6625,8 +6697,8 @@ export interface PlanItemInstanceDTO {
     subItems?: PlanItemInstanceDTO[];
     /** Workflow PlanItem Form */
     planForm?: CmmnPlanFormDTO;
-    humanTaskId?: string;
     processInstanceId?: string;
+    humanTaskId?: string;
 }
 
 export interface PlanTableFieldDTO {
@@ -6972,6 +7044,7 @@ export interface BatchItem {
     id?: string;
     docName?: string;
     approve?: boolean;
+    metadatas?: string;
     documentType?: string;
 }
 
@@ -7370,10 +7443,10 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
+    watermarkedLocalPath?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
-    watermarkedLocalPath?: string;
     watermarkTemplateId?: string;
     conversionId?: string;
 }
@@ -8591,8 +8664,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Document (Request) */
@@ -9102,8 +9175,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Versioning (Request) */
@@ -9404,15 +9477,15 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
-    /** @format int64 */
-    fileContentLength?: number;
-    fileContentName?: string;
-    fileContentMimeType?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
+    fileContentExtension?: string;
+    /** @format int64 */
+    fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -10134,8 +10207,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -10295,10 +10368,10 @@ export interface PlanItemDefinitionDTO {
     /** PlanItem Definition Sub-List */
     subItems?: any[];
     fields?: PlanTableFieldDTO[];
+    upFormProperties?: FormPropertyDTO[];
     assigneeField?: PlanTableFieldDTO;
     isStartTask?: boolean;
     upProcessTaskKey?: string;
-    upFormProperties?: FormPropertyDTO[];
 }
 
 export interface ResultCaseTypeResponseDTO {
@@ -11691,10 +11764,10 @@ export interface PageBusinessResultRecord {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: BusinessResultRecord[];
@@ -12739,10 +12812,10 @@ export interface PageSearchHistory {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    /** @format int32 */
-    numberOfElements?: number;
     first?: boolean;
     last?: boolean;
+    /** @format int32 */
+    numberOfElements?: number;
     /** @format int32 */
     size?: number;
     content?: SearchHistory[];
@@ -13867,16 +13940,6 @@ export interface ResultEasyFormBaseEmailDTO {
     locale?: string;
 }
 
-export interface ResultObjectNode {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: object;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface MetadataValidDTO {
     id?: string;
     name?: string;
@@ -14234,10 +14297,10 @@ export interface CaseDefinitionDTO {
         /** PlanItem Definition Sub-List */
         subItems?: any[];
         fields?: PlanTableFieldDTO[];
+        upFormProperties?: FormPropertyDTO[];
         assigneeField?: PlanTableFieldDTO;
         isStartTask?: boolean;
         upProcessTaskKey?: string;
-        upFormProperties?: FormPropertyDTO[];
     }[];
     permissions?: CmmnPlanPermissionDTO[];
 }
@@ -14507,8 +14570,8 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
-    pending?: number;
     create?: number;
+    pending?: number;
     completed?: number;
     finish?: number;
     error?: number;
@@ -15944,6 +16007,69 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/api/dynamic-db/table/fields/${fieldId}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Replace the file content of an existing attachment. The old file is removed from storage and replaced with the new one. Attachment metadata is updated accordingly.
+         *
+         * @tags DynamicDBAttachmentController
+         * @name PutDynamicDbTableDataDataidAttachmentsAttachmentid
+         * @summary Replace an existing attachment with a new file
+         * @request PUT:/api/dynamic-db/table/data/{dataId}/attachments/{attachmentId}
+         */
+        putDynamicDbTableDataDataidAttachmentsAttachmentid: (
+            dataId: string,
+            attachmentId: string,
+            query: {
+                field_name: string;
+            },
+            data: {
+                /**
+                 * The new file to replace with
+                 * @format binary
+                 */
+                file?: File;
+                /** Document type field name (e.g. f_3_a1b2c3d4) */
+                field_name?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/dynamic-db/table/data/${dataId}/attachments/${attachmentId}`,
+                method: "PUT",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Delete a specific attachment by its ID. Removes the file from storage and updates the field's JSONB array.
+         *
+         * @tags DynamicDBAttachmentController
+         * @name DeleteDynamicDbTableDataDataidAttachmentsAttachmentid
+         * @summary Delete an attachment from a document field
+         * @request DELETE:/api/dynamic-db/table/data/{dataId}/attachments/{attachmentId}
+         */
+        deleteDynamicDbTableDataDataidAttachmentsAttachmentid: (
+            dataId: string,
+            attachmentId: string,
+            query: {
+                /**
+                 * Field name
+                 * @example "f_3_a1b2c3d4"
+                 */
+                field_name: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/dynamic-db/table/data/${dataId}/attachments/${attachmentId}`,
+                method: "DELETE",
+                query: query,
+                format: "json",
                 ...params,
             }),
 
@@ -19469,6 +19595,28 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags VerificationPermissionController
+         * @name PostVerificationPermissionAbbyyOcr
+         * @request POST:/api/verification/permission/abbyy-ocr
+         */
+        postVerificationPermissionAbbyyOcr: (
+            query: {
+                config: AbbyySoapConfig;
+                /** @format binary */
+                multipartFile: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultAbbyyOcrResp, any>({
+                path: `/api/verification/permission/abbyy-ocr`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Search History
          * @name GetV1SearchHistory
          * @summary Get paginated search history
@@ -20912,6 +21060,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DynamicDBTableController
+         * @name PostDynamicDbTableTableidRecordBatchTransactional
+         * @request POST:/api/dynamic-db/table/{tableId}/record/batch-transactional
+         */
+        postDynamicDbTableTableidRecordBatchTransactional: (
+            tableId: string,
+            data: BatchInsertRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBatchInsertResultDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/record/batch-transactional`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
          * @name PostDynamicDbTableTableidLocksPage
          * @summary Query Table Lock List
          * @request POST:/api/dynamic-db/table/{tableId}/locks/page
@@ -21089,6 +21257,40 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Upload a file as an attachment to a document-type field. The file is stored via gRPC and the attachment metadata is saved in the field's JSONB array.
+         *
+         * @tags DynamicDBAttachmentController
+         * @name PostDynamicDbTableDataDataidAttachments
+         * @summary Upload attachment to a document field of a data record
+         * @request POST:/api/dynamic-db/table/data/{dataId}/attachments
+         */
+        postDynamicDbTableDataDataidAttachments: (
+            dataId: string,
+            query: {
+                field_name: string;
+            },
+            data: {
+                /**
+                 * The file to upload
+                 * @format binary
+                 */
+                file?: File;
+                /** Field name (e.g. f_3_a1b2c3d4) */
+                field_name?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/dynamic-db/table/data/${dataId}/attachments`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                format: "json",
                 ...params,
             }),
 
@@ -32558,6 +32760,38 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * @description Download or preview a specific attachment by its ID. Returns the raw file bytes with appropriate Content-Type and Content-Disposition headers. Use mode=preview for in-browser display (images, PDFs), or mode=download (default) to trigger a file download.
+         *
+         * @tags DynamicDBAttachmentController
+         * @name GetDynamicDbTableDataDataidAttachmentsAttachmentidDownload
+         * @summary Download or preview an attachment file from a document field
+         * @request GET:/api/dynamic-db/table/data/{dataId}/attachments/{attachmentId}/download
+         */
+        getDynamicDbTableDataDataidAttachmentsAttachmentidDownload: (
+            dataId: string,
+            attachmentId: string,
+            query: {
+                /**
+                 * field name
+                 * @example "f_3_a1b2c3d4"
+                 */
+                field_name: string;
+                /**
+                 * Response mode: 'download' (default) triggers file download, 'preview' displays inline in browser
+                 * @default "download"
+                 */
+                mode?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/dynamic-db/table/data/${dataId}/attachments/${attachmentId}/download`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
          * No description
          *
          * @tags DynamicDBPersonalViewController
@@ -33416,6 +33650,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultListFormPropertyDTO, any>({
                 path: `/api/docpal/workflow/form/properties`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowFileController
+         * @name GetDocpalWorkflowFilesDownload
+         * @request GET:/api/docpal/workflow/files/download
+         */
+        getDocpalWorkflowFilesDownload: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string, any>({
+                path: `/api/docpal/workflow/files/download`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -35444,6 +35698,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
+         * @name GetDmsFacadeFilesDownload
+         * @request GET:/api/dms/facade/files/download
+         */
+        getDmsFacadeFilesDownload: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string, any>({
+                path: `/api/dms/facade/files/download`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
          * @name GetDmsFacadeDocumentDownload
          * @summary Download file
          * @request GET:/api/dms/facade/document/download
@@ -35831,7 +36105,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/api/dms/docpal-type/{docpalTypeName}/schema
          */
         getDmsDocpalTypeDocpaltypenameSchema: (docpalTypeName: string, params: RequestParams = {}) =>
-            this.request<ResultObjectNode, any>({
+            this.request<ResultMapStringObject, any>({
                 path: `/api/dms/docpal-type/${docpalTypeName}/schema`,
                 method: "GET",
                 ...params,

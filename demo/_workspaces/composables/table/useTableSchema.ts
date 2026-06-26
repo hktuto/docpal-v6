@@ -124,7 +124,7 @@ export function useTableSchema() {
       case ColumnFieldType.Relation:
         return 'uuid'
       case ColumnFieldType.MultiSelect:
-      case ColumnFieldType.Document:
+      case ColumnFieldType.Attachment:
         return 'jsonb'
       default:
         return 'text'
@@ -151,7 +151,7 @@ export function useTableSchema() {
       case ColumnFieldType.Relation:
         return 'UUID'
       case ColumnFieldType.MultiSelect:
-      case ColumnFieldType.Document:
+      case ColumnFieldType.Attachment:
         return 'JSONB'
       default:
         return 'TEXT'

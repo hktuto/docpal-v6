@@ -86,10 +86,10 @@ const handleSelectVisibleChange = inject<(visible: boolean) => void>('handleSele
 // 选项列表
 const options = ref<SelectOption[]>([])
 
+const currentFieldType = computed(() => props.formData?.business_type ?? props.formData?.type)
+
 // 判断是否为多选类型
-const isMultiSelect = computed(() => {
-  return props.formData?.type === ColumnFieldType.MultiSelect
-})
+const isMultiSelect = computed(() => currentFieldType.value === ColumnFieldType.MultiSelect)
 
 // 判断是否有默认值
 const hasDefaultValue = computed(() => {
@@ -191,7 +191,6 @@ const initOptions = async() => {
         })
       })
       props.formData.options = options.value
-      console.log('options', options.value)
       return
     }
 
@@ -321,7 +320,6 @@ const syncOptionsFromProps = () => {
     // 比较新选项和当前选项是否相同（通过比较序列化后的字符串）
 
     const normalizeOptions = (opts: any[]) => {
-      console.log("normalizeOptions opts", opts)
       return JSON.stringify(
         opts
           .filter((opt) => typeof opt.id === 'string' && typeof opt.label === 'string')
@@ -370,7 +368,7 @@ watch(
 
 // 监听类型变化，重新初始化 defaultValue
 watch(
-  () => props.formData?.type,
+  () => currentFieldType.value,
   () => {
     if (props.formData) {
       if (isMultiSelect.value) {
