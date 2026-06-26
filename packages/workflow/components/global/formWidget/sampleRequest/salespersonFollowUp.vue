@@ -17,7 +17,7 @@ const data = ref<any[]>([
     fcst_qty: 1,
     request_qty: 1,
     run_rate: 1,
-    packaged: 'N',
+    packaged: 0,
     competitor_name: '',
     car_use: 'Y',
     competitor_pn: '',
@@ -34,13 +34,11 @@ function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
 
-const disabledReceivedDate = computed(()=>{
+const disabledReceivedDate = computed(() => {
   return formData.status != 5
 })
 
-function info() {
-
-}
+function info() {}
 
 function getFormData() {
   return { list: data.value }
@@ -64,7 +62,7 @@ defineExpose({ getFormData })
               <el-input v-model="item.vendor" disabled />
             </el-form-item>
             <el-form-item label="單機用量">
-              <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" disabled />
+              <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" disabled :step="1" step-strictly />
             </el-form-item>
             <el-form-item v-if="checkPurpose(item.vendor)" label="目的">
               <el-select v-model="item.purpose" disabled>
@@ -85,7 +83,7 @@ defineExpose({ getFormData })
             </el-form-item>
 
             <el-form-item label="月用量(K/M)">
-              <el-input-number v-model="item.fcst_qty" controls-position="right" :min="1" disabled>
+              <el-input-number v-model="item.fcst_qty" controls-position="right" :min="1" disabled :step="1" step-strictly>
                 <template #suffix>
                   <span>K/M</span>
                 </template>
@@ -94,10 +92,10 @@ defineExpose({ getFormData })
           </el-col>
           <el-col :span="8">
             <el-form-item label="申請數量">
-              <el-input-number v-model="item.request_qty" controls-position="right" :min="1" disabled />
+              <el-input-number v-model="item.request_qty" controls-position="right" :min="1" disabled :step="1" step-strictly />
             </el-form-item>
             <el-form-item label="客戶月用量(K/M)">
-              <el-input-number v-model="item.run_rate" controls-position="right" :min="1" disabled>
+              <el-input-number v-model="item.run_rate" controls-position="right" :min="1" disabled :step="1" step-strictly>
                 <template #suffix>
                   <span>K/M</span>
                 </template>
@@ -106,7 +104,7 @@ defineExpose({ getFormData })
           </el-col>
           <el-col :span="8">
             <el-form-item label="整盤">
-              <el-switch v-model="item.packaged" active-text="Yes" active-value="Y" inactive-text="No" inactive-value="N" disabled />
+              <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" disabled />
             </el-form-item>
             <el-form-item label="競爭者名稱" prop="competitor_name">
               <el-input v-model="item.competitor_name" disabled />
@@ -132,7 +130,7 @@ defineExpose({ getFormData })
               />
             </el-form-item>
             <el-form-item label="競爭者價格">
-              <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="1" disabled />
+              <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="1" disabled :step="1" step-strictly />
             </el-form-item>
           </el-col>
           <el-col :span="24">
