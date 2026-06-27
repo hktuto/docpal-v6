@@ -9,7 +9,7 @@ const field = ref<VariableItem>()
 
 function open(row: VariableItem) {
   visible.value = true
-  field.value = row
+  field.value = deepCopy(row)
   typeChanged(row.display_type)
 }
 
@@ -42,7 +42,7 @@ function typeChanged(displayType: string) {
           type: 'date',
           properties: {
             start: {
-              id: filedData.items?.properties?.start?.id,
+              id: field.value.items?.properties?.start?.id,
               name: 'Start Date',
               description: 'Start Date',
               type: 'date',
@@ -53,7 +53,7 @@ function typeChanged(displayType: string) {
               }
             },
             end: {
-              id: filedData.items?.properties?.end?.id,
+              id: field.value.items?.properties?.end?.id,
               name: 'End Date',
               description: 'End Date',
               type: 'date',
@@ -68,12 +68,12 @@ function typeChanged(displayType: string) {
         break
       case 'array':
         filedData.minItems = 0
-        filedData.items = !!filedData.items ? filedData.items : { type: 'string', properties: {} }
+        filedData.items = !!field.value.items ? field.value.items : { type: 'string', properties: {} }
         break
       case 'object':
         filedData.items = {
           type: 'object',
-          properties: field.value?.items?.properties
+          properties: field.value?.items?.properties || {}
         }
         break
       default:
