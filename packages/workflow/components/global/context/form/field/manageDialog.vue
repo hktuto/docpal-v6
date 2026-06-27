@@ -14,6 +14,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     return formField
   },
   columns: [
+    { title: 'ID', field: 'id' },
     { title: 'Name', field: 'name' },
     { title: 'Type', field: 'display_type' }
   ],
