@@ -5,7 +5,9 @@ const { disabled, formData, options } = defineProps<{
   options: any
 }>()
 
-const isSeries = ref<boolean>(false)
+function isSeries(item: any) {
+  return item.series !== ''
+}
 
 const data = ref<any[]>([
   {
@@ -38,10 +40,15 @@ const disabledReceivedDate = computed(() => {
   return formData.status != 5
 })
 
-function info() {}
+function info() {
+  if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
+    data.value = formData.sample_info_list
+    console.log(123, formData.sample_info_list)
+  }
+}
 
 function getFormData() {
-  return { list: data.value }
+  return { sample_info_list: data.value }
 }
 
 onMounted(() => {
@@ -73,13 +80,9 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="isSeries ? '系列' : '型號'">
-              <el-select v-if="isSeries" v-model="item.series" disabled>
-                <el-option />
-              </el-select>
-              <el-select v-else v-model="item.part_number" disabled>
-                <el-option />
-              </el-select>
+            <el-form-item :label="isSeries(item) ? '系列' : '型號'">
+              <el-input disabled v-if="isSeries(item)" v-model="item.series" />
+              <el-input disabled v-else v-model="item.part_number" />
             </el-form-item>
 
             <el-form-item label="月用量(K/M)">
@@ -174,11 +177,5 @@ defineExpose({ getFormData })
   &__actions {
     display: flex;
   }
-}
-
-.partNumber-series-change {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-xs);
 }
 </style>

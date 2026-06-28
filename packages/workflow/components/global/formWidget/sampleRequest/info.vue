@@ -6,30 +6,39 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
-
+const formRef = ref()
 const isSeries = ref<boolean>(false)
-const data = ref<any[]>([
-  {
-    line_number: 1,
-    vendor: '',
-    part_number: '',
-    series: '',
-    purpose: '',
-    pcs_unit: 1,
-    fcst_qty: 1,
-    request_qty: 1,
-    run_rate: 1,
-    packaged: 0,
-    car_use: 'N',
-    cust_selected_parts: 'Introduced by Sales',
-    competitor_name: '',
-    competitor_pn: '',
-    competitor_unit_price: '',
-    remarks: ''
-  }
-])
+const formModel = reactive<{ list: any[] }>({
+  list: [
+    {
+      line_number: 1,
+      vendor: '',
+      part_number: '',
+      series: '',
+      purpose: '',
+      pcs_unit: 1,
+      fcst_qty: 1,
+      request_qty: 1,
+      run_rate: 1,
+      packaged: 0,
+      car_use: 'N',
+      cust_selected_parts: 'Introduced by Sales',
+      competitor_name: '',
+      competitor_pn: '',
+      competitor_unit_price: '',
+      remarks: ''
+    }
+  ]
+})
+const data = toRef(formModel, 'list')
 const partList = ref<any[]>([])
 const seriesList = ref<any[]>([])
+const rules = {
+  purpose: [{ required: true, message: 'Please select purpose', trigger: 'change' }],
+  series: [{ required: true, message: 'Please select series', trigger: 'change' }],
+  part_number: [{ required: true, message: 'Please select part number', trigger: 'change' }],
+  remarks: [{ required: true, message: 'Please input remarks', trigger: 'change' }]
+}
 
 function handleAdd(index?: number) {
   const newValue = {
@@ -58,11 +67,14 @@ function handleAdd(index?: number) {
   }
 }
 
-function changePartNumberAndSeries(item: any) {
+function changePartNumberAndSeries(item: any, index: number) {
   item.vendor = ''
   item.part_number = ''
   item.series = ''
   isSeries.value = !isSeries.value
+  nextTick(() => {
+    formRef.value?.clearValidate([`list.${index}.series`, `list.${index}.part_number`])
+  })
 }
 
 function handleRemove(index: number) {
@@ -73,8 +85,11 @@ function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
 
-function getFormData() {
-  return { sample_info_list: data.value }
+async function getFormData(needValidation = true) {
+  const result = { sample_info_list: formModel.list }
+  if (!needValidation) return result
+  await formRef.value?.validate()
+  return result
 }
 
 async function getPartList() {
@@ -95,6 +110,12 @@ async function getSeriesList() {
     value: item.mfg_part_num,
     brand: ''
   }))
+}
+
+async function init() {
+  if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
+    data.value = formData.sample_info_list
+  }
 }
 
 async function getDbData(tableId: string) {
@@ -143,17 +164,22 @@ function changePartNumber(item: any) {
 }
 
 onMounted(async () => {
-  await getPartList()
-  await getSeriesList()
+  try {
+    await getPartList()
+    await getSeriesList()
+    await init()
+  } catch (e) {
+    console.log(e)
+  }
 })
 
 defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form label-position="top" :disabled="formData.disabledInfo">
+  <el-form label-position="top" :disabled="formData.disabledInfo" ref="formRef" :model="formModel">
     <el-button v-if="data.length === 0" type="primary" @click="handleAdd">Add Sample Info</el-button>
-    <template v-for="(item, index) in data">
+    <template v-for="(item, index) in data" :key="item.line_number">
       <div class="info-item-card">
         <div class="info-item-card__header">
           <span class="info-item-card__index">{{ index + 1 }}.</span>
@@ -170,7 +196,7 @@ defineExpose({ getFormData })
             <el-form-item label="單機用量">
               <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
-            <el-form-item v-if="checkPurpose(item.vendor)" label="目的" prop="purpose" required>
+            <el-form-item v-if="checkPurpose(item.vendor)" label="目的" :prop="`list.${index}.purpose`" :rules="rules.purpose" required>
               <el-select v-model="item.purpose">
                 <el-option value="New Design" label="New Design" />
                 <el-option value="Replacement" label="Replacement" />
@@ -180,15 +206,20 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="8">
-            <el-form-item :label="isSeries ? '系列' : '型號'">
+            <el-form-item
+              :label="isSeries ? '系列' : '型號'"
+              required
+              :prop="`list.${index}.${isSeries ? 'series' : 'part_number'}`"
+              :rules="isSeries ? rules.series : rules.part_number"
+            >
               <div class="partNumber-series-change">
-                <el-select v-if="isSeries" v-model="item.series">
+                <el-select v-if="isSeries" v-model="item.series" filterable>
                   <el-option v-for="part in seriesList" :key="part.id" :label="part.label" :value="part.value" />
                 </el-select>
-                <el-select v-else v-model="item.part_number" @change="changePartNumber(item)">
+                <el-select v-else v-model="item.part_number" @change="changePartNumber(item)" filterable>
                   <el-option v-for="part in partList" :key="part.id" :label="part.label" :value="part.value" />
                 </el-select>
-                <el-button :icon="Switch" type="primary" @click="changePartNumberAndSeries(item)" />
+                <el-button :icon="Switch" type="primary" @click="changePartNumberAndSeries(item, index)" />
               </div>
             </el-form-item>
 
@@ -216,7 +247,7 @@ defineExpose({ getFormData })
 
           <el-col :span="8">
             <el-form-item label="整盤">
-              <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" />
+              <el-switch v-model="item.packaged" active-text="Yes" active-value="1" inactive-text="No" inactive-value="0" />
             </el-form-item>
             <el-form-item label="競爭者名稱" prop="competitor_name">
               <el-input v-model="item.competitor_name" />
@@ -246,7 +277,7 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="24">
-            <el-form-item label="備注" :required="item.purpose === 'Others'">
+            <el-form-item label="備注" :required="item.purpose === 'Others'" prop="remarks">
               <el-input v-model="item.remarks" :autosize="{ minRows: 2, maxRows: 6 }" type="textarea" placeholder="Please input" />
             </el-form-item>
           </el-col>
@@ -284,5 +315,10 @@ defineExpose({ getFormData })
   display: flex;
   align-items: center;
   gap: var(--app-space-xs);
+  width: 100%;
+
+  .el-select {
+    flex: 1;
+  }
 }
 </style>
