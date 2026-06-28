@@ -156,62 +156,134 @@ export type WorkflowVariablesProvideContext = {
  */
 export function conversionFormDataByVariables(formData: any, formFields: VariableItem[]) {
   try {
-    const variableSchema = formFields.reduce((acc: any, item: VariableItem) => {
+    const variableSchema: any = formFields.reduce((acc: Record<string, VariableItem>, item: VariableItem) => {
       acc[item.id] = item
       return acc
     }, {})
-
-    const formattedVariables: any = {}
-
-    for (const key in formData) {
-      const value = formData[key]
-      const definition: VariableItem = variableSchema[key]
-
-      if (!definition) {
-        formattedVariables[key] = value
-        continue
-      }
-      switch (definition.display_type) {
-        case 'timestamp':
-          formattedVariables[key] = dayjs(value).valueOf()
-          break
-        case 'number':
-          const num = Number(value)
-          formattedVariables[key] = isNaN(num) ? 0 : num
-          break
-        case 'boolean':
-          if (typeof value === 'string') {
-            formattedVariables[key] = value.toLowerCase() === 'true' || value.toLowerCase() === 'y'
-          } else {
-            formattedVariables[key] = Boolean(value)
-          }
-          break
-        case 'text':
-          formattedVariables[key] = value !== null ? String(value) : ''
-          break
-        case 'date':
-          formattedVariables[key] = dayjs(value).format(definition?.validation?.pattern)
-          break
-        case 'dateRange':
-          formattedVariables[key] = value.map((item: string) => {
-            return dayjs(value).format(definition?.items?.properties?.start?.validation?.pattern)
-          })
-          break
-        case 'array':
-          formattedVariables[key] = value
-          break
-        case 'object':
-          formattedVariables[key] = value
-          break
-        default:
-          formattedVariables[key] = value
-      }
-    }
-    return formattedVariables
+    return convertFormDataEntries(formData, variableSchema)
   } catch (e) {
     console.log(e)
   }
 }
+
+function convertFormDataEntries(formData: any, variableSchema: any) {
+  const formattedVariables: Record<string, any> = {}
+
+  for (const key in formData) {
+    const value = formData[key]
+    const definition: VariableItem = variableSchema[key]
+    formattedVariables[key] = definition ? convertValueByDefinition(value, definition) : value
+  }
+  return formattedVariables
+}
+
+function convertValueByDefinition(value: any, definition: VariableItem): any {
+  switch (definition.display_type) {
+    case 'dateRange':
+      return value.map((item: string) => dayjs(item).format(definition?.items?.properties?.start?.validation?.pattern))
+    case 'array':
+      return conversionSubData(value, definition)
+    case 'object':
+      return conversionSubData(value, definition)
+    default:
+      return convertScalarValue(value, definition)
+  }
+}
+
+function conversionSubData(formData: any, definition: VariableItem) {
+  if (definition.items?.type !== 'object') return
+
+  try {
+    if (typeof formData === 'string') {
+      return JSON.parse(formData)
+    } else if (Array.isArray(formData)) {
+      return formData.map((item) => {
+        return convertFormDataEntries(item, definition.items?.properties)
+      })
+    } else {
+      return convertFormDataEntries(formData, definition.items?.properties)
+    }
+  } catch (e) {
+    console.log('conversionSubData', e)
+    return formData
+  }
+}
+
+function convertScalarValue(value: any, definition: VariableItem): any {
+  switch (definition.display_type) {
+    case 'timestamp':
+      return dayjs(value).valueOf()
+    case 'number': {
+      const num = Number(value)
+      return isNaN(num) ? 0 : num
+    }
+    case 'boolean':
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true' || value.toLowerCase() === 'y'
+      }
+      return Boolean(value)
+    case 'text':
+      return value !== null ? String(value) : ''
+    case 'date':
+      return dayjs(value).format(definition?.validation?.pattern)
+    default:
+      return value
+  }
+}
+
+// function conversionSubData(formData: any, properties: any, formFields: VariableItem[]) {
+//   if (properties.items.type !== 'object') return
+//
+//   try {
+//     if (typeof formData === 'string') {
+//       formData = JSON.parse(formData)
+//     } else if (Array.isArray(formData)) {
+//     } else {
+//       return formData
+//     }
+//
+//     const formattedVariables: any = {}
+//
+//     for (const key in formData) {
+//       const value: any = formData[key]
+//       const definition: VariableItem = properties.items.properties[key]
+//
+//       if (!definition) {
+//         formattedVariables[key] = value
+//         continue
+//       }
+//
+//       switch (definition.display_type) {
+//         case 'timestamp':
+//           formattedVariables[key] = dayjs(value).valueOf()
+//           break
+//         case 'number':
+//           const num: number = Number(value)
+//           formattedVariables[key] = isNaN(num) ? 0 : num
+//           break
+//         case 'boolean':
+//           if (typeof value === 'string') {
+//             formattedVariables[key] = value.toLowerCase() === 'true' || value.toLowerCase() === 'y'
+//           } else {
+//             formattedVariables[key] = Boolean(value)
+//           }
+//           break
+//         case 'text':
+//           formattedVariables[key] = value !== null ? String(value) : ''
+//           break
+//         case 'date':
+//           formattedVariables[key] = dayjs(value).format(definition?.validation?.pattern)
+//           break
+//         default:
+//           formattedVariables[key] = value
+//       }
+//     }
+//     return formattedVariables
+//   } catch (e) {
+//     console.log('conversionSubData', e)
+//     return formData
+//   }
+// }
 
 export const useVariablesProvide = () => {
   const ctx = inject<WorkflowVariablesProvideContext>('WorkflowVariablesProvide')
