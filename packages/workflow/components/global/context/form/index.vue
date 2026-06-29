@@ -95,8 +95,11 @@ async function handelSubmitForm(formID: string) {
 
 function updateFormField() {
   // formField 有資料：保留相同 id 的舊數據，其它用新數據
-  const byId = new Map(formField.value.map((f: any) => [f.id, f]))
-  formField.value = variables.value.filter((item: any) => !item.id.startsWith('__system__')).map((n: any) => byId.get(n.id) ?? n)
+  // const byId = new Map(formField.value.map((f: any) => [f.id, f]))
+  // formField.value = variables.value.filter((item: any) => !item.id.startsWith('__system__')).map((n: any) => byId.get(n.id) ?? n)
+
+  // TODO: 存在array 與object 類型的值類型，因爲全局修改導致數據格式，user form 沒有同步修改（全部同步，後續需要使用上面的代碼，需要提供一個獨自同步單獨一個字段的數據格式的按鈕）
+  formField.value = variables.value
 }
 
 async function previewForm() {

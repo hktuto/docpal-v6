@@ -5,7 +5,9 @@ const { disabled, formData, options } = defineProps<{
   options: any
 }>()
 
-const isSeries = ref<boolean>(false)
+function isSeries(item: any) {
+  return item.series !== ''
+}
 
 const data = ref<any[]>([
   {
@@ -23,10 +25,13 @@ const data = ref<any[]>([
 ])
 
 function info() {
+  if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
+    data.value = formData.sample_info_list
+  }
 }
 
 function getFormData() {
-  return { list: data.value }
+  return { sample_info_list: data.value }
 }
 
 onMounted(() => {
@@ -48,15 +53,9 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="isSeries ? '系列' : '型號'">
-              <div class="partNumber-series-change">
-                <el-select disabled v-if="isSeries" v-model="item.series">
-                  <el-option />
-                </el-select>
-                <el-select disabled v-else v-model="item.part_number">
-                  <el-option />
-                </el-select>
-              </div>
+            <el-form-item :label="isSeries(item) ? '系列' : '型號'">
+              <el-input disabled v-if="isSeries(item)" v-model="item.series" />
+              <el-input disabled v-else v-model="item.part_number" />
             </el-form-item>
           </el-col>
           <el-col :span="8" />
@@ -85,7 +84,7 @@ defineExpose({ getFormData })
               <el-input v-model="item.vendor_attn" disabled />
             </el-form-item>
             <el-form-item label="實際接收數量">
-              <el-input-number v-model="item.actual_received_qty" controls-position="right" :min="1" />
+              <el-input-number v-model="item.actual_received_qty" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
           </el-col>
         </el-row>
@@ -116,11 +115,5 @@ defineExpose({ getFormData })
   &__actions {
     display: flex;
   }
-}
-
-.partNumber-series-change {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-xs);
 }
 </style>

@@ -2,9 +2,10 @@
 import { conversionFormDataByVariables, MenuRouterKey } from '#imports'
 import { newClientApi, clientApi } from 'api'
 
-const { definition_id, taskNode } = defineProps<{
+const { definition_id, taskNode, formVariables } = defineProps<{
   definition_id: string
   taskNode: any
+  formVariables: any[]
 }>()
 defineOptions({
   name: 'WorkflowStartFullPageDead'
@@ -45,8 +46,8 @@ async function handleSubmit() {
     let formData = await vFormRef.value.getFormData(true, false)
     if (!formData) throw new Error(`${t('incompleteData')}`)
 
-    // TODO 需要校驗數據，但是 form_fields 的數據可能存在錯誤的數據格式提交
-    const cFormData = conversionFormDataByVariables(formData, taskNode.config.initialise.form_fields)
+    const variables = taskNode.config.initialise.form_fields.length > 0 ? taskNode.config.initialise.form_fields : formVariables
+    const cFormData = conversionFormDataByVariables(formData, variables)
 
     const formParams = {
       start_user_id: userId.value,

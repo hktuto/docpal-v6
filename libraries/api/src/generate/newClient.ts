@@ -2979,15 +2979,15 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
+    fileContentExtension?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentExtension?: string;
-    /** @format int64 */
-    fileContentLength?: number;
     fileContentMimeType?: string;
     fileContentName?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentMinioFileVersion?: string;
+    /** @format int64 */
+    fileContentLength?: number;
 }
 
 export interface FileContentDTO {
@@ -4307,9 +4307,9 @@ export interface PageableObject {
     paged?: boolean;
     /** @format int32 */
     pageNumber?: number;
-    unpaged?: boolean;
     /** @format int32 */
     pageSize?: number;
+    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -5360,6 +5360,20 @@ export interface RelationEstablishRequestDTO {
     display_field_ids: string[];
     /** Whether the relation supports multiple linked records (default true = one-to-many) */
     is_array?: boolean;
+}
+
+/** Auto Relation Detect Request DTO */
+export interface AutoRelationDetectRequestDTO {
+    /**
+     * Entity ID (Case Type ID) for scoping detection range
+     * @minLength 1
+     */
+    entity_id: string;
+    /**
+     * List of newly imported table IDs to detect relations for
+     * @minItems 1
+     */
+    table_ids: string[];
 }
 
 export interface PaginationDTOCaseTypeDTO {
@@ -6697,8 +6711,8 @@ export interface PlanItemInstanceDTO {
     subItems?: PlanItemInstanceDTO[];
     /** Workflow PlanItem Form */
     planForm?: CmmnPlanFormDTO;
-    processInstanceId?: string;
     humanTaskId?: string;
+    processInstanceId?: string;
 }
 
 export interface PlanTableFieldDTO {
@@ -7443,11 +7457,11 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    watermarkedLocalPath?: string;
+    watermarkTemplateId?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
-    watermarkTemplateId?: string;
+    watermarkedLocalPath?: string;
     conversionId?: string;
 }
 
@@ -8072,10 +8086,10 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
-    read?: boolean;
+    enable?: boolean;
     create?: boolean;
     edit?: boolean;
-    enable?: boolean;
+    read?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -8219,10 +8233,10 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
-    read?: boolean;
+    enable?: boolean;
     create?: boolean;
     edit?: boolean;
-    enable?: boolean;
+    read?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -9477,15 +9491,15 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
+    fileContentExtension?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentExtension?: string;
-    /** @format int64 */
-    fileContentLength?: number;
     fileContentMimeType?: string;
     fileContentName?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentMinioFileVersion?: string;
+    /** @format int64 */
+    fileContentLength?: number;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -10368,10 +10382,10 @@ export interface PlanItemDefinitionDTO {
     /** PlanItem Definition Sub-List */
     subItems?: any[];
     fields?: PlanTableFieldDTO[];
-    upFormProperties?: FormPropertyDTO[];
     assigneeField?: PlanTableFieldDTO;
     isStartTask?: boolean;
     upProcessTaskKey?: string;
+    upFormProperties?: FormPropertyDTO[];
 }
 
 export interface ResultCaseTypeResponseDTO {
@@ -13216,6 +13230,69 @@ export interface ResultRelationEstablishResultDTO {
     locale?: string;
 }
 
+/** Auto Relation Candidate DTO */
+export interface AutoRelationCandidateDTO {
+    /** Source table ID */
+    source_table_id?: string;
+    /** Source table display name */
+    source_table_name?: string;
+    /** Source field ID */
+    source_field_id?: string;
+    /** Source field display name (alias) */
+    source_field_alias?: string;
+    /** Target table ID */
+    target_table_id?: string;
+    /** Target table display name */
+    target_table_name?: string;
+    /** Target field ID */
+    target_field_id?: string;
+    /** Target field display name (alias) */
+    target_field_alias?: string;
+    /**
+     * Phase 1: field name similarity score (0~1)
+     * @format double
+     */
+    name_similarity?: number;
+    /**
+     * Phase 2: data hit rate (0~1)
+     * @format double
+     */
+    data_hit_rate?: number;
+}
+
+/** Auto Relation Detect Result DTO */
+export interface AutoRelationDetectResultDTO {
+    /** Job status: pending, processing, completed, failed */
+    status?: string;
+    /** List of qualified relation candidates (both thresholds passed) */
+    candidates?: AutoRelationCandidateDTO[];
+    /** Job ID */
+    job_id?: string;
+    /** Error message if job failed */
+    error_message?: string;
+    /**
+     * Total source fields scanned
+     * @format int32
+     */
+    total_fields_scanned?: number;
+    /**
+     * Total qualified candidates found
+     * @format int32
+     */
+    total_candidates_found?: number;
+}
+
+export interface ResultAutoRelationDetectResultDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Auto Relation Detect Result DTO */
+    data?: AutoRelationDetectResultDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Case Type Menu Item DTO */
 export interface CaseTypeMenuItemDTO {
     /** Menu item ID */
@@ -14297,10 +14374,10 @@ export interface CaseDefinitionDTO {
         /** PlanItem Definition Sub-List */
         subItems?: any[];
         fields?: PlanTableFieldDTO[];
-        upFormProperties?: FormPropertyDTO[];
         assigneeField?: PlanTableFieldDTO;
         isStartTask?: boolean;
         upProcessTaskKey?: string;
+        upFormProperties?: FormPropertyDTO[];
     }[];
     permissions?: CmmnPlanPermissionDTO[];
 }
@@ -14570,11 +14647,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
+    finish?: number;
+    error?: number;
     create?: number;
     pending?: number;
     completed?: number;
-    finish?: number;
-    error?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -21395,6 +21472,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDynamicDbImportRelationsEstablish: (data: RelationEstablishRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringString, any>({
                 path: `/api/dynamic-db/import/relations/establish`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Async: two-phase detection (schema matching + data profiling). Returns jobId for polling.
+         *
+         * @tags DynamicDBImportController
+         * @name PostDynamicDbImportRelationsAutoDetect
+         * @summary Submit auto-relation detection job
+         * @request POST:/api/dynamic-db/import/relations/auto-detect
+         */
+        postDynamicDbImportRelationsAutoDetect: (data: AutoRelationDetectRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringString, any>({
+                path: `/api/dynamic-db/import/relations/auto-detect`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -32946,6 +33040,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getDynamicDbImportRelationsJobidStatus: (jobId: string, params: RequestParams = {}) =>
             this.request<ResultRelationEstablishResultDTO, any>({
                 path: `/api/dynamic-db/import/relations/${jobId}/status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Poll the status and results of an auto-relation detection job.
+         *
+         * @tags DynamicDBImportController
+         * @name GetDynamicDbImportRelationsAutoDetectJobidStatus
+         * @summary Get auto-relation detection job status
+         * @request GET:/api/dynamic-db/import/relations/auto-detect/{jobId}/status
+         */
+        getDynamicDbImportRelationsAutoDetectJobidStatus: (jobId: string, params: RequestParams = {}) =>
+            this.request<ResultAutoRelationDetectResultDTO, any>({
+                path: `/api/dynamic-db/import/relations/auto-detect/${jobId}/status`,
                 method: "GET",
                 ...params,
             }),

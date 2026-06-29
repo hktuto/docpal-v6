@@ -9,11 +9,11 @@
         <el-timeline-item
           v-for="(activity, index) in activities"
           :key="index"
-          :timestamp="formatDate(activity.envetDateStr)"
+          :timestamp="formatDate(activity.timestamp)"
         >
           <div class="timeline">
-            <div class="userOrAction user">{{ activity.principalName }}</div>
-            <div class="userOrAction action" v-if="activity.label">{{ $t(activity.label) }}</div>
+            <div class="userOrAction user">{{ activity.event_category }}</div>
+            <div class="userOrAction action" v-if="activity.details">{{ $t(activity.details) }}</div>
           </div>
         </el-timeline-item>
         <template v-if="activities.length < totalSize">
@@ -33,7 +33,7 @@ const activities = ref<any[]>([])
 const params = reactive<any>({
     pageNum: 0,
     pageSize: 20,
-    documentId: doc.value.id,
+    source_id: doc.value.id,
 })
 const totalSize = ref(0);
 const pageNum = ref(0);
@@ -46,7 +46,7 @@ const loadMore = async() => {
 }
 const getActivities = async () => {
     try {
-    const data = await newClientApi.postDmsDocumentQueryauditevent(params).then(res => res.data)
+    const data = await newClientApi.postAuditLogPage(params).then(res => res.data)
     console.log('data', data)
     totalSize.value = data.totalSize;
     activities.value.push(...data.entryList);

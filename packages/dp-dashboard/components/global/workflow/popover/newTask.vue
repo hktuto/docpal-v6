@@ -61,14 +61,6 @@ async function workflowClickHandler(workflowItem: any) {
       return
     }
 
-    // Open in new page
-    if (startTask.metadata.openInNewPage) {
-      state.loading = false
-      const link = newWorkflowStartPage(data.name, data.id, startTask)
-      routerProvider?.navigateTo(link)
-      return
-    }
-
     if (startTask.config?.initialise?.form_fields?.length > 0) {
       state.formVariables = startTask.config?.initialise?.form_fields
     } else {
@@ -76,6 +68,14 @@ async function workflowClickHandler(workflowItem: any) {
         id: key,
         ...value
       })) as any[]
+    }
+
+    // Open in new page
+    if (startTask.metadata.openInNewPage) {
+      state.loading = false
+      const link = newWorkflowStartPage(data.name, data.id, startTask, state.formVariables)
+      routerProvider?.navigateTo(link)
+      return
     }
 
     state.formDialogVisible = true

@@ -26,7 +26,7 @@ export const routeWorkflowPage = function (params: any) {
   } as TabItem
 }
 
-export function newWorkflowStartPage(label: string, definition_id: string, taskNode: any) {
+export function newWorkflowStartPage(label: string, definition_id: string, taskNode: any, formVariables: any[]) {
   return {
     id: 'workflow-detail-versions-' + new Date().getTime(),
     name: 'workflow-start-versions-' + definition_id,
@@ -35,7 +35,8 @@ export function newWorkflowStartPage(label: string, definition_id: string, taskN
     component: 'LazyWorkflowNewTabStarterPage',
     props: {
       definition_id,
-      taskNode
+      taskNode,
+      formVariables
     }
   }
 }
