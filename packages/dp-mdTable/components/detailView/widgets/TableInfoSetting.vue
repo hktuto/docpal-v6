@@ -1,6 +1,11 @@
 <template>
-  <el-dialog v-model="state.visible" :title="$t('detailWidget.tableInfoSettings')" width="500px" destroy-on-close>
+  <el-dialog v-model="state.visible" :title="$t('detailWidget.tableInfoSettings')" width="500px" destroy-on-close append-to-body>
     <el-form label-position="top" size="default">
+      <!-- Widget Title -->
+      <el-form-item :label="$t('detailWidget.widgetTitle')">
+        <el-input v-model="state.setting.label" :placeholder="$t('detailWidget.widgetTitlePlaceholder')" />
+      </el-form-item>
+
       <!-- Layout Selection -->
       <el-form-item :label="$t('detailWidget.layout')">
         <el-radio-group v-model="state.setting.layout">
@@ -109,6 +114,7 @@ const emit = defineEmits<{
 const state = reactive({
   visible: false,
   setting: {
+    label: '',
     fields: [] as string[],
     fieldConfigs: [] as Array<{ fieldName: string; label?: string; colSpan?: number }>,
     layout: 'grid' as 'list' | 'grid',
@@ -167,6 +173,7 @@ watch(() => state.setting.fields, syncFieldConfigsFromFields, { deep: true })
 
 function handleOpen(setting: TableInfoWidgetSetting) {
   state.setting = {
+    label: setting.label || '',
     fields: [...(setting.fields || [])],
     fieldConfigs: [...(setting.fieldConfigs || [])],
     layout: setting.layout || 'grid',

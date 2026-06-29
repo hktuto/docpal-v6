@@ -1223,7 +1223,9 @@
     "relatedTableListSettings": "Related Table List Settings",
     "selectColumns": "Select Columns",
     "selectRelation": "Select Relation",
-    "selectRelationField": "Select Relation Field"
+    "selectRelationField": "Select Relation Field",
+    "widgetTitle": "Widget Title",
+    "widgetTitlePlaceholder": "Enter widget title"
   },
   "dfc": {
     "summary_report": " ",

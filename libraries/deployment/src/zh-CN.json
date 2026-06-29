@@ -1221,7 +1221,9 @@
     "relatedTableListSettings": "关联表列表设置",
     "selectColumns": "选择列",
     "selectRelation": "选择关联",
-    "selectRelationField": "选择关联字段"
+    "selectRelationField": "选择关联字段",
+    "widgetTitle": "组件标题",
+    "widgetTitlePlaceholder": "请输入组件标题"
   },
   "dfc": {
     "summary_report": "dfc.summary_report",

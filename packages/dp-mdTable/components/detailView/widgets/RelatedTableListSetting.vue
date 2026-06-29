@@ -1,6 +1,11 @@
 <template>
-  <el-dialog v-model="state.visible" :title="$t('detailWidget.relatedTableListSettings')" width="500px" destroy-on-close>
+  <el-dialog v-model="state.visible" :title="$t('detailWidget.relatedTableListSettings')" width="500px" destroy-on-close append-to-body>
     <el-form label-position="top" size="default">
+      <!-- Widget Title -->
+      <el-form-item :label="$t('detailWidget.widgetTitle')">
+        <el-input v-model="state.setting.label" :placeholder="$t('detailWidget.widgetTitlePlaceholder')" />
+      </el-form-item>
+
       <!-- Relation Field Selection -->
       <el-form-item :label="$t('detailWidget.selectRelationField')">
         <el-select v-model="state.setting.relationFieldName" :placeholder="$t('detailWidget.selectRelation')" style="width: 100%">
@@ -97,6 +102,7 @@ const emit = defineEmits<{
 const state = reactive({
   visible: false,
   setting: {
+    label: '',
     relationFieldName: '',
     displayColumns: [] as string[],
     pageSize: 5,
@@ -150,6 +156,7 @@ watch(
 
 function handleOpen(setting: RelatedTableListWidgetSetting) {
   state.setting = {
+    label: setting.label || '',
     relationFieldName: setting.relationFieldName || '',
     displayColumns: [...(setting.displayColumns || [])],
     pageSize: setting.pageSize || 5,

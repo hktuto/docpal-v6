@@ -1220,7 +1220,9 @@
     "relatedTableListSettings": "關聯表列表設定",
     "selectColumns": "選擇列",
     "selectRelation": "選擇關聯",
-    "selectRelationField": "選擇關聯字段"
+    "selectRelationField": "選擇關聯字段",
+    "widgetTitle": "組件標題",
+    "widgetTitlePlaceholder": "請輸入組件標題"
   },
   "dfc": {
     "summary_report": "dfc.summary_report",

@@ -78,6 +78,8 @@ export interface DetailWidgetSetting {
  * TableInfo widget settings
  */
 export interface TableInfoWidgetSetting {
+  /** Widget title/label */
+  label?: string
   /** Field names to display */
   fields: string[]
   /** Per-field config (colSpan, custom label). Order matches `fields`. */
@@ -98,6 +100,8 @@ export interface TableInfoWidgetSetting {
  * RelatedTableList widget settings
  */
 export interface RelatedTableListWidgetSetting {
+  /** Widget title/label */
+  label?: string
   /** Relation field name to show */
   relationFieldName: string
   /** Columns to display from related table */
