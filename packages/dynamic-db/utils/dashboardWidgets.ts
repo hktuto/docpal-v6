@@ -278,7 +278,12 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       displayColumns: [],
       pageSize: 5,
       allowAdd: false,
-      allowOpen: true
+      allowOpen: true,
+      filterRules: {
+        conditions: [],
+        conjunction: 'AND'
+      },
+      sortRules: []
     }
   }
 }
