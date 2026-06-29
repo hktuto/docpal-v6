@@ -69,10 +69,9 @@
     <!-- Default Filter -->
     <div class="setting-section">
       <div class="setting-section__title">{{ $t('common_defaultFilter') }}</div>
-      <ToolsFilterConfigPopover
+      <ToolsFilterButton
         :available-columns="availableFilterColumns"
         :column-filter-rules="state.setting.filterRules"
-        width="600"
         @filter-change="state.setting.filterRules = $event"
       />
     </div>
@@ -80,10 +79,9 @@
     <!-- Default Sort -->
     <div class="setting-section">
       <div class="setting-section__title">{{ $t('common_defaultSort') }}</div>
-      <ToolsSortConfigPopover
+      <ToolsSortButton
         :available-columns="availableFilterColumns"
-        width="400"
-        @change="handleSortChange"
+        @sort-change="state.setting.sortRules = $event"
       />
     </div>
 
@@ -106,9 +104,11 @@
 import { reactive, watch, computed, provide } from 'vue'
 import type { RelatedTableListWidgetSetting } from '../../../utils/detailWidgetHelper'
 import type { FieldInfo } from '../../../types/view-config'
-import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import ToolsFilterConfigPopover, { type FilterRule } from '../../tools/filter/ConfigPopover.vue'
-import ToolsSortConfigPopover, { type SortRule } from '../../tools/sort/configPopover.vue'
+import { ColumnFieldType } from '../../../types/column-types'
+import { type FilterRule } from '../../tools/filter/ConfigPopover.vue'
+import { type SortRule } from '../../tools/sort/configPopover.vue'
+import ToolsFilterButton from '../../tools/filter/Button.vue'
+import ToolsSortButton from '../../tools/sort/button.vue'
 
 const props = defineProps<{
   setting: RelatedTableListWidgetSetting
@@ -147,10 +147,13 @@ const availableFilterColumns = computed(() => {
         f.type !== ColumnFieldType.AggVirtualColumn
     )
     .map((f) => ({
+      field_name: f.fieldName,
+      field_name_alias: f.fieldNameAlias,
       field: f.fieldName,
       title: f.fieldNameAlias || f.fieldName,
       type: f.type,
-      business_type: f.type as ColumnFieldType
+      business_type: f.type as ColumnFieldType,
+      display_structure: f.properties || {}
     }))
 })
 
@@ -195,10 +198,6 @@ function handleClose() {
 function handleSubmit() {
   emit('refresh', { ...state.setting })
   state.visible = false
-}
-
-function handleSortChange() {
-  // Sort rules are mutated directly through the injected viewTools ref
 }
 
 function handleDelete() {
