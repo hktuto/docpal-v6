@@ -24,51 +24,66 @@
         </div>
       </template>
 
-      <template v-else-if="loading">
-        <div class="loading-state">
-          <el-icon class="is-loading">
-            <Icon name="lucide:loader-2" />
-          </el-icon>
-          <span>{{ $t('common_loading') }}</span>
-        </div>
-      </template>
-
-      <template v-else-if="relatedRecords.length === 0">
-        <div class="empty-state">
-          <Icon name="lucide:inbox" size="32" />
-          <span>{{ $t('detailWidget.noRelatedRecords') }}</span>
-        </div>
-      </template>
-
       <template v-else>
-        <!-- Related Records Table -->
-        <div class="records-table">
-          <div
-            v-for="record in paginatedRecords"
-            :key="record.id"
-            class="record-row"
-            :class="{ clickable: effectiveSetting.allowOpen }"
-            @click="handleOpenRecord(record)"
-          >
-            <div v-for="col in displayColumns" :key="col" class="record-cell">
-              <span class="cell-value">{{ formatCellValue(record, col) }}</span>
-            </div>
-            <div v-if="effectiveSetting.allowOpen" class="record-action">
-              <Icon name="lucide:external-link" size="14" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Pagination -->
-        <div v-if="totalPages > 1" class="pagination">
-          <el-pagination
-            v-model:current-page="currentPage"
-            :page-size="effectiveSetting.pageSize"
-            :total="relatedRecords.length"
-            layout="prev, pager, next"
-            small
+        <div class="related-table__toolbar">
+          <ToolsFilterButton
+            :available-columns="availableFilterColumns"
+            :column-filter-rules="runtimeFilterRules"
+            @filter-change="onRuntimeFilterChange"
+          />
+          <ToolsSortButton
+            :available-columns="availableFilterColumns"
+            :column-sort-rules="runtimeSortRules"
+            @sort-change="onRuntimeSortChange"
           />
         </div>
+
+        <template v-if="loading">
+          <div class="loading-state">
+            <el-icon class="is-loading">
+              <Icon name="lucide:loader-2" />
+            </el-icon>
+            <span>{{ $t('common_loading') }}</span>
+          </div>
+        </template>
+
+        <template v-else-if="relatedRecords.length === 0">
+          <div class="empty-state">
+            <Icon name="lucide:inbox" size="32" />
+            <span>{{ $t('detailWidget.noRelatedRecords') }}</span>
+          </div>
+        </template>
+
+        <template v-else>
+          <!-- Related Records Table -->
+          <div class="records-table">
+            <div
+              v-for="record in paginatedRecords"
+              :key="record.id"
+              class="record-row"
+              :class="{ clickable: effectiveSetting.allowOpen }"
+              @click="handleOpenRecord(record)"
+            >
+              <div v-for="col in displayColumns" :key="col" class="record-cell">
+                <span class="cell-value">{{ formatCellValue(record, col) }}</span>
+              </div>
+              <div v-if="effectiveSetting.allowOpen" class="record-action">
+                <Icon name="lucide:external-link" size="14" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="totalPages > 1" class="pagination">
+            <el-pagination
+              v-model:current-page="currentPage"
+              :page-size="effectiveSetting.pageSize"
+              :total="relatedRecords.length"
+              layout="prev, pager, next"
+              small
+            />
+          </div>
+        </template>
       </template>
     </div>
 
@@ -85,11 +100,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, provide, ref, watch } from 'vue'
 import type { RelatedTableListWidgetSetting } from '../../../utils/detailWidgetHelper'
 import type { FieldInfo } from '../../../types/view-config'
+import type { ColumnConfig } from '../../../types/column-context'
 import { ColumnFieldType } from '../../../types/column-types'
+import type { FilterRules } from '../../tools/filter/ConfigPopover.vue'
+import type { SortRule } from '../../tools/sort/configPopover.vue'
 import RelatedTableListSetting from './RelatedTableListSetting.vue'
+import ToolsFilterButton from '../../tools/filter/Button.vue'
+import ToolsSortButton from '../../tools/sort/button.vue'
 
 const { t } = useI18n()
 
@@ -103,7 +123,16 @@ const props = defineProps<{
   /** Current record data */
   record: Record<string, any>
   /** Function to fetch related records */
-  fetchRelatedRecords?: (relationFieldName: string, recordIds: string[]) => Promise<any[]>
+  fetchRelatedRecords?: (
+    relationFieldName: string,
+    recordIds: string[],
+    options: {
+      filterRules?: FilterRules
+      runtimeFilterRules?: FilterRules
+      sortRules?: SortRule[]
+      runtimeSortRules?: SortRule[]
+    }
+  ) => Promise<any[]>
   /** Function to get fields for target table */
   getTargetFields?: (relationTableId: string) => Promise<FieldInfo[]>
   /** Function to navigate to a record */
@@ -120,6 +149,17 @@ const loading = ref(false)
 const relatedRecords = ref<any[]>([])
 const targetFields = ref<FieldInfo[]>([])
 const currentPage = ref(1)
+
+// Runtime filter/sort state
+const runtimeFilterRules = ref<FilterRules>({
+  conditions: [],
+  conjunction: 'AND'
+})
+
+const runtimeSortRules = ref<SortRule[]>([])
+
+// Provide viewTools so the sort button can access runtime sort rules
+provide('viewTools', { columnSortRules: runtimeSortRules })
 
 // Default settings
 const defaultSetting: RelatedTableListWidgetSetting = {
@@ -144,6 +184,25 @@ const relationFields = computed(() => {
 // Get current relation field
 const relationField = computed(() => {
   return relationFields.value.find((f) => f.fieldName === effectiveSetting.value.relationFieldName)
+})
+
+// Columns available for runtime filter/sort
+const availableFilterColumns = computed<ColumnConfig[]>(() => {
+  return targetFields.value
+    .filter(f =>
+      f.type !== ColumnFieldType.Relation &&
+      f.type !== ColumnFieldType.VirtualColumn &&
+      f.type !== ColumnFieldType.Formula &&
+      f.type !== ColumnFieldType.AggVirtualColumn
+    )
+    .map(f => ({
+      field: f.fieldName,
+      title: f.fieldNameAlias || f.fieldName,
+      field_name: f.fieldName,
+      field_name_alias: f.fieldNameAlias,
+      business_type: f.type,
+      display_structure: f.properties || {}
+    }))
 })
 
 // Widget title
@@ -188,28 +247,43 @@ function formatCellValue(record: any, fieldName: string): string {
   return String(value)
 }
 
-// Fetch related records when relation changes
-async function loadRelatedRecords() {
-  const fieldName = effectiveSetting.value.relationFieldName
-  if (!fieldName || !props.record) {
-    relatedRecords.value = []
-    return
-  }
+function onRuntimeFilterChange(rules: FilterRules) {
+  runtimeFilterRules.value = rules
+  fetchRelatedRecordsData()
+}
 
-  const recordIds = props.record[fieldName]
-  if (!recordIds || !Array.isArray(recordIds) || recordIds.length === 0) {
+function onRuntimeSortChange(rules: SortRule[]) {
+  runtimeSortRules.value = rules
+  fetchRelatedRecordsData()
+}
+
+function normalizeRecordIds(value: any): string[] {
+  if (!value) return []
+  if (Array.isArray(value)) return value
+  return [value]
+}
+
+// Fetch related records when relation changes
+async function fetchRelatedRecordsData() {
+  if (!props.fetchRelatedRecords) return
+
+  const fieldName = effectiveSetting.value.relationFieldName
+  if (!fieldName) return
+
+  const recordIds = normalizeRecordIds(props.record[fieldName])
+  if (!recordIds.length) {
     relatedRecords.value = []
     return
   }
 
   loading.value = true
   try {
-    if (props.fetchRelatedRecords) {
-      relatedRecords.value = await props.fetchRelatedRecords(fieldName, recordIds)
-    } else {
-      // Fallback: show IDs if no fetch function provided
-      relatedRecords.value = recordIds.map((id) => ({ id, _display: id }))
-    }
+    relatedRecords.value = await props.fetchRelatedRecords(fieldName, recordIds, {
+      filterRules: effectiveSetting.value.filterRules,
+      runtimeFilterRules: runtimeFilterRules.value,
+      sortRules: effectiveSetting.value.sortRules,
+      runtimeSortRules: runtimeSortRules.value
+    })
   } catch (error) {
     console.error('Failed to fetch related records:', error)
     relatedRecords.value = []
@@ -239,8 +313,10 @@ watch(
   () => effectiveSetting.value.relationFieldName,
   async () => {
     currentPage.value = 1
+    runtimeFilterRules.value = { conditions: [], conjunction: 'AND' }
+    runtimeSortRules.value = []
     await loadTargetFields()
-    await loadRelatedRecords()
+    await fetchRelatedRecordsData()
   },
   { immediate: true }
 )
@@ -249,7 +325,7 @@ watch(
 watch(
   () => props.record,
   () => {
-    loadRelatedRecords()
+    fetchRelatedRecordsData()
   },
   { deep: true }
 )
@@ -294,6 +370,14 @@ defineExpose({
   overflow: auto;
   display: flex;
   flex-direction: column;
+}
+
+.related-table__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-s);
+  padding: var(--app-space-s) var(--app-space-m);
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
 .records-table {
