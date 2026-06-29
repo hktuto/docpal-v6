@@ -636,9 +636,13 @@
   "common_cleanAll": "Clean All",
   "common_clear": "Clear",
   "common_clickToUpload": "click to upload",
+  "common_cancel": "Cancel",
   "common_close": "Close",
   "common_config": "Config",
+  "common_configure": "Configure",
   "common_dashboard": "Dashboard",
+  "common_defaultFilter": "Default Filter",
+  "common_defaultSort": "Default Sort",
   "common_confirmDelete": "Yes, Delete",
   "common_confirmPasswordError": "Confirm Password not correct",
   "common_confirmRemove": "Yes, Remove",
@@ -1206,6 +1210,20 @@
       "time": "Time",
       "time-range": "Time range"
     }
+  },
+  "detailWidget": {
+    "allowAddRecords": "Allow Add Records",
+    "allowOpenRecords": "Allow Open Records",
+    "columnsToDisplay": "Columns to Display",
+    "columnsToDisplayTip": "Columns shown in the related records list",
+    "noRelatedRecords": "No related records",
+    "options": "Options",
+    "pageSize": "Page Size",
+    "relatedTableList": "Related Table List",
+    "relatedTableListSettings": "Related Table List Settings",
+    "selectColumns": "Select Columns",
+    "selectRelation": "Select Relation",
+    "selectRelationField": "Select Relation Field"
   },
   "dfc": {
     "summary_report": " ",

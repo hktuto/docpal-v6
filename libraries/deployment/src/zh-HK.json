@@ -635,9 +635,13 @@
   "common_cleanAll": "清空",
   "common_clear": "清空",
   "common_clickToUpload": "點擊上傳",
+  "common_cancel": "取消",
   "common_close": "關閉",
   "common_config": "配置",
+  "common_configure": "配置",
   "common_dashboard": "儀表板",
+  "common_defaultFilter": "預設篩選",
+  "common_defaultSort": "預設排序",
   "common_confirmDelete": "是, 刪除",
   "common_confirmPasswordError": "確定密碼不一致",
   "common_confirmRemove": "是, 移除",
@@ -1203,6 +1207,20 @@
       "time": "时间",
       "time-range": "时间范围"
     }
+  },
+  "detailWidget": {
+    "allowAddRecords": "允許新增記錄",
+    "allowOpenRecords": "允許開啟記錄",
+    "columnsToDisplay": "顯示列",
+    "columnsToDisplayTip": "選擇要在關聯記錄列表中顯示的列",
+    "noRelatedRecords": "暫無關聯記錄",
+    "options": "選項",
+    "pageSize": "每頁數量",
+    "relatedTableList": "關聯表列表",
+    "relatedTableListSettings": "關聯表列表設定",
+    "selectColumns": "選擇列",
+    "selectRelation": "選擇關聯",
+    "selectRelationField": "選擇關聯字段"
   },
   "dfc": {
     "summary_report": "dfc.summary_report",
