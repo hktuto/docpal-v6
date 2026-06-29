@@ -242,16 +242,40 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       subtitle: '',
       footer: ''
     }
+  },
+  DbRecordInfo: {
+    label: 'DbRecordInfo',
+    type: 'record' as any,
+    minW: 2,
+    minH: 2,
+    maxW: 12,
+    maxH: 6,
+    w: 4,
+    h: 2,
+    component: 'LazyDbRecordInfoWidget',
+    setting: {
+      label: 'Record Info'
+    }
   }
 }
 
+/**
+ * Returns the full dashboard widget palette grouped by type.
+ * Includes dynamic-db widgets (database, record) plus eligible dp-dashboard widgets.
+ */
 export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSetting[]> {
   const result: Record<string, DashboardWidgetSetting[]> = {
-    database: []
+    database: [],
+    record: []
   }
 
   Object.keys(dbDashboardWidgetSetting).forEach((key) => {
-    result.database.push(dbDashboardWidgetSetting[key])
+    const widget = dbDashboardWidgetSetting[key]
+    const type = widget.type || 'database'
+    if (!result[type]) {
+      result[type] = []
+    }
+    result[type].push(widget)
   })
 
   Object.keys(dpDashboardWidgetSetting).forEach((key) => {

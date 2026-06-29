@@ -1,52 +1,53 @@
 <template>
   <div class="table-view-root" v-if="tableId">
-    <div ref="tableViewMainRef" class="table-view-main" style="position: relative;">
+    <div ref="tableViewMainRef" class="table-view-main" style="position: relative">
       <MdCard
-          v-if="currentView?.type === 'card'"
-          :canManageTable="canManageTable"
-          :canEditTable="canEditTable"
-          :is-mirror="isMirror"
-          :table-id="tableId"
-          :extra-column-config="extraColumnConfig"
-          :editable="canEditTable"
-          @exit-edit-row="exitRowEdit"
-          @start-edit-row="startEditRowHandler"
-          />
+        v-if="currentView?.type === 'card'"
+        :canManageTable="canManageTable"
+        :canEditTable="canEditTable"
+        :is-mirror="isMirror"
+        :table-id="tableId"
+        :extra-column-config="extraColumnConfig"
+        :editable="canEditTable"
+        @exit-edit-row="exitRowEdit"
+        @start-edit-row="startEditRowHandler"
+      />
       <MdKanban
-          v-else-if="currentView?.type === 'kanban'"
-          :canManageTable="canManageTable"
-          :canEditTable="canEditTable"
-          :is-mirror="isMirror"
-          :table-id="tableId"
-          :extra-column-config="extraColumnConfig"
-          @exit-edit-row="exitRowEdit"
-          @start-edit-row="startEditRowHandler"
-          />
+        v-else-if="currentView?.type === 'kanban'"
+        :canManageTable="canManageTable"
+        :canEditTable="canEditTable"
+        :is-mirror="isMirror"
+        :table-id="tableId"
+        :extra-column-config="extraColumnConfig"
+        @exit-edit-row="exitRowEdit"
+        @start-edit-row="startEditRowHandler"
+      />
       <MdCalendar
-          v-else-if="currentView?.type === 'calendar'"
-          :canManageTable="canManageTable"
-          :canEditTable="canEditTable"
-          :is-mirror="isMirror"
-          :table-id="tableId"
-          :extra-column-config="extraColumnConfig"
-          @exit-edit-row="exitRowEdit"
-          @start-edit-row="startEditRowHandler"
-        />
-      <MdTable v-else
-          :canManageTable="canManageTable"
-          :canEditTable="canEditTable"
-          :is-mirror="isMirror"
-          :table-id="tableId"
-          :extra-column-config="extraColumnConfig"
-          @cell-mouseenter="handleCellMouseEnter"
-          @cell-mouseleave="handleCellMouseLeave"
-          @start-edit="startEditHandler"
-          @exit-edit="exitCellEdit"
-          @exit-edit-row="exitRowEdit"
-          @expand-click="startEditRowHandler"
-          @column-config-edit-start="handleColumnConfigEditStart"
-          @column-config-edit-finish="handleColumnConfigEditFinish"
-          />
+        v-else-if="currentView?.type === 'calendar'"
+        :canManageTable="canManageTable"
+        :canEditTable="canEditTable"
+        :is-mirror="isMirror"
+        :table-id="tableId"
+        :extra-column-config="extraColumnConfig"
+        @exit-edit-row="exitRowEdit"
+        @start-edit-row="startEditRowHandler"
+      />
+      <MdTable
+        v-else
+        :canManageTable="canManageTable"
+        :canEditTable="canEditTable"
+        :is-mirror="isMirror"
+        :table-id="tableId"
+        :extra-column-config="extraColumnConfig"
+        @cell-mouseenter="handleCellMouseEnter"
+        @cell-mouseleave="handleCellMouseLeave"
+        @start-edit="startEditHandler"
+        @exit-edit="exitCellEdit"
+        @exit-edit-row="exitRowEdit"
+        @expand-click="startEditRowHandler"
+        @column-config-edit-start="handleColumnConfigEditStart"
+        @column-config-edit-finish="handleColumnConfigEditFinish"
+      />
       <DatabaseAwarenessFloatingTags :viewType="currentView?.type" :get-element="getTableCell" :container-ref="tableBodyRef" />
     </div>
 
@@ -58,14 +59,8 @@
         </button>
       </div>
       <div class="panel-body">
-        <DatabaseSettingAutomation
-          v-if="panelType === 'automation'"
-          :master-table-id="tableId"
-        />
-        <DatabaseSettingAuditLog
-          v-if="panelType === 'auditLog'"
-          :master-table-id="tableId"
-        />
+        <DatabaseSettingAutomation v-if="panelType === 'automation'" :master-table-id="tableId" />
+        <DatabaseSettingAuditLog v-if="panelType === 'auditLog'" :master-table-id="tableId" />
         <DatabaseTableImportDataSidebar
           v-if="panelType === 'importData'"
           :table-id="tableId"
@@ -89,8 +84,8 @@ import { useRelationConfigInject } from '../../../composables/table/useRelationC
 const props = defineProps<{
   dataTableId: string
   isMirror: boolean
-  canEditTable: boolean,
-  canManageTable: boolean,
+  canEditTable: boolean
+  canManageTable: boolean
 }>()
 const tableId = computed(() => props.dataTableId)
 const tableName = computed(() => {
@@ -117,7 +112,6 @@ const { navigateToItem, findItemById, menuState, databaseMenuRouteParams, addIte
 const { getPageParams, columns } = useDBParams()
 const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
-
 
 // hocuspocus logic
 const { setAwareness, localAwareness, updatedRows, broadcastChange } = inject('databaseHocuspocus')
@@ -160,7 +154,7 @@ function exitCellEdit(params: any) {
 function exitRowEdit() {
   setAwareness({
     rowId: null,
-    cellId:null,
+    cellId: null,
     editingRow: false,
     editingCell: false,
     status: 'saved'
@@ -175,10 +169,9 @@ function startEditHandler(params: any) {
     status: 'editing'
   })
 }
-function handleCellMouseLeave(params: any) {
-}
+function handleCellMouseLeave(params: any) {}
 function startEditRowHandler(params: any) {
-  if(params.mode && params.mode !== 'edit') return
+  if (params.mode && params.mode !== 'edit') return
   setAwareness({
     rowId: params.row.id,
     editingRow: true,
@@ -268,26 +261,25 @@ async function handleSaveColumnOrder(columnId: string, targetFieldId: string, dr
   broadcastColumnConfigUpdated(undefined, columnId)
 }
 
-
 function getTableCell(focus: any) {
   const type = currentView.value?.type || 'table'
-   if(type === 'kanban'){
+  if (type === 'kanban') {
     const selector = `#groupItem_${focus.rowId}`
     return {
       element: document.querySelector(selector) as HTMLElement | null,
       type: 'kanban-cell',
       selector
     }
-  }else if(type === 'card'){
+  } else if (type === 'card') {
     const selector = `#cardItem_${focus.rowId}`
     const el = document.querySelector(selector) as HTMLElement | null
-    console.log("getTableCell", focus, el)
+    console.log('getTableCell', focus, el)
     return {
       element: el,
       type: 'card-cell',
       selector
     }
-  }else if(type === 'calendar'){
+  } else if (type === 'calendar') {
     const selector = `.calendar_${focus.rowId}`
     const el = document.querySelector(selector) as HTMLElement | null
     return {
@@ -295,15 +287,15 @@ function getTableCell(focus: any) {
       type: 'card-cell',
       selector
     }
-  }else {
-    if(!focus.cellId){
+  } else {
+    if (!focus.cellId) {
       const selector = `tr[rowid="${focus.rowId}"] td:nth-child(2) .vxe-cell`
       return {
         element: document.querySelector(selector) as HTMLElement | null,
         type: 'table-cell',
         selector
       }
-    }else{
+    } else {
       const selector = `tr[rowid="${focus.rowId}"] td[colid="${focus.cellId}"] .vxe-cell`
       return {
         element: document.querySelector(selector) as HTMLElement | null,
@@ -313,8 +305,6 @@ function getTableCell(focus: any) {
     }
   }
 }
-
-
 
 const extraColumnConfig = computed(() => {
   const data = {
@@ -393,6 +383,7 @@ provide('viewTools', {
   columns,
   tableFields,
   navigateToTableMenu,
+  canManageTable: computed(() => props.canManageTable),
   getRelationFieldConfig,
   setSingleRelationConfig,
   mirrorList,
