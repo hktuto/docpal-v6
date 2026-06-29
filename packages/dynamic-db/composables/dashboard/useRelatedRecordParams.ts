@@ -1,7 +1,8 @@
-import { convertFilterRuleToCondition } from '../../utils/PostgreSQLHelper'
+import { convertFilterRuleToCondition, FilterCondition } from '../../utils/PostgreSQLHelper'
 
 export interface FilterRule {
   id: string
+  /** Mirrors the runtime shape emitted by `ToolsFilterConfigPopover`; ignored here in favor of `FilterRules.conjunction`. */
   connector: 'AND' | 'OR'
   field: string
   operator: string
@@ -19,27 +20,37 @@ export interface SortRule {
   order: 'asc' | 'desc'
 }
 
+export interface RelatedRecordCondition {
+  column: string
+  type: string
+  value?: any
+}
+
+export interface RelatedRecordConditionGroup {
+  type: 'AND' | 'OR'
+  value: Array<RelatedRecordCondition | RelatedRecordConditionGroup>
+}
+
 export interface RelatedRecordQueryParams {
-  conditions: Array<{
-    type: 'AND' | 'OR'
-    value: any[]
-  }>
+  conditions: RelatedRecordConditionGroup[]
   orderBy: Array<{ column: string; desc: boolean }>
 }
 
-function buildFilterConditionGroup(rules: FilterRules | undefined): any[] {
+function buildFilterConditionGroup(rules: FilterRules | undefined): RelatedRecordConditionGroup[] {
   if (!rules?.conditions?.length) return []
 
-  const conditions = rules.conditions
-    .map(rule => convertFilterRuleToCondition(rule as any, () => false))
-    .filter(Boolean)
+  const conditions: FilterCondition[] = rules.conditions
+    .map(rule => convertFilterRuleToCondition(
+      { field: rule.field, operator: rule.operator, value: rule.value },
+      () => false
+    ))
 
   if (conditions.length === 0) return []
 
   return [{
     type: rules.conjunction || 'AND',
     value: conditions
-  }]
+  }] as RelatedRecordConditionGroup[]
 }
 
 function buildOrderBy(rules: SortRule[] | undefined): Array<{ column: string; desc: boolean }> {
