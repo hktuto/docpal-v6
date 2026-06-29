@@ -55,11 +55,13 @@ const saving = ref(false)
 const defaultLayoutCache = ref<{ key: string; layout: ViewDashboardLayoutItem[] } | null>(null)
 
 function getDefaultLayoutKey(): string {
-  const fieldNames = tableFields.value.map((f: any) => f.field_name).join(',')
-  return `${props.tableId}:${props.recordId}:${fieldNames}`
+  const sourceFields = currentView.value?.displayColumns ?? tableFields.value
+  const fieldNames = sourceFields.map((f: any) => f.field_name).join(',')
+  const hiddenFlags = sourceFields.map((f: any) => (f.hidden ? '1' : '0')).join('')
+  return `${props.tableId}:${props.recordId}:${fieldNames}:${hiddenFlags}`
 }
 
-function generateDefaultRecordLayout(tableFields: any[]): ViewDashboardLayoutItem[] {
+function generateDefaultRecordLayout(): ViewDashboardLayoutItem[] {
   const cacheKey = getDefaultLayoutKey()
   if (defaultLayoutCache.value?.key === cacheKey) {
     return defaultLayoutCache.value.layout
@@ -68,9 +70,13 @@ function generateDefaultRecordLayout(tableFields: any[]): ViewDashboardLayoutIte
   const layout: ViewDashboardLayoutItem[] = []
   let currentY = 0
 
-  const nonRelationFields = tableFields.filter((f: any) => f.business_type !== ColumnFieldType.Relation && f.business_type !== ColumnFieldType.VirtualColumn)
+  const sourceFields = currentView.value?.displayColumns ?? tableFields.value
 
-  const defaultInfoFields = nonRelationFields.slice(0, 4).map((f: any) => f.field_name)
+  const nonRelationFields = sourceFields.filter(
+    (f: any) => f.business_type !== ColumnFieldType.Relation && f.business_type !== ColumnFieldType.VirtualColumn && f.hidden !== true
+  )
+
+  const defaultInfoFields = nonRelationFields.map((f: any) => f.field_name)
 
   if (defaultInfoFields.length > 0) {
     layout.push({
@@ -141,7 +147,7 @@ const initialLayout = computed(() => {
   const persisted = currentView.value?.dashboard?.layout ?? []
   if (persisted.length > 0) return persisted
   if (!props.record || Object.keys(props.record).length === 0) return []
-  return generateDefaultRecordLayout(tableFields.value)
+  return generateDefaultRecordLayout()
 })
 
 const layout = ref<ViewDashboardLayoutItem[]>([])
