@@ -1,30 +1,20 @@
 <template>
-  <TableInfo
-    ref="tableInfoRef"
-    :setting="effectiveSetting"
-    :hide-setting="hideSetting"
-    :fields="fields"
-    :record="record"
-    @delete="emit('delete')"
-    @refresh-setting="handleRefresh"
-  />
+  <TableInfoSetting ref="settingRef" :setting="effectiveSetting" :fields="fields" @refresh="handleRefresh" @delete="emit('delete')" />
 </template>
 
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue'
-import TableInfo from '@packages/dp-mdTable/components/detailView/widgets/TableInfo.vue'
+import TableInfoSetting from '@packages/dp-mdTable/components/detailView/widgets/TableInfoSetting.vue'
 import { RecordDashboardContextKey } from '../../composables/dashboard/recordDashboardContext'
 import type { FieldInfo } from '@packages/dp-mdTable/types/view-config'
 
 const props = defineProps<{
   setting?: Record<string, any>
-  hideSetting?: boolean
 }>()
 
 const emit = defineEmits(['delete', 'refreshSetting'])
 
 const context = inject(RecordDashboardContextKey, null)
-const record = computed(() => context?.record.value ?? {})
 
 const fields = computed<FieldInfo[]>(() => {
   return (context?.tableFields.value ?? []).map((f: any) => ({
@@ -41,10 +31,10 @@ const effectiveSetting = computed(() => {
   return rest
 })
 
-const tableInfoRef = ref()
+const settingRef = ref()
 
 defineExpose({
-  settingRef: tableInfoRef
+  settingRef
 })
 
 function handleRefresh(newSetting: any) {

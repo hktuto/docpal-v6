@@ -1,24 +1,12 @@
 <template>
-  <DashboardCard
-    :title="widgetTitle"
-    :hide-setting="hideSetting"
-    :setting-ref="settingRef"
-    :setting="effectiveSetting"
-    @delete="handleDelete"
-  >
+  <DashboardCard :title="widgetTitle" :hide-setting="hideSetting" :setting-ref="settingRef" :setting="effectiveSetting" @delete="handleDelete">
     <template #title_suffix>
       <el-tag v-if="relatedRecords.length > 0" size="small" type="info">
         {{ relatedRecords.length }}
       </el-tag>
     </template>
     <template #action_prefix>
-      <el-button 
-        v-if="effectiveSetting.allowAdd && !hideSetting" 
-        size="small" 
-        type="primary"
-        text
-        @click="handleAddRelated"
-      >
+      <el-button v-if="effectiveSetting.allowAdd && !hideSetting" size="small" type="primary" text @click="handleAddRelated">
         <Icon name="lucide:plus" size="14" />
       </el-button>
     </template>
@@ -35,7 +23,7 @@
           </el-button>
         </div>
       </template>
-      
+
       <template v-else-if="loading">
         <div class="loading-state">
           <el-icon class="is-loading">
@@ -44,29 +32,25 @@
           <span>{{ $t('common_loading') }}</span>
         </div>
       </template>
-      
+
       <template v-else-if="relatedRecords.length === 0">
         <div class="empty-state">
           <Icon name="lucide:inbox" size="32" />
           <span>{{ $t('detailWidget.noRelatedRecords') }}</span>
         </div>
       </template>
-      
+
       <template v-else>
         <!-- Related Records Table -->
         <div class="records-table">
-          <div 
-            v-for="record in paginatedRecords" 
+          <div
+            v-for="record in paginatedRecords"
             :key="record.id"
             class="record-row"
             :class="{ clickable: effectiveSetting.allowOpen }"
             @click="handleOpenRecord(record)"
           >
-            <div 
-              v-for="col in displayColumns" 
-              :key="col"
-              class="record-cell"
-            >
+            <div v-for="col in displayColumns" :key="col" class="record-cell">
               <span class="cell-value">{{ formatCellValue(record, col) }}</span>
             </div>
             <div v-if="effectiveSetting.allowOpen" class="record-action">
@@ -154,12 +138,12 @@ const effectiveSetting = computed<RelatedTableListWidgetSetting>(() => ({
 
 // Get relation fields from table fields
 const relationFields = computed(() => {
-  return props.fields.filter(f => f.type === ColumnFieldType.MagicLink)
+  return props.fields.filter((f) => f.type === ColumnFieldType.Relation)
 })
 
 // Get current relation field
 const relationField = computed(() => {
-  return relationFields.value.find(f => f.fieldName === effectiveSetting.value.relationFieldName)
+  return relationFields.value.find((f) => f.fieldName === effectiveSetting.value.relationFieldName)
 })
 
 // Widget title
@@ -174,9 +158,9 @@ const displayColumns = computed(() => {
   }
   // Default: show first 3 text columns from target table
   return targetFields.value
-    .filter(f => f.type === ColumnFieldType.Text || f.type === ColumnFieldType.MultiText)
+    .filter((f) => f.type === ColumnFieldType.Text || f.type === ColumnFieldType.MultiText)
     .slice(0, 3)
-    .map(f => f.fieldName)
+    .map((f) => f.fieldName)
 })
 
 // Pagination
@@ -224,7 +208,7 @@ async function loadRelatedRecords() {
       relatedRecords.value = await props.fetchRelatedRecords(fieldName, recordIds)
     } else {
       // Fallback: show IDs if no fetch function provided
-      relatedRecords.value = recordIds.map(id => ({ id, _display: id }))
+      relatedRecords.value = recordIds.map((id) => ({ id, _display: id }))
     }
   } catch (error) {
     console.error('Failed to fetch related records:', error)
@@ -289,7 +273,7 @@ function handleAddRelated() {
 
 function handleOpenRecord(record: any) {
   if (!effectiveSetting.value.allowOpen) return
-  
+
   const field = relationField.value
   if (field?.relationTableId && props.onOpenRecord) {
     props.onOpenRecord(field.relationTableId, record.id)
@@ -329,7 +313,7 @@ defineExpose({
 
   &.clickable {
     cursor: pointer;
-    
+
     &:hover {
       background: var(--el-fill-color-light);
     }

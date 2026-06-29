@@ -6,34 +6,38 @@
         <el-button class="source-button" type="info" link :icon="Position" v-if="showSourceButton" @click="handleSourceClick">{{
           $t('common_goToSourceTable')
         }}</el-button>
-        <div v-if="showMoveButtons">
-          <el-icon
-            style="font-size: var(--app-font-size-m)"
-            :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'"
-            role="button"
-            tabindex="0"
-            :aria-label="t('common_moveUp')"
-            :aria-disabled="disabledUp"
-            @click="!disabledUp && handleMove('up')"
-            @keydown.enter.space.prevent="!disabledUp && handleMove('up')"
-          >
-            <Top />
-          </el-icon>
-          <el-icon
-            style="font-size: var(--app-font-size-m)"
-            :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'"
-            role="button"
-            tabindex="0"
-            :aria-label="t('common_moveDown')"
-            :aria-disabled="disabledDown"
-            @click="!disabledDown && handleMove('down')"
-            @keydown.enter.space.prevent="!disabledDown && handleMove('down')"
-          >
-            <Bottom />
-          </el-icon>
-        </div>
-        <div class="fullscreen-toggle">
-          <el-switch v-model="fullscreen" />
+        <div class="action-container">
+          <div v-if="showMoveButtons" class="action">
+            <el-icon
+              style="font-size: var(--app-font-size-m)"
+              :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'"
+              role="button"
+              tabindex="0"
+              :aria-label="t('common_moveUp')"
+              :aria-disabled="disabledUp"
+              @click="!disabledUp && handleMove('up')"
+              @keydown.enter.space.prevent="!disabledUp && handleMove('up')"
+            >
+              <Top />
+            </el-icon>
+            <el-icon
+              style="font-size: var(--app-font-size-m)"
+              :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'"
+              role="button"
+              tabindex="0"
+              :aria-label="t('common_moveDown')"
+              :aria-disabled="disabledDown"
+              @click="!disabledDown && handleMove('down')"
+              @keydown.enter.space.prevent="!disabledDown && handleMove('down')"
+            >
+              <Bottom />
+            </el-icon>
+          </div>
+          <div class="fullscreen-toggle">
+            <el-icon :class="fullscreen ? 'fullscreen-exit' : 'fullscreen-enter'" @click="fullscreen = !fullscreen">
+              <FullScreen />
+            </el-icon>
+          </div>
         </div>
       </div>
     </template>
@@ -42,7 +46,7 @@
         <MdForm ref="formRef" :columns="formColumns" :systemFieldsTypes="systemFieldsTypes" :form-data="formData" :mode="mode" />
       </el-tab-pane>
       <el-tab-pane v-if="formData.id" :label="t('common_dashboard')" name="dashboard">
-        <RecordDashboard :record-id="formData.id" :table-id="tableId" :can-manage="canManageTable" />
+        <RecordDashboard :record-id="formData.id" :table-id="tableId" :record="formData" :can-manage="canManageTable" />
       </el-tab-pane>
       <el-tab-pane v-if="formData.id" :label="t('auditLog_title')" name="auditLog">
         <div
@@ -99,7 +103,7 @@
 <script setup lang="ts">
 import { newClientApi, clientApi } from 'api'
 import { EventType, useEventBus } from 'eventbus'
-import { Top, Bottom, Position, Loading } from '@element-plus/icons-vue'
+import { Top, Bottom, Position, Loading, FullScreen } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { updateRelationFields } from '../../utils/relationHelper'
 import { computed, formatDate, groupAuditLogsByDate, ref, watch } from '#imports'
@@ -319,6 +323,13 @@ defineExpose({ open, close })
 </script>
 
 <style scoped lang="scss">
+.action-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 .mdForm-title {
   display: flex;
   justify-content: space-between;

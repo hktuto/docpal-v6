@@ -1,10 +1,5 @@
 <template>
-  <el-dialog
-    v-model="state.visible"
-    :title="$t('detailWidget.tableInfoSettings')"
-    width="500px"
-    destroy-on-close
-  >
+  <el-dialog v-model="state.visible" :title="$t('detailWidget.tableInfoSettings')" width="500px" destroy-on-close>
     <el-form label-position="top" size="default">
       <!-- Layout Selection -->
       <el-form-item :label="$t('detailWidget.layout')">
@@ -39,32 +34,35 @@
       <el-form-item :label="$t('detailWidget.fieldsToDisplay')">
         <div class="field-selector">
           <el-checkbox-group v-model="state.setting.fields">
-            <draggable
-              v-model="state.setting.fields"
-              item-key="fieldName"
-              handle=".drag-handle"
-              :animation="200"
-            >
+            <draggable v-model="state.setting.fields" item-key="fieldName" handle=".drag-handle" :animation="200">
               <template #item="{ element: fieldName }">
                 <div class="field-item selected">
                   <Icon name="lucide:grip-vertical" class="drag-handle" size="14" />
                   <el-checkbox :value="fieldName" :label="getFieldLabel(fieldName)">
                     {{ getFieldLabel(fieldName) }}
                   </el-checkbox>
+                  <el-select
+                    v-if="state.setting.layout === 'grid'"
+                    :model-value="getFieldConfig(fieldName).colSpan || 6"
+                    size="small"
+                    style="width: 80px; margin-left: auto"
+                    @update:model-value="setFieldColSpan(fieldName, $event)"
+                  >
+                    <el-option :value="3" label="1/4" />
+                    <el-option :value="4" label="1/3" />
+                    <el-option :value="6" label="1/2" />
+                    <el-option :value="8" label="2/3" />
+                    <el-option :value="12" label="Full" />
+                  </el-select>
                 </div>
               </template>
             </draggable>
           </el-checkbox-group>
-          
+
           <!-- Available fields not yet selected -->
           <div class="available-fields">
             <div class="section-label">{{ $t('detailWidget.availableFields') }}</div>
-            <div 
-              v-for="field in availableFields" 
-              :key="field.fieldName"
-              class="field-item available"
-              @click="addField(field.fieldName)"
-            >
+            <div v-for="field in availableFields" :key="field.fieldName" class="field-item available" @click="addField(field.fieldName)">
               <Icon name="lucide:plus" size="14" />
               <span>{{ field.fieldNameAlias || field.fieldName }}</span>
             </div>
@@ -92,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive, computed, watch } from 'vue'
 import draggable from 'vuedraggable'
 import type { TableInfoWidgetSetting } from '../../../utils/detailWidgetHelper'
 import type { FieldInfo } from '../../../types/view-config'
@@ -112,6 +110,7 @@ const state = reactive({
   visible: false,
   setting: {
     fields: [] as string[],
+    fieldConfigs: [] as Array<{ fieldName: string; label?: string; colSpan?: number }>,
     layout: 'grid' as 'list' | 'grid',
     showLabels: true,
     gridColumns: 2
@@ -120,21 +119,42 @@ const state = reactive({
 
 // Fields that can be selected (exclude relations)
 const selectableFields = computed(() => {
-  return props.fields.filter(f => 
-    f.type !== ColumnFieldType.MagicLink && 
-    f.type !== ColumnFieldType.VirtualColumn
-  )
+  return props.fields.filter((f) => f.type !== ColumnFieldType.Relation && f.type !== ColumnFieldType.VirtualColumn)
 })
 
 // Fields not yet selected
 const availableFields = computed(() => {
   const selectedSet = new Set(state.setting.fields)
-  return selectableFields.value.filter(f => !selectedSet.has(f.fieldName))
+  return selectableFields.value.filter((f) => !selectedSet.has(f.fieldName))
 })
 
 function getFieldLabel(fieldName: string): string {
-  const field = props.fields.find(f => f.fieldName === fieldName)
+  const field = props.fields.find((f) => f.fieldName === fieldName)
   return field?.fieldNameAlias || fieldName
+}
+
+function getFieldConfig(fieldName: string) {
+  return state.setting.fieldConfigs.find((c) => c.fieldName === fieldName) || { fieldName }
+}
+
+function setFieldColSpan(fieldName: string, colSpan: number) {
+  const config = state.setting.fieldConfigs.find((c) => c.fieldName === fieldName)
+  if (config) {
+    config.colSpan = colSpan
+  } else {
+    state.setting.fieldConfigs.push({ fieldName, colSpan })
+  }
+}
+
+function syncFieldConfigsFromFields() {
+  // Remove configs for fields no longer selected
+  state.setting.fieldConfigs = state.setting.fieldConfigs.filter((c) => state.setting.fields.includes(c.fieldName))
+  // Ensure every selected field has a config entry (default colSpan 6)
+  state.setting.fields.forEach((fieldName) => {
+    if (!state.setting.fieldConfigs.some((c) => c.fieldName === fieldName)) {
+      state.setting.fieldConfigs.push({ fieldName, colSpan: 6 })
+    }
+  })
 }
 
 function addField(fieldName: string) {
@@ -143,13 +163,17 @@ function addField(fieldName: string) {
   }
 }
 
+watch(() => state.setting.fields, syncFieldConfigsFromFields, { deep: true })
+
 function handleOpen(setting: TableInfoWidgetSetting) {
   state.setting = {
     fields: [...(setting.fields || [])],
+    fieldConfigs: [...(setting.fieldConfigs || [])],
     layout: setting.layout || 'grid',
     showLabels: setting.showLabels ?? true,
     gridColumns: setting.gridColumns || 2
   }
+  syncFieldConfigsFromFields()
   state.visible = true
 }
 
@@ -158,6 +182,7 @@ function handleClose() {
 }
 
 function handleSubmit() {
+  syncFieldConfigsFromFields()
   emit('refresh', { ...state.setting })
   state.visible = false
 }
@@ -187,7 +212,7 @@ defineExpose({
   gap: var(--app-space-s);
   padding: var(--app-space-s) var(--app-space-m);
   border-bottom: 1px solid var(--el-border-color-lighter);
-  
+
   &:last-child {
     border-bottom: none;
   }
@@ -198,7 +223,7 @@ defineExpose({
 
   &.available {
     cursor: pointer;
-    
+
     &:hover {
       background: var(--el-fill-color-light);
     }
@@ -207,7 +232,7 @@ defineExpose({
   .drag-handle {
     cursor: grab;
     color: var(--el-text-color-placeholder);
-    
+
     &:active {
       cursor: grabbing;
     }

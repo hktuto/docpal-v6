@@ -24,29 +24,124 @@
 </template>
 
 <script setup lang="ts">
+import { computed, provide, ref, watch } from 'vue'
 import { Edit } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import type { ViewDashboardLayoutItem } from '../../utils/databaseType'
-import { getDbDashboardWidgetByType } from '../../utils/dashboardWidgets'
+import { getRecordDashboardWidgetByType } from '../../utils/dashboardWidgets'
 import { useTableViewsInject } from '../../composables/table/useTableViews'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { RecordDashboardContextKey } from '../../composables/dashboard/recordDashboardContext'
 
 const { t } = useI18n()
 
-defineProps<{
-  // TODO: pass to record-aware widgets in the widget phase
+const props = defineProps<{
   recordId?: string | number
-  // TODO: wire into widget context in the widget phase
   tableId?: string
+  record?: Record<string, any>
   canManage?: boolean
 }>()
 
-const { currentView, updateView } = useTableViewsInject()
+const { currentView, updateView, tableFields } = useTableViewsInject()
+
+provide(RecordDashboardContextKey, {
+  record: computed(() => props.record ?? {}) as Ref<Record<string, any>>,
+  tableId: computed(() => props.tableId ?? '') as Ref<string>,
+  tableFields
+})
 
 const editMode = ref(false)
 const saving = ref(false)
+const defaultLayoutCache = ref<{ key: string; layout: ViewDashboardLayoutItem[] } | null>(null)
+
+function getDefaultLayoutKey(): string {
+  const fieldNames = tableFields.value.map((f: any) => f.field_name).join(',')
+  return `${props.tableId}:${props.recordId}:${fieldNames}`
+}
+
+function generateDefaultRecordLayout(tableFields: any[]): ViewDashboardLayoutItem[] {
+  const cacheKey = getDefaultLayoutKey()
+  if (defaultLayoutCache.value?.key === cacheKey) {
+    return defaultLayoutCache.value.layout
+  }
+
+  const layout: ViewDashboardLayoutItem[] = []
+  let currentY = 0
+
+  const nonRelationFields = tableFields.filter((f: any) => f.business_type !== ColumnFieldType.Relation && f.business_type !== ColumnFieldType.VirtualColumn)
+
+  const defaultInfoFields = nonRelationFields.slice(0, 4).map((f: any) => f.field_name)
+
+  if (defaultInfoFields.length > 0) {
+    layout.push({
+      x: 0,
+      y: currentY,
+      w: 6,
+      h: 4,
+      i: `DbRecordInfo-default`,
+      component: 'LazyDbRecordInfoWidget',
+      label: 'DbRecordInfo',
+      minW: 4,
+      minH: 2,
+      maxW: 12,
+      maxH: 12,
+      setting: {
+        label: 'Record Info',
+        fields: defaultInfoFields,
+        fieldConfigs: defaultInfoFields.map((name: string) => ({
+          fieldName: name,
+          colSpan: 6
+        })),
+        layout: 'grid',
+        showLabels: true,
+        gridColumns: 2,
+        recordId: props.recordId,
+        tableId: props.tableId,
+        _recordContext: true
+      }
+    })
+    currentY += 4
+  }
+
+  const relationFields = tableFields.filter((f: any) => f.business_type === ColumnFieldType.Relation)
+
+  relationFields.forEach((field: any) => {
+    layout.push({
+      x: 0,
+      y: currentY,
+      w: 12,
+      h: 5,
+      i: `DbRecordRelation-${field.field_name}`,
+      component: 'LazyDbRecordRelationWidget',
+      label: 'DbRecordRelation',
+      minW: 4,
+      minH: 3,
+      maxW: 12,
+      maxH: 12,
+      setting: {
+        label: field.field_name_alias || field.field_name,
+        relationFieldName: field.field_name,
+        displayColumns: [],
+        pageSize: 5,
+        allowAdd: false,
+        allowOpen: true,
+        recordId: props.recordId,
+        tableId: props.tableId,
+        _recordContext: true
+      }
+    })
+    currentY += 5
+  })
+
+  defaultLayoutCache.value = { key: cacheKey, layout }
+  return layout
+}
 
 const initialLayout = computed(() => {
-  return currentView.value?.dashboard?.layout ?? []
+  const persisted = currentView.value?.dashboard?.layout ?? []
+  if (persisted.length > 0) return persisted
+  if (!props.record || Object.keys(props.record).length === 0) return []
+  return generateDefaultRecordLayout(tableFields.value)
 })
 
 const layout = ref<ViewDashboardLayoutItem[]>([])
@@ -60,9 +155,7 @@ watch(
 )
 
 const recordWidgetRegistryByType = computed(() => {
-  // For now expose the same widget palette as the database dashboard.
-  // Widgets will be made record-aware in the next step.
-  return getDbDashboardWidgetByType()
+  return getRecordDashboardWidgetByType()
 })
 
 async function persistLayout() {
@@ -93,7 +186,12 @@ async function handleAdd(data: any) {
     minH: data.minH,
     maxW: data.maxW,
     maxH: data.maxH,
-    setting: data.setting ? { ...data.setting } : undefined
+    setting: {
+      ...(data.setting ? { ...data.setting } : {}),
+      recordId: props.recordId,
+      tableId: props.tableId,
+      _recordContext: true
+    }
   }
   layout.value.push(newItem)
   await persistLayout()

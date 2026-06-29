@@ -747,6 +747,8 @@
     "DbProgress": "数据库进度",
     "DbRecentRecords": "数据库最近记录",
     "DbRecordInfo": "记录信息",
+    "DbRecordRelation": "关联记录",
+    "recordId": "记录 ID",
     "DbStat": "数据库统计",
     "DbTable": "数据库表格",
     "CalendarWidget": "日歷",
@@ -811,7 +813,6 @@
     "fileSizes": "文件大小图表",
     "newCount": "新工作流程",
     "newFiles": "文件计数图表",
-    "recordId": "记录 ID",
     "setting": "设置",
     "showCount": "显示文件计数图表",
     "showSize": "显示文件大小图表",
@@ -4700,6 +4701,6 @@
   "dynamicdb_create_field": "Create Field",
   "dynamicdb_update_trigger_setting": "Update Trigger Setting",
   "dynamicdb_create_trigger_setting": "Create Trigger Setting",
-  "common_form":"Form",
+  "common_form": "Form",
   "auditLog_title": "Audit Log"
 }

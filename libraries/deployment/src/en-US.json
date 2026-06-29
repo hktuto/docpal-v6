@@ -749,6 +749,8 @@
     "DbProgress": "DB Progress",
     "DbRecentRecords": "DB Recent Records",
     "DbRecordInfo": "Record Info",
+    "DbRecordRelation": "Related Records",
+    "recordId": "Record ID",
     "DbStat": "DB Stat",
     "DbTable": "DB Table",
     "CalendarWidget": "Calendar",
@@ -813,7 +815,6 @@
     "fileSizes": "Files Size Chart",
     "newCount": "New Workflow",
     "newFiles": "Files Count Chart",
-    "recordId": "Record ID",
     "setting": "Setting",
     "showCount": "Show Files Count Chart",
     "showSize": "Show Files Size Chart",
@@ -2666,12 +2667,20 @@
         },
         "IF": {
           "description": "Returns one value if a condition is true, and another value if it is false.",
-          "param": { "logical": "Logical condition, an expression that evaluates to true or false", "value1": "Value returned when the condition is true", "value2": "Value returned when the condition is false" },
+          "param": {
+            "logical": "Logical condition, an expression that evaluates to true or false",
+            "value1": "Value returned when the condition is true",
+            "value2": "Value returned when the condition is false"
+          },
           "example": "IF(10 > 5, 'Yes', 'No') returns 'Yes'"
         },
         "CASE": {
           "description": "Evaluates conditions in order and returns the result of the first true condition. An optional default value can be specified.",
-          "param": { "condition1": "Condition 1 (true/false)", "result1": "Result when condition 1 is true", "default": "Default value if no condition is met (optional)" },
+          "param": {
+            "condition1": "Condition 1 (true/false)",
+            "result1": "Result when condition 1 is true",
+            "default": "Default value if no condition is met (optional)"
+          },
           "example": "CASE({score} >= 90, 'A', {score} >= 60, 'B', 'C')"
         },
         "AND": {

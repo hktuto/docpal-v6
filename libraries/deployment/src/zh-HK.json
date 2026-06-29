@@ -747,6 +747,8 @@
     "DbProgress": "數據庫進度",
     "DbRecentRecords": "數據庫最近記錄",
     "DbRecordInfo": "記錄資訊",
+    "DbRecordRelation": "關聯記錄",
+    "recordId": "記錄 ID",
     "DbStat": "數據庫統計",
     "DbTable": "數據庫表格",
     "CalendarWidget": "日歷",
@@ -810,7 +812,6 @@
     "fileSizes": "文件大小圖表",
     "newCount": "新工作流程",
     "newFiles": "文件計數圖表",
-    "recordId": "記錄 ID",
     "setting": "設定",
     "showCount": "顯示文件計數圖表",
     "showSize": "顯示檔案大小圖表",
@@ -4696,6 +4697,6 @@
   "dynamicdb_create_field": "Create Field",
   "dynamicdb_update_trigger_setting": "Update Trigger Setting",
   "dynamicdb_create_trigger_setting": "Create Trigger Setting",
-  "common_form":"Form",
+  "common_form": "Form",
   "auditLog_title": "Audit Log"
 }

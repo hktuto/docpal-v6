@@ -246,15 +246,39 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
   DbRecordInfo: {
     label: 'DbRecordInfo',
     type: 'record' as any,
-    minW: 2,
+    minW: 4,
     minH: 2,
     maxW: 12,
-    maxH: 6,
-    w: 4,
-    h: 2,
+    maxH: 12,
+    w: 6,
+    h: 4,
     component: 'LazyDbRecordInfoWidget',
     setting: {
-      label: 'Record Info'
+      label: 'Record Info',
+      fields: [],
+      fieldConfigs: [],
+      layout: 'grid',
+      showLabels: true,
+      gridColumns: 2
+    }
+  },
+  DbRecordRelation: {
+    label: 'DbRecordRelation',
+    type: 'record' as any,
+    minW: 4,
+    minH: 3,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 5,
+    component: 'LazyDbRecordRelationWidget',
+    setting: {
+      label: 'Related Records',
+      relationFieldName: '',
+      displayColumns: [],
+      pageSize: 5,
+      allowAdd: false,
+      allowOpen: true
     }
   }
 }
@@ -272,6 +296,8 @@ export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSett
   Object.keys(dbDashboardWidgetSetting).forEach((key) => {
     const widget = dbDashboardWidgetSetting[key]
     const type = widget.type || 'database'
+    // Record widgets are only for the per-record dashboard, not the database dashboard
+    if (type === 'record') return
     if (!result[type]) {
       result[type] = []
     }
@@ -287,6 +313,21 @@ export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSett
       result[type] = []
     }
     result[type].push(widget)
+  })
+
+  return result
+}
+
+export function getRecordDashboardWidgetByType(): Record<string, DashboardWidgetSetting[]> {
+  const result: Record<string, DashboardWidgetSetting[]> = {
+    record: []
+  }
+
+  Object.keys(dbDashboardWidgetSetting).forEach((key) => {
+    const widget = dbDashboardWidgetSetting[key]
+    if (widget.type === 'record') {
+      result.record.push(widget)
+    }
   })
 
   return result
