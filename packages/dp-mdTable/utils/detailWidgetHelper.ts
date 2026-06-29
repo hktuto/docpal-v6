@@ -108,6 +108,23 @@ export interface RelatedTableListWidgetSetting {
   allowAdd: boolean
   /** Show link to open related record */
   allowOpen: boolean
+  /** Default filter rules applied to the related table */
+  filterRules?: {
+    conditions: Array<{
+      id: string
+      connector: 'AND' | 'OR'
+      field: string
+      operator: string
+      value: string | number | Array<string | number>
+    }>
+    conjunction: 'AND' | 'OR'
+  }
+  /** Default sort rules applied to the related table */
+  sortRules?: Array<{
+    id: string
+    field: string
+    order: 'asc' | 'desc'
+  }>
 }
 
 /**

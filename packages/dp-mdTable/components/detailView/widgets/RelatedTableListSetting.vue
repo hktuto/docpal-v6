@@ -66,6 +66,27 @@
       </el-form-item>
     </el-form>
 
+    <!-- Default Filter -->
+    <div class="setting-section">
+      <div class="setting-section__title">{{ $t('common_defaultFilter') }}</div>
+      <ToolsFilterConfigPopover
+        :available-columns="availableFilterColumns"
+        :column-filter-rules="state.setting.filterRules"
+        width="600"
+        @filter-change="state.setting.filterRules = $event"
+      />
+    </div>
+
+    <!-- Default Sort -->
+    <div class="setting-section">
+      <div class="setting-section__title">{{ $t('common_defaultSort') }}</div>
+      <ToolsSortConfigPopover
+        :available-columns="availableFilterColumns"
+        width="400"
+        @change="handleSortChange"
+      />
+    </div>
+
     <template #footer>
       <div class="dialog-footer">
         <el-button type="danger" text @click="handleDelete">
@@ -82,9 +103,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, watch, computed, provide } from 'vue'
 import type { RelatedTableListWidgetSetting } from '../../../utils/detailWidgetHelper'
 import type { FieldInfo } from '../../../types/view-config'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import ToolsFilterConfigPopover, { type FilterRule } from '../../tools/filter/ConfigPopover.vue'
+import ToolsSortConfigPopover, { type SortRule } from '../../tools/sort/configPopover.vue'
 
 const props = defineProps<{
   setting: RelatedTableListWidgetSetting
@@ -104,9 +128,39 @@ const state = reactive({
     displayColumns: [] as string[],
     pageSize: 5,
     allowAdd: true,
-    allowOpen: true
+    allowOpen: true,
+    filterRules: {
+      conditions: [] as FilterRule[],
+      conjunction: 'AND' as 'AND' | 'OR'
+    },
+    sortRules: [] as SortRule[]
   }
 })
+
+const availableFilterColumns = computed(() => {
+  return props.targetFields
+    .filter(
+      (f) =>
+        f.type !== ColumnFieldType.Relation &&
+        f.type !== ColumnFieldType.VirtualColumn &&
+        f.type !== ColumnFieldType.Formula &&
+        f.type !== ColumnFieldType.AggVirtualColumn
+    )
+    .map((f) => ({
+      field: f.fieldName,
+      title: f.fieldNameAlias || f.fieldName,
+      type: f.type,
+      business_type: f.type as ColumnFieldType
+    }))
+})
+
+const columnSortRules = computed({
+  get: () => state.setting.sortRules,
+  set: (val) => {
+    state.setting.sortRules = val
+  }
+})
+provide('viewTools', { columnSortRules })
 
 // Clear display columns when relation changes
 watch(
@@ -124,7 +178,12 @@ function handleOpen(setting: RelatedTableListWidgetSetting) {
     displayColumns: [...(setting.displayColumns || [])],
     pageSize: setting.pageSize || 5,
     allowAdd: setting.allowAdd ?? true,
-    allowOpen: setting.allowOpen ?? true
+    allowOpen: setting.allowOpen ?? true,
+    filterRules: {
+      conditions: [...(setting.filterRules?.conditions || [])],
+      conjunction: setting.filterRules?.conjunction || 'AND'
+    },
+    sortRules: [...(setting.sortRules || [])]
   }
   state.visible = true
 }
@@ -136,6 +195,10 @@ function handleClose() {
 function handleSubmit() {
   emit('refresh', { ...state.setting })
   state.visible = false
+}
+
+function handleSortChange() {
+  // Sort rules are mutated directly through the injected viewTools ref
 }
 
 function handleDelete() {
@@ -168,6 +231,17 @@ defineExpose({
 
   .spacer {
     flex: 1;
+  }
+}
+
+.setting-section {
+  margin-top: var(--app-space-m);
+
+  .setting-section__title {
+    font-size: var(--app-font-size-m);
+    font-weight: 600;
+    margin-bottom: var(--app-space-s);
+    color: var(--el-text-color-primary);
   }
 }
 </style>
