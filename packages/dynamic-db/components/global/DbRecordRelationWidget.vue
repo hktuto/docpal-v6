@@ -19,6 +19,7 @@ import { RecordDashboardContextKey } from '../../composables/dashboard/recordDas
 import type { FieldInfo } from '@packages/dp-mdTable/types/view-config'
 import { postDynamicActions } from 'api'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
+import { useRelatedRecordParams, type FilterRules, type SortRule } from '../../composables/dashboard/useRelatedRecordParams'
 
 const props = defineProps<{
   setting?: Record<string, any>
@@ -30,6 +31,7 @@ const emit = defineEmits(['delete', 'refreshSetting'])
 const context = inject(RecordDashboardContextKey, null)
 const record = computed(() => context?.record.value ?? {})
 const { getFields } = useTableFields()
+const { buildParams } = useRelatedRecordParams()
 
 const fields = computed<FieldInfo[]>(() => {
   return (context?.tableFields.value ?? []).map((f: any) => ({
@@ -53,23 +55,40 @@ defineExpose({
   settingRef: relationTableRef
 })
 
-async function fetchRelatedRecords(relationFieldName: string, recordIds: string[]) {
+async function fetchRelatedRecords(
+  relationFieldName: string,
+  recordIds: string[],
+  options: {
+    filterRules?: FilterRules
+    runtimeFilterRules?: FilterRules
+    sortRules?: SortRule[]
+    runtimeSortRules?: SortRule[]
+  } = {}
+) {
   if (!recordIds?.length) return []
 
-  const relationField = (context?.tableFields.value ?? []).find((f: any) => f.field_name === relationFieldName)
-  const relationTableId = relationField?.display_structure?.relation_table_id ?? relationField?.relation_table_id
+  const relationField = (context?.tableFields.value ?? []).find(
+    (f: any) => f.field_name === relationFieldName
+  )
+  const relationTableId =
+    relationField?.display_structure?.relation_table_id ??
+    relationField?.relation_table_id
 
   if (!relationTableId) return []
+
+  const { conditions, orderBy } = buildParams(
+    recordIds,
+    options.filterRules,
+    options.runtimeFilterRules,
+    options.sortRules,
+    options.runtimeSortRules
+  )
 
   const { data }: any = await postDynamicActions({
     tableId: relationTableId,
     columns: [{ name: '*' }],
-    conditions: [
-      {
-        type: 'AND',
-        value: [{ column: 'id', type: 'IN', value: recordIds }]
-      }
-    ]
+    conditions,
+    orderBy
   })
 
   return data?.data ?? []
