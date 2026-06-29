@@ -27,6 +27,7 @@ type dataType = {
   competitor_pn: string
   competitor_unit_price: string
   remarks: string
+  actual_received_qty: number
 }
 
 const formModel = reactive<{ list: dataType[] }>({
@@ -47,7 +48,8 @@ const formModel = reactive<{ list: dataType[] }>({
       competitor_name: '',
       competitor_pn: '',
       competitor_unit_price: '',
-      remarks: ''
+      remarks: '',
+      actual_received_qty: 0
     }
   ]
 })
@@ -79,8 +81,9 @@ function handleAdd(index?: number) {
     competitor_name: '',
     competitor_pn: '',
     competitor_unit_price: '',
-    remarks: ''
-  }
+    remarks: '',
+    actual_received_qty: 0
+  } as dataType
 
   if (!!index) {
     data.value.splice(index, 0, newValue)

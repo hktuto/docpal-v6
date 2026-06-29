@@ -43,6 +43,17 @@ const displayTypeList = ref([
     component: 'ContextVariableDataTypeNumber'
   },
   {
+    label: 'Timestamp',
+    type: 'number',
+    display_type: 'timestamp',
+    validation: {
+      max_value: 9999999999999,
+      min_value: 1000000000000,
+      decimal_places: 0
+    },
+    component: 'ContextVariableDataTypeTimestamp'
+  },
+  {
     label: 'Boolean',
     type: 'boolean',
     display_type: 'boolean',
@@ -158,7 +169,7 @@ defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="opened" title="Item" append-to-body destroy-on-close :close-on-click-modal="false">
+  <el-dialog v-model="opened" title="Sub Item" append-to-body destroy-on-close :close-on-click-modal="false">
     <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top">
       <el-form-item label="ID" prop="id">
         <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />
