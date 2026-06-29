@@ -32,7 +32,13 @@ const taskDetail = ref({
 })
 const variables = ref<VariableItem[]>([])
 const variablesData = ref({})
-const contentData = ref({})
+const contentData = ref<{
+  nodes: any[]
+  variables: any
+}>({
+  nodes: [],
+  variables: {}
+})
 const nodeType = ref<'UserTask' | 'SignatureTask'>('UserTask')
 const isAssigneeUser = ref<boolean>(false)
 
@@ -57,13 +63,21 @@ async function getDetail() {
     taskDetail.value = data
 
     state.title = data.config?.human_task?.form_title || data.name
-    variables.value = data.config?.human_task?.form_fields || []
 
     const instanceData = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
     variablesData.value = instanceData.variables || {}
     contentData.value = await clientApi.instance
       .get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`)
       .then((r: any) => workflowResponseHelper(r))
+
+    // variables.value = data.config?.human_task?.form_fields || Object.entries(contentData.value.variables).map(([key, value]) => ({
+    //   id: key,
+    // ...value
+    // })) as any[]
+    variables.value = Object.entries(contentData.value.variables).map(([key, value]) => ({
+      id: key,
+      ...value
+    })) as any[]
 
     await handleAdditionalSetting(contentData.value.nodes, data.metadata, variables.value)
     if (data.config?.human_task?.assignee === userId) {

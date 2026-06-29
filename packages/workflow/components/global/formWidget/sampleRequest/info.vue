@@ -8,7 +8,28 @@ const { disabled, formData, options } = defineProps<{
 }>()
 const formRef = ref()
 const isSeries = ref<boolean>(false)
-const formModel = reactive<{ list: any[] }>({
+
+type dataType = {
+  id?: string
+  line_number: number
+  vendor: string
+  part_number: string
+  series: string
+  purpose: string
+  pcs_unit: number
+  fcst_qty: number
+  request_qty: number
+  run_rate: number
+  packaged: number
+  car_use: string
+  cust_selected_parts: 'Introduced by Sales' | 'Selected by Customer'
+  competitor_name: string
+  competitor_pn: string
+  competitor_unit_price: string
+  remarks: string
+}
+
+const formModel = reactive<{ list: dataType[] }>({
   list: [
     {
       line_number: 1,
@@ -37,7 +58,8 @@ const rules = {
   purpose: [{ required: true, message: 'Please select purpose', trigger: 'change' }],
   series: [{ required: true, message: 'Please select series', trigger: 'change' }],
   part_number: [{ required: true, message: 'Please select part number', trigger: 'change' }],
-  remarks: [{ required: true, message: 'Please input remarks', trigger: 'change' }]
+  remarks: [{ required: true, message: 'Please input remarks', trigger: 'change' }],
+  car_use: [{ required: true, message: 'Please select car use', trigger: 'change' }]
 }
 
 function handleAdd(index?: number) {
@@ -167,11 +189,20 @@ onMounted(async () => {
   try {
     await getPartList()
     await getSeriesList()
-    await init()
   } catch (e) {
     console.log(e)
   }
 })
+
+watch(
+  () => formData.sample_info_list,
+  (value) => {
+    if (!!value && value.length > 0) {
+      init()
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 defineExpose({ getFormData })
 </script>
@@ -254,7 +285,7 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="是否用於汽車" :required="['MMC', 'NCC'].includes(item.vendor.toUpperCase())" prop="car_use">
+            <el-form-item label="是否用於汽車" :required="['MMC', 'NCC'].includes(item.vendor.toUpperCase())" :prop="`list.${index}.car_use`">
               <el-switch v-model="item.car_use" active-text="Yes" active-value="Yes" inactive-text="No" inactive-value="No" />
             </el-form-item>
             <el-form-item label="競爭者型號" prop="competitor_pn">

@@ -57,7 +57,9 @@ async function handleWorkflow(fileList: any) {
     fileList.forEach((file: any) => {
       formData.append('files', file.raw)
     })
-    const res = await newClientApi.postDmsPublicUploadRequestFiles(formData)
+    const res = await newClientApi.postDmsPublicUploadRequestFiles(formData, {
+      timeout: 0
+    })
     if (res) router.push('/public/uploadTip?tip=uploadedSuccessfully')
   } catch (error) {
     console.log("error", error)
