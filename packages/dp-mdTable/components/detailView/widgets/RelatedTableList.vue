@@ -200,7 +200,7 @@ const availableFilterColumns = computed<ColumnConfig[]>(() => {
 
 // Widget title
 const widgetTitle = computed(() => {
-  return relationField.value?.fieldNameAlias || relationField.value?.fieldName || t('detailWidget.relatedTableList')
+  return effectiveSetting.value.label || relationField.value?.fieldNameAlias || relationField.value?.fieldName || t('detailWidget.relatedTableList')
 })
 
 // Get columns to display

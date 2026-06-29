@@ -1,5 +1,11 @@
 <template>
-  <DashboardCard :title="$t('detailWidget.tableInfo')" :hide-setting="hideSetting" :setting-ref="settingRef" :setting="effectiveSetting" @delete="handleDelete">
+  <DashboardCard
+    :title="effectiveSetting.label || $t('detailWidget.tableInfo')"
+    :hide-setting="hideSetting"
+    :setting-ref="settingRef"
+    :setting="effectiveSetting"
+    @delete="handleDelete"
+  >
     <!-- Widget Content -->
     <div class="widget-content" :class="[`layout-${effectiveSetting.layout}`]">
       <template v-if="displayFields.length > 0">
