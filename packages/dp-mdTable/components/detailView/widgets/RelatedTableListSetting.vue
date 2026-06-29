@@ -1,24 +1,10 @@
 <template>
-  <el-dialog
-    v-model="state.visible"
-    :title="$t('detailWidget.relatedTableListSettings')"
-    width="500px"
-    destroy-on-close
-  >
+  <el-dialog v-model="state.visible" :title="$t('detailWidget.relatedTableListSettings')" width="500px" destroy-on-close>
     <el-form label-position="top" size="default">
       <!-- Relation Field Selection -->
       <el-form-item :label="$t('detailWidget.selectRelationField')">
-        <el-select
-          v-model="state.setting.relationFieldName"
-          :placeholder="$t('detailWidget.selectRelation')"
-          style="width: 100%"
-        >
-          <el-option
-            v-for="field in relationFields"
-            :key="field.fieldName"
-            :label="field.fieldNameAlias || field.fieldName"
-            :value="field.fieldName"
-          />
+        <el-select v-model="state.setting.relationFieldName" :placeholder="$t('detailWidget.selectRelation')" style="width: 100%">
+          <el-option v-for="field in relationFields" :key="field.fieldName" :label="field.fieldNameAlias || field.fieldName" :value="field.fieldName" />
         </el-select>
       </el-form-item>
 
@@ -31,12 +17,7 @@
           style="width: 100%"
           :disabled="!state.setting.relationFieldName"
         >
-          <el-option
-            v-for="field in targetFields"
-            :key="field.fieldName"
-            :label="field.fieldNameAlias || field.fieldName"
-            :value="field.fieldName"
-          />
+          <el-option v-for="field in targetFields" :key="field.fieldName" :label="field.fieldNameAlias || field.fieldName" :value="field.fieldName" />
         </el-select>
         <div class="form-tip">
           {{ $t('detailWidget.columnsToDisplayTip') }}
@@ -45,12 +26,7 @@
 
       <!-- Page Size -->
       <el-form-item :label="$t('detailWidget.pageSize')">
-        <el-input-number
-          v-model="state.setting.pageSize"
-          :min="1"
-          :max="50"
-          :step="5"
-        />
+        <el-input-number v-model="state.setting.pageSize" :min="1" :max="50" :step="5" />
       </el-form-item>
 
       <!-- Options -->
@@ -79,10 +55,7 @@
     <!-- Default Sort -->
     <div class="setting-section">
       <div class="setting-section__title">{{ $t('common_defaultSort') }}</div>
-      <ToolsSortButton
-        :available-columns="availableFilterColumns"
-        @sort-change="state.setting.sortRules = $event"
-      />
+      <ToolsSortButton :available-columns="availableFilterColumns" @sort-change="state.setting.sortRules = $event" />
     </div>
 
     <template #footer>

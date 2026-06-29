@@ -39,24 +39,24 @@ export interface RelatedRecordQueryParams {
 function buildFilterConditionGroup(rules: FilterRules | undefined): RelatedRecordConditionGroup[] {
   if (!rules?.conditions?.length) return []
 
-  const conditions: FilterCondition[] = rules.conditions
-    .map(rule => convertFilterRuleToCondition(
-      { field: rule.field, operator: rule.operator, value: rule.value },
-      () => false
-    ))
+  const conditions: FilterCondition[] = rules.conditions.map((rule) =>
+    convertFilterRuleToCondition({ field: rule.field, operator: rule.operator, value: rule.value }, () => false)
+  )
 
   if (conditions.length === 0) return []
 
-  return [{
-    type: rules.conjunction || 'AND',
-    value: conditions
-  }] as RelatedRecordConditionGroup[]
+  return [
+    {
+      type: rules.conjunction || 'AND',
+      value: conditions
+    }
+  ] as RelatedRecordConditionGroup[]
 }
 
 function buildOrderBy(rules: SortRule[] | undefined): Array<{ column: string; desc: boolean }> {
   return (rules || [])
-    .filter(rule => rule.field)
-    .map(rule => ({
+    .filter((rule) => rule.field)
+    .map((rule) => ({
       column: rule.field,
       desc: rule.order === 'desc'
     }))
@@ -77,17 +77,10 @@ export function useRelatedRecordParams() {
       conditions: [
         {
           type: 'AND',
-          value: [
-            { column: 'id', type: 'IN', value: recordIds },
-            ...persistedConditions,
-            ...runtimeConditions
-          ]
+          value: [{ column: 'id', type: 'IN', value: recordIds }, ...persistedConditions, ...runtimeConditions]
         }
       ],
-      orderBy: [
-        ...buildOrderBy(persistedSortRules),
-        ...buildOrderBy(runtimeSortRules)
-      ]
+      orderBy: [...buildOrderBy(persistedSortRules), ...buildOrderBy(runtimeSortRules)]
     }
   }
 

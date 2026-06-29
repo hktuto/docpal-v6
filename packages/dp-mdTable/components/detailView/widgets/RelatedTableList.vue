@@ -26,15 +26,8 @@
 
       <template v-else>
         <div class="related-table__toolbar">
-          <ToolsFilterButton
-            :available-columns="availableFilterColumns"
-            :column-filter-rules="runtimeFilterRules"
-            @filter-change="onRuntimeFilterChange"
-          />
-          <ToolsSortButton
-            :available-columns="availableFilterColumns"
-            @sort-change="onRuntimeSortChange"
-          />
+          <ToolsFilterButton :available-columns="availableFilterColumns" :column-filter-rules="runtimeFilterRules" @filter-change="onRuntimeFilterChange" />
+          <ToolsSortButton :available-columns="availableFilterColumns" @sort-change="onRuntimeSortChange" />
         </div>
 
         <template v-if="loading">
@@ -188,13 +181,14 @@ const relationField = computed(() => {
 // Columns available for runtime filter/sort
 const availableFilterColumns = computed<ColumnConfig[]>(() => {
   return targetFields.value
-    .filter(f =>
-      f.type !== ColumnFieldType.Relation &&
-      f.type !== ColumnFieldType.VirtualColumn &&
-      f.type !== ColumnFieldType.Formula &&
-      f.type !== ColumnFieldType.AggVirtualColumn
+    .filter(
+      (f) =>
+        f.type !== ColumnFieldType.Relation &&
+        f.type !== ColumnFieldType.VirtualColumn &&
+        f.type !== ColumnFieldType.Formula &&
+        f.type !== ColumnFieldType.AggVirtualColumn
     )
-    .map(f => ({
+    .map((f) => ({
       field: f.fieldName,
       title: f.fieldNameAlias || f.fieldName,
       field_name: f.fieldName,
@@ -326,11 +320,7 @@ const recordIds = computed(() => {
   return normalizeRecordIds(props.record[effectiveSetting.value.relationFieldName])
 })
 
-watch(
-  recordIds,
-  () => fetchRelatedRecordsData(),
-  { immediate: true }
-)
+watch(recordIds, () => fetchRelatedRecordsData(), { immediate: true })
 
 function openSettings() {
   settingRef.value?.handleOpen(effectiveSetting.value)

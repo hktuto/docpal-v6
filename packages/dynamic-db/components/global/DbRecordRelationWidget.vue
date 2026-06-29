@@ -67,22 +67,12 @@ async function fetchRelatedRecords(
 ) {
   if (!recordIds?.length) return []
 
-  const relationField = (context?.tableFields.value ?? []).find(
-    (f: any) => f.field_name === relationFieldName
-  )
-  const relationTableId =
-    relationField?.display_structure?.relation_table_id ??
-    relationField?.relation_table_id
+  const relationField = (context?.tableFields.value ?? []).find((f: any) => f.field_name === relationFieldName)
+  const relationTableId = relationField?.display_structure?.relation_table_id ?? relationField?.relation_table_id
 
   if (!relationTableId) return []
 
-  const { conditions, orderBy } = buildParams(
-    recordIds,
-    options.filterRules,
-    options.runtimeFilterRules,
-    options.sortRules,
-    options.runtimeSortRules
-  )
+  const { conditions, orderBy } = buildParams(recordIds, options.filterRules, options.runtimeFilterRules, options.sortRules, options.runtimeSortRules)
 
   const { data }: any = await postDynamicActions({
     tableId: relationTableId,
