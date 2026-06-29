@@ -3,7 +3,6 @@ import { Plus } from '@element-plus/icons-vue'
 import { mimeTypeToIcon } from '../../../../base/utils/browseHelper'
 import type { AttachmentCellValue } from '../../../types/column-types'
 import AttachmentUpload from '../../../components/mdForm/field/Attachment/upload.vue'
-import { normalizeAttachmentValue } from './view'
 
 const props = defineProps<{
   modelValue: unknown
@@ -33,7 +32,7 @@ function applyAttachments(nextAttachments: AttachmentCellValue[]) {
 }
 
 const attachments = computed({
-  get: () => normalizeAttachmentValue(props.row[props.column.field] ?? props.modelValue),
+  get: () => (props.row[props.column.field] ?? props.modelValue ?? []) as AttachmentCellValue[],
   set: applyAttachments
 })
 
@@ -54,7 +53,7 @@ function handleOpenDialog(e?: MouseEvent | KeyboardEvent) {
       @click.stop="handleOpenDialog"
       @keydown.enter.stop="handleOpenDialog"
     />
-    <div class="attachment-edit-cell__list">
+    <div class="attachment-edit-cell__list" @click.stop="handleOpenDialog">
       <img
         v-for="attachment in attachments"
         :key="attachment.id"
