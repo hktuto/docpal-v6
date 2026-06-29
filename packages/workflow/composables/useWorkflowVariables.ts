@@ -191,7 +191,7 @@ function convertValueByDefinition(value: any, definition: VariableItem): any {
 }
 
 function conversionSubData(formData: any, definition: VariableItem) {
-  if (definition.items?.type !== 'object') return
+  if (definition.items?.type !== 'object') return formData
 
   try {
     if (typeof formData === 'string') {
