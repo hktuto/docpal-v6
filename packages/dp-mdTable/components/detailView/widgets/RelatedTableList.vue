@@ -33,7 +33,6 @@
           />
           <ToolsSortButton
             :available-columns="availableFilterColumns"
-            :column-sort-rules="runtimeSortRules"
             @sort-change="onRuntimeSortChange"
           />
         </div>
@@ -249,11 +248,13 @@ function formatCellValue(record: any, fieldName: string): string {
 
 function onRuntimeFilterChange(rules: FilterRules) {
   runtimeFilterRules.value = rules
+  currentPage.value = 1
   fetchRelatedRecordsData()
 }
 
 function onRuntimeSortChange(rules: SortRule[]) {
   runtimeSortRules.value = rules
+  currentPage.value = 1
   fetchRelatedRecordsData()
 }
 
@@ -321,13 +322,14 @@ watch(
   { immediate: true }
 )
 
-// Watch for record changes
+const recordIds = computed(() => {
+  return normalizeRecordIds(props.record[effectiveSetting.value.relationFieldName])
+})
+
 watch(
-  () => props.record,
-  () => {
-    fetchRelatedRecordsData()
-  },
-  { deep: true }
+  recordIds,
+  () => fetchRelatedRecordsData(),
+  { immediate: true }
 )
 
 function openSettings() {
