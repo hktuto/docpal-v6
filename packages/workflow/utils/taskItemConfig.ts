@@ -56,7 +56,15 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
-  // Server Task
+  ScriptTask: {
+    script: {
+      language: 'javascript',
+      script: ''
+    },
+    input_mapping: {},
+    output_mapping: {}
+  },
+  // http task
   UploadFile: {
     http_request: {
       method: 'POST',
@@ -118,7 +126,6 @@ export const getTaskItemConfig = {
     input_mapping: {},
     output_mapping: {}
   },
-  // http task
   HTTPTask: {
     http_request: {
       method: 'GET',
@@ -145,8 +152,8 @@ export const getTaskItemConfig = {
       url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/batch-transactional`,
       headers: generatorHTTPRequestTaskHeaders(),
       body: {
-        mapping: {},
-        data: ''
+        data: '',
+        mapping: {}
       }
     },
     input_mapping: {},
@@ -158,6 +165,19 @@ export const getTaskItemConfig = {
       url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/`,
       headers: generatorHTTPRequestTaskHeaders(),
       body: {}
+    },
+    input_mapping: {},
+    output_mapping: {}
+  },
+  BatchUpdateDynamicDatabase: {
+    http_request: {
+      method: 'POST',
+      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/batch-update`,
+      headers: generatorHTTPRequestTaskHeaders(),
+      body: {
+        data: '',
+        mapping: {}
+      }
     },
     input_mapping: {},
     output_mapping: {}
@@ -175,14 +195,6 @@ export const getTaskItemConfig = {
         attachmentsFilePath: '',
         variables: {}
       }
-    },
-    input_mapping: {},
-    output_mapping: {}
-  },
-  ScriptTask: {
-    script: {
-      language: 'javascript',
-      script: ''
     },
     input_mapping: {},
     output_mapping: {}

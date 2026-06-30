@@ -148,6 +148,7 @@ export enum CellType {
   insertDynamicDatabase = 'InsertDynamicDatabase',
   batchInsertDynamicDatabase = 'BatchInsertDynamicDatabase',
   updateDynamicDatabase = 'UpdateDynamicDatabase',
+  batchUpdateDynamicDatabase = 'BatchUpdateDynamicDatabase',
   uniqueIdGenerator = 'UniqueIdGenerator',
   documentGenerationTask = 'DocumentGenerationTask',
   emailTask = 'EmailTask',
@@ -176,6 +177,7 @@ export enum contextMenuComponentType {
   InsertDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseInsert',
   BatchInsertDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseBatchInsert',
   UpdateDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseUpdate',
+  BatchUpdateDynamicDatabase = 'LazyContextServiceTaskDynamicDatabaseBatchUpdate',
   EmailTask = 'LazyContextServiceTaskEmail',
 
   // Condition
@@ -205,6 +207,7 @@ const taskTitle: any = {
   InsertDynamicDatabase: 'Insert Dynamic Database',
   BatchInsertDynamicDatabase: 'Batch Insert Dynamic Database',
   UpdateDynamicDatabase: 'Update Dynamic Database',
+  BatchUpdateDynamicDatabase: 'Batch Update Dynamic Database',
   EmailTask: 'Email Task',
   ConditionTask: 'Condition Task',
   TransformTask: 'Transform Task',
@@ -715,6 +718,13 @@ export const workflowElement: WorkflowElement = {
         label: 'Update Dynamic Database',
         group: '',
         order: 0
+      },
+      {
+        id: CellType.batchUpdateDynamicDatabase,
+        icon: 'mdi:database-edit',
+        label: 'Batch Update Dynamic Database',
+        group: '',
+        order: 0
       }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
@@ -1104,6 +1114,30 @@ const workflowCellElementTemplate: CellTypeItem = {
         tags: WorkflowElementType.HTTPRequestTask,
         icon: '/icons/updateDatabase.svg',
         width: 260,
+        databaseId: ''
+      }
+    }
+  },
+  BatchUpdateDynamicDatabase: {
+    ...createNodeShell(
+      'New_BatchUpdateDynamicDatabase',
+      'Batch Update Dynamic Database',
+      'New Batch Update Dynamic Database',
+      '/icons/updateDatabase.svg',
+      280
+    ),
+    data: {
+      id: '',
+      name: 'New Batch Update Dynamic Database',
+      documentation: '',
+      execution: { ...LONG_RUNNING_EXECUTION },
+      type: WorkflowElementType.ServiceTask,
+      config: getTaskItemConfig[CellType.batchUpdateDynamicDatabase],
+      metadata: {
+        type: CellType.batchUpdateDynamicDatabase,
+        tags: WorkflowElementType.HTTPRequestTask,
+        icon: '/icons/updateDatabase.svg',
+        width: 280,
         databaseId: ''
       }
     }
