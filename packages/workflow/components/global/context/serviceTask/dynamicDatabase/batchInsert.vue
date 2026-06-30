@@ -41,6 +41,9 @@ const tableFieldList = ref<
 const arrayVariables = computed(() => {
   return getVariablesByDisplayTypes(['array'], true)
 })
+const recoderVariables = computed(() => {
+  return getVariablesByDisplayTypes(['array'])
+})
 const arrayVariableOption = ref<any[]>([])
 
 function getArrayVariables(field: any) {
@@ -273,7 +276,7 @@ watch(
     </el-form-item>
     <el-form-item label="Return Record List">
       <el-select v-model="returnRecordList" filterable clearable @change="update">
-        <el-option v-for="item in arrayVariables" :key="item.id" :label="item.name" :value="item.id" />
+        <el-option v-for="item in recoderVariables" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item label="Data List">
