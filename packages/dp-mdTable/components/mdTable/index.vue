@@ -66,20 +66,26 @@
         @closed="handleFinishEdit"
         @current-row-change="handleExpandIndexChange"
       />
+      <MdFormPopover
+        ref="relationFormPopoverRef"
+        :tableId="relationFormTableId"
+        :systemFieldsTypes="systemFieldsTypes"
+        showSourceButton
+        @submit="handleRelationFormSubmit"
+      />
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
-      <RecordCardDialog ref="recordCardDialogRef" />
     </div>
     <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
   </div>
 </template>
 
 <script setup lang="ts">
-import type { VxeGridProps, VxeGridListeners, VxeGridInstance } from 'vxe-table'
+import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
-import RecordCardDialog from './RecordCardDialog.vue'
+import { useGridEvents } from './event/useGridEvents'
 import { onClickOutside } from '@vueuse/core'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { convertFilterRuleToCondition } from '@packages/dynamic-db/utils/PostgreSQLHelper'
@@ -180,102 +186,10 @@ const {
 } = useMDTable(props)
 const { getAgg } = useCount(props)
 
-const { setLoading, setSuccess, setError } = useUpdateStatus()
 const rightClickCellPopoverRef = ref()
-const recordCardDialogRef = ref()
 function handleMove(direction: 'up' | 'down') {
   moveCurrentRow(direction)
 }
-
-// 表格事件
-const gridEvents = computed<VxeGridListeners>(() => ({
-  'relation-cell-click': (params: any) => {
-    const { targetElement, targetTableId, recordId, displayValue, row } = params
-    if (targetTableId && recordId && recordCardDialogRef.value) {
-      recordCardDialogRef.value.open(targetElement, {
-        targetTableId,
-        recordId,
-        displayValue
-      })
-    }
-  },
-  editClosed: async (params: any) => {
-    const { column, row } = params
-    // need to check if the row data is changed
-    const newData = row[column.field]
-    const recordset = gridRef.value.getRecordset()
-    const hasChanged = recordset.updateRecords.length > 0
-    if (!hasChanged) {
-      emit('exit-edit', params)
-      return
-    }
-    const updateData = {
-      [column.field]: row[column.field]
-    }
-
-    // Set loading state
-    setLoading(row.id, column.field)
-
-    try {
-      await updateRow(row.id, updateData)
-      // Set success state - will auto-clear after delay
-      setSuccess(row.id, column.field)
-      if (isGroupingEnabled.value) {
-        await syncRowAndGroupAncestors(row.id, { gridRef })
-      }
-    } catch (error) {
-      console.error('Failed to update row:', error)
-      setError(row.id, column.field, error instanceof Error ? error.message : 'Update failed')
-      ElMessage.error('Failed to update cell')
-    } finally {
-      await getAgg()
-      emit('exit-edit', params)
-    }
-
-  },
-  'cell-click': (params: any) => {
-    emit('cell-click', params)
-  },
-  'cell-mouseenter': (params: any) => {
-    emit('cell-mouseenter', params)
-  },
-  'cell-mouseleave': (params: any) => {
-    emit('cell-mouseleave', params)
-  },
-
-  'start-edit': (params: any) => {
-    const { row, column } = params
-    emit('start-edit', { row, column })
-  },
-  columnDragend({ newColumn, oldColumn, dragPos }) {
-    const newFullColumn = columns.value.find((item: any) => item.field_name === newColumn.field)
-    const oldFullColumn = columns.value.find((item: any) => item.field_name === oldColumn.field)
-    props.extraColumnConfig.saveColumnOrder(oldFullColumn.id, newFullColumn.id, dragPos)
-  },
-  'cell-menu': ({ row, $event }: any) => {
-    $event?.preventDefault()
-    rightClickCellPopoverRef.value?.open($event, { ...row })
-  },
-  'checkbox-all': ({ checked }: any) => {
-    const { fullData } = gridRef.value?.getTableData()
-    const setChecked = (row: any) => {
-      if (row.children && row.children.length > 0) {
-        row.children.forEach((child: any) => {
-          setChecked(child)
-        })
-      }
-      row.checked = checked
-    }
-    fullData.forEach((row: any) => {
-      setChecked(row)
-    })
-  },
-  toggleTreeExpand: () => {
-    setTimeout(() => {
-      updateExpandedRows()
-    }, 100)
-  }
-}))
 
 // 过滤插槽（排除 toolbar_buttons 和 add-popover）
 const filteredSlots = computed(() => {
@@ -295,6 +209,31 @@ const handleRefresh = async () => {
   await getAgg()
   emit('refresh')
 }
+
+const {
+  gridEvents,
+  relationFormPopoverRef,
+  relationFormTableId,
+  handleRelationFormSubmit
+} = useGridEvents({
+  gridRef,
+  columns,
+  updateRow,
+  syncRowAndGroupAncestors,
+  getAgg,
+  isGroupingEnabled,
+  updateExpandedRows,
+  saveColumnOrder: props.extraColumnConfig.saveColumnOrder,
+  rightClickCellPopoverRef,
+  callbacks: {
+    onCellClick: (params) => emit('cell-click', params),
+    onCellMouseenter: (params) => emit('cell-mouseenter', params),
+    onCellMouseleave: (params) => emit('cell-mouseleave', params),
+    onStartEdit: (params) => emit('start-edit', params),
+    onExitEdit: (params) => emit('exit-edit', params),
+    onRefresh: handleRefresh
+  }
+})
 
 const handleRefreshSearch = async (rules: FilterRules) => {
   const isDateField = (field: string) => {
@@ -365,7 +304,6 @@ function handleColumnConfigEditStart(column: any) {
 function handleColumnConfigEditFinish(payload: { column: any; changed: boolean }) {
   emit('column-config-edit-finish', payload)
 }
-const handleCreateRelation = inject<((column: any) => void) | undefined>('handleCreateRelation', undefined)
 
 const mdTableHeaderPopoverRef = ref()
 const virtualColumnDialogRef = ref()

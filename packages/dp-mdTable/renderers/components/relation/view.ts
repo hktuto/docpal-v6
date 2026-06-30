@@ -5,7 +5,7 @@ export const RelationView = ({ options, params }: ViewRenderFunctionParams<strin
   const { $table, $grid, row, column } = params
   const relationOptions = options?.props
   const viewTools: any = inject('viewTools')
-  if(!relationOptions.display_field_ids || relationOptions.display_field_ids.length === 0) return h('span', '-')
+  if (!relationOptions?.display_field_ids || relationOptions.display_field_ids.length === 0) return h('span', '-')
   const displayFieldId = relationOptions.display_field_ids[0]
   const displayField = viewTools?.getRelationFieldConfig(relationOptions.relation_table_id, displayFieldId)
   if (!displayField) return h('span', '-')
@@ -24,13 +24,28 @@ export const RelationView = ({ options, params }: ViewRenderFunctionParams<strin
           class: 'relation-tag el-icon--right',
           onClick: (e: MouseEvent) => {
             e.stopPropagation()
+            $grid.dispatchEvent(
+              'relation-cell-click',
+              {
+                event: e,
+                targetElement: e.currentTarget,
+                targetTableId: relationOptions.relation_table_id,
+                recordId: val.id,
+                displayValue: val,
+                title: val[displayField.field_name],
+                relationField: fieldName,
+                row,
+                column
+              },
+              e
+            )
           },
-          onMouseenter: (e) => {
-            $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+          onMouseenter: (e: MouseEvent) => {
+            $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
           },
-          onMouseleave: (e) => {
-             $grid.dispatchEvent('cell-mouseleave', { row, column },e)
-          },
+          onMouseleave: (e: MouseEvent) => {
+            $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
+          }
         },
         val[displayField.field_name]
       )
