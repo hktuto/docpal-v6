@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { toWorkflowVariablesObj, type VariableItem } from '@packages/workflow/composables/useWorkflowVariables'
-import { MenuRouterKey } from '@packages/base/utils/menuType'
 
 const form = defineModel<{}>('form')
 const itemTypeOptions = [
@@ -27,6 +26,19 @@ const itemTypeOptions = [
 ]
 const properties = ref<VariableItem[]>([])
 const objectItemDialogRef = ref()
+const searchData = ref({
+  id: '',
+  name: '',
+  type: ''
+})
+const subTypeOptions = ref([
+  { label: 'Text', display_type: 'text' },
+  { label: 'File', display_type: 'file' },
+  { label: 'Number', display_type: 'number' },
+  { label: 'Timestamp', display_type: 'timestamp' },
+  { label: 'Boolean', display_type: 'boolean' },
+  { label: 'Date', display_type: 'date' }
+])
 
 function handleItemTypeChange(value: string) {
   form.value.items.properties = {}
@@ -94,9 +106,11 @@ function handleOpenAddItemDialog() {
   }
   objectItemDialogRef.value.open(row)
 }
+
 function handleEdit(row: any) {
   objectItemDialogRef.value.open(row)
 }
+
 function handleDelete(id: string) {
   properties.value.splice(
     properties.value.findIndex((item: any) => item.id === id),
@@ -109,6 +123,7 @@ function handleAddItem(item: any) {
   properties.value.push(item)
   updateProperties()
 }
+
 function handleUpdateItem(item: any) {
   delete item._X_ROW_KEY
   properties.value[properties.value.findIndex((item: any) => item.id === item.id)] = item
@@ -118,6 +133,23 @@ function handleUpdateItem(item: any) {
 function updateProperties() {
   form.value.items.properties = toWorkflowVariablesObj(properties.value)
   reload()
+}
+
+function filter() {
+  const list = properties.value.filter((item: any) => {
+    const s = searchData.value
+
+    // 返回全部數據
+    if (!s.id && !s.name && !s.type) return true
+
+    // 判斷任一條件是否成立
+    return (
+      (s.id.toLowerCase() && item.id.toLowerCase().includes(s.id.toLowerCase())) ||
+      (s.name.toLowerCase() && item.name.toLowerCase().includes(s.name.toLowerCase())) ||
+      (s.type && item.display_type === s.type)
+    )
+  })
+  tableRef.value?.loadData(list)
 }
 
 onMounted(() => {
@@ -140,7 +172,20 @@ onMounted(() => {
     <div style="height: 300px">
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
-          <el-button type="primary" @click="handleOpenAddItemDialog">Add Item</el-button>
+          <el-form :inline="true" class="variable-filter-form">
+            <el-button type="primary" @click="handleOpenAddItemDialog">Add Item</el-button>
+            <el-form-item label="ID">
+              <el-input v-model="searchData.id" @change="filter" clearable />
+            </el-form-item>
+            <el-form-item label="Name">
+              <el-input v-model="searchData.name" @change="filter" clearable />
+            </el-form-item>
+            <el-form-item label="Type">
+              <el-select v-model="searchData.type" @change="filter" clearable>
+                <el-option v-for="option in subTypeOptions" :key="option.display_type" :label="$t(option.label)" :value="option.display_type" />
+              </el-select>
+            </el-form-item>
+          </el-form>
         </template>
       </VxeGrid>
     </div>
@@ -149,4 +194,21 @@ onMounted(() => {
   <LazyContextVariableDataTypeObjectItemDialog ref="objectItemDialogRef" :properties="properties" @add="handleAddItem" @update="handleUpdateItem" />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.variable-filter-form {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 16px;
+
+  :deep(.el-form-item) {
+    margin-bottom: 0;
+    margin-right: 0;
+  }
+
+  :deep(.el-input),
+  :deep(.el-select) {
+    width: 180px;
+  }
+}
+</style>
