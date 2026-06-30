@@ -120,7 +120,7 @@ const props = defineProps<{
 }>()
 const emits = defineEmits(['submit', 'closed', 'current-row-change'])
 const { t } = useI18n()
-const title = ref(t('common_edit'))
+const title = ref(t('common_add'))
 const { currentRow, setCurrentRow, moveCurrentRow, disabledUp, disabledDown } = useCurrentRow()
 const formColumns = ref<any[]>([])
 
@@ -166,7 +166,7 @@ async function open(row: any, _mode: 'default' | 'edit' = 'edit', _title: string
   if (_title) {
     title.value = _title
   } else {
-    title.value = t('common_edit')
+    title.value = t('common_add')
   }
   await getFormColumns()
 }
