@@ -12,6 +12,24 @@ const emits = defineEmits(['submit'])
 const FormDesignRef = ref()
 const formDialogVisible = ref(false)
 const oldJson = ref({})
+const allVariables = computed(() => {
+  const data: any[] = variables.data
+  const newList = data.flatMap((item) => {
+    if (item.display_type !== 'array' && item.display_type !== 'object') return item
+
+    if (item.items.type === 'object' && !!item.items.properties) {
+      const map = Object.entries(item.items.properties).map(([key, value]) => ({
+        id: key,
+        ...value
+      }))
+      map.push(item)
+      return map
+    }
+    return item
+  })
+  variables.data = Array.from(new Map(newList.map((item) => [item.id, item])).values())
+  return variables
+})
 
 async function openDialog(json: any) {
   formDialogVisible.value = true
@@ -49,7 +67,7 @@ defineExpose({ openDialog })
 
 <template>
   <el-dialog v-model="formDialogVisible" fullscreen class="bpmn-vform--dialog" width="100%" top="0" append-to-body destroy-on-close>
-    <FormDesigner ref="FormDesignRef" :fieldListApi="variables">
+    <FormDesigner ref="FormDesignRef" :fieldListApi="allVariables">
       <template #submit>
         <el-button type="primary" @click="handleFormSubmit">
           {{ $t('submit') }}
