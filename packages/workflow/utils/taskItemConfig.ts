@@ -171,8 +171,8 @@ export const getTaskItemConfig = {
   },
   BatchUpdateDynamicDatabase: {
     http_request: {
-      method: 'POST',
-      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/batch-update`,
+      method: 'PATCH',
+      url: `${getUrlOrigin()}/apis/v1/dynamic-db/table//record/batch-transactional`,
       headers: generatorHTTPRequestTaskHeaders(),
       body: {
         data: '',

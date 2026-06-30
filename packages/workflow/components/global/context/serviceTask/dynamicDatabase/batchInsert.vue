@@ -13,7 +13,7 @@ if (!graphProvider) {
 const { getVariablesByDisplayTypes } = useVariablesProvide()
 const databaseId = ref<string>('')
 const tableId = ref<string>('')
-const dataId = ref<string>('')
+const returnRecordList = ref<string>('')
 const dataList = ref<string>('')
 const dataBaseList = ref<
   {
@@ -40,6 +40,9 @@ const tableFieldList = ref<
 >([])
 const arrayVariables = computed(() => {
   return getVariablesByDisplayTypes(['array'], true)
+})
+const recoderVariables = computed(() => {
+  return getVariablesByDisplayTypes(['array'])
 })
 const arrayVariableOption = ref<any[]>([])
 
@@ -92,15 +95,16 @@ async function init() {
       return item
     })
   }
+
   const keys = Object.keys(data.config.output_mapping)
   if (keys.length > 0) {
     keys.forEach((key: string) => {
-      if (data.config.output_mapping[key] == '${data.id}') {
-        dataId.value = key
+      if (data.config.output_mapping[key] == '${data}') {
+        returnRecordList.value = key
       }
     })
   } else {
-    dataId.value = ''
+    returnRecordList.value = ''
   }
 }
 
@@ -142,9 +146,9 @@ function update() {
     version: (nodeData.version || 0) + 1
   }
 
-  if (!!dataId.value && dataId.value !== '') {
+  if (!!returnRecordList.value && returnRecordList.value !== '') {
     newData.config.output_mapping = {
-      [dataId.value]: '${data.id}'
+      [returnRecordList.value]: '${data}'
     }
   }
 
@@ -270,9 +274,9 @@ watch(
         <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-    <el-form-item label="Return Record Ids">
-      <el-select v-model="dataId" filterable clearable @change="update">
-        <el-option v-for="item in arrayVariables" :key="item.id" :label="item.name" :value="item.id" />
+    <el-form-item label="Return Record List">
+      <el-select v-model="returnRecordList" filterable clearable @change="update">
+        <el-option v-for="item in recoderVariables" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item label="Data List">

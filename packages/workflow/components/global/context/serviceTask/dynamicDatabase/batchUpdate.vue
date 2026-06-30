@@ -13,7 +13,7 @@ if (!graphProvider) {
 const { getVariablesByDisplayTypes } = useVariablesProvide()
 const databaseId = ref<string>('')
 const tableId = ref<string>('')
-const dataId = ref<string>('')
+const returnRecordList = ref<string>('')
 const dataList = ref<string>('')
 const recordId = ref<string>('')
 const dataBaseList = ref<
@@ -41,6 +41,9 @@ const tableFieldList = ref<
 >([])
 const arrayVariables = computed(() => {
   return getVariablesByDisplayTypes(['array'], true)
+})
+const recoderVariables = computed(() => {
+  return getVariablesByDisplayTypes(['array'])
 })
 const arrayVariableOption = ref<any[]>([])
 
@@ -76,7 +79,7 @@ async function init() {
   }
 
   const { pathname } = new URL(data.config.http_request.url)
-  const match = pathname.match(/\/table\/([^\/]+)\/record\/batch-update\/?$/)
+  const match = pathname.match(/\/table\/([^\/]+)\/record\/batch-transactional\/?$/)
   tableId.value = match ? match[1] : ''
   if (tableId.value != '') {
     await getTableConfig()
@@ -84,7 +87,7 @@ async function init() {
 
   if (tableId.value !== '') {
     const body = data.config.http_request.body
-    recordId.value = body.mapping['id']
+    recordId.value = body.mapping['id'] || ''
     dataList.value = body.data
     getArrayVariablesOption()
     tableFieldList.value = tableFieldList.value.map((item: any) => {
@@ -95,19 +98,19 @@ async function init() {
     })
   }
 
-  // const keys = Object.keys(data.config.output_mapping)
-  // if (keys.length > 0) {
-  //   keys.forEach((key: string) => {
-  //     if (data.config.output_mapping[key] == '${data.id}') {
-  //       dataId.value = key
-  //     }
-  //   })
-  // } else {
-  //   dataId.value = ''
-  // }
+  const keys = Object.keys(data.config.output_mapping)
+  if (keys.length > 0) {
+    keys.forEach((key: string) => {
+      if (data.config.output_mapping[key] == '${data}') {
+        returnRecordList.value = key
+      }
+    })
+  } else {
+    returnRecordList.value = ''
+  }
 }
 
-const path = ref('/apis/v1/dynamic-db/table/{tableID}/record/batch-update')
+const path = ref('/apis/v1/dynamic-db/table/{tableID}/record/batch-transactional')
 
 function update() {
   graphProvider?.graph.value?.startBatch('batch-update-dynamic-database-data')
@@ -148,23 +151,19 @@ function update() {
     version: (nodeData.version || 0) + 1
   }
 
+  if (!!returnRecordList.value && returnRecordList.value !== '') {
+    newData.config.output_mapping = {
+      [returnRecordList.value]: '${data}'
+    }
+  }
+
   node.setData(newData, { overwrite: true, deep: true, silent: false })
   graphProvider?.graph.value?.stopBatch('batch-update-dynamic-database-data')
 }
 
 async function changeDataBase() {
   tableId.value = ''
-  tableFieldList.value = [
-    {
-      id: 'id',
-      name: 'Record ID',
-      value: '',
-      type: 'string',
-      field_type: 'varchar',
-      isRequired: true,
-      isUnique: true
-    }
-  ]
+  tableFieldList.value = []
   await getTableList()
   update()
 }
@@ -188,6 +187,22 @@ async function getDataBaseList() {
   }
 }
 
+async function getTableList() {
+  try {
+    const pageParams = {
+      status: 'A',
+      filters: {
+        entity_id: databaseId.value
+      },
+      pageNum: 0,
+      pageSize: 1000
+    }
+    tableList.value = await newClientApi.getDynamicDbTableList(pageParams).then((r: any) => r.data)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 async function getTableConfig() {
   try {
     const data = await newClientApi
@@ -206,22 +221,6 @@ async function getTableConfig() {
       isUnique: item.is_unique,
       value: ''
     }))
-  } catch (e) {
-    console.log(e)
-  }
-}
-
-async function getTableList() {
-  try {
-    const pageParams = {
-      status: 'A',
-      filters: {
-        entity_id: databaseId.value
-      },
-      pageNum: 0,
-      pageSize: 1000
-    }
-    tableList.value = await newClientApi.getDynamicDbTableList(pageParams).then((r: any) => r.data)
   } catch (e) {
     console.log(e)
   }
@@ -281,11 +280,11 @@ watch(
         <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-    <!--    <el-form-item label="Return Record Ids">-->
-    <!--      <el-select v-model="dataId" filterable clearable @change="update">-->
-    <!--        <el-option v-for="item in arrayVariables" :key="item.id" :label="item.name" :value="item.id" />-->
-    <!--      </el-select>-->
-    <!--    </el-form-item>-->
+    <el-form-item label="Return Record List">
+      <el-select v-model="returnRecordList" filterable clearable @change="update">
+        <el-option v-for="item in recoderVariables" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
     <el-form-item label="Data List">
       <el-select v-model="dataList" filterable clearable @change="handleDataListChange">
         <el-option v-for="item in arrayVariables" :key="item.id" :label="item.name" :value="item.id" />
