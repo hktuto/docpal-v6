@@ -18,6 +18,7 @@ const formData = ref({
   description: '',
   draft_content: {}
 })
+const userId = useUserId()
 
 function open() {
   formData.value = {
@@ -78,6 +79,35 @@ async function handleSubmit() {
     }
     const data = await clientApi.instance.post('/oniflow/api/v1/workflow/definitions', defWorkflowJson).then((res) => res.data.data)
     if (!data) return
+
+    // set permission
+    await clientApi.instance.post(
+      '/v2/acl/resource-permissions',
+      {
+        resourceId: data.id,
+        resourceType: 3,
+        targetType: 3,
+        targetId: 'administrators',
+        permissionLevel: 'default'
+      },
+      {
+        baseURL: '/gateway'
+      }
+    )
+
+    await clientApi.instance.post(
+      '/v2/acl/resource-permissions',
+      {
+        resourceId: data.id,
+        resourceType: 3,
+        targetType: 1,
+        targetId: userId.value,
+        permissionLevel: 'default'
+      },
+      {
+        baseURL: '/gateway'
+      }
+    )
 
     const workflowEdit = routeWorkflowManageEditor({
       id: data.id,
