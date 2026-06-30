@@ -10,6 +10,7 @@ function isSeries(item: any) {
 }
 
 type dataType = {
+  id: string
   line_number: number
   vendor: string
   part_number: string
@@ -23,44 +24,61 @@ type dataType = {
   eta: string
 }
 
-const data = ref<dataType[]>([
-  {
-    id: '',
-    line_number: 0,
-    vendor: '',
-    part_number: '',
-    series: '',
-    received_date: '',
-    pm: '',
-    vendor_coo: '',
-    sales_admin: '',
-    etd: '',
-    vendor_attn: '',
-    eta: ''
-  }
-])
-
-function info() {
-  if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
-    data.value = formData.sample_info_list
-    console.log(123, formData.sample_info_list)
-  }
-}
-
-function getFormData() {
-  return { sample_info_list: data.value }
-}
-
-onMounted(() => {
-  info()
+const formModel = reactive<{ list: dataType[] }>({
+  list: [
+    {
+      id: '',
+      line_number: 0,
+      vendor: '',
+      part_number: '',
+      series: '',
+      received_date: '',
+      pm: '',
+      vendor_coo: '',
+      sales_admin: '',
+      etd: '',
+      vendor_attn: '',
+      eta: ''
+    }
+  ]
 })
+const data = toRef(formModel, 'list')
+
+const formRef = ref()
+const rules = {
+  etd: [{ required: true, message: '請選擇供應商預計發貨時間', trigger: 'change' }],
+  eta: [{ required: true, message: '請選擇供應商樣品預計到達時間', trigger: 'change' }]
+}
+
+function init() {
+  if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
+    formModel.list = formData.sample_info_list
+  }
+}
+
+async function getFormData(needValidation = true) {
+  const result = { sample_info_list: formModel.list }
+  if (!needValidation) return result
+  await formRef.value?.validate()
+  return result
+}
+
+watch(
+  () => formData.sample_info_list,
+  (value) => {
+    if (!!value && value.length > 0) {
+      init()
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form label-position="top">
-    <template v-for="(item, index) in data">
+  <el-form label-position="top" ref="formRef" :model="formModel">
+    <template v-for="(item, index) in data" :key="item.line_number ?? index">
       <div class="info-item-card">
         <span class="info-item-card__index">{{ index + 1 }}.</span>
         <el-row :gutter="20">
@@ -90,8 +108,8 @@ defineExpose({ getFormData })
             <el-form-item label="銷售經理">
               <el-input v-model="item.sales_admin" />
             </el-form-item>
-            <el-form-item label="供應商預計發貨時間">
-              <el-date-picker v-model="item.etd" type="date" placeholder="Pick a day" />
+            <el-form-item label="供應商預計發貨時間" required :prop="`list.${index}.etd`" :rules="rules.etd">
+              <el-date-picker v-model="item.etd" type="date" placeholder="Pick a day" :clearable="false" />
             </el-form-item>
           </el-col>
 
@@ -99,8 +117,8 @@ defineExpose({ getFormData })
             <el-form-item label="供應商聯係人">
               <el-input v-model="item.vendor_attn" />
             </el-form-item>
-            <el-form-item label="供應商樣品預計到達時間">
-              <el-date-picker v-model="item.eta" type="date" placeholder="Pick a day" />
+            <el-form-item label="供應商樣品預計到達時間" required :prop="`list.${index}.eta`" :rules="rules.eta">
+              <el-date-picker v-model="item.eta" type="date" placeholder="Pick a day" :clearable="false" />
             </el-form-item>
           </el-col>
         </el-row>

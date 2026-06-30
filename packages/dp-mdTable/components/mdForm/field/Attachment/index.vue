@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { AttachmentCellValue } from '../../../../types/column-types'
 import { resolveColumnDataField } from '../../../../utils/fieldValueFormat'
-import { normalizeAttachmentValue } from '../../../../renderers/components/Attachment/view'
 import AttachmentUpload from './upload.vue'
 
 const { t } = useI18n()
@@ -18,7 +17,7 @@ const modelField = computed(() => resolveColumnDataField(props.column, props.fie
 const attachments = computed({
   get: () => {
     if (!props.formData || !modelField.value) return []
-    return normalizeAttachmentValue(props.formData[modelField.value])
+    return (props.formData[modelField.value] ?? []) as AttachmentCellValue[]
   },
   set: (value) => {
     if (props.formData && modelField.value) {

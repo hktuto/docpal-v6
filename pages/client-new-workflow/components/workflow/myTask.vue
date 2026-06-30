@@ -22,9 +22,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       // sort:"created_at",
       // order: "desc"
     }
-    const data = await clientApi.instance
-      .post(`/oniflow/api/v1/task/overview/todos`, params)
-      .then((r: any) => workflowResponseHelper(r))
+    const data = await clientApi.instance.post(`/oniflow/api/v1/task/overview/todos`, params).then((r: any) => workflowResponseHelper(r))
     return {
       data: data
     }
@@ -35,6 +33,14 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     {
       field: 'execution.started_at',
       title: 'workflow_createDate',
+      formatter({ cellValue }: any) {
+        // @ts-ignore
+        return formatDate(cellValue)
+      }
+    },
+    {
+      field: 'execution.last_updated_at',
+      title: 'workflow_editorLastDate',
       formatter({ cellValue }: any) {
         // @ts-ignore
         return formatDate(cellValue)
@@ -78,7 +84,8 @@ defineExpose({ reload })
         </div>
       </template>
       <template #assignee="{ row }">
-        <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>{{ row.config.human_task.assignee || '' }}
+        <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>
+          {{ row.config.human_task.assignee || '' }}
         </el-tag>
       </template>
     </VxeGrid>

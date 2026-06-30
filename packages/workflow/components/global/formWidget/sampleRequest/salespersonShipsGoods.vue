@@ -27,7 +27,7 @@ const data = ref<any[]>([
     competitor_unit_price: 1,
     remarks: '',
     tracking_number: '',
-    received_date: '',
+    tracking_date: '',
     email_alert: 'Y'
   }
 ])
@@ -36,7 +36,7 @@ function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
 
-function info() {
+function init() {
   if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
     data.value = formData.sample_info_list
   }
@@ -46,9 +46,15 @@ function getFormData() {
   return { sample_info_list: data.value }
 }
 
-onMounted(() => {
-  info()
-})
+watch(
+  () => formData.sample_info_list,
+  (value) => {
+    if (!!value && value.length > 0) {
+      init()
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 defineExpose({ getFormData })
 </script>
@@ -110,7 +116,7 @@ defineExpose({ getFormData })
           </el-col>
           <el-col :span="8">
             <el-form-item label="是否用於汽車">
-              <el-switch v-model="item.car_use" active-text="Yes" active-value="Y" inactive-text="No" inactive-value="N" disabled />
+              <el-switch v-model="item.car_use" active-text="Yes" active-value="Yes" inactive-text="No" inactive-value="No" disabled />
             </el-form-item>
             <el-form-item label="競爭者型號" prop="competitor_pn">
               <el-input v-model="item.competitor_pn" disabled />
@@ -144,7 +150,7 @@ defineExpose({ getFormData })
           </el-col>
           <el-col :span="8">
             <el-form-item label="快遞日期">
-              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" />
+              <el-date-picker v-model="item.tracking_date" type="date" placeholder="Pick a day" />
             </el-form-item>
           </el-col>
 

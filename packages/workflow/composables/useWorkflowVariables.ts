@@ -191,7 +191,7 @@ function convertValueByDefinition(value: any, definition: VariableItem): any {
 }
 
 function conversionSubData(formData: any, definition: VariableItem) {
-  if (definition.items?.type !== 'object') return
+  if (definition.items?.type !== 'object') return formData
 
   try {
     if (typeof formData === 'string') {
@@ -230,60 +230,6 @@ function convertScalarValue(value: any, definition: VariableItem): any {
       return value
   }
 }
-
-// function conversionSubData(formData: any, properties: any, formFields: VariableItem[]) {
-//   if (properties.items.type !== 'object') return
-//
-//   try {
-//     if (typeof formData === 'string') {
-//       formData = JSON.parse(formData)
-//     } else if (Array.isArray(formData)) {
-//     } else {
-//       return formData
-//     }
-//
-//     const formattedVariables: any = {}
-//
-//     for (const key in formData) {
-//       const value: any = formData[key]
-//       const definition: VariableItem = properties.items.properties[key]
-//
-//       if (!definition) {
-//         formattedVariables[key] = value
-//         continue
-//       }
-//
-//       switch (definition.display_type) {
-//         case 'timestamp':
-//           formattedVariables[key] = dayjs(value).valueOf()
-//           break
-//         case 'number':
-//           const num: number = Number(value)
-//           formattedVariables[key] = isNaN(num) ? 0 : num
-//           break
-//         case 'boolean':
-//           if (typeof value === 'string') {
-//             formattedVariables[key] = value.toLowerCase() === 'true' || value.toLowerCase() === 'y'
-//           } else {
-//             formattedVariables[key] = Boolean(value)
-//           }
-//           break
-//         case 'text':
-//           formattedVariables[key] = value !== null ? String(value) : ''
-//           break
-//         case 'date':
-//           formattedVariables[key] = dayjs(value).format(definition?.validation?.pattern)
-//           break
-//         default:
-//           formattedVariables[key] = value
-//       }
-//     }
-//     return formattedVariables
-//   } catch (e) {
-//     console.log('conversionSubData', e)
-//     return formData
-//   }
-// }
 
 export const useVariablesProvide = () => {
   const ctx = inject<WorkflowVariablesProvideContext>('WorkflowVariablesProvide')
