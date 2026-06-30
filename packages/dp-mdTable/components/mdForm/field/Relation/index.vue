@@ -96,7 +96,9 @@ function handleUpdate(value: string[] | string | null, selectedRows: any[]) {
     return acc
   }, [])
   const basicFieldNames = ['id', 'created_at', 'updated_at', 'updated_by', 'status', 'master_table_id']
-  Object.keys(props.formData).forEach((key) => {
+  const relationFieldNames = fields.value.map((field) => fieldName + '.' + field.field_name)
+  const allFieldNames = [...Object.keys(props.formData), ...relationFieldNames]
+  allFieldNames.forEach((key) => {
     if (!basicFieldNames.includes(key)) {
       if (key.startsWith(fieldName + '.')) {
         const pureKey = key.split('.')[1]
