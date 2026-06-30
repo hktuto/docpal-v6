@@ -24,11 +24,23 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
       title: 'Category'
     },
     {
-      field:'source_id', title:'Source Id'
+      field: 'source_id',
+      title: 'Source Id'
     },
-    { field: 'event_type', title: 'Type' },
     {
-      field: 'timestamp', title: 'log_auditFilterDate',
+      field: 'details',
+      title: 'Details',
+      formatter({ cellValue, row }: any) {
+        return cellValue || row.event_type
+      }
+    },
+    {
+      field: 'ip_address',
+      title: 'IP Address'
+    },
+    {
+      field: 'timestamp',
+      title: 'log_auditFilterDate',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       }
@@ -38,7 +50,9 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
 
 defineExpose({ reload, query })
 const ResponsiveFilterRef = ref()
-
+function handleFilterFormChange(formModel: any) {
+  reload()
+}
 function getFilter() {
   const data = [
     {
@@ -51,7 +65,7 @@ function getFilter() {
         { label: 'log_auditFilterDate', value: 'eventDate' },
         // { label: 'log_auditEvent', value: 'label' },
         // { label: 'table_path', value: 'currentPath' },
-        { label: 'User', value: 'principalName' },
+        { label: 'User', value: 'principalName' }
       ]
     },
     {
@@ -67,15 +81,15 @@ function getFilter() {
   ]
   ResponsiveFilterRef.value?.init(data)
 }
-
+// onMounted(() => {
+//   getFilter()
+// })
 </script>
-
 
 <template>
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons>
-
+      <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
     </template>
-
   </VxeGrid>
 </template>

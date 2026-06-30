@@ -46,9 +46,11 @@ function reload() {
   tableRef.value.reload()
 }
 
-const { public: { endPoint } } = useRuntimeConfig();
+const {
+  public: { endPoint }
+} = useRuntimeConfig()
 function goClientPath(path: string) {
-  window.open( endPoint.clientUrl + '/browse?path=' + path, '_blank')
+  window.open(endPoint.clientUrl + '/browse?path=' + path, '_blank')
 }
 
 provide(AuditProviderKey, {
@@ -61,12 +63,7 @@ provide(AuditProviderKey, {
 
 <template>
   <div class="pageContainer">
-
-     <AuditTable ref="tableRef">
-      <template #toolbar_buttons>
-
-      </template>
-    </AuditTable>
+    <AuditTable ref="tableRef"> </AuditTable>
   </div>
 </template>
 
