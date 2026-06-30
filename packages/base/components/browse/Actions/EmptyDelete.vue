@@ -22,7 +22,7 @@ const { t } = useI18n()
 async function deleteItem(doc: any, deleteType?: 'folder' | 'file') {
   const idOrPath = doc.path
   let msg = ''
-  const isShareInternal = await newClientApi.postDmsInternalshareCheckDocumentIsInShare({
+  const {data:isShareInternal} = await newClientApi.postDmsInternalshareCheckDocumentIsInShare({
     documentId: doc.id
   })
   if (isShareInternal) msg += `<span class="color__danger">${doc.name} ${t('msg_isShareInternalFile')}</span>,`
