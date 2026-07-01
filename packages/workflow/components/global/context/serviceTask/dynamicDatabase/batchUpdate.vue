@@ -101,7 +101,7 @@ async function init() {
   const keys = Object.keys(data.config.output_mapping)
   if (keys.length > 0) {
     keys.forEach((key: string) => {
-      if (data.config.output_mapping[key] == '${data}') {
+      if (data.config.output_mapping[key] == '${data.insertedData}') {
         returnRecordList.value = key
       }
     })
@@ -153,7 +153,7 @@ function update() {
 
   if (!!returnRecordList.value && returnRecordList.value !== '') {
     newData.config.output_mapping = {
-      [returnRecordList.value]: '${data}'
+      [returnRecordList.value]: '${data.insertedData}'
     }
   }
 
