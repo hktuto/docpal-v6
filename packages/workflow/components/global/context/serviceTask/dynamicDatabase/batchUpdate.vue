@@ -87,7 +87,7 @@ async function init() {
 
   if (tableId.value !== '') {
     const body = data.config.http_request.body
-    recordId.value = body.mapping['id'] || ''
+    // recordId.value = body.mapping['id'] || ''
     dataList.value = body.data
     getArrayVariablesOption()
     tableFieldList.value = tableFieldList.value.map((item: any) => {
@@ -120,7 +120,8 @@ function update() {
   const newUrl = origin + path.value.replace('{tableID}', tableId.value)
 
   const mapping: any = {
-    id: recordId.value
+    // id: recordId.value
+    id: '${id}'
   }
 
   tableFieldList.value.forEach((item: any) => {
@@ -180,7 +181,7 @@ async function getDataBaseList() {
       pageNum: 0,
       pageSize: 1000
     }
-    const data = await newAdminApi.postDynamicDbCaseTypesPage(parms).then((r: any) => r.data)
+    const data: any = await newAdminApi.postDynamicDbCaseTypesPage(parms).then((r: any) => r.data)
     dataBaseList.value = data.entryList
   } catch (e) {
     console.log(e)
@@ -237,14 +238,16 @@ function getArrayVariablesOption() {
   const anyObject = arrayVariables.value.find((item: any) => item.id === dataList.value) as VariableItem
 
   if (!!anyObject && anyObject?.items?.type === 'object') {
-    arrayVariableOption.value =
-      Object.entries(anyObject.items.properties).map(([id, field]) => ({
+    // 移除 'field.name' 為 'id' 的字段
+    arrayVariableOption.value = Object.entries(anyObject.items.properties)
+      .filter(([, field]) => field.name !== 'id')
+      .map(([id, field]) => ({
         id,
         name: field.name,
         type: field.type,
         display_type: field.display_type,
         required: field.required
-      })) || []
+      }))
   }
 }
 
@@ -292,11 +295,11 @@ watch(
     </el-form-item>
     <el-divider />
 
-    <el-form-item label="Recoder ID">
-      <el-select v-model="recordId" filterable clearable @change="update">
-        <el-option v-for="item in getArrayVariables('varchar')" :key="item.id" :label="item.name" :value="item.id" />
-      </el-select>
-    </el-form-item>
+    <!--    <el-form-item label="Recoder ID">-->
+    <!--      <el-select v-model="recordId" filterable clearable @change="update">-->
+    <!--        <el-option v-for="item in getArrayVariables('varchar')" :key="item.id" :label="item.name" :value="item.id" />-->
+    <!--      </el-select>-->
+    <!--    </el-form-item>-->
 
     <template v-for="field in tableFieldList">
       <el-form-item :label="field.name">
