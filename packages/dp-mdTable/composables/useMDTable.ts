@@ -1,5 +1,5 @@
 // useApi.ts
-import { provide, inject, ref, type Ref } from 'vue'
+import { provide, inject, ref, type Ref, type InjectionKey } from 'vue'
 import type { VxeGridInstance } from 'vxe-table'
 import { useUpdateStatus } from './useUpdateStatus'
 import type { TableDataRefreshOptions } from './useTableData'

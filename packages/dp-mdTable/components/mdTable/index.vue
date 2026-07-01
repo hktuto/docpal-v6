@@ -85,7 +85,8 @@ import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
-import { useGridEvents } from './event/useGridEvents'
+import { useMDTable } from '../../composables/useMDTable'
+import { useGridEvents } from '../../composables/mdTableEvent'
 import { onClickOutside } from '@vueuse/core'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { convertFilterRuleToCondition } from '@packages/dynamic-db/utils/PostgreSQLHelper'
@@ -93,7 +94,6 @@ import type { ColumnConfig } from '../../types/column-context'
 import type { SortRule } from '../tools/sort/configPopover.vue'
 import type { FilterRules } from '../tools/filter/ConfigPopover.vue'
 import { createFieldId } from '../../utils/mdTableHelper'
-import { useMDTable } from '../../composables/useMDTable'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 
