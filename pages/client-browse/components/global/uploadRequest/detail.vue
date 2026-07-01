@@ -23,23 +23,33 @@ const state = reactive<any>({
 const MetaFormRef = ref()
 const paramKey = (props.paramKey ? props.paramKey : 'processInstanceId') as string
 const userId = useUserId()
+
+function normalizeProperties(properties: any) {
+  if (!properties) return {}
+  if (typeof properties !== 'string') {
+    return typeof properties === 'object' && !Array.isArray(properties) ? properties : {}
+  }
+
+  try {
+    const parsedProperties = JSON.parse(properties)
+    return parsedProperties && typeof parsedProperties === 'object' && !Array.isArray(parsedProperties) ? parsedProperties : {}
+  } catch (error) {
+    return {}
+  }
+}
+
 // #region module: 1. table and init
 async function getData() {
   state.loading = true
   try {
     const response: any = await newClientApi.getDmsUploadRequestId(props.id).then((res) => res.data)
-    state.uploadId = response.uploadId
-    const data = await newClientApi
-      .postDmsUploadQueryItems({
-        userId: userId.value,
-        uploadId: state.uploadId
-      })
-      .then((res) => res.data)
-    state.tableData = data.map((item: any) => ({
+    state.uploadId = response.id
+
+    state.tableData = response.uploadRequestItemList.map((item: any) => ({
       ...item,
       approved: item.approved || false,
-      documentType: item.aiAnalysisDocument?.documentType || 'File',
-      properties: item.aiAnalysisDocument?.properties || {}
+      documentType: item.fileType || 'File',
+      properties: normalizeProperties(item.metaDatas)
     }))
     if (state.tableData.length > 0) handleDblclick(state.tableData[0])
   } catch (error) {
@@ -64,10 +74,9 @@ async function handleSubmit() {
   state.submitLoading = true
   try {
     const param = {
-      uploadId: state.uploadId,
+      uploadRequestId: state.uploadId,
       userId: userId.value,
-      batchItemList: state.tableData.map((item: any) => {
-        const metadatas = item.properties || {}
+      uploadRequestItemList: state.tableData.map((item: any) => {
         return {
           id: item.id,
           docName: item.initName || item.name,
@@ -114,7 +123,7 @@ function applyToSelect(key: string, value: string, docType?: string) {
 function handleApply(formModel: any) {
   state.tableData.forEach((item: any) => {
     if (item.documentType === state.selectedRow.documentType) {
-      if (!item.properties) item.properties = {}
+      item.properties = normalizeProperties(item.properties)
       item.properties[formModel.name] = formModel.value
     }
   })
@@ -147,7 +156,7 @@ async function handleDblclick(row: any) {
     previewFile.loading = true
     try {
       previewFile.name = row.initName
-      previewFile.blob = await newClientApi.getDmsUploadTmpFileIdDownload(row.id, {
+      previewFile.blob = await newClientApi.getDmsUploadRequestTempFileId(row.id, {
         format: 'blob'
       })
     } catch (error) {}

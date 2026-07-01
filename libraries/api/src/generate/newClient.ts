@@ -2002,8 +2002,8 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
-    primaryKey?: boolean;
     unique?: boolean;
+    primaryKey?: boolean;
     required?: boolean;
 }
 
@@ -2642,8 +2642,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    isMultiple?: boolean;
     validationRuleName?: string;
+    isMultiple?: boolean;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -2979,9 +2979,9 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
-    fileContentExtension?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
     fileContentMimeType?: string;
@@ -3708,33 +3708,23 @@ export interface VerificationPermissionReq {
     operation?: string;
 }
 
-export interface AbbyySoapConfig {
-    serviceUrl?: string;
-    username?: string;
-    password?: string;
-    /** @format int32 */
-    projectId?: number;
-    projectName?: string;
-    /** @format int32 */
-    roleTypeId?: number;
-    /** @format int32 */
-    stationTypeId?: number;
-    outputFileExtension?: string;
-    /** @format int32 */
-    waitTime?: number;
-}
-
 export interface AbbyyOcrResp {
+    recordId?: string;
+    businessBatchId?: string;
     /** @format int32 */
     sessionId?: number;
     /** @format int32 */
     projectId?: number;
+    projectName?: string;
     /** @format int32 */
     batchId?: number;
     /** @format int32 */
     batchTypeId?: number;
     batchName?: string;
     fileName?: string;
+    batchClosed?: boolean;
+    batchSubmitted?: boolean;
+    outRequestNo?: string;
 }
 
 export interface ResultAbbyyOcrResp {
@@ -4285,15 +4275,15 @@ export interface SubNotificationRequest {
 }
 
 export interface PageNotificationRecord {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: NotificationRecord[];
@@ -4309,10 +4299,10 @@ export interface PageableObject {
     pageNumber?: number;
     /** @format int32 */
     pageSize?: number;
-    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
+    unpaged?: boolean;
 }
 
 export interface ResultPageNotificationRecord {
@@ -4422,15 +4412,15 @@ export interface QueryFileOverviewRequestDTO {
 }
 
 export interface PageUploadBatchDTO {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: UploadBatchDTO[];
@@ -4884,8 +4874,8 @@ export interface BatchInsertResultDTO {
      * @format int32
      */
     insertedCount?: number;
-    /** List of successfully inserted records with populated IDs */
-    insertedDataIds?: string[];
+    /** List of successfully inserted records */
+    insertedData?: any[];
     /** List of error details (if any) */
     errors?: any[];
 }
@@ -6106,15 +6096,15 @@ export interface ResultWMKTemplateRequestDTO {
 }
 
 export interface PageWatermarkSettingsTemplate {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: WatermarkSettingsTemplate[];
@@ -7021,11 +7011,17 @@ export interface ResultUploadRequestResponseDTO {
     locale?: string;
 }
 
+export interface UploadRequestItemDTO {
+    id?: string;
+    fileRelativePath?: string;
+    metaDatas?: string;
+    name?: string;
+    fileType?: string;
+}
+
 export interface UploadRequestResponseDTO {
     id?: string;
     shareId?: string;
-    batchId?: string;
-    uploadId?: string;
     workflowId?: string;
     taskId?: string;
     email?: string;
@@ -7052,20 +7048,21 @@ export interface UploadRequestResponseDTO {
     /** @format date-time */
     submittedDate?: string;
     approved?: boolean;
+    uploadRequestItemList?: UploadRequestItemDTO[];
 }
 
-export interface BatchItem {
+export interface UploadRequestApproveDTO {
+    userId?: string;
+    uploadRequestId?: string;
+    uploadRequestItemList?: UploadRequestItem[];
+}
+
+export interface UploadRequestItem {
     id?: string;
     docName?: string;
     approve?: boolean;
     metadatas?: string;
     documentType?: string;
-}
-
-export interface UploadRequestApproveDTO {
-    userId?: string;
-    uploadId?: string;
-    batchItemList?: BatchItem[];
 }
 
 export interface ResultUploadRequest {
@@ -7092,7 +7089,6 @@ export interface UploadRequest {
     fileType?: string;
     password?: string;
     accessToken?: string;
-    batchId?: string;
     workflowId?: string;
     status?: string;
     createdBy?: string;
@@ -7457,12 +7453,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
+    conversionId?: string;
     watermarkTemplateId?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
     watermarkedLocalPath?: string;
-    conversionId?: string;
 }
 
 /** EasyShare (Request) */
@@ -7766,8 +7762,8 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    updateChildName?: boolean;
     ocr?: boolean;
+    updateChildName?: boolean;
     folder?: boolean;
     be_index?: boolean;
     create_by?: string;
@@ -8284,7 +8280,7 @@ export interface InternalShareQueryDTO {
     /** @format date-time */
     detailModifiedDate?: string;
     ids?: number[];
-    detailIds?: number[];
+    detailIds?: string[];
     /** @format int32 */
     pageNum?: number;
     /** @format int32 */
@@ -8854,6 +8850,11 @@ export interface ResultCaseInstanceDTO {
     data?: CaseInstanceDTO;
     messageKey?: string;
     locale?: string;
+}
+
+export interface AbbyyOcrReq {
+    outRequestNo?: string;
+    documentId?: string;
 }
 
 /** Form Designer (Request) */
@@ -9491,9 +9492,9 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
-    fileContentExtension?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
     fileContentMimeType?: string;
@@ -9937,9 +9938,9 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
+    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
-    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
@@ -11773,15 +11774,15 @@ export interface BusinessResultRecord {
 }
 
 export interface PageBusinessResultRecord {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: BusinessResultRecord[];
@@ -12707,6 +12708,30 @@ export interface ExternalProfileOutputDTO {
     imageSetting?: Record<string, any>;
 }
 
+/** Batch Update Result DTO */
+export interface BatchUpdateResultDTO {
+    /**
+     * Number of successfully updated records
+     * @format int32
+     */
+    updatedCount?: number;
+    /** List of successfully updated records with populated IDs */
+    updatedDataIds?: string[];
+    /** List of error details (if any) */
+    errors?: any[];
+}
+
+export interface ResultBatchUpdateResultDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Batch Update Result DTO */
+    data?: BatchUpdateResultDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Update Trigger Setting Request */
 export interface UpdateTriggerSettingRequestDTO {
     /** Description */
@@ -12821,15 +12846,15 @@ export interface ResultListProcessDefinitionDraft {
 }
 
 export interface PageSearchHistory {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: SearchHistory[];
@@ -14647,11 +14672,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
-    finish?: number;
-    error?: number;
     create?: number;
     pending?: number;
     completed?: number;
+    finish?: number;
+    error?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -19678,9 +19703,9 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          */
         postVerificationPermissionAbbyyOcr: (
             query: {
-                config: AbbyySoapConfig;
                 /** @format binary */
                 multipartFile: File;
+                outRequestNo?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -21148,6 +21173,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBatchInsertResultDTO, any>({
                 path: `/api/dynamic-db/table/${tableId}/record/batch-transactional`,
                 method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PatchDynamicDbTableTableidRecordBatchTransactional
+         * @request PATCH:/api/dynamic-db/table/{tableId}/record/batch-transactional
+         */
+        patchDynamicDbTableTableidRecordBatchTransactional: (
+            tableId: string,
+            data: BatchInsertRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBatchUpdateResultDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/record/batch-transactional`,
+                method: "PATCH",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -26904,6 +26949,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Facade API
+         * @name PostDmsFacadeAbbyyOcr
+         * @request POST:/api/dms/facade/abbyy-ocr
+         */
+        postDmsFacadeAbbyyOcr: (data: AbbyyOcrReq, params: RequestParams = {}) =>
+            this.request<ResultAbbyyOcrResp, any>({
+                path: `/api/dms/facade/abbyy-ocr`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags EasyFormController
          * @name GetDmsEasyForm
          * @summary Query form design
@@ -28857,6 +28918,32 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AbbyyController
+         * @name PostDmsAbbyyOcrStart
+         * @request POST:/api/dms/abbyy/ocr/start
+         */
+        postDmsAbbyyOcrStart: (
+            data: {
+                /** @format binary */
+                file: File;
+            },
+            query?: {
+                outRequestNo?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultAbbyyOcrResp, any>({
+                path: `/api/dms/abbyy/ocr/start`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
                 ...params,
             }),
 
@@ -34644,6 +34731,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Upload Request
+         * @name GetDmsUploadRequestTempFileId
+         * @request GET:/api/dms/upload-request/temp_file/{id}
+         */
+        getDmsUploadRequestTempFileId: (id: string, params: RequestParams = {}) =>
+            this.request<string, any>({
+                path: `/api/dms/upload-request/temp_file/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags EmailController
          * @name GetDmsTemplateEmailTemplateId
          * @summary Obtain email template detail
@@ -35913,6 +36014,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Facade API
+         * @name GetDmsFacadeAbbyyOcrResult
+         * @request GET:/api/dms/facade/abbyy-ocr/result
+         */
+        getDmsFacadeAbbyyOcrResult: (
+            query: {
+                outRequestNo: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, any>({
+                path: `/api/dms/facade/abbyy-ocr/result`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags EasyFormController
          * @name GetDmsEasyFormIdDetail
          * @summary Retrieve form design
@@ -36845,6 +36966,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultMapStringString, any>({
                 path: `/api/dms/cabinet/header/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AbbyyController
+         * @name GetDmsAbbyyOcrResult
+         * @request GET:/api/dms/abbyy/ocr/result
+         */
+        getDmsAbbyyOcrResult: (
+            query?: {
+                outRequestNo?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/abbyy/ocr/result`,
                 method: "GET",
                 query: query,
                 ...params,
