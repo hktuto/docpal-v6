@@ -28,7 +28,7 @@ async function handleExport(command: string) {
       {
         fileType: command
       },
-      { format: 'blob' }
+      { format: 'blob', timeout: 0 }
     )
 
     downloadBlob(res, props.name)

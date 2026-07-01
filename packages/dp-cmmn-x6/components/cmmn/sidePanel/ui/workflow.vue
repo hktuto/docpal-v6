@@ -72,7 +72,8 @@ const getBpmn = async (processKey: string) => {
     const blob = await newAdminApi.postDocpalWorkflowProcessModel({
       processKey
     }, {
-      format: 'blob'
+      format: 'blob',
+      timeout: 0
     })
     const text = await blob.text()
     bpmnFile.value = text

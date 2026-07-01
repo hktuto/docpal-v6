@@ -23,7 +23,8 @@ async function init(fileId: string) {
     previewFile.blob = await newClientApi.getWorkflowTaskAttachmentPreview(
       { attachmentId: fileId },
       {
-        format: 'blob'
+        format: 'blob',
+        timeout: 0
       }
     )
   } catch (error) {

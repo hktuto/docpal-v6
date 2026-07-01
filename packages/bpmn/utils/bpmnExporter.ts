@@ -58,7 +58,8 @@ export async function getWorkflowExportData(workflowKey:string) {
     const blob = await newAdminApi.getDocpalWorkflowVersionBpmnxml(
       { draftId: selectedWorkflowData.draftId, versionNumber: selectedWorkflowData.versionNumber },
       {
-        format: 'blob'
+        format: 'blob',
+        timeout: 0
       }
     )
     const json = await newAdminApi.getDocpalWorkflowVersionJson({ draftId: selectedWorkflowData.draftId, versionNumber: selectedWorkflowData.versionNumber }, {})

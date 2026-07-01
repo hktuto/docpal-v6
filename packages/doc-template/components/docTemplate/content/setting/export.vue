@@ -35,15 +35,15 @@ async function performExport(exportType: 'html' | 'docx' | 'pdf', configuredVari
   let mime
   let blob
   if (exportType === 'docx') {
-    blob = await templateApi.convert.postConvertDocx(data, { format: 'blob' })
+    blob = await templateApi.convert.postConvertDocx(data, { format: 'blob', timeout: 0 })
     filename = `${options.value.title}.docx`
     mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   } else if (exportType === 'pdf') {
-    blob = await templateApi.convert.postConvertPdf(data, { format: 'blob' })
+    blob = await templateApi.convert.postConvertPdf(data, { format: 'blob', timeout: 0 })
     filename = `${options.value.title}.pdf`
     mime = 'application/pdf'
   } else {
-    blob = await templateApi.convert.postConvertHtml(data, { format: 'blob' })
+    blob = await templateApi.convert.postConvertHtml(data, { format: 'blob', timeout: 0 })
     filename = `${options.value.title}.html`
     mime = 'text/html'
   }

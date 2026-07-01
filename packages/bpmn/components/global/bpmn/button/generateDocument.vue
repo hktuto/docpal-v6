@@ -32,7 +32,8 @@ async function generateOldTemplate(templateId: string, map: any) {
     templateId: templateId,
     paramsMap: map
   }, {
-    format: 'blob'
+    format: 'blob',
+    timeout: 0
   })
 }
 
@@ -61,7 +62,8 @@ async function generateNewTemplatePreview(templateId: string, map: any) {
       data: map,
       template: res
     }, {
-      format: 'blob'
+      format: 'blob',
+      timeout: 0
     })
     console.log('blob', blob)
     return blob

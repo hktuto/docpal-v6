@@ -157,7 +157,8 @@ async function handleDblclick(row: any) {
     try {
       previewFile.name = row.initName
       previewFile.blob = await newClientApi.getDmsUploadRequestTempFileId(row.id, {
-        format: 'blob'
+        format: 'blob',
+        timeout: 0
       })
     } catch (error) {}
     previewFile.loading = false
@@ -168,8 +169,9 @@ async function handleDblclick(row: any) {
 async function handleDownload(file: any) {
   try {
     file.downloadLoading = true
-    const blob: any = await newClientApi.getDmsUploadTmpFileIdDownload(file.id, {
-      format: 'blob'
+    const blob: any = await newClientApi.getDmsUploadRequestTempFileId(file.id, {
+      format: 'blob',
+      timeout: 0
     })
     downloadBlob(blob, file.name || state.selectedRow.name, blob.type)
   } catch (error) {

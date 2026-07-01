@@ -133,6 +133,7 @@ async function handleDownload(row: any) {
       { idOrPath: row.documentId },
       {
         format: 'blob',
+        timeout: 0,
         onDownloadProgress: (e: any) => {
           const el = document.getElementById(id)
           if (el) el.innerHTML = Math.round((e.loaded / e.total) * 100) + '%'

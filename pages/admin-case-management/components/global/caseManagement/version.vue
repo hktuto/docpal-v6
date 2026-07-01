@@ -47,7 +47,8 @@ async function saveAsNewVersion(data: any) {
   // get all form in case and save as to new version
   // download xml
   const xml = await newAdminApi.getCaseTypesIdDownloadXml(props.caseTypeId, { versionNumber: data.versionNumber }, {
-    format: 'blob'
+    format: 'blob',
+    timeout: 0
   })
   const xmlString = await xml.text()
   const cmmnJson = cmmnToJson(xmlString)

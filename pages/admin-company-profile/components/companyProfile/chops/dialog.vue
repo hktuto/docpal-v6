@@ -104,7 +104,8 @@ async function handleEdit(data: any) {
   visible.value = true
   fileChange.value = false
   const file = await newAdminApi.getDmsCompanyprofilesCompanyidChopsCompanychopidFile(props.companyId as string, data.id, {
-    format: 'blob'
+    format: 'blob',
+    timeout: 0
   })
 
   const permission = {

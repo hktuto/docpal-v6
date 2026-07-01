@@ -141,7 +141,8 @@ export async function getCaseExportData(caseId: string) {
   let caseStyleJson = await newAdminApi.getCaseTypesIdStylejson(selectedCaseData.id, { versionNumber: selectedCaseData?.latestVersion }).then(r => r.data)
   caseStyleJson = caseStyleJson ? JSON.parse(caseStyleJson) : null
   const blob = await newAdminApi.geCaseTypesIdDownloadXml(selectedCaseData.id, { versionNumber: selectedCaseData?.latestVersion }, {
-    format: 'blob'
+    format: 'blob',
+    timeout: 0
   }) as any
   const cmmnString = await blob.text()
   result.xml = cmmnString

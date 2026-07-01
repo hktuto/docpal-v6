@@ -129,7 +129,8 @@ async function handleSubmit(fileType: string) {
         template: state.wordJson
       }
       res = await templateApi.convert.postConvertGeneratedatatodocx(data, {
-        format: 'blob'
+        format: 'blob',
+        timeout: 0
       })
     } else {
       res = await generateFile()

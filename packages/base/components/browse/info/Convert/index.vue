@@ -60,7 +60,8 @@ async function handleDownload(row) {
   })
   try {
     const response = (await newClientApi.postDmsConversionFormatDownload([row.documentPath], {
-      format: 'blob'
+      format: 'blob',
+      timeout: 0
     })) as any
     const blobStream = new Blob([response], { type: 'application/octet-stream' })
     const url = window.URL.createObjectURL(blobStream)

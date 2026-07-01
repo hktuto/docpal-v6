@@ -54,7 +54,8 @@ async function loadJsonAndXml() {
   let styleJson: any = await newAdminApi.getCaseTypesIdStylejson(props.caseTypeId, { versionNumber: props?.currentVersion }).then(r => r.data)
   styleJson = styleJson ? JSON.parse(styleJson) : null
   const blob = await newAdminApi.getCaseTypesIdDownloadXml(props.caseTypeId, { versionNumber: props?.currentVersion }, {
-    format: 'blob'
+    format: 'blob',
+    timeout: 0
   }) as any
   const cmmnString = await blob.text()
   editorEl.value.init(cmmnString, styleJson, readOnly.value, props.versionId)

@@ -20,7 +20,8 @@ const fileType = computed(() => {
 async function getBlobFile(id: string) {
   state.loading = true
   state.blob = await newClientApi.getDmsUploadTmpFileIdDownload(id, {
-    format: 'blob'
+    format: 'blob',
+    timeout: 0
   })
   state.encodeUrl = URL.createObjectURL(state.blob)
   state.loading = false

@@ -24,6 +24,7 @@ function ensureUserId(): string {
 async function getUserSignature() {
   const signature = (await newClientApi.getDmsUserprofileUseridSignature(ensureUserId(), {
     format: 'blob',
+    timeout: 0,
     headers: {
       noThrowError: true
     }
@@ -51,6 +52,7 @@ async function getUserSignature() {
 async function getCompanyChop(chopId: string) {
   const signature = (await newClientApi.getDmsCompanyprofilesChopsCompanychopidFile(chopId, {
     format: 'blob',
+    timeout: 0,
     headers: {
       noThrowError: true
     }

@@ -132,7 +132,7 @@ async function handleTest(fileType: string) {
         value: fileType
       })
 
-      blob = await templateApi.convert.postConvertDocx(deepData, { format: 'blob' })
+      blob = await templateApi.convert.postConvertDocx(deepData, { format: 'blob', timeout: 0 })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       const suffix = fileType == 'word' ? 'docx' : fileType
@@ -275,7 +275,8 @@ async function getWordJsonFile() {
   const blob = await newAdminApi.postDmsDocumentPreview(
     { idOrPath: state.info.documentId },
     {
-      format: 'blob'
+      format: 'blob',
+      timeout: 0
     }
   )
 

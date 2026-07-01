@@ -37,7 +37,8 @@ async function resetInfo() {
         versionNumber: workflow.versionNumber
       },
       {
-        format: 'blob'
+        format: 'blob',
+        timeout: 0
       }
     )
     const xml = await blob.text()

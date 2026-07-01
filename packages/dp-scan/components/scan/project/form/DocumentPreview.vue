@@ -912,7 +912,7 @@ async function loadImageFromPath(path: string): Promise<string | null> {
   try {
     const blob = await clientApi.api.postCaptureFileQuerycapturefilebypath(
       { path },
-      { format: 'blob', headers: { noThrowError: true } }
+      { format: 'blob', headers: { noThrowError: true }, timeout: 0 }
     )
     return URL.createObjectURL(blob)
   } catch (error) {

@@ -85,7 +85,8 @@ async function handleDblclick(row: any) {
       documentId: fileId
     }
     previewFile.blob = await newClientApi.getDmsPublicShareDocumentsDocumentidPreview(params, {
-      format: 'blob'
+      format: 'blob',
+      timeout: 0
     })
   } catch (error) {}
   previewFile.id = fileId
@@ -102,7 +103,8 @@ async function handleDownload(row: any) {
       documentId: row.id
     }
     const blob: any = await newClientApi.getDmsPublicShareDocumentsDocumentidDownload(params, {
-      format: 'blob'
+      format: 'blob',
+      timeout: 0
     })
     downloadBlob(blob, row.name || row.title, blob.type)
   } catch (error) {

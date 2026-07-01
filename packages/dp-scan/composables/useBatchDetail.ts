@@ -376,6 +376,7 @@ export const useBatchDetail = (batchId: string) => {
     try {
       const b = await clientApi.api.postCaptureFileQuerycapturefilebypath({ path }, {
         format: 'blob',
+        timeout: 0,
         headers: { noThrowError: true },
         signal: currentImageAbortController.signal
       })

@@ -31,6 +31,7 @@ async function getPreview() {
       { path },
       {
         format: 'blob',
+        timeout: 0,
         headers: {
           noThrowError: true
         }

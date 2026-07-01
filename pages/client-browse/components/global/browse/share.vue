@@ -91,7 +91,8 @@ async function handleDblclick(row: any) {
               documentId: row.id
             },
             {
-              format: 'blob'
+              format: 'blob',
+              timeout: 0
             }
           )
           previewFile.loading = false
@@ -101,7 +102,8 @@ async function handleDblclick(row: any) {
       previewFile.blob = await newClientApi.postDmsDocumentPreview(
         { idOrPath: row.id },
         {
-          format: 'blob'
+          format: 'blob',
+          timeout: 0
         }
       )
       previewFile.loading = false

@@ -49,7 +49,7 @@ const handleCommand = (command: string) => {
 async function downloadImage(path:string) {
   const blob = await clientApi.api.postCaptureFileQuerycapturefilebypath(
     { path },
-    { format: 'blob', headers: { noThrowError: true } }
+    { format: 'blob', headers: { noThrowError: true }, timeout: 0 }
   )
   return URL.createObjectURL(blob)
 }

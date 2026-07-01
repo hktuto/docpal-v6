@@ -73,7 +73,8 @@ function xmlStringToFile(xmlString, fileName) {
 async function init() {
   console.log('xml init')
   const blob = await newAdminApi.getCaseTypesIdDownloadXml(caseDetailProvider?.caseInfo.value.caseTypeId, { versionNumber: props.currentVersion }, {
-    format: 'blob'
+    format: 'blob',
+    timeout: 0
   }) as any
   let { data: styleJson } = await newAdminApi.getCaseTypesIdStylejson(caseDetailProvider?.caseInfo.value.caseTypeId, { versionNumber: props.currentVersion })
   styleJson = styleJson ? JSON.parse(styleJson) : null

@@ -75,7 +75,8 @@ async function save() {
       data.id,
       { versionNumber: formData.copyVersion },
       {
-        format: 'blob'
+        format: 'blob',
+        timeout: 0
       }
     )) as any
     const cmmnString = await blob.text()

@@ -121,7 +121,8 @@ async function downloadErrorReport() {
   if (!errorReportId.value) return
   try {
     const blob: any = await newClientApi.getDynamicDbImportJobidErrorReport(errorReportId.value, {
-      format: 'blob'
+      format: 'blob',
+      timeout: 0
     })
     downloadBlob(blob, 'error_report.xlsx', blob.type)
   } catch (error) {

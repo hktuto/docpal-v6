@@ -160,7 +160,7 @@ async function handleDownloadAttachment(attachment: AttachmentCellValue, e?: Mou
       props.dataId,
       attachment.id,
       { field_name: props.fieldName, mode: 'download' },
-      { format: 'blob' }
+      { format: 'blob', timeout: 0 }
     )
     downloadBlob(blob, attachment.file_name)
   } catch {

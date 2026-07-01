@@ -146,7 +146,8 @@ async function handleFilePreview(file: any, fieldOptions: any) {
       previewFile.blob = (await newClientApi.postDmsDocumentDownloadPublic(
         { idOrPath: fileId },
         {
-          format: 'blob'
+          format: 'blob',
+          timeout: 0
         }
       )) as any
     } else {
@@ -154,7 +155,8 @@ async function handleFilePreview(file: any, fieldOptions: any) {
       previewFile.blob = await newClientApi.getWorkflowTaskAttachmentInfo(
         { attachmentId: fileId },
         {
-          format: 'blob'
+          format: 'blob',
+          timeout: 0
         }
       )
     }

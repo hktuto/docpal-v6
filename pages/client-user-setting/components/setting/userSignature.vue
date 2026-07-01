@@ -26,7 +26,7 @@ async function handleOpen() {
 
 async function getImageUrl() {
   try {
-    const response: any = await newClientApi.getDmsUserprofileUseridSignature(props.userId, { format: 'blob' })
+    const response: any = await newClientApi.getDmsUserprofileUseridSignature(props.userId, { format: 'blob', timeout: 0 })
     if (!!response && response.size > 0) {
       const blob = new Blob([response], { type: response.type })
       const url = URL.createObjectURL(blob)

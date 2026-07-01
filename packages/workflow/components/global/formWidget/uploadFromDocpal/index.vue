@@ -31,7 +31,8 @@ async function downloadAndUpload(row: any) {
     const blob = await newClientApi.postDmsDocumentDownload(
       { idOrPath: row.id },
       {
-        format: 'blob'
+        format: 'blob',
+        timeout: 0
       }
     )
     const file = new File([blob], calFileNameAndExt(blob.type, row.name), { type: blob.type })

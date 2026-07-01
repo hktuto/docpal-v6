@@ -108,7 +108,8 @@ async function preview() {
       documentId: doc.value.id
     },
     {
-      format: 'blob'
+      format: 'blob',
+      timeout: 0
     }
   )
   previewFile.loading = false

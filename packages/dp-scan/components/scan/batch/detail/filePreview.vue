@@ -986,6 +986,7 @@ async function getPreviewPdf(){
       const path = `/process/${detail.batchId}/${detail.id}/${detail.id}.pdf`
       const b = await clientApi.api.postCaptureFileQuerycapturefilebypath({ path }, {
         format: 'blob',
+        timeout: 0,
         headers: { noThrowError: true },
       })
       const pdf = await loadPDF(b)

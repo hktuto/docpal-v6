@@ -26,7 +26,8 @@ async function handleExport() {
     const data = await adminApi.api.postNuxeoFolderstructureExport(
       { idOrPath: props.exportId },
       {
-        format: 'blob'
+        format: 'blob',
+        timeout: 0
       }
     )
     downloadBlob(data, props.exportName + '.zip', 'application/zip')
