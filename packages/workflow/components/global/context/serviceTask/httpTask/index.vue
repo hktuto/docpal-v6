@@ -271,7 +271,7 @@ watch(
     <el-divider />
 
     <div class="title-header">
-      <span>Store Value</span>
+      <span>Response Key</span>
       <span>Response Value</span>
     </div>
     <div class="output-mapping-summary">
