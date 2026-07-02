@@ -6,8 +6,12 @@ import AttachmentFieldWidget from './attachment.vue'
 import DateTimeFieldWidget from './dateTime.vue'
 import DefaultFieldWidget from './default.vue'
 import DocPalDocFieldWidget from './docPalDoc.vue'
+import NumberFieldWidget from './number.vue'
+import RelationFieldWidget from './relation.vue'
+import SelectFieldWidget from './select.vue'
 import SystemUserFieldWidget from './systemUser.vue'
 import UrlFieldWidget from './url.vue'
+import VirtualColumnFieldWidget from './VirtualColumn.vue'
 
 const props = defineProps<{
   row: Record<string, any>
@@ -22,6 +26,9 @@ function getFieldWidget(fieldType: unknown): Component {
       return UrlFieldWidget
     case ColumnFieldType.DocPalDoc:
       return DocPalDocFieldWidget
+    case ColumnFieldType.Number:
+    case ColumnFieldType.AggVirtualColumn:
+      return NumberFieldWidget
     case ColumnFieldType.DateTime:
     case ColumnFieldType.CreatedTime:
     case ColumnFieldType.LastModifiedTime:
@@ -31,6 +38,13 @@ function getFieldWidget(fieldType: unknown): Component {
       return SystemUserFieldWidget
     case ColumnFieldType.Attachment:
       return AttachmentFieldWidget
+    case ColumnFieldType.SingleSelect:
+    case ColumnFieldType.MultiSelect:
+      return SelectFieldWidget
+    case ColumnFieldType.Relation:
+      return RelationFieldWidget
+    case ColumnFieldType.VirtualColumn:
+      return VirtualColumnFieldWidget
     default:
       return DefaultFieldWidget
   }

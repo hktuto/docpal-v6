@@ -5,7 +5,6 @@
       v-model="formData[column[fieldName]]"
       :placeholder="column.placeholder"
       clearable
-      :precision="properties.precision"
       :step="1"
       align="left"
       :disabled="disabled"
