@@ -298,8 +298,8 @@ export interface Permission {
 }
 
 export interface SortObject {
-    sorted?: boolean;
     unsorted?: boolean;
+    sorted?: boolean;
     empty?: boolean;
 }
 
@@ -2642,8 +2642,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    validationRuleName?: string;
     isMultiple?: boolean;
+    validationRuleName?: string;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -2979,15 +2979,15 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
     fileContentExtension?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentMimeType?: string;
-    fileContentName?: string;
     /** @format int64 */
     fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
 }
 
 export interface FileContentDTO {
@@ -4275,10 +4275,10 @@ export interface SubNotificationRequest {
 }
 
 export interface PageNotificationRecord {
-    /** @format int64 */
-    totalElements?: number;
     /** @format int32 */
     totalPages?: number;
+    /** @format int64 */
+    totalElements?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -4296,13 +4296,13 @@ export interface PageNotificationRecord {
 export interface PageableObject {
     paged?: boolean;
     /** @format int32 */
-    pageNumber?: number;
-    /** @format int32 */
     pageSize?: number;
+    unpaged?: boolean;
+    /** @format int32 */
+    pageNumber?: number;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
-    unpaged?: boolean;
 }
 
 export interface ResultPageNotificationRecord {
@@ -4412,10 +4412,10 @@ export interface QueryFileOverviewRequestDTO {
 }
 
 export interface PageUploadBatchDTO {
-    /** @format int64 */
-    totalElements?: number;
     /** @format int32 */
     totalPages?: number;
+    /** @format int64 */
+    totalElements?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -6096,10 +6096,10 @@ export interface ResultWMKTemplateRequestDTO {
 }
 
 export interface PageWatermarkSettingsTemplate {
-    /** @format int64 */
-    totalElements?: number;
     /** @format int32 */
     totalPages?: number;
+    /** @format int64 */
+    totalElements?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -7453,12 +7453,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    conversionId?: string;
     watermarkTemplateId?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
     watermarkedLocalPath?: string;
+    conversionId?: string;
 }
 
 /** EasyShare (Request) */
@@ -7762,8 +7762,8 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    ocr?: boolean;
     updateChildName?: boolean;
+    ocr?: boolean;
     folder?: boolean;
     be_index?: boolean;
     create_by?: string;
@@ -8083,9 +8083,9 @@ export interface MasterTableResponseDTO {
     userId?: string;
     aces?: string;
     enable?: boolean;
+    read?: boolean;
     create?: boolean;
     edit?: boolean;
-    read?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -8230,9 +8230,9 @@ export interface MTPermissionDTO {
     userName?: string;
     userType?: string;
     enable?: boolean;
+    read?: boolean;
     create?: boolean;
     edit?: boolean;
-    read?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -8674,8 +8674,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 /** Document (Request) */
@@ -9190,8 +9190,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 /** Versioning (Request) */
@@ -9492,15 +9492,15 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
+    fileContentDigest?: string;
+    fileContentData?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
     fileContentExtension?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentMimeType?: string;
-    fileContentName?: string;
     /** @format int64 */
     fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9938,9 +9938,9 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
-    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
+    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
@@ -10222,8 +10222,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -11774,10 +11774,10 @@ export interface BusinessResultRecord {
 }
 
 export interface PageBusinessResultRecord {
-    /** @format int64 */
-    totalElements?: number;
     /** @format int32 */
     totalPages?: number;
+    /** @format int64 */
+    totalElements?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -12846,10 +12846,10 @@ export interface ResultListProcessDefinitionDraft {
 }
 
 export interface PageSearchHistory {
-    /** @format int64 */
-    totalElements?: number;
     /** @format int32 */
     totalPages?: number;
+    /** @format int64 */
+    totalElements?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -14672,11 +14672,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
-    create?: number;
+    error?: number;
     pending?: number;
     completed?: number;
     finish?: number;
-    error?: number;
+    create?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -16109,69 +16109,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/api/dynamic-db/table/fields/${fieldId}`,
                 method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * @description Replace the file content of an existing attachment. The old file is removed from storage and replaced with the new one. Attachment metadata is updated accordingly.
-         *
-         * @tags DynamicDBAttachmentController
-         * @name PutDynamicDbTableDataDataidAttachmentsAttachmentid
-         * @summary Replace an existing attachment with a new file
-         * @request PUT:/api/dynamic-db/table/data/{dataId}/attachments/{attachmentId}
-         */
-        putDynamicDbTableDataDataidAttachmentsAttachmentid: (
-            dataId: string,
-            attachmentId: string,
-            query: {
-                field_name: string;
-            },
-            data: {
-                /**
-                 * The new file to replace with
-                 * @format binary
-                 */
-                file?: File;
-                /** Document type field name (e.g. f_3_a1b2c3d4) */
-                field_name?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<void, any>({
-                path: `/api/dynamic-db/table/data/${dataId}/attachments/${attachmentId}`,
-                method: "PUT",
-                query: query,
-                body: data,
-                type: ContentType.FormData,
-                format: "json",
-                ...params,
-            }),
-
-        /**
-         * @description Delete a specific attachment by its ID. Removes the file from storage and updates the field's JSONB array.
-         *
-         * @tags DynamicDBAttachmentController
-         * @name DeleteDynamicDbTableDataDataidAttachmentsAttachmentid
-         * @summary Delete an attachment from a document field
-         * @request DELETE:/api/dynamic-db/table/data/{dataId}/attachments/{attachmentId}
-         */
-        deleteDynamicDbTableDataDataidAttachmentsAttachmentid: (
-            dataId: string,
-            attachmentId: string,
-            query: {
-                /**
-                 * Field name
-                 * @example "f_3_a1b2c3d4"
-                 */
-                field_name: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<void, any>({
-                path: `/api/dynamic-db/table/data/${dataId}/attachments/${attachmentId}`,
-                method: "DELETE",
-                query: query,
-                format: "json",
                 ...params,
             }),
 
@@ -21265,6 +21202,40 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * @description Upload a file as an attachment to a document-type field. The file is stored via gRPC and the attachment metadata is saved in the field's JSONB array.
+         *
+         * @tags DynamicDBAttachmentController
+         * @name PostDynamicDbTableTableidAttachments
+         * @summary Upload attachment to a document field of a data record
+         * @request POST:/api/dynamic-db/table/{tableId}/attachments
+         */
+        postDynamicDbTableTableidAttachments: (
+            tableId: string,
+            data: {
+                /**
+                 * The file to upload
+                 * @format binary
+                 */
+                file?: File;
+                /** Field name (e.g. f_3_a1b2c3d4) */
+                field_name?: string;
+            },
+            query?: {
+                field_name?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/dynamic-db/table/${tableId}/attachments`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                format: "json",
+                ...params,
+            }),
+
+        /**
          * No description
          *
          * @tags DynamicDBTriggerSettingController
@@ -21379,40 +21350,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Upload a file as an attachment to a document-type field. The file is stored via gRPC and the attachment metadata is saved in the field's JSONB array.
-         *
-         * @tags DynamicDBAttachmentController
-         * @name PostDynamicDbTableDataDataidAttachments
-         * @summary Upload attachment to a document field of a data record
-         * @request POST:/api/dynamic-db/table/data/{dataId}/attachments
-         */
-        postDynamicDbTableDataDataidAttachments: (
-            dataId: string,
-            query: {
-                field_name: string;
-            },
-            data: {
-                /**
-                 * The file to upload
-                 * @format binary
-                 */
-                file?: File;
-                /** Field name (e.g. f_3_a1b2c3d4) */
-                field_name?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<void, any>({
-                path: `/api/dynamic-db/table/data/${dataId}/attachments`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.FormData,
-                format: "json",
                 ...params,
             }),
 
@@ -36024,7 +35961,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, any>({
+            this.request<ResultObject, any>({
                 path: `/api/dms/facade/abbyy-ocr/result`,
                 method: "GET",
                 query: query,

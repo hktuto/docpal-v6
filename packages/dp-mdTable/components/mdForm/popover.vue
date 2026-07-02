@@ -107,6 +107,7 @@ import dayjs from 'dayjs'
 const { updateRow } = useTableDataInject()
 const viewTools = inject('viewTools')
 const { navigateToTableMenu } = viewTools
+provide('mdFormTableId', computed(() => props.tableId))
 const visible = ref(false)
 const formData = ref<any>({})
 const mode = ref('edit')

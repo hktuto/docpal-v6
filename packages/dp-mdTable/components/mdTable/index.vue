@@ -59,6 +59,7 @@
       />
       <MdFormPopover
         ref="MdFormPopoverRef"
+        :table-id="props.tableId"
         :columns="columns"
         :systemFieldsTypes="systemFieldsTypes"
         showMoveButtons

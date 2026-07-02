@@ -8,9 +8,13 @@ import type { AttachmentCellValue } from '../../../../types/column-types'
 
 const { t } = useI18n()
 
+const viewTools = inject<{ tableId?: Ref<string> | string } | null>('viewTools', null)
+const mdFormTableId = inject<Ref<string> | ComputedRef<string> | string | null>('mdFormTableId', null)
+
 const props = withDefaults(
   defineProps<{
     dataId?: string
+    tableId?: string
     fieldName: string
     disabled?: boolean
     showUpload?: boolean
@@ -67,9 +71,18 @@ function mergeAttachments(current: AttachmentCellValue[], incoming: AttachmentCe
   return merged
 }
 
-async function uploadAttachment(rawFile: File, dataId: string, fieldName: string) {
+function resolveTableId() {
+  if (props.tableId) return props.tableId
+  const formTableId = mdFormTableId ? unref(mdFormTableId) : ''
+  if (formTableId) return formTableId
+  const injectedTableId = viewTools?.tableId
+  if (!injectedTableId) return ''
+  return typeof injectedTableId === 'string' ? injectedTableId : (injectedTableId.value ?? '')
+}
+
+async function uploadAttachment(rawFile: File, tableId: string, fieldName: string) {
   try {
-    const response = await clientApi.api.postDynamicDbTableDataDataidAttachments(dataId, {}, { file: rawFile, field_name: fieldName })
+    const response = await clientApi.api.postDynamicDbTableTableidAttachments(tableId, { file: rawFile, field_name: fieldName }, { field_name: fieldName })
     const payload = (response as { data?: unknown })?.data ?? response
     attachments.value = mergeAttachments(attachments.value, toAttachmentList(payload))
     if (!isFormMode.value) {
@@ -105,18 +118,18 @@ function toAttachmentList(payload: unknown): AttachmentCellValue[] {
 
 function handleUploadChange(file: UploadFile) {
   if (!file.raw || !props.fieldName) return
-  if (!props.dataId) {
+  const tableId = resolveTableId()
+  if (!tableId || !props.dataId) {
     ElMessage.warning(t('mdTable.attachment.saveBeforeUpload'))
     return
   }
 
   const rawFile = file.raw
-  const dataId = props.dataId
   const fieldName = props.fieldName
 
   uploadingCount.value += 1
   uploadQueue = uploadQueue
-    .then(() => uploadAttachment(rawFile, dataId, fieldName))
+    .then(() => uploadAttachment(rawFile, tableId, fieldName))
     .finally(() => {
       uploadingCount.value -= 1
     })
@@ -186,31 +199,16 @@ async function handleDeleteAttachment(attachment: AttachmentCellValue, e?: Mouse
       confirmButtonClass: 'el-button el-button--warning',
       confirmButtonText: t('common_confirmDelete'),
       customClass: props.ignoreClear ? 'vxe-table--ignore-clear' : undefined,
-      modalClass: props.ignoreClear ? 'vxe-table--ignore-clear' : undefined,
+      modalClass: props.ignoreClear ? 'vxe-table--ignore-clear' : undefined
     })
   } catch {
     return
   }
   deletingAttachmentId.value = attachment.id
-  try {
-    await clientApi.api.deleteDynamicDbTableDataDataidAttachmentsAttachmentid(
-      props.dataId,
-      attachment.id,
-      {
-        field_name: props.fieldName
-      },
-      {
-        headers: {
-          noThrowError: 'true'
-        }
-      }
-    )
-  } catch {
-  } finally {
-    attachments.value = attachments.value.filter((item) => item.id !== attachment.id)
-    ElMessage.success(t('mdTable.attachment.deleteSuccess'))
-    deletingAttachmentId.value = null
-  }
+
+  attachments.value = attachments.value.filter((item) => item.id !== attachment.id)
+  ElMessage.success(t('mdTable.attachment.deleteSuccess'))
+  deletingAttachmentId.value = null
 }
 </script>
 
