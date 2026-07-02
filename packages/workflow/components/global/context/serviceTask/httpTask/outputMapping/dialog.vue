@@ -22,9 +22,9 @@ const createMapping = ref<{
   key: ''
 })
 const { getVariablesByDisplayTypes } = useVariablesProvide()
-const stringFields = computed(() => {
+const allFields = computed(() => {
   const set = new Set(tableData.value.filter((item: any) => item.value !== '').map((item: any) => item.value))
-  return getVariablesByDisplayTypes(['text']).filter((item: any) => !item.id.startsWith('__system__') && !set.has(item.id))
+  return getVariablesByDisplayTypes([]).filter((item: any) => !item.id.startsWith('__system__') && !set.has(item.id))
 })
 
 function open() {
@@ -79,14 +79,14 @@ defineExpose({ open })
 <template>
   <el-dialog v-model="dialogVisible" :title="t('Add Mapping')" append-to-body :close-on-click-modal="false">
     <div>
-      <el-input v-model="createMapping.key" style="max-width: 600px" placeholder="Please input Key">
+      <el-input v-model="createMapping.key" style="max-width: 600px" placeholder="Please input Response Key">
         <template #append>
-          <el-button @click="handleCreate" style="background-color: #1dd6c3; color: #ffffff">Add Mapping</el-button>
+          <el-button @click="handleCreate" style="background-color: #1dd6c3; color: #ffffff">Add Response Key</el-button>
         </template>
       </el-input>
 
       <el-table :data="tableData" stripe style="width: 100%">
-        <el-table-column :label="t('Store Value')" prop="key">
+        <el-table-column :label="t('Response Key')" prop="key">
           <template #default="{ row, $index }">
             {{ row.key }}
           </template>
@@ -94,7 +94,7 @@ defineExpose({ open })
         <el-table-column :label="t('Response Value')" prop="value">
           <template #default="{ row, $index }">
             <el-select v-model="row.value">
-              <el-option v-for="item in stringFields" :key="item.id" :label="item.name" :value="item.id" />
+              <el-option v-for="item in allFields" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </template>
         </el-table-column>
