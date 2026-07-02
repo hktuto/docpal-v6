@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
-import MdCardWidget from './widget.vue'
+import MdCardWidget from './widget/index.vue'
 
 interface CardWidgetStyle {
   showCover: boolean

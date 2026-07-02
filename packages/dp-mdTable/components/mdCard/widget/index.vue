@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Rank } from '@element-plus/icons-vue'
-import CardFieldWidget from './widget/field.vue'
+import CardFieldWidget from './field.vue'
 
 interface Props {
   row: Record<string, any>

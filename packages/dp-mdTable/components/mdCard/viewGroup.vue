@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
-import MdCardWidget from './widget.vue'
+import MdCardWidget from './widget/index.vue'
 import MdCardViewGroupHeader from './viewGroupHeader.vue'
 
 interface CardWidgetStyle {
