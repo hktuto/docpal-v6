@@ -54,7 +54,6 @@ function handleOpen(variable?: VariableItem) {
     isEdit.value = true
   } else {
     formData.value = { ...initData }
-    console.log(123, formData.value)
     isEdit.value = false
   }
   exitRules.value = isEdit.value ? variables.value.filter((item: any) => item.id !== variable?.id) : variables.value

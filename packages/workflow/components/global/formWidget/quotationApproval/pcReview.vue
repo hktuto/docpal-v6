@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { Delete, Plus } from '@element-plus/icons-vue'
-import { clientApi, newClientApi } from 'api'
-import { v7 as uuidv7 } from 'uuid'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
   options: any
 }>()
-const eFormData = computed(() => {
-  return formData
-})
+
 const formRef = ref()
+
 type SampleInfoItem = {
   id?: string
   line_number: string
@@ -27,6 +24,7 @@ type SampleInfoItem = {
   customer_part_number: string
   targetPrice_list: TargetPriceItem[]
 }
+
 type TargetPriceItem = {
   tier_number: number
   moq: number
@@ -36,6 +34,7 @@ type TargetPriceItem = {
   customer_final_price: number
   sales_price: number
 }
+
 const formModel = ref<{
   brand: string
   infoList: SampleInfoItem[]
@@ -44,14 +43,13 @@ const formModel = ref<{
   infoList: []
 })
 const data = toRef(formModel.value, 'infoList')
-const brandOptions = ref(['TE', 'KOA', 'NCC', 'DIOTEC', 'HANANYE', 'KYOCERA', 'ABLIC', 'SUMITOMO', 'NDK', 'MITSUMI', 'HINODE', 'N/A'])
+const brandOptions = ref([])
 const part_numberOptions = ref([])
 const customerPartNumberOptions = ref([])
 
 function handleSampleInfoAdd(index?: number) {
-  const uuid = uuidv7()
   const newValue = {
-    line_number: uuid,
+    line_number: '',
     brand: formModel.value.brand,
     part_number: '',
     mpq: 1,
@@ -64,7 +62,6 @@ function handleSampleInfoAdd(index?: number) {
     customer_part_number: '',
     targetPrice_list: [
       {
-        sample_id: uuid,
         tier_number: 1,
         moq: 1000,
         target_price: 0.01,
@@ -92,87 +89,19 @@ function handleTargetPriceItemAdd(index: number) {
   const defaultMoq: number = 1000 - length * 100
   const defaultTargetPrice: number = (length + 1) * 0.01
 
-  data.value[index].targetPrice_list.push({ tier: length + 1, moq: defaultMoq, targetPrice: defaultTargetPrice })
+  data.value[index].targetPrice_list.push({ tier: '', moq: defaultMoq, targetPrice: defaultTargetPrice })
 }
 
 function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
   data.value[index].targetPrice_list.splice(targetPriceIndex, 1)
 }
 
-function init() {}
-
 async function getFormData(needValidation = true) {
-  const result = { set_sample_list: formModel.list }
+  const result = { sample_info_list: formModel.list }
   if (!needValidation) return result
   await formRef.value?.validate()
   return result
 }
-
-async function handleChangeBrand() {
-  if (!formModel.value.brand || formModel.value.brand === '') return
-
-  const conditions = [
-    {
-      type: 'EQ',
-      column: 'f_7997_ec41c8ff',
-      value: formModel.value.brand
-    }
-  ]
-  const list = await getDbData('12ba8480-6936-11f1-922e-adee4ecc74b2', conditions)
-  part_numberOptions.value =
-    list.map((item: any) => ({
-      id: item.inventory_item_id,
-      label: item.segment1,
-      value: item.segment1,
-      brand: item.attribute8
-    })) || []
-}
-
-async function getDbData(tableId: string, conditions?: any[]) {
-  // Get Filed Mapping
-  const filedData: any = await newClientApi
-    .getDocpalMasterTableUserConfig({
-      tableId: tableId,
-      userId: 'master',
-      type: 'detail'
-    })
-    .then((res) => res.data)
-  const filedMapping: any = {}
-  filedData.tableFields.forEach((item: any) => {
-    filedMapping[item.field_name as string] = item.field_name_alias
-  })
-
-  const param = {
-    tableId: tableId,
-    conditions,
-    columns: [
-      {
-        name: '*'
-      }
-    ],
-    pagination: {
-      pageSize: 1000,
-      pageNum: 0
-    }
-  }
-
-  // Get BD Data
-  const dbData = await clientApi.instance.post('/apis/v1/dynamic-actions', param).then((res: any) => res.data.data)
-
-  // 匹配數據
-  return dbData.map((row: any) => {
-    const out = {}
-    for (const [fromKey, toKey] of Object.entries(filedMapping)) {
-      if (fromKey in row) out[toKey] = row[fromKey]
-    }
-    return out
-  })
-}
-
-onMounted(() => {
-  init()
-})
-
 defineExpose({ getFormData })
 </script>
 
@@ -180,15 +109,15 @@ defineExpose({ getFormData })
   <el-form ref="formRef" label-position="top" :model="formModel">
     <el-row>
       <el-col :span="8">
-        <el-form-item label="品牌 Brand" prop="brand" required>
-          <el-select v-model="formModel.brand" class="full-width-input" clearable filterable :disabled="data.length > 0" @change="handleChangeBrand">
-            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item" :value="item" />
+        <el-form-item label="品牌 Brand" prop="brand">
+          <el-select v-model="formModel.brand" class="full-width-input" clearable :disabled="data.length > 0">
+            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-col>
     </el-row>
 
-    <el-button v-if="!!formModel.brand && data.length === 0" type="primary" @click="handleSampleInfoAdd">Add Sample Info</el-button>
+    <el-button v-if="data.length === 0" type="primary" @click="handleSampleInfoAdd">Add Sample Info</el-button>
     <template v-for="(item, index) in formModel.infoList" :key="item.line_number">
       <div class="info-item-card">
         <div class="info-item-card__header">
@@ -201,7 +130,7 @@ defineExpose({ getFormData })
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="型號 Part Number" prop="part_number">
-              <el-select v-model="item.part_number" class="full-width-input" clearable filterable :allow-create="formModel.brand === 'KOA'">
+              <el-select v-model="item.part_number" class="full-width-input" clearable>
                 <el-option
                   v-for="(part_numberItem, part_numberIndex) in part_numberOptions"
                   :key="part_numberIndex"
@@ -213,20 +142,32 @@ defineExpose({ getFormData })
             <el-form-item label="單機用量 Quantity Machine" prop="quantity_machine">
               <el-input-number v-model="item.quantity_machine" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
+            <el-form-item label="原銷售價格（不含稅） Old Sales Price(NoTax)" prop="old_sales_price_noTax">
+              <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="產品應用 Product Application" prop="product_application">
+              <el-input v-model="item.product_application" clearable />
+            </el-form-item>
+            <el-form-item label="最小包裝數 MPQ " prop="mpq">
+              <el-input v-model="item.mpq" disabled clearable />
+            </el-form-item>
             <el-form-item label="競爭對手名稱 Competitor Name" prop="competitor_name">
               <el-input v-model="item.competitor_name" clearable />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="產品應用 Product Application" prop="product_application" required>
-              <el-input v-model="item.product_application" clearable />
+            <el-form-item label="月用量 Monthly Quantity" prop="monthly_quantity">
+              <el-input-number v-model="item.monthly_quantity" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
-            <el-form-item label="最小包裝數 MPQ " prop="mpq">
-              <el-input v-model="item.mpq" disabled clearable />
+            <el-form-item label="单位 UOM" prop="uom">
+              <el-input v-model="item.uom" disabled />
             </el-form-item>
-
             <el-form-item label="客戶零件編號 Customer Part Number" prop="customer_part_number">
+              <el-input v-model="item.customer_part_number" clearable />
               <el-select v-model="item.customer_part_number" class="full-width-input" clearable>
                 <el-option
                   v-for="(customerPartNumberItem, customerPartNumberIndex) in customerPartNumberOptions"
@@ -238,64 +179,43 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
 
-          <el-col :span="8">
-            <el-form-item label="月用量 Monthly Quantity" prop="monthly_quantity" required>
-              <el-input-number v-model="item.monthly_quantity" controls-position="right" :min="1" :step="1" step-strictly />
-            </el-form-item>
-            <el-form-item label="单位 UOM" prop="uom">
-              <el-input v-model="item.uom" disabled />
-            </el-form-item>
-
-            <el-form-item
-              v-if="eFormData.quotation_reason === 'Discount Request'"
-              label="原銷售價格（不含稅） Old Sales Price(NoTax)"
-              prop="old_sales_price_noTax"
-              required
-            >
-              <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly />
-            </el-form-item>
-          </el-col>
-
-          <el-divider />
           <el-col :span="24">
-            <el-form-item label="詢價列表 Target Price List">
-              <div class="targetPrice-item-card">
-                <div class="targetPrice-item-card__header">
-                  <span>設定不同數量檔位的目標價。 Higher MOQ → lower target price.</span>
-                  <el-button :icon="Plus" :disabled="item.targetPrice_list.length === 10" @click="handleTargetPriceItemAdd(index)" />
-                </div>
-                <el-divider />
-                <el-row class="targetPrice-item-card__table-header">
-                  <el-col :span="2">檔位 Tier</el-col>
-                  <el-col :span="10">起订量 MOQ (階梯遞減 Step decrease)</el-col>
-                  <el-col :span="10">目標價 Target Price</el-col>
-                  <el-col :span="2">操作 Actions</el-col>
-                </el-row>
-                <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.targetPrice_list.length > 5 }">
-                  <el-row v-for="(targetPriceItem, targetPriceIndex) in item.targetPrice_list" :key="targetPriceIndex">
-                    <el-col :span="2">第{{ targetPriceIndex + 1 }}檔 / T{{ targetPriceIndex + 1 }}</el-col>
-                    <el-col :span="10">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.moq" controls-position="right" :min="1" :step="1" step-strictly />
-                    </el-col>
-                    <el-col :span="10">
-                      <el-input-number
-                        style="width: 90%"
-                        v-model="targetPriceItem.target_price"
-                        controls-position="right"
-                        :min="0.000001"
-                        :step="0.000001"
-                        step-strictly
-                      />
-                    </el-col>
-                    <el-col :span="2">
-                      <div class="targetPrice-item-card__actions">
-                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />
-                      </div>
-                    </el-col>
-                  </el-row>
-                </div>
+            <div class="targetPrice-item-card">
+              <div class="targetPrice-item-card__header">
+                <span>設定不同數量檔位的目標價。 Higher MOQ → lower target price.</span>
+                <el-button :icon="Plus" :disabled="item.targetPrice_list.length === 10" @click="handleTargetPriceItemAdd(index)" />
               </div>
-            </el-form-item>
+              <el-divider />
+              <el-row class="targetPrice-item-card__table-header">
+                <el-col :span="2">檔位 Tier</el-col>
+                <el-col :span="10">起订量 MOQ (階梯遞減 Step decrease)</el-col>
+                <el-col :span="10">目標價 Target Price</el-col>
+                <el-col :span="2">操作 Actions</el-col>
+              </el-row>
+              <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.targetPrice_list.length > 5 }">
+                <el-row v-for="(targetPriceItem, targetPriceIndex) in item.targetPrice_list" :key="targetPriceIndex">
+                  <el-col :span="2">第{{ targetPriceIndex + 1 }}檔 / T{{ targetPriceIndex + 1 }}</el-col>
+                  <el-col :span="10">
+                    <el-input-number style="width: 90%" v-model="targetPriceItem.moq" controls-position="right" :min="1" :step="1" step-strictly />
+                  </el-col>
+                  <el-col :span="10">
+                    <el-input-number
+                      style="width: 90%"
+                      v-model="targetPriceItem.target_price"
+                      controls-position="right"
+                      :min="0.000001"
+                      :step="0.000001"
+                      step-strictly
+                    />
+                  </el-col>
+                  <el-col :span="2">
+                    <div class="targetPrice-item-card__actions">
+                      <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />
+                    </div>
+                  </el-col>
+                </el-row>
+              </div>
+            </div>
           </el-col>
         </el-row>
       </div>

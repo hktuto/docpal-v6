@@ -62,7 +62,6 @@ async function initForm() {
     if (keys.length > 0) {
       storeValue.value = keys[0]
     }
-    console.log(123, storeValue.value)
 
     loading.value = true
     await getTemplateVariableList()
