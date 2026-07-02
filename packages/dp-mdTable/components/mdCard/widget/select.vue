@@ -41,6 +41,7 @@ const selectedOptions = computed(() => {
       :key="option.id || index"
       class="table-tag"
       :style="{ '--color': option.color }"
+      :title="option.label"
     >
       {{ option.label }}
     </div>
@@ -49,6 +50,7 @@ const selectedOptions = computed(() => {
     v-else
     class="table-tag select-card-widget field-value"
     :style="{ '--color': selectedOptions[0].color }"
+    :title="selectedOptions[0].label"
     @click.stop
   >
     {{ selectedOptions[0].label }}
@@ -65,7 +67,6 @@ const selectedOptions = computed(() => {
   padding: 1px 4px;
   font-size: var(--app-font-size-s);
   line-height: 1.3;
-  max-width: 72px;
 }
 
 .select-card-widget.table-tag-list {
