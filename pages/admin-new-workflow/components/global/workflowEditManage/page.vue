@@ -21,7 +21,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     return await getData(params)
   },
   columns: [
-    { field: 'key', title: 'Workflow Key', fixed: 'left' },
+    // { field: 'key', title: 'Workflow Key', fixed: 'left' },
     { field: 'name', title: 'workflow_workflowName' },
     { field: 'draft_content.description', title: 'Description' },
     { field: 'status', title: 'Status' },
