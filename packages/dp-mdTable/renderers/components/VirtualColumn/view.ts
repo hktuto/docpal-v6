@@ -1,6 +1,6 @@
 import type { ViewRenderFunctionParams, VirtualColumnOptions } from '../../../types/column-types'
 import { ColumnFieldType } from '../../../types/column-types'
-import { buildRelationArray } from '../../../utils/relationHelper'
+import { buildRelationArray, getRelationTagClickProps, type RelationClickContext } from '../../../utils/relationHelper'
 import { h } from 'vue'
 import { ElTag } from 'element-plus'
 import {
@@ -23,15 +23,21 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
   const fieldName = props.display_field_name
   const relationArray = buildRelationArray(row, props.relation_field_name, fieldName)
   const values = relationArray.map((item: any) => item[fieldName])
+  const relationClickContext: RelationClickContext = {
+    relationTableId: props.relation_table_id,
+    relationFieldName: props.relation_field_name,
+    relationArray,
+    displayFieldName: fieldName
+  }
   switch (props.display_field_type) {
     case ColumnFieldType.DateTime:
-      return renderAsDateTime(values, params, props)
+      return renderAsDateTime(values, params, props, ', ', relationClickContext)
     case ColumnFieldType.Number:
-      return renderAsNumber(values, params, props)
+      return renderAsNumber(values, params, props, ', ', relationClickContext)
     case ColumnFieldType.SingleSelect:
-      return renderAsSingleSelect(values, params, props)
+      return renderAsSingleSelect(values, params, props, ', ', relationClickContext)
     case ColumnFieldType.MultiSelect:
-      return renderAsMultiSelect(values, params, props)
+      return renderAsMultiSelect(values, params, props, ', ', relationClickContext)
     default:
   }
 
@@ -44,6 +50,7 @@ export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<
           key: `${fieldName}-${i}`,
           size: 'small',
           type: 'info',
+          ...getRelationTagClickProps($grid, params, relationClickContext, i)
         },
         () => String(relationArray[i][fieldName] || '-')
       )

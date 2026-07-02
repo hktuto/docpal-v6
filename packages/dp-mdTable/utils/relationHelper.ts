@@ -46,6 +46,71 @@ function JSONParse(value: string) {
     }
   }
 }
+export interface RelationClickContext {
+  relationTableId?: string
+  relationFieldName?: string
+  relationArray: any[]
+  displayFieldName: string
+}
+
+export function dispatchRelationCellClick(
+  $grid: any,
+  e: MouseEvent,
+  options: {
+    targetTableId: string
+    recordId: string
+    displayValue: Record<string, any>
+    title?: string
+    relationField?: string
+    row?: any
+    column?: any
+  }
+) {
+  e.stopPropagation()
+  $grid.dispatchEvent(
+    'relation-cell-click',
+    {
+      event: e,
+      targetElement: e.currentTarget,
+      targetTableId: options.targetTableId,
+      recordId: options.recordId,
+      displayValue: options.displayValue,
+      title: options.title,
+      relationField: options.relationField,
+      row: options.row,
+      column: options.column
+    },
+    e
+  )
+}
+
+export function getRelationTagClickProps(
+  $grid: any,
+  params: { row: any; column: any },
+  ctx: RelationClickContext | undefined,
+  index: number,
+  baseClass?: string
+) {
+  if (!ctx?.relationTableId) return baseClass ? { class: baseClass } : {}
+  const val = ctx.relationArray[index]
+  if (!val?.id) return baseClass ? { class: baseClass } : {}
+  const className = baseClass ? `${baseClass} relation-tag el-icon--right` : 'relation-tag el-icon--right'
+  return {
+    class: className,
+    onClick: (e: MouseEvent) => {
+      dispatchRelationCellClick($grid, e, {
+        targetTableId: ctx.relationTableId!,
+        recordId: val.id,
+        displayValue: val,
+        title: val[ctx.displayFieldName],
+        relationField: ctx.relationFieldName,
+        row: params.row,
+        column: params.column
+      })
+    }
+  }
+}
+
 export function updateRelationFields(relationRowId: string, relationData: any, rowData: any, relationField: string) {
   if (!rowData[relationField]) return
   const index = rowData[relationField].findIndex((item: any) => item === relationRowId)

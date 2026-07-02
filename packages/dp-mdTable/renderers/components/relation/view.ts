@@ -1,6 +1,6 @@
 import type { ViewRenderFunctionParams } from '../../../types/column-types'
 import { ElTag } from 'element-plus'
-import { buildRelationArray } from '../../../utils/relationHelper'
+import { buildRelationArray, dispatchRelationCellClick } from '../../../utils/relationHelper'
 export const RelationView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $table, $grid, row, column } = params
   const relationOptions = options?.props
@@ -23,22 +23,15 @@ export const RelationView = ({ options, params }: ViewRenderFunctionParams<strin
           type: 'info',
           class: 'relation-tag el-icon--right',
           onClick: (e: MouseEvent) => {
-            e.stopPropagation()
-            $grid.dispatchEvent(
-              'relation-cell-click',
-              {
-                event: e,
-                targetElement: e.currentTarget,
-                targetTableId: relationOptions.relation_table_id,
-                recordId: val.id,
-                displayValue: val,
-                title: val[displayField.field_name],
-                relationField: fieldName,
-                row,
-                column
-              },
-              e
-            )
+            dispatchRelationCellClick($grid, e, {
+              targetTableId: relationOptions.relation_table_id,
+              recordId: val.id,
+              displayValue: val,
+              title: val[displayField.field_name],
+              relationField: fieldName,
+              row,
+              column
+            })
           },
           onMouseenter: (e: MouseEvent) => {
             $grid.dispatchEvent('cell-mouseenter', { row, column }, e)

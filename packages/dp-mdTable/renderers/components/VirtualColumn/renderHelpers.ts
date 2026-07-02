@@ -8,10 +8,11 @@ import { h } from 'vue'
 import { ElTag } from 'element-plus'
 import dayjs from 'dayjs'
 import type { TargetFieldConfig } from '../../../types/column-types'
+import { getRelationTagClickProps, type RelationClickContext } from '../../../utils/relationHelper'
 /**
  * Render values as MultiSelect tags with colors
  */
-export function renderAsSingleSelect(values: any[], params:any, targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsSingleSelect(values: any[], params:any, targetConfig: any, separator: string = ', ', relationClickContext?: RelationClickContext): ReturnType<typeof h> {
   const { $grid, row, column } = params;
   const options = targetConfig.properties?.options || targetConfig.options || []
   if (values.length === 0) {
@@ -42,8 +43,8 @@ export function renderAsSingleSelect(values: any[], params:any, targetConfig: an
         'div',
         {
           key: index,
-          class: 'table-tag',
-          style: option?.color ? `--color: ${option.color}` : undefined
+          style: option?.color ? `--color: ${option.color}` : undefined,
+          ...getRelationTagClickProps($grid, params, relationClickContext, index, 'table-tag')
         },
         option?.label || String(val ?? '')
       )
@@ -53,7 +54,7 @@ export function renderAsSingleSelect(values: any[], params:any, targetConfig: an
 /**
  * Render values as MultiSelect tags with colors
  */
-export function renderAsMultiSelect(values: any[], params:any, targetConfig: any, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsMultiSelect(values: any[], params:any, targetConfig: any, separator: string = ', ', relationClickContext?: RelationClickContext): ReturnType<typeof h> {
   const { $grid, row, column } = params;
   const options = targetConfig.properties?.options || targetConfig.options || []
   if (values.length === 0) {
@@ -98,8 +99,8 @@ export function renderAsMultiSelect(values: any[], params:any, targetConfig: any
         'div',
         {
           key: index,
-          class: 'table-tag',
-          style: `--color: #dddddd`
+          style: `--color: #dddddd`,
+          ...getRelationTagClickProps($grid, params, relationClickContext, index, 'table-tag')
         },
         result.join(separator)
       )
@@ -110,7 +111,7 @@ export function renderAsMultiSelect(values: any[], params:any, targetConfig: any
 /**
  * Render values as formatted numbers
  */
-export function renderAsNumber(values: any[], params:any, targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsNumber(values: any[], params:any, targetConfig: TargetFieldConfig, separator: string = ', ', relationClickContext?: RelationClickContext): ReturnType<typeof h> {
   const { $grid, row, column} = params
   const props = targetConfig.properties || targetConfig || {}
   const precision = props.precision ?? 0
@@ -162,7 +163,7 @@ export function renderAsNumber(values: any[], params:any, targetConfig: TargetFi
         'div',
         {
           key: index,
-          class: 'el-tag el-tag--info el-tag--light el-tag--small',
+          ...getRelationTagClickProps($grid, params, relationClickContext, index, 'el-tag el-tag--info el-tag--light el-tag--small')
         },
         val
       )
@@ -173,7 +174,7 @@ export function renderAsNumber(values: any[], params:any, targetConfig: TargetFi
 /**
  * Render values as formatted dates/times
  */
-export function renderAsDateTime(values: any[], params:any, targetConfig: TargetFieldConfig, separator: string = ', '): ReturnType<typeof h> {
+export function renderAsDateTime(values: any[], params:any, targetConfig: TargetFieldConfig, separator: string = ', ', relationClickContext?: RelationClickContext): ReturnType<typeof h> {
   const { $grid, row, column} = params
 
   const props = targetConfig.properties || targetConfig || {}
@@ -214,7 +215,7 @@ export function renderAsDateTime(values: any[], params:any, targetConfig: Target
         'div',
         {
           key: index,
-          class: 'el-tag el-tag--info el-tag--light el-tag--small',
+          ...getRelationTagClickProps($grid, params, relationClickContext, index, 'el-tag el-tag--info el-tag--light el-tag--small')
         },
         val
       )
