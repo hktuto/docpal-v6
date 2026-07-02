@@ -167,7 +167,7 @@ async function open(row: any, _mode: 'default' | 'edit' = 'edit', _title: string
   if (_title) {
     title.value = _title
   } else {
-    title.value = t('common_add')
+    title.value = mode.value === 'edit' ? t('common_edit') : t('common_add')
   }
   await getFormColumns()
 }

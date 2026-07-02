@@ -18,15 +18,12 @@ const props = withDefaults(
     fieldName: string
     disabled?: boolean
     showUpload?: boolean
-    uploadDisabled?: boolean
-    uploadHint?: string
     ignoreClear?: boolean
     mode?: 'default' | 'form'
   }>(),
   {
     disabled: false,
     showUpload: true,
-    uploadDisabled: false,
     ignoreClear: false,
     mode: 'default'
   }
@@ -55,7 +52,6 @@ const previewFile = reactive({
 
 const uploading = computed(() => uploadingCount.value > 0)
 const isFormMode = computed(() => props.mode === 'form')
-const uploadText = computed(() => props.uploadHint ?? t('mdTable.attachment.dragOrClickToUpload'))
 const buttonClass = computed(() => (props.ignoreClear ? 'vxe-table--ignore-clear' : undefined))
 
 function mergeAttachments(current: AttachmentCellValue[], incoming: AttachmentCellValue[]) {
@@ -119,10 +115,7 @@ function toAttachmentList(payload: unknown): AttachmentCellValue[] {
 function handleUploadChange(file: UploadFile) {
   if (!file.raw || !props.fieldName) return
   const tableId = resolveTableId()
-  if (!tableId || !props.dataId) {
-    ElMessage.warning(t('mdTable.attachment.saveBeforeUpload'))
-    return
-  }
+  if (!tableId) return
 
   const rawFile = file.raw
   const fieldName = props.fieldName
@@ -222,13 +215,13 @@ async function handleDeleteAttachment(attachment: AttachmentCellValue, e?: Mouse
       multiple
       :auto-upload="false"
       :show-file-list="false"
-      :disabled="uploadDisabled || uploading"
+      :disabled="disabled || uploading"
       :on-change="handleUploadChange"
     >
-      <ElButton v-if="isFormMode" type="primary" :disabled="uploadDisabled || uploading">
+      <ElButton v-if="isFormMode" type="primary" :disabled="disabled || uploading">
         {{ t('common_clickToUpload') }}
       </ElButton>
-      <div v-else class="attachment-upload__dropzone-text">{{ uploadText }}</div>
+      <div v-else class="attachment-upload__dropzone-text">{{ t('mdTable.attachment.dragOrClickToUpload') }}</div>
     </ElUpload>
 
     <div v-if="attachments.length" class="attachment-upload__list">

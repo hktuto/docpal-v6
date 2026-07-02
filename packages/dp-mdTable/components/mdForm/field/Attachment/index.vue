@@ -26,8 +26,6 @@ const attachments = computed({
   }
 })
 
-const canUpload = computed(() => Boolean(props.formData?.id && modelField.value && !props.disabled))
-
 const rules = computed(() => {
   if (!props.column?.required) return []
   return [
@@ -53,9 +51,6 @@ const rules = computed(() => {
       :data-id="formData.id"
       :field-name="modelField"
       :disabled="disabled"
-      :show-upload="!disabled"
-      :upload-disabled="!canUpload"
-      :upload-hint="canUpload ? undefined : t('mdTable.attachment.saveBeforeUpload')"
     />
   </MdFormItem>
 </template>
