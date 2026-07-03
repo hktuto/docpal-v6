@@ -136,15 +136,15 @@ export function getColumnHeaderIndicator(columnType: ColumnFieldType, columnConf
     return null
   }
 
-  if(columnBasic[columnType]) {
+  if (columnBasic[columnType]) {
     const headerIndicator = columnBasic[columnType]?.headerIndicator ?? null
-    if(headerIndicator) {
+    if (headerIndicator) {
       // 抓取变量，${}之间的内容,可能有多个
       const variables = headerIndicator.tooltip.match(/\${(.*?)}/g)
-      if(variables) {
+      if (variables) {
         variables.forEach((variable) => {
           const variableName = variable.replace('${', '').replace('}', '')
-          if(columnConfig[variableName]) {
+          if (columnConfig[variableName]) {
             headerIndicator.tooltip = headerIndicator.tooltip.replace(variable, columnConfig[variableName])
           }
         })
@@ -156,11 +156,9 @@ export function getColumnHeaderIndicator(columnType: ColumnFieldType, columnConf
   return null
 }
 
-
-
 export function getColumnFieldOptions() {
+  const { t } = useI18n()
   const uniqueFieldValues = [...new Set(Object.values(ColumnFieldType))]
-  console.log('uniqueFieldValues', uniqueFieldValues)
   const basicOptions: any[] = []
   const advancedOptions: any[] = []
   uniqueFieldValues.forEach((value) => {
@@ -168,10 +166,11 @@ export function getColumnFieldOptions() {
     if (fieldSetting?.hidden) {
       return
     }
+    const label = fieldSetting?.label || reverseColumnFieldType[value]
+    const translatedLabel = t(`ColumnField.${label}`)
     if (fieldSetting?.isBasic) {
-
       const item: any = {
-        label: fieldSetting.label || reverseColumnFieldType[value],
+        label: translatedLabel,
         disableCreate: fieldSetting.disableCreate || false,
         value: value
       }
@@ -182,7 +181,7 @@ export function getColumnFieldOptions() {
       basicOptions.push(item)
     } else {
       const item: any = {
-        label: fieldSetting?.label || reverseColumnFieldType[value],
+        label: translatedLabel,
         disableCreate: fieldSetting?.disableCreate || false,
         value: value
       }
