@@ -1,24 +1,15 @@
 <template>
-  <el-dialog
-    v-model="state.visible"
-    :title="$t('detailWidget.relatedTableListSettings')"
-    width="500px"
-    destroy-on-close
-  >
+  <el-dialog v-model="state.visible" :title="$t('detailWidget.relatedTableListSettings')" width="500px" destroy-on-close append-to-body>
     <el-form label-position="top" size="default">
+      <!-- Widget Title -->
+      <el-form-item :label="$t('detailWidget.widgetTitle')">
+        <el-input v-model="state.setting.label" :placeholder="$t('detailWidget.widgetTitlePlaceholder')" />
+      </el-form-item>
+
       <!-- Relation Field Selection -->
       <el-form-item :label="$t('detailWidget.selectRelationField')">
-        <el-select
-          v-model="state.setting.relationFieldName"
-          :placeholder="$t('detailWidget.selectRelation')"
-          style="width: 100%"
-        >
-          <el-option
-            v-for="field in relationFields"
-            :key="field.fieldName"
-            :label="field.fieldNameAlias || field.fieldName"
-            :value="field.fieldName"
-          />
+        <el-select v-model="state.setting.relationFieldName" :placeholder="$t('detailWidget.selectRelation')" style="width: 100%">
+          <el-option v-for="field in relationFields" :key="field.fieldName" :label="field.fieldNameAlias || field.fieldName" :value="field.fieldName" />
         </el-select>
       </el-form-item>
 
@@ -31,12 +22,7 @@
           style="width: 100%"
           :disabled="!state.setting.relationFieldName"
         >
-          <el-option
-            v-for="field in targetFields"
-            :key="field.fieldName"
-            :label="field.fieldNameAlias || field.fieldName"
-            :value="field.fieldName"
-          />
+          <el-option v-for="field in targetFields" :key="field.fieldName" :label="field.fieldNameAlias || field.fieldName" :value="field.fieldName" />
         </el-select>
         <div class="form-tip">
           {{ $t('detailWidget.columnsToDisplayTip') }}
@@ -45,12 +31,7 @@
 
       <!-- Page Size -->
       <el-form-item :label="$t('detailWidget.pageSize')">
-        <el-input-number
-          v-model="state.setting.pageSize"
-          :min="1"
-          :max="50"
-          :step="5"
-        />
+        <el-input-number v-model="state.setting.pageSize" :min="1" :max="50" :step="5" />
       </el-form-item>
 
       <!-- Options -->
@@ -65,6 +46,22 @@
         </div>
       </el-form-item>
     </el-form>
+
+    <!-- Default Filter -->
+    <div class="setting-section">
+      <div class="setting-section__title">{{ $t('common_defaultFilter') }}</div>
+      <ToolsFilterButton
+        :available-columns="availableFilterColumns"
+        :column-filter-rules="state.setting.filterRules"
+        @filter-change="state.setting.filterRules = $event"
+      />
+    </div>
+
+    <!-- Default Sort -->
+    <div class="setting-section">
+      <div class="setting-section__title">{{ $t('common_defaultSort') }}</div>
+      <ToolsSortButton :available-columns="availableFilterColumns" @sort-change="state.setting.sortRules = $event" />
+    </div>
 
     <template #footer>
       <div class="dialog-footer">
@@ -82,9 +79,14 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, watch, computed, provide } from 'vue'
 import type { RelatedTableListWidgetSetting } from '../../../utils/detailWidgetHelper'
 import type { FieldInfo } from '../../../types/view-config'
+import { ColumnFieldType } from '../../../types/column-types'
+import { type FilterRule } from '../../tools/filter/ConfigPopover.vue'
+import { type SortRule } from '../../tools/sort/configPopover.vue'
+import ToolsFilterButton from '../../tools/filter/Button.vue'
+import ToolsSortButton from '../../tools/sort/button.vue'
 
 const props = defineProps<{
   setting: RelatedTableListWidgetSetting
@@ -100,13 +102,47 @@ const emit = defineEmits<{
 const state = reactive({
   visible: false,
   setting: {
+    label: '',
     relationFieldName: '',
     displayColumns: [] as string[],
     pageSize: 5,
     allowAdd: true,
-    allowOpen: true
+    allowOpen: true,
+    filterRules: {
+      conditions: [] as FilterRule[],
+      conjunction: 'AND' as 'AND' | 'OR'
+    },
+    sortRules: [] as SortRule[]
   }
 })
+
+const availableFilterColumns = computed(() => {
+  return props.targetFields
+    .filter(
+      (f) =>
+        f.type !== ColumnFieldType.Relation &&
+        f.type !== ColumnFieldType.VirtualColumn &&
+        f.type !== ColumnFieldType.Formula &&
+        f.type !== ColumnFieldType.AggVirtualColumn
+    )
+    .map((f) => ({
+      field_name: f.fieldName,
+      field_name_alias: f.fieldNameAlias,
+      field: f.fieldName,
+      title: f.fieldNameAlias || f.fieldName,
+      type: f.type,
+      business_type: f.type as ColumnFieldType,
+      display_structure: f.properties || {}
+    }))
+})
+
+const columnSortRules = computed({
+  get: () => state.setting.sortRules,
+  set: (val) => {
+    state.setting.sortRules = val
+  }
+})
+provide('viewTools', { columnSortRules })
 
 // Clear display columns when relation changes
 watch(
@@ -120,11 +156,17 @@ watch(
 
 function handleOpen(setting: RelatedTableListWidgetSetting) {
   state.setting = {
+    label: setting.label || '',
     relationFieldName: setting.relationFieldName || '',
     displayColumns: [...(setting.displayColumns || [])],
     pageSize: setting.pageSize || 5,
     allowAdd: setting.allowAdd ?? true,
-    allowOpen: setting.allowOpen ?? true
+    allowOpen: setting.allowOpen ?? true,
+    filterRules: {
+      conditions: [...(setting.filterRules?.conditions || [])],
+      conjunction: setting.filterRules?.conjunction || 'AND'
+    },
+    sortRules: [...(setting.sortRules || [])]
   }
   state.visible = true
 }
@@ -168,6 +210,17 @@ defineExpose({
 
   .spacer {
     flex: 1;
+  }
+}
+
+.setting-section {
+  margin-top: var(--app-space-m);
+
+  .setting-section__title {
+    font-size: var(--app-font-size-m);
+    font-weight: 600;
+    margin-bottom: var(--app-space-s);
+    color: var(--el-text-color-primary);
   }
 }
 </style>

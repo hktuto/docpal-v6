@@ -822,7 +822,10 @@
     "workflowStatusCardDesign": "狀態卡設計",
     "workflowStatusHeaderDesign": "狀態標題設計",
     "workflowVariableFilter": "工作流程變數過濾器",
-    "workflowVariableFilterPlaceHolder": "選擇一個或多個變數來過濾工作流程"
+    "workflowVariableFilterPlaceHolder": "選擇一個或多個變數來過濾工作流程",
+    "DbRecordInfo": "記錄資訊",
+    "DbRecordRelation": "關聯記錄",
+    "recordId": "記錄 ID"
   },
   "dashboardPersonal": {
     "caseListPlaceHolder": "請新增需要顯示的案例",
@@ -836,7 +839,8 @@
     "document": "文件",
     "documentCount": "文件統計",
     "workflow": "工作流",
-    "workflowCount": "工作流程統計"
+    "workflowCount": "工作流程統計",
+    "record": "記錄"
   },
   "dashboard_accessUserGroup": "Access by User Group",
   "dashboard_content": "Edit Dashboard Content",
@@ -2562,92 +2566,138 @@
       "fn": {
         "CONCAT": {
           "description": "將多個文字字串連接在一起。",
-          "param": { "text1": "第一個文字字串", "text2": "第二個文字字串" },
+          "param": {
+            "text1": "第一個文字字串",
+            "text2": "第二個文字字串"
+          },
           "example": "CONCAT('Hello', ' ', 'World') 返回 'Hello World'"
         },
         "LEFT": {
           "description": "從文字字串的左側提取指定數量的字元。",
-          "param": { "text": "要提取字元的文字字串", "num_chars": "要提取的字元數量" },
+          "param": {
+            "text": "要提取字元的文字字串",
+            "num_chars": "要提取的字元數量"
+          },
           "example": "LEFT('Hello World', 5) 返回 'Hello'"
         },
         "RIGHT": {
           "description": "從文字字串的右側提取指定數量的字元。",
-          "param": { "text": "要提取字元的文字字串", "num_chars": "要提取的字元數量" },
+          "param": {
+            "text": "要提取字元的文字字串",
+            "num_chars": "要提取的字元數量"
+          },
           "example": "RIGHT('Hello World', 5) 返回 'World'"
         },
         "LEN": {
           "description": "返回文字字串的字元長度。",
-          "param": { "text": "要計算長度的文字字串" },
+          "param": {
+            "text": "要計算長度的文字字串"
+          },
           "example": "LEN('Hello') 返回 5"
         },
         "UPPER": {
           "description": "將文字字串轉換為大寫。",
-          "param": { "text": "要轉換為大寫的文字字串" },
+          "param": {
+            "text": "要轉換為大寫的文字字串"
+          },
           "example": "UPPER('hello') 返回 'HELLO'"
         },
         "LOWER": {
           "description": "將文字字串轉換為小寫。",
-          "param": { "text": "要轉換為小寫的文字字串" },
+          "param": {
+            "text": "要轉換為小寫的文字字串"
+          },
           "example": "LOWER('HELLO') 返回 'hello'"
         },
         "TRIM": {
           "description": "移除文字字串首尾的空格。",
-          "param": { "text": "要移除空格的文字字串" },
+          "param": {
+            "text": "要移除空格的文字字串"
+          },
           "example": "TRIM('  Hello  ') 返回 'Hello'"
         },
         "GREATEST": {
           "description": "返回一組數值中的最大值。",
-          "param": { "number1": "第一個數值", "number2": "第二個數值" },
+          "param": {
+            "number1": "第一個數值",
+            "number2": "第二個數值"
+          },
           "example": "GREATEST(10, 20, 30) 返回 30"
         },
         "LEAST": {
           "description": "返回一組數值中的最小值。",
-          "param": { "number1": "第一個數值", "number2": "第二個數值" },
+          "param": {
+            "number1": "第一個數值",
+            "number2": "第二個數值"
+          },
           "example": "LEAST(10, 20, 30) 返回 10"
         },
         "ROUND": {
           "description": "將數值四捨五入到指定的小數位數。",
-          "param": { "number": "要四捨五入的數值", "num_digits": "小數位數" },
+          "param": {
+            "number": "要四捨五入的數值",
+            "num_digits": "小數位數"
+          },
           "example": "ROUND(3.14159, 2) 返回 3.14"
         },
         "CEIL": {
           "description": "向上取整。",
-          "param": { "number": "要向上取整的數值" },
+          "param": {
+            "number": "要向上取整的數值"
+          },
           "example": "CEIL(3.2) 返回 4"
         },
         "FLOOR": {
           "description": "向下取整。",
-          "param": { "number": "要向下取整的數值" },
+          "param": {
+            "number": "要向下取整的數值"
+          },
           "example": "FLOOR(3.8) 返回 3"
         },
         "ABS": {
           "description": "絕對值（去掉負號）。",
-          "param": { "number": "要計算絕對值的數值" },
+          "param": {
+            "number": "要計算絕對值的數值"
+          },
           "example": "ABS({差額})，若差額為 -5 則返回 5"
         },
         "SQRT": {
           "description": "開平方根。",
-          "param": { "number": "要開方的數值（須 ≥ 0）" },
+          "param": {
+            "number": "要開方的數值（須 ≥ 0）"
+          },
           "example": "SQRT({面積})，參數為負數時無結果"
         },
         "POWER": {
           "description": "乘方運算。",
-          "param": { "base": "底數", "exponent": "指數" },
+          "param": {
+            "base": "底數",
+            "exponent": "指數"
+          },
           "example": "POWER({邊長}, 2) 計算平方；POWER(x, 0.5) 等價於開平方"
         },
         "MOD": {
           "description": "取除法的餘數。",
-          "param": { "dividend": "被除數", "divisor": "除數（不能為 0）" },
+          "param": {
+            "dividend": "被除數",
+            "divisor": "除數（不能為 0）"
+          },
           "example": "MOD({序號}, 10)，序號 23 時返回 3"
         },
         "COALESCE": {
           "description": "處理空值，如果第一個參數為空則返回預設值。",
-          "param": { "value": "待檢查值", "default_value": "預設值" },
+          "param": {
+            "value": "待檢查值",
+            "default_value": "預設值"
+          },
           "example": "COALESCE({fieldA}, 100) 如果 {fieldA} 為空則返回 100"
         },
         "FORMAT_DATE": {
           "description": "將日期值按指定格式字串格式化。",
-          "param": { "date": "日期值", "format": "格式字串" },
+          "param": {
+            "date": "日期值",
+            "format": "格式字串"
+          },
           "example": "FORMAT_DATE(TODAY(), \"YYYY-MM-DD\") 返回當前日期，例如 2024-01-15"
         },
         "TODAY": {
@@ -2660,47 +2710,73 @@
         },
         "YEAR": {
           "description": "從日期中提取年份。如果沒有參數，返回當前年份。",
-          "param": { "date": "日期值（可選，預設為當前日期）" },
+          "param": {
+            "date": "日期值（可選，預設為當前日期）"
+          },
           "example": "YEAR() 或 YEAR(TODAY()) 返回當前年份，例如 2024"
         },
         "MONTH": {
           "description": "從日期中提取月份（1-12）。如果沒有參數，返回當前月份。",
-          "param": { "date": "日期值（可選，預設為當前日期）" },
+          "param": {
+            "date": "日期值（可選，預設為當前日期）"
+          },
           "example": "MONTH() 或 MONTH(TODAY()) 返回當前月份，例如 1"
         },
         "DAY": {
           "description": "從日期中提取日期（1-31）。如果沒有參數，返回當前日期。",
-          "param": { "date": "日期值（可選，預設為當前日期）" },
+          "param": {
+            "date": "日期值（可選，預設為當前日期）"
+          },
           "example": "DAY() 或 DAY(TODAY()) 返回當前日期，例如 15"
         },
         "DATEDIF": {
           "description": "計算兩個日期之間的差值。",
-          "param": { "start_date": "開始日期", "end_date": "結束日期", "unit": "單位（\"Y\"年，\"M\"月，\"D\"天）" },
+          "param": {
+            "start_date": "開始日期",
+            "end_date": "結束日期",
+            "unit": "單位（\"Y\"年，\"M\"月，\"D\"天）"
+          },
           "example": "DATEDIF('2024-01-01', '2024-12-31', 'D') 返回 365"
         },
         "IF": {
           "description": "判斷是否滿足某個條件，如果滿足則返回第一個值，如果不滿足則返回第二個值。",
-          "param": { "logical": "邏輯條件，一個計算結果為真或假的表達式", "value1": "當邏輯條件為真時的返回值", "value2": "當邏輯條件為假時的返回值" },
+          "param": {
+            "logical": "邏輯條件，一個計算結果為真或假的表達式",
+            "value1": "當邏輯條件為真時的返回值",
+            "value2": "當邏輯條件為假時的返回值"
+          },
           "example": "IF(10 > 5, '是', '否') 返回 '是'"
         },
         "CASE": {
           "description": "按順序判斷條件，返回第一個為真的條件對應結果；可指定預設值。",
-          "param": { "condition1": "條件 1（真/假）", "result1": "條件 1 為真時的結果", "default": "所有條件都不滿足時的預設值（可選）" },
+          "param": {
+            "condition1": "條件 1（真/假）",
+            "result1": "條件 1 為真時的結果",
+            "default": "所有條件都不滿足時的預設值（可選）"
+          },
           "example": "CASE({score} >= 90, 'A', {score} >= 60, 'B', 'C')"
         },
         "AND": {
           "description": "如果所有參數都為真，則返回真；否則返回假。",
-          "param": { "logical1": "第一個邏輯條件", "logical2": "第二個邏輯條件" },
+          "param": {
+            "logical1": "第一個邏輯條件",
+            "logical2": "第二個邏輯條件"
+          },
           "example": "AND(10 > 5, 20 > 15) 返回 TRUE"
         },
         "OR": {
           "description": "如果任一參數為真，則返回真；否則返回假。",
-          "param": { "logical1": "第一個邏輯條件", "logical2": "第二個邏輯條件" },
+          "param": {
+            "logical1": "第一個邏輯條件",
+            "logical2": "第二個邏輯條件"
+          },
           "example": "OR(10 > 20, 5 > 3) 返回 TRUE"
         },
         "NOT": {
           "description": "對邏輯值取反。",
-          "param": { "logical": "要取反的邏輯值" },
+          "param": {
+            "logical": "要取反的邏輯值"
+          },
           "example": "NOT(TRUE) 返回 FALSE"
         },
         "TRUE": {
@@ -2713,12 +2789,16 @@
         },
         "IS_BLANK": {
           "description": "檢查值是否為空。",
-          "param": { "value": "要檢查的值" },
+          "param": {
+            "value": "要檢查的值"
+          },
           "example": "IS_BLANK('') 返回 TRUE"
         },
         "IS_ERROR": {
           "description": "檢查值是否為錯誤。",
-          "param": { "value": "要檢查的值" },
+          "param": {
+            "value": "要檢查的值"
+          },
           "example": "IS_ERROR(1/0) 返回 TRUE"
         }
       }
@@ -4714,6 +4794,29 @@
   "dynamicdb_create_field": "Create Field",
   "dynamicdb_update_trigger_setting": "Update Trigger Setting",
   "dynamicdb_create_trigger_setting": "Create Trigger Setting",
-  "common_form":"Form",
-  "auditLog_title": "Audit Log"
+  "common_form": "Form",
+  "auditLog_title": "Audit Log",
+  "common_cancel": "取消",
+  "common_configure": "配置",
+  "common_dashboard": "儀表板",
+  "common_defaultFilter": "預設篩選",
+  "common_defaultSort": "預設排序",
+  "common_done": "完成",
+  "common_saveFailed": "保存失敗",
+  "detailWidget": {
+    "allowAddRecords": "允許新增記錄",
+    "allowOpenRecords": "允許開啟記錄",
+    "columnsToDisplay": "顯示列",
+    "columnsToDisplayTip": "選擇要在關聯記錄列表中顯示的列",
+    "noRelatedRecords": "暫無關聯記錄",
+    "options": "選項",
+    "pageSize": "每頁數量",
+    "relatedTableList": "關聯表列表",
+    "relatedTableListSettings": "關聯表列表設定",
+    "selectColumns": "選擇列",
+    "selectRelation": "選擇關聯",
+    "selectRelationField": "選擇關聯字段",
+    "widgetTitle": "組件標題",
+    "widgetTitlePlaceholder": "請輸入組件標題"
+  }
 }
