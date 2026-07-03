@@ -28,7 +28,7 @@ const data = ref<any[]>([
     remarks: '',
     tracking_number: '',
     tracking_date: '',
-    email_alert: 'Y'
+    email_alert: 'YES'
   }
 ])
 
@@ -38,7 +38,10 @@ function checkPurpose(vendor: string) {
 
 function init() {
   if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
-    data.value = formData.sample_info_list
+    data.value = formData.sample_info_list.map((item: any) => ({
+      ...item,
+      email_alert: 'NO'
+    }))
   }
 }
 
