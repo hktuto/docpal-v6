@@ -41,7 +41,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   virtualScroll: true,
   api: () => {
     console.log('variables', variables.value)
-    return variables.value
+    return deepCopy(variables.value)
   },
   columns: [
     { title: 'ID', field: 'id' },
@@ -108,7 +108,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
-  FormDialogRef.value?.handleOpen(row)
+  FormDialogRef.value?.handleOpen(deepCopy(row))
 }
 
 function filter() {

@@ -50,7 +50,7 @@ function handleItemTypeChange(value: string) {
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'workflow_variable_item_table',
   api: async (pageParams: any) => {
-    return properties.value
+    return deepCopy(properties.value)
   },
   virtualScroll: true,
   saveColumnOrder: false,
@@ -125,8 +125,10 @@ function handleAddItem(item: any) {
 }
 
 function handleUpdateItem(item: any) {
-  delete item._X_ROW_KEY
-  properties.value[properties.value.findIndex((item: any) => item.id === item.id)] = item
+  const index = properties.value.findIndex((prop: any) => prop.id === item.id)
+  if (index !== -1) {
+    properties.value[index] = item
+  }
   updateProperties()
 }
 

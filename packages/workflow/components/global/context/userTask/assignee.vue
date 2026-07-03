@@ -26,28 +26,31 @@ const typeOptions = [
 
 function initData() {
   const data = node.getData()
-  const humanTask = data.config?.human_task || {}
+  const humanTask = data.config?.human_task ?? {}
 
-  if (!!humanTask.assignee) {
-    candidateUsers.value = humanTask.assignee
-  } else {
+  const assignee = humanTask.assignee
+  const groups = humanTask.candidate_groups ?? []
+  const roles = humanTask.candidate_roles ?? []
+
+  const noAssignee = assignee == null || assignee === ''
+  const noGroups = groups.length === 0
+  const noRoles = roles.length === 0
+
+  if (noAssignee && noGroups && noRoles) {
     candidateUsers.value = '${__system__user_creator_id}'
+    checkedTypes.value = ['User']
+    return
   }
 
-  candidateGroups.value = humanTask.candidate_groups || []
-  candidateRoles.value = humanTask.candidate_roles || []
+  candidateUsers.value = assignee
+  candidateGroups.value = groups
+  candidateRoles.value = roles
 
   const types: string[] = []
-  if (candidateUsers.value.length > 0 || humanTask.assignee) {
-    types.push('User')
-  }
-  if (candidateGroups.value.length > 0) {
-    types.push('Groups')
-  }
-  if (candidateRoles.value.length > 0) {
-    types.push('Roles')
-  }
-  checkedTypes.value = types.length > 0 ? types : ['User']
+  if (!!candidateUsers.value && candidateUsers.value !== '') types.push('User')
+  if (candidateGroups.value.length > 0) types.push('Groups')
+  if (candidateRoles.value.length > 0) types.push('Roles')
+  checkedTypes.value = types
 }
 
 function updateNodeData() {
@@ -59,7 +62,7 @@ function updateNodeData() {
       ...nodeData.config,
       human_task: {
         ...nodeData.config.human_task,
-        assignee: checkedTypes.value.includes('User') ? candidateUsers.value : '${__system__user_creator_id}',
+        assignee: checkedTypes.value.includes('User') ? candidateUsers.value : '',
         candidate_groups: checkedTypes.value.includes('Groups') ? candidateGroups.value : [],
         candidate_roles: checkedTypes.value.includes('Roles') ? candidateRoles.value : []
       }
@@ -72,9 +75,48 @@ function updateNodeData() {
 }
 
 function handleCheckboxChange(val: string[]) {
-  if (val.length === 0) {
+  const creatorId = '${__system__user_creator_id}'
+
+  const fallbackToUserCreator = () => {
     checkedTypes.value = ['User']
+    candidateUsers.value = creatorId
+    candidateGroups.value = []
+    candidateRoles.value = []
   }
+
+  if (val.length === 0) {
+    fallbackToUserCreator()
+    updateNodeData()
+    return
+  }
+
+  // 單選
+  if (checkedTypes.value.length === 1) {
+    const t = checkedTypes.value[0]
+
+    if (t === 'User') {
+      if (candidateUsers.value === '') {
+        fallbackToUserCreator()
+      }
+    } else if (t === 'Groups') {
+      if (candidateGroups.value.length === 0) {
+        fallbackToUserCreator()
+      }
+    } else if (t === 'Roles') {
+      if (candidateRoles.value.length === 0) {
+        fallbackToUserCreator()
+      }
+    }
+    updateNodeData()
+    return
+  }
+
+  // 多選
+  const noUserChecked = !checkedTypes.value.includes('User')
+  if (noUserChecked) {
+    candidateUsers.value = ''
+  }
+
   updateNodeData()
 }
 

@@ -77,7 +77,7 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form label-position="top" ref="formRef" :model="formModel">
+  <el-form label-position="top" ref="formRef" :model="formModel" :disabled="disabled">
     <template v-for="(item, index) in data" :key="item.line_number ?? index">
       <div class="info-item-card">
         <span class="info-item-card__index">{{ index + 1 }}.</span>

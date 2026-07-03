@@ -283,11 +283,11 @@ watch(
         <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-    <el-form-item label="Return Record List">
-      <el-select v-model="returnRecordList" filterable clearable @change="update">
-        <el-option v-for="item in recoderVariables" :key="item.id" :label="item.name" :value="item.id" />
-      </el-select>
-    </el-form-item>
+<!--    <el-form-item label="Return Record List">-->
+<!--      <el-select v-model="returnRecordList" filterable clearable @change="update">-->
+<!--        <el-option v-for="item in recoderVariables" :key="item.id" :label="item.name" :value="item.id" />-->
+<!--      </el-select>-->
+<!--    </el-form-item>-->
     <el-form-item label="Data List">
       <el-select v-model="dataList" filterable clearable @change="handleDataListChange">
         <el-option v-for="item in arrayVariables" :key="item.id" :label="item.name" :value="item.id" />

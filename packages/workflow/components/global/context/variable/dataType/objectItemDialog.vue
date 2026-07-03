@@ -138,7 +138,7 @@ function open(row: any) {
 }
 
 function typeChanged(displayType: string) {
-  const typeObject: any = displayTypeList.value.find((item: any) => item.display_type === displayType)
+  const typeObject: any = deepCopy(displayTypeList.value.find((item: any) => item.display_type === displayType))
   formData.value = {
     id: formData.value.id,
     name: formData.value.name,

@@ -54,7 +54,6 @@ function handleOpen(variable?: VariableItem) {
     isEdit.value = true
   } else {
     formData.value = { ...initData }
-    console.log(123, formData.value)
     isEdit.value = false
   }
   exitRules.value = isEdit.value ? variables.value.filter((item: any) => item.id !== variable?.id) : variables.value
@@ -99,7 +98,7 @@ function typeChanged(displayType: string) {
     acc.push(...item.options)
     return acc
   }, [])
-  const typeObject = options.find((item: any) => item.display_type === displayType)
+  const typeObject = deepCopy(options.find((item: any) => item.display_type === displayType))
 
   if (!!typeObject) {
     const filedData = {
@@ -205,7 +204,14 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="opened" class="big" append-to-body destroy-on-close :close-on-click-modal="false" :title="isEdit ? $t('Update Variables') : $t('Add Variables')">
+  <el-dialog
+    v-model="opened"
+    class="big"
+    append-to-body
+    destroy-on-close
+    :close-on-click-modal="false"
+    :title="isEdit ? $t('Update Variables') : $t('Add Variables')"
+  >
     <el-form ref="FormRef" :model="formData" :rules="newFieldRules" label-position="top" status-icon @submit.stop>
       <el-form-item label="ID" prop="id">
         <el-input ref="idFieldRef" v-model="formData.id" placeholder="id" :disabled="isEdit" />
