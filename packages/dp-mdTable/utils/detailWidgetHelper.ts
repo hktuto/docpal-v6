@@ -1,6 +1,6 @@
 /**
  * Detail View Widget Helper
- * 
+ *
  * Follows the same structure as dp-dashboard's dashboardWidgetHelper.ts
  * so widgets can be extended to dashboard later.
  */
@@ -24,10 +24,7 @@ export const detailWidgetComponent: Record<string, Component> = {
  * - RelatedTableList: Show related records for a relation field
  * - RecordAuditHistory: Show audit history for the current record
  */
-export type DetailWidgetType = 
-  | 'TableInfo' 
-  | 'RelatedTableList'
-  | 'RecordAuditHistory'
+export type DetailWidgetType = 'TableInfo' | 'RelatedTableList' | 'RecordAuditHistory'
 
 /**
  * Detail widget type categories
@@ -81,9 +78,17 @@ export interface DetailWidgetSetting {
  * TableInfo widget settings
  */
 export interface TableInfoWidgetSetting {
+  /** Widget title/label */
+  label?: string
   /** Field names to display */
   fields: string[]
-  /** Display layout: list (vertical) or grid (2 columns) */
+  /** Per-field config (colSpan, custom label). Order matches `fields`. */
+  fieldConfigs?: Array<{
+    fieldName: string
+    label?: string
+    colSpan?: number
+  }>
+  /** Display layout: list (vertical) or grid */
   layout: 'list' | 'grid'
   /** Show field labels */
   showLabels: boolean
@@ -95,6 +100,8 @@ export interface TableInfoWidgetSetting {
  * RelatedTableList widget settings
  */
 export interface RelatedTableListWidgetSetting {
+  /** Widget title/label */
+  label?: string
   /** Relation field name to show */
   relationFieldName: string
   /** Columns to display from related table */
@@ -105,6 +112,23 @@ export interface RelatedTableListWidgetSetting {
   allowAdd: boolean
   /** Show link to open related record */
   allowOpen: boolean
+  /** Default filter rules applied to the related table */
+  filterRules?: {
+    conditions: Array<{
+      id: string
+      connector: 'AND' | 'OR'
+      field: string
+      operator: string
+      value: string | number | Array<string | number>
+    }>
+    conjunction: 'AND' | 'OR'
+  }
+  /** Default sort rules applied to the related table */
+  sortRules?: Array<{
+    id: string
+    field: string
+    order: 'asc' | 'desc'
+  }>
 }
 
 /**
@@ -189,16 +213,14 @@ export const detailWidgetSettings: Record<string, DetailWidgetSetting> = {
 /**
  * Get widgets grouped by type
  */
-export function getDetailWidgetsByType(
-  settingMap: Record<string, DetailWidgetSetting>
-): Record<string, DetailWidgetSetting[]> {
+export function getDetailWidgetsByType(settingMap: Record<string, DetailWidgetSetting>): Record<string, DetailWidgetSetting[]> {
   const result: Record<string, DetailWidgetSetting[]> = {
     [DETAIL_WIDGET_TYPE.default]: []
   }
 
   Object.entries(settingMap).forEach(([key, item]) => {
     const widgetWithKey = { ...item, component: key as DetailWidgetType }
-    
+
     if (item.type) {
       if (!result[item.type]) {
         result[item.type] = []
@@ -243,10 +265,7 @@ export function getNormalizedWidgetSetting(widget: DetailWidgetType): {
 /**
  * Create a new widget instance with unique ID
  */
-export function createWidgetInstance(
-  widgetType: DetailWidgetType,
-  position?: { x: number; y: number }
-): DetailWidgetSetting {
+export function createWidgetInstance(widgetType: DetailWidgetType, position?: { x: number; y: number }): DetailWidgetSetting {
   const template = getWidgetSetting(widgetType)
   if (!template) {
     throw new Error(`Unknown widget type: ${widgetType}`)
@@ -282,8 +301,8 @@ export function generateDefaultDetailLayout(
   // Add TableInfo widget with non-relation fields
   if (includeTableInfo) {
     const nonRelationFields = fields
-      .filter(f => f.type !== 14 && f.type !== 15) // Exclude MagicLink and VirtualColumn
-      .map(f => f.fieldName)
+      .filter((f) => f.type !== 14 && f.type !== 15) // Exclude MagicLink and VirtualColumn
+      .map((f) => f.fieldName)
 
     const tableInfoWidget = createWidgetInstance('TableInfo', { x: 0, y: currentY })
     tableInfoWidget.setting = {
@@ -296,12 +315,12 @@ export function generateDefaultDetailLayout(
 
   // Add RelatedTableList widget for each relation field
   if (includeRelations) {
-    const relationFields = fields.filter(f => f.type === 14) // MagicLink only
+    const relationFields = fields.filter((f) => f.type === 14) // MagicLink only
 
     relationFields.forEach((field, index) => {
-      const relWidget = createWidgetInstance('RelatedTableList', { 
-        x: 0, 
-        y: currentY 
+      const relWidget = createWidgetInstance('RelatedTableList', {
+        x: 0,
+        y: currentY
       })
       relWidget.setting = {
         ...relWidget.setting,

@@ -1,40 +1,52 @@
 <template>
-  <el-dialog v-model="visible" class="scroll-dialog" @close="resetForm">
+  <el-dialog v-model="visible" class="scroll-dialog" :fullscreen="fullscreen" @close="resetForm">
     <template v-if="mode === 'edit'" #header>
       <div class="el-dialog__title mdForm-title">
         {{ title }}
-        <el-button class="source-button" type="info" link :icon="Position" v-if="showSourceButton" @click="handleSourceClick">{{ $t('common_goToSourceTable') }}</el-button>
-        <div v-if="showMoveButtons">
-          <el-icon
-            style="font-size: var(--app-font-size-m)"
-            :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'"
-            role="button"
-            tabindex="0"
-            :aria-label="t('common_moveUp')"
-            :aria-disabled="disabledUp"
-            @click="!disabledUp && handleMove('up')"
-            @keydown.enter.space.prevent="!disabledUp && handleMove('up')"
-          >
-            <Top />
-          </el-icon>
-          <el-icon
-            style="font-size: var(--app-font-size-m)"
-            :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'"
-            role="button"
-            tabindex="0"
-            :aria-label="t('common_moveDown')"
-            :aria-disabled="disabledDown"
-            @click="!disabledDown && handleMove('down')"
-            @keydown.enter.space.prevent="!disabledDown && handleMove('down')"
-          >
-            <Bottom />
-          </el-icon>
+        <el-button class="source-button" type="info" link :icon="Position" v-if="showSourceButton" @click="handleSourceClick">{{
+          $t('common_goToSourceTable')
+        }}</el-button>
+        <div class="action-container">
+          <div v-if="showMoveButtons" class="action">
+            <el-icon
+              style="font-size: var(--app-font-size-m)"
+              :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'"
+              role="button"
+              tabindex="0"
+              :aria-label="t('common_moveUp')"
+              :aria-disabled="disabledUp"
+              @click="!disabledUp && handleMove('up')"
+              @keydown.enter.space.prevent="!disabledUp && handleMove('up')"
+            >
+              <Top />
+            </el-icon>
+            <el-icon
+              style="font-size: var(--app-font-size-m)"
+              :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'"
+              role="button"
+              tabindex="0"
+              :aria-label="t('common_moveDown')"
+              :aria-disabled="disabledDown"
+              @click="!disabledDown && handleMove('down')"
+              @keydown.enter.space.prevent="!disabledDown && handleMove('down')"
+            >
+              <Bottom />
+            </el-icon>
+          </div>
+          <div class="fullscreen-toggle">
+            <el-icon :class="fullscreen ? 'fullscreen-exit' : 'fullscreen-enter'" @click="fullscreen = !fullscreen">
+              <FullScreen />
+            </el-icon>
+          </div>
         </div>
       </div>
     </template>
     <el-tabs v-model="activeTab" class="md-form-tabs">
       <el-tab-pane :label="t('common_form')" name="form">
         <MdForm ref="formRef" :columns="formColumns" :systemFieldsTypes="systemFieldsTypes" :form-data="formData" :mode="mode" />
+      </el-tab-pane>
+      <el-tab-pane v-if="formData.id" :label="t('common_dashboard')" name="dashboard">
+        <RecordDashboard :record-id="formData.id" :table-id="tableId" :record="formData" :can-manage="canManageTable" />
       </el-tab-pane>
       <el-tab-pane v-if="formData.id" :label="t('auditLog_title')" name="auditLog">
         <div
@@ -54,11 +66,7 @@
                 </template>
                 <div class="date-header">{{ group.date === 'Unknown' ? t('auditLog_unknownDate') : formatAuditTime(group.date) }}</div>
               </el-timeline-item>
-              <el-timeline-item
-                v-for="item in group.items"
-                :key="item._key"
-                :timestamp="formatDate(item.timestamp, 'HH:mm')"
-              >
+              <el-timeline-item v-for="item in group.items" :key="item._key" :timestamp="formatDate(item.timestamp, 'HH:mm')">
                 <div
                   class="timeline-summary"
                   role="button"
@@ -71,10 +79,7 @@
                   <span class="user">{{ item.user_id }}</span>
                   <span class="action">{{ t(item.event_type) }}</span>
                 </div>
-                <div
-                  v-if="expandedIds.has(item._key)"
-                  class="payload"
-                >
+                <div v-if="expandedIds.has(item._key)" class="payload">
                   <pre>{{ JSON.stringify(item.details, null, 2) }}</pre>
                 </div>
               </el-timeline-item>
@@ -98,15 +103,18 @@
 <script setup lang="ts">
 import { newClientApi, clientApi } from 'api'
 import { EventType, useEventBus } from 'eventbus'
-import { Top, Bottom, Position, Loading } from '@element-plus/icons-vue'
+import { Top, Bottom, Position, Loading, FullScreen } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { updateRelationFields } from '../../utils/relationHelper'
 import { computed, formatDate, groupAuditLogsByDate, ref, watch } from '#imports'
 import dayjs from 'dayjs'
+import RecordDashboard from '@packages/dynamic-db/components/dashboard/RecordDashboard.vue'
 
+const fullscreen = ref(false)
 const { updateRow } = useTableDataInject()
 const viewTools = inject('viewTools')
-const { navigateToTableMenu } = viewTools
+const navigateToTableMenu = (viewTools as any)?.navigateToTableMenu
+const canManageTable = computed(() => (viewTools as any)?.canManageTable?.value ?? false)
 const visible = ref(false)
 const formData = ref<any>({})
 const mode = ref('edit')
@@ -206,7 +214,9 @@ async function getFormColumns() {
   }
 }
 function handleSourceClick() {
-  navigateToTableMenu(props.tableId)
+  if (navigateToTableMenu) {
+    navigateToTableMenu(props.tableId)
+  }
 }
 
 // Audit log timeline
@@ -231,7 +241,7 @@ function ensureItemKey(item: any) {
 const keyedList = computed(() =>
   list.value.map((item) => ({
     ...item,
-    _key: ensureItemKey(item),
+    _key: ensureItemKey(item)
   }))
 )
 
@@ -256,7 +266,7 @@ async function fetchAuditLogs(reset = false) {
     const res: any = await clientApi.api.postAuditLogPage({
       page_size: pageSize.value,
       page_num: pageNum.value,
-      source_id: formData.value.id,
+      source_id: formData.value.id
     })
     const rows = res?.data?.entryList || []
     rows.forEach((row: any) => ensureItemKey(row))
@@ -276,7 +286,6 @@ async function fetchAuditLogs(reset = false) {
 
 function formatAuditTime(date: string): string {
   if (!date) return '-'
-
 
   return dayjs(date).format('YYYY-MM-DD')
 }
@@ -314,6 +323,13 @@ defineExpose({ open, close })
 </script>
 
 <style scoped lang="scss">
+.action-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 .mdForm-title {
   display: flex;
   justify-content: space-between;
@@ -330,6 +346,10 @@ defineExpose({ open, close })
 .md-form-tabs {
   :deep(.el-tabs__content) {
     height: calc(100% - 40px);
+  }
+
+  :deep(.el-tab-pane[name='dashboard']) {
+    height: 100%;
   }
 }
 

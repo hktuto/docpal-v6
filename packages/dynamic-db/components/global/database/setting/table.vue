@@ -23,10 +23,7 @@ const settingsSections = [
   {
     group: 'DATA',
     items: [
-      { id: 'detail', label: 'Detail', icon: 'lucide:file-text' },
-      { id: 'form', label: 'Form', icon: 'lucide:form-input' },
-      { id: 'card', label: 'Card', icon: 'lucide:credit-card' },
-      { id: 'list', label: 'List', icon: 'lucide:list' }
+      { id: 'detail', label: 'Dashboard', icon: 'lucide:file-text' },
     ]
   },
   {
@@ -55,14 +52,9 @@ const sectionComponent = computed(() => {
   switch (activeSection.value) {
     case 'info':
       return 'LazyDatabaseSettingTableGeneral'
-    case 'card':
-      return 'LazyDatabaseSettingTableCard'
     case 'detail':
       return 'LazyDatabaseSettingTableDetail'
-    case 'form':
-      return 'LazyDatabaseSettingTableForm'
-    case 'list':
-      return 'LazyDatabaseSettingTableData'
+
     case 'automation':
       return 'LazyDatabaseSettingTableAutomation'
     case 'auditLog':

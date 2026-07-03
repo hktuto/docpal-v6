@@ -635,8 +635,13 @@
   "common_cleanAll": "清空",
   "common_clear": "清空",
   "common_clickToUpload": "点击上传",
+  "common_cancel": "取消",
   "common_close": "关闭",
   "common_config": "配置",
+  "common_configure": "配置",
+  "common_dashboard": "仪表板",
+  "common_defaultFilter": "默认筛选",
+  "common_defaultSort": "默认排序",
   "common_confirmDelete": "是, 删除",
   "common_confirmPasswordError": "确定密码不一致",
   "common_confirmRemove": "是, 移除",
@@ -646,6 +651,7 @@
   "common_delete": "删除",
   "common_deleteFail": "删除失败",
   "common_deleteSuccess": "删除成功",
+  "common_done": "完成",
   "common_discussionChannel": "讨论",
   "common_download": "下载",
   "common_dragFileHere": "拖放到此处",
@@ -676,6 +682,7 @@
   "common_reset": "重置",
   "common_row": "行",
   "common_save": "保存",
+  "common_saveFailed": "保存失败",
   "common_selectOccupancyContent": "选择一个选项",
   "common_selectedIsMultiSelectRequiredMsg": "必须至少选择其中一个选项",
   "common_selectedIsRequiredMsg": "必须选择其中一个选项",
@@ -743,6 +750,9 @@
     "DbPie": "数据库饼图",
     "DbProgress": "数据库进度",
     "DbRecentRecords": "数据库最近记录",
+    "DbRecordInfo": "记录信息",
+    "DbRecordRelation": "关联记录",
+    "recordId": "记录 ID",
     "DbStat": "数据库统计",
     "DbTable": "数据库表格",
     "CalendarWidget": "日歷",
@@ -836,6 +846,7 @@
     "default": "普通",
     "document": "文件",
     "documentCount": "文件统计",
+    "record": "记录",
     "workflow": "工作流",
     "workflowCount": "工作流统计"
   },
@@ -1197,6 +1208,22 @@
       "time": "时间",
       "time-range": "时间范围"
     }
+  },
+  "detailWidget": {
+    "allowAddRecords": "允许新增记录",
+    "allowOpenRecords": "允许打开记录",
+    "columnsToDisplay": "显示列",
+    "columnsToDisplayTip": "选择要在关联记录列表中显示的列",
+    "noRelatedRecords": "暂无关联记录",
+    "options": "选项",
+    "pageSize": "每页数量",
+    "relatedTableList": "关联表列表",
+    "relatedTableListSettings": "关联表列表设置",
+    "selectColumns": "选择列",
+    "selectRelation": "选择关联",
+    "selectRelationField": "选择关联字段",
+    "widgetTitle": "组件标题",
+    "widgetTitlePlaceholder": "请输入组件标题"
   },
   "dfc": {
     "summary_report": "dfc.summary_report",
@@ -4694,6 +4721,6 @@
   "dynamicdb_create_field": "Create Field",
   "dynamicdb_update_trigger_setting": "Update Trigger Setting",
   "dynamicdb_create_trigger_setting": "Create Trigger Setting",
-  "common_form":"Form",
+  "common_form": "Form",
   "auditLog_title": "Audit Log"
 }

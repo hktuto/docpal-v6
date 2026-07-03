@@ -82,12 +82,12 @@ export interface DetailViewConfig {
  * Widget types for detail view
  */
 export type DetailViewWidgetType =
-  | 'field'           // Single field display
-  | 'section'         // Group of fields
-  | 'relations'       // Related records table
-  | 'timeline'        // Activity timeline
-  | 'stats'           // Quick statistics
-  | 'TableInfo'       // Table info widget (Phase 1)
+  | 'field' // Single field display
+  | 'section' // Group of fields
+  | 'relations' // Related records table
+  | 'timeline' // Activity timeline
+  | 'stats' // Quick statistics
+  | 'TableInfo' // Table info widget (Phase 1)
   | 'RelatedTableList' // Related table list widget (Phase 1)
 
 /**
@@ -165,6 +165,8 @@ export interface FieldInfo {
   isSystem?: boolean
   /** Field properties (e.g., options for select fields) */
   properties?: Record<string, any>
+  /** Related table ID for relation fields */
+  relationTableId?: string
 }
 
 /**
@@ -172,17 +174,18 @@ export interface FieldInfo {
  */
 export function generateDefaultCardConfig(fields: FieldInfo[]): CardViewConfig {
   // Filter out system fields and complex types
-  const displayableFields = fields.filter(f => 
-    !f.isSystem && 
-    f.type !== 6 && // Attachment
-    f.type !== 14   // MagicLink (relation)
+  const displayableFields = fields.filter(
+    (f) =>
+      !f.isSystem &&
+      f.type !== 6 && // Attachment
+      f.type !== 14 // MagicLink (relation)
   )
 
   // Find title field (first text field)
-  const titleField = displayableFields.find(f => f.type === 19 || f.type === 1)?.fieldName
+  const titleField = displayableFields.find((f) => f.type === 19 || f.type === 1)?.fieldName
 
   // Take first 4-5 fields for display
-  const cardFields = displayableFields.slice(0, 5).map(f => ({
+  const cardFields = displayableFields.slice(0, 5).map((f) => ({
     fieldName: f.fieldName,
     colSpan: 6 // Default to 2-column layout
   }))
@@ -197,19 +200,18 @@ export function generateDefaultCardConfig(fields: FieldInfo[]): CardViewConfig {
  * Generate a default list view config from table fields
  */
 export function generateDefaultListConfig(fields: FieldInfo[]): ListViewConfig {
-  const displayableFields = fields.filter(f => 
-    !f.isSystem && 
-    f.type !== 6 && // Attachment
-    f.type !== 14   // MagicLink
+  const displayableFields = fields.filter(
+    (f) =>
+      !f.isSystem &&
+      f.type !== 6 && // Attachment
+      f.type !== 14 // MagicLink
   )
 
-  const primaryField = displayableFields.find(f => f.type === 19 || f.type === 1)?.fieldName
-  const secondaryField = displayableFields.find(f => 
-    f.fieldName !== primaryField && (f.type === 19 || f.type === 1)
-  )?.fieldName
+  const primaryField = displayableFields.find((f) => f.type === 19 || f.type === 1)?.fieldName
+  const secondaryField = displayableFields.find((f) => f.fieldName !== primaryField && (f.type === 19 || f.type === 1))?.fieldName
 
   return {
-    fields: displayableFields.slice(0, 3).map(f => ({
+    fields: displayableFields.slice(0, 3).map((f) => ({
       fieldName: f.fieldName,
       colSpan: 12
     })),
@@ -224,15 +226,16 @@ export function generateDefaultListConfig(fields: FieldInfo[]): ListViewConfig {
  */
 export function generateDefaultFormConfig(fields: FieldInfo[]): FormViewConfig {
   // Filter out fields not suitable for forms
-  const formFields = fields.filter(f => 
-    !f.isSystem && 
-    f.type !== 6 && // Attachment (handled separately)
-    f.type !== 14 && // MagicLink (relation)
-    f.type !== 16 && // Formula (read-only)
-    f.type !== 15    // VirtualColumn (read-only)
+  const formFields = fields.filter(
+    (f) =>
+      !f.isSystem &&
+      f.type !== 6 && // Attachment (handled separately)
+      f.type !== 14 && // MagicLink (relation)
+      f.type !== 16 && // Formula (read-only)
+      f.type !== 15 // VirtualColumn (read-only)
   )
 
-  const viewFields: ViewFieldConfig[] = formFields.map(f => ({
+  const viewFields: ViewFieldConfig[] = formFields.map((f) => ({
     fieldName: f.fieldName,
     colSpan: 12, // Default to full width for forms
     required: f.type !== 11 // Checkbox fields not required by default
