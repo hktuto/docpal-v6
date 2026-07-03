@@ -109,7 +109,7 @@ function generateDefaultRecordLayout(): ViewDashboardLayoutItem[] {
     currentY += 4
   }
 
-  const relationFields = tableFields.filter((f: any) => f.business_type === ColumnFieldType.Relation)
+  const relationFields = tableFields.value.filter((f: any) => f.business_type === ColumnFieldType.Relation)
 
   relationFields.forEach((field: any) => {
     layout.push({
