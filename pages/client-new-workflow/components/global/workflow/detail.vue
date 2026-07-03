@@ -396,7 +396,11 @@ async function addTonalSubmit({ formData, booleanValue }: any) {
 
 async function handleTaskInfoChange(res: boolean) {
   isAssigneeUser.value = res
-  handleDisabledForm()
+  if (!res) {
+    handleDisabledForm()
+  } else {
+    fromRenderRef.value.enableForm()
+  }
   taskDetail.value.config.human_task.assignee = res ? userId : ''
   taskDetail.value.status.type = res ? 'assigned' : 'waiting'
 }
