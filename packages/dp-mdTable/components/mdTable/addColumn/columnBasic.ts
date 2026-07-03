@@ -97,7 +97,8 @@ export const columnBasic: Partial<Record<ColumnFieldType, ColumnBasicFieldConfig
       icon: 'lucide:link',
       tooltip: 'Relation Column',
       class: 'indicator-relation'
-    }
+    },
+    order: 11
   },
   [ColumnFieldType.VirtualColumn]: {
     label: 'VirtualColumn',
@@ -109,7 +110,8 @@ export const columnBasic: Partial<Record<ColumnFieldType, ColumnBasicFieldConfig
       icon: 'lucide:columns-3',
       tooltip: '【${relation_field_name_alias}】Virtual Column - Display field from relation',
       class: 'indicator-virtual'
-    }
+    },
+    order: 11
   },
   [ColumnFieldType.AggVirtualColumn]: {
     label: 'AggVirtualColumn',
@@ -119,7 +121,8 @@ export const columnBasic: Partial<Record<ColumnFieldType, ColumnBasicFieldConfig
       icon: 'lucide:calculator',
       tooltip: '【${relation_field_name_alias}-${display_field_name_alias}】Aggregate Virtual Column',
       class: 'indicator-agg-virtual'
-    }
+    },
+    order: 11
   },
   [ColumnFieldType.DocPalDoc]: {
     label: 'DocPalDoc',
