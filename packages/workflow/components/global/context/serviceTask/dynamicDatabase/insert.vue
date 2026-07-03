@@ -192,15 +192,17 @@ async function getTableConfig() {
       })
       .then((r: any) => r.data)
 
-    tableFieldList.value = data.tableFields.map((item: any) => ({
-      id: item.field_name,
-      name: item.field_name_alias,
-      type: item.validation_rules.type,
-      field_type: item.field_type,
-      isRequired: item.is_required,
-      isUnique: item.is_unique,
-      value: ''
-    }))
+    tableFieldList.value = data.tableFields
+      .map((item: any) => ({
+        id: item.field_name,
+        name: item.field_name_alias,
+        type: item.validation_rules.type,
+        field_type: item.field_type,
+        isRequired: item.is_required,
+        isUnique: item.is_unique,
+        value: ''
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name))
   } catch (e) {
     console.log(e)
   }
