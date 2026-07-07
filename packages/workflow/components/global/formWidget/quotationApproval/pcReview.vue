@@ -51,7 +51,7 @@ const formModel = ref<{
   brand: string
   infoList: SampleInfoItem[]
 }>({
-  brand: 'KOA',
+  brand: '',
   infoList: [
     {
       sample_id: '',
@@ -73,7 +73,8 @@ const formModel = ref<{
       unit_cost: 0,
       unit_price_no_tax: 0,
       exchange_rate: 1,
-      status: 'Active'
+      status: 'Active',
+      remarks: ''
     }
   ]
 })
@@ -92,23 +93,14 @@ function handleSampleInfoRemove(index: number) {
   data.value.splice(index, 1)
 }
 
-function handleTargetPriceItemAdd(index: number) {
-  const length = data.value[index].target_price_list?.length || 0
-  const defaultMoq: number = 1000 - length * 100
-  const defaultTargetPrice: number = (length + 1) * 0.01
-
-  const newItem = {
-    sample_id: data.value[index].sample_id,
-    tier_number: length + 1,
-    moq: defaultMoq,
-    target_price: defaultTargetPrice,
-    unit_cost: 0,
-    price: 0,
-    customer_final_price: 0,
-    sales_price: 0
-  }
-
-  data.value[index].target_price_list.push(newItem)
+const historyPriceRef = ref()
+function openDialog(item: any) {
+  item.currency = formData.currency
+  item.org_id = 1
+  historyPriceRef.value.open(item)
+}
+function handleHistoryPriceSubmit(data: any) {
+  console.log(data)
 }
 
 function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
@@ -146,7 +138,7 @@ defineExpose({ getFormData })
           <span class="info-item-card__index">{{ index + 1 }}.</span>
           <div class="info-item-card__actions">
             <el-button type="primary" v-model="showDetails" @click="showDetails = !showDetails">{{ showDetails ? '更多詳情' : '隱藏詳情' }}</el-button>
-            <el-button :icon="Delete" type="danger" @click="handleSampleInfoRemove(index)" />
+            <!--            <el-button :icon="Delete" type="danger" @click="handleSampleInfoRemove(index)" />-->
           </div>
         </div>
         <el-row :gutter="20">
@@ -214,7 +206,7 @@ defineExpose({ getFormData })
             <div class="targetPrice-item-card">
               <div class="targetPrice-item-card__header">
                 <span>設定不同數量檔位的目標價。 Higher MOQ → lower target price.</span>
-                <el-button :icon="Plus" :disabled="item.target_price_list.length === 10" @click="handleTargetPriceItemAdd(index)" />
+                <el-button type="primary" @click="openDialog(item)">檢索歷史價格 Retrieve historical prices</el-button>
               </div>
               <el-divider />
               <el-row class="targetPrice-item-card__table-header">
@@ -328,6 +320,8 @@ defineExpose({ getFormData })
       </div>
     </template>
   </el-form>
+
+  <LazyFormWidgetQuotationApprovalHistoricalPriceDialog ref="historyPriceRef" @submit="handleHistoryPriceSubmit" />
 </template>
 
 <style scoped lang="scss">
