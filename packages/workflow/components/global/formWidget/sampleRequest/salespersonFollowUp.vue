@@ -28,7 +28,7 @@ const data = ref<any[]>([
     remarks: '',
     tracking_number: '',
     received_date: '',
-    email_alert: 'Y'
+    email_alert: 'Yes'
   }
 ])
 

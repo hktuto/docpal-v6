@@ -1,6 +1,6 @@
 <template>
   <DashboardCard
-    :title="$t('detailWidget.tableInfo')"
+    :title="effectiveSetting.label || $t('detailWidget.tableInfo')"
     :hide-setting="hideSetting"
     :setting-ref="settingRef"
     :setting="effectiveSetting"
@@ -9,23 +9,12 @@
     <!-- Widget Content -->
     <div class="widget-content" :class="[`layout-${effectiveSetting.layout}`]">
       <template v-if="displayFields.length > 0">
-        <div 
-          v-for="field in displayFields" 
-          :key="field.fieldName"
-          class="field-item"
-          :style="getFieldStyle(field)"
-        >
+        <div v-for="field in displayFields" :key="field.fieldName" class="field-item" :style="getFieldStyle(field)">
           <div v-if="effectiveSetting.showLabels" class="field-label">
             {{ field.fieldNameAlias || field.fieldName }}
           </div>
           <div class="field-value">
-            <component
-              v-if="getFieldRenderer(field)"
-              :is="getFieldRenderer(field)"
-              :value="getFieldValue(field.fieldName)"
-              :field="field"
-              :record="record"
-            />
+            <component v-if="getFieldRenderer(field)" :is="getFieldRenderer(field)" :value="getFieldValue(field.fieldName)" :field="field" :record="record" />
             <span v-else class="text-value">
               {{ formatFieldValue(field) }}
             </span>
@@ -44,13 +33,7 @@
     </div>
 
     <!-- Settings Dialog -->
-    <TableInfoSetting
-      ref="settingRef"
-      :setting="effectiveSetting"
-      :fields="fields"
-      @refresh="handleRefreshSetting"
-      @delete="handleDelete"
-    />
+    <TableInfoSetting ref="settingRef" :setting="effectiveSetting" :fields="fields" @refresh="handleRefreshSetting" @delete="handleDelete" />
   </DashboardCard>
 </template>
 
@@ -98,15 +81,10 @@ const effectiveSetting = computed<TableInfoWidgetSetting>(() => ({
 const displayFields = computed(() => {
   if (effectiveSetting.value.fields.length === 0) {
     // If no fields configured, show all non-relation fields
-    return props.fields.filter(f => 
-      f.type !== ColumnFieldType.MagicLink && 
-      f.type !== ColumnFieldType.VirtualColumn
-    ).slice(0, 10)
+    return props.fields.filter((f) => f.type !== ColumnFieldType.Relation && f.type !== ColumnFieldType.VirtualColumn).slice(0, 10)
   }
-  
-  return effectiveSetting.value.fields
-    .map(fieldName => props.fields.find(f => f.fieldName === fieldName))
-    .filter((f): f is FieldInfo => !!f)
+
+  return effectiveSetting.value.fields.map((fieldName) => props.fields.find((f) => f.fieldName === fieldName)).filter((f): f is FieldInfo => !!f)
 })
 
 // Get field value from record
@@ -123,10 +101,11 @@ function getFieldStyle(field: FieldInfo): Record<string, string> {
   if (effectiveSetting.value.layout === 'list') {
     return {}
   }
-  
-  const columns = effectiveSetting.value.gridColumns || 2
+
+  const config = effectiveSetting.value.fieldConfigs?.find((c) => c.fieldName === field.fieldName)
+  const colSpan = config?.colSpan ?? 6
   return {
-    gridColumn: `span ${12 / columns}`
+    gridColumn: `span ${colSpan}`
   }
 }
 

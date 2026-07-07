@@ -41,7 +41,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   virtualScroll: true,
   api: () => {
     console.log('variables', variables.value)
-    return deepCopy(variables.value)
+    return filter()
   },
   columns: [
     { title: 'ID', field: 'id' },
@@ -126,6 +126,7 @@ function filter() {
     )
   })
   tableRef.value?.loadData(list)
+  return list
 }
 
 defineExpose({
@@ -165,7 +166,7 @@ defineExpose({
     </template>
   </el-dialog>
 
-  <LazyContextVariableEditVariableDialog :node="node" ref="FormDialogRef" @reload="reload" />
+  <LazyContextVariableEditVariableDialog :node="node" ref="FormDialogRef" @reload="filter" />
 </template>
 
 <style lang="scss" scoped>

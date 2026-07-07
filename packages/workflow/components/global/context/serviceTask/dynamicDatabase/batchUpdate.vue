@@ -3,6 +3,7 @@ import type { Node } from '@antv/x6'
 import { newAdminApi, newClientApi } from 'api'
 import type { VariableItem } from '@packages/workflow/composables/useWorkflowVariables'
 
+const { t } = useI18n()
 const { node } = defineProps<{
   node: Node
 }>()
@@ -46,6 +47,10 @@ const recoderVariables = computed(() => {
   return getVariablesByDisplayTypes(['array'])
 })
 const arrayVariableOption = ref<any[]>([])
+const fieldsList = ref<string[]>([])
+const updateFieldsList = computed(() => {
+  return fieldsList.value.map((fieldId: string) => tableFieldList.value.find((item: any) => item.id === fieldId)).filter(Boolean)
+})
 
 function getArrayVariables(field_type: string) {
   let displayTypeList: string[]
@@ -81,21 +86,23 @@ async function init() {
   const { pathname } = new URL(data.config.http_request.url)
   const match = pathname.match(/\/table\/([^\/]+)\/record\/batch-transactional\/?$/)
   tableId.value = match ? match[1] : ''
-  if (tableId.value != '') {
-    await getTableConfig()
-  }
 
   if (tableId.value !== '') {
-    const body = data.config.http_request.body
-    // recordId.value = body.mapping['id'] || ''
-    dataList.value = body.data
+    await getTableConfig()
     getArrayVariablesOption()
+
+    const body = data.config.http_request.body
+    recordId.value = body.mapping['id'] || ''
+    dataList.value = body.data
+
     tableFieldList.value = tableFieldList.value.map((item: any) => {
       if (item.id in body.mapping) {
         item.value = body.mapping[item.id]
       }
       return item
     })
+
+    fieldsList.value = Object.keys(body.mapping).filter((item) => item !== 'id')
   }
 
   const keys = Object.keys(data.config.output_mapping)
@@ -120,11 +127,11 @@ function update() {
   const newUrl = origin + path.value.replace('{tableID}', tableId.value)
 
   const mapping: any = {
-    // id: recordId.value
-    id: '${id}'
+    id: recordId.value
+    // id: '${id}'
   }
 
-  tableFieldList.value.forEach((item: any) => {
+  updateFieldsList.value.forEach((item: any) => {
     if (item.value !== '') {
       mapping[item.id] = item.value
     }
@@ -213,15 +220,17 @@ async function getTableConfig() {
       })
       .then((r: any) => r.data)
 
-    tableFieldList.value = data.tableFields.map((item: any) => ({
-      id: item.field_name,
-      name: item.field_name_alias,
-      type: item.validation_rules.type,
-      field_type: item.field_type,
-      isRequired: item.is_required,
-      isUnique: item.is_unique,
-      value: ''
-    }))
+    tableFieldList.value = data.tableFields
+      .map((item: any) => ({
+        id: item.field_name,
+        name: item.field_name_alias,
+        type: item.validation_rules.type,
+        field_type: item.field_type,
+        isRequired: item.is_required,
+        isUnique: item.is_unique,
+        value: ''
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name))
   } catch (e) {
     console.log(e)
   }
@@ -240,7 +249,7 @@ function getArrayVariablesOption() {
   if (!!anyObject && anyObject?.items?.type === 'object') {
     // 移除 'field.name' 為 'id' 的字段
     arrayVariableOption.value = Object.entries(anyObject.items.properties)
-      .filter(([, field]) => field.name !== 'id')
+      // .filter(([, field]) => field.name !== 'id')
       .map(([id, field]) => ({
         id,
         name: field.name,
@@ -283,11 +292,11 @@ watch(
         <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-<!--    <el-form-item label="Return Record List">-->
-<!--      <el-select v-model="returnRecordList" filterable clearable @change="update">-->
-<!--        <el-option v-for="item in recoderVariables" :key="item.id" :label="item.name" :value="item.id" />-->
-<!--      </el-select>-->
-<!--    </el-form-item>-->
+    <!--    <el-form-item label="Return Record List">-->
+    <!--      <el-select v-model="returnRecordList" filterable clearable @change="update">-->
+    <!--        <el-option v-for="item in recoderVariables" :key="item.id" :label="item.name" :value="item.id" />-->
+    <!--      </el-select>-->
+    <!--    </el-form-item>-->
     <el-form-item label="Data List">
       <el-select v-model="dataList" filterable clearable @change="handleDataListChange">
         <el-option v-for="item in arrayVariables" :key="item.id" :label="item.name" :value="item.id" />
@@ -295,13 +304,21 @@ watch(
     </el-form-item>
     <el-divider />
 
-    <!--    <el-form-item label="Recoder ID">-->
-    <!--      <el-select v-model="recordId" filterable clearable @change="update">-->
-    <!--        <el-option v-for="item in getArrayVariables('varchar')" :key="item.id" :label="item.name" :value="item.id" />-->
-    <!--      </el-select>-->
-    <!--    </el-form-item>-->
+    <el-form-item label="Recoder ID">
+      <el-select v-model="recordId" filterable clearable @change="update">
+        <el-option v-for="item in getArrayVariables('varchar')" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
 
-    <template v-for="field in tableFieldList">
+    <el-form-item label="Add Fields">
+      <el-select v-model="fieldsList" :placeholder="t('common_selectOccupancyContent')" multiple collapse-tags collapse-tags-tooltip filterable>
+        <el-option v-for="item in tableFieldList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
+
+    <el-divider v-if="updateFieldsList.length > 0" />
+
+    <template v-for="field in updateFieldsList">
       <el-form-item :label="field.name">
         <el-select v-model="field.value" filterable clearable @change="update">
           <el-option v-for="item in getArrayVariables(field.field_type)" :key="item.id" :label="item.name" :value="item.id" />

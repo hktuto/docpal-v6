@@ -281,7 +281,7 @@ defineExpose({ getFormData })
 
           <el-col :span="8">
             <el-form-item label="整盤">
-              <el-switch v-model="item.packaged" active-text="Yes" active-value="1" inactive-text="No" inactive-value="0" />
+              <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" />
             </el-form-item>
             <el-form-item label="競爭者名稱" prop="competitor_name">
               <el-input v-model="item.competitor_name" />
