@@ -154,7 +154,7 @@ async function getDbData(tableId: string) {
     .then((res) => res.data)
   const filedMapping: any = {}
   filedData.tableFields.forEach((item: any) => {
-    filedMapping[item.field_name as string] = item.field_name_alias
+    filedMapping[item.field_name as string] = item.validation_rules.title
   })
 
   const param = {

@@ -88,12 +88,14 @@ async function init() {
     const body = data.config.http_request.body
     dataList.value = body.data
     getArrayVariablesOption()
-    tableFieldList.value = tableFieldList.value.map((item: any) => {
-      if (item.id in body.mapping) {
-        item.value = body.mapping[item.id]
-      }
-      return item
-    })
+    tableFieldList.value = tableFieldList.value
+      .map((item: any) => {
+        if (item.id in body.mapping) {
+          item.value = body.mapping[item.id]
+        }
+        return item
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
   }
 
   const keys = Object.keys(data.config.output_mapping)
