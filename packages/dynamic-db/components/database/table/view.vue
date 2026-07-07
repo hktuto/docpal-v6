@@ -116,7 +116,7 @@ const {
 const { navigateToItem, findItemById, menuState, databaseMenuRouteParams, addItem } = useSingleDatabaseContext()
 const { getPageParams, columns } = useDBParams()
 const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
-const addMirrorBus = useEventBus(EventType.ADD_MIRROR)
+const addMirrorBus = useEventBus(EventType.MD_TABLE_ADD_MIRROR)
 
 
 // hocuspocus logic

@@ -135,7 +135,7 @@ function handleCancel() {
   emits('closed')
 }
 const formRef = ref()
-const relationRefreshBus = useEventBus(EventType.RELATION_NEED_REFRESH)
+const relationRefreshBus = useEventBus(EventType.MD_TABLE_RELATION_NEED_REFRESH)
 /**
  * Handle relation form data refresh
  * @param payload { data: any, relationTableId: string, relationRowId: string, relationField: string }

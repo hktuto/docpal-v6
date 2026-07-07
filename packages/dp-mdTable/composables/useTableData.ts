@@ -152,7 +152,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   const tableQueryBase = ref<Record<string, any>>({ pageSize: 100 })
   /** 搜索模式下的额外查询参数，供 proxy reload 复用 */
   const searchExtraParams = ref<any>()
-  const relationRefreshBus = useEventBus(EventType.RELATION_NEED_REFRESH)
+  const relationRefreshBus = useEventBus(EventType.MD_TABLE_RELATION_NEED_REFRESH)
 
   const hasMore = computed(() => {
     if (!totalSize.value) {

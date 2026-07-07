@@ -5,21 +5,16 @@
       <span>{{ item.label }}</span>
     </div>
   </UiPopoverDialog>
-  <CreateRelationDialog ref="createRelationDialogRef" :source-column="currentFullColumn" @success="onRelationCreated" />
 </template>
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import CreateRelationDialog from './CreateRelationDialog.vue'
-import { useImportRelationAnalysisState } from '@packages/dynamic-db/composables/import/useImportRelationAnalysis'
 const emits = defineEmits(['headerClick'])
 let triggerEl: HTMLElement | null = null
 let currentColumn: any = null
-const currentFullColumn = ref<any>(null)
 const { gridRef, addColumn, deleteColumn, columns, addColumnPopoverRef } = useMDTableInject()
 const baseList = [
   { label: 'Column Setting', icon: 'lucide:square-pen', type: 'edit' },
   { label: 'Insert Column ', icon: 'lucide:panel-left-close', type: 'insertLeft' },
-  { label: 'Create Relation', icon: 'lucide:link', type: 'createRelation' },
   { label: 'Delete Column', icon: 'lucide:trash-2', type: 'delete' }
 ]
 
@@ -46,27 +41,10 @@ const filteredList = computed(() => {
     items.splice(1, 0, ...relationMenuItems)
   }
 
-  // Remove 'Create Relation' for virtual columns (they can't have relations)
-  // or when no relation suggestions exist for this column
-  if (isVirtualColumn || !hasRelationSuggestionsForColumn(currentColumn)) {
-    items = items.filter((item) => item.type !== 'createRelation')
-  }
-
   return items
 })
 
 const popoverRef = ref()
-const createRelationDialogRef = ref<InstanceType<typeof CreateRelationDialog>>()
-const analysis = useImportRelationAnalysisState()
-
-function hasRelationSuggestionsForColumn(column: any): boolean {
-  if (!column || analysis.value.status !== 'completed') return false
-  const tableId = column.master_table_id || column.tableId
-  const fieldName = column.field_name || column.field
-  return analysis.value.guesses.some(
-    (g) => !g.dismissed && g.sourceTableId === tableId && g.sourceFieldName === fieldName
-  )
-}
 
 function open(_triggerEl: HTMLElement | null, _column: any) {
   triggerEl = _triggerEl
@@ -74,15 +52,9 @@ function open(_triggerEl: HTMLElement | null, _column: any) {
   popoverRef.value.open(triggerEl)
 }
 
-function onRelationCreated() {
-  // Refresh the grid to show the newly created relation column
-  gridRef.value?.commitProxy('reload')
-}
-
 const handleClick = (type: string) => {
   popoverRef.value.close()
   const fullColumn = columns.value.find((item: any) => item.field_name === currentColumn.field)
-  currentFullColumn.value = fullColumn
   switch (type) {
     case 'edit':
       addColumnPopoverRef.value.show(triggerEl, currentColumn)
@@ -106,11 +78,6 @@ const handleClick = (type: string) => {
         business_type: ColumnFieldType.MultiText
       } as unknown as ColumnConfig
       addColumn([defaultNewColumnRight], fullColumn.id, 'right')
-      break
-    case 'createRelation':
-      if (fullColumn) {
-        createRelationDialogRef.value?.open()
-      }
       break
     case 'addVirtualColumn':
       // virtualColumnDialogRef.value?.open(triggerEl, column)

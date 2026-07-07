@@ -1,4 +1,5 @@
 import type { ViewConfig, FilterInfo } from '../../utils/databaseType'
+import { onBeforeUnmount } from 'vue'
 
 import { kanbanStyleDefault, cardStyleDefault, ganttStyleDefault, calendarStyleDefault } from '../../utils/databaseType'
 import {
@@ -16,6 +17,7 @@ import {
 } from '../../utils/tableViews'
 
 import { ElMessage } from 'element-plus'
+import { EventType, useEventBus } from 'eventbus'
 import { newClientApi } from 'api'
 import type { ResultCfUserTableConfigResponseDTO } from 'api/src/generate/newClient'
 
@@ -273,6 +275,17 @@ export function useTableViews(options: UseTableViewsOptions) {
     currentView.value[fieldName] = value
     await updateView(view.id, { [fieldName]: value })
   }
+
+  const mdTableRefreshBus = useEventBus<{ table_id?: string }>(EventType.MD_TABLE_NEED_REFRESH)
+  const stopMdTableRefresh = mdTableRefreshBus.on((payload) => {
+    if (!payload?.table_id || payload.table_id !== tableId.value) return
+    getViews(currentView.value?.id)
+  })
+
+  onBeforeUnmount(() => {
+    stopMdTableRefresh()
+  })
+
   provide(TableViewsInjectKey, {
     tableFields,
     currentView,

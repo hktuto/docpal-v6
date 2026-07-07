@@ -152,7 +152,7 @@ async function handleSubmit(data: any, id: string) {
       newFormData[fullKey] = data[key]
     }
   })
-  emitBus(EventType.RELATION_NEED_REFRESH, {
+  emitBus(EventType.MD_TABLE_RELATION_NEED_REFRESH, {
     data: newFormData,
     relationTableId: relationTableId.value,
     relationRowId: id,

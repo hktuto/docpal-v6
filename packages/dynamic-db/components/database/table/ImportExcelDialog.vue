@@ -42,7 +42,6 @@
 import { ElMessage } from 'element-plus'
 import { Download } from '@element-plus/icons-vue'
 import {useImportBatch, isExcelFile} from '../../../composables/import/useImportBatch'
-import { captureTableSnapshot, startPostImportAnalysis } from '../../../composables/import/useImportRelationAnalysis'
 
 import { newClientApi } from 'api'
 // Internal state for dynamic entityId and parentFolderId
@@ -102,8 +101,6 @@ async function handleFileChange(file: any) {
     errorMessage.value = 'Please select an Excel file (.xlsx, .xls) or CSV file (.csv)'
     return
   }
-  // Capture pre-import table snapshot for post-import relation analysis
-  const preSnapshot = await captureTableSnapshot(database.value?.id)
   const result: any = await importExcelFile(selectedFile.value)
   if (result.hasErrorReport) {
     errorReportMsg.value = result.errorMessage
@@ -113,7 +110,6 @@ async function handleFileChange(file: any) {
   }
   // Refresh menu so new tables appear, then run relation analysis
   await getMenuFromDb()
-  startPostImportAnalysis(preSnapshot, database.value?.id)
   emit('success')
 }
 async function downloadErrorReport() {

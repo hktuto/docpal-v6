@@ -35,7 +35,7 @@ const handleMirror = () => {
   }
 }
 function handleAddMirror() {
-  emitBus(EventType.ADD_MIRROR)
+  emitBus(EventType.MD_TABLE_ADD_MIRROR)
 }
 const handleSelectMirror = (item: any) => {
   popoverRef.value?.close?.()
