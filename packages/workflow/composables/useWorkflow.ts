@@ -55,6 +55,14 @@ export const useWorkflow = () => {
       {
         name: 'quotationApprovalSampleInfo',
         component: 'FormWidgetQuotationApprovalSampleInfo'
+      },
+      {
+        name: 'quotationApprovalPcReviewInfo',
+        component: 'FormWidgetQuotationApprovalPcReview'
+      },
+      {
+        name: 'quotationApprovalInfo',
+        component: 'FormWidgetQuotationApprovalInfo'
       }
     ])
   )
