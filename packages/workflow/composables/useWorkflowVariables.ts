@@ -185,6 +185,9 @@ function convertValueByDefinition(value: any, definition: VariableItem): any {
       return conversionSubData(value, definition)
     case 'object':
       return conversionSubData(value, definition)
+    case 'json':
+      // TODO: 後續需要處理多層數據結構的情況
+      return value
     default:
       return convertScalarValue(value, definition)
   }
@@ -198,6 +201,7 @@ function conversionSubData(formData: any, definition: VariableItem) {
       return JSON.parse(formData)
     } else if (Array.isArray(formData)) {
       return formData.map((item) => {
+        console.log(123, item, definition.items?.properties)
         return convertFormDataEntries(item, definition.items?.properties)
       })
     } else {
