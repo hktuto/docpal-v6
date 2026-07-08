@@ -16,14 +16,28 @@ const selectedDisplayFields = ref<string[]>([])
 const isArray = ref(true)
 
 const submitting = ref(false)
+const DISPLAY_FIELD_LIMIT = 5
 
 const canSubmit = computed(() => {
   return (
     relationLabel.value.trim().length > 0 &&
-    selectedDisplayFields.value.length > 0 &&
     !submitting.value
   )
 })
+
+function resolveDisplayFieldIds() {
+  const selectedIds = selectedDisplayFields.value
+  if (selectedIds.length >= DISPLAY_FIELD_LIMIT + 1) {
+    return selectedIds
+  }
+
+  const selectedIdSet = new Set(selectedIds)
+  const fallbackIds = targetFields.value
+    .map((field) => field.id)
+    .filter((id): id is string => !!id && !selectedIdSet.has(id))
+
+  return [...selectedIds, ...fallbackIds].slice(0, DISPLAY_FIELD_LIMIT)
+}
 
 async function loadTargetFields() {
   const guess = activeGuess.value
@@ -71,7 +85,7 @@ function handleClose() {
 }
 
 function handleEstablished(guess: RelationCandidate) {
-  dismissGuess(guess)
+  dismissGuess(guess, true)
 }
 
 async function handleSubmit() {
@@ -80,10 +94,6 @@ async function handleSubmit() {
 
   if (!relationLabel.value.trim()) {
     ElMessage.warning('Please enter a relation label')
-    return
-  }
-  if (selectedDisplayFields.value.length === 0) {
-    ElMessage.warning('Please select at least one display field')
     return
   }
 
@@ -95,13 +105,14 @@ async function handleSubmit() {
   })
 
   try {
+    const displayFieldIds = resolveDisplayFieldIds()
     const jobId = await submitEstablishJob({
       source_table_id: guess.sourceTableId,
       target_table_id: guess.targetTableId,
       source_match_field_id: guess.sourceFieldId,
       target_match_field_id: guess.targetFieldId,
       relation_field_name: relationLabel.value.trim(),
-      display_field_ids: selectedDisplayFields.value,
+      display_field_ids: displayFieldIds,
       is_array: isArray.value
     })
 

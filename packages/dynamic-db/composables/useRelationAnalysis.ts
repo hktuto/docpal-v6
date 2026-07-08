@@ -48,7 +48,7 @@ type RelationAnalysisContext = {
   dismissGuess: (candidate: RelationCandidate) => void
   dismissAll: () => void
   reset: () => void
-  runAnalysis: (databaseId: string, tableIds?: string[]) => Promise<void>
+  runAnalysis: (databaseId: string, onNotificationClick?: () => void) => Promise<void>
   submitEstablishJob: (payload: RelationEstablishRequestDTO) => Promise<string | null>
   pollEstablishJob: (
     jobId: string,
@@ -210,18 +210,18 @@ export function useRelationAnalysis() {
   const analysis = ref<RelationAnalysisState>(createInitialState())
   const analysisList = ref<RelationCandidate[]>([])
 
-  function dismissGuess(candidate: RelationCandidate) {
+  function dismissGuess(candidate: RelationCandidate, disabledSource = false) {
     const index = analysisList.value.indexOf(candidate)
-    if (index !== -1) {
+    if (index !== -1 && disabledSource) {
       const targetRelationId = analysisList.value[index].targetTableId
       const sourceRelationId = analysisList.value[index].sourceTableId
-      analysisList.value.splice(index, 1)
       analysisList.value.forEach((item) => {
         if (item.targetTableId === targetRelationId && item.sourceTableId === sourceRelationId) {
           item.disabled = true
         }
       })
     }
+    analysisList.value.splice(index, 1)
   }
 
   function dismissAll() {
@@ -233,7 +233,7 @@ export function useRelationAnalysis() {
     analysisList.value = []
   }
 
-  async function runAnalysis(databaseId: string, tableIds?: string[]) {
+  async function runAnalysis(databaseId: string, onNotificationClick?: () => void) {
     reset()
 
     if (!databaseId) {
@@ -246,7 +246,7 @@ export function useRelationAnalysis() {
     analysis.value.message = 'Submitting detection job...'
 
     try {
-      const resolvedTableIds = tableIds?.length ? tableIds : collectMenuTableIds(menuState.value.items ?? [])
+      const resolvedTableIds = collectMenuTableIds(menuState.value.items ?? [])
 
       if (resolvedTableIds.length === 0) {
         analysis.value.status = 'completed'
@@ -289,14 +289,20 @@ export function useRelationAnalysis() {
       analysisList.value = candidates
       analysis.value.status = 'completed'
       analysis.value.message =
-        candidates.length > 0 ? `Found ${candidates.length} potential relation${candidates.length === 1 ? '' : 's'}` : 'Analysis complete — no strong relations detected'
+        candidates.length > 0
+          ? `Found ${candidates.length} potential relation${candidates.length === 1 ? '' : 's'}`
+          : 'Analysis complete — no strong relations detected'
 
       if (candidates.length > 0) {
-        ElNotification({
+        const notification = ElNotification({
           title: 'Relations Detected',
           message: `Found ${candidates.length} potential relation${candidates.length === 1 ? '' : 's'} across tables.`,
           type: 'info',
-          duration: 0
+          duration: 0,
+          onClick: () => {
+            notification.close()
+            onNotificationClick?.()
+          }
         })
       }
     } catch (err: any) {

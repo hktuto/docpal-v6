@@ -7,6 +7,7 @@ const { database, databaseMenuRouteParams } = useSingleDatabaseContext()
 
 const popoverRef = ref()
 const confirmPopoverRef = ref()
+const triggerRef = ref<HTMLElement | null>(null)
 
 const currentTableId = computed(() => databaseMenuRouteParams.value.tableId ?? databaseMenuRouteParams.value.item_id ?? '')
 
@@ -30,8 +31,12 @@ const groupedAnalysisList = computed(() => {
   return new Map(entries)
 })
 
-function open(target: HTMLElement) {
+function open(target: HTMLElement, autoAnalyze = true) {
+  triggerRef.value = target
   popoverRef.value?.open(target)
+  if (autoAnalyze && analysisList.value.length === 0) {
+    handleReanalyze()
+  }
 }
 
 function close() {
@@ -57,7 +62,10 @@ async function handleReanalyze() {
     ElMessage.warning('No database selected')
     return
   }
-  await runAnalysis(dbId)
+  await runAnalysis(dbId, () => {
+    if (!triggerRef.value) return
+    open(triggerRef.value, false)
+  })
 }
 
 function handleDismissAll() {
@@ -72,25 +80,12 @@ defineExpose({
 </script>
 
 <template>
-  <UiPopoverDialog
-    ref="popoverRef"
-    title="Potential Relations"
-    :width="420"
-    placement="bottom-end"
-    :close-on-click-outside="true"
-    :show-highlight="false"
-  >
+  <UiPopoverDialog ref="popoverRef" title="Potential Relations" :width="420" placement="bottom-end" :close-on-click-outside="true" :show-highlight="false">
     <div class="analysis-popover-content">
-      <div v-if="analysisList.length === 0" class="analysis-empty">
-        No strong relations detected.
-      </div>
+      <div v-if="analysisList.length === 0" class="analysis-empty">No strong relations detected.</div>
       <div v-else class="analysis-groups">
-        <div
-          v-for="[tableName, items] in groupedAnalysisList"
-          :key="tableName"
-          class="analysis-group"
-        >
-          <div class="analysis-group-title">{{ tableName }} </div>
+        <div v-for="[tableName, items] in groupedAnalysisList" :key="tableName" class="analysis-group">
+          <div class="analysis-group-title">{{ tableName }}</div>
           <div class="analysis-guess-list">
             <div
               v-for="item in items"
@@ -104,26 +99,9 @@ defineExpose({
                 <span class="guess-target-field">{{ item.targetFieldAlias }}</span>
               </div>
               <div class="analysis-guess-actions">
-                <el-tag size="small" :type="item.confidence > 0.7 ? 'success' : 'warning'">
-                  {{ Math.round(item.confidence * 100) }}%
-                </el-tag>
-                <el-button
-                  size="small"
-                  text
-                  type="danger"
-                  :disabled="item.disabled"
-                  @click="handleDismissGuess(item)"
-                >
-                  Ignore
-                </el-button>
-                <el-button
-                  size="small"
-                  type="primary"
-                  :disabled="item.disabled"
-                  @click="handleConfirm(item)"
-                >
-                  Confirm
-                </el-button>
+                <el-tag size="small" :type="item.confidence > 0.7 ? 'success' : 'warning'"> {{ Math.round(item.confidence * 100) }}% </el-tag>
+                <el-button size="small" text type="danger" :disabled="item.disabled" @click="handleDismissGuess(item)"> Ignore </el-button>
+                <el-button size="small" type="primary" :disabled="item.disabled" @click="handleConfirm(item)"> Confirm </el-button>
               </div>
             </div>
           </div>
@@ -139,11 +117,9 @@ defineExpose({
           :loading="(analysis.status === 'pending' && !!analysis.jobId) || analysis.status === 'processing'"
           @click="handleReanalyze"
         >
-          Re-analyze
+          {{ analysisList.length > 0 ? 'Re-analyze' : 'Analyze' }}
         </el-button>
-        <el-button v-if="analysisList.length > 0" size="small" type="primary" text @click="handleDismissAll">
-          Dismiss All
-        </el-button>
+        <el-button v-if="analysisList.length > 0" size="small" type="primary" text @click="handleDismissAll"> Dismiss All </el-button>
       </div>
     </div>
   </UiPopoverDialog>
