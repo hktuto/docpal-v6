@@ -68,6 +68,28 @@ const displayTypeList = ref([
       pattern: 'YYYY-MM-DD hh:mm:ss'
     },
     component: 'ContextVariableDataTypeDate'
+  },
+  // TODO:臨時方案
+  {
+    label: 'Json',
+    type: 'array',
+    display_type: 'json',
+    validation: {},
+    component: ''
+  },
+  {
+    label: 'Array',
+    type: 'array',
+    display_type: 'array',
+    validation: {},
+    component: 'ContextVariableDataTypeArray'
+  },
+  {
+    label: 'Object',
+    type: 'object',
+    display_type: 'object',
+    validation: {},
+    component: 'ContextVariableDataTypeObject'
   }
 ])
 const exitRules = ref([])
@@ -139,7 +161,7 @@ function open(row: any) {
 
 function typeChanged(displayType: string) {
   const typeObject: any = deepCopy(displayTypeList.value.find((item: any) => item.display_type === displayType))
-  formData.value = {
+  const filedData = {
     id: formData.value.id,
     name: formData.value.name,
     description: formData.value.description,
@@ -149,6 +171,55 @@ function typeChanged(displayType: string) {
     default_value: formData.value.default_value,
     validation: typeObject.validation
   }
+  switch (displayType) {
+    case 'dateRange':
+      filedData.minItems = 0
+      filedData.items = {
+        type: 'date',
+        properties: {
+          start: {
+            id: isEdit.value ? formData.value.items?.properties?.start?.id : Date.now(),
+            name: 'Start Date',
+            description: 'Start Date',
+            type: 'date',
+            display_type: 'date',
+            required: true,
+            validation: {
+              pattern: 'YYYY-MM-DD hh:mm:ss'
+            }
+          },
+          end: {
+            id: isEdit.value ? formData.value.items?.properties?.end?.id : Date.now(),
+            name: 'End Date',
+            description: 'End Date',
+            type: 'date',
+            display_type: 'date',
+            required: true,
+            validation: {
+              pattern: 'YYYY-MM-DD hh:mm:ss'
+            }
+          }
+        }
+      }
+      break
+    case 'array':
+      filedData.minItems = 0
+      if (isEdit.value) {
+        filedData.items = !!formData.value.items ? formData.value.items : { type: 'string', properties: {} }
+      } else {
+        filedData.items = { type: 'string', properties: {} }
+      }
+      break
+    case 'object':
+      filedData.items = {
+        type: 'object',
+        properties: isEdit.value ? formData.value?.items?.properties : {}
+      }
+      break
+    default:
+      filedData.validation = typeObject.validation
+  }
+  formData.value = filedData
   editComponent.value = resolveComponent(typeObject.component)
 }
 

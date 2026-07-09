@@ -44,7 +44,8 @@ const eventTypeOptions = [
   { label: 'Record is created', value: 'record_created', desc: 'When a new record is added to this table.' },
   { label: 'Record is updated', value: 'record_updated', desc: 'When any field of an existing record is modified.' },
   { label: 'Record is deleted', value: 'record_deleted', desc: 'When a record is removed from this table.' },
-  { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' }
+  { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' },
+  { label: 'Manual Trigger', value: 'manual', desc: "User can manual trigger this workflow"}
 ]
 const workflowList = ref<any[]>([])
 const workflowErrorMessage = ref<string>('')

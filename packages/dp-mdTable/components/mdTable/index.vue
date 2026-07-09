@@ -77,7 +77,7 @@
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
     </div>
-    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" :tableId="tableId" @delete-rows="handleRefresh" />
   </div>
 </template>
 

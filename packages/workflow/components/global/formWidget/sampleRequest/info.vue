@@ -119,22 +119,42 @@ async function getFormData(needValidation = true) {
 
 async function getPartList() {
   const list = await getDbData('12ba8480-6936-11f1-922e-adee4ecc74b2')
-  partList.value = list.map((item: any) => ({
-    id: item.inventory_item_id,
-    label: item.segment1,
-    value: item.segment1,
-    brand: item.attribute8
-  }))
+  const seen = new Set<any>()
+
+  partList.value = list.reduce((acc: any[], item: any) => {
+    const value = item.segment1
+
+    if (seen.has(value)) return acc
+    seen.add(value)
+
+    acc.push({
+      id: item.inventory_item_id,
+      label: item.segment1,
+      value: item.segment1,
+      brand: item.attribute8
+    })
+
+    return acc
+  }, [])
 }
 
 async function getSeriesList() {
   const list = await getDbData('c13ccf90-7101-11f1-a5ba-a73b7858cef3')
-  seriesList.value = list.map((item: any) => ({
-    id: item.id,
-    label: item.mfg_part_num,
-    value: item.mfg_part_num,
-    brand: ''
-  }))
+  const seen = new Set<any>()
+
+  seriesList.value = list.reduce((acc: any[], item: any) => {
+    const value = item.mfg_part_num
+    if (seen.has(value)) return acc
+    seen.add(value)
+
+    acc.push({
+      id: item.id,
+      label: item.mfg_part_num,
+      value: value,
+      brand: ''
+    })
+    return acc
+  }, [])
 }
 
 async function init() {

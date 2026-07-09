@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { ElMessageBox } from 'element-plus'
 import { MdTableContextKey, type mdTable } from '../../../composables/useMDTable'
-
+import { newClientApi } from 'api'
 interface CellPopoverOption {
   label: string
   icon: string
   onClick: () => Promise<void>
 }
-
+const props = defineProps<{
+  tableId:string
+}>()
 const { t } = useI18n()
 const mdTableContext = inject<mdTable | null>(MdTableContextKey, null)
 const { gridRef, tableData, deleteRow } = useTableDataInject()
+
 const popoverRef = ref()
 const selectedRows = ref<Record<string, any>[]>([])
 const optionList = ref<CellPopoverOption[]>([])
@@ -32,12 +35,45 @@ function open(mouseEvent: MouseEvent, row: any) {
       optionList.value = [createDeleteOption(selectedRows.value)]
     }
   } else {
+    // no selected row, default to add detele option
     optionList.value = [createDeleteOption([row])]
+    // check for automation test for current row data to get all triggeable actions
+    checkWorkflowForRow(row)
   }
 
   popoverRef.value.open(mouseEvent)
 }
 
+async function checkWorkflowForRow(row:any){
+  // when production, use trigger test to get when can be trigger
+  // const res = await newClientApi.postDynamicDbTableMastertableidTriggerSettingsTest(
+  //   props.tableId,
+  // {
+  //   event_type:"manual",
+  //   data: row
+  // })
+  // current get all trigger item with trigger type is manual and push to optionList
+  const res = await newClientApi.postDynamicDbTableMastertableidTriggerSettingsPage(props.tableId,{
+    pageNum: 0,
+    pageSize: 200
+  })
+  if(res.data?.entryList?.length){
+    res.data?.entryList?.filter((t:any) => t.event_type === 'manual' && t.workflow_id).forEach( (trigger:any) => {
+      optionList.value.push({
+        label: trigger.trigger_name,
+        icon: 'dp-icon:flow-outline',
+        onClick: () => triggerWorkflow(row, trigger.workflow_id)
+      })
+    })
+  }
+}
+
+async function triggerWorkflow(row:any, workflowId:string){
+  // @joshua, get workflow form here.
+  console.log("trigger fire", {
+    row, workflowId
+  })
+}
 function createDeleteOption(row: Record<string, any>[]): CellPopoverOption {
   const rows = Array.isArray(row) ? row : [row]
   const idsToDelete = rows.reduce((acc, row) => {

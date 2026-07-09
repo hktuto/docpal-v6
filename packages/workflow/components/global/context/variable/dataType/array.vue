@@ -3,26 +3,11 @@ import { toWorkflowVariablesObj, type VariableItem } from '@packages/workflow/co
 
 const form = defineModel<{}>('form')
 const itemTypeOptions = [
-  {
-    label: 'Text',
-    value: 'string'
-  },
-  {
-    label: 'Number',
-    value: 'number'
-  },
-  {
-    label: 'Boolean',
-    value: 'boolean'
-  },
-  {
-    label: 'Date',
-    value: 'date'
-  },
-  {
-    label: 'Object',
-    value: 'object'
-  }
+  { label: 'Text', value: 'string' },
+  { label: 'Number', value: 'number' },
+  { label: 'Boolean', value: 'boolean' },
+  { label: 'Date', value: 'date' },
+  { label: 'Object', value: 'object' }
 ]
 const properties = ref<VariableItem[]>([])
 const objectItemDialogRef = ref()
@@ -37,7 +22,10 @@ const subTypeOptions = ref([
   { label: 'Number', display_type: 'number' },
   { label: 'Timestamp', display_type: 'timestamp' },
   { label: 'Boolean', display_type: 'boolean' },
-  { label: 'Date', display_type: 'date' }
+  { label: 'Date', display_type: 'date' },
+  { label: 'Json', display_type: 'json' },
+  { label: 'Array', display_type: 'array' },
+  { label: 'Object', display_type: 'object' }
 ])
 
 function handleItemTypeChange(value: string) {
