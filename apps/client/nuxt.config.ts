@@ -97,5 +97,11 @@ export default defineNuxtConfig({
   },
   alias: {
     '@packages': resolve(__dirname, '../../packages')
+  },
+  vite: {
+    optimizeDeps: {
+      include: ['v-form-designer'],
+      force: process.env.NODE_ENV === 'development'
+    }
   }
 })
