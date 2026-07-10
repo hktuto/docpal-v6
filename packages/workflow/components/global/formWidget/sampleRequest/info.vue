@@ -31,27 +31,7 @@ type dataType = {
 }
 
 const formModel = reactive<{ list: dataType[] }>({
-  list: [
-    {
-      line_number: 1,
-      vendor: '',
-      part_number: '',
-      series: '',
-      purpose: '',
-      pcs_unit: 1,
-      fcst_qty: 1,
-      request_qty: 1,
-      run_rate: 1,
-      packaged: 0,
-      car_use: 'N',
-      cust_selected_parts: 'Introduced by Sales',
-      competitor_name: '',
-      competitor_pn: '',
-      competitor_unit_price: '',
-      remarks: '',
-      actual_received_qty: 0
-    }
-  ]
+  list: []
 })
 const data = toRef(formModel, 'list')
 const partList = ref<any[]>([])
