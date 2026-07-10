@@ -2,6 +2,7 @@
 import { Delete, Plus } from '@element-plus/icons-vue'
 import { clientApi, newClientApi } from 'api'
 import { v7 as uuidv7 } from 'uuid'
+import Decimal from 'decimal.js'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -14,17 +15,20 @@ const eFormData = computed(() => {
 const formRef = ref()
 type SampleInfoItem = {
   id?: string
-  line_number: string
+  sample_id: string
+  quotation_number: string
   brand: string
   part_number: string
-  mpq: number
-  uom: string
+  series: string
+  product_application: string
   monthly_quantity: number
   quantity_machine: number
-  product_application: string
-  old_sales_price_noTax: string
+  mpq: number
+  uom: string
   competitor_name: string
   customer_part_number: string
+  old_sales_price_noTax?: number
+  remarks: string
   target_price_list: TargetPriceItem[]
 }
 type TargetPriceItem = {
@@ -32,11 +36,11 @@ type TargetPriceItem = {
   tier_number: number
   moq: number
   target_price: number
-  unit_price_no_tax: number
   unit_cost: number
-  margin: string
-  customer_final_price: number
-  sales_price: number
+  unit_price_no_tax: number
+  cost_currency: string
+  exchange_rate: number
+  profit: number
   status: 'A' | 'D'
 }
 const formModel = ref<{
@@ -53,32 +57,34 @@ const customerPartNumberOptions = ref([])
 const rules = {
   part_number: [{ required: true, message: 'Please select Part number', trigger: 'change' }],
   product_application: [{ required: true, message: 'Please input product application', trigger: 'blur' }],
-  monthly_quantity: [{ required: true, type: 'number', message: 'Please input monthly quantity', trigger: 'change' }]
+  monthly_quantity: [{ required: true, type: 'number', message: 'Please input monthly quantity', trigger: 'change' }],
+  old_sales_price_noTax: [{ required: true, message: 'Please input Old Sales Price(NoTax)', trigger: 'blur' }]
 }
 
 function handleSampleInfoAdd(index?: number) {
   const uuid = uuidv7()
   const newValue = {
-    line_number: uuid,
+    sample_id: uuid,
+    quotation_number: '',
     brand: formModel.value.brand,
     part_number: '',
+    series: '',
+    product_application: '',
+    monthly_quantity: 1,
+    quantity_machine: 0,
     mpq: 1,
     uom: '',
-    monthly_quantity: 1,
-    quantity_machine: 1,
-    product_application: '',
-    old_sales_price_noTax: '',
     competitor_name: '',
     customer_part_number: '',
+    old_sales_price_noTax: 0,
+    remarks: '',
     target_price_list: [
       {
         sample_id: uuid,
         tier_number: 1,
         moq: 1000,
-        target_price: 0.01,
+        target_price: 1,
         unit_cost: 0,
-        customer_final_price: 0,
-        sales_price: 0,
         status: 'A'
       }
     ] as TargetPriceItem[]
@@ -97,17 +103,15 @@ function handleSampleInfoRemove(index: number) {
 
 function handleTargetPriceItemAdd(index: number) {
   const length = data.value[index].target_price_list?.length || 0
-  const defaultMoq: number = 1000 - length * 100
-  const defaultTargetPrice: number = (length + 1) * 0.01
+  const defaultMoq: number = 1000 + length * 100
+  const defaultTargetPrice: number = new Decimal(1).minus(new Decimal(length).times('0.01')).toNumber()
 
   const newVar = {
-    sample_id: uuidv7(),
+    sample_id: data.value[index].sample_id,
     tier_number: length + 1,
     moq: defaultMoq,
     target_price: defaultTargetPrice,
     unit_cost: 0,
-    customer_final_price: 0,
-    sales_price: 0,
     status: 'A'
   } as TargetPriceItem
 
@@ -121,7 +125,10 @@ function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
 function init() {}
 
 async function getFormData(needValidation = true) {
-  const result = { set_sample_list: formModel.value.infoList }
+  const result = {
+    brand: formModel.value.brand,
+    sample_info_list: formModel.value.infoList
+  }
   if (!needValidation) return result
   await formRef.value?.validate()
   return result
@@ -208,7 +215,7 @@ defineExpose({ getFormData })
     </el-row>
 
     <el-button v-if="!!formModel.brand && data.length === 0" type="primary" @click="handleSampleInfoAdd">Add Sample Info</el-button>
-    <template v-for="(item, index) in formModel.infoList" :key="item.line_number">
+    <template v-for="(item, index) in formModel.infoList" :key="item.sample_id">
       <div class="info-item-card">
         <div class="info-item-card__header">
           <span class="info-item-card__index">{{ index + 1 }}.</span>
@@ -217,6 +224,7 @@ defineExpose({ getFormData })
             <el-button :icon="Delete" type="danger" @click="handleSampleInfoRemove(index)" />
           </div>
         </div>
+
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="型號 Part Number" :prop="`infoList.${index}.part_number`" required>
@@ -230,7 +238,7 @@ defineExpose({ getFormData })
               </el-select>
             </el-form-item>
             <el-form-item label="單機用量 Quantity Machine" prop="quantity_machine">
-              <el-input-number v-model="item.quantity_machine" controls-position="right" :min="1" :step="1" step-strictly />
+              <el-input-number v-model="item.quantity_machine" controls-position="right" :min="0" :step="1" step-strictly />
             </el-form-item>
             <el-form-item label="競爭對手名稱 Competitor Name" prop="competitor_name">
               <el-input v-model="item.competitor_name" clearable />
@@ -268,7 +276,8 @@ defineExpose({ getFormData })
             <el-form-item
               v-if="eFormData.quotation_reason === 'Discount Request'"
               label="原銷售價格（不含稅） Old Sales Price(NoTax)"
-              prop="old_sales_price_noTax"
+              :prop="`infoList.${index}.old_sales_price_noTax`"
+              :rules="rules.old_sales_price_noTax"
               required
             >
               <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly />
@@ -286,7 +295,7 @@ defineExpose({ getFormData })
                 <el-divider />
                 <el-row class="targetPrice-item-card__table-header">
                   <el-col :span="2">檔位 Tier</el-col>
-                  <el-col :span="10">起订量 MOQ (階梯遞減 Step decrease)</el-col>
+                  <el-col :span="10">起订量 MOQ (階梯遞增加 Step decrease)</el-col>
                   <el-col :span="10">目標價 Target Price</el-col>
                   <el-col :span="2">操作 Actions</el-col>
                 </el-row>

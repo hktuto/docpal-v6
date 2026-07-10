@@ -271,7 +271,7 @@ defineExpose({ open })
 
   :deep(.el-input),
   :deep(.el-select) {
-    width: 180px;
+    width: 220px;
   }
 
   :deep(.el-date-editor) {
