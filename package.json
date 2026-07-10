@@ -18,6 +18,8 @@
     "new": "pnpm -F create-package start",
     "build": "nuxt build",
     "testw": "vitest run --workspace",
+    "preform": "pnpm -F v-form-designer build",
+    "form": "pnpm -F client dev",
     "test:reports": "pnpm -r --stream --if-present --no-bail test:report",
     "jenkins:reports": "pnpm -r --stream --if-present --no-bail test:report || true"
   },
