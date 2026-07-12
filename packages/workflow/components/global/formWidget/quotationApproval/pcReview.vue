@@ -169,20 +169,22 @@ function handleHistoryPriceSubmit(data: any) {
           unit_cost: newItem.unit_cost
         }
       } else {
+        const exchange_rate = handelCostCurrency({ cost_currency: newItem.currency })
+
         newPriceItem = {
           sample_id: uuidv7(),
           tier_number: index + 1,
           moq: newItem.moq,
-          target_price: newItem.target_price,
-          unit_cost: newItem.unit_cost,
-          customer_final_price: 0,
-          sales_price: 0,
-          status: 'A',
-          unit_price_no_tax: newItem.unit_price_no_tax,
-          margin: ''
+          target_price: undefined,
+          unit_cost: newItem.cost,
+          unit_price_no_tax: unit_cost * exchange_rate,
+          cost_currency: newItem.currency,
+          exchange_rate: exchange_rate,
+          profit: 0,
+          status: 'A'
         } as TargetPriceItem
       }
-      calculateMargin(item.exchange_rate, newPriceItem)
+      calculateMargin(newPriceItem)
       return newPriceItem
     })
   } else {

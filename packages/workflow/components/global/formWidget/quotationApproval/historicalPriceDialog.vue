@@ -201,9 +201,9 @@ async function handleSearch() {
 function handleSubmit() {
   const list = selectList.value
     .sort((a, b) => {
-      const am = a.moq == null ? -Infinity : Number(a.moq)
-      const bm = b.moq == null ? -Infinity : Number(b.moq)
-      return bm - am
+      const am = a.moq == null ? Infinity : Number(a.moq)
+      const bm = b.moq == null ? Infinity : Number(b.moq)
+      return am - bm
     })
     .map((item: any) => ({
       moq: item.moq,
