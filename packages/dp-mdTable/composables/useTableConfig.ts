@@ -134,7 +134,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         } else if (col.business_type === ColumnFieldType.Number) {
           colConfig.align = 'right'
         }
-
+        if (col.display_structure?.width) {
+          colConfig.width = col.display_structure?.width
+        }
         return colConfig
       })
       .filter((col: any) => !col.hidden)

@@ -26,6 +26,7 @@ export interface GridEventCallbacks {
   onStartEdit: (params: any) => void
   onExitEdit: (params: any) => void
   onRefresh: () => void | Promise<void>
+  onColumnResize: (params: any) => void  | Promise<void>
 }
 
 export interface UseGridEventsOptions {
@@ -36,6 +37,7 @@ export interface UseGridEventsOptions {
   getAgg: () => Promise<void>
   isGroupingEnabled: Ref<boolean>
   updateExpandedRows: () => void
+  updateColumn: (fielsName: string, newValue:any) => void
   saveColumnOrder: (oldColumnId: string, newColumnId: string, dragPos: 'left' | 'right') => void
   callbacks: GridEventCallbacks
 }
