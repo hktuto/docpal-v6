@@ -2,6 +2,70 @@ import type { DashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashbo
 import { dashboardWidgetSetting as dpDashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
 
 export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = {
+  DemoInventory: {
+    label: 'Total Inventory Report',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 8,
+    component: 'LazyDemoInventoryWidget',
+    setting: {
+      title: 'Total Inventory Report',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoInOut: {
+    label: 'Warehouse Inbound/Outbound',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 8,
+    component: 'LazyDemoInOutWidget',
+    setting: {
+      title: 'Warehouse Inbound/Outbound',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoArrival: {
+    label: 'Upcoming Goods Arrival',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 8,
+    component: 'LazyDemoArrivalWidget',
+    setting: {
+      title: 'Upcoming Goods Arrival',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoAging: {
+    label: 'Aging Report',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 10,
+    h: 8,
+    component: 'LazyDemoAgingWidget',
+    setting: {
+      title: 'Aging Report',
+      subtitle: '',
+      footer: ''
+    }
+  },
   DbStat: {
     label: 'DbStat',
     type: 'database' as any,
@@ -40,6 +104,24 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       sortOrder: 'desc',
       filterRules: [],
       sortRules: [],
+      title: '',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DbTableView: {
+    label: 'DbTableView',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 6,
+    component: 'LazyDbTableViewWidget',
+    setting: {
+      tableId: '',
+      viewId: '',
       title: '',
       subtitle: '',
       footer: ''
