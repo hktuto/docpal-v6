@@ -181,6 +181,10 @@ async function open(row: any, _mode: 'default' | 'edit' = 'edit', _title: string
 }
 function handleMove(direction: 'up' | 'down') {
   moveCurrentRow(direction)
+  const titleColumn = props.columns[0]?.field_name
+  if (titleColumn) {
+    title.value = currentRow.value[titleColumn]
+  }
   formData.value = { ...currentRow.value }
   emits('current-row-change', { ...currentRow.value })
 }
