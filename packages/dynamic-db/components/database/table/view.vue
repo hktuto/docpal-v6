@@ -85,6 +85,7 @@ import { EventType, useEventBus } from 'eventbus'
 import { newClientApi } from 'api'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { useRowContextMenuActions } from '@packages/dp-mdTable/composables/useRowContextMenuActions'
+import { createDatabaseTableRowContextMenuEvents } from '../../../composables/useDatabaseTableRowContextMenu'
 import { useTableViewsInject } from '../../../composables/table/useTableViews'
 import { useDBParams } from '../../../composables/table/useDBParams'
 import { useRelationConfigInject } from '../../../composables/table/useRelationConfig'
@@ -228,12 +229,14 @@ async function deleteTableRows(ids: string | string[]) {
 }
 
 const { handleRowContextMenu } = useRowContextMenuActions({
-  tableId,
-  canEditTable: computed(() => props.canEditTable),
   contextMenuRef,
-  deleteRow: deleteTableRows,
-  clearSelection: () => mdTableRef.value?.clearCheckboxRow?.(),
-  onDeleted: refreshCurrentView
+  eventList: createDatabaseTableRowContextMenuEvents({
+    tableId,
+    canEditTable: computed(() => props.canEditTable),
+    deleteRow: deleteTableRows,
+    onDeleted: refreshCurrentView
+  }),
+  clearSelection: () => mdTableRef.value?.clearCheckboxRow?.()
 })
 
 const editingColumnField = ref<string | null>(null)

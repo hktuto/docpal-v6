@@ -1,6 +1,3 @@
-import { ElMessageBox } from 'element-plus'
-import { newClientApi } from 'api'
-
 export interface ContextMenuOption {
   label: string
   icon: string
@@ -17,84 +14,54 @@ export interface RowContextMenuParams {
   selectedRows: any[]
 }
 
-export interface UseRowContextMenuActionsOptions {
-  tableId: MaybeRef<string>
-  canEditTable: MaybeRef<boolean>
-  contextMenuRef: Ref<{ open: (event: MouseEvent, options: ContextMenuOption[]) => void; close: () => void } | undefined>
-  deleteRow: (ids: string | string[]) => Promise<void | boolean>
-  clearSelection?: () => void
-  onDeleted?: (ids: string[]) => void | Promise<void>
+export interface RowContextMenuClickContext {
+  row: any
+  selectedRows: any[]
 }
 
-function collectRowIds(rows: Record<string, any>[]): string[] {
-  const idsToDelete = rows.reduce((acc: string[], row) => {
-    if (row.children?.length > 0) {
-      acc.push(...row.children.map((child: any) => String(child.id)))
-    } else {
-      acc.push(String(row.id))
-    }
-    return acc
-  }, [])
-  return [...new Set(idsToDelete)]
+export interface RowContextMenuEventItem {
+  label: string
+  icon?: string
+  visible?: boolean | ((ctx: RowContextMenuClickContext) => boolean)
+  disabled?: boolean | ((ctx: RowContextMenuClickContext) => boolean)
+  onClick: (ctx: RowContextMenuClickContext) => void | Promise<void>
+}
+
+export type RowContextMenuEventList =
+  | MaybeRef<RowContextMenuEventItem[]>
+  | ((params: RowContextMenuParams) => RowContextMenuEventItem[] | Promise<RowContextMenuEventItem[]>)
+
+export interface UseRowContextMenuActionsOptions {
+  contextMenuRef: Ref<{ open: (event: MouseEvent, options: ContextMenuOption[]) => void; close: () => void } | undefined>
+  eventList: RowContextMenuEventList
+  clearSelection?: () => void
+}
+
+function resolveVisible(item: RowContextMenuEventItem, ctx: RowContextMenuClickContext) {
+  if (item.visible === undefined) {
+    return true
+  }
+  return typeof item.visible === 'function' ? item.visible(ctx) : item.visible
+}
+
+function resolveDisabled(item: RowContextMenuEventItem, ctx: RowContextMenuClickContext) {
+  if (item.disabled === undefined) {
+    return false
+  }
+  return typeof item.disabled === 'function' ? item.disabled(ctx) : item.disabled
 }
 
 export function useRowContextMenuActions(options: UseRowContextMenuActionsOptions) {
-  const { t } = useI18n()
-
-  async function loadWorkflowActions(row: any): Promise<ContextMenuOption[]> {
-    const tableId = toValue(options.tableId)
-    if (!tableId) {
-      return []
+  async function resolveEventList(params: RowContextMenuParams) {
+    if (typeof options.eventList === 'function') {
+      return options.eventList(params)
     }
-
-    const res = await newClientApi.postDynamicDbTableMastertableidTriggerSettingsPage(tableId, {
-      pageNum: 0,
-      pageSize: 200
-    })
-
-    return (res.data?.entryList || [])
-      .filter((trigger: any) => trigger.event_type === 'manual' && trigger.workflow_id)
-      .map((trigger: any) => ({
-        label: trigger.trigger_name,
-        icon: 'dp-icon:flow-outline',
-        onClick: async () => {
-          console.log('trigger fire', { row, workflowId: trigger.workflow_id })
-        }
-      }))
+    return toValue(options.eventList)
   }
 
-  function createDeleteOption(rows: Record<string, any>[], close: () => void): ContextMenuOption {
-    const pureIds = collectRowIds(rows)
-    const isBatchDelete = pureIds.length > 1
-
-    return {
-      label: isBatchDelete ? t('mdTable.deleteSelectedRow', { count: pureIds.length }) : t('mdTable.deleteRow'),
-      icon: 'material-symbols:delete-outline',
-      onClick: async () => {
-        const message = isBatchDelete
-          ? t('mdTable.deleteSelectedRow', { count: pureIds.length })
-          : t('mdTable.deleteRow', { count: 1 })
-        try {
-          await ElMessageBox.confirm(message, {
-            confirmButtonClass: 'el-button el-button--warning',
-            confirmButtonText: t('common_confirmDelete'),
-            dangerouslyUseHTMLString: true
-          })
-          await options.deleteRow(isBatchDelete ? pureIds : pureIds[0])
-          await options.onDeleted?.(pureIds)
-        } catch {
-          // 用户取消确认框时保持静默。
-        } finally {
-          close()
-        }
-      }
-    }
-  }
-
-  async function buildOptions(params: RowContextMenuParams, close: () => void): Promise<ContextMenuOption[]> {
+  async function buildOptions(params: RowContextMenuParams): Promise<ContextMenuOption[]> {
     const { row, selectedRows } = params
-    const canEditTable = toValue(options.canEditTable)
-    const menuOptions: ContextMenuOption[] = []
+    const ctx: RowContextMenuClickContext = { row, selectedRows }
 
     if (selectedRows.length > 0) {
       const isInSelected = selectedRows.some((item) => item.id === row.id)
@@ -102,18 +69,25 @@ export function useRowContextMenuActions(options: UseRowContextMenuActionsOption
         options.clearSelection?.()
         return []
       }
-      if (canEditTable) {
-        menuOptions.push(createDeleteOption(selectedRows, close))
-      }
-      return menuOptions
     }
 
-    if (canEditTable) {
-      menuOptions.push(createDeleteOption([row], close))
-    }
-    const workflowActions = await loadWorkflowActions(row)
-    menuOptions.push(...workflowActions)
-    return menuOptions
+    const eventList = await resolveEventList(params)
+    const close = () => options.contextMenuRef.value?.close()
+
+    return eventList
+      .filter((item) => resolveVisible(item, ctx))
+      .map((item) => ({
+        label: item.label,
+        icon: item.icon ?? 'lucide:circle',
+        disabled: resolveDisabled(item, ctx),
+        onClick: async () => {
+          try {
+            await item.onClick(ctx)
+          } finally {
+            close()
+          }
+        }
+      }))
   }
 
   async function handleRowContextMenu(params: RowContextMenuParams) {
@@ -122,8 +96,7 @@ export function useRowContextMenuActions(options: UseRowContextMenuActionsOption
       return
     }
 
-    const close = () => options.contextMenuRef.value?.close()
-    const menuOptions = await buildOptions(params, close)
+    const menuOptions = await buildOptions(params)
     if (menuOptions.length === 0) {
       return
     }
