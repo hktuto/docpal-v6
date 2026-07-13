@@ -284,7 +284,9 @@ const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
   const mode = currentEditing.value.includes(row.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
-  MdFormPopoverRef.value.open(row, mode)
+  const columnName = columns.value[0]?.field_name
+  const title = columnName ? row[columnName] : ''
+  MdFormPopoverRef.value.open(row, mode, title)
   emit('expand-click', { row, rowIndex, mode })
 }
 function handleExpandIndexChange(row: any) {
