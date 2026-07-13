@@ -201,7 +201,6 @@ function conversionSubData(formData: any, definition: VariableItem) {
       return JSON.parse(formData)
     } else if (Array.isArray(formData)) {
       return formData.map((item) => {
-        console.log(123, item, definition.items?.properties)
         return convertFormDataEntries(item, definition.items?.properties)
       })
     } else {
