@@ -4,7 +4,8 @@ export { useRelationCellClick } from './useRelationCellClick'
 export type {
   RelationCellClickParams,
   GridEventCallbacks,
-  UseGridEventsOptions
+  UseGridEventsOptions,
+  RowContextMenuEventParams
 } from './types'
 export type { UseEditClosedOptions } from './useEditClosed'
 export type { UseRelationCellClickOptions } from './useRelationCellClick'

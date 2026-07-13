@@ -36,6 +36,9 @@ export function useGridEvents(options: UseGridEventsOptions) {
     'cell-mouseleave': (params: any) => {
       options.callbacks.onCellMouseleave(params)
     },
+    'cell-dblclick': (params: any) => {
+      options.callbacks.onRowDblclick(params)
+    },
     'start-edit': (params: any) => {
       const { row, column } = params
       options.callbacks.onStartEdit({ row, column })
@@ -45,9 +48,14 @@ export function useGridEvents(options: UseGridEventsOptions) {
       const oldFullColumn = options.columns.value.find((item: any) => item.field_name === oldColumn.field)
       options.saveColumnOrder(oldFullColumn.id, newFullColumn.id, dragPos)
     },
-    'cell-menu': ({ row, $event }: any) => {
+    'cell-menu': ({ row, column, $event, $rowIndex }: any) => {
       $event?.preventDefault()
-      options.rightClickCellPopoverRef.value?.open($event, { ...row })
+      options.callbacks.onRowContextMenu({
+        event: $event,
+        row,
+        column,
+        rowIndex: $rowIndex
+      })
     },
     'checkbox-all': ({ checked }: any) => {
       const { fullData } = options.gridRef.value?.getTableData()

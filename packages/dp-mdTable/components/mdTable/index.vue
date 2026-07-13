@@ -77,7 +77,6 @@
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
     </div>
-    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" :tableId="tableId" @delete-rows="handleRefresh" />
   </div>
 </template>
 
@@ -153,6 +152,7 @@ const emit = defineEmits<{
   'exit-edit': [params: any]
   'exit-edit-row': []
   'row-dblclick': [params: { row: any; rowIndex: number }]
+  'row-context-menu': [params: { event: MouseEvent; row: any; rowIndex?: number; column?: any; selectedRows: any[] }]
   'expand-click': [params: { row: any; rowIndex: number }]
   'open-record': [params: { tableId: string; recordId: string; row: any }]
   'row-add': []
@@ -183,11 +183,11 @@ const {
   addColumnPopoverRef,
   addRow,
   systemFieldsTypes,
-  updateExpandedRows
+  updateExpandedRows,
+  clearCheckboxRow
 } = useMDTable(props)
 const { getAgg } = useCount(props)
 
-const rightClickCellPopoverRef = ref()
 function handleMove(direction: 'up' | 'down') {
   moveCurrentRow(direction)
 }
@@ -225,11 +225,19 @@ const {
   isGroupingEnabled,
   updateExpandedRows,
   saveColumnOrder: props.extraColumnConfig.saveColumnOrder,
-  rightClickCellPopoverRef,
   callbacks: {
     onCellClick: (params) => emit('cell-click', params),
     onCellMouseenter: (params) => emit('cell-mouseenter', params),
     onCellMouseleave: (params) => emit('cell-mouseleave', params),
+    onRowDblclick: (params) => {
+      const { row } = params
+      const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
+      emit('row-dblclick', { row, rowIndex })
+    },
+    onRowContextMenu: (params) => {
+      const selectedRows = gridRef.value?.getCheckboxRecords?.() ?? []
+      emit('row-context-menu', { ...params, selectedRows })
+    },
     onStartEdit: (params) => emit('start-edit', params),
     onExitEdit: (params) => emit('exit-edit', params),
     onRefresh: handleRefresh
@@ -334,7 +342,9 @@ function getColumn(field: string) {
 // 暴露方法
 defineExpose({
   gridRef,
-  columns
+  columns,
+  refreshTableData,
+  clearCheckboxRow
 })
 onClickOutside(
   checkboxIndexRef,

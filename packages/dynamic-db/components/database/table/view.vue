@@ -3,6 +3,7 @@
     <div ref="tableViewMainRef" class="table-view-main" style="position: relative">
       <MdCard
         v-if="currentView?.type === 'card'"
+        ref="mdCardRef"
         :canManageTable="canManageTable"
         :canEditTable="canEditTable"
         :is-mirror="isMirror"
@@ -11,6 +12,7 @@
         :editable="canEditTable"
         @exit-edit-row="exitRowEdit"
         @start-edit-row="startEditRowHandler"
+        @row-context-menu="handleRowContextMenu"
       />
       <MdKanban
         v-else-if="currentView?.type === 'kanban'"
@@ -34,6 +36,7 @@
       />
       <MdTable
         v-else
+        ref="mdTableRef"
         :canManageTable="canManageTable"
         :canEditTable="canEditTable"
         :is-mirror="isMirror"
@@ -45,9 +48,11 @@
         @exit-edit="exitCellEdit"
         @exit-edit-row="exitRowEdit"
         @expand-click="startEditRowHandler"
+        @row-context-menu="handleRowContextMenu"
         @column-config-edit-start="handleColumnConfigEditStart"
         @column-config-edit-finish="handleColumnConfigEditFinish"
       />
+      <ToolsContextMenuPopover ref="contextMenuRef" />
       <DatabaseAwarenessFloatingTags :viewType="currentView?.type" :get-element="getTableCell" :container-ref="tableBodyRef" />
     </div>
 
@@ -77,7 +82,9 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { EventType, useEventBus } from 'eventbus'
+import { newClientApi } from 'api'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { useRowContextMenuActions } from '@packages/dp-mdTable/composables/useRowContextMenuActions'
 import { useTableViewsInject } from '../../../composables/table/useTableViews'
 import { useDBParams } from '../../../composables/table/useDBParams'
 import { useRelationConfigInject } from '../../../composables/table/useRelationConfig'
@@ -116,6 +123,10 @@ const addMirrorBus = useEventBus(EventType.MD_TABLE_ADD_MIRROR)
 
 // hocuspocus logic
 const { setAwareness, localAwareness, updatedRows, broadcastChange } = inject('databaseHocuspocus')
+
+const mdTableRef = ref()
+const mdCardRef = ref()
+const contextMenuRef = ref()
 
 const tableViewMainRef = ref<HTMLElement>()
 const tableBodyRef = ref<HTMLElement | null>(null)
@@ -181,11 +192,51 @@ function startEditRowHandler(params: any) {
   })
 }
 
-const editingColumnField = ref<string | null>(null)
-
 function getCurrentMenuId() {
   return databaseMenuRouteParams.value.tableId || databaseMenuRouteParams.value.detailId
 }
+
+async function refreshCurrentView() {
+  if (currentView.value?.type === 'card') {
+    await mdCardRef.value?.refresh?.()
+    return
+  }
+  await mdTableRef.value?.refreshTableData?.({ silent: true, keepPage: true })
+}
+
+async function deleteTableRows(ids: string | string[]) {
+  const idList = Array.isArray(ids) ? ids : [ids]
+  await newClientApi.deleteDynamicDbTableTableidDataBatch(tableId.value, { ids: idList })
+  if (broadcastChange) {
+    const menuId = getCurrentMenuId()
+    if (idList.length > 1) {
+      broadcastChange({
+        type: 'rows_deleted',
+        rowIds: idList,
+        tableId: tableId.value,
+        menuId
+      })
+    } else {
+      broadcastChange({
+        type: 'row_deleted',
+        rowId: idList[0],
+        tableId: tableId.value,
+        menuId
+      })
+    }
+  }
+}
+
+const { handleRowContextMenu } = useRowContextMenuActions({
+  tableId,
+  canEditTable: computed(() => props.canEditTable),
+  contextMenuRef,
+  deleteRow: deleteTableRows,
+  clearSelection: () => mdTableRef.value?.clearCheckboxRow?.(),
+  onDeleted: refreshCurrentView
+})
+
+const editingColumnField = ref<string | null>(null)
 
 function handleColumnConfigEditStart(column: any) {
   if (!column?.field) return

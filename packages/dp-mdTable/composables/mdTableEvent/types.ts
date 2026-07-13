@@ -10,10 +10,19 @@ export interface RelationCellClickParams {
   column?: Record<string, any>
 }
 
+export interface RowContextMenuEventParams {
+  event: MouseEvent
+  row: any
+  rowIndex?: number
+  column?: any
+}
+
 export interface GridEventCallbacks {
   onCellClick: (params: any) => void
   onCellMouseenter: (params: any) => void
   onCellMouseleave: (params: any) => void
+  onRowDblclick: (params: any) => void
+  onRowContextMenu: (params: RowContextMenuEventParams) => void
   onStartEdit: (params: any) => void
   onExitEdit: (params: any) => void
   onRefresh: () => void | Promise<void>
@@ -28,6 +37,5 @@ export interface UseGridEventsOptions {
   isGroupingEnabled: Ref<boolean>
   updateExpandedRows: () => void
   saveColumnOrder: (oldColumnId: string, newColumnId: string, dragPos: 'left' | 'right') => void
-  rightClickCellPopoverRef: Ref<any>
   callbacks: GridEventCallbacks
 }

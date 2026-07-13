@@ -34,11 +34,11 @@ const emit = defineEmits<{
   'add-row': []
   'start-edit-row': [row: any]
   'exit-edit-row': [row?: any]
+  'row-context-menu': [params: { event: MouseEvent; row: any; selectedRows: any[] }]
 }>()
 const refreshLoading = ref(false)
 const { columns, cardRef, getTableData, setSearchExtraParams, addRow, systemFieldsTypes, currentEditing } = useMDCard(props)
 
-const rightClickCellPopoverRef = ref()
 const isGroupingEnabled = computed(() => {
   return props.extraColumnConfig?.columnGroupRules?.value?.length > 0
 })
@@ -92,8 +92,12 @@ function handleExitEditRow(row?: any) {
   emit('exit-edit-row', row)
 }
 function handleRowContextMenu(row: any, event: MouseEvent) {
-  rightClickCellPopoverRef.value?.open(event, { ...row })
+  emit('row-context-menu', { event, row, selectedRows: [] })
 }
+
+defineExpose({
+  refresh: handleRefresh
+})
 </script>
 
 <template>
@@ -140,7 +144,6 @@ function handleRowContextMenu(row: any, event: MouseEvent) {
       @row-context-menu="handleRowContextMenu"
       @reload="handleRefresh"
     />
-    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" @delete-rows="handleRefresh" />
   </div>
 </template>
 
