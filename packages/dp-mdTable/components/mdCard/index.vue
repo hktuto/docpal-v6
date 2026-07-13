@@ -34,7 +34,7 @@ const emit = defineEmits<{
   'add-row': []
   'start-edit-row': [row: any]
   'exit-edit-row': [row?: any]
-  'row-context-menu': [params: { event: MouseEvent; row: any; selectedRows: any[] }]
+  'row-context-menu': [params: { event: MouseEvent; row: any }]
 }>()
 const refreshLoading = ref(false)
 const { columns, cardRef, getTableData, setSearchExtraParams, addRow, systemFieldsTypes, currentEditing } = useMDCard(props)
@@ -92,7 +92,7 @@ function handleExitEditRow(row?: any) {
   emit('exit-edit-row', row)
 }
 function handleRowContextMenu(row: any, event: MouseEvent) {
-  emit('row-context-menu', { event, row, selectedRows: [] })
+  emit('row-context-menu', { event, row })
 }
 
 defineExpose({

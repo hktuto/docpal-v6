@@ -82,7 +82,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { EventType, useEventBus } from 'eventbus'
-import { newClientApi } from 'api'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { useRowContextMenuActions } from '@packages/dp-mdTable/composables/useRowContextMenuActions'
 import { createDatabaseTableRowContextMenuEvents } from '../../../composables/useDatabaseTableRowContextMenu'
@@ -128,6 +127,10 @@ const { setAwareness, localAwareness, updatedRows, broadcastChange } = inject('d
 const mdTableRef = ref()
 const mdCardRef = ref()
 const contextMenuRef = ref()
+
+const tableRef = computed(() => {
+  return currentView.value?.type === 'card' ? mdCardRef.value : mdTableRef.value
+})
 
 const tableViewMainRef = ref<HTMLElement>()
 const tableBodyRef = ref<HTMLElement | null>(null)
@@ -197,46 +200,14 @@ function getCurrentMenuId() {
   return databaseMenuRouteParams.value.tableId || databaseMenuRouteParams.value.detailId
 }
 
-async function refreshCurrentView() {
-  if (currentView.value?.type === 'card') {
-    await mdCardRef.value?.refresh?.()
-    return
-  }
-  await mdTableRef.value?.refreshTableData?.({ silent: true, keepPage: true })
-}
-
-async function deleteTableRows(ids: string | string[]) {
-  const idList = Array.isArray(ids) ? ids : [ids]
-  await newClientApi.deleteDynamicDbTableTableidDataBatch(tableId.value, { ids: idList })
-  if (broadcastChange) {
-    const menuId = getCurrentMenuId()
-    if (idList.length > 1) {
-      broadcastChange({
-        type: 'rows_deleted',
-        rowIds: idList,
-        tableId: tableId.value,
-        menuId
-      })
-    } else {
-      broadcastChange({
-        type: 'row_deleted',
-        rowId: idList[0],
-        tableId: tableId.value,
-        menuId
-      })
-    }
-  }
-}
-
 const { handleRowContextMenu } = useRowContextMenuActions({
   contextMenuRef,
+  tableRef,
   eventList: createDatabaseTableRowContextMenuEvents({
     tableId,
     canEditTable: computed(() => props.canEditTable),
-    deleteRow: deleteTableRows,
-    onDeleted: refreshCurrentView
-  }),
-  clearSelection: () => mdTableRef.value?.clearCheckboxRow?.()
+    menuId: computed(() => getCurrentMenuId())
+  })
 })
 
 const editingColumnField = ref<string | null>(null)

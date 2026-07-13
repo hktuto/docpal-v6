@@ -152,7 +152,7 @@ const emit = defineEmits<{
   'exit-edit': [params: any]
   'exit-edit-row': []
   'row-dblclick': [params: { row: any; rowIndex: number }]
-  'row-context-menu': [params: { event: MouseEvent; row: any; rowIndex?: number; column?: any; selectedRows: any[] }]
+  'row-context-menu': [params: { event: MouseEvent; row: any; rowIndex?: number; column?: any }]
   'expand-click': [params: { row: any; rowIndex: number }]
   'open-record': [params: { tableId: string; recordId: string; row: any }]
   'row-add': []
@@ -235,8 +235,7 @@ const {
       emit('row-dblclick', { row, rowIndex })
     },
     onRowContextMenu: (params) => {
-      const selectedRows = gridRef.value?.getCheckboxRecords?.() ?? []
-      emit('row-context-menu', { ...params, selectedRows })
+      emit('row-context-menu', params)
     },
     onStartEdit: (params) => emit('start-edit', params),
     onExitEdit: (params) => emit('exit-edit', params),

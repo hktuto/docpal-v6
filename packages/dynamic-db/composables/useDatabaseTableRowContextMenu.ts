@@ -1,6 +1,8 @@
+import { inject, toValue, type MaybeRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 import { newClientApi } from 'api'
-import type { RowContextMenuEventItem, RowContextMenuParams } from '@packages/dp-mdTable/composables/useRowContextMenuActions'
+import type { RowContextMenuClickContext, RowContextMenuEventItem } from '@packages/dp-mdTable/composables/useRowContextMenuActions'
 
 function collectRowIds(rows: Record<string, any>[]): string[] {
   const idsToDelete = rows.reduce((acc: string[], row) => {
@@ -17,10 +19,28 @@ function collectRowIds(rows: Record<string, any>[]): string[] {
 export function createDatabaseTableRowContextMenuEvents(options: {
   tableId: MaybeRef<string>
   canEditTable: MaybeRef<boolean>
-  deleteRow: (ids: string | string[]) => Promise<void | boolean>
-  onDeleted?: (ids: string[]) => void | Promise<void>
+  menuId: MaybeRef<string | undefined>
 }) {
   const { t } = useI18n()
+  const databaseHocuspocus = inject<{ broadcastChange?: (payload: any) => void } | null>('databaseHocuspocus', null)
+
+  async function deleteTableRows(ids: string | string[]) {
+    const idList = Array.isArray(ids) ? ids : [ids]
+    const tableId = toValue(options.tableId)
+    await newClientApi.deleteDynamicDbTableTableidDataBatch(tableId, { ids: idList })
+
+    const broadcastChange = databaseHocuspocus?.broadcastChange
+    if (!broadcastChange) {
+      return
+    }
+
+    const menuId = toValue(options.menuId)
+    if (idList.length > 1) {
+      broadcastChange({ type: 'rows_deleted', rowIds: idList, tableId, menuId })
+    } else {
+      broadcastChange({ type: 'row_deleted', rowId: idList[0], tableId, menuId })
+    }
+  }
 
   async function loadWorkflowEvents(): Promise<RowContextMenuEventItem[]> {
     const tableId = toValue(options.tableId)
@@ -45,8 +65,8 @@ export function createDatabaseTableRowContextMenuEvents(options: {
       }))
   }
 
-  return async (params: RowContextMenuParams): Promise<RowContextMenuEventItem[]> => {
-    const { row, selectedRows } = params
+  return async (ctx: RowContextMenuClickContext): Promise<RowContextMenuEventItem[]> => {
+    const { row, selectedRows } = ctx
     const canEditTable = toValue(options.canEditTable)
     const targetRows = selectedRows.length > 0 ? selectedRows : [row]
     const pureIds = collectRowIds(targetRows)
@@ -57,20 +77,23 @@ export function createDatabaseTableRowContextMenuEvents(options: {
       events.push({
         label: isBatchDelete ? t('mdTable.deleteSelectedRow', { count: pureIds.length }) : t('mdTable.deleteRow'),
         icon: 'material-symbols:delete-outline',
-        onClick: async ({ row, selectedRows }) => {
+        onClick: async ({ row, selectedRows, refresh }) => {
           const rowsToDelete = selectedRows.length > 0 ? selectedRows : [row]
           const ids = collectRowIds(rowsToDelete)
           const isBatch = ids.length > 1
-          const message = isBatch
-            ? t('mdTable.deleteSelectedRow', { count: ids.length })
-            : t('mdTable.deleteRow', { count: 1 })
-          await ElMessageBox.confirm(message, {
-            confirmButtonClass: 'el-button el-button--warning',
-            confirmButtonText: t('common_confirmDelete'),
-            dangerouslyUseHTMLString: true
-          })
-          await options.deleteRow(isBatch ? ids : ids[0])
-          await options.onDeleted?.(ids)
+          const message = isBatch ? t('mdTable.deleteSelectedRow', { count: ids.length }) : t('mdTable.deleteRow', { count: 1 })
+
+          try {
+            await ElMessageBox.confirm(message, {
+              confirmButtonClass: 'el-button el-button--warning',
+              confirmButtonText: t('common_confirmDelete'),
+              dangerouslyUseHTMLString: true
+            })
+            await deleteTableRows(isBatch ? ids : ids[0])
+            await refresh()
+          } catch {
+            // 用户取消确认框时保持静默。
+          }
         }
       })
     }
