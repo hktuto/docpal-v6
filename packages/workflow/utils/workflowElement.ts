@@ -185,7 +185,9 @@ export enum contextMenuComponentType {
   // Transform
   TransformTask = 'ContextTransform',
   // Script
-  ScriptTask = 'LazyContextScriptTask'
+  ScriptTask = 'LazyContextScriptTask',
+  // JSON Node
+  JSONEditor = 'LazyContextJsonEditor'
 }
 
 const taskTitle: any = {
@@ -732,6 +734,8 @@ export const workflowElement: WorkflowElement = {
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       if (workflowNodeItem.metadata.type in contextMenuComponentType) {
         return contextMenuComponentType[workflowNodeItem.metadata.type as keyof typeof contextMenuComponentType]
+      } else {
+        return contextMenuComponentType['JSONEditor' as keyof typeof contextMenuComponentType]
       }
     }
   },
@@ -751,6 +755,8 @@ export const workflowElement: WorkflowElement = {
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       if (workflowNodeItem.metadata.type in contextMenuComponentType) {
         return contextMenuComponentType[workflowNodeItem.metadata.type as keyof typeof contextMenuComponentType]
+      } else {
+        return contextMenuComponentType['JSONEditor' as keyof typeof contextMenuComponentType]
       }
     }
   }
