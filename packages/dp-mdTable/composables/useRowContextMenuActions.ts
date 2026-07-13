@@ -87,18 +87,15 @@ function createClickContext(
   }
 }
 
-function resolveVisible(item: RowContextMenuEventItem, ctx: RowContextMenuClickContext) {
-  if (item.visible === undefined) {
-    return true
+function resolveMenuFlag(
+  value: boolean | ((ctx: RowContextMenuClickContext) => boolean) | undefined,
+  ctx: RowContextMenuClickContext,
+  defaultValue: boolean
+) {
+  if (value === undefined) {
+    return defaultValue
   }
-  return typeof item.visible === 'function' ? item.visible(ctx) : item.visible
-}
-
-function resolveDisabled(item: RowContextMenuEventItem, ctx: RowContextMenuClickContext) {
-  if (item.disabled === undefined) {
-    return false
-  }
-  return typeof item.disabled === 'function' ? item.disabled(ctx) : item.disabled
+  return typeof value === 'function' ? value(ctx) : value
 }
 
 function toMenuOptions(
@@ -107,11 +104,11 @@ function toMenuOptions(
   close: () => void
 ): ContextMenuOption[] {
   return eventList
-    .filter((item) => resolveVisible(item, ctx))
+    .filter((item) => resolveMenuFlag(item.visible, ctx, true))
     .map((item) => ({
       label: item.label,
       icon: item.icon ?? 'lucide:circle',
-      disabled: resolveDisabled(item, ctx),
+      disabled: resolveMenuFlag(item.disabled, ctx, false),
       onClick: async () => {
         try {
           await item.onClick(ctx)
