@@ -30,6 +30,7 @@ type SampleInfoItem = {
   old_sales_price_noTax?: number
   remarks: string
   target_price_list: TargetPriceItem[]
+  status: 'A' | 'D'
 }
 type TargetPriceItem = {
   sample_id: string
@@ -61,6 +62,76 @@ const rules = {
   old_sales_price_noTax: [{ required: true, message: 'Please input Old Sales Price(NoTax)', trigger: 'blur' }]
 }
 
+function getMoqRules(itemIndex: number, tierIndex: number) {
+  return [
+    { required: true, type: 'number', message: 'Please input MOQ', trigger: 'change' },
+    {
+      validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
+        if (tierIndex === 0) {
+          callback()
+          return
+        }
+        const prevMoq = formModel.value.infoList[itemIndex]?.target_price_list[tierIndex - 1]?.moq
+        if (prevMoq != null && value <= prevMoq) {
+          callback(new Error('MOQ must be greater than the previous tier'))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
+}
+
+function getTargetPriceRules(itemIndex: number, tierIndex: number) {
+  return [
+    { required: true, type: 'number', message: 'Please input target price', trigger: 'change' },
+    {
+      validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
+        if (tierIndex === 0) {
+          callback()
+          return
+        }
+        const prevPrice = formModel.value.infoList[itemIndex]?.target_price_list[tierIndex - 1]?.target_price
+        if (prevPrice != null && new Decimal(value).gte(prevPrice)) {
+          callback(new Error('Target price must be lower than the previous tier'))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
+}
+
+function handleMoqChange(itemIndex: number, tierIndex: number) {
+  const list = formModel.value.infoList[itemIndex]?.target_price_list
+  if (!list) return
+
+  const fields = [`infoList.${itemIndex}.target_price_list.${tierIndex}.moq`]
+  if (tierIndex + 1 < list.length) {
+    fields.push(`infoList.${itemIndex}.target_price_list.${tierIndex + 1}.moq`)
+  }
+
+  nextTick(() => {
+    formRef.value?.validateField(fields)
+  })
+}
+
+function handleTargetPriceChange(itemIndex: number, tierIndex: number) {
+  const list = formModel.value.infoList[itemIndex]?.target_price_list
+  if (!list) return
+
+  const fields = [`infoList.${itemIndex}.target_price_list.${tierIndex}.target_price`]
+  if (tierIndex + 1 < list.length) {
+    fields.push(`infoList.${itemIndex}.target_price_list.${tierIndex + 1}.target_price`)
+  }
+
+  nextTick(() => {
+    formRef.value?.validateField(fields)
+  })
+}
+
 function handleSampleInfoAdd(index?: number) {
   const uuid = uuidv7()
   const newValue = {
@@ -78,6 +149,7 @@ function handleSampleInfoAdd(index?: number) {
     customer_part_number: '',
     old_sales_price_noTax: 0,
     remarks: '',
+    status: 'A',
     target_price_list: [
       {
         sample_id: uuid,
@@ -150,8 +222,18 @@ async function handleChangeBrand() {
       id: item.inventory_item_id,
       label: item.segment1,
       value: item.segment1,
-      brand: item.attribute8
+      brand: item.attribute8,
+      mpq: item.fixed_lot_multiplier,
+      uom: item.primary_uom_code
     })) || []
+}
+
+function handlePartNumberChange(item: any) {
+  const find = part_numberOptions.value.find((part_numberItem: any) => part_numberItem.value === item.part_number)
+  if (!!find) {
+    item.mpq = find.mpq
+    item.uom = find.uom
+  }
 }
 
 async function getDbData(tableId: string, conditions?: any[]) {
@@ -228,7 +310,14 @@ defineExpose({ getFormData })
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="型號 Part Number" :prop="`infoList.${index}.part_number`" required>
-              <el-select v-model="item.part_number" class="full-width-input" clearable filterable :allow-create="formModel.brand === 'KOA'">
+              <el-select
+                v-model="item.part_number"
+                class="full-width-input"
+                clearable
+                filterable
+                :allow-create="formModel.brand === 'KOA'"
+                @change="handlePartNumberChange(item)"
+              >
                 <el-option
                   v-for="(part_numberItem, part_numberIndex) in part_numberOptions"
                   :key="part_numberIndex"
@@ -303,17 +392,38 @@ defineExpose({ getFormData })
                   <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
                     <el-col :span="2">第{{ targetPriceIndex + 1 }}檔 / T{{ targetPriceIndex + 1 }}</el-col>
                     <el-col :span="10">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.moq" controls-position="right" :min="1" :step="1" step-strictly />
+                      <el-form-item
+                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
+                        :rules="getMoqRules(index, targetPriceIndex)"
+                        class="target-price-form-item"
+                      >
+                        <el-input-number
+                          style="width: 90%"
+                          v-model="targetPriceItem.moq"
+                          controls-position="right"
+                          :min="1"
+                          :step="1"
+                          step-strictly
+                          @change="handleMoqChange(index, targetPriceIndex)"
+                        />
+                      </el-form-item>
                     </el-col>
                     <el-col :span="10">
-                      <el-input-number
-                        style="width: 90%"
-                        v-model="targetPriceItem.target_price"
-                        controls-position="right"
-                        :min="0.000001"
-                        :step="0.000001"
-                        step-strictly
-                      />
+                      <el-form-item
+                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.target_price`"
+                        :rules="getTargetPriceRules(index, targetPriceIndex)"
+                        class="target-price-form-item"
+                      >
+                        <el-input-number
+                          style="width: 90%"
+                          v-model="targetPriceItem.target_price"
+                          controls-position="right"
+                          :min="0.000001"
+                          :step="0.000001"
+                          step-strictly
+                          @change="handleTargetPriceChange(index, targetPriceIndex)"
+                        />
+                      </el-form-item>
                     </el-col>
                     <el-col :span="2">
                       <div class="targetPrice-item-card__actions" v-if="targetPriceIndex !== 0">
@@ -381,6 +491,10 @@ defineExpose({ getFormData })
 
   &__body {
     --target-price-row-height: 48px;
+
+    .target-price-form-item {
+      margin-bottom: 0;
+    }
 
     &--scrollable {
       max-height: calc(var(--target-price-row-height) * 5);

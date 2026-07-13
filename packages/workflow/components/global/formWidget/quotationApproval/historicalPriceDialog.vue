@@ -12,6 +12,8 @@ const searchData = ref<any>({
 })
 const index = ref<number>()
 const selectList = ref<any[]>([])
+const routerProvider = inject(MenuRouterKey)
+
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-user-table',
   api: async (pageParams: any) => {
@@ -78,7 +80,7 @@ async function handleSearch() {
       moq: 73
     },
     {
-      currency: 'EUR',
+      currency: 'JPY',
       poCustomer: 'Cust for Quotation',
       item: 'ICHAUS/IC-HG30 QFN28-5X5',
       poNumber: '112000104',
@@ -199,6 +201,12 @@ async function handleSearch() {
 }
 
 function handleSubmit() {
+  const uniqueCurrencies = new Set(selectList.value.map((item) => item.currency))
+  if (uniqueCurrencies.size > 1) {
+    routerProvider?.message.error('只允許選擇一個幣種的階梯。')
+    return
+  }
+
   const list = selectList.value
     .sort((a, b) => {
       const am = a.moq == null ? Infinity : Number(a.moq)
@@ -220,30 +228,32 @@ defineExpose({ open })
 
 <template>
   <el-dialog v-model="showDialog" title="歷史價格 historical price" class="big" append-to-body>
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
-        <el-form :inline="true" label-position="top" class="historical-price-filter-form">
-          <el-form-item label="型號 Part Number" prop="part_number">
-            <el-input v-model="searchData.part_number" disabled />
-          </el-form-item>
-          <el-form-item label="系列 Series" prop="series">
-            <el-input v-model="searchData.series" clearable />
-          </el-form-item>
-          <el-form-item label="日期范圍 Date Range" prop="date_range">
-            <el-date-picker v-model="searchData.date_range" type="daterange" format="YYYY-MM-DD" value-format="x" />
-          </el-form-item>
-          <el-form-item label="類型 Type" prop="type">
-            <el-select v-model="searchData.type" placeholder="請選擇類型" clearable>
-              <el-option label="已購訂單 PO" value="PO" />
-              <el-option label="訂單 Quotation" value="Quotation" />
-            </el-select>
-          </el-form-item>
-          <el-form-item class="historical-price-filter-form__action">
-            <el-button type="primary" @click="handleSearch">{{ $t('Search') }}</el-button>
-          </el-form-item>
-        </el-form>
-      </template>
-    </VxeGrid>
+    <div style="height: 600px">
+      <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+        <template #toolbar_buttons>
+          <el-form :inline="true" label-position="top" class="historical-price-filter-form">
+            <el-form-item label="型號 Part Number" prop="part_number">
+              <el-input v-model="searchData.part_number" disabled />
+            </el-form-item>
+            <el-form-item label="系列 Series" prop="series">
+              <el-input v-model="searchData.series" clearable />
+            </el-form-item>
+            <el-form-item label="日期范圍 Date Range" prop="date_range">
+              <el-date-picker v-model="searchData.date_range" type="daterange" format="YYYY-MM-DD" value-format="x" />
+            </el-form-item>
+            <el-form-item label="類型 Type" prop="type">
+              <el-select v-model="searchData.type" placeholder="請選擇類型" clearable>
+                <el-option label="已購訂單 PO" value="PO" />
+                <el-option label="訂單 Quotation" value="Quotation" />
+              </el-select>
+            </el-form-item>
+            <el-form-item class="historical-price-filter-form__action">
+              <el-button type="primary" @click="handleSearch">{{ $t('Search') }}</el-button>
+            </el-form-item>
+          </el-form>
+        </template>
+      </VxeGrid>
+    </div>
 
     <template #footer>
       <el-button type="primary" @click="handleSubmit">{{ $t('common_submit') }}</el-button>
