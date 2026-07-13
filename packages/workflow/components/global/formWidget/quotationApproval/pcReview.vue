@@ -308,9 +308,7 @@ function handleHistoryPriceSubmit(data: any) {
 
 function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
   // data.value[index].target_price_list.splice(targetPriceIndex, 1)
-  console.log(123, targetPriceIndex)
-  // data.value[index].target_price_list[targetPriceIndex].status = 'D'
-  console.log(111, formModel.value.infoList[index].target_price_list[targetPriceIndex])
+  formModel.value.infoList[index].target_price_list[targetPriceIndex].status = 'D'
 }
 
 // (unit_price_no_tax - unit_cost × exchange_rate × markup_rate) / ( unit_cost × exchange_rate × markup_rate) × 100
@@ -328,7 +326,7 @@ function calculateMargin(item: TargetPriceItem) {
   item.profit = ((unitPriceNoTax - unitCost * exchange_rate * markup_rate) / (unitCost * exchange_rate * markup_rate)) * 100
 }
 
-function init() {
+async function init() {
   formModel.value = {
     brand: formData.brand,
     infoList: formData.sample_info_list
@@ -336,7 +334,29 @@ function init() {
 }
 
 async function getFormData(needValidation = true) {
-  const result = { sample_info_list: formModel.value.infoList }
+  const newTargetPriceList = []
+  const newSetSampleList = formModel.value.infoList.map((item) => {
+    newTargetPriceList.push(...item.target_price_list)
+    const newItem = deepCopy(item)
+    delete newItem.target_price_list
+    return newItem
+  })
+
+  const conditions = [
+    {
+      type: 'EQ',
+      column: 'f_8961_e9cf64a9',
+      value: formModel.value.brand
+    }
+  ]
+  const margin_rate_list = await getDbData('b5a2a170-712c-11f1-ab82-b167ae310fd8', conditions)
+
+  const result = {
+    sample_info_list: formModel.value.infoList,
+    set_sample_list: newSetSampleList,
+    target_price_list: newTargetPriceList,
+    margin_rate_list: margin_rate_list
+  }
   if (!needValidation) return result
   await formRef.value?.validate()
   return result
@@ -436,7 +456,7 @@ defineExpose({ getFormData })
                 <el-col :span="3">目標價 Target Price</el-col>
                 <el-col :span="4">單位成本 Unit Cost</el-col>
                 <el-col :span="4">單價(未稅) Unit Price(No Tax)</el-col>
-                <el-col :span="3">毛利率(%) Margin(%)</el-col>
+                <el-col :span="3">毛利率(%) Profit(%)</el-col>
                 <el-col :span="2">操作 Actions</el-col>
               </el-row>
               <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
@@ -487,11 +507,12 @@ defineExpose({ getFormData })
                       />
                     </el-col>
                     <el-col :span="4">
-                      <el-form-item
-                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_cost`"
-                        :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_cost', 'Unit cost must be lower than the previous tier')"
-                        class="target-price-form-item"
-                      >
+                      <!--                      <el-form-item-->
+                      <!--                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_cost`"-->
+                      <!--                        :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_cost', 'Unit cost must be lower than the previous tier')"-->
+                      <!--                        class="target-price-form-item"-->
+                      <!--                      >                      -->
+                      <el-form-item class="target-price-form-item">
                         <el-input-number
                           style="width: 90%"
                           v-model="targetPriceItem.unit_cost"
@@ -504,11 +525,12 @@ defineExpose({ getFormData })
                       </el-form-item>
                     </el-col>
                     <el-col :span="4">
-                      <el-form-item
-                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_price_no_tax`"
-                        :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_price_no_tax', 'Unit price must be lower than the previous tier')"
-                        class="target-price-form-item"
-                      >
+                      <!--                      <el-form-item-->
+                      <!--                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_price_no_tax`"-->
+                      <!--                        :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_price_no_tax', 'Unit price must be lower than the previous tier')"-->
+                      <!--                        class="target-price-form-item"-->
+                      <!--                      >-->
+                      <el-form-item class="target-price-form-item">
                         <el-input-number
                           style="width: 90%"
                           v-model="targetPriceItem.unit_price_no_tax"
