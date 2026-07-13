@@ -126,7 +126,6 @@ const { setAwareness, localAwareness, updatedRows, broadcastChange } = inject('d
 
 const mdTableRef = ref()
 const mdCardRef = ref()
-const contextMenuRef = ref()
 
 const tableRef = computed(() => {
   return currentView.value?.type === 'card' ? mdCardRef.value : mdTableRef.value
@@ -200,8 +199,7 @@ function getCurrentMenuId() {
   return databaseMenuRouteParams.value.tableId || databaseMenuRouteParams.value.detailId
 }
 
-const { handleRowContextMenu } = useRowContextMenuActions({
-  contextMenuRef,
+const { contextMenuRef, handleRowContextMenu } = useRowContextMenuActions({
   tableRef,
   eventList: createDatabaseTableRowContextMenuEvents({
     tableId,

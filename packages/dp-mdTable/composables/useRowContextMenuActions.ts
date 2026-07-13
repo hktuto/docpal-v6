@@ -39,7 +39,6 @@ export interface RowContextMenuTableRef {
 }
 
 export interface UseRowContextMenuActionsOptions {
-  contextMenuRef: Ref<{ open: (event: MouseEvent, options: ContextMenuOption[]) => void; close: () => void } | undefined>
   tableRef: MaybeRef<RowContextMenuTableRef | undefined>
   eventList: RowContextMenuEventList
 }
@@ -124,6 +123,8 @@ function toMenuOptions(
 }
 
 export function useRowContextMenuActions(options: UseRowContextMenuActionsOptions) {
+  const contextMenuRef = ref<{ open: (event: MouseEvent, options: ContextMenuOption[]) => void; close: () => void }>()
+
   async function handleRowContextMenu(params: RowContextMenuTriggerParams) {
     const { event, row } = params
     if (!row?.id) {
@@ -142,16 +143,17 @@ export function useRowContextMenuActions(options: UseRowContextMenuActionsOption
 
     const eventList =
       typeof options.eventList === 'function' ? await options.eventList(ctx) : toValue(options.eventList)
-    const close = () => options.contextMenuRef.value?.close()
+    const close = () => contextMenuRef.value?.close()
     const menuOptions = toMenuOptions(eventList, ctx, close)
 
     if (menuOptions.length === 0) {
       return
     }
-    options.contextMenuRef.value?.open(event, menuOptions)
+    contextMenuRef.value?.open(event, menuOptions)
   }
 
   return {
+    contextMenuRef,
     handleRowContextMenu
   }
 }
