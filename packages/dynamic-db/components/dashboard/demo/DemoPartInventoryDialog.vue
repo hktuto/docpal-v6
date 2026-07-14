@@ -2,7 +2,7 @@
   <el-dialog
   class="big"
     :model-value="modelValue"
-    :title="`${parts || ''} — Inventory`"
+    :title="`${parts || ''} — 库存`"
     width="90%"
     top="5vh"
     append-to-body
@@ -29,10 +29,10 @@ const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Warehouse / Sub Inventory / Date Code', width: 320, fixed: 'left' },
-  { field: 'onHand', title: 'OnHand Qty', formatter: (r) => formatNumber(r.onHand || 0) },
-  { field: 'reserved', title: 'Reserved Qty', formatter: (r) => formatNumber(r.reserved || 0) },
-  { field: 'available', title: 'Available Qty', formatter: (r) => formatNumber(r.available || 0) }
+  { field: 'label', title: '仓库 / 子库 / 日期码', width: 320, fixed: 'left' },
+  { field: 'onHand', title: '现有数量', formatter: (r) => formatNumber(r.onHand || 0) },
+  { field: 'reserved', title: '预留数量', formatter: (r) => formatNumber(r.reserved || 0) },
+  { field: 'available', title: '可用数量', formatter: (r) => formatNumber(r.available || 0) }
 ]
 
 watch(
@@ -45,7 +45,7 @@ watch(
       treeData.value = buildTree(
         rows.filter((r) => r.parts === parts),
         {
-          levels: (r) => [r.warehouse, r.subInventory, r.dateCode || 'Unknown'],
+          levels: (r) => [r.warehouse, r.subInventory, r.dateCode || '未知'],
           merge: (node, r) => {
             node.onHand = (node.onHand || 0) + r.onHand
             node.reserved = (node.reserved || 0) + r.reserved

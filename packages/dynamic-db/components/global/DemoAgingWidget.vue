@@ -8,6 +8,8 @@
     @refresh="load"
   >
     <div class="demo-widget">
+      <DemoFilterBar v-model="filterState" :filters="filters" />
+      <div class="demo-grid">
       <DemoTreeMatrix :tree-data="treeData" :columns="columns" :loading="loading">
         <template #cell="{ row, column }">
           <div v-if="row['qty_' + column.field]" class="aging-cell">
@@ -16,12 +18,14 @@
           </div>
         </template>
       </DemoTreeMatrix>
+      </div>
     </div>
   </DashboardCard>
 </template>
 
 <script setup lang="ts">
 import DemoTreeMatrix, { type MatrixColumn } from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoFilterBar from '../dashboard/demo/DemoFilterBar.vue'
 import {
   loadInventory,
   loadPartCosts,
@@ -30,8 +34,13 @@ import {
   AGE_BUCKETS,
   formatNumber,
   formatCompactCurrency,
+  distinctValues,
+  applyDemoFilters,
+  type DemoFilterDef,
+  type DemoFilterState,
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
+import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
 
 const props = withDefaults(
   defineProps<{
@@ -43,31 +52,54 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Aging Report')
-const treeData = ref<DemoTreeNode[]>([])
+const title = computed(() => '库龄报表')
+const rawRows = ref<any[]>([])
+const costs = ref<Record<string, number>>({})
 const loading = ref(false)
+const filterState = ref<DemoFilterState>({})
+
+const filterDefs: DemoFilterDef[] = [
+  { field: 'brand', label: '品牌', type: 'select' },
+  { field: 'parts', label: '物料', type: 'select' }
+]
+
+const filters = computed(() =>
+  filterDefs.map((def) => (def.type === 'select' ? { ...def, options: distinctValues(rawRows.value, def.field) } : def))
+)
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Brand / Parts', width: 280, fixed: 'left' },
-  ...AGE_BUCKETS.map((b) => ({ field: b.key, title: b.label, width: 110, rich: true })),
-  { field: 'total', title: 'Total', width: 120, rich: true }
+  { field: 'label', title: '品牌 / 物料', width: 280, fixed: 'left' },
+  ...AGE_BUCKETS.map((b) => ({ field: b.key, title: b.label, width: 110, rich: true, sortable: true, sortField: 'qty_' + b.key })),
+  { field: 'total', title: '总计', width: 120, rich: true, sortable: true, sortField: 'qty_total' }
 ]
+
+const brands = useDemoBrands()
+
+const filteredRows = computed(() => {
+  const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
+  return brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand))
+})
+
+const treeData = computed<DemoTreeNode[]>(() =>
+  buildTree(filteredRows.value, {
+    levels: (r) => [r.brand, r.parts],
+    merge: (node, r) => {
+      const bucket = ageBucket(r.ageDays)
+      const cost = r.onHand * (costs.value[r.parts] || 0)
+      node['qty_' + bucket] = (node['qty_' + bucket] || 0) + r.onHand
+      node['cost_' + bucket] = (node['cost_' + bucket] || 0) + cost
+      node.qty_total = (node.qty_total || 0) + r.onHand
+      node.cost_total = (node.cost_total || 0) + cost
+    }
+  })
+)
 
 async function load() {
   loading.value = true
   try {
-    const [rows, costs] = await Promise.all([loadInventory(), loadPartCosts()])
-    treeData.value = buildTree(rows, {
-      levels: (r) => [r.brand, r.parts],
-      merge: (node, r) => {
-        const bucket = ageBucket(r.ageDays)
-        const cost = r.onHand * (costs[r.parts] || 0)
-        node['qty_' + bucket] = (node['qty_' + bucket] || 0) + r.onHand
-        node['cost_' + bucket] = (node['cost_' + bucket] || 0) + cost
-        node.qty_total = (node.qty_total || 0) + r.onHand
-        node.cost_total = (node.cost_total || 0) + cost
-      }
-    })
+    const [rows, partCosts] = await Promise.all([loadInventory(), loadPartCosts()])
+    rawRows.value = rows
+    costs.value = partCosts
   } catch (error) {
     console.error('Failed to load demo data:', error)
   } finally {
@@ -82,6 +114,12 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.demo-grid {
+  flex: 1;
+  min-height: 0;
 }
 .aging-cell {
   display: flex;

@@ -8,6 +8,8 @@
     @refresh="load"
   >
     <div class="demo-widget">
+      <DemoFilterBar v-model="filterState" :filters="filters" />
+      <div class="demo-grid">
       <DemoTreeMatrix
         :tree-data="treeData"
         :columns="salesOrderColumns"
@@ -15,6 +17,7 @@
         :row-class-name="rowClassName"
         @cell-click="onCellClick"
       />
+      </div>
     </div>
     <DemoCustomerProfileDialog v-model="profileDialogVisible" :customer="profileCustomer" />
     <DemoPartInventoryDialog v-model="partDialogVisible" :parts="partDialogParts" />
@@ -23,10 +26,19 @@
 
 <script setup lang="ts">
 import DemoTreeMatrix from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoFilterBar from '../dashboard/demo/DemoFilterBar.vue'
 import DemoCustomerProfileDialog from '../dashboard/demo/DemoCustomerProfileDialog.vue'
 import DemoPartInventoryDialog from '../dashboard/demo/DemoPartInventoryDialog.vue'
-import { loadSalesOrders, loadStockByParts, type DemoTreeNode } from '../../composables/demo/useDemoData'
-import { salesOrderColumns, buildSalesOrderTree } from '../../composables/demo/salesOrderReport'
+import {
+  loadSalesOrders,
+  loadStockByParts,
+  distinctValues,
+  applyDemoFilters,
+  type DemoFilterState,
+  type DemoTreeNode
+} from '../../composables/demo/useDemoData'
+import { salesOrderColumns, salesOrderFilterDefs, buildSalesOrderTree } from '../../composables/demo/salesOrderReport'
+import { useDemoYear, inDemoYear } from '../../composables/demo/demoYear'
 
 const props = withDefaults(
   defineProps<{
@@ -38,9 +50,11 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Inactive Item Report')
-const treeData = ref<DemoTreeNode[]>([])
+const title = computed(() => '非活跃项目报表')
+const rawRows = ref<any[]>([])
+const stockByParts = ref<Record<string, number>>({})
 const loading = ref(false)
+const filterState = ref<DemoFilterState>({})
 
 const profileDialogVisible = ref(false)
 const profileCustomer = ref<string | null>(null)
@@ -62,14 +76,27 @@ function onCellClick({ row, triggerTreeNode }: any) {
   }
 }
 
+const filters = computed(() =>
+  salesOrderFilterDefs.map((def) =>
+    def.type === 'select' ? { ...def, options: distinctValues(rawRows.value, def.field) } : def
+  )
+)
+
+const year = useDemoYear()
+
+const treeData = computed(() =>
+  buildSalesOrderTree(
+    applyDemoFilters(rawRows.value, salesOrderFilterDefs, filterState.value).filter((r) => inDemoYear(r.orderDate, year.value)),
+    stockByParts.value
+  )
+)
+
 async function load() {
   loading.value = true
   try {
-    const [rows, stockByParts] = await Promise.all([loadSalesOrders(), loadStockByParts()])
-    treeData.value = buildSalesOrderTree(
-      rows.filter((r) => r.status === 'Cancelled'),
-      stockByParts
-    )
+    const [rows, stock] = await Promise.all([loadSalesOrders(), loadStockByParts()])
+    rawRows.value = rows.filter((r) => r.status === 'Cancelled')
+    stockByParts.value = stock
   } catch (error) {
     console.error('Failed to load demo data:', error)
   } finally {
@@ -84,6 +111,12 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.demo-grid {
+  flex: 1;
+  min-height: 0;
 }
 .demo-widget :deep(.is-clickable) {
   cursor: pointer;

@@ -140,15 +140,15 @@ export const OUTBOUND_TYPES = ['PICK', 'ADJUST-']
 
 /** '2025-07-11' -> '2025-07' */
 export function monthKey(isoDate: string | null): string {
-  return isoDate ? isoDate.slice(0, 7) : 'Unknown'
+  return isoDate ? isoDate.slice(0, 7) : '未知'
 }
 
 export const AGE_BUCKETS = [
-  { key: 'b0_3', label: '≤ 3 months' },
-  { key: 'b3_6', label: '3–6 months' },
-  { key: 'b6_9', label: '6–9 months' },
-  { key: 'b9_12', label: '9–12 months' },
-  { key: 'b12p', label: '> 12 months' }
+  { key: 'b0_3', label: '≤ 3個月' },
+  { key: 'b3_6', label: '3–6個月' },
+  { key: 'b6_9', label: '6–9個月' },
+  { key: 'b9_12', label: '9–12個月' },
+  { key: 'b12p', label: '> 12個月' }
 ] as const
 
 export function ageBucket(days: number): string {
@@ -166,12 +166,50 @@ export function formatNumber(n: number): string {
 }
 
 export function formatCurrency(n: number): string {
-  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return `¥${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export function formatCompactCurrency(n: number): string {
   const abs = Math.abs(n)
-  if (abs >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
-  if (abs >= 1_000) return `$${(n / 1_000).toFixed(1)}K`
-  return `$${n.toFixed(0)}`
+  if (abs >= 1_000_000_000) return `¥${(n / 1_000_000_000).toFixed(1)}B`
+  if (abs >= 1_000_000) return `¥${(n / 1_000_000).toFixed(1)}M`
+  if (abs >= 1_000) return `¥${(n / 1_000).toFixed(1)}K`
+  return `¥${n.toFixed(0)}`
+}
+
+// ---- Runtime widget filters (header popover) ----
+
+export interface DemoFilterDef {
+  /** Raw-row field the filter reads (may be a derived field, e.g. PO 'year'). */
+  field: string
+  label: string
+  type: 'select' | 'date-range'
+}
+
+/** select -> string[] of selected values; date-range -> [startISO, endISO] or null. */
+export type DemoFilterState = Record<string, string[] | [string, string] | null>
+
+/** Unique truthy values of a field, locale-sorted — options source for select filters. */
+export function distinctValues(rows: any[], field: string): string[] {
+  return [...new Set(rows.map((r) => r[field]).filter((v) => v != null && v !== ''))].sort((a, b) =>
+    String(a).localeCompare(String(b))
+  )
+}
+
+/** AND-combines all active filters. Dates are ISO strings, so range compare is lexical. */
+export function applyDemoFilters(rows: any[], defs: DemoFilterDef[], state: DemoFilterState): any[] {
+  return rows.filter((row) =>
+    defs.every((def) => {
+      const val = state[def.field]
+      if (def.type === 'select') {
+        const selected = val as string[] | null
+        if (!selected || selected.length === 0) return true
+        return selected.includes(row[def.field])
+      }
+      const range = val as [string, string] | null
+      if (!range || !range[0] || !range[1]) return true
+      const rowDate = row[def.field]
+      return rowDate && rowDate >= range[0] && rowDate <= range[1]
+    })
+  )
 }

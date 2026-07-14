@@ -8,6 +8,8 @@
     @refresh="load"
   >
     <div class="demo-widget">
+      <DemoFilterBar v-model="filterState" :filters="filters" />
+      <div class="demo-grid">
       <DemoTreeMatrix
         :tree-data="treeData"
         :columns="columns"
@@ -15,6 +17,7 @@
         :row-class-name="rowClassName"
         @cell-click="onCellClick"
       />
+      </div>
     </div>
     <DemoSoTableDialog v-model="soDialogVisible" :title="soDialogTitle" :rows="soDialogRows" show-allocated />
   </DashboardCard>
@@ -22,6 +25,7 @@
 
 <script setup lang="ts">
 import DemoTreeMatrix, { type MatrixColumn } from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoFilterBar from '../dashboard/demo/DemoFilterBar.vue'
 import DemoSoTableDialog from '../dashboard/demo/DemoSoTableDialog.vue'
 import {
   loadPurchaseOrders,
@@ -30,8 +34,14 @@ import {
   buildTree,
   formatNumber,
   formatCurrency,
+  distinctValues,
+  applyDemoFilters,
+  type DemoFilterDef,
+  type DemoFilterState,
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
+import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
+import { useDemoYear, inDemoYear } from '../../composables/demo/demoYear'
 
 const props = withDefaults(
   defineProps<{
@@ -43,9 +53,10 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Purchase Order Report')
-const treeData = ref<DemoTreeNode[]>([])
+const title = computed(() => '采购订单报表')
+const rawRows = ref<any[]>([])
 const loading = ref(false)
+const filterState = ref<DemoFilterState>({})
 
 const soDialogVisible = ref(false)
 const soDialogTitle = ref('')
@@ -74,19 +85,58 @@ async function onCellClick({ row, triggerTreeNode }: any) {
   soDialogRows.value = salesOrders
     .filter((r) => allocatedBySoLine.has(r.soLineId))
     .map((r) => ({ ...r, allocatedQty: allocatedBySoLine.get(r.soLineId) }))
-  soDialogTitle.value = `${po.poNo} — Related Sales Orders`
+  soDialogTitle.value = `${po.poNo} — 相关销售订单`
   soDialogVisible.value = true
 }
 
-const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Brand / Year / PO / Parts', width: 280, fixed: 'left' },
-  { field: 'orderDate', title: 'PO Date', align: 'center', formatter: (r) => r.orderDate || '' },
-  { field: 'eta', title: 'ETA', align: 'center', formatter: (r) => r.eta || '' },
-  { field: 'orderedQty', title: 'Ordered Qty', formatter: (r) => formatNumber(r.orderedQty || 0) },
-  { field: 'receivedQty', title: 'Received Qty', formatter: (r) => formatNumber(r.receivedQty || 0) },
-  { field: 'openQty', title: 'Outstanding Qty', formatter: (r) => formatNumber(r.openQty || 0) },
-  { field: 'value', title: 'PO Amount', formatter: (r) => formatCurrency(r.value || 0) }
+const filterDefs: DemoFilterDef[] = [
+  { field: 'brand', label: '品牌', type: 'select' },
+  { field: 'year', label: '年份', type: 'select' },
+  { field: 'poNo', label: '采购订单', type: 'select' },
+  { field: 'parts', label: '物料', type: 'select' },
+  { field: 'orderDate', label: '采购日期範圍', type: 'date-range' },
+  { field: 'eta', label: '预计到货日期範圍', type: 'date-range' }
 ]
+
+const filters = computed(() =>
+  filterDefs.map((def) => (def.type === 'select' ? { ...def, options: distinctValues(rawRows.value, def.field) } : def))
+)
+
+const columns: MatrixColumn[] = [
+  { field: 'label', title: '品牌 / 年份 / 采购订单 / 物料', width: 280, fixed: 'left' },
+  { field: 'orderDate', title: '采购日期', align: 'center', sortable: true, formatter: (r) => r.orderDate || '' },
+  { field: 'eta', title: '预计到货日期', align: 'center', sortable: true, formatter: (r) => r.eta || '' },
+  { field: 'orderedQty', title: '订购数量', sortable: true, formatter: (r) => formatNumber(r.orderedQty || 0) },
+  { field: 'receivedQty', title: '已收货数量', sortable: true, formatter: (r) => formatNumber(r.receivedQty || 0) },
+  { field: 'openQty', title: '未到货数量', sortable: true, formatter: (r) => formatNumber(r.openQty || 0) },
+  { field: 'value', title: '采购金额', sortable: true, formatter: (r) => formatCurrency(r.value || 0) }
+]
+
+const brands = useDemoBrands()
+const year = useDemoYear()
+
+const filteredRows = computed(() => {
+  const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
+  return (brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand)))
+    .filter((r) => inDemoYear(r.orderDate, year.value))
+})
+
+const treeData = computed<DemoTreeNode[]>(() =>
+  buildTree(filteredRows.value, {
+    levels: (r) => [r.brand, r.year, r.poNo, r.parts],
+    init: (r) => ({ orderDate: r.orderDate, eta: r.eta }),
+    merge: (node, r) => {
+      if (node.level === 2) {
+        node.orderDate = r.orderDate
+        node.eta = r.eta
+      }
+      node.orderedQty = (node.orderedQty || 0) + r.orderedQty
+      node.receivedQty = (node.receivedQty || 0) + r.receivedQty
+      node.openQty = (node.openQty || 0) + r.openQty
+      node.value = (node.value || 0) + r.value
+    }
+  })
+)
 
 async function load() {
   loading.value = true
@@ -94,7 +144,7 @@ async function load() {
     const orders = await loadPurchaseOrders()
     const rows: any[] = []
     for (const po of orders) {
-      const year = po.orderDate ? po.orderDate.slice(0, 4) : 'Unknown'
+      const year = po.orderDate ? po.orderDate.slice(0, 4) : '未知'
       for (const l of po.lines) {
         rows.push({
           brand: po.brand,
@@ -110,20 +160,7 @@ async function load() {
         })
       }
     }
-    treeData.value = buildTree(rows, {
-      levels: (r) => [r.brand, r.year, r.poNo, r.parts],
-      init: (r) => ({ orderDate: r.orderDate, eta: r.eta }),
-      merge: (node, r) => {
-        if (node.level === 2) {
-          node.orderDate = r.orderDate
-          node.eta = r.eta
-        }
-        node.orderedQty = (node.orderedQty || 0) + r.orderedQty
-        node.receivedQty = (node.receivedQty || 0) + r.receivedQty
-        node.openQty = (node.openQty || 0) + r.openQty
-        node.value = (node.value || 0) + r.value
-      }
-    })
+    rawRows.value = rows
   } catch (error) {
     console.error('Failed to load demo data:', error)
   } finally {
@@ -138,6 +175,12 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.demo-grid {
+  flex: 1;
+  min-height: 0;
 }
 .demo-widget :deep(.is-clickable) {
   cursor: pointer;

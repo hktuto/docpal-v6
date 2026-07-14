@@ -8,6 +8,8 @@
     @refresh="load"
   >
     <div class="demo-widget">
+      <DemoFilterBar v-model="filterState" :filters="filters" />
+      <div class="demo-grid">
       <DemoTreeMatrix
         :tree-data="treeData"
         :columns="columns"
@@ -17,10 +19,11 @@
       >
         <template #cell="{ row, column }">
           <span v-if="column.field === 'status' && row.status" class="status-tag" :class="statusClass(row.status)">
-            {{ row.status || '' }}
+            {{ statusLabel(row.status) }}
           </span>
         </template>
       </DemoTreeMatrix>
+      </div>
     </div>
     <DemoPoDetailDialog v-model="poDialogVisible" :po-id="poDialogId" />
   </DashboardCard>
@@ -28,8 +31,20 @@
 
 <script setup lang="ts">
 import DemoTreeMatrix, { type MatrixColumn } from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoFilterBar from '../dashboard/demo/DemoFilterBar.vue'
 import DemoPoDetailDialog from '../dashboard/demo/DemoPoDetailDialog.vue'
-import { loadArrivals, buildTree, formatNumber, type DemoTreeNode } from '../../composables/demo/useDemoData'
+import {
+  loadArrivals,
+  buildTree,
+  formatNumber,
+  distinctValues,
+  applyDemoFilters,
+  type DemoFilterDef,
+  type DemoFilterState,
+  type DemoTreeNode
+} from '../../composables/demo/useDemoData'
+import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
+import { useDemoYear, inDemoYear } from '../../composables/demo/demoYear'
 
 const props = withDefaults(
   defineProps<{
@@ -41,9 +56,10 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Upcoming Goods Arrival')
-const treeData = ref<DemoTreeNode[]>([])
+const title = computed(() => '即將到货')
+const rawRows = ref<any[]>([])
 const loading = ref(false)
+const filterState = ref<DemoFilterState>({})
 
 const poDialogVisible = ref(false)
 const poDialogId = ref<string | null>(null)
@@ -59,13 +75,34 @@ function onCellClick({ row, triggerTreeNode }: any) {
   poDialogVisible.value = true
 }
 
-const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Warehouse', width: 200, fixed: 'left' },
-  { field: 'qtyShipped', title: 'Qty Shipped', formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
-  { field: 'carrier', title: 'Carrier', align: 'left', formatter: (r) => r.carrier || '' },
-  { field: 'trackingNo', title: 'Tracking No', align: 'left', formatter: (r) => r.trackingNo || '' },
-  { field: 'status', title: 'Status', align: 'center', rich: true }
+const filterDefs: DemoFilterDef[] = [
+  { field: 'warehouse', label: '仓库', type: 'select' },
+  { field: 'brand', label: '品牌', type: 'select' },
+  { field: 'eta', label: '交货日期範圍', type: 'date-range' }
 ]
+
+const filters = computed(() =>
+  filterDefs.map((def) => (def.type === 'select' ? { ...def, options: distinctValues(rawRows.value, def.field) } : def))
+)
+
+const columns: MatrixColumn[] = [
+  { field: 'label', title: '仓库 / 交货日期 / 品牌 / 物料 / 采购订单', width: 300, fixed: 'left', sortable: true },
+  { field: 'qtyShipped', title: '出货数量', sortable: true, formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
+  { field: 'carrier', title: '承运商', align: 'left', formatter: (r) => r.carrier || '' },
+  { field: 'trackingNo', title: '追踪编号', align: 'left', formatter: (r) => r.trackingNo || '' },
+  { field: 'status', title: '状态', align: 'center', rich: true }
+]
+
+// Display-only labels for shipment status values; raw English values still drive statusClass/logic.
+const STATUS_LABELS: Record<string, string> = {
+  'In Transit': '运送中',
+  Delivered: '已送达',
+  Delayed: '延误'
+}
+
+function statusLabel(status: string): string {
+  return STATUS_LABELS[status] || status || ''
+}
 
 function statusClass(status: string): string {
   if (status === 'In Transit') return 'in-transit'
@@ -74,17 +111,29 @@ function statusClass(status: string): string {
   return ''
 }
 
+const brands = useDemoBrands()
+const year = useDemoYear()
+
+const filteredRows = computed(() => {
+  const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
+  return (brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand)))
+    .filter((r) => inDemoYear(r.eta, year.value))
+})
+
+const treeData = computed(() =>
+  buildTree(filteredRows.value, {
+    levels: (r) => [r.warehouse, r.eta, r.brand, r.parts, r.poId],
+    init: (r) => ({ carrier: r.carrier, trackingNo: r.trackingNo, status: r.status, poId: r.poId }),
+    merge: (node, r) => {
+      node.qtyShipped = (node.qtyShipped || 0) + r.qtyShipped
+    }
+  })
+)
+
 async function load() {
   loading.value = true
   try {
-    const rows = await loadArrivals()
-    treeData.value = buildTree(rows, {
-      levels: (r) => [r.warehouse, r.brand, r.eta, r.poId, r.parts],
-      init: (r) => ({ carrier: r.carrier, trackingNo: r.trackingNo, status: r.status, poId: r.poId }),
-      merge: (node, r) => {
-        node.qtyShipped = (node.qtyShipped || 0) + r.qtyShipped
-      }
-    })
+    rawRows.value = await loadArrivals()
   } catch (error) {
     console.error('Failed to load demo data:', error)
   } finally {
@@ -99,6 +148,12 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.demo-grid {
+  flex: 1;
+  min-height: 0;
 }
 .demo-widget :deep(.is-clickable) {
   cursor: pointer;

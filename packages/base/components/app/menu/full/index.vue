@@ -50,7 +50,7 @@ watch(() => [layout, hightLightPanel], () => {
     <div class="toggleContainer">
       <Icon name="mdi:arrow-expand-left" @click="toggleMenuStyle" />
     </div>
-    <AuthUser menuMode="expand" /> 
+    <AuthUser menuMode="expand" />
   </div>
 </div>
 </template>
@@ -67,7 +67,7 @@ watch(() => [layout, hightLightPanel], () => {
   flex: 1 0 auto;
 }
 .menuHeader{
-  padding: var(--app-space-s);
+  padding: var(--app-space-xs);
 }
 .logo {
   width: clamp( 80px, 100%, 100px);
@@ -105,7 +105,7 @@ watch(() => [layout, hightLightPanel], () => {
   min-height: calc(100vh - 120px);
   overflow: auto;
   width: 100%;
-  padding: var(--app-space-s);
+  padding: var(--app-space-xs);
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
@@ -115,7 +115,7 @@ watch(() => [layout, hightLightPanel], () => {
 }
 .menuFooter{
   width:100%;
-  padding: var(--app-space-s);
+  padding: var(--app-space-xs);
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;

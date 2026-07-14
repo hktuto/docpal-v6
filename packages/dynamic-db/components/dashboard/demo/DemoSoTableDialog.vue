@@ -9,7 +9,7 @@
     @update:model-value="emit('update:modelValue', $event)"
   >
     <VxeGrid v-if="rows.length" v-bind="gridOptions" :data="rows" />
-    <el-empty v-else description="No related sales orders" />
+    <el-empty v-else description="没有相关销售订单" />
   </el-dialog>
 </template>
 
