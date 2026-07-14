@@ -1,5 +1,5 @@
 <template>
-  <VxeGrid v-bind="gridOptions" :data="treeData" :loading="loading" height="100%">
+  <VxeGrid v-bind="gridOptions" :data="treeData" :loading="loading" height="100%" @cell-click="onCellClick">
     <template #rich="{ row, column }">
       <slot name="cell" :row="row" :column="column" />
     </template>
@@ -28,15 +28,26 @@ const props = withDefaults(
     treeData: any[]
     columns: MatrixColumn[]
     loading?: boolean
+    /** Row class for styling clickable rows (vxe rowClassName: string or ({ row }) => string). */
+    rowClassName?: string | ((params: { row: any }) => string)
   }>(),
   { loading: false }
 )
+
+const emit = defineEmits<{
+  'cell-click': [params: { row: any; column: any; $event: MouseEvent; triggerTreeNode?: boolean }]
+}>()
+
+function onCellClick(params: any) {
+  emit('cell-click', params)
+}
 
 const gridOptions = computed<VxeGridProps>(() => ({
   border: true,
   showOverflow: true,
   scrollY: { enabled: true, gt: 100 },
   rowConfig: { keyField: 'id' },
+  rowClassName: props.rowClassName,
   treeConfig: { childrenField: 'children', showLine: true, indent: 16 },
   columnConfig: { resizable: true },
   columns: props.columns.map((col, index) => ({

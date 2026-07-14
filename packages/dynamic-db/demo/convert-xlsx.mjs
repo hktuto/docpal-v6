@@ -110,6 +110,87 @@ for (const g of XLSX.utils.sheet_to_json(wb.Sheets['git'])) {
 }
 arrivals.sort((a, b) => (a.eta < b.eta ? -1 : a.eta > b.eta ? 1 : 0))
 
+// ---------- purchaseOrders.json (po header + po_line lines + git shipments) ----------
+const shipmentsByPO = {}
+for (const g of XLSX.utils.sheet_to_json(wb.Sheets['git'])) {
+  const poId = g['PO ID']
+  if (!shipmentsByPO[poId]) shipmentsByPO[poId] = []
+  shipmentsByPO[poId].push({
+    warehouse: g['Warehouse'],
+    carrier: g['carrier'],
+    trackingNo: g['tracking no'] != null ? String(g['tracking no']) : '',
+    shipDate: excelDateToISO(g['ship date']),
+    eta: excelDateToISO(g['eta']),
+    qtyShipped: Number(g['qty shipped']) || 0,
+    status: g['status']
+  })
+}
+
+const purchaseOrders = XLSX.utils.sheet_to_json(wb.Sheets['po']).map((p) => {
+  const poLinesForPO = linesByPO[p['PO ID']] || []
+  return {
+    poId: p['PO ID'],
+    poNo: p['PO No'],
+    supplierGroup: p['Supplier Group'],
+    supplier: p['Supplier'],
+    brand: poLinesForPO.length ? brandForParts(poLinesForPO[0]['WCL Parts']) : 'Unknown',
+    orderDate: excelDateToISO(p['Order Date']),
+    eta: excelDateToISO(p['ETA']),
+    qty: Number(p['Qty']) || 0,
+    totalValue: Number(p['Total Value']) || 0,
+    status: p['Status'],
+    lines: poLinesForPO.map((l) => ({
+      poLineId: l['PO LINE ID'],
+      parts: l['WCL Parts'],
+      supplierParts: l['Supplier Parts'],
+      orderedQty: Number(l['Ordered Qty']) || 0,
+      receivedQty: Number(l['Received Qty']) || 0,
+      openQty: Number(l['Open Qty']) || 0,
+      value: Number(l['Value']) || 0
+    })),
+    shipments: shipmentsByPO[p['PO ID']] || []
+  }
+})
+
+// ---------- salesOrders.json (so joined to so_line on SO ID) ----------
+const soLines = XLSX.utils.sheet_to_json(wb.Sheets['so_line'])
+const linesBySO = {}
+for (const l of soLines) {
+  const soId = l['SO ID']
+  if (!linesBySO[soId]) linesBySO[soId] = []
+  linesBySO[soId].push(l)
+}
+
+const salesOrders = []
+for (const s of XLSX.utils.sheet_to_json(wb.Sheets['so'])) {
+  for (const l of linesBySO[s['SO ID']] || []) {
+    salesOrders.push({
+      soId: s['SO ID'],
+      soNo: s['SO No'],
+      customerGroup: s['Customer Group'],
+      customer: s['Customer'],
+      brand: s['Brand'],
+      parts: l['WCL Parts'],
+      supplierParts: l['Supplier Parts'],
+      orderDate: excelDateToISO(s['Order Date']),
+      requestDate: excelDateToISO(s['Reqeust Date']), // sic: header misspelled in source xlsx
+      orderQty: Number(l['Order Qty']) || 0,
+      shippedQty: Number(l['Shipped Qty']) || 0,
+      unitPrice: Number(l['Unit Price']) || 0,
+      value: Number(l['Value']) || 0,
+      status: s['Status'],
+      sales: s['Sales']
+    })
+  }
+}
+
+// ---------- stockByParts.json (on-hand qty per part, summed across warehouses) ----------
+const stockByParts = {}
+for (const row of inventory) {
+  if (!row.parts) continue
+  stockByParts[row.parts] = (stockByParts[row.parts] || 0) + row.onHand
+}
+
 // ---------- partCosts.json (unit cost per parts, with fallback chain) ----------
 // po_line only covers 354 of 2329 inventory parts, and 18 of 25 brands have no PO
 // cost data at all. Fallback chain so the Aging Report never shows $0:
@@ -159,3 +240,6 @@ writeJSON('inventory.json', inventory)
 writeJSON('transactions.json', transactions)
 writeJSON('arrivals.json', arrivals)
 writeJSON('partCosts.json', partCosts)
+writeJSON('purchaseOrders.json', purchaseOrders)
+writeJSON('salesOrders.json', salesOrders)
+writeJSON('stockByParts.json', stockByParts)

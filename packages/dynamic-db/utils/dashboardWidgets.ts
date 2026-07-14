@@ -6,11 +6,11 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     label: 'Total Inventory Report',
     type: 'database' as any,
     minW: 4,
-    minH: 4,
+    minH: 2,
     maxW: 12,
     maxH: 12,
     w: 8,
-    h: 8,
+    h: 4,
     component: 'LazyDemoInventoryWidget',
     setting: {
       title: 'Total Inventory Report',
@@ -22,11 +22,11 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     label: 'Warehouse Inbound/Outbound',
     type: 'database' as any,
     minW: 4,
-    minH: 4,
+    minH: 2,
     maxW: 12,
     maxH: 12,
     w: 12,
-    h: 8,
+    h: 4,
     component: 'LazyDemoInOutWidget',
     setting: {
       title: 'Warehouse Inbound/Outbound',
@@ -38,11 +38,11 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     label: 'Upcoming Goods Arrival',
     type: 'database' as any,
     minW: 4,
-    minH: 4,
+    minH: 2,
     maxW: 12,
     maxH: 12,
     w: 8,
-    h: 8,
+    h: 2,
     component: 'LazyDemoArrivalWidget',
     setting: {
       title: 'Upcoming Goods Arrival',
@@ -54,14 +54,78 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     label: 'Aging Report',
     type: 'database' as any,
     minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 10,
+    h: 2,
+    component: 'LazyDemoAgingWidget',
+    setting: {
+      title: 'Aging Report',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoSalesOrder: {
+    label: 'Sales Order Report',
+    type: 'database' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 2,
+    component: 'LazyDemoSalesOrderWidget',
+    setting: {
+      title: 'Sales Order Report',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoInactiveItem: {
+    label: 'Inactive Item Report',
+    type: 'database' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 2,
+    component: 'LazyDemoInactiveItemWidget',
+    setting: {
+      title: 'Inactive Item Report',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoSalesPerformance: {
+    label: 'Sales Performance Dashboard',
+    type: 'database' as any,
+    minW: 4,
     minH: 4,
     maxW: 12,
     maxH: 12,
     w: 10,
     h: 8,
-    component: 'LazyDemoAgingWidget',
+    component: 'LazyDemoSalesPerformanceWidget',
     setting: {
-      title: 'Aging Report',
+      title: 'Sales Performance Dashboard',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoPurchaseOrder: {
+    label: 'Purchase Order Report',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 8,
+    component: 'LazyDemoPurchaseOrderWidget',
+    setting: {
+      title: 'Purchase Order Report',
       subtitle: '',
       footer: ''
     }

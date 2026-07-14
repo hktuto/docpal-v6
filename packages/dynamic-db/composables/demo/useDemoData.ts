@@ -25,6 +25,9 @@ let inventoryPromise: Promise<any[]> | null = null
 let transactionsPromise: Promise<any[]> | null = null
 let arrivalsPromise: Promise<any[]> | null = null
 let partCostsPromise: Promise<Record<string, number>> | null = null
+let purchaseOrdersPromise: Promise<any[]> | null = null
+let salesOrdersPromise: Promise<any[]> | null = null
+let stockByPartsPromise: Promise<Record<string, number>> | null = null
 
 export function loadInventory(): Promise<any[]> {
   if (!inventoryPromise) {
@@ -52,6 +55,27 @@ export function loadPartCosts(): Promise<Record<string, number>> {
     partCostsPromise = import('../../demo/data/partCosts.json').then((m) => m.default as Record<string, number>)
   }
   return partCostsPromise
+}
+
+export function loadPurchaseOrders(): Promise<any[]> {
+  if (!purchaseOrdersPromise) {
+    purchaseOrdersPromise = import('../../demo/data/purchaseOrders.json').then((m) => m.default as any[])
+  }
+  return purchaseOrdersPromise
+}
+
+export function loadSalesOrders(): Promise<any[]> {
+  if (!salesOrdersPromise) {
+    salesOrdersPromise = import('../../demo/data/salesOrders.json').then((m) => m.default as any[])
+  }
+  return salesOrdersPromise
+}
+
+export function loadStockByParts(): Promise<Record<string, number>> {
+  if (!stockByPartsPromise) {
+    stockByPartsPromise = import('../../demo/data/stockByParts.json').then((m) => m.default as Record<string, number>)
+  }
+  return stockByPartsPromise
 }
 
 // ---- Tree building ----
@@ -123,6 +147,10 @@ export function ageBucket(days: number): string {
 
 export function formatNumber(n: number): string {
   return Math.round(n).toLocaleString('en-US')
+}
+
+export function formatCurrency(n: number): string {
+  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export function formatCompactCurrency(n: number): string {

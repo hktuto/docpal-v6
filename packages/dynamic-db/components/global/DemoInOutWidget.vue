@@ -46,7 +46,7 @@ const title = computed(() => props.setting?.title || 'Warehouse Inbound/Outbound
 const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
 const columns = ref<MatrixColumn[]>([
-  { field: 'label', title: 'Warehouse / Brand / Parts', width: 260, fixed: 'left' }
+  { field: 'label', title: 'Warehouse', width: 200, fixed: 'left' }
 ])
 
 async function load() {

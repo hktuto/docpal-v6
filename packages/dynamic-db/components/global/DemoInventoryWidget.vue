@@ -8,13 +8,21 @@
     @refresh="load"
   >
     <div class="demo-widget">
-      <DemoTreeMatrix :tree-data="treeData" :columns="columns" :loading="loading" />
+      <DemoTreeMatrix
+        :tree-data="treeData"
+        :columns="columns"
+        :loading="loading"
+        :row-class-name="rowClassName"
+        @cell-click="onCellClick"
+      />
     </div>
+    <DemoInventoryDrillDialog v-model="drillVisible" :warehouse="drillWarehouse" />
   </DashboardCard>
 </template>
 
 <script setup lang="ts">
 import DemoTreeMatrix, { type MatrixColumn } from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoInventoryDrillDialog from '../dashboard/demo/DemoInventoryDrillDialog.vue'
 import { loadInventory, buildTree, formatNumber, type DemoTreeNode } from '../../composables/demo/useDemoData'
 
 const props = withDefaults(
@@ -30,6 +38,20 @@ const emit = defineEmits(['delete'])
 const title = computed(() => props.setting?.title || 'Total Inventory Report')
 const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
+
+const drillVisible = ref(false)
+const drillWarehouse = ref<string | null>(null)
+
+function rowClassName({ row }: { row: DemoTreeNode }): string {
+  return row.level === 2 ? 'is-clickable' : ''
+}
+
+function onCellClick({ row, triggerTreeNode }: any) {
+  if (row.level !== 2) return
+  if (triggerTreeNode) return
+  drillWarehouse.value = row.key
+  drillVisible.value = true
+}
 
 const columns: MatrixColumn[] = [
   { field: 'label', title: 'Brand / Parts / Warehouse / Sub Inventory / Date Code', width: 280, fixed: 'left' },
@@ -64,5 +86,9 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+}
+
+.demo-widget :deep(.is-clickable) {
+  cursor: pointer;
 }
 </style>
