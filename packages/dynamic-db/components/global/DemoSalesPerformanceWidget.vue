@@ -49,7 +49,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Sales Performance Dashboard')
+const title = computed(() => props.setting?.title || '銷售表現儀表板')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
@@ -67,13 +67,13 @@ async function onCellClick({ row, triggerTreeNode }: any) {
   const salesOrders = await loadSalesOrders()
   const field = row.level === 0 ? 'brand' : 'parts'
   soDialogRows.value = salesOrders.filter((r) => r[field] === row.key)
-  soDialogTitle.value = `${row.key} — Sales Orders`
+  soDialogTitle.value = `${row.key} — 銷售訂單`
   soDialogVisible.value = true
 }
 
 const filterDefs: DemoFilterDef[] = [
-  { field: 'brand', label: 'Brand', type: 'select' },
-  { field: 'parts', label: 'Parts', type: 'select' }
+  { field: 'brand', label: '品牌', type: 'select' },
+  { field: 'parts', label: '物料', type: 'select' }
 ]
 
 const filters = computed(() =>
@@ -81,13 +81,13 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Brand / Parts', width: 280, fixed: 'left' },
-  { field: 'orderQty', title: 'Order Qty', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
-  { field: 'shippedQty', title: 'Shipped Qty', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
-  { field: 'value', title: 'Sales Value', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
+  { field: 'label', title: '品牌 / 物料', width: 280, fixed: 'left' },
+  { field: 'orderQty', title: '訂單數量', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
+  { field: 'shippedQty', title: '已出貨數量', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
+  { field: 'value', title: '銷售金額', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
   {
     field: 'fulfillment',
-    title: 'Fulfillment %',
+    title: '出貨達成率',
     align: 'center',
     sortable: true,
     sortField: (r) => (r.orderQty ? (r.shippedQty || 0) / r.orderQty : Number.NaN),

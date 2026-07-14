@@ -4,6 +4,9 @@
     :subtitle="setting.subtitle"
     :footer="setting.footer"
     :hide-setting="hideSetting"
+    :bordered="false"
+    :show-shadow="false"
+    :show-fullscreen-icon="false"
     @delete="emit('delete')"
     @refresh="load"
   >
@@ -31,16 +34,16 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Sales Overview')
+const title = computed(() => props.setting?.title || '銷售總覽')
 const loading = ref(false)
 
 const brands = useDemoBrands()
 
 const cards = ref([
-  { label: 'Total Order Value', value: 0 },
-  { label: 'Shipped Value', value: 0 },
-  { label: 'Outstanding Value', value: 0 },
-  { label: 'Inventory Value', value: 0 }
+  { label: '訂單總值', value: 0 },
+  { label: '已出貨值', value: 0 },
+  { label: '待出貨值', value: 0 },
+  { label: '庫存價值', value: 0 }
 ])
 
 async function load() {
@@ -62,10 +65,10 @@ async function load() {
       inventoryValue += r.onHand * (partCosts[r.parts] || 0)
     }
     cards.value = [
-      { label: 'Total Order Value', value: total },
-      { label: 'Shipped Value', value: shipped },
-      { label: 'Outstanding Value', value: outstanding },
-      { label: 'Inventory Value', value: inventoryValue }
+      { label: '訂單總值', value: total },
+      { label: '已出貨值', value: shipped },
+      { label: '待出貨值', value: outstanding },
+      { label: '庫存價值', value: inventoryValue }
     ]
   } catch (error) {
     console.error('Failed to load demo data:', error)
@@ -108,7 +111,8 @@ onMounted(load)
   text-overflow: ellipsis;
 }
 .kpi-value {
-  font-size: 1.5rem;
+  font-size: clamp(16px, 2vw + 1rem, 64px);
+  color: var(--app-primary-color);
   font-weight: bold;
 }
 </style>

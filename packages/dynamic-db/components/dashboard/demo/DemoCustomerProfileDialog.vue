@@ -2,7 +2,7 @@
   <el-dialog
     class="big"
     :model-value="modelValue"
-    :title="profile ? `${profile.companyName} — Customer Profile` : 'Customer Profile'"
+    :title="profile ? `${profile.companyName} — 客戶資料` : '客戶資料'"
     width="90%"
     top="5vh"
     append-to-body
@@ -10,31 +10,31 @@
   >
     <div v-if="profile" class="customer-profile">
       <div class="profile-header">
-        <div class="profile-field"><label>Customer Group</label><span>{{ profile.customerGroup }}</span></div>
-        <div class="profile-field"><label>Contact</label><span>{{ profile.contactName }}</span></div>
-        <div class="profile-field"><label>Email</label><span>{{ profile.email }}</span></div>
-        <div class="profile-field"><label>Phone</label><span>{{ profile.phone }}</span></div>
+        <div class="profile-field"><label>客戶組</label><span>{{ profile.customerGroup }}</span></div>
+        <div class="profile-field"><label>聯絡人</label><span>{{ profile.contactName }}</span></div>
+        <div class="profile-field"><label>電郵</label><span>{{ profile.email }}</span></div>
+        <div class="profile-field"><label>電話</label><span>{{ profile.phone }}</span></div>
         <div class="profile-field">
-          <label>Address</label><span>{{ [profile.address, profile.city, profile.country].filter(Boolean).join(', ') }}</span>
+          <label>地址</label><span>{{ [profile.address, profile.city, profile.country].filter(Boolean).join(', ') }}</span>
         </div>
-        <div class="profile-field"><label>Tier</label><span>{{ profile.customerTier }}</span></div>
-        <div class="profile-field"><label>Account Status</label><span>{{ profile.accountStatus }}</span></div>
-        <div class="profile-field"><label>Credit Terms</label><span>{{ profile.creditTerms }}</span></div>
-        <div class="profile-field"><label>Credit Limit</label><span>{{ formatCurrency(profile.creditLimit) }}</span></div>
-        <div class="profile-field"><label>YTD Sales</label><span>{{ formatCurrency(profile.ytdSales) }}</span></div>
-        <div class="profile-field"><label>Total Orders</label><span>{{ profile.totalOrders }}</span></div>
-        <div class="profile-field"><label>Sales Rep</label><span>{{ profile.salesRep }}</span></div>
-        <div class="profile-field"><label>Payment Method</label><span>{{ profile.paymentMethod }}</span></div>
-        <div class="profile-field"><label>Registered</label><span>{{ profile.registrationDate }}</span></div>
-        <div class="profile-field"><label>Last Order</label><span>{{ profile.lastOrderDate }}</span></div>
-        <div class="profile-field"><label>Website</label><span>{{ profile.website }}</span></div>
-        <div class="profile-field"><label>Tax ID</label><span>{{ profile.taxId }}</span></div>
+        <div class="profile-field"><label>級別</label><span>{{ profile.customerTier }}</span></div>
+        <div class="profile-field"><label>賬戶狀態</label><span>{{ profile.accountStatus }}</span></div>
+        <div class="profile-field"><label>信貸條款</label><span>{{ profile.creditTerms }}</span></div>
+        <div class="profile-field"><label>信貸額度</label><span>{{ formatCurrency(profile.creditLimit) }}</span></div>
+        <div class="profile-field"><label>本年累計銷售</label><span>{{ formatCurrency(profile.ytdSales) }}</span></div>
+        <div class="profile-field"><label>訂單總數</label><span>{{ profile.totalOrders }}</span></div>
+        <div class="profile-field"><label>銷售代表</label><span>{{ profile.salesRep }}</span></div>
+        <div class="profile-field"><label>付款方式</label><span>{{ profile.paymentMethod }}</span></div>
+        <div class="profile-field"><label>註冊日期</label><span>{{ profile.registrationDate }}</span></div>
+        <div class="profile-field"><label>最近訂單</label><span>{{ profile.lastOrderDate }}</span></div>
+        <div class="profile-field"><label>網站</label><span>{{ profile.website }}</span></div>
+        <div class="profile-field"><label>稅務編號</label><span>{{ profile.taxId }}</span></div>
       </div>
 
-      <h4>Sales Orders</h4>
+      <h4>銷售訂單</h4>
       <VxeGrid v-bind="gridOptions" :data="soRows" />
     </div>
-    <el-empty v-else-if="!loading" description="Customer profile not available" />
+    <el-empty v-else-if="!loading" description="沒有客戶資料" />
   </el-dialog>
 </template>
 

@@ -12,7 +12,7 @@
         collapse-tags-tooltip
         :max-collapse-tags="1"
         size="small"
-        placeholder="All"
+        placeholder="全部"
         style="width: 150px"
         @update:model-value="setFilter(def.field, $event)"
       >
@@ -24,8 +24,8 @@
         type="daterange"
         value-format="YYYY-MM-DD"
         size="small"
-        start-placeholder="From"
-        end-placeholder="To"
+        start-placeholder="開始日期"
+        end-placeholder="結束日期"
         style="width: 230px"
         @update:model-value="setFilter(def.field, $event)"
       />
@@ -33,7 +33,7 @@
     <el-popover v-if="overflowDefs.length" trigger="click" placement="bottom-end" :width="340">
       <template #reference>
         <el-badge :value="overflowActiveCount" :hidden="overflowActiveCount === 0" :max="99">
-          <el-button size="small">More</el-button>
+          <el-button size="small">更多</el-button>
         </el-badge>
       </template>
       <div class="demo-filter-panel">
@@ -49,7 +49,7 @@
             collapse-tags-tooltip
             :max-collapse-tags="2"
             size="small"
-            placeholder="All"
+            placeholder="全部"
             style="width: 100%"
             @update:model-value="setFilter(def.field, $event)"
           >
@@ -61,15 +61,15 @@
             type="daterange"
             value-format="YYYY-MM-DD"
             size="small"
-            start-placeholder="From"
-            end-placeholder="To"
+            start-placeholder="開始日期"
+            end-placeholder="結束日期"
             style="width: 100%"
             @update:model-value="setFilter(def.field, $event)"
           />
         </div>
       </div>
     </el-popover>
-    <el-button v-if="activeCount" size="small" text @click="clearAll">Clear all</el-button>
+    <el-button v-if="activeCount" size="small" text @click="clearAll">清除全部</el-button>
   </div>
 </template>
 

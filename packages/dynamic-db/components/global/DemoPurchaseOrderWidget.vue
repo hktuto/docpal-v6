@@ -51,7 +51,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Purchase Order Report')
+const title = computed(() => props.setting?.title || '採購訂單報表')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
@@ -83,17 +83,17 @@ async function onCellClick({ row, triggerTreeNode }: any) {
   soDialogRows.value = salesOrders
     .filter((r) => allocatedBySoLine.has(r.soLineId))
     .map((r) => ({ ...r, allocatedQty: allocatedBySoLine.get(r.soLineId) }))
-  soDialogTitle.value = `${po.poNo} — Related Sales Orders`
+  soDialogTitle.value = `${po.poNo} — 相關銷售訂單`
   soDialogVisible.value = true
 }
 
 const filterDefs: DemoFilterDef[] = [
-  { field: 'brand', label: 'Brand', type: 'select' },
-  { field: 'year', label: 'Year', type: 'select' },
-  { field: 'poNo', label: 'PO', type: 'select' },
-  { field: 'parts', label: 'Parts', type: 'select' },
-  { field: 'orderDate', label: 'PO Date Range', type: 'date-range' },
-  { field: 'eta', label: 'ETA Range', type: 'date-range' }
+  { field: 'brand', label: '品牌', type: 'select' },
+  { field: 'year', label: '年份', type: 'select' },
+  { field: 'poNo', label: '採購訂單', type: 'select' },
+  { field: 'parts', label: '物料', type: 'select' },
+  { field: 'orderDate', label: '採購日期範圍', type: 'date-range' },
+  { field: 'eta', label: '預計到貨日期範圍', type: 'date-range' }
 ]
 
 const filters = computed(() =>
@@ -101,13 +101,13 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Brand / Year / PO / Parts', width: 280, fixed: 'left' },
-  { field: 'orderDate', title: 'PO Date', align: 'center', sortable: true, formatter: (r) => r.orderDate || '' },
-  { field: 'eta', title: 'ETA', align: 'center', sortable: true, formatter: (r) => r.eta || '' },
-  { field: 'orderedQty', title: 'Ordered Qty', sortable: true, formatter: (r) => formatNumber(r.orderedQty || 0) },
-  { field: 'receivedQty', title: 'Received Qty', sortable: true, formatter: (r) => formatNumber(r.receivedQty || 0) },
-  { field: 'openQty', title: 'Outstanding Qty', sortable: true, formatter: (r) => formatNumber(r.openQty || 0) },
-  { field: 'value', title: 'PO Amount', sortable: true, formatter: (r) => formatCurrency(r.value || 0) }
+  { field: 'label', title: '品牌 / 年份 / 採購訂單 / 物料', width: 280, fixed: 'left' },
+  { field: 'orderDate', title: '採購日期', align: 'center', sortable: true, formatter: (r) => r.orderDate || '' },
+  { field: 'eta', title: '預計到貨日期', align: 'center', sortable: true, formatter: (r) => r.eta || '' },
+  { field: 'orderedQty', title: '訂購數量', sortable: true, formatter: (r) => formatNumber(r.orderedQty || 0) },
+  { field: 'receivedQty', title: '已收貨數量', sortable: true, formatter: (r) => formatNumber(r.receivedQty || 0) },
+  { field: 'openQty', title: '未到貨數量', sortable: true, formatter: (r) => formatNumber(r.openQty || 0) },
+  { field: 'value', title: '採購金額', sortable: true, formatter: (r) => formatCurrency(r.value || 0) }
 ]
 
 const treeData = computed<DemoTreeNode[]>(() =>
@@ -133,7 +133,7 @@ async function load() {
     const orders = await loadPurchaseOrders()
     const rows: any[] = []
     for (const po of orders) {
-      const year = po.orderDate ? po.orderDate.slice(0, 4) : 'Unknown'
+      const year = po.orderDate ? po.orderDate.slice(0, 4) : '未知'
       for (const l of po.lines) {
         rows.push({
           brand: po.brand,

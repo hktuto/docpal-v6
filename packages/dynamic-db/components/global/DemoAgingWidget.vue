@@ -51,15 +51,15 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Aging Report')
+const title = computed(() => props.setting?.title || '庫齡報表')
 const rawRows = ref<any[]>([])
 const costs = ref<Record<string, number>>({})
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
 
 const filterDefs: DemoFilterDef[] = [
-  { field: 'brand', label: 'Brand', type: 'select' },
-  { field: 'parts', label: 'Parts', type: 'select' }
+  { field: 'brand', label: '品牌', type: 'select' },
+  { field: 'parts', label: '物料', type: 'select' }
 ]
 
 const filters = computed(() =>
@@ -67,9 +67,9 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Brand / Parts', width: 280, fixed: 'left' },
+  { field: 'label', title: '品牌 / 物料', width: 280, fixed: 'left' },
   ...AGE_BUCKETS.map((b) => ({ field: b.key, title: b.label, width: 110, rich: true, sortable: true, sortField: 'qty_' + b.key })),
-  { field: 'total', title: 'Total', width: 120, rich: true, sortable: true, sortField: 'qty_total' }
+  { field: 'total', title: '總計', width: 120, rich: true, sortable: true, sortField: 'qty_total' }
 ]
 
 const treeData = computed<DemoTreeNode[]>(() =>

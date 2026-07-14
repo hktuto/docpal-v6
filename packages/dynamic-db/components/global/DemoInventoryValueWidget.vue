@@ -25,11 +25,11 @@ import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
 echarts.use([PieChart, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
 
 const BUCKETS = [
-  { name: '0–60 days', min: 0, max: 60 },
-  { name: '61–180 days', min: 61, max: 180 },
-  { name: '181–360 days', min: 181, max: 360 },
-  { name: '361–720 days', min: 361, max: 720 },
-  { name: '720+ days', min: 721, max: Infinity }
+  { name: '0–60天', min: 0, max: 60 },
+  { name: '61–180天', min: 61, max: 180 },
+  { name: '181–360天', min: 181, max: 360 },
+  { name: '361–720天', min: 361, max: 720 },
+  { name: '720天以上', min: 721, max: Infinity }
 ]
 
 const props = withDefaults(
@@ -42,7 +42,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Inventory Value by Age')
+const title = computed(() => props.setting?.title || '庫存價值（按庫齡）')
 const loading = ref(false)
 
 const brands = useDemoBrands()
@@ -64,11 +64,11 @@ async function load() {
       if (i >= 0) values[i] += v
     }
     render({
-      tooltip: { trigger: 'item', formatter: (p: any) => `${p.name}: ${formatCurrency(p.value)} (${p.percent}%)` },
+      tooltip: { trigger: 'item', formatter: (p: any) => `${p.name}：${formatCurrency(p.value)}（${p.percent}%）` },
       legend: { orient: 'vertical', right: 10, top: 'center' },
       title: {
         text: formatCompactCurrency(total),
-        subtext: 'Total',
+        subtext: '總計',
         left: '43%',
         top: '42%',
         textAlign: 'center',
@@ -81,7 +81,7 @@ async function load() {
           radius: ['45%', '70%'],
           center: ['45%', '50%'],
           avoidLabelOverlap: true,
-          label: { formatter: '{b} ({d}%)' },
+          label: { formatter: '{b}（{d}%）' },
           data: BUCKETS.map((b, i) => ({ name: b.name, value: Math.round(values[i]) }))
         }
       ]

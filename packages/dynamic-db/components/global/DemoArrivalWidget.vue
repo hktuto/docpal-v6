@@ -19,7 +19,7 @@
       >
         <template #cell="{ row, column }">
           <span v-if="column.field === 'status' && row.status" class="status-tag" :class="statusClass(row.status)">
-            {{ row.status || '' }}
+            {{ statusLabel(row.status) }}
           </span>
         </template>
       </DemoTreeMatrix>
@@ -54,7 +54,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Upcoming Goods Arrival')
+const title = computed(() => props.setting?.title || '即將到貨')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
@@ -74,9 +74,9 @@ function onCellClick({ row, triggerTreeNode }: any) {
 }
 
 const filterDefs: DemoFilterDef[] = [
-  { field: 'warehouse', label: 'Warehouse', type: 'select' },
-  { field: 'brand', label: 'Brand', type: 'select' },
-  { field: 'eta', label: 'Delivery Date Range', type: 'date-range' }
+  { field: 'warehouse', label: '倉庫', type: 'select' },
+  { field: 'brand', label: '品牌', type: 'select' },
+  { field: 'eta', label: '交貨日期範圍', type: 'date-range' }
 ]
 
 const filters = computed(() =>
@@ -84,12 +84,23 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Warehouse', width: 200, fixed: 'left', sortable: true },
-  { field: 'qtyShipped', title: 'Qty Shipped', sortable: true, formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
-  { field: 'carrier', title: 'Carrier', align: 'left', formatter: (r) => r.carrier || '' },
-  { field: 'trackingNo', title: 'Tracking No', align: 'left', formatter: (r) => r.trackingNo || '' },
-  { field: 'status', title: 'Status', align: 'center', rich: true }
+  { field: 'label', title: '倉庫', width: 200, fixed: 'left', sortable: true },
+  { field: 'qtyShipped', title: '出貨數量', sortable: true, formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
+  { field: 'carrier', title: '承運商', align: 'left', formatter: (r) => r.carrier || '' },
+  { field: 'trackingNo', title: '追蹤編號', align: 'left', formatter: (r) => r.trackingNo || '' },
+  { field: 'status', title: '狀態', align: 'center', rich: true }
 ]
+
+// Display-only labels for shipment status values; raw English values still drive statusClass/logic.
+const STATUS_LABELS: Record<string, string> = {
+  'In Transit': '運送中',
+  Delivered: '已送達',
+  Delayed: '延誤'
+}
+
+function statusLabel(status: string): string {
+  return STATUS_LABELS[status] || status || ''
+}
 
 function statusClass(status: string): string {
   if (status === 'In Transit') return 'in-transit'

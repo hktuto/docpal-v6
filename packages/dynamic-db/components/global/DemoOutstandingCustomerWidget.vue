@@ -29,16 +29,16 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Outstanding by Customer')
+const title = computed(() => props.setting?.title || '客戶待出貨')
 const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
 
 const brands = useDemoBrands()
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Customer Group / Customer', width: 280, fixed: 'left' },
-  { field: 'outstandingQty', title: 'Outstanding Qty', formatter: (r) => formatNumber(r.outstandingQty || 0) },
-  { field: 'outstandingValue', title: 'Outstanding Value', formatter: (r) => formatCurrency(r.outstandingValue || 0) }
+  { field: 'label', title: '客戶組 / 客戶', width: 280, fixed: 'left' },
+  { field: 'outstandingQty', title: '待出貨數量', formatter: (r) => formatNumber(r.outstandingQty || 0) },
+  { field: 'outstandingValue', title: '待出貨金額', formatter: (r) => formatCurrency(r.outstandingValue || 0) }
 ]
 
 async function load() {

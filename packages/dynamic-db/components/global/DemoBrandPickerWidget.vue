@@ -38,12 +38,12 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Brand Picker')
+const title = computed(() => props.setting?.title || '品牌篩選')
 const loading = ref(false)
 
 const brands = useDemoBrands()
 const brandList = ref<string[]>([])
-const options = computed(() => [{ label: 'All', value: ALL_BRANDS }, ...brandList.value.map((b) => ({ label: b, value: b }))])
+const options = computed(() => [{ label: '全部', value: ALL_BRANDS }, ...brandList.value.map((b) => ({ label: b, value: b }))])
 
 function isActive(value: string) {
   if (value === ALL_BRANDS) return brands.value.includes(ALL_BRANDS)

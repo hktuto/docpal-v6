@@ -140,15 +140,15 @@ export const OUTBOUND_TYPES = ['PICK', 'ADJUST-']
 
 /** '2025-07-11' -> '2025-07' */
 export function monthKey(isoDate: string | null): string {
-  return isoDate ? isoDate.slice(0, 7) : 'Unknown'
+  return isoDate ? isoDate.slice(0, 7) : '未知'
 }
 
 export const AGE_BUCKETS = [
-  { key: 'b0_3', label: '≤ 3 months' },
-  { key: 'b3_6', label: '3–6 months' },
-  { key: 'b6_9', label: '6–9 months' },
-  { key: 'b9_12', label: '9–12 months' },
-  { key: 'b12p', label: '> 12 months' }
+  { key: 'b0_3', label: '≤ 3個月' },
+  { key: 'b3_6', label: '3–6個月' },
+  { key: 'b6_9', label: '6–9個月' },
+  { key: 'b9_12', label: '9–12個月' },
+  { key: 'b12p', label: '> 12個月' }
 ] as const
 
 export function ageBucket(days: number): string {

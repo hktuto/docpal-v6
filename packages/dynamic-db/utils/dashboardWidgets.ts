@@ -3,7 +3,7 @@ import { dashboardWidgetSetting as dpDashboardWidgetSetting } from '@packages/dp
 
 export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = {
   DemoInventory: {
-    label: 'Total Inventory Report',
+    label: '總庫存報表',
     type: 'database' as any,
     minW: 4,
     minH: 2,
@@ -13,13 +13,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 4,
     component: 'LazyDemoInventoryWidget',
     setting: {
-      title: 'Total Inventory Report',
+      title: '總庫存報表',
       subtitle: '',
       footer: ''
     }
   },
   DemoInOut: {
-    label: 'Warehouse Inbound/Outbound',
+    label: '倉庫入庫/出庫',
     type: 'database' as any,
     minW: 4,
     minH: 2,
@@ -29,13 +29,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 4,
     component: 'LazyDemoInOutWidget',
     setting: {
-      title: 'Warehouse Inbound/Outbound',
+      title: '倉庫入庫/出庫',
       subtitle: '',
       footer: ''
     }
   },
   DemoArrival: {
-    label: 'Upcoming Goods Arrival',
+    label: '即將到貨',
     type: 'database' as any,
     minW: 4,
     minH: 2,
@@ -45,13 +45,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 2,
     component: 'LazyDemoArrivalWidget',
     setting: {
-      title: 'Upcoming Goods Arrival',
+      title: '即將到貨',
       subtitle: '',
       footer: ''
     }
   },
   DemoAging: {
-    label: 'Aging Report',
+    label: '庫齡報表',
     type: 'database' as any,
     minW: 4,
     minH: 2,
@@ -61,13 +61,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 2,
     component: 'LazyDemoAgingWidget',
     setting: {
-      title: 'Aging Report',
+      title: '庫齡報表',
       subtitle: '',
       footer: ''
     }
   },
   DemoSalesOrder: {
-    label: 'Sales Order Report',
+    label: '銷售訂單報表',
     type: 'database' as any,
     minW: 4,
     minH: 2,
@@ -77,13 +77,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 2,
     component: 'LazyDemoSalesOrderWidget',
     setting: {
-      title: 'Sales Order Report',
+      title: '銷售訂單報表',
       subtitle: '',
       footer: ''
     }
   },
   DemoInactiveItem: {
-    label: 'Inactive Item Report',
+    label: '非活躍項目報表',
     type: 'database' as any,
     minW: 4,
     minH: 2,
@@ -93,13 +93,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 2,
     component: 'LazyDemoInactiveItemWidget',
     setting: {
-      title: 'Inactive Item Report',
+      title: '非活躍項目報表',
       subtitle: '',
       footer: ''
     }
   },
   DemoSalesPerformance: {
-    label: 'Sales Performance Dashboard',
+    label: '銷售表現儀表板',
     type: 'database' as any,
     minW: 4,
     minH: 4,
@@ -109,13 +109,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 8,
     component: 'LazyDemoSalesPerformanceWidget',
     setting: {
-      title: 'Sales Performance Dashboard',
+      title: '銷售表現儀表板',
       subtitle: '',
       footer: ''
     }
   },
   DemoPurchaseOrder: {
-    label: 'Purchase Order Report',
+    label: '採購訂單報表',
     type: 'database' as any,
     minW: 4,
     minH: 4,
@@ -125,13 +125,13 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 8,
     component: 'LazyDemoPurchaseOrderWidget',
     setting: {
-      title: 'Purchase Order Report',
+      title: '採購訂單報表',
       subtitle: '',
       footer: ''
     }
   },
   DemoBrandPicker: {
-    label: 'Brand Picker',
+    label: '品牌篩選',
     type: 'demo' as any,
     minW: 4,
     minH: 2,
@@ -141,25 +141,25 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     h: 2,
     component: 'LazyDemoBrandPickerWidget',
     setting: {
-      title: 'Brand Picker',
+      title: '品牌篩選',
       subtitle: '',
       footer: ''
     }
   },
   DemoSalesKpi: {
-    label: 'Sales Overview',
+    label: '銷售總覽',
     type: 'demo' as any,
     minW: 4,
     minH: 2,
     maxW: 12,
     maxH: 12,
     w: 12,
-    h: 3,
+    h: 2,
     component: 'LazyDemoSalesKpiWidget',
-    setting: { title: 'Sales Overview', subtitle: '', footer: '' }
+    setting: { title: '銷售總覽', subtitle: '', footer: '' }
   },
   DemoMonthlySales: {
-    label: 'Monthly Shipped vs Outstanding',
+    label: '每月已出貨與待出貨',
     type: 'demo' as any,
     minW: 4,
     minH: 4,
@@ -168,10 +168,10 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     w: 8,
     h: 8,
     component: 'LazyDemoMonthlySalesWidget',
-    setting: { title: 'Monthly Shipped vs Outstanding', subtitle: '', footer: '' }
+    setting: { title: '每月已出貨與待出貨', subtitle: '', footer: '' }
   },
   DemoInventoryValue: {
-    label: 'Inventory Value by Age',
+    label: '庫存價值（按庫齡）',
     type: 'demo' as any,
     minW: 4,
     minH: 4,
@@ -180,10 +180,10 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     w: 6,
     h: 8,
     component: 'LazyDemoInventoryValueWidget',
-    setting: { title: 'Inventory Value by Age', subtitle: '', footer: '' }
+    setting: { title: '庫存價值（按庫齡）', subtitle: '', footer: '' }
   },
   DemoOutstandingCustomer: {
-    label: 'Outstanding by Customer',
+    label: '客戶待出貨',
     type: 'demo' as any,
     minW: 4,
     minH: 4,
@@ -192,7 +192,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     w: 6,
     h: 8,
     component: 'LazyDemoOutstandingCustomerWidget',
-    setting: { title: 'Outstanding by Customer', subtitle: '', footer: '' }
+    setting: { title: '客戶待出貨', subtitle: '', footer: '' }
   },
   DbStat: {
     label: 'DbStat',

@@ -35,7 +35,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Monthly Shipped vs Outstanding')
+const title = computed(() => props.setting?.title || '每月已出貨與待出貨')
 const loading = ref(false)
 
 const brands = useDemoBrands()
@@ -63,7 +63,7 @@ async function load() {
       yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatCompactCurrency(v) } },
       series: [
         {
-          name: 'Shipped Value',
+          name: '已出貨值',
           type: 'bar',
           stack: 'total',
           data: shippedByMonth.map(Math.round),
@@ -71,7 +71,7 @@ async function load() {
           label: { show: true, formatter: ({ value }: any) => formatCompactCurrency(Number(value)) }
         },
         {
-          name: 'Outstanding Value',
+          name: '待出貨值',
           type: 'bar',
           stack: 'total',
           data: outstandingByMonth.map(Math.round),

@@ -4,29 +4,29 @@ import type { MatrixColumn } from '../../components/dashboard/demo/DemoTreeMatri
 import { buildTree, formatNumber, formatCurrency, type DemoTreeNode, type DemoFilterDef } from './useDemoData'
 
 export const salesOrderColumns: MatrixColumn[] = [
-  { field: 'label', title: 'Customer Group / Customer / SO / Parts', width: 280, fixed: 'left' },
-  { field: 'orderDate', title: 'SO Date', align: 'center', formatter: (r) => r.orderDate || '' },
-  { field: 'requestDate', title: 'Schedule Date', align: 'center', formatter: (r) => r.requestDate || '' },
-  { field: 'orderQty', title: 'SO Qty', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
-  { field: 'value', title: 'SO Amount', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
-  { field: 'shippedQty', title: 'Delivered Qty', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
+  { field: 'label', title: '客戶組 / 客戶 / 銷售訂單 / 物料', width: 280, fixed: 'left' },
+  { field: 'orderDate', title: '訂單日期', align: 'center', formatter: (r) => r.orderDate || '' },
+  { field: 'requestDate', title: '計劃交貨日期', align: 'center', formatter: (r) => r.requestDate || '' },
+  { field: 'orderQty', title: '訂單數量', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
+  { field: 'value', title: '訂單金額', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
+  { field: 'shippedQty', title: '已交貨數量', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
   {
     field: 'outstanding',
-    title: 'Outstanding Qty',
+    title: '未交貨數量',
     sortable: true,
     sortField: (r) => (r.orderQty || 0) - (r.shippedQty || 0),
     formatter: (r) => formatNumber((r.orderQty || 0) - (r.shippedQty || 0))
   },
-  { field: 'stockOnHand', title: 'Stock on Hand for SO', formatter: (r) => (r.stockOnHand != null ? formatNumber(r.stockOnHand) : '') }
+  { field: 'stockOnHand', title: '訂單可用庫存', formatter: (r) => (r.stockOnHand != null ? formatNumber(r.stockOnHand) : '') }
 ]
 
 export const salesOrderFilterDefs: DemoFilterDef[] = [
-  { field: 'customerGroup', label: 'Customer Group', type: 'select' },
-  { field: 'customer', label: 'Customer', type: 'select' },
-  { field: 'soNo', label: 'SO', type: 'select' },
-  { field: 'parts', label: 'Parts', type: 'select' },
-  { field: 'orderDate', label: 'SO Date Range', type: 'date-range' },
-  { field: 'requestDate', label: 'Schedule Date Range', type: 'date-range' }
+  { field: 'customerGroup', label: '客戶組', type: 'select' },
+  { field: 'customer', label: '客戶', type: 'select' },
+  { field: 'soNo', label: '訂單號', type: 'select' },
+  { field: 'parts', label: '物料', type: 'select' },
+  { field: 'orderDate', label: '訂單日期範圍', type: 'date-range' },
+  { field: 'requestDate', label: '計劃交貨日期範圍', type: 'date-range' }
 ]
 
 export function buildSalesOrderTree(rows: any[], stockByParts: Record<string, number>): DemoTreeNode[] {

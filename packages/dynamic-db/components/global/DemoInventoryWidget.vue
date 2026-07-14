@@ -48,7 +48,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || 'Total Inventory Report')
+const title = computed(() => props.setting?.title || '總庫存報表')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
@@ -68,9 +68,9 @@ function onCellClick({ row, triggerTreeNode }: any) {
 }
 
 const filterDefs: DemoFilterDef[] = [
-  { field: 'brand', label: 'Brand', type: 'select' },
-  { field: 'parts', label: 'Parts', type: 'select' },
-  { field: 'warehouse', label: 'Warehouse', type: 'select' }
+  { field: 'brand', label: '品牌', type: 'select' },
+  { field: 'parts', label: '物料', type: 'select' },
+  { field: 'warehouse', label: '倉庫', type: 'select' }
 ]
 
 const filters = computed(() =>
@@ -78,15 +78,15 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Brand / Parts / Warehouse / Sub Inventory / Date Code', width: 280, fixed: 'left', sortable: true },
-  { field: 'onHand', title: 'OnHand Qty', sortable: true, formatter: (r) => formatNumber(r.onHand || 0) },
-  { field: 'reserved', title: 'Reserved Qty', sortable: true, formatter: (r) => formatNumber(r.reserved || 0) },
-  { field: 'available', title: 'Available Qty', sortable: true, formatter: (r) => formatNumber(r.available || 0) }
+  { field: 'label', title: '品牌 / 物料 / 倉庫 / 子庫 / 日期碼', width: 280, fixed: 'left', sortable: true },
+  { field: 'onHand', title: '現有數量', sortable: true, formatter: (r) => formatNumber(r.onHand || 0) },
+  { field: 'reserved', title: '預留數量', sortable: true, formatter: (r) => formatNumber(r.reserved || 0) },
+  { field: 'available', title: '可用數量', sortable: true, formatter: (r) => formatNumber(r.available || 0) }
 ]
 
 const treeData = computed(() =>
   buildTree(applyDemoFilters(rawRows.value, filterDefs, filterState.value), {
-    levels: (r) => [r.brand, r.parts, r.warehouse, r.subInventory, r.dateCode || 'Unknown'],
+    levels: (r) => [r.brand, r.parts, r.warehouse, r.subInventory, r.dateCode || '未知'],
     merge: (node, r) => {
       node.onHand = (node.onHand || 0) + r.onHand
       node.reserved = (node.reserved || 0) + r.reserved
