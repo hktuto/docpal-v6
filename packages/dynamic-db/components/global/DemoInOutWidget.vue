@@ -8,7 +8,17 @@
     @refresh="load"
   >
     <div class="demo-widget">
-      <DemoFilterBar v-model="filterState" :filters="filters" />
+      <DemoFilterBar v-model="filterState" :filters="filters" >
+          <div class="desc">
+            <div class="in dot">
+
+            </div>
+            <span>In</span>
+            <div class="out dot">
+            </div>
+            <span>Out</span>
+          </div>
+      </DemoFilterBar>
       <div class="demo-grid">
       <DemoTreeMatrix :tree-data="treeData" :columns="columns" :loading="loading">
         <template #cell="{ row, column }">
@@ -118,6 +128,24 @@ onMounted(load)
 </script>
 
 <style scoped lang="scss">
+.desc{
+    display: flex;
+    flex-flow: row nowarp;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 4px;
+}
+.dot{
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    &.in{
+        background: var(--el-color-success, #67c23a);
+    }
+    &.out {
+        background: var(--el-color-danger, #f56c6c);
+    }
+}
 .demo-widget {
   height: 100%;
   width: 100%;

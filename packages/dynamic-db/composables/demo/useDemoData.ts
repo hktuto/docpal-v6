@@ -166,15 +166,15 @@ export function formatNumber(n: number): string {
 }
 
 export function formatCurrency(n: number): string {
-  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return `¥${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export function formatCompactCurrency(n: number): string {
   const abs = Math.abs(n)
-  if (abs >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`
-  if (abs >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
-  if (abs >= 1_000) return `$${(n / 1_000).toFixed(1)}K`
-  return `$${n.toFixed(0)}`
+  if (abs >= 1_000_000_000) return `¥${(n / 1_000_000_000).toFixed(1)}B`
+  if (abs >= 1_000_000) return `¥${(n / 1_000_000).toFixed(1)}M`
+  if (abs >= 1_000) return `¥${(n / 1_000).toFixed(1)}K`
+  return `¥${n.toFixed(0)}`
 }
 
 // ---- Runtime widget filters (header popover) ----

@@ -86,7 +86,7 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: '倉庫', width: 200, fixed: 'left', sortable: true },
+  { field: 'label', title: '倉庫 / 交貨日期 / 品牌 / 物料 / 採購訂單', width: 260, fixed: 'left', sortable: true },
   { field: 'qtyShipped', title: '出貨數量', sortable: true, formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
   { field: 'carrier', title: '承運商', align: 'left', formatter: (r) => r.carrier || '' },
   { field: 'trackingNo', title: '追蹤編號', align: 'left', formatter: (r) => r.trackingNo || '' },
@@ -122,7 +122,7 @@ const filteredRows = computed(() => {
 
 const treeData = computed(() =>
   buildTree(filteredRows.value, {
-    levels: (r) => [r.warehouse, r.brand, r.eta, r.poId, r.parts],
+    levels: (r) => [r.warehouse, r.eta, r.brand, r.parts, r.poId],
     init: (r) => ({ carrier: r.carrier, trackingNo: r.trackingNo, status: r.status, poId: r.poId }),
     merge: (node, r) => {
       node.qtyShipped = (node.qtyShipped || 0) + r.qtyShipped

@@ -70,6 +70,7 @@
       </div>
     </el-popover>
     <el-button v-if="activeCount" size="small" text @click="clearAll">清除全部</el-button>
+    <slot/>
   </div>
 </template>
 
