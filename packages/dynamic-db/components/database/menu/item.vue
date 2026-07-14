@@ -148,8 +148,8 @@ async function onFolderDrop(event: DragEvent) {
 .item-content {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 0px;
+  gap: var(--app-space-xxs) ;
+  padding: var(--app-space-xs) 0px;
   border-radius: var(--app-border-radius-s);
   cursor: pointer;
   transition: background-color 0.2s ease;
