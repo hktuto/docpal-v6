@@ -28,6 +28,8 @@ let partCostsPromise: Promise<Record<string, number>> | null = null
 let purchaseOrdersPromise: Promise<any[]> | null = null
 let salesOrdersPromise: Promise<any[]> | null = null
 let stockByPartsPromise: Promise<Record<string, number>> | null = null
+let allocationsPromise: Promise<any[]> | null = null
+let customerProfilesPromise: Promise<any[]> | null = null
 
 export function loadInventory(): Promise<any[]> {
   if (!inventoryPromise) {
@@ -76,6 +78,20 @@ export function loadStockByParts(): Promise<Record<string, number>> {
     stockByPartsPromise = import('../../demo/data/stockByParts.json').then((m) => m.default as Record<string, number>)
   }
   return stockByPartsPromise
+}
+
+export function loadAllocations(): Promise<any[]> {
+  if (!allocationsPromise) {
+    allocationsPromise = import('../../demo/data/allocations.json').then((m) => m.default as any[])
+  }
+  return allocationsPromise
+}
+
+export function loadCustomerProfiles(): Promise<any[]> {
+  if (!customerProfilesPromise) {
+    customerProfilesPromise = import('../../demo/data/customerProfiles.json').then((m) => m.default as any[])
+  }
+  return customerProfilesPromise
 }
 
 // ---- Tree building ----

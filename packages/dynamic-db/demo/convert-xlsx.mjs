@@ -167,6 +167,7 @@ for (const s of XLSX.utils.sheet_to_json(wb.Sheets['so'])) {
     salesOrders.push({
       soId: s['SO ID'],
       soNo: s['SO No'],
+      soLineId: l['SO LINE ID'],
       customerGroup: s['Customer Group'],
       customer: s['Customer'],
       brand: s['Brand'],
@@ -183,6 +184,41 @@ for (const s of XLSX.utils.sheet_to_json(wb.Sheets['so'])) {
     })
   }
 }
+
+// ---------- allocations.json (po_so_allocation: PO line <-> SO line) ----------
+const allocations = XLSX.utils.sheet_to_json(wb.Sheets['po_so_allocation']).map((r) => ({
+  poLineId: r['PO Line ID'],
+  soLineId: r['SO lINE ID'], // sic: header misspelled in source xlsx
+  allocatedQty: Number(r['Allocated Qty']) || 0,
+  status: r['Status']
+}))
+
+// ---------- customerProfiles.json (customer_profiles master data) ----------
+// NOTE: Phone values in the source sheet are bogus negative numbers (Excel-mangled);
+// passed through as display strings, same as tracking numbers elsewhere.
+const customerProfiles = XLSX.utils.sheet_to_json(wb.Sheets['customer_profiles']).map((r) => ({
+  customerId: r['CustomerID'],
+  companyName: r['CompanyName'],
+  customerGroup: r['CustomerGroup'],
+  contactName: [r['ContactFirstName'], r['ContactLastName']].filter(Boolean).join(' '),
+  email: r['Email'],
+  phone: r['Phone'] != null ? String(r['Phone']) : '',
+  address: r['Address'],
+  city: r['City'],
+  country: r['Country'],
+  creditTerms: r['CreditTerms'],
+  creditLimit: Number(r['CreditLimit']) || 0,
+  customerTier: r['CustomerTier'],
+  accountStatus: r['AccountStatus'],
+  registrationDate: excelDateToISO(r['RegistrationDate']),
+  lastOrderDate: excelDateToISO(r['LastOrderDate']),
+  ytdSales: Number(r['YTDSales']) || 0,
+  salesRep: r['SalesRep'],
+  paymentMethod: r['PaymentMethod'],
+  taxId: r['TaxID'],
+  website: r['Website'],
+  totalOrders: Number(r['TotalOrders']) || 0
+}))
 
 // ---------- stockByParts.json (on-hand qty per part, summed across warehouses) ----------
 const stockByParts = {}
@@ -242,4 +278,6 @@ writeJSON('arrivals.json', arrivals)
 writeJSON('partCosts.json', partCosts)
 writeJSON('purchaseOrders.json', purchaseOrders)
 writeJSON('salesOrders.json', salesOrders)
+writeJSON('allocations.json', allocations)
+writeJSON('customerProfiles.json', customerProfiles)
 writeJSON('stockByParts.json', stockByParts)
