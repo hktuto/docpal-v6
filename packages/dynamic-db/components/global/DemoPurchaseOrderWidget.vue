@@ -8,14 +8,30 @@
     @refresh="load"
   >
     <div class="demo-widget">
-      <DemoTreeMatrix :tree-data="treeData" :columns="columns" :loading="loading" />
+      <DemoTreeMatrix
+        :tree-data="treeData"
+        :columns="columns"
+        :loading="loading"
+        :row-class-name="rowClassName"
+        @cell-click="onCellClick"
+      />
     </div>
+    <DemoSoTableDialog v-model="soDialogVisible" :title="soDialogTitle" :rows="soDialogRows" show-allocated />
   </DashboardCard>
 </template>
 
 <script setup lang="ts">
 import DemoTreeMatrix, { type MatrixColumn } from '../dashboard/demo/DemoTreeMatrix.vue'
-import { loadPurchaseOrders, buildTree, formatNumber, formatCurrency, type DemoTreeNode } from '../../composables/demo/useDemoData'
+import DemoSoTableDialog from '../dashboard/demo/DemoSoTableDialog.vue'
+import {
+  loadPurchaseOrders,
+  loadSalesOrders,
+  loadAllocations,
+  buildTree,
+  formatNumber,
+  formatCurrency,
+  type DemoTreeNode
+} from '../../composables/demo/useDemoData'
 
 const props = withDefaults(
   defineProps<{
@@ -30,6 +46,37 @@ const emit = defineEmits(['delete'])
 const title = computed(() => props.setting?.title || 'Purchase Order Report')
 const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
+
+const soDialogVisible = ref(false)
+const soDialogTitle = ref('')
+const soDialogRows = ref<any[]>([])
+
+function rowClassName({ row }: { row: DemoTreeNode }): string {
+  return row.level === 2 ? 'is-clickable' : ''
+}
+
+async function onCellClick({ row, triggerTreeNode }: any) {
+  if (row.level !== 2 || triggerTreeNode) return
+  const [orders, allocations, salesOrders] = await Promise.all([
+    loadPurchaseOrders(),
+    loadAllocations(),
+    loadSalesOrders()
+  ])
+  const po = orders.find((o) => o.poNo === row.key)
+  if (!po) return
+  const lineIds = new Set(po.lines.map((l: any) => l.poLineId))
+  const allocatedBySoLine = new Map<string, number>()
+  for (const a of allocations) {
+    if (lineIds.has(a.poLineId)) {
+      allocatedBySoLine.set(a.soLineId, (allocatedBySoLine.get(a.soLineId) || 0) + a.allocatedQty)
+    }
+  }
+  soDialogRows.value = salesOrders
+    .filter((r) => allocatedBySoLine.has(r.soLineId))
+    .map((r) => ({ ...r, allocatedQty: allocatedBySoLine.get(r.soLineId) }))
+  soDialogTitle.value = `${po.poNo} — Related Sales Orders`
+  soDialogVisible.value = true
+}
 
 const columns: MatrixColumn[] = [
   { field: 'label', title: 'Brand / Year / PO / Parts', width: 280, fixed: 'left' },
@@ -91,5 +138,8 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+}
+.demo-widget :deep(.is-clickable) {
+  cursor: pointer;
 }
 </style>

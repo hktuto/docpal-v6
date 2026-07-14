@@ -8,13 +8,21 @@
     @refresh="load"
   >
     <div class="demo-widget">
-      <DemoTreeMatrix :tree-data="treeData" :columns="salesOrderColumns" :loading="loading" />
+      <DemoTreeMatrix
+        :tree-data="treeData"
+        :columns="salesOrderColumns"
+        :loading="loading"
+        :row-class-name="rowClassName"
+        @cell-click="onCellClick"
+      />
     </div>
+    <DemoPartInventoryDialog v-model="partDialogVisible" :parts="partDialogParts" />
   </DashboardCard>
 </template>
 
 <script setup lang="ts">
 import DemoTreeMatrix from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoPartInventoryDialog from '../dashboard/demo/DemoPartInventoryDialog.vue'
 import { loadSalesOrders, loadStockByParts, type DemoTreeNode } from '../../composables/demo/useDemoData'
 import { salesOrderColumns, buildSalesOrderTree } from '../../composables/demo/salesOrderReport'
 
@@ -31,6 +39,19 @@ const emit = defineEmits(['delete'])
 const title = computed(() => props.setting?.title || 'Sales Order Report')
 const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
+
+const partDialogVisible = ref(false)
+const partDialogParts = ref<string | null>(null)
+
+function rowClassName({ row }: { row: DemoTreeNode }): string {
+  return row.level === 3 ? 'is-clickable' : ''
+}
+
+function onCellClick({ row, triggerTreeNode }: any) {
+  if (row.level !== 3 || triggerTreeNode) return
+  partDialogParts.value = row.key
+  partDialogVisible.value = true
+}
 
 async function load() {
   loading.value = true
@@ -51,5 +72,8 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+}
+.demo-widget :deep(.is-clickable) {
+  cursor: pointer;
 }
 </style>
