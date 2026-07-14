@@ -8,6 +8,8 @@
     @refresh="load"
   >
     <div class="demo-widget">
+      <DemoFilterBar v-model="filterState" :filters="filters" />
+      <div class="demo-grid">
       <DemoTreeMatrix
         :tree-data="treeData"
         :columns="columns"
@@ -15,6 +17,7 @@
         :row-class-name="rowClassName"
         @cell-click="onCellClick"
       />
+      </div>
     </div>
     <DemoSoTableDialog v-model="soDialogVisible" :title="soDialogTitle" :rows="soDialogRows" />
   </DashboardCard>
@@ -22,8 +25,19 @@
 
 <script setup lang="ts">
 import DemoTreeMatrix, { type MatrixColumn } from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoFilterBar from '../dashboard/demo/DemoFilterBar.vue'
 import DemoSoTableDialog from '../dashboard/demo/DemoSoTableDialog.vue'
-import { loadSalesOrders, buildTree, formatNumber, formatCurrency, type DemoTreeNode } from '../../composables/demo/useDemoData'
+import {
+  loadSalesOrders,
+  buildTree,
+  formatNumber,
+  formatCurrency,
+  distinctValues,
+  applyDemoFilters,
+  type DemoFilterDef,
+  type DemoFilterState,
+  type DemoTreeNode
+} from '../../composables/demo/useDemoData'
 
 const props = withDefaults(
   defineProps<{
@@ -36,8 +50,9 @@ const props = withDefaults(
 const emit = defineEmits(['delete'])
 
 const title = computed(() => props.setting?.title || 'Sales Performance Dashboard')
-const treeData = ref<DemoTreeNode[]>([])
+const rawRows = ref<any[]>([])
 const loading = ref(false)
+const filterState = ref<DemoFilterState>({})
 
 const soDialogVisible = ref(false)
 const soDialogTitle = ref('')
@@ -56,31 +71,45 @@ async function onCellClick({ row, triggerTreeNode }: any) {
   soDialogVisible.value = true
 }
 
+const filterDefs: DemoFilterDef[] = [
+  { field: 'brand', label: 'Brand', type: 'select' },
+  { field: 'parts', label: 'Parts', type: 'select' }
+]
+
+const filters = computed(() =>
+  filterDefs.map((def) => (def.type === 'select' ? { ...def, options: distinctValues(rawRows.value, def.field) } : def))
+)
+
 const columns: MatrixColumn[] = [
   { field: 'label', title: 'Brand / Parts', width: 280, fixed: 'left' },
-  { field: 'orderQty', title: 'Order Qty', formatter: (r) => formatNumber(r.orderQty || 0) },
-  { field: 'shippedQty', title: 'Shipped Qty', formatter: (r) => formatNumber(r.shippedQty || 0) },
-  { field: 'value', title: 'Sales Value', formatter: (r) => formatCurrency(r.value || 0) },
+  { field: 'orderQty', title: 'Order Qty', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
+  { field: 'shippedQty', title: 'Shipped Qty', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
+  { field: 'value', title: 'Sales Value', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
   {
     field: 'fulfillment',
     title: 'Fulfillment %',
     align: 'center',
+    sortable: true,
+    sortField: (r) => (r.orderQty ? (r.shippedQty || 0) / r.orderQty : Number.NaN),
     formatter: (r) => (r.orderQty ? `${(((r.shippedQty || 0) / r.orderQty) * 100).toFixed(1)}%` : '')
   }
 ]
 
+const treeData = computed<DemoTreeNode[]>(() =>
+  buildTree(applyDemoFilters(rawRows.value, filterDefs, filterState.value), {
+    levels: (r) => [r.brand, r.parts],
+    merge: (node, r) => {
+      node.orderQty = (node.orderQty || 0) + r.orderQty
+      node.shippedQty = (node.shippedQty || 0) + r.shippedQty
+      node.value = (node.value || 0) + r.value
+    }
+  })
+)
+
 async function load() {
   loading.value = true
   try {
-    const rows = await loadSalesOrders()
-    treeData.value = buildTree(rows, {
-      levels: (r) => [r.brand, r.parts],
-      merge: (node, r) => {
-        node.orderQty = (node.orderQty || 0) + r.orderQty
-        node.shippedQty = (node.shippedQty || 0) + r.shippedQty
-        node.value = (node.value || 0) + r.value
-      }
-    })
+    rawRows.value = await loadSalesOrders()
   } catch (error) {
     console.error('Failed to load demo data:', error)
   } finally {
@@ -95,6 +124,12 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.demo-grid {
+  flex: 1;
+  min-height: 0;
 }
 .demo-widget :deep(.is-clickable) {
   cursor: pointer;

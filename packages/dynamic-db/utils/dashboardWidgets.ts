@@ -130,6 +130,70 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       footer: ''
     }
   },
+  DemoBrandPicker: {
+    label: 'Brand Picker',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 4,
+    w: 12,
+    h: 2,
+    component: 'LazyDemoBrandPickerWidget',
+    setting: {
+      title: 'Brand Picker',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoSalesKpi: {
+    label: 'Sales Overview',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 3,
+    component: 'LazyDemoSalesKpiWidget',
+    setting: { title: 'Sales Overview', subtitle: '', footer: '' }
+  },
+  DemoMonthlySales: {
+    label: 'Monthly Shipped vs Outstanding',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 8,
+    component: 'LazyDemoMonthlySalesWidget',
+    setting: { title: 'Monthly Shipped vs Outstanding', subtitle: '', footer: '' }
+  },
+  DemoInventoryValue: {
+    label: 'Inventory Value by Age',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 8,
+    component: 'LazyDemoInventoryValueWidget',
+    setting: { title: 'Inventory Value by Age', subtitle: '', footer: '' }
+  },
+  DemoOutstandingCustomer: {
+    label: 'Outstanding by Customer',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 8,
+    component: 'LazyDemoOutstandingCustomerWidget',
+    setting: { title: 'Outstanding by Customer', subtitle: '', footer: '' }
+  },
   DbStat: {
     label: 'DbStat',
     type: 'database' as any,

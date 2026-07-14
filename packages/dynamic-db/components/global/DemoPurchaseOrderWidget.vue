@@ -8,6 +8,8 @@
     @refresh="load"
   >
     <div class="demo-widget">
+      <DemoFilterBar v-model="filterState" :filters="filters" />
+      <div class="demo-grid">
       <DemoTreeMatrix
         :tree-data="treeData"
         :columns="columns"
@@ -15,6 +17,7 @@
         :row-class-name="rowClassName"
         @cell-click="onCellClick"
       />
+      </div>
     </div>
     <DemoSoTableDialog v-model="soDialogVisible" :title="soDialogTitle" :rows="soDialogRows" show-allocated />
   </DashboardCard>
@@ -22,6 +25,7 @@
 
 <script setup lang="ts">
 import DemoTreeMatrix, { type MatrixColumn } from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoFilterBar from '../dashboard/demo/DemoFilterBar.vue'
 import DemoSoTableDialog from '../dashboard/demo/DemoSoTableDialog.vue'
 import {
   loadPurchaseOrders,
@@ -30,6 +34,10 @@ import {
   buildTree,
   formatNumber,
   formatCurrency,
+  distinctValues,
+  applyDemoFilters,
+  type DemoFilterDef,
+  type DemoFilterState,
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
 
@@ -44,8 +52,9 @@ const props = withDefaults(
 const emit = defineEmits(['delete'])
 
 const title = computed(() => props.setting?.title || 'Purchase Order Report')
-const treeData = ref<DemoTreeNode[]>([])
+const rawRows = ref<any[]>([])
 const loading = ref(false)
+const filterState = ref<DemoFilterState>({})
 
 const soDialogVisible = ref(false)
 const soDialogTitle = ref('')
@@ -78,15 +87,45 @@ async function onCellClick({ row, triggerTreeNode }: any) {
   soDialogVisible.value = true
 }
 
+const filterDefs: DemoFilterDef[] = [
+  { field: 'brand', label: 'Brand', type: 'select' },
+  { field: 'year', label: 'Year', type: 'select' },
+  { field: 'poNo', label: 'PO', type: 'select' },
+  { field: 'parts', label: 'Parts', type: 'select' },
+  { field: 'orderDate', label: 'PO Date Range', type: 'date-range' },
+  { field: 'eta', label: 'ETA Range', type: 'date-range' }
+]
+
+const filters = computed(() =>
+  filterDefs.map((def) => (def.type === 'select' ? { ...def, options: distinctValues(rawRows.value, def.field) } : def))
+)
+
 const columns: MatrixColumn[] = [
   { field: 'label', title: 'Brand / Year / PO / Parts', width: 280, fixed: 'left' },
-  { field: 'orderDate', title: 'PO Date', align: 'center', formatter: (r) => r.orderDate || '' },
-  { field: 'eta', title: 'ETA', align: 'center', formatter: (r) => r.eta || '' },
-  { field: 'orderedQty', title: 'Ordered Qty', formatter: (r) => formatNumber(r.orderedQty || 0) },
-  { field: 'receivedQty', title: 'Received Qty', formatter: (r) => formatNumber(r.receivedQty || 0) },
-  { field: 'openQty', title: 'Outstanding Qty', formatter: (r) => formatNumber(r.openQty || 0) },
-  { field: 'value', title: 'PO Amount', formatter: (r) => formatCurrency(r.value || 0) }
+  { field: 'orderDate', title: 'PO Date', align: 'center', sortable: true, formatter: (r) => r.orderDate || '' },
+  { field: 'eta', title: 'ETA', align: 'center', sortable: true, formatter: (r) => r.eta || '' },
+  { field: 'orderedQty', title: 'Ordered Qty', sortable: true, formatter: (r) => formatNumber(r.orderedQty || 0) },
+  { field: 'receivedQty', title: 'Received Qty', sortable: true, formatter: (r) => formatNumber(r.receivedQty || 0) },
+  { field: 'openQty', title: 'Outstanding Qty', sortable: true, formatter: (r) => formatNumber(r.openQty || 0) },
+  { field: 'value', title: 'PO Amount', sortable: true, formatter: (r) => formatCurrency(r.value || 0) }
 ]
+
+const treeData = computed<DemoTreeNode[]>(() =>
+  buildTree(applyDemoFilters(rawRows.value, filterDefs, filterState.value), {
+    levels: (r) => [r.brand, r.year, r.poNo, r.parts],
+    init: (r) => ({ orderDate: r.orderDate, eta: r.eta }),
+    merge: (node, r) => {
+      if (node.level === 2) {
+        node.orderDate = r.orderDate
+        node.eta = r.eta
+      }
+      node.orderedQty = (node.orderedQty || 0) + r.orderedQty
+      node.receivedQty = (node.receivedQty || 0) + r.receivedQty
+      node.openQty = (node.openQty || 0) + r.openQty
+      node.value = (node.value || 0) + r.value
+    }
+  })
+)
 
 async function load() {
   loading.value = true
@@ -110,20 +149,7 @@ async function load() {
         })
       }
     }
-    treeData.value = buildTree(rows, {
-      levels: (r) => [r.brand, r.year, r.poNo, r.parts],
-      init: (r) => ({ orderDate: r.orderDate, eta: r.eta }),
-      merge: (node, r) => {
-        if (node.level === 2) {
-          node.orderDate = r.orderDate
-          node.eta = r.eta
-        }
-        node.orderedQty = (node.orderedQty || 0) + r.orderedQty
-        node.receivedQty = (node.receivedQty || 0) + r.receivedQty
-        node.openQty = (node.openQty || 0) + r.openQty
-        node.value = (node.value || 0) + r.value
-      }
-    })
+    rawRows.value = rows
   } catch (error) {
     console.error('Failed to load demo data:', error)
   } finally {
@@ -138,6 +164,12 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.demo-grid {
+  flex: 1;
+  min-height: 0;
 }
 .demo-widget :deep(.is-clickable) {
   cursor: pointer;

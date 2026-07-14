@@ -175,3 +175,40 @@ export function formatCompactCurrency(n: number): string {
   if (abs >= 1_000) return `$${(n / 1_000).toFixed(1)}K`
   return `$${n.toFixed(0)}`
 }
+
+// ---- Runtime widget filters (header popover) ----
+
+export interface DemoFilterDef {
+  /** Raw-row field the filter reads (may be a derived field, e.g. PO 'year'). */
+  field: string
+  label: string
+  type: 'select' | 'date-range'
+}
+
+/** select -> string[] of selected values; date-range -> [startISO, endISO] or null. */
+export type DemoFilterState = Record<string, string[] | [string, string] | null>
+
+/** Unique truthy values of a field, locale-sorted — options source for select filters. */
+export function distinctValues(rows: any[], field: string): string[] {
+  return [...new Set(rows.map((r) => r[field]).filter((v) => v != null && v !== ''))].sort((a, b) =>
+    String(a).localeCompare(String(b))
+  )
+}
+
+/** AND-combines all active filters. Dates are ISO strings, so range compare is lexical. */
+export function applyDemoFilters(rows: any[], defs: DemoFilterDef[], state: DemoFilterState): any[] {
+  return rows.filter((row) =>
+    defs.every((def) => {
+      const val = state[def.field]
+      if (def.type === 'select') {
+        const selected = val as string[] | null
+        if (!selected || selected.length === 0) return true
+        return selected.includes(row[def.field])
+      }
+      const range = val as [string, string] | null
+      if (!range || !range[0] || !range[1]) return true
+      const rowDate = row[def.field]
+      return rowDate && rowDate >= range[0] && rowDate <= range[1]
+    })
+  )
+}

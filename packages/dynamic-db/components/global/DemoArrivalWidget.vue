@@ -8,6 +8,8 @@
     @refresh="load"
   >
     <div class="demo-widget">
+      <DemoFilterBar v-model="filterState" :filters="filters" />
+      <div class="demo-grid">
       <DemoTreeMatrix
         :tree-data="treeData"
         :columns="columns"
@@ -21,6 +23,7 @@
           </span>
         </template>
       </DemoTreeMatrix>
+      </div>
     </div>
     <DemoPoDetailDialog v-model="poDialogVisible" :po-id="poDialogId" />
   </DashboardCard>
@@ -28,8 +31,18 @@
 
 <script setup lang="ts">
 import DemoTreeMatrix, { type MatrixColumn } from '../dashboard/demo/DemoTreeMatrix.vue'
+import DemoFilterBar from '../dashboard/demo/DemoFilterBar.vue'
 import DemoPoDetailDialog from '../dashboard/demo/DemoPoDetailDialog.vue'
-import { loadArrivals, buildTree, formatNumber, type DemoTreeNode } from '../../composables/demo/useDemoData'
+import {
+  loadArrivals,
+  buildTree,
+  formatNumber,
+  distinctValues,
+  applyDemoFilters,
+  type DemoFilterDef,
+  type DemoFilterState,
+  type DemoTreeNode
+} from '../../composables/demo/useDemoData'
 
 const props = withDefaults(
   defineProps<{
@@ -42,8 +55,9 @@ const props = withDefaults(
 const emit = defineEmits(['delete'])
 
 const title = computed(() => props.setting?.title || 'Upcoming Goods Arrival')
-const treeData = ref<DemoTreeNode[]>([])
+const rawRows = ref<any[]>([])
 const loading = ref(false)
+const filterState = ref<DemoFilterState>({})
 
 const poDialogVisible = ref(false)
 const poDialogId = ref<string | null>(null)
@@ -59,9 +73,19 @@ function onCellClick({ row, triggerTreeNode }: any) {
   poDialogVisible.value = true
 }
 
+const filterDefs: DemoFilterDef[] = [
+  { field: 'warehouse', label: 'Warehouse', type: 'select' },
+  { field: 'brand', label: 'Brand', type: 'select' },
+  { field: 'eta', label: 'Delivery Date Range', type: 'date-range' }
+]
+
+const filters = computed(() =>
+  filterDefs.map((def) => (def.type === 'select' ? { ...def, options: distinctValues(rawRows.value, def.field) } : def))
+)
+
 const columns: MatrixColumn[] = [
-  { field: 'label', title: 'Warehouse', width: 200, fixed: 'left' },
-  { field: 'qtyShipped', title: 'Qty Shipped', formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
+  { field: 'label', title: 'Warehouse', width: 200, fixed: 'left', sortable: true },
+  { field: 'qtyShipped', title: 'Qty Shipped', sortable: true, formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
   { field: 'carrier', title: 'Carrier', align: 'left', formatter: (r) => r.carrier || '' },
   { field: 'trackingNo', title: 'Tracking No', align: 'left', formatter: (r) => r.trackingNo || '' },
   { field: 'status', title: 'Status', align: 'center', rich: true }
@@ -74,17 +98,20 @@ function statusClass(status: string): string {
   return ''
 }
 
+const treeData = computed(() =>
+  buildTree(applyDemoFilters(rawRows.value, filterDefs, filterState.value), {
+    levels: (r) => [r.warehouse, r.brand, r.eta, r.poId, r.parts],
+    init: (r) => ({ carrier: r.carrier, trackingNo: r.trackingNo, status: r.status, poId: r.poId }),
+    merge: (node, r) => {
+      node.qtyShipped = (node.qtyShipped || 0) + r.qtyShipped
+    }
+  })
+)
+
 async function load() {
   loading.value = true
   try {
-    const rows = await loadArrivals()
-    treeData.value = buildTree(rows, {
-      levels: (r) => [r.warehouse, r.brand, r.eta, r.poId, r.parts],
-      init: (r) => ({ carrier: r.carrier, trackingNo: r.trackingNo, status: r.status, poId: r.poId }),
-      merge: (node, r) => {
-        node.qtyShipped = (node.qtyShipped || 0) + r.qtyShipped
-      }
-    })
+    rawRows.value = await loadArrivals()
   } catch (error) {
     console.error('Failed to load demo data:', error)
   } finally {
@@ -99,6 +126,12 @@ onMounted(load)
 .demo-widget {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.demo-grid {
+  flex: 1;
+  min-height: 0;
 }
 .demo-widget :deep(.is-clickable) {
   cursor: pointer;
