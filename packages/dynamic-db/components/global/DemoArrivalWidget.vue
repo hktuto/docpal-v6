@@ -103,10 +103,16 @@ onMounted(load)
 .demo-widget :deep(.is-clickable) {
   cursor: pointer;
 }
+.demo-widget :deep(.is-clickable .vxe-cell--tree-node) {
+  color: var(--el-color-primary, #409eff);
+}
+.demo-widget :deep(.is-clickable:hover .vxe-cell--tree-node) {
+  text-decoration: underline;
+}
 .status-tag {
   padding: 1px 8px;
   border-radius: 10px;
-  font-size: 12px;
+  font-size: 0.75rem;
   &.in-transit {
     color: var(--el-color-primary, #409eff);
     background: rgba(64, 158, 255, 0.12);

@@ -153,9 +153,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 // override el-dialog
 .el-dialog{
-  --el-dialog-width: clamp(260px, 90vw, 600px) !important;
+  --el-dialog-width: clamp(260px, 100vw, 600px) !important;
   &.big{
-    --el-dialog-width: clamp(260px, 90vw, 1280px) !important;
+    --el-dialog-width: clamp(260px, 100vw, 1280px) !important;
   }
   &.is-fullscreen{
     --el-dialog-width: 100vw !important;

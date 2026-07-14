@@ -1,8 +1,9 @@
 <template>
   <el-dialog
+    class="big"
     :model-value="modelValue"
     :title="profile ? `${profile.companyName} — Customer Profile` : 'Customer Profile'"
-    width="80%"
+    width="90%"
     top="5vh"
     append-to-body
     @update:model-value="emit('update:modelValue', $event)"
@@ -55,7 +56,7 @@ const loading = ref(false)
 const gridOptions = computed(() => ({
   border: true,
   showOverflow: true,
-  maxHeight: 300,
+  maxHeight: 400,
   columns: soTableColumns()
 }))
 
@@ -90,14 +91,20 @@ watch(
 .profile-field {
   label {
     display: block;
-    font-size: 12px;
+    font-size: var(--app-font-size-s);
     color: var(--el-text-color-secondary, #909399);
   }
   span {
-    font-size: 14px;
+    font-size: var(--app-font-size-m);
   }
 }
 h4 {
   margin: 12px 0 8px;
+}
+:deep(.el-dialog__title) {
+  font-size: 1.125rem;
+}
+:deep(.vxe-grid) {
+  --vxe-ui-font-size-default: 0.875rem;
 }
 </style>

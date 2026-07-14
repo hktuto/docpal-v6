@@ -167,6 +167,7 @@ defineExpose({
   }
   .dp-dashboard--card__title {
     font-size: var(--app-font-size-l);
+    margin-bottom: var(--app-space-s);
     .el-dropdown {
       padding-top: 3px;
     }

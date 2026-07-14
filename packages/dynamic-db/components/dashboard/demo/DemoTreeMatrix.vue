@@ -63,3 +63,11 @@ const gridOptions = computed<VxeGridProps>(() => ({
   }))
 }))
 </script>
+
+<style scoped lang="scss">
+// vxe-table reads its base font size from this CSS var; keep it rem-based
+// (0.875rem == vxe's 14px default at the app's 16px root)
+.vxe-grid {
+  --vxe-ui-font-size-default: 0.875rem;
+}
+</style>

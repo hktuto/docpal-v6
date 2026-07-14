@@ -88,7 +88,7 @@ onMounted(load)
   flex-direction: column;
   line-height: 1.3;
   .cost {
-    font-size: 11px;
+    font-size: 0.6875rem;
     color: var(--el-text-color-secondary, #909399);
   }
 }

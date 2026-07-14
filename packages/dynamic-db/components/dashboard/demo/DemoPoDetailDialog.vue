@@ -1,8 +1,9 @@
 <template>
   <el-dialog
+  class="big"
     :model-value="modelValue"
     :title="po ? `${po.poNo} — PO Detail` : 'PO Detail'"
-    width="70%"
+    width="90%"
     top="5vh"
     append-to-body
     @update:model-value="emit('update:modelValue', $event)"
@@ -46,7 +47,7 @@ const loading = ref(false)
 const lineGridOptions = computed<VxeGridProps>(() => ({
   border: true,
   showOverflow: true,
-  maxHeight: 300,
+  maxHeight: 400,
   columns: [
     { field: 'parts', title: 'Parts', minWidth: 200, align: 'left' },
     { field: 'supplierParts', title: 'Supplier Parts', minWidth: 160, align: 'left' },
@@ -60,7 +61,7 @@ const lineGridOptions = computed<VxeGridProps>(() => ({
 const shipmentGridOptions = computed<VxeGridProps>(() => ({
   border: true,
   showOverflow: true,
-  maxHeight: 200,
+  maxHeight: 300,
   columns: [
     { field: 'warehouse', title: 'Warehouse', width: 110, align: 'left' },
     { field: 'carrier', title: 'Carrier', minWidth: 130, align: 'left' },
@@ -101,14 +102,20 @@ watch(
 .po-field {
   label {
     display: block;
-    font-size: 12px;
+    font-size: 0.75rem;
     color: var(--el-text-color-secondary, #909399);
   }
   span {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 }
 h4 {
   margin: 12px 0 8px;
+}
+:deep(.el-dialog__title) {
+  font-size: 1.125rem;
+}
+:deep(.vxe-grid) {
+  --vxe-ui-font-size-default: 0.875rem;
 }
 </style>

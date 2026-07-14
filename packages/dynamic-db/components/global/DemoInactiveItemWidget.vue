@@ -88,4 +88,10 @@ onMounted(load)
 .demo-widget :deep(.is-clickable) {
   cursor: pointer;
 }
+.demo-widget :deep(.is-clickable .vxe-cell--tree-node) {
+  color: var(--el-color-primary, #409eff);
+}
+.demo-widget :deep(.is-clickable:hover .vxe-cell--tree-node) {
+  text-decoration: underline;
+}
 </style>

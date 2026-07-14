@@ -1,8 +1,9 @@
 <template>
   <el-dialog
+  class="big"
     :model-value="modelValue"
     :title="`${warehouse || ''} — Inventory Detail`"
-    width="80%"
+    width="90%"
     top="5vh"
     append-to-body
     @update:model-value="emit('update:modelValue', $event)"
@@ -64,6 +65,9 @@ watch(
 
 <style scoped lang="scss">
 .drill-dialog-body {
-  height: 70vh;
+  height: 80vh;
+}
+:deep(.el-dialog__title) {
+  font-size: 1.125rem;
 }
 </style>

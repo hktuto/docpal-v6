@@ -1,8 +1,9 @@
 <template>
   <el-dialog
+  class="big"
     :model-value="modelValue"
     :title="title"
-    width="80%"
+    width="90%"
     top="5vh"
     append-to-body
     @update:model-value="emit('update:modelValue', $event)"
@@ -30,7 +31,16 @@ const emit = defineEmits(['update:modelValue'])
 const gridOptions = computed(() => ({
   border: true,
   showOverflow: true,
-  maxHeight: 500,
+  maxHeight: 700,
   columns: soTableColumns({ allocated: props.showAllocated })
 }))
 </script>
+
+<style scoped lang="scss">
+:deep(.el-dialog__title) {
+  font-size: 1.125rem;
+}
+:deep(.vxe-grid) {
+  --vxe-ui-font-size-default: 0.875rem;
+}
+</style>
