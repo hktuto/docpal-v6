@@ -93,7 +93,18 @@ function updateData() {
 }
 
 async function getEmailRecipient() {
-  const stringVariables = getVariablesByDisplayTypes(['text'], true)
+  const stringAndArrayVariables = getVariablesByDisplayTypes(['text', 'array'], true)
+
+  const filter = stringAndArrayVariables.filter((item: any) => {
+    if (item.type === 'array') {
+      if (item.items.type === 'text') {
+        return item
+      }
+    } else {
+      return item
+    }
+  })
+
   const userList = await getUserSelectOption()
   const map = userList.map((item: any) => ({
     id: item.email,
@@ -102,7 +113,7 @@ async function getEmailRecipient() {
 
   emailRecipient.value = [
     { label: 'User', options: Array.from(new Map(map.map((x: any) => [x.id, x])).values()) },
-    { label: 'Variables', options: stringVariables }
+    { label: 'Variables', options: stringAndArrayVariables }
   ]
 }
 
