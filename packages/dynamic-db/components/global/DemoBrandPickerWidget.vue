@@ -46,7 +46,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || '品牌篩選')
+const title = computed(() => '品牌篩選')
 const loading = ref(false)
 
 const brands = useDemoBrands()

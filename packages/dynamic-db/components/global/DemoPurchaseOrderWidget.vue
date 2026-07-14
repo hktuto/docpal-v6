@@ -53,7 +53,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || '採購訂單報表')
+const title = computed(() => '採購訂單報表')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})

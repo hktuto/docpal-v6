@@ -38,7 +38,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || '每月已出貨與待出貨')
+const title = computed(() => '每月已出貨與待出貨')
 const loading = ref(false)
 
 const brands = useDemoBrands()

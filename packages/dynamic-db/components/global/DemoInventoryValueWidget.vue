@@ -44,7 +44,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || '庫存價值（按庫齡）')
+const title = computed(() => '庫存價值（按庫齡）')
 const loading = ref(false)
 
 const brands = useDemoBrands()

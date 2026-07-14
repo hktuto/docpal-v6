@@ -62,7 +62,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || '倉庫入庫/出庫')
+const title = computed(() => '倉庫入庫/出庫')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})

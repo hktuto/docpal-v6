@@ -38,7 +38,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => props.setting?.title || '客戶待出貨')
+const title = computed(() => '客戶待出貨')
 const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
 
