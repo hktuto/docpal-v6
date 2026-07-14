@@ -81,10 +81,12 @@ function sortTreeNodes(nodes: any[], col: MatrixColumn, order: 'asc' | 'desc'): 
 }
 
 const displayData = computed(() => {
-  if (!sortState.value) return props.treeData
-  const col = props.columns.find((c) => c.field === sortState.value!.field)
+  // Default: sort by the first column ascending until the user picks a sort (or clears it)
+  const state = sortState.value ?? (props.columns[0] ? { field: props.columns[0].field, order: 'asc' as const } : null)
+  if (!state) return props.treeData
+  const col = props.columns.find((c) => c.field === state.field)
   if (!col) return props.treeData
-  return sortTreeNodes(props.treeData, col, sortState.value.order)
+  return sortTreeNodes(props.treeData, col, state.order)
 })
 
 const gridOptions = computed<VxeGridProps>(() => ({
@@ -95,7 +97,10 @@ const gridOptions = computed<VxeGridProps>(() => ({
   rowClassName: props.rowClassName,
   treeConfig: { childrenField: 'children', showLine: true, indent: 16 },
   columnConfig: { resizable: true },
-  sortConfig: { remote: true },
+  sortConfig: {
+    remote: true,
+    defaultSort: props.columns[0] ? { field: props.columns[0].field, order: 'asc' } : undefined
+  },
   columns: props.columns.map((col, index) => ({
     field: col.field,
     title: col.title,

@@ -120,9 +120,10 @@ function clearAll() {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
   padding-bottom: 6px;
+  padding-inline: 6px;
 }
 .demo-filter-item {
   display: flex;
