@@ -7,7 +7,7 @@ export function useDemoChart(container: Ref<HTMLElement | undefined>) {
   let chart: echarts.ECharts | null = null
   let observer: ResizeObserver | null = null
 
-  function render(option: any) {
+  function render(option: any, onClick?: (params: any) => void) {
     if (!container.value) return
     if (!chart) {
       chart = echarts.init(container.value)
@@ -15,6 +15,10 @@ export function useDemoChart(container: Ref<HTMLElement | undefined>) {
       observer.observe(container.value)
     }
     chart.setOption(option)
+    if (onClick) {
+      chart.off('click')
+      chart.on('click', onClick)
+    }
   }
 
   onUnmounted(() => {

@@ -43,6 +43,8 @@ import {
   type DemoFilterState,
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
+import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
+import { useDemoYear, inDemoYear } from '../../composables/demo/demoYear'
 
 const props = withDefaults(
   defineProps<{
@@ -109,8 +111,17 @@ function statusClass(status: string): string {
   return ''
 }
 
+const brands = useDemoBrands()
+const year = useDemoYear()
+
+const filteredRows = computed(() => {
+  const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
+  return (brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand)))
+    .filter((r) => inDemoYear(r.eta, year.value))
+})
+
 const treeData = computed(() =>
-  buildTree(applyDemoFilters(rawRows.value, filterDefs, filterState.value), {
+  buildTree(filteredRows.value, {
     levels: (r) => [r.warehouse, r.brand, r.eta, r.poId, r.parts],
     init: (r) => ({ carrier: r.carrier, trackingNo: r.trackingNo, status: r.status, poId: r.poId }),
     merge: (node, r) => {

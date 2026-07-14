@@ -146,6 +146,18 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       footer: ''
     }
   },
+  DemoYearPicker: {
+    label: '年份篩選',
+    type: 'demo' as any,
+    minW: 2,
+    minH: 2,
+    maxW: 12,
+    maxH: 4,
+    w: 4,
+    h: 2,
+    component: 'LazyDemoYearPickerWidget',
+    setting: { title: '年份篩選', subtitle: '', footer: '' }
+  },
   DemoSalesKpi: {
     label: '銷售總覽',
     type: 'demo' as any,

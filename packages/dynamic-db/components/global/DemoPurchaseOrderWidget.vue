@@ -40,6 +40,8 @@ import {
   type DemoFilterState,
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
+import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
+import { useDemoYear, inDemoYear } from '../../composables/demo/demoYear'
 
 const props = withDefaults(
   defineProps<{
@@ -110,8 +112,17 @@ const columns: MatrixColumn[] = [
   { field: 'value', title: '採購金額', sortable: true, formatter: (r) => formatCurrency(r.value || 0) }
 ]
 
+const brands = useDemoBrands()
+const year = useDemoYear()
+
+const filteredRows = computed(() => {
+  const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
+  return (brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand)))
+    .filter((r) => inDemoYear(r.orderDate, year.value))
+})
+
 const treeData = computed<DemoTreeNode[]>(() =>
-  buildTree(applyDemoFilters(rawRows.value, filterDefs, filterState.value), {
+  buildTree(filteredRows.value, {
     levels: (r) => [r.brand, r.year, r.poNo, r.parts],
     init: (r) => ({ orderDate: r.orderDate, eta: r.eta }),
     merge: (node, r) => {

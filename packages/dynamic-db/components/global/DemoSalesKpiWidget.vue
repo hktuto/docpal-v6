@@ -23,6 +23,7 @@
 import { loadSalesOrders, loadInventory, loadPartCosts, formatCompactCurrency } from '../../composables/demo/useDemoData'
 import { isActiveSO, shippedValue, outstandingValue } from '../../composables/demo/demoSales'
 import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
+import { useDemoYear, inDemoYear } from '../../composables/demo/demoYear'
 
 const props = withDefaults(
   defineProps<{
@@ -38,6 +39,7 @@ const title = computed(() => props.setting?.title || '銷售總覽')
 const loading = ref(false)
 
 const brands = useDemoBrands()
+const year = useDemoYear()
 
 const cards = ref([
   { label: '訂單總值', value: 0 },
@@ -50,7 +52,9 @@ async function load() {
   loading.value = true
   try {
     const [allOrders, allInventory, partCosts] = await Promise.all([loadSalesOrders(), loadInventory(), loadPartCosts()])
-    const orders = allOrders.filter((r) => brands.value.includes(ALL_BRANDS) || brands.value.includes(r.brand))
+    const orders = allOrders
+      .filter((r) => brands.value.includes(ALL_BRANDS) || brands.value.includes(r.brand))
+      .filter((r) => inDemoYear(r.orderDate, year.value))
     const inventory = allInventory.filter((r) => brands.value.includes(ALL_BRANDS) || brands.value.includes(r.brand))
     let total = 0
     let shipped = 0
@@ -78,6 +82,7 @@ async function load() {
 }
 
 watch(brands, () => load())
+watch(year, () => load())
 
 onMounted(load)
 </script>

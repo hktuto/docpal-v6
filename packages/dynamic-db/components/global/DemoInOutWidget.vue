@@ -39,6 +39,8 @@ import {
   type DemoFilterState,
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
+import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
+import { useDemoYear, inDemoYear } from '../../composables/demo/demoYear'
 
 const props = withDefaults(
   defineProps<{
@@ -65,7 +67,14 @@ const filters = computed(() =>
   filterDefs.map((def) => (def.type === 'select' ? { ...def, options: distinctValues(rawRows.value, def.field) } : def))
 )
 
-const filteredRows = computed(() => applyDemoFilters(rawRows.value, filterDefs, filterState.value))
+const brands = useDemoBrands()
+const year = useDemoYear()
+
+const filteredRows = computed(() => {
+  const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
+  return (brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand)))
+    .filter((r) => inDemoYear(r.date, year.value))
+})
 
 // Month columns derived from (filtered) data; each month column sorts by its inbound qty
 const columns = computed<MatrixColumn[]>(() => {

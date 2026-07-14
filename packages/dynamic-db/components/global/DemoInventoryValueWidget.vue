@@ -10,6 +10,7 @@
     <div class="demo-widget">
       <div ref="chartContainer" class="chart-container" />
     </div>
+    <DemoInventoryDrillDialog v-model="drillVisible" :rows="drillRows" :title="drillTitle" />
   </DashboardCard>
 </template>
 
@@ -18,7 +19,8 @@ import * as echarts from 'echarts/core'
 import { PieChart } from 'echarts/charts'
 import { TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import { loadInventory, loadPartCosts, formatCurrency, formatCompactCurrency } from '../../composables/demo/useDemoData'
+import DemoInventoryDrillDialog from '../dashboard/demo/DemoInventoryDrillDialog.vue'
+import { loadInventory, loadPartCosts, formatCompactCurrency } from '../../composables/demo/useDemoData'
 import { useDemoChart } from '../../composables/demo/useDemoChart'
 import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
 
@@ -50,11 +52,25 @@ const brands = useDemoBrands()
 const chartContainer = ref<HTMLElement>()
 const { render } = useDemoChart(chartContainer)
 
+const brandFilteredInventory = ref<any[]>([])
+const drillVisible = ref(false)
+const drillRows = ref<any[] | null>(null)
+const drillTitle = ref('')
+
+function onSliceClick(p: any) {
+  const bucket = BUCKETS[p.dataIndex]
+  if (!bucket) return
+  drillRows.value = brandFilteredInventory.value.filter((r) => r.ageDays >= bucket.min && r.ageDays <= bucket.max)
+  drillTitle.value = `${bucket.name} — 庫存明細`
+  drillVisible.value = true
+}
+
 async function load() {
   loading.value = true
   try {
     const [allInventory, partCosts] = await Promise.all([loadInventory(), loadPartCosts()])
     const inventory = allInventory.filter((r) => brands.value.includes(ALL_BRANDS) || brands.value.includes(r.brand))
+    brandFilteredInventory.value = inventory
     const values = BUCKETS.map(() => 0)
     let total = 0
     for (const r of inventory) {
@@ -63,29 +79,32 @@ async function load() {
       const i = BUCKETS.findIndex((b) => r.ageDays >= b.min && r.ageDays <= b.max)
       if (i >= 0) values[i] += v
     }
-    render({
-      tooltip: { trigger: 'item', formatter: (p: any) => `${p.name}：${formatCurrency(p.value)}（${p.percent}%）` },
-      legend: { orient: 'vertical', right: 10, top: 'center' },
-      title: {
-        text: formatCompactCurrency(total),
-        subtext: '總計',
-        left: '43%',
-        top: '42%',
-        textAlign: 'center',
-        textStyle: { fontSize: 24, fontWeight: 'bold' },
-        subtextStyle: { fontSize: 12 }
+    render(
+      {
+        tooltip: { trigger: 'item', formatter: (p: any) => `${p.name}：${formatCompactCurrency(p.value)}（${p.percent}%）` },
+        legend: { orient: 'vertical', right: 10, top: 'center' },
+        title: {
+          text: formatCompactCurrency(total),
+          subtext: '總計',
+          left: '43%',
+          top: '42%',
+          textAlign: 'center',
+          textStyle: { fontSize: 24, fontWeight: 'bold' },
+          subtextStyle: { fontSize: 12 }
+        },
+        series: [
+          {
+            type: 'pie',
+            radius: ['45%', '70%'],
+            center: ['45%', '50%'],
+            avoidLabelOverlap: true,
+            label: { formatter: '{b}（{d}%）' },
+            data: BUCKETS.map((b, i) => ({ name: b.name, value: Math.round(values[i]) }))
+          }
+        ]
       },
-      series: [
-        {
-          type: 'pie',
-          radius: ['45%', '70%'],
-          center: ['45%', '50%'],
-          avoidLabelOverlap: true,
-          label: { formatter: '{b}（{d}%）' },
-          data: BUCKETS.map((b, i) => ({ name: b.name, value: Math.round(values[i]) }))
-        }
-      ]
-    })
+      onSliceClick
+    )
   } catch (error) {
     console.error('Failed to load demo data:', error)
   } finally {
@@ -106,5 +125,6 @@ onMounted(load)
 .chart-container {
   height: 100%;
   width: 100%;
+  cursor: pointer;
 }
 </style>

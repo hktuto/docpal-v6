@@ -37,6 +37,7 @@ import {
   type DemoFilterState,
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
+import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
 
 const props = withDefaults(
   defineProps<{
@@ -84,8 +85,15 @@ const columns: MatrixColumn[] = [
   { field: 'available', title: '可用數量', sortable: true, formatter: (r) => formatNumber(r.available || 0) }
 ]
 
+const brands = useDemoBrands()
+
+const filteredRows = computed(() => {
+  const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
+  return brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand))
+})
+
 const treeData = computed(() =>
-  buildTree(applyDemoFilters(rawRows.value, filterDefs, filterState.value), {
+  buildTree(filteredRows.value, {
     levels: (r) => [r.brand, r.parts, r.warehouse, r.subInventory, r.dateCode || '未知'],
     merge: (node, r) => {
       node.onHand = (node.onHand || 0) + r.onHand

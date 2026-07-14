@@ -36,6 +36,7 @@ import {
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
 import { salesOrderColumns, salesOrderFilterDefs, buildSalesOrderTree } from '../../composables/demo/salesOrderReport'
+import { useDemoYear, inDemoYear } from '../../composables/demo/demoYear'
 
 const props = withDefaults(
   defineProps<{
@@ -72,8 +73,13 @@ const filters = computed(() =>
   )
 )
 
+const year = useDemoYear()
+
 const treeData = computed(() =>
-  buildSalesOrderTree(applyDemoFilters(rawRows.value, salesOrderFilterDefs, filterState.value), stockByParts.value)
+  buildSalesOrderTree(
+    applyDemoFilters(rawRows.value, salesOrderFilterDefs, filterState.value).filter((r) => inDemoYear(r.orderDate, year.value)),
+    stockByParts.value
+  )
 )
 
 async function load() {

@@ -40,6 +40,7 @@ import {
   type DemoFilterState,
   type DemoTreeNode
 } from '../../composables/demo/useDemoData'
+import { useDemoBrands, ALL_BRANDS } from '../../composables/demo/demoBrand'
 
 const props = withDefaults(
   defineProps<{
@@ -72,8 +73,15 @@ const columns: MatrixColumn[] = [
   { field: 'total', title: '總計', width: 120, rich: true, sortable: true, sortField: 'qty_total' }
 ]
 
+const brands = useDemoBrands()
+
+const filteredRows = computed(() => {
+  const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
+  return brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand))
+})
+
 const treeData = computed<DemoTreeNode[]>(() =>
-  buildTree(applyDemoFilters(rawRows.value, filterDefs, filterState.value), {
+  buildTree(filteredRows.value, {
     levels: (r) => [r.brand, r.parts],
     merge: (node, r) => {
       const bucket = ageBucket(r.ageDays)
