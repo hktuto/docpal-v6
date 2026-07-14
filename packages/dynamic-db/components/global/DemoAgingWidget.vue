@@ -52,7 +52,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '庫齡報表')
+const title = computed(() => '库龄报表')
 const rawRows = ref<any[]>([])
 const costs = ref<Record<string, number>>({})
 const loading = ref(false)
@@ -70,7 +70,7 @@ const filters = computed(() =>
 const columns: MatrixColumn[] = [
   { field: 'label', title: '品牌 / 物料', width: 280, fixed: 'left' },
   ...AGE_BUCKETS.map((b) => ({ field: b.key, title: b.label, width: 110, rich: true, sortable: true, sortField: 'qty_' + b.key })),
-  { field: 'total', title: '總計', width: 120, rich: true, sortable: true, sortField: 'qty_total' }
+  { field: 'total', title: '总计', width: 120, rich: true, sortable: true, sortField: 'qty_total' }
 ]
 
 const brands = useDemoBrands()

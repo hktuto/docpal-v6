@@ -53,7 +53,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '採購訂單報表')
+const title = computed(() => '采购订单报表')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
@@ -85,17 +85,17 @@ async function onCellClick({ row, triggerTreeNode }: any) {
   soDialogRows.value = salesOrders
     .filter((r) => allocatedBySoLine.has(r.soLineId))
     .map((r) => ({ ...r, allocatedQty: allocatedBySoLine.get(r.soLineId) }))
-  soDialogTitle.value = `${po.poNo} — 相關銷售訂單`
+  soDialogTitle.value = `${po.poNo} — 相关销售订单`
   soDialogVisible.value = true
 }
 
 const filterDefs: DemoFilterDef[] = [
   { field: 'brand', label: '品牌', type: 'select' },
   { field: 'year', label: '年份', type: 'select' },
-  { field: 'poNo', label: '採購訂單', type: 'select' },
+  { field: 'poNo', label: '采购订单', type: 'select' },
   { field: 'parts', label: '物料', type: 'select' },
-  { field: 'orderDate', label: '採購日期範圍', type: 'date-range' },
-  { field: 'eta', label: '預計到貨日期範圍', type: 'date-range' }
+  { field: 'orderDate', label: '采购日期範圍', type: 'date-range' },
+  { field: 'eta', label: '预计到货日期範圍', type: 'date-range' }
 ]
 
 const filters = computed(() =>
@@ -103,13 +103,13 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: '品牌 / 年份 / 採購訂單 / 物料', width: 280, fixed: 'left' },
-  { field: 'orderDate', title: '採購日期', align: 'center', sortable: true, formatter: (r) => r.orderDate || '' },
-  { field: 'eta', title: '預計到貨日期', align: 'center', sortable: true, formatter: (r) => r.eta || '' },
-  { field: 'orderedQty', title: '訂購數量', sortable: true, formatter: (r) => formatNumber(r.orderedQty || 0) },
-  { field: 'receivedQty', title: '已收貨數量', sortable: true, formatter: (r) => formatNumber(r.receivedQty || 0) },
-  { field: 'openQty', title: '未到貨數量', sortable: true, formatter: (r) => formatNumber(r.openQty || 0) },
-  { field: 'value', title: '採購金額', sortable: true, formatter: (r) => formatCurrency(r.value || 0) }
+  { field: 'label', title: '品牌 / 年份 / 采购订单 / 物料', width: 280, fixed: 'left' },
+  { field: 'orderDate', title: '采购日期', align: 'center', sortable: true, formatter: (r) => r.orderDate || '' },
+  { field: 'eta', title: '预计到货日期', align: 'center', sortable: true, formatter: (r) => r.eta || '' },
+  { field: 'orderedQty', title: '订购数量', sortable: true, formatter: (r) => formatNumber(r.orderedQty || 0) },
+  { field: 'receivedQty', title: '已收货数量', sortable: true, formatter: (r) => formatNumber(r.receivedQty || 0) },
+  { field: 'openQty', title: '未到货数量', sortable: true, formatter: (r) => formatNumber(r.openQty || 0) },
+  { field: 'value', title: '采购金额', sortable: true, formatter: (r) => formatCurrency(r.value || 0) }
 ]
 
 const brands = useDemoBrands()

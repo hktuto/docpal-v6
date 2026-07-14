@@ -2,7 +2,7 @@
   <el-dialog
   class="big"
     :model-value="modelValue"
-    :title="`${parts || ''} — 庫存`"
+    :title="`${parts || ''} — 库存`"
     width="90%"
     top="5vh"
     append-to-body
@@ -29,10 +29,10 @@ const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: '倉庫 / 子庫 / 日期碼', width: 320, fixed: 'left' },
-  { field: 'onHand', title: '現有數量', formatter: (r) => formatNumber(r.onHand || 0) },
-  { field: 'reserved', title: '預留數量', formatter: (r) => formatNumber(r.reserved || 0) },
-  { field: 'available', title: '可用數量', formatter: (r) => formatNumber(r.available || 0) }
+  { field: 'label', title: '仓库 / 子库 / 日期码', width: 320, fixed: 'left' },
+  { field: 'onHand', title: '现有数量', formatter: (r) => formatNumber(r.onHand || 0) },
+  { field: 'reserved', title: '预留数量', formatter: (r) => formatNumber(r.reserved || 0) },
+  { field: 'available', title: '可用数量', formatter: (r) => formatNumber(r.available || 0) }
 ]
 
 watch(

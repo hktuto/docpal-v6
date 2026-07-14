@@ -2,7 +2,7 @@
   <el-dialog
   class="big"
     :model-value="modelValue"
-    :title="po ? `${po.poNo} — 採購訂單詳情` : '採購訂單詳情'"
+    :title="po ? `${po.poNo} — 采购订单详情` : '采购订单详情'"
     width="90%"
     top="5vh"
     append-to-body
@@ -10,23 +10,23 @@
   >
     <div v-if="po" class="po-detail">
       <div class="po-header">
-        <div class="po-field"><label>採購訂單號</label><span>{{ po.poNo }}</span></div>
-        <div class="po-field"><label>供應商</label><span>{{ po.supplier }}</span></div>
-        <div class="po-field"><label>訂購日期</label><span>{{ po.orderDate }}</span></div>
-        <div class="po-field"><label>預計到貨日期</label><span>{{ po.eta }}</span></div>
-        <div class="po-field"><label>狀態</label><span>{{ poStatusLabel(po.status) }}</span></div>
-        <div class="po-field"><label>總金額</label><span>{{ formatCurrency(po.totalValue) }}</span></div>
+        <div class="po-field"><label>采购订单号</label><span>{{ po.poNo }}</span></div>
+        <div class="po-field"><label>供应商</label><span>{{ po.supplier }}</span></div>
+        <div class="po-field"><label>订购日期</label><span>{{ po.orderDate }}</span></div>
+        <div class="po-field"><label>预计到货日期</label><span>{{ po.eta }}</span></div>
+        <div class="po-field"><label>状态</label><span>{{ poStatusLabel(po.status) }}</span></div>
+        <div class="po-field"><label>总金额</label><span>{{ formatCurrency(po.totalValue) }}</span></div>
       </div>
 
-      <h4>訂單明細</h4>
+      <h4>订单明细</h4>
       <VxeGrid v-bind="lineGridOptions" :data="po.lines" />
 
       <template v-if="po.shipments.length">
-        <h4>出貨記錄</h4>
+        <h4>出货記錄</h4>
         <VxeGrid v-bind="shipmentGridOptions" :data="po.shipments" />
       </template>
     </div>
-    <el-empty v-else-if="!loading" description="沒有採購訂單資料" />
+    <el-empty v-else-if="!loading" description="没有采购订单资料" />
   </el-dialog>
 </template>
 
@@ -47,18 +47,18 @@ const loading = ref(false)
 // Display-only labels for status values; raw English values still drive all logic.
 // PO header statuses present in demo/data/purchaseOrders.json.
 const PO_STATUS_LABELS: Record<string, string> = {
-  Open: '進行中',
-  Received: '已收貨',
-  Partial: '部分收貨',
+  Open: '进行中',
+  Received: '已收货',
+  Partial: '部分收货',
   Closed: '已完成',
   Cancelled: '已取消'
 }
 
 // Shipment statuses (same values as the arrival widget).
 const SHIPMENT_STATUS_LABELS: Record<string, string> = {
-  'In Transit': '運送中',
-  Delivered: '已送達',
-  Delayed: '延誤'
+  'In Transit': '运送中',
+  Delivered: '已送达',
+  Delayed: '延误'
 }
 
 function poStatusLabel(status: string): string {
@@ -71,11 +71,11 @@ const lineGridOptions = computed<VxeGridProps>(() => ({
   maxHeight: 400,
   columns: [
     { field: 'parts', title: '物料', minWidth: 200, align: 'left' },
-    { field: 'supplierParts', title: '供應商物料', minWidth: 160, align: 'left' },
-    { field: 'orderedQty', title: '訂購數量', width: 120, align: 'right', formatter: ({ row }: any) => formatNumber(row.orderedQty) },
-    { field: 'receivedQty', title: '已收貨數量', width: 120, align: 'right', formatter: ({ row }: any) => formatNumber(row.receivedQty) },
-    { field: 'openQty', title: '未到貨數量', width: 110, align: 'right', formatter: ({ row }: any) => formatNumber(row.openQty) },
-    { field: 'value', title: '金額', width: 120, align: 'right', formatter: ({ row }: any) => formatCurrency(row.value) }
+    { field: 'supplierParts', title: '供应商物料', minWidth: 160, align: 'left' },
+    { field: 'orderedQty', title: '订购数量', width: 120, align: 'right', formatter: ({ row }: any) => formatNumber(row.orderedQty) },
+    { field: 'receivedQty', title: '已收货数量', width: 120, align: 'right', formatter: ({ row }: any) => formatNumber(row.receivedQty) },
+    { field: 'openQty', title: '未到货数量', width: 110, align: 'right', formatter: ({ row }: any) => formatNumber(row.openQty) },
+    { field: 'value', title: '金额', width: 120, align: 'right', formatter: ({ row }: any) => formatCurrency(row.value) }
   ]
 }))
 
@@ -84,13 +84,13 @@ const shipmentGridOptions = computed<VxeGridProps>(() => ({
   showOverflow: true,
   maxHeight: 300,
   columns: [
-    { field: 'warehouse', title: '倉庫', width: 110, align: 'left' },
-    { field: 'carrier', title: '承運商', minWidth: 130, align: 'left' },
-    { field: 'trackingNo', title: '追蹤編號', minWidth: 130, align: 'left' },
-    { field: 'shipDate', title: '出貨日期', width: 110, align: 'center' },
-    { field: 'eta', title: '預計到貨日期', width: 110, align: 'center' },
-    { field: 'qtyShipped', title: '出貨數量', width: 120, align: 'right', formatter: ({ row }: any) => formatNumber(row.qtyShipped) },
-    { field: 'status', title: '狀態', width: 100, align: 'center', formatter: ({ row }: any) => SHIPMENT_STATUS_LABELS[row.status] || row.status || '' }
+    { field: 'warehouse', title: '仓库', width: 110, align: 'left' },
+    { field: 'carrier', title: '承运商', minWidth: 130, align: 'left' },
+    { field: 'trackingNo', title: '追踪编号', minWidth: 130, align: 'left' },
+    { field: 'shipDate', title: '出货日期', width: 110, align: 'center' },
+    { field: 'eta', title: '预计到货日期', width: 110, align: 'center' },
+    { field: 'qtyShipped', title: '出货数量', width: 120, align: 'right', formatter: ({ row }: any) => formatNumber(row.qtyShipped) },
+    { field: 'status', title: '状态', width: 100, align: 'center', formatter: ({ row }: any) => SHIPMENT_STATUS_LABELS[row.status] || row.status || '' }
   ]
 }))
 

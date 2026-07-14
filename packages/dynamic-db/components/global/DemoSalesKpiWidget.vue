@@ -35,17 +35,17 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '銷售總覽')
+const title = computed(() => '销售总览')
 const loading = ref(false)
 
 const brands = useDemoBrands()
 const year = useDemoYear()
 
 const cards = ref([
-  { label: '訂單總值', value: 0 },
-  { label: '已出貨值', value: 0 },
-  { label: '待出貨值', value: 0 },
-  { label: '庫存價值', value: 0 }
+  { label: '订单总值', value: 0 },
+  { label: '已出货值', value: 0 },
+  { label: '待出货值', value: 0 },
+  { label: '库存价值', value: 0 }
 ])
 
 async function load() {
@@ -69,10 +69,10 @@ async function load() {
       inventoryValue += r.onHand * (partCosts[r.parts] || 0)
     }
     cards.value = [
-      { label: '訂單總值', value: total },
-      { label: '已出貨值', value: shipped },
-      { label: '待出貨值', value: outstanding },
-      { label: '庫存價值', value: inventoryValue }
+      { label: '订单总值', value: total },
+      { label: '已出货值', value: shipped },
+      { label: '待出货值', value: outstanding },
+      { label: '库存价值', value: inventoryValue }
     ]
   } catch (error) {
     console.error('Failed to load demo data:', error)

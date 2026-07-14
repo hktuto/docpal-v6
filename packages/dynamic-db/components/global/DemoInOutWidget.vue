@@ -62,13 +62,13 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '倉庫入庫/出庫')
+const title = computed(() => '仓库入库/出库')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
 
 const filterDefs: DemoFilterDef[] = [
-  { field: 'warehouse', label: '倉庫', type: 'select' },
+  { field: 'warehouse', label: '仓库', type: 'select' },
   { field: 'brand', label: '品牌', type: 'select' },
   { field: 'parts', label: '物料', type: 'select' }
 ]
@@ -90,9 +90,9 @@ const filteredRows = computed(() => {
 const columns = computed<MatrixColumn[]>(() => {
   const months = [...new Set(filteredRows.value.map((r) => monthKey(r.date)))].sort()
   return [
-    { field: 'label', title: '倉庫 / 品牌 / 物料', width: 260, fixed: 'left' },
+    { field: 'label', title: '仓库 / 品牌 / 物料', width: 260, fixed: 'left' },
     ...months.map((m) => ({ field: m, title: m, width: 110, rich: true, sortable: true, sortField: 'in_' + m })),
-    { field: 'total', title: '總計', width: 120, rich: true, sortable: true, sortField: 'in_total' }
+    { field: 'total', title: '总计', width: 120, rich: true, sortable: true, sortField: 'in_total' }
   ]
 })
 

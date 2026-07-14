@@ -38,7 +38,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '每月已出貨與待出貨')
+const title = computed(() => '每月已出货与待出货')
 const loading = ref(false)
 
 const brands = useDemoBrands()
@@ -56,7 +56,7 @@ function onBarClick(p: any) {
   const month = p.name
   if (!month) return
   soDialogRows.value = filteredOrders.value.filter((r) => monthKey(r.orderDate) === month)
-  soDialogTitle.value = `${month} — 銷售訂單`
+  soDialogTitle.value = `${month} — 销售订单`
   soDialogVisible.value = true
 }
 
@@ -85,7 +85,7 @@ async function load() {
         yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatCompactCurrency(v) } },
         series: [
           {
-            name: '已出貨值',
+            name: '已出货值',
             type: 'bar',
             stack: 'total',
             data: shippedByMonth.map(Math.round),
@@ -93,7 +93,7 @@ async function load() {
             label: { show: true, formatter: ({ value }: any) => formatCompactCurrency(Number(value)) }
           },
           {
-            name: '待出貨值',
+            name: '待出货值',
             type: 'bar',
             stack: 'total',
             data: outstandingByMonth.map(Math.round),

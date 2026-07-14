@@ -44,7 +44,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '庫存價值（按庫齡）')
+const title = computed(() => '库存价值（按库龄）')
 const loading = ref(false)
 
 const brands = useDemoBrands()
@@ -61,7 +61,7 @@ function onSliceClick(p: any) {
   const bucket = BUCKETS[p.dataIndex]
   if (!bucket) return
   drillRows.value = brandFilteredInventory.value.filter((r) => r.ageDays >= bucket.min && r.ageDays <= bucket.max)
-  drillTitle.value = `${bucket.name} — 庫存明細`
+  drillTitle.value = `${bucket.name} — 库存明细`
   drillVisible.value = true
 }
 
@@ -85,7 +85,7 @@ async function load() {
         legend: { orient: 'vertical', right: 10, top: 'center' },
         title: {
           text: formatCompactCurrency(total),
-          subtext: '總計',
+          subtext: '总计',
           left: '43%',
           top: '42%',
           textAlign: 'center',

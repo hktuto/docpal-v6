@@ -56,7 +56,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '即將到貨')
+const title = computed(() => '即將到货')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
@@ -76,9 +76,9 @@ function onCellClick({ row, triggerTreeNode }: any) {
 }
 
 const filterDefs: DemoFilterDef[] = [
-  { field: 'warehouse', label: '倉庫', type: 'select' },
+  { field: 'warehouse', label: '仓库', type: 'select' },
   { field: 'brand', label: '品牌', type: 'select' },
-  { field: 'eta', label: '交貨日期範圍', type: 'date-range' }
+  { field: 'eta', label: '交货日期範圍', type: 'date-range' }
 ]
 
 const filters = computed(() =>
@@ -86,18 +86,18 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: '倉庫 / 交貨日期 / 品牌 / 物料 / 採購訂單', width: 260, fixed: 'left', sortable: true },
-  { field: 'qtyShipped', title: '出貨數量', sortable: true, formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
-  { field: 'carrier', title: '承運商', align: 'left', formatter: (r) => r.carrier || '' },
-  { field: 'trackingNo', title: '追蹤編號', align: 'left', formatter: (r) => r.trackingNo || '' },
-  { field: 'status', title: '狀態', align: 'center', rich: true }
+  { field: 'label', title: '仓库 / 交货日期 / 品牌 / 物料 / 采购订单', width: 300, fixed: 'left', sortable: true },
+  { field: 'qtyShipped', title: '出货数量', sortable: true, formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
+  { field: 'carrier', title: '承运商', align: 'left', formatter: (r) => r.carrier || '' },
+  { field: 'trackingNo', title: '追踪编号', align: 'left', formatter: (r) => r.trackingNo || '' },
+  { field: 'status', title: '状态', align: 'center', rich: true }
 ]
 
 // Display-only labels for shipment status values; raw English values still drive statusClass/logic.
 const STATUS_LABELS: Record<string, string> = {
-  'In Transit': '運送中',
-  Delivered: '已送達',
-  Delayed: '延誤'
+  'In Transit': '运送中',
+  Delivered: '已送达',
+  Delayed: '延误'
 }
 
 function statusLabel(status: string): string {

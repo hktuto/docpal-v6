@@ -38,7 +38,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '客戶待出貨')
+const title = computed(() => '客户待出货')
 const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
 
@@ -58,14 +58,14 @@ function onCellClick({ row, triggerTreeNode }: any) {
   if (triggerTreeNode || (row.level !== 0 && row.level !== 1)) return
   const field = row.level === 0 ? 'customerGroup' : 'customer'
   soDialogRows.value = filteredRows.value.filter((r) => r[field] === row.key)
-  soDialogTitle.value = `${row.key} — 銷售訂單`
+  soDialogTitle.value = `${row.key} — 销售订单`
   soDialogVisible.value = true
 }
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: '客戶組 / 客戶', width: 280, fixed: 'left' },
-  { field: 'outstandingQty', title: '待出貨數量', formatter: (r) => formatNumber(r.outstandingQty || 0) },
-  { field: 'outstandingValue', title: '待出貨金額', formatter: (r) => formatCurrency(r.outstandingValue || 0) }
+  { field: 'label', title: '客户组 / 客户', width: 280, fixed: 'left' },
+  { field: 'outstandingQty', title: '待出货数量', formatter: (r) => formatNumber(r.outstandingQty || 0) },
+  { field: 'outstandingValue', title: '待出货金额', formatter: (r) => formatCurrency(r.outstandingValue || 0) }
 ]
 
 async function load() {

@@ -32,13 +32,13 @@ const emit = defineEmits(['update:modelValue'])
 const treeData = ref<DemoTreeNode[]>([])
 const loading = ref(false)
 
-const dialogTitle = computed(() => props.title || (props.warehouse ? `${props.warehouse} — 庫存明細` : '庫存明細'))
+const dialogTitle = computed(() => props.title || (props.warehouse ? `${props.warehouse} — 库存明细` : '库存明细'))
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: '品牌 / 物料 / 日期碼', width: 320, fixed: 'left' },
-  { field: 'onHand', title: '現有數量', formatter: (r) => formatNumber(r.onHand || 0) },
-  { field: 'reserved', title: '預留數量', formatter: (r) => formatNumber(r.reserved || 0) },
-  { field: 'available', title: '可用數量', formatter: (r) => formatNumber(r.available || 0) }
+  { field: 'label', title: '品牌 / 物料 / 日期码', width: 320, fixed: 'left' },
+  { field: 'onHand', title: '现有数量', formatter: (r) => formatNumber(r.onHand || 0) },
+  { field: 'reserved', title: '预留数量', formatter: (r) => formatNumber(r.reserved || 0) },
+  { field: 'available', title: '可用数量', formatter: (r) => formatNumber(r.available || 0) }
 ]
 
 watch(

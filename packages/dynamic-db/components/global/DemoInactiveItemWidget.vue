@@ -50,7 +50,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '非活躍項目報表')
+const title = computed(() => '非活跃项目报表')
 const rawRows = ref<any[]>([])
 const stockByParts = ref<Record<string, number>>({})
 const loading = ref(false)

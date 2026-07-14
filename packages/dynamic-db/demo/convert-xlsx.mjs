@@ -35,7 +35,7 @@ const inventory = XLSX.utils.sheet_to_json(wb.Sheets['inventory']).map((r) => ({
   brand: r['Brand'],
   parts: r['WCL Parts'],
   subInventory: r['Sub inventory'],
-  dateCode: r['Date Code'] != null ? String(r['Date Code']) : '',
+  dateCode: r['Date Code'] != null ? String(r['Date Code']).padStart(4, '0') : '',
   ageDays: Number(r['Age']) || 0,
   onHand: Number(r['OnHand Qty']) || 0,
   reserved: Number(r['Reserved Qty']) || 0,

@@ -51,7 +51,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '銷售表現儀表板')
+const title = computed(() => '销售表现儀表板')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
@@ -69,7 +69,7 @@ async function onCellClick({ row, triggerTreeNode }: any) {
   const salesOrders = await loadSalesOrders()
   const field = row.level === 0 ? 'brand' : 'parts'
   soDialogRows.value = salesOrders.filter((r) => r[field] === row.key)
-  soDialogTitle.value = `${row.key} — 銷售訂單`
+  soDialogTitle.value = `${row.key} — 销售订单`
   soDialogVisible.value = true
 }
 
@@ -84,12 +84,12 @@ const filters = computed(() =>
 
 const columns: MatrixColumn[] = [
   { field: 'label', title: '品牌 / 物料', width: 280, fixed: 'left' },
-  { field: 'orderQty', title: '訂單數量', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
-  { field: 'shippedQty', title: '已出貨數量', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
-  { field: 'value', title: '銷售金額', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
+  { field: 'orderQty', title: '订单数量', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
+  { field: 'shippedQty', title: '已出货数量', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
+  { field: 'value', title: '销售金额', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
   {
     field: 'fulfillment',
-    title: '出貨達成率',
+    title: '出货达成率',
     align: 'center',
     sortable: true,
     sortField: (r) => (r.orderQty ? (r.shippedQty || 0) / r.orderQty : Number.NaN),

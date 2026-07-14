@@ -49,7 +49,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '總庫存報表')
+const title = computed(() => '总库存报表')
 const rawRows = ref<any[]>([])
 const loading = ref(false)
 const filterState = ref<DemoFilterState>({})
@@ -71,7 +71,7 @@ function onCellClick({ row, triggerTreeNode }: any) {
 const filterDefs: DemoFilterDef[] = [
   { field: 'brand', label: '品牌', type: 'select' },
   { field: 'parts', label: '物料', type: 'select' },
-  { field: 'warehouse', label: '倉庫', type: 'select' }
+  { field: 'warehouse', label: '仓库', type: 'select' }
 ]
 
 const filters = computed(() =>
@@ -79,10 +79,10 @@ const filters = computed(() =>
 )
 
 const columns: MatrixColumn[] = [
-  { field: 'label', title: '品牌 / 物料 / 倉庫 / 子庫 / 日期碼', width: 280, fixed: 'left', sortable: true },
-  { field: 'onHand', title: '現有數量', sortable: true, formatter: (r) => formatNumber(r.onHand || 0) },
-  { field: 'reserved', title: '預留數量', sortable: true, formatter: (r) => formatNumber(r.reserved || 0) },
-  { field: 'available', title: '可用數量', sortable: true, formatter: (r) => formatNumber(r.available || 0) }
+  { field: 'label', title: '品牌 / 物料 / 仓库 / 子库 / 日期码', width: 280, fixed: 'left', sortable: true },
+  { field: 'onHand', title: '现有数量', sortable: true, formatter: (r) => formatNumber(r.onHand || 0) },
+  { field: 'reserved', title: '预留数量', sortable: true, formatter: (r) => formatNumber(r.reserved || 0) },
+  { field: 'available', title: '可用数量', sortable: true, formatter: (r) => formatNumber(r.available || 0) }
 ]
 
 const brands = useDemoBrands()
