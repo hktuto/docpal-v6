@@ -35,3 +35,20 @@ export function soTableColumns(opts: { allocated?: boolean } = {}): VxeGridProps
   }
   return cols
 }
+
+/** Footer aggregate for the shared SO drill-down flat table. */
+export function soTableFooterMethod({ columns, data }: { columns: any[]; data: any[] }): any[][] {
+  const numericFields = ['orderQty', 'shippedQty', 'allocatedQty', 'value']
+  const totals: Record<string, number> = {}
+  for (const field of numericFields) {
+    totals[field] = data.reduce((sum, row) => sum + (Number(row[field]) || 0), 0)
+  }
+
+  const footer = columns.map((col, index) => {
+    if (index === 0) return '总计'
+    if (!numericFields.includes(col.field)) return ''
+    return col.formatter ? col.formatter({ row: totals }) : String(totals[col.field] || 0)
+  })
+
+  return [footer]
+}

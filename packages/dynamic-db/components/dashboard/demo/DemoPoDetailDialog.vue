@@ -65,10 +65,36 @@ function poStatusLabel(status: string): string {
   return PO_STATUS_LABELS[status] || status || ''
 }
 
+function poLineFooterMethod({ columns, data }: { columns: any[]; data: any[] }): any[][] {
+  const numericFields = ['orderedQty', 'receivedQty', 'openQty', 'value']
+  const totals: Record<string, number> = {}
+  for (const field of numericFields) {
+    totals[field] = data.reduce((sum, row) => sum + (Number(row[field]) || 0), 0)
+  }
+  const footer = columns.map((col, index) => {
+    if (index === 0) return '总计'
+    if (!numericFields.includes(col.field)) return ''
+    return col.formatter ? col.formatter({ row: totals }) : String(totals[col.field] || 0)
+  })
+  return [footer]
+}
+
+function poShipmentFooterMethod({ columns, data }: { columns: any[]; data: any[] }): any[][] {
+  const total = data.reduce((sum, row) => sum + (Number(row.qtyShipped) || 0), 0)
+  const footer = columns.map((col, index) => {
+    if (index === 0) return '总计'
+    if (col.field !== 'qtyShipped') return ''
+    return col.formatter ? col.formatter({ row: { qtyShipped: total } }) : formatNumber(total)
+  })
+  return [footer]
+}
+
 const lineGridOptions = computed<VxeGridProps>(() => ({
   border: true,
   showOverflow: true,
   maxHeight: 400,
+  showFooter: true,
+  footerMethod: poLineFooterMethod,
   columns: [
     { field: 'parts', title: '物料', minWidth: 200, align: 'left' },
     { field: 'supplierParts', title: '供应商物料', minWidth: 160, align: 'left' },
@@ -83,6 +109,8 @@ const shipmentGridOptions = computed<VxeGridProps>(() => ({
   border: true,
   showOverflow: true,
   maxHeight: 300,
+  showFooter: true,
+  footerMethod: poShipmentFooterMethod,
   columns: [
     { field: 'warehouse', title: '仓库', width: 110, align: 'left' },
     { field: 'carrier', title: '承运商', minWidth: 130, align: 'left' },

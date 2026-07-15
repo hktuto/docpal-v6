@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { soTableColumns } from '../../../composables/demo/soTableColumns'
+import { soTableColumns, soTableFooterMethod } from '../../../composables/demo/soTableColumns'
 import { loadCustomerProfiles, loadSalesOrders, formatCurrency } from '../../../composables/demo/useDemoData'
 
 const props = defineProps<{
@@ -57,6 +57,8 @@ const gridOptions = computed(() => ({
   border: true,
   showOverflow: true,
   maxHeight: 400,
+  showFooter: true,
+  footerMethod: soTableFooterMethod,
   columns: soTableColumns()
 }))
 

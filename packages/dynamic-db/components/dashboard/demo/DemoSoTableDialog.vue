@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { soTableColumns } from '../../../composables/demo/soTableColumns'
+import { soTableColumns, soTableFooterMethod } from '../../../composables/demo/soTableColumns'
 
 const props = withDefaults(
   defineProps<{
@@ -32,6 +32,8 @@ const gridOptions = computed(() => ({
   border: true,
   showOverflow: true,
   maxHeight: 700,
+  showFooter: true,
+  footerMethod: soTableFooterMethod,
   columns: soTableColumns({ allocated: props.showAllocated })
 }))
 </script>
