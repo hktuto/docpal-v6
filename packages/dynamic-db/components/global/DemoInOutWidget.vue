@@ -82,8 +82,7 @@ const year = useDemoYear()
 
 const filteredRows = computed(() => {
   const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
-  return (brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand)))
-    .filter((r) => inDemoYear(r.date, year.value))
+  return rows
 })
 
 // Month columns derived from (filtered) data; each month column sorts by its inbound qty

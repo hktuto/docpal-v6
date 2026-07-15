@@ -89,7 +89,7 @@ const brands = useDemoBrands()
 
 const filteredRows = computed(() => {
   const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
-  return brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand))
+  return rows
 })
 
 const treeData = computed(() =>

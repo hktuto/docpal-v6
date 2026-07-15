@@ -116,8 +116,7 @@ const year = useDemoYear()
 
 const filteredRows = computed(() => {
   const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
-  return (brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand)))
-    .filter((r) => inDemoYear(r.eta, year.value))
+  return rows
 })
 
 const treeData = computed(() =>

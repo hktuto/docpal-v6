@@ -134,11 +134,11 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     label: '品牌筛选',
     type: 'demo' as any,
     minW: 4,
-    minH: 2,
+    minH: 1,
     maxW: 12,
     maxH: 4,
     w: 12,
-    h: 2,
+    h: 1,
     component: 'LazyDemoBrandPickerWidget',
     setting: {
       title: '品牌筛选',
