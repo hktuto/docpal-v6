@@ -14,12 +14,7 @@ export function useGridEvents(options: UseGridEventsOptions) {
     onExitEdit: options.callbacks.onExitEdit
   })
 
-  const {
-    relationFormPopoverRef,
-    relationFormTableId,
-    handleRelationCellClick,
-    handleRelationFormSubmit
-  } = useRelationCellClick({
+  const { relationFormPopoverRef, relationFormTableId, handleRelationCellClick, handleRelationFormSubmit } = useRelationCellClick({
     updateRow: options.updateRow,
     onRefresh: options.callbacks.onRefresh
   })
@@ -44,15 +39,15 @@ export function useGridEvents(options: UseGridEventsOptions) {
       const { row, column } = params
       options.callbacks.onStartEdit({ row, column })
     },
-    'column-resizable-change': ({ resizeWidth, columnIndex }:any) => {
-
+    'column-resizable-change': ({ resizeWidth, columnIndex }: any) => {
       const updateItem = options.columns.value[columnIndex - 1]
       if (!updateItem) return
+      updateItem.display_structure ??= {}
       updateItem.display_structure.width = resizeWidth + 'px'
       options.updateColumn(updateItem.field_name, {
         field_name: updateItem.field_name_alias,
-        business_type:updateItem.business_type,
-        display_structure: {...updateItem.display_structure}
+        business_type: updateItem.business_type,
+        display_structure: { ...updateItem.display_structure }
       })
     },
     columnDragend({ newColumn, oldColumn, dragPos }) {

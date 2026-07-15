@@ -101,6 +101,7 @@
             :placeholder="t('mdTable.filter.placeholderValue')"
             size="small"
             class="value-input"
+            :type="isNumericField(rule.field) ? 'number' : 'text'"
             @input="handleEditRule(rule)"
           />
           <div v-else class="placeholder-input value-input"></div>

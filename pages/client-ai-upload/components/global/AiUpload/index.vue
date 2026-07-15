@@ -108,7 +108,6 @@ const { contextMenuRef, handleRowContextMenu } = useRowContextMenuActions({
   eventList
 })
 function dblclickHandler(row: any) {
-  console.log('dblclickHandler', row)
   if (row.upload_status === 'Ready') {
     const item = createAiUploadDetail({
       id: row.upload_id,

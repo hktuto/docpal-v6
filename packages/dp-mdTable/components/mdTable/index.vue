@@ -2,6 +2,7 @@
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
     <ToolsBar
+      :mode="mode"
       :disabled="(isMirror || !canManageTable) && mode !== 'page'"
       :showMirrorButton="!isMirror && canManageTable"
       :showAutomationButton="!isMirror && canManageTable"
@@ -209,10 +210,12 @@ const filteredSlots = computed(() => {
 })
 
 const handleRefresh = async () => {
+  console.log('handleRefresh')
   updateExpandedRows()
   gridRef.value?.clearTreeExpandLoaded?.()
   await refreshTableData({ silent: true, keepPage: true })
-  await getAgg()
+  console.log('refreshTableData', tableData.value)
+  // await getAgg()
   emit('refresh')
 }
 

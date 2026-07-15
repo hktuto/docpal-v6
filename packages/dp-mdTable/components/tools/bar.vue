@@ -10,7 +10,7 @@
         @grouping-change="(v) => handleRefresh('groupInfo', v)"
       />
       <ToolsFilterButton
-        v-if="!showMirrorButton"
+        v-if="!showMirrorButton && mode !== 'page'"
         tip="mdTable.filter.mirrorTip"
         :available-columns="columns"
         @filter-change-search="handleFilterChangeSearch"
@@ -45,6 +45,7 @@ interface ColumnConfig {
 }
 
 interface Props {
+  mode?: 'page' | 'view'
   showToolbar?: boolean
   disabled?: boolean
   showColumnConfig?: boolean
@@ -82,10 +83,12 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const handleRefresh = (type: 'sortInfo' | 'groupInfo' | 'filterInfo', value: any) => {
+  console.log('handleRefresh', type, value)
   updateViewFilterSortGroup(type, value)
   emit('refresh')
 }
 const handleFilterChangeSearch = (rules: FilterRules) => {
+  console.log('handleFilterChangeSearch', rules)
   emit('filter-change', rules)
 }
 
