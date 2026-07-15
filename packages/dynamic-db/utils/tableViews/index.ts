@@ -6,7 +6,7 @@ const DEFAULT_VIEW_STYLE: ViewStyle = {
   cardCount: 5,
   coverFieldId: '',
   isColNameVisible: true,
-  isCoverFit: true,
+  isCoverFit: true
 }
 
 /**
@@ -234,10 +234,24 @@ export async function initViewColumnsOrder(columns: ViewColumn[], tableFields: a
   }
   return columnsOrder
 }
-export function updateViewColumnOrder(columns: ViewColumn[], columnId: string, position: number): ViewColumn[] {
-  // const source = Array.isArray(view?.columns) ? view.columns : []
-  const index = columns.findIndex((c) => c.id === columnId)
-  if (index === -1) return columns
-  columns.splice(position, 0, columns.splice(index, 1)[0])
+/**
+ * 将 columnId 移动到 targetFieldId 的左侧（left）或右侧（right）。
+ * 先移除源列再定位目标，避免 splice 后下标偏移。
+ */
+export function updateViewColumnOrder(
+  columns: ViewColumn[],
+  columnId: string,
+  targetFieldId: string,
+  dragPos: 'left' | 'right'
+): ViewColumn[] {
+  const from = columns.findIndex((col) => String(col.id) === String(columnId))
+  if (from < 0) return columns
+
+  const [moved] = columns.splice(from, 1)
+  const targetIndex = columns.findIndex((col) => String(col.id) === String(targetFieldId))
+  if (targetIndex < 0 || !moved) return columns
+
+  const insertIndex = dragPos === 'left' ? targetIndex : targetIndex + 1
+  columns.splice(insertIndex, 0, moved)
   return columns
 }

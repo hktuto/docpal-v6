@@ -2,11 +2,12 @@
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
     <ToolsBar
-      :disabled="isMirror || !canManageTable"
+      :disabled="(isMirror || !canManageTable) && mode !== 'page'"
       :showMirrorButton="!isMirror && canManageTable"
       :showAutomationButton="!isMirror && canManageTable"
       :showAuditLogButton="!isMirror && canManageTable"
       :showAddRowButton="canEditTable"
+      :showSortButton="(!isMirror && canManageTable) || mode === 'page'"
       @refresh="handleRefresh"
       @add-row="handleAddRow"
       @filter-change="handleRefreshSearch"
@@ -24,6 +25,8 @@
           <template #checkboxIndex="checkboxProps">
             <ToolsCheckboxIndex
               ref="checkboxIndexRef"
+              :mode="mode"
+              :checkbox-config="props.extraColumnConfig?.checkboxConfig"
               :row="checkboxProps.row"
               :seq="checkboxProps.seq"
               :props="checkboxProps"
@@ -37,12 +40,12 @@
             <ToolsFooterCount :column="getColumn(footerProps.column.field)" :row="footerProps.row" />
           </template>
           <template #header="headerProps">
-            <MdTableHeader v-if="headerProps.column.field" :headerProps="headerProps" :column="headerProps.column" />
+            <MdTableHeader v-if="headerProps.column.field" :mode="mode" :headerProps="headerProps" :column="headerProps.column" />
           </template>
         </vxe-grid>
       </div>
       <!-- 右侧区域 -->
-      <div class="table-right-panel">
+      <div v-if="mode !== 'page'" class="table-right-panel">
         <div ref="rightPanelHeaderRef" class="table-right-panel-header" @click="(e) => handleAddColumn(e)">
           <slot name="right-panel">
             <el-icon><Plus /></el-icon>
@@ -98,12 +101,14 @@ import { createFieldId } from '../../utils/mdTableHelper'
 const slots = useSlots()
 
 interface Props {
+  mode?: 'page' | ''
   tableId?: string
   editable?: boolean
   isMirror?: boolean
   canEditTable: boolean
   canManageTable: boolean
   extraColumnConfig?: {
+    checkboxConfig: Ref<any>
     columns: Ref<ColumnConfig[]>
     deleteColumn: (fieldId: string) => Promise<void> | void
     updateColumn: (fieldName: string, updates: Partial<ColumnConfig>) => Promise<void> | void
@@ -211,12 +216,7 @@ const handleRefresh = async () => {
   emit('refresh')
 }
 
-const {
-  gridEvents,
-  relationFormPopoverRef,
-  relationFormTableId,
-  handleRelationFormSubmit
-} = useGridEvents({
+const { gridEvents, relationFormPopoverRef, relationFormTableId, handleRelationFormSubmit } = useGridEvents({
   gridRef,
   columns,
   updateRow,
@@ -231,8 +231,7 @@ const {
     onCellMouseleave: (params) => emit('cell-mouseleave', params),
     onRowDblclick: (params) => {
       const { row } = params
-      const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
-      emit('row-dblclick', { row, rowIndex })
+      emit('row-dblclick', { row })
     },
     onRowContextMenu: (params) => {
       emit('row-context-menu', params)
@@ -290,7 +289,7 @@ function handleFinishEdit() {
 const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
-  const mode = currentEditing.value.includes(row.id)  ? 'default' : (props.canEditTable ? 'edit' : 'default')
+  const mode = currentEditing.value.includes(row.id) ? 'default' : props.canEditTable ? 'edit' : 'default'
   const columnName = columns.value[0]?.field_name
   const title = columnName ? row[columnName] : ''
   MdFormPopoverRef.value.open(row, mode, title)
@@ -542,12 +541,12 @@ onClickOutside(
     pointer-events: none;
   }
 }
-:deep(.vxe-body--row){
-    &:has(.cell-update-deleted) {
-        td{
-            background-color: var(--app-grey-800) !important;
-        }
+:deep(.vxe-body--row) {
+  &:has(.cell-update-deleted) {
+    td {
+      background-color: var(--app-grey-800) !important;
     }
+  }
 }
 :deep(.cell-update-success) {
   animation: successFlash 0.6s ease-out;
@@ -566,13 +565,12 @@ onClickOutside(
   }
 }
 :deep(.cell-update-deleted) {
-
   &::after {
     content: '';
     position: absolute;
     top: calc(50% - 1px);
     left: 0;
-    width:100%;
+    width: 100%;
     height: 2px;
     background: rgba(0, 0, 0, 0.4);
     text-decoration: line-through;

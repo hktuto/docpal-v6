@@ -251,9 +251,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     const view = currentView.value
     if (!view) return
     let updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
-    const targetFieldIndex = updatedColumns.findIndex((col: any) => col.id === targetFieldId)
-    const positionNum = dragPos === 'left' ? 0 : 1
-    updatedColumns = updateViewColumnOrder(updatedColumns, columnId, targetFieldIndex + positionNum)
+    updatedColumns = updateViewColumnOrder(updatedColumns, columnId, targetFieldId, dragPos)
+    console.log('updatedColumns', updatedColumns)
     await updateView(view.id, { columns: updatedColumns })
   }
   async function updateViewColumnCountMethod(fieldId: string, countMethod: string) {

@@ -107,7 +107,7 @@ function toMenuOptions(
     .filter((item) => resolveMenuFlag(item.visible, ctx, true))
     .map((item) => ({
       label: item.label,
-      icon: item.icon ?? 'lucide:circle',
+      icon: item.icon ?? 'lucide:box',
       disabled: resolveMenuFlag(item.disabled, ctx, false),
       onClick: async () => {
         try {

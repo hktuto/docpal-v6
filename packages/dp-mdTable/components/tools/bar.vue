@@ -16,7 +16,7 @@
         @filter-change-search="handleFilterChangeSearch"
       />
       <ToolsFilterButton v-else :available-columns="columns" :column-filter-rules="columnFilterRules" @filter-change="(v) => handleRefresh('filterInfo', v)" />
-      <ToolsSortButton v-if="showMirrorButton" :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
+      <ToolsSortButton v-if="showSortButton" :disabled="disabled" :available-columns="columns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
         <el-button v-if="showAddRowButton" :icon="Plus" type="primary" @click="handleAddRow"> Add Row </el-button>
       </slot>
@@ -48,6 +48,7 @@ interface Props {
   showToolbar?: boolean
   disabled?: boolean
   showColumnConfig?: boolean
+  showSortButton?: boolean
   showMirrorButton?: boolean
   showAddRowButton?: boolean
   showGroupingButton?: boolean
