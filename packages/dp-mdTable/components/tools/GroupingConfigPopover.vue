@@ -117,7 +117,7 @@ const props = withDefaults(defineProps<Props>(), {
   width: 480,
   placement: 'bottom-start',
   'popper-class': '',
-  groupMaxCount: 3
+  groupMaxCount: 5
 })
 
 const emit = defineEmits<{

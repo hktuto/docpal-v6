@@ -2,6 +2,210 @@ import type { DashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashbo
 import { dashboardWidgetSetting as dpDashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
 
 export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = {
+  DemoInventory: {
+    label: '总库存报表',
+    type: 'database' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 4,
+    component: 'LazyDemoInventoryWidget',
+    setting: {
+      title: '总库存报表',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoInOut: {
+    label: '仓库入库/出库',
+    type: 'database' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 4,
+    component: 'LazyDemoInOutWidget',
+    setting: {
+      title: '仓库入库/出库',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoArrival: {
+    label: '即將到货',
+    type: 'database' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 2,
+    component: 'LazyDemoArrivalWidget',
+    setting: {
+      title: '即將到货',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoAging: {
+    label: '库龄报表',
+    type: 'database' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 10,
+    h: 2,
+    component: 'LazyDemoAgingWidget',
+    setting: {
+      title: '库龄报表',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoSalesOrder: {
+    label: '销售订单报表',
+    type: 'database' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 2,
+    component: 'LazyDemoSalesOrderWidget',
+    setting: {
+      title: '销售订单报表',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoInactiveItem: {
+    label: '非活跃项目报表',
+    type: 'database' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 2,
+    component: 'LazyDemoInactiveItemWidget',
+    setting: {
+      title: '非活跃项目报表',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoSalesPerformance: {
+    label: '销售表现儀表板',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 10,
+    h: 8,
+    component: 'LazyDemoSalesPerformanceWidget',
+    setting: {
+      title: '销售表现儀表板',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoPurchaseOrder: {
+    label: '采购订单报表',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 8,
+    component: 'LazyDemoPurchaseOrderWidget',
+    setting: {
+      title: '采购订单报表',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoBrandPicker: {
+    label: '品牌筛選',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 4,
+    w: 12,
+    h: 2,
+    component: 'LazyDemoBrandPickerWidget',
+    setting: {
+      title: '品牌筛選',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DemoYearPicker: {
+    label: '年份筛選',
+    type: 'demo' as any,
+    minW: 2,
+    minH: 2,
+    maxW: 12,
+    maxH: 4,
+    w: 4,
+    h: 2,
+    component: 'LazyDemoYearPickerWidget',
+    setting: { title: '年份筛選', subtitle: '', footer: '' }
+  },
+  DemoSalesKpi: {
+    label: '销售总览',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 2,
+    maxW: 12,
+    maxH: 12,
+    w: 12,
+    h: 2,
+    component: 'LazyDemoSalesKpiWidget',
+    setting: { title: '销售总览', subtitle: '', footer: '' }
+  },
+  DemoMonthlySales: {
+    label: '每月已出货与待出货',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 8,
+    h: 8,
+    component: 'LazyDemoMonthlySalesWidget',
+    setting: { title: '每月已出货与待出货', subtitle: '', footer: '' }
+  },
+  DemoInventoryValue: {
+    label: '库存价值（按库龄）',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 8,
+    component: 'LazyDemoInventoryValueWidget',
+    setting: { title: '库存价值（按库龄）', subtitle: '', footer: '' }
+  },
+  DemoOutstandingCustomer: {
+    label: '客户待出货',
+    type: 'demo' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 8,
+    component: 'LazyDemoOutstandingCustomerWidget',
+    setting: { title: '客户待出货', subtitle: '', footer: '' }
+  },
   DbStat: {
     label: 'DbStat',
     type: 'database' as any,
@@ -40,6 +244,24 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
       sortOrder: 'desc',
       filterRules: [],
       sortRules: [],
+      title: '',
+      subtitle: '',
+      footer: ''
+    }
+  },
+  DbTableView: {
+    label: 'DbTableView',
+    type: 'database' as any,
+    minW: 4,
+    minH: 4,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 6,
+    component: 'LazyDbTableViewWidget',
+    setting: {
+      tableId: '',
+      viewId: '',
       title: '',
       subtitle: '',
       footer: ''

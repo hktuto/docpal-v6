@@ -16,6 +16,8 @@ const props = withDefaults(
     mode?: 'mock' | 'real'
     showRefreshIcon?: boolean
     showFullscreenIcon?: boolean
+    bordered?: boolean
+    showShadow?: boolean
     extraParams?: any[] // add extra params to setting handleOpen function, and it use spread operator
   }>(),
   {
@@ -28,7 +30,9 @@ const props = withDefaults(
     extraParams: [],
     mode: 'real',
     showRefreshIcon: true,
-    showFullscreenIcon: true
+    showFullscreenIcon: true,
+    bordered: true,
+    showShadow: true
   }
 )
 const cardRef = ref<any>()
@@ -89,7 +93,12 @@ defineExpose({
 </script>
 
 <template>
-  <ElCard ref="cardRef" :class="['dp-dashboard--card', { fullscreen: fullscreen }]" :style="additionalStyle">
+  <ElCard
+    ref="cardRef"
+    :class="['dp-dashboard--card', { fullscreen: fullscreen, 'no-border': !bordered }]"
+    :style="additionalStyle"
+    :shadow="showShadow ? 'always' : 'never'"
+  >
     <template #header>
       <slot name="header">
         <div class="dp-dashboard--card__title-wrap">
@@ -144,6 +153,9 @@ defineExpose({
   border-radius: 6px;
   border: 1px solid var(--app-grey-900);
 }
+.el-card.no-border {
+  border: none;
+}
 :deep(.el-card__header) {
   margin: 0;
   --icon-size: 1.2rem;
@@ -167,6 +179,7 @@ defineExpose({
   }
   .dp-dashboard--card__title {
     font-size: var(--app-font-size-l);
+    margin-bottom: var(--app-space-s);
     .el-dropdown {
       padding-top: 3px;
     }

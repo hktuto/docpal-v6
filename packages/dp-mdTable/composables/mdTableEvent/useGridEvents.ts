@@ -30,6 +30,7 @@ export function useGridEvents(options: UseGridEventsOptions) {
     'cell-click': (params: any) => {
       options.callbacks.onCellClick(params)
     },
+
     'cell-mouseenter': (params: any) => {
       options.callbacks.onCellMouseenter(params)
     },
@@ -42,6 +43,17 @@ export function useGridEvents(options: UseGridEventsOptions) {
     'start-edit': (params: any) => {
       const { row, column } = params
       options.callbacks.onStartEdit({ row, column })
+    },
+    'column-resizable-change': ({ resizeWidth, columnIndex }:any) => {
+
+      const updateItem = options.columns.value[columnIndex - 1]
+      if (!updateItem) return
+      updateItem.display_structure.width = resizeWidth + 'px'
+      options.updateColumn(updateItem.field_name, {
+        field_name: updateItem.field_name_alias,
+        business_type:updateItem.business_type,
+        display_structure: {...updateItem.display_structure}
+      })
     },
     columnDragend({ newColumn, oldColumn, dragPos }) {
       const newFullColumn = options.columns.value.find((item: any) => item.field_name === newColumn.field)

@@ -224,6 +224,7 @@ const { gridEvents, relationFormPopoverRef, relationFormTableId, handleRelationF
   getAgg,
   isGroupingEnabled,
   updateExpandedRows,
+  updateColumn: props.extraColumnConfig.updateColumn,
   saveColumnOrder: props.extraColumnConfig.saveColumnOrder,
   callbacks: {
     onCellClick: (params) => emit('cell-click', params),
@@ -235,6 +236,9 @@ const { gridEvents, relationFormPopoverRef, relationFormTableId, handleRelationF
     },
     onRowContextMenu: (params) => {
       emit('row-context-menu', params)
+    },
+    onColumnResize:(params:any) => {
+
     },
     onStartEdit: (params) => emit('start-edit', params),
     onExitEdit: (params) => emit('exit-edit', params),
