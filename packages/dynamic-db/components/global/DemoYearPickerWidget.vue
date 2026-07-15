@@ -32,7 +32,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['delete'])
 
-const title = computed(() => '年份筛選')
+const title = computed(() => '年份筛选')
 const loading = ref(false)
 
 const year = useDemoYear()
