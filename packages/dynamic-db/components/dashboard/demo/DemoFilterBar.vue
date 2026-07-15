@@ -1,7 +1,7 @@
 <template>
   <div class="demo-filter-bar">
     <div v-for="def in filters" :key="def.field" class="demo-filter-item">
-      <span class="demo-filter-label">{{ def.label }}</span>
+      <label class="demo-filter-label">{{ def.label }}</label>
       <el-select
         v-if="def.type === 'select'"
         :model-value="selectValue(def.field)"
@@ -80,7 +80,8 @@ function clearAll() {
 }
 .demo-filter-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 4px;
 }
 .demo-filter-label {
