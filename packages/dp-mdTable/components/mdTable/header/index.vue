@@ -30,7 +30,7 @@
 
     <!-- Suggestion badge -->
 
-    <div class="mdTableHeader-trigger" ref="triggerRef" @click="handleClick(triggerRef)">
+    <div v-if="mode !== 'page'" class="mdTableHeader-trigger" ref="triggerRef" @click="handleClick(triggerRef)">
       <SvgIcon src="/icons/tools/more.svg" />
     </div>
   </div>
@@ -42,6 +42,7 @@ import { ColumnFieldType } from '../../../types/column-types'
 const props = defineProps<{
   column: any
   headerProps: any
+  mode: 'page' | 'view'
 }>()
 const mdTableHeaderPopover = inject<Ref<any>>('mdTableHeaderPopover')
 const mdTable = useMDTableInject()
@@ -150,6 +151,7 @@ function getFullColumnConfig() {
   }
 }
 const handleContextMenu = (event: MouseEvent) => {
+  if (props.mode === 'page') return
   handleClick(event.target as HTMLElement)
   mdTable.clearCheckboxRow()
 }

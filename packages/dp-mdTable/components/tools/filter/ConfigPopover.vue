@@ -215,7 +215,7 @@ const handleSelectVisibleChange = (visible: boolean) => {
 const isNumericField = (field: string): boolean => {
   const column = props.availableColumns.find((col) => col.field === field)
   if (!column) return false
-  console.log('isNumericField', column)
+  console.log('isNumericField', column.business_type, props.availableColumns)
   const type = column.business_type
   return (
     type === ColumnFieldType.Number ||

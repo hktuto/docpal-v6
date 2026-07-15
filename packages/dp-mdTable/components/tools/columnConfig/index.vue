@@ -110,6 +110,7 @@ async function handleShowAllColumns() {
 watch(
   () => tableFields.value,
   () => {
+    console.log('tableFields', tableFields.value)
     columnVisibilityList.value = buildColumnVisibilityList()
   },
   { deep: true, immediate: true }

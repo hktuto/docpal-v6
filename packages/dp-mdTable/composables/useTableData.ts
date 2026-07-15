@@ -12,7 +12,12 @@ function withoutOrderBy(params: Record<string, any> = {}) {
   const { orderBy: _orderBy, ...rest } = params
   return rest
 }
-
+function getTableId(tableId: string) {
+  const paramName = tableId.includes('_') ?  'table' : 'tableId'
+  return {
+    [paramName]: tableId
+  }
+}
 function mergeParams(base: any, extra: any) {
   if (!extra) return base
   const result = { ...base }
@@ -209,8 +214,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
         }
       }
       const { data } = await postDynamicActions({
-        tableId,
-        columns: [],
+        ...getTableId(tableId),
+        columns: [{ name: '*' }],
         ...additionalParams
       })
       tableData.value = data.data
@@ -262,8 +267,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
         additionalParams = mergeParams(additionalParams, searchParams)
       }
       const { data } = await postDynamicActions({
-        tableId,
-        columns: [],
+        ...getTableId(tableId),
+        columns: [{ name: '*' }],
         ...additionalParams
       })
       if (data?.entryList?.length === 0) {
@@ -323,8 +328,8 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     try {
       const params = mergeParams(basicParams, additionParams)
       const { data } = await postDynamicActions({
-        tableId,
-        columns: [],
+        ...getTableId(tableId),
+        columns: [{ name: '*' }],
         ...params
       })
       if (nextColumn) {
@@ -470,7 +475,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   async function fetchRowById(rowId: string) {
     try {
       const { data } = await postDynamicActions({
-        tableId,
+        ...getTableId(tableId),
         conditions: [{ column: 'id', type: 'EQ', value: rowId }],
         columns: [{ name: '*' }]
       })
@@ -515,7 +520,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       const basicParams = withoutOrderBy(viewTools?.getPageParams(false, false) || {})
       const params = withoutOrderBy(mergeParams(basicParams, additionParams))
       const { data } = await postDynamicActions({
-        tableId,
+        ...getTableId(tableId),
         columns: [],
         ...params
       })
@@ -657,7 +662,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     currentEditing.value = Array.from(editingRowIds)
   }
 
-  let stopAwarenessWatch = () => {}
   if (databaseHocuspocus?.awarenessStates) {
     watch(
       () => databaseHocuspocus.awarenessStates,
@@ -668,16 +672,18 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     )
   }
 
-  watch(
-    () => databaseHocuspocus.remoteChanges,
-    () => {
-      if (!databaseHocuspocus.remoteChanges.value || databaseHocuspocus.remoteChanges.value.length === 0) return
-      for (const event of databaseHocuspocus.remoteChanges.value) {
-        handleRemoteChangeEvent(event)
-      }
-    },
-    { deep: true }
-  )
+  if (databaseHocuspocus?.remoteChanges) {
+    watch(
+      () => databaseHocuspocus.remoteChanges?.value,
+      (changes) => {
+        if (!changes || changes.length === 0) return
+        for (const event of changes) {
+          handleRemoteChangeEvent(event)
+        }
+      },
+      { deep: true }
+    )
+  }
 
   const tableDataContext: TableDataContext = {
     gridRef,

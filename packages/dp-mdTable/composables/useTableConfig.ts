@@ -16,6 +16,7 @@ export interface TableConfigOptions {
     columnGroupRules: Ref<any[]>
     columnSortRules: Ref<any[]>
     menuId?: Ref<string> | string
+    mode?: 'page' | 'view'
   }
   canEditTable?: boolean
   height?: string | number
@@ -42,12 +43,7 @@ const CHECKBOX_COLUMN = {
   align: 'center'
 } as const
 
-const SYSTEM_READONLY_FIELD_TYPES = [
-  ColumnFieldType.CreatedTime,
-  ColumnFieldType.LastModifiedTime,
-  ColumnFieldType.CreatedBy,
-  ColumnFieldType.LastModifiedBy
-]
+const SYSTEM_READONLY_FIELD_TYPES = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
 
 const DISABLED_EDIT_FIELD_TYPES = [
   ...SYSTEM_READONLY_FIELD_TYPES,
@@ -76,7 +72,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     silentRefreshing,
     apiMethod,
     childApiMethod,
-    cellClassName
+    cellClassName,
+    mode
   } = options
 
   const { columns } = toRefs(options.extraColumnConfig as any)
@@ -197,11 +194,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       lockedRowCell.value?.some(
         (lock: any) =>
           isSameMenu(lock) &&
-          (
-            (lock.editingRow && lock.rowId === row.id) ||
+          ((lock.editingRow && lock.rowId === row.id) ||
             (lock.editingCell && lock.cellId === getColumnFieldKey(column) && lock.rowId === row.id) ||
-            (lock.editingColumn && lock.cellId === getColumnFieldKey(column))
-          )
+            (lock.editingColumn && lock.cellId === getColumnFieldKey(column)))
       ) ?? false
     )
   }
@@ -327,9 +322,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       return
     }
 
-    const rowsToExpand = children.filter(
-      (child) => child?.hasChild && rowKeySet.has(String(child[rowId])) && !grid.isTreeExpandByRow?.(child)
-    )
+    const rowsToExpand = children.filter((child) => child?.hasChild && rowKeySet.has(String(child[rowId])) && !grid.isTreeExpandByRow?.(child))
     if (!rowsToExpand.length) {
       return
     }
@@ -388,7 +381,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         enabled: true,
         pageSize: 100
       },
-      footerData: [{ type: 'footerData' }],
+
       checkboxConfig: {
         checkStrictly: true,
         showHeader: false,
@@ -407,7 +400,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       headerCellClassName: getHeaderCellClassName,
       footerCellClassName: getHeaderCellClassName
     }
-
+    if (mode !== 'page') {
+      gridConfig.footerData = [{ type: 'footerData' }]
+    }
     if (isGroupingEnabled.value) {
       gridConfig.treeConfig = {
         rowField: rowId,
@@ -498,11 +493,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   })
 
   watch(
-    () => [
-      options.extraColumnConfig?.columnGroupRules,
-      options.extraColumnConfig?.columnFilterRules,
-      options.extraColumnConfig?.columnSortRules
-    ],
+    () => [options.extraColumnConfig?.columnGroupRules, options.extraColumnConfig?.columnFilterRules, options.extraColumnConfig?.columnSortRules],
     () => {
       if (silentRefreshing?.value) {
         return
