@@ -9,16 +9,16 @@ function getBaseUrl(baseURL: string) {
   const {
     public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DOCPAL_GATEWAY_PROXY }
   } = useRuntimeConfig()
-  if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY
-  if (baseURL === '/client') baseURL = CLIENT_PROXY
-  if (baseURL === '/admin/api') baseURL = ADMIN_PROXY
-  if (baseURL === '/apis') baseURL = DOCPAL_GATEWAY_PROXY
-  if (baseURL === '/api') baseURL = PROXY
-  if (baseURL === '/adminApi/api') baseURL = ADMIN_PROXY
-  if (baseURL === '/docpalApi') baseURL = PROXY
-  if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY
-  if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string
-  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string
+  if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY || '/public-api/report/v1/api'
+  if (baseURL === '/client') baseURL = CLIENT_PROXY || '/api'
+  if (baseURL === '/admin/api') baseURL = ADMIN_PROXY || '/admin/api'
+  if (baseURL === '/apis') baseURL = DOCPAL_GATEWAY_PROXY || '/apis'
+  if (baseURL === '/api') baseURL = PROXY  || '/api'
+  if (baseURL === '/adminApi/api') baseURL = ADMIN_PROXY || '/admin/api'
+  if (baseURL === '/docpalApi') baseURL = PROXY || '/api'
+  if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY || '/public-api/report/v1/api'
+  if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string || '/open-api/template'
+  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string || '/apis'
   return baseURL
 }
 
