@@ -82,8 +82,7 @@ const year = useDemoYear()
 
 const filteredRows = computed(() => {
   const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
-  return (brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand)))
-    .filter((r) => inDemoYear(r.date, year.value))
+  return rows
 })
 
 // Month columns derived from (filtered) data; each month column sorts by its inbound qty
@@ -91,8 +90,32 @@ const columns = computed<MatrixColumn[]>(() => {
   const months = [...new Set(filteredRows.value.map((r) => monthKey(r.date)))].sort()
   return [
     { field: 'label', title: '仓库 / 品牌 / 物料', width: 260, fixed: 'left' },
-    ...months.map((m) => ({ field: m, title: m, width: 110, rich: true, sortable: true, sortField: 'in_' + m })),
-    { field: 'total', title: '总计', width: 120, rich: true, sortable: true, sortField: 'in_total' }
+    ...months.map((m) => ({
+      field: m,
+      title: m,
+      width: 110,
+      rich: true,
+      sortable: true,
+      sortField: 'in_' + m,
+      aggregate: (roots: any[]) => {
+        const totalIn = roots.reduce((s, r) => s + (r['in_' + m] || 0), 0)
+        const totalOut = roots.reduce((s, r) => s + (Math.abs(r['out_' + m]) || 0), 0)
+        return totalIn || totalOut ? `↑ ${formatNumber(totalIn)}\n↓ ${formatNumber(totalOut)}` : ''
+      }
+    })),
+    {
+      field: 'total',
+      title: '总计',
+      width: 120,
+      rich: true,
+      sortable: true,
+      sortField: 'in_total',
+      aggregate: (roots: any[]) => {
+        const totalIn = roots.reduce((s, r) => s + (r.in_total || 0), 0)
+        const totalOut = roots.reduce((s, r) => s + (Math.abs(r.out_total) || 0), 0)
+        return totalIn || totalOut ? `↑ ${formatNumber(totalIn)}\n↓ ${formatNumber(totalOut)}` : ''
+      }
+    }
   ]
 })
 

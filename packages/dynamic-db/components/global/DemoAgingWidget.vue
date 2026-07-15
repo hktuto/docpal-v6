@@ -69,15 +69,39 @@ const filters = computed(() =>
 
 const columns: MatrixColumn[] = [
   { field: 'label', title: '品牌 / 物料', width: 280, fixed: 'left' },
-  ...AGE_BUCKETS.map((b) => ({ field: b.key, title: b.label, width: 110, rich: true, sortable: true, sortField: 'qty_' + b.key })),
-  { field: 'total', title: '总计', width: 120, rich: true, sortable: true, sortField: 'qty_total' }
+  ...AGE_BUCKETS.map((b) => ({
+    field: b.key,
+    title: b.label,
+    width: 110,
+    rich: true,
+    sortable: true,
+    sortField: 'qty_' + b.key,
+    aggregate: (roots: any[]) => {
+      const qty = roots.reduce((s, r) => s + (r['qty_' + b.key] || 0), 0)
+      const cost = roots.reduce((s, r) => s + (r['cost_' + b.key] || 0), 0)
+      return qty ? `${formatNumber(qty)}\n${formatCompactCurrency(cost)}` : ''
+    }
+  })),
+  {
+    field: 'total',
+    title: '总计',
+    width: 120,
+    rich: true,
+    sortable: true,
+    sortField: 'qty_total',
+    aggregate: (roots: any[]) => {
+      const qty = roots.reduce((s, r) => s + (r.qty_total || 0), 0)
+      const cost = roots.reduce((s, r) => s + (r.cost_total || 0), 0)
+      return qty ? `${formatNumber(qty)}\n${formatCompactCurrency(cost)}` : ''
+    }
+  }
 ]
 
 const brands = useDemoBrands()
 
 const filteredRows = computed(() => {
   const rows = applyDemoFilters(rawRows.value, filterDefs, filterState.value)
-  return brands.value.includes(ALL_BRANDS) ? rows : rows.filter((r) => brands.value.includes(r.brand))
+  return rows
 })
 
 const treeData = computed<DemoTreeNode[]>(() =>

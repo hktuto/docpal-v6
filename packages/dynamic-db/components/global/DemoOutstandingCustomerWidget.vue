@@ -64,8 +64,8 @@ function onCellClick({ row, triggerTreeNode }: any) {
 
 const columns: MatrixColumn[] = [
   { field: 'label', title: '客户组 / 客户', width: 280, fixed: 'left' },
-  { field: 'outstandingQty', title: '待出货数量', formatter: (r) => formatNumber(r.outstandingQty || 0) },
-  { field: 'outstandingValue', title: '待出货金额', formatter: (r) => formatCurrency(r.outstandingValue || 0) }
+  { field: 'outstandingQty', title: '待出货数量', aggregate: 'sum', formatter: (r) => formatNumber(r.outstandingQty || 0) },
+  { field: 'outstandingValue', title: '待出货金额', aggregate: 'sum', formatter: (r) => formatCurrency(r.outstandingValue || 0) }
 ]
 
 async function load() {

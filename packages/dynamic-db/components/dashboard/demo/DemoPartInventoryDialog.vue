@@ -30,9 +30,9 @@ const loading = ref(false)
 
 const columns: MatrixColumn[] = [
   { field: 'label', title: '仓库 / 子库 / 日期码', width: 320, fixed: 'left' },
-  { field: 'onHand', title: '现有数量', formatter: (r) => formatNumber(r.onHand || 0) },
-  { field: 'reserved', title: '预留数量', formatter: (r) => formatNumber(r.reserved || 0) },
-  { field: 'available', title: '可用数量', formatter: (r) => formatNumber(r.available || 0) }
+  { field: 'onHand', title: '现有数量', aggregate: 'sum', formatter: (r) => formatNumber(r.onHand || 0) },
+  { field: 'reserved', title: '预留数量', aggregate: 'sum', formatter: (r) => formatNumber(r.reserved || 0) },
+  { field: 'available', title: '可用数量', aggregate: 'sum', formatter: (r) => formatNumber(r.available || 0) }
 ]
 
 watch(

@@ -4,8 +4,9 @@ import { getUserSelectOption } from '@packages/base/composables/usePermissionOpt
 
 const emits = defineEmits(['update'])
 const { getVariablesByDisplayTypes } = useVariablesProvide()
-const stringVariablesList = computed(() => {
-  return getVariablesByDisplayTypes(['text'], true)
+const arrayStringVariablesList = computed(() => {
+  const list = getVariablesByDisplayTypes(['array'], true)
+  return list.filter((item: any) => item.items.type === 'string')
 })
 const fileVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['file'], true)
@@ -45,10 +46,14 @@ const formData = ref<{
   templateId: string
   attachmentsFilePath: string
   variables: any
-}>({})
+}>()
+const tosIsArray = ref<boolean>(false)
+const cssIsArray = ref<boolean>(false)
 
 async function initForm() {
   formData.value = config.http_request.body
+  tosIsArray.value = typeof formData.value.tos === 'string'
+  cssIsArray.value = typeof formData.value.ccs === 'string'
   await getEmailVariablesList()
 
   // reset emailVariablesList item value
@@ -93,17 +98,7 @@ function updateData() {
 }
 
 async function getEmailRecipient() {
-  const stringAndArrayVariables = getVariablesByDisplayTypes(['text', 'array'], true)
-
-  const filter = stringAndArrayVariables.filter((item: any) => {
-    if (item.type === 'array') {
-      if (item.items.type === 'text') {
-        return item
-      }
-    } else {
-      return item
-    }
-  })
+  const stringAndArrayVariables = getVariablesByDisplayTypes(['text'], true)
 
   const userList = await getUserSelectOption()
   const map = userList.map((item: any) => ({
@@ -155,10 +150,7 @@ watch(
       initForm()
     }
   },
-  {
-    immediate: true,
-    deep: true
-  }
+  { immediate: true, deep: true }
 )
 </script>
 
@@ -169,18 +161,34 @@ watch(
         <el-option v-for="item in emailTemplateList" :key="item.id" :label="item.label" :value="item.id" />
       </el-select>
     </el-form-item>
-    <el-form-item label="TOS">
-      <el-select v-model="formData.tos" multiple filterable @change="updateData">
+    <el-form-item label="TOS" class="tos-form-item">
+      <template #label>
+        <div class="tos-form-item__label">
+          <span>TOS</span>
+          <el-switch v-model="tosIsArray" active-text="Array" inactive-text="Single" />
+        </div>
+      </template>
+      <el-select v-if="!tosIsArray" v-model="formData.tos" multiple filterable @change="updateData">
         <el-option-group v-for="group in emailRecipient" :key="group.label" :label="group.label">
           <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
         </el-option-group>
       </el-select>
+      <el-select v-else v-model="formData.tos" filterable @change="updateData">
+        <el-option v-for="item in arrayStringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
     </el-form-item>
-    <el-form-item label="CSS">
-      <el-select v-model="formData.ccs" multiple filterable clearable @change="updateData">
+    <el-form-item>
+      <div class="tos-form-item__label">
+        <span>CSS</span>
+        <el-switch v-model="cssIsArray" active-text="Array" inactive-text="Single" />
+      </div>
+      <el-select v-if="!cssIsArray" v-model="formData.ccs" multiple filterable clearable @change="updateData">
         <el-option-group v-for="group in emailRecipient" :key="group.label" :label="group.label">
           <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
         </el-option-group>
+      </el-select>
+      <el-select v-else v-model="formData.ccs" filterable @change="updateData">
+        <el-option v-for="item in arrayStringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
     <el-form-item label="Attachments File Path">
@@ -201,4 +209,17 @@ watch(
   </el-form>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.tos-form-item {
+  :deep(.el-form-item__label) {
+    width: 100%;
+  }
+
+  &__label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+}
+</style>

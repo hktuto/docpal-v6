@@ -144,11 +144,11 @@ export function monthKey(isoDate: string | null): string {
 }
 
 export const AGE_BUCKETS = [
-  { key: 'b0_3', label: '≤ 3個月' },
-  { key: 'b3_6', label: '3–6個月' },
-  { key: 'b6_9', label: '6–9個月' },
-  { key: 'b9_12', label: '9–12個月' },
-  { key: 'b12p', label: '> 12個月' }
+  { key: 'b0_3', label: '≤ 3个月' },
+  { key: 'b3_6', label: '3–6个月' },
+  { key: 'b6_9', label: '6–9个月' },
+  { key: 'b9_12', label: '9–12个月' },
+  { key: 'b12p', label: '> 12个月' }
 ] as const
 
 export function ageBucket(days: number): string {

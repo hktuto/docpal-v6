@@ -106,10 +106,10 @@ const columns: MatrixColumn[] = [
   { field: 'label', title: '品牌 / 年份 / 采购订单 / 物料', width: 280, fixed: 'left' },
   { field: 'orderDate', title: '采购日期', align: 'center', sortable: true, formatter: (r) => r.orderDate || '' },
   { field: 'eta', title: '预计到货日期', align: 'center', sortable: true, formatter: (r) => r.eta || '' },
-  { field: 'orderedQty', title: '订购数量', sortable: true, formatter: (r) => formatNumber(r.orderedQty || 0) },
-  { field: 'receivedQty', title: '已收货数量', sortable: true, formatter: (r) => formatNumber(r.receivedQty || 0) },
-  { field: 'openQty', title: '未到货数量', sortable: true, formatter: (r) => formatNumber(r.openQty || 0) },
-  { field: 'value', title: '采购金额', sortable: true, formatter: (r) => formatCurrency(r.value || 0) }
+  { field: 'orderedQty', title: '订购数量', sortable: true, aggregate: 'sum', formatter: (r) => formatNumber(r.orderedQty || 0) },
+  { field: 'receivedQty', title: '已收货数量', sortable: true, aggregate: 'sum', formatter: (r) => formatNumber(r.receivedQty || 0) },
+  { field: 'openQty', title: '未到货数量', sortable: true, aggregate: 'sum', formatter: (r) => formatNumber(r.openQty || 0) },
+  { field: 'value', title: '采购金额', sortable: true, aggregate: 'sum', formatter: (r) => formatCurrency(r.value || 0) }
 ]
 
 const brands = useDemoBrands()

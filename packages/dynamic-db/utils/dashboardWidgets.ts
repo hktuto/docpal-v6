@@ -131,23 +131,23 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     }
   },
   DemoBrandPicker: {
-    label: '品牌筛選',
+    label: '品牌筛选',
     type: 'demo' as any,
     minW: 4,
-    minH: 2,
+    minH: 1,
     maxW: 12,
     maxH: 4,
     w: 12,
-    h: 2,
+    h: 1,
     component: 'LazyDemoBrandPickerWidget',
     setting: {
-      title: '品牌筛選',
+      title: '品牌筛选',
       subtitle: '',
       footer: ''
     }
   },
   DemoYearPicker: {
-    label: '年份筛選',
+    label: '年份筛选',
     type: 'demo' as any,
     minW: 2,
     minH: 2,
@@ -156,7 +156,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     w: 4,
     h: 2,
     component: 'LazyDemoYearPickerWidget',
-    setting: { title: '年份筛選', subtitle: '', footer: '' }
+    setting: { title: '年份筛选', subtitle: '', footer: '' }
   },
   DemoSalesKpi: {
     label: '销售总览',

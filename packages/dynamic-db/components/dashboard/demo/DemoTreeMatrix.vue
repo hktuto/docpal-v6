@@ -15,6 +15,7 @@
 
 <script setup lang="ts">
 import type { VxeGridProps } from 'vxe-table'
+import { formatNumber } from '../../../composables/demo/useDemoData'
 
 export interface MatrixColumn {
   field: string
@@ -32,6 +33,8 @@ export interface MatrixColumn {
   sortable?: boolean
   /** Node field or accessor used for sorting; defaults to `field`. */
   sortField?: string | ((row: any) => number)
+  /** Footer aggregate. 'sum' totals root values for this field and formats with the column formatter. Function receives root nodes and returns the footer cell string. */
+  aggregate?: 'sum' | ((roots: any[]) => string)
 }
 
 const props = withDefaults(
@@ -41,8 +44,10 @@ const props = withDefaults(
     loading?: boolean
     /** Row class for styling clickable rows (vxe rowClassName: string or ({ row }) => string). */
     rowClassName?: string | ((params: { row: any }) => string)
+    /** Shows an aggregate footer row when at least one column has `aggregate` set. */
+    showFooter?: boolean
   }>(),
-  { loading: false }
+  { loading: false, showFooter: true }
 )
 
 const emit = defineEmits<{
@@ -89,6 +94,31 @@ const displayData = computed(() => {
   return sortTreeNodes(props.treeData, col, state.order)
 })
 
+// ---- Footer aggregates: sum root nodes so tree parents are not double-counted ----
+
+const footerRows = computed(() => {
+  if (!props.showFooter || !props.treeData.length) return []
+  const roots = props.treeData
+  const totals: Record<string, number> = {}
+
+  for (const col of props.columns) {
+    if (col.aggregate === 'sum') {
+      totals[col.field] = roots.reduce((sum, row) => sum + (Number(row[col.field]) || 0), 0)
+    }
+  }
+
+  const footer = props.columns.map((col, index) => {
+    if (index === 0) return '总计'
+    if (!col.aggregate) return ''
+    if (col.aggregate === 'sum') {
+      return col.formatter ? col.formatter(totals) : formatNumber(totals[col.field] || 0)
+    }
+    return col.aggregate(roots)
+  })
+
+  return [footer]
+})
+
 const gridOptions = computed<VxeGridProps>(() => ({
   border: true,
   showOverflow: true,
@@ -97,6 +127,8 @@ const gridOptions = computed<VxeGridProps>(() => ({
   rowClassName: props.rowClassName,
   treeConfig: { childrenField: 'children', showLine: true, indent: 16 },
   columnConfig: { resizable: true },
+  showFooter: footerRows.value.length > 0,
+  footerMethod: () => footerRows.value,
   sortConfig: {
     remote: true,
     defaultSort: props.columns[0] ? { field: props.columns[0].field, order: 'asc' } : undefined
