@@ -7,17 +7,17 @@ export const salesOrderColumns: MatrixColumn[] = [
   { field: 'label', title: '客户组 / 客户 / 销售订单 / 物料', width: 280, fixed: 'left' },
   { field: 'orderDate', title: '订单日期', align: 'center', formatter: (r) => r.orderDate || '' },
   { field: 'requestDate', title: '计划交货日期', align: 'center', formatter: (r) => r.requestDate || '' },
-  { field: 'orderQty', title: '订单数量', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
-  { field: 'value', title: '订单数量', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
-  { field: 'shippedQty', title: '已交货数量', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
+  { field: 'orderQty', title: '订单数量', sortable: true, aggregate: 'sum', formatter: (r) => formatNumber(r.orderQty || 0) },
+  { field: 'value', title: '订单数量', sortable: true, aggregate: 'sum', formatter: (r) => formatCurrency(r.value || 0) },
+  { field: 'shippedQty', title: '已交货数量', sortable: true, aggregate: 'sum', formatter: (r) => formatNumber(r.shippedQty || 0) },
   {
     field: 'outstanding',
     title: '未交货数量',
     sortable: true,
-    sortField: (r) => (r.orderQty || 0) - (r.shippedQty || 0),
-    formatter: (r) => formatNumber((r.orderQty || 0) - (r.shippedQty || 0))
+    aggregate: 'sum',
+    formatter: (r) => formatNumber(r.outstanding || 0)
   },
-  { field: 'stockOnHand', title: '订单可用库存', formatter: (r) => (r.stockOnHand != null ? formatNumber(r.stockOnHand) : '') }
+  { field: 'stockOnHand', title: '订单可用库存', aggregate: 'sum', formatter: (r) => (r.stockOnHand != null ? formatNumber(r.stockOnHand) : '') }
 ]
 
 export const salesOrderFilterDefs: DemoFilterDef[] = [
@@ -41,6 +41,7 @@ export function buildSalesOrderTree(rows: any[], stockByParts: Record<string, nu
       node.orderQty = (node.orderQty || 0) + r.orderQty
       node.shippedQty = (node.shippedQty || 0) + r.shippedQty
       node.value = (node.value || 0) + r.value
+      node.outstanding = (node.outstanding || 0) + (r.orderQty - r.shippedQty)
     }
   })
 }

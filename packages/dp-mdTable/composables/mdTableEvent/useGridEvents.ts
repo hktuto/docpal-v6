@@ -44,9 +44,8 @@ export function useGridEvents(options: UseGridEventsOptions) {
       const { row, column } = params
       options.callbacks.onStartEdit({ row, column })
     },
-    'column-resizable-change': ({ resizeWidth, columnIndex }:any) => {
-
-      const updateItem = options.columns.value[columnIndex - 1]
+    'column-resizable-change': ({ resizeWidth, columnIndex, column }:any) => {
+      const updateItem = options.columns.value.find((item: any) => item.field_name === column.field)
       if (!updateItem) return
       updateItem.display_structure.width = resizeWidth + 'px'
       options.updateColumn(updateItem.field_name, {

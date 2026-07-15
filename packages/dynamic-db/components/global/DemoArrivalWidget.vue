@@ -87,7 +87,7 @@ const filters = computed(() =>
 
 const columns: MatrixColumn[] = [
   { field: 'label', title: '仓库 / 交货日期 / 品牌 / 物料 / 采购订单', width: 300, fixed: 'left', sortable: true },
-  { field: 'qtyShipped', title: '出货数量', sortable: true, formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
+  { field: 'qtyShipped', title: '出货数量', sortable: true, aggregate: 'sum', formatter: (r) => (r.qtyShipped != null ? formatNumber(r.qtyShipped) : '') },
   { field: 'carrier', title: '承运商', align: 'left', formatter: (r) => r.carrier || '' },
   { field: 'trackingNo', title: '追踪编号', align: 'left', formatter: (r) => r.trackingNo || '' },
   { field: 'status', title: '状态', align: 'center', rich: true }

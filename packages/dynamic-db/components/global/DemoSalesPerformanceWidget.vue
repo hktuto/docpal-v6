@@ -84,15 +84,20 @@ const filters = computed(() =>
 
 const columns: MatrixColumn[] = [
   { field: 'label', title: '品牌 / 物料', width: 280, fixed: 'left' },
-  { field: 'orderQty', title: '订单数量', sortable: true, formatter: (r) => formatNumber(r.orderQty || 0) },
-  { field: 'shippedQty', title: '已出货数量', sortable: true, formatter: (r) => formatNumber(r.shippedQty || 0) },
-  { field: 'value', title: '销售金额', sortable: true, formatter: (r) => formatCurrency(r.value || 0) },
+  { field: 'orderQty', title: '订单数量', sortable: true, aggregate: 'sum', formatter: (r) => formatNumber(r.orderQty || 0) },
+  { field: 'shippedQty', title: '已出货数量', sortable: true, aggregate: 'sum', formatter: (r) => formatNumber(r.shippedQty || 0) },
+  { field: 'value', title: '销售金额', sortable: true, aggregate: 'sum', formatter: (r) => formatCurrency(r.value || 0) },
   {
     field: 'fulfillment',
     title: '出货达成率',
     align: 'center',
     sortable: true,
     sortField: (r) => (r.orderQty ? (r.shippedQty || 0) / r.orderQty : Number.NaN),
+    aggregate: (roots) => {
+      const totalOrder = roots.reduce((s, r) => s + (r.orderQty || 0), 0)
+      const totalShipped = roots.reduce((s, r) => s + (r.shippedQty || 0), 0)
+      return totalOrder ? `${((totalShipped / totalOrder) * 100).toFixed(1)}%` : ''
+    },
     formatter: (r) => (r.orderQty ? `${(((r.shippedQty || 0) / r.orderQty) * 100).toFixed(1)}%` : '')
   }
 ]
