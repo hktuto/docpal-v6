@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { clientApi, newClientApi } from 'api'
 import { Delete } from '@element-plus/icons-vue'
-import { v7 as uuidv7 } from 'uuid'
 import Decimal from 'decimal.js'
 
 const { disabled, formData, options } = defineProps<{
@@ -37,6 +36,7 @@ type TargetPriceItem = {
   tier_number: number
   moq: number
   target_price: number | undefined
+  data_source?: string
   unit_cost: number
   unit_price_no_tax: number
   cost_currency: string
@@ -118,28 +118,28 @@ function getMoqRules(itemIndex: number, tierIndex: number) {
 
 function getDescendingPriceRules(itemIndex: number, tierIndex: number, field: DescendingPriceField, message: string) {
   return [
-    { required: true, type: 'number', message: `Please input ${descendingPriceFieldLabels[field]}`, trigger: 'change' },
-    {
-      validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
-        const list = formModel.value.infoList[itemIndex]?.target_price_list
-        if (!list || list[tierIndex]?.status === 'D') {
-          callback()
-          return
-        }
-        const prevIndex = getPrevActiveTierIndex(list, tierIndex)
-        if (prevIndex === null) {
-          callback()
-          return
-        }
-        const prevValue = list[prevIndex]?.[field]
-        if (prevValue != null && new Decimal(value).gte(prevValue)) {
-          callback(new Error(message))
-          return
-        }
-        callback()
-      },
-      trigger: 'change'
-    }
+    { required: true, type: 'number', message: `Please input ${descendingPriceFieldLabels[field]}`, trigger: 'change' }
+    // {
+    //   validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
+    //     const list = formModel.value.infoList[itemIndex]?.target_price_list
+    //     if (!list || list[tierIndex]?.status === 'D') {
+    //       callback()
+    //       return
+    //     }
+    //     const prevIndex = getPrevActiveTierIndex(list, tierIndex)
+    //     if (prevIndex === null) {
+    //       callback()
+    //       return
+    //     }
+    //     const prevValue = list[prevIndex]?.[field]
+    //     if (prevValue != null && new Decimal(value).gte(prevValue)) {
+    //       callback(new Error(message))
+    //       return
+    //     }
+    //     callback()
+    //   },
+    //   trigger: 'change'
+    // }
   ]
 }
 
@@ -158,18 +158,13 @@ function handleTierFieldChange(itemIndex: number, tierIndex: number, field: 'moq
   })
 }
 
-function handleMoqFieldChange(itemIndex: number, tierIndex: number, item: TargetPriceItem) {
-  calculateMargin(item)
-  handleTierFieldChange(itemIndex, tierIndex, 'moq')
-}
-
 function handleUnitPriceNoTaxChange(itemIndex: number, tierIndex: number, item: TargetPriceItem) {
-  calculateMargin(item)
+  calculateProfit(item)
   handleTierFieldChange(itemIndex, tierIndex, 'unit_price_no_tax')
 }
 
 function handleUnitCostChange(itemIndex: number, tierIndex: number, item: TargetPriceItem) {
-  calculateMargin(item)
+  calculateProfit(item)
   handleTierFieldChange(itemIndex, tierIndex, 'unit_cost')
 }
 
@@ -237,10 +232,6 @@ async function getDbData(tableId: string, conditions?: any[]) {
   })
 }
 
-function handleSampleInfoRemove(index: number) {
-  data.value.splice(index, 1)
-}
-
 const historyPriceRef = ref()
 function openDialog(index: number, item: any) {
   item.index = index
@@ -276,7 +267,7 @@ function handleHistoryPriceSubmit(data: any) {
       const exchange_rate = handelCostCurrency({ cost_currency: newItem.currency })
 
       const baseItem = oldItem
-        ? { ...oldItem }
+        ? { ...oldItem, data_source: newItem.poCustomer }
         : {
             sample_id: item.sample_id,
             tier_number: index + 1,
@@ -289,12 +280,12 @@ function handleHistoryPriceSubmit(data: any) {
         ...baseItem,
         moq: newItem.moq,
         unit_cost: newItem.cost,
-        unit_price_no_tax: newItem.cost,
+        unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchange_rate)).toFixed(6)),
         cost_currency: newItem.currency,
-        exchange_rate: exchange_rate
+        exchange_rate: Number(new Decimal(exchange_rate))
       }
 
-      calculateMargin(updatedItem as TargetPriceItem)
+      calculateProfit(updatedItem as TargetPriceItem)
       return updatedItem
     }
 
@@ -307,23 +298,31 @@ function handleHistoryPriceSubmit(data: any) {
 }
 
 function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
-  // data.value[index].target_price_list.splice(targetPriceIndex, 1)
   formModel.value.infoList[index].target_price_list[targetPriceIndex].status = 'D'
 }
 
 // (unit_price_no_tax - unit_cost × exchange_rate × markup_rate) / ( unit_cost × exchange_rate × markup_rate) × 100
-function calculateMargin(item: TargetPriceItem) {
-  const exchange_rate = item.exchange_rate
-  const unitPriceNoTax = Number(item.unit_price_no_tax)
-  const unitCost = Number(item.unit_cost)
-  // TODO: 需要管理層去確認的數據來源。Hank 反饋的暫時寫死
-  const markup_rate = 1.05
+function calculateProfit(item: TargetPriceItem) {
+  if (!item.exchange_rate || !item.unit_cost || !item.unit_price_no_tax) return
 
-  if (!unitPriceNoTax || !unitCost) {
+  const exchange_rate = new Decimal(item.exchange_rate)
+  const unitPriceNoTax = new Decimal(Number(item.unit_price_no_tax))
+  const unitCost = new Decimal(Number(item.unit_cost))
+  // TODO: 需要管理層去確認的數據來源。Hank 反饋的暫時寫死
+  const markup_rate = new Decimal(1.05)
+
+  if (!Number(item.unit_price_no_tax) || !Number(item.unit_cost)) {
     item.profit = 0
     return
   }
-  item.profit = ((unitPriceNoTax - unitCost * exchange_rate * markup_rate) / (unitCost * exchange_rate * markup_rate)) * 100
+
+  const totalCost = unitCost.times(exchange_rate).times(markup_rate)
+  item.profit = Number(unitPriceNoTax.minus(totalCost).dividedBy(totalCost).times(100).toFixed(6))
+}
+
+function checkMinUnitPriceNoTax(item) {
+  if (!item || !item?.unit_cost || !item?.exchange_rate) return 1
+  return Number(new Decimal(item?.unit_cost).times(new Decimal(item?.exchange_rate)).toFixed(6))
 }
 
 async function init() {
@@ -334,7 +333,7 @@ async function init() {
 }
 
 async function getFormData(needValidation = true) {
-  const newTargetPriceList = []
+  const newTargetPriceList: any[] = []
   const newSetSampleList = formModel.value.infoList.map((item) => {
     newTargetPriceList.push(...item.target_price_list)
     const newItem = deepCopy(item)
@@ -349,7 +348,21 @@ async function getFormData(needValidation = true) {
       value: formModel.value.brand
     }
   ]
-  const margin_rate_list = await getDbData('b5a2a170-712c-11f1-ab82-b167ae310fd8', conditions)
+  const rateData = await getDbData('b5a2a170-712c-11f1-ab82-b167ae310fd8', conditions)
+  const roleMap: Record<string, string> = {
+    'CRM Price Controller': 'PC',
+    'CRM Product Manager': 'PM',
+    'CRM General Manager': 'GM'
+  }
+
+  const margin_rate_list = rateData.reduce((acc: any, curr: any) => {
+    const key = roleMap[curr.role as string]
+    if (key) {
+      const { role, brand, ...rates } = curr
+      acc[key] = rates
+    }
+    return acc
+  }, {})
 
   const result = {
     sample_info_list: formModel.value.infoList,
@@ -453,108 +466,93 @@ defineExpose({ getFormData })
                 <el-col :span="2">幣種 Currency</el-col>
                 <el-col :span="3">匯率 Exchange Rate</el-col>
                 <el-col :span="2">起订量 MOQ</el-col>
-                <el-col :span="3">目標價 Target Price</el-col>
-                <el-col :span="4">單位成本 Unit Cost</el-col>
+                <el-col :span="2">目標價 Target Price</el-col>
+                <el-col :span="2">數據源 Data Source</el-col>
+                <el-col :span="2">單位成本 Unit Cost</el-col>
                 <el-col :span="4">單價(未稅) Unit Price(No Tax)</el-col>
                 <el-col :span="3">毛利率(%) Profit(%)</el-col>
-                <el-col :span="2">操作 Actions</el-col>
+                <!--                <el-col :span="2">操作 Actions</el-col>-->
               </el-row>
               <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
                 <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
-                  <template v-if="targetPriceItem.status !== 'D'">
-                    <el-col :span="1">第{{ targetPriceIndex + 1 }}檔 / T{{ targetPriceIndex + 1 }}</el-col>
-                    <el-col :span="2">
-                      <el-select
-                        v-model="targetPriceItem.cost_currency"
-                        class="full-width-input"
-                        @change="handelCostCurrency(targetPriceItem)"
-                        disabled
-                        style="width: 90%"
-                      >
-                        <el-option v-for="item in costCurrencyOptions" :key="item.value" :label="item.label" :value="item.value" />
-                      </el-select>
-                    </el-col>
-                    <el-col :span="3">
-                      <el-input v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
-                    </el-col>
-                    <el-col :span="2">
-                      <el-form-item
-                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
-                        :rules="getMoqRules(index, targetPriceIndex)"
-                        class="target-price-form-item"
-                      >
-                        <el-input-number
-                          style="width: 90%"
-                          v-model="targetPriceItem.moq"
-                          controls-position="right"
-                          :min="1"
-                          :step="1"
-                          step-strictly
-                          @change="handleMoqFieldChange(index, targetPriceIndex, targetPriceItem)"
-                        />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="3">
+                  <!--                  <template v-if="targetPriceItem.status !== 'D'">-->
+                  <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
+                  <el-col :span="2">
+                    <el-input v-model="targetPriceItem.cost_currency" style="width: 90%" disabled />
+                  </el-col>
+                  <el-col :span="3">
+                    <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
+                  </el-col>
+                  <el-col :span="2">
+                    <el-form-item
+                      :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
+                      :rules="getMoqRules(index, targetPriceIndex)"
+                      class="target-price-form-item"
+                    >
                       <el-input-number
                         style="width: 90%"
-                        v-model="targetPriceItem.target_price"
+                        v-model="targetPriceItem.moq"
+                        controls-position="right"
+                        :min="1"
+                        :step="1"
+                        step-strictly
+                        @change="handleTierFieldChange(index, targetPriceIndex, 'moq')"
+                      />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="2">
+                    <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
+                  </el-col>
+                  <el-col :span="2">
+                    <el-input v-model="targetPriceItem.data_source" disabled style="width: 90%" />
+                  </el-col>
+                  <el-col :span="2">
+                    <el-form-item
+                      :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_cost`"
+                      :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_cost', 'Unit cost must be lower than the previous tier')"
+                      class="target-price-form-item"
+                    >
+                      <el-input-number
+                        style="width: 90%"
+                        v-model="targetPriceItem.unit_cost"
                         controls-position="right"
                         :min="0.00001"
                         :step="0.00001"
                         step-strictly
-                        disabled
-                        @change="calculateMargin(targetPriceItem)"
+                        @change="handleUnitCostChange(index, targetPriceIndex, targetPriceItem)"
                       />
-                    </el-col>
-                    <el-col :span="4">
-                      <!--                      <el-form-item-->
-                      <!--                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_cost`"-->
-                      <!--                        :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_cost', 'Unit cost must be lower than the previous tier')"-->
-                      <!--                        class="target-price-form-item"-->
-                      <!--                      >                      -->
-                      <el-form-item class="target-price-form-item">
-                        <el-input-number
-                          style="width: 90%"
-                          v-model="targetPriceItem.unit_cost"
-                          controls-position="right"
-                          :min="0.00001"
-                          :step="0.00001"
-                          step-strictly
-                          @change="handleUnitCostChange(index, targetPriceIndex, targetPriceItem)"
-                        />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="4">
-                      <!--                      <el-form-item-->
-                      <!--                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_price_no_tax`"-->
-                      <!--                        :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_price_no_tax', 'Unit price must be lower than the previous tier')"-->
-                      <!--                        class="target-price-form-item"-->
-                      <!--                      >-->
-                      <el-form-item class="target-price-form-item">
-                        <el-input-number
-                          style="width: 90%"
-                          v-model="targetPriceItem.unit_price_no_tax"
-                          controls-position="right"
-                          :min="0.00001"
-                          :step="0.00001"
-                          step-strictly
-                          @change="handleUnitPriceNoTaxChange(index, targetPriceIndex, targetPriceItem)"
-                        />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="3">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.profit" disabled>
-                        <template #suffix>
-                          <span>%</span>
-                        </template>
-                      </el-input-number>
-                    </el-col>
-                    <el-col :span="2">
-                      <div class="targetPrice-item-card__actions" v-if="targetPriceIndex !== 0">
-                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />
-                      </div>
-                    </el-col>
-                  </template>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-form-item
+                      :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_price_no_tax`"
+                      :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_price_no_tax', 'Unit price must be lower than the previous tier')"
+                      class="target-price-form-item"
+                    >
+                      <el-input-number
+                        style="width: 90%"
+                        v-model="targetPriceItem.unit_price_no_tax"
+                        controls-position="right"
+                        :min="checkMinUnitPriceNoTax(targetPriceItem)"
+                        :step="0.00001"
+                        step-strictly
+                        @change="handleUnitPriceNoTaxChange(index, targetPriceIndex, targetPriceItem)"
+                      />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="3">
+                    <el-input-number style="width: 90%" v-model="targetPriceItem.profit" disabled>
+                      <template #suffix>
+                        <span>%</span>
+                      </template>
+                    </el-input-number>
+                  </el-col>
+                  <!--                    <el-col :span="2">-->
+                  <!--                      <div class="targetPrice-item-card__actions" v-if="targetPriceIndex !== 0">-->
+                  <!--                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />-->
+                  <!--                      </div>-->
+                  <!--                    </el-col>-->
+                  <!--                  </template>-->
                 </el-row>
               </div>
             </div>
@@ -651,6 +649,13 @@ defineExpose({ getFormData })
   &__table-header {
     margin-bottom: var(--app-space-xs);
     font-weight: 500;
+  }
+
+  &__tier-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
   }
 
   &__body {
