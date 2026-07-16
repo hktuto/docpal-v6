@@ -466,9 +466,9 @@ defineExpose({ getFormData })
                 <el-col :span="2">幣種 Currency</el-col>
                 <el-col :span="3">匯率 Exchange Rate</el-col>
                 <el-col :span="2">起订量 MOQ</el-col>
-                <el-col :span="2">目標價 Target Price</el-col>
-                <el-col :span="2">數據源 Data Source</el-col>
-                <el-col :span="2">單位成本 Unit Cost</el-col>
+                <el-col :span="3">目標價 Target Price</el-col>
+                <el-col :span="3">數據源 Data Source</el-col>
+                <el-col :span="3">單位成本 Unit Cost</el-col>
                 <el-col :span="4">單價(未稅) Unit Price(No Tax)</el-col>
                 <el-col :span="3">毛利率(%) Profit(%)</el-col>
                 <!--                <el-col :span="2">操作 Actions</el-col>-->
@@ -500,13 +500,13 @@ defineExpose({ getFormData })
                       />
                     </el-form-item>
                   </el-col>
-                  <el-col :span="2">
+                  <el-col :span="3">
                     <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
                   </el-col>
-                  <el-col :span="2">
+                  <el-col :span="3">
                     <el-input v-model="targetPriceItem.data_source" disabled style="width: 90%" />
                   </el-col>
-                  <el-col :span="2">
+                  <el-col :span="3">
                     <el-form-item
                       :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_cost`"
                       :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_cost', 'Unit cost must be lower than the previous tier')"

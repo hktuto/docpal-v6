@@ -73,7 +73,6 @@ function calculateMargin(item: TargetPriceItem) {
 }
 
 async function init() {
-  console.log(12312312,formData)
   formModel.value = {
     brand: formData.brand,
     infoList: formData.sample_info_list
@@ -173,7 +172,7 @@ defineExpose({ getFormData })
           <el-col :span="24">
             <div class="targetPrice-item-card">
               <el-row class="targetPrice-item-card__table-header">
-                <el-col :span="1" class="targetPrice-item-card__tier-col">檔位 Tier</el-col>
+                <el-col :span="1">檔位 Tier</el-col>
                 <el-col :span="2">幣種 Currency</el-col>
                 <el-col :span="3">匯率 Exchange Rate</el-col>
                 <el-col :span="3">起订量 MOQ</el-col>
@@ -185,21 +184,21 @@ defineExpose({ getFormData })
               <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
                 <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
                   <template v-if="targetPriceItem.status !== 'D'">
-                    <el-col :span="1" class="targetPrice-item-card__tier-col">第{{ targetPriceIndex + 1 }}檔 / T{{ targetPriceIndex + 1 }}</el-col>
+                    <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
                     <el-col :span="2">
                       <el-input v-model="targetPriceItem.cost_currency" class="full-width-input" disabled style="width: 90%" />
                     </el-col>
                     <el-col :span="3">
-                      <el-input v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
+                      <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
                     </el-col>
                     <el-col :span="3">
-                      <el-input style="width: 90%" v-model="targetPriceItem.moq" disabled />
+                      <el-input-number style="width: 90%" v-model="targetPriceItem.moq" disabled />
                     </el-col>
                     <el-col :span="3">
-                      <el-input style="width: 90%" v-model="targetPriceItem.target_price" disabled />
+                      <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
                     </el-col>
                     <el-col :span="4">
-                      <el-input style="width: 90%" v-model="targetPriceItem.unit_cost" disabled />
+                      <el-input-number style="width: 90%" v-model="targetPriceItem.unit_cost" disabled />
                     </el-col>
                     <el-col :span="4">
                       <el-form-item class="target-price-form-item">
@@ -214,11 +213,11 @@ defineExpose({ getFormData })
                       </el-form-item>
                     </el-col>
                     <el-col :span="3">
-                      <el-input style="width: 90%" v-model="targetPriceItem.profit" disabled>
+                      <el-input-number style="width: 90%" v-model="targetPriceItem.profit" disabled>
                         <template #suffix>
                           <span>%</span>
                         </template>
-                      </el-input>
+                      </el-input-number>
                     </el-col>
                   </template>
                 </el-row>
@@ -322,7 +321,6 @@ defineExpose({ getFormData })
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin-right: 6px;
   }
 
   &__body {
