@@ -517,7 +517,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
 export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSetting[]> {
   const result: Record<string, DashboardWidgetSetting[]> = {
     database: [],
-    record: []
+    // record: []
   }
 
   Object.keys(dbDashboardWidgetSetting).forEach((key) => {

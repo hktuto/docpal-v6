@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 import { clientApi } from 'api'
 
@@ -11,7 +12,7 @@ type Columns = {
   field: string
   title: string
 }
-const workflowList = ref([])
+const workflowList =  await getWorkflowList()
 const workflowColumns = ref<Columns[]>([])
 const availableSteps = ref<any[]>([])
 const userId: string = useUserId().value

@@ -271,37 +271,37 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
       workflowKeys: []
     }
   },
-  PersonalWorkflow: {
-    type: DASHBOARD_TYPE.workflow,
-    feature: 'WORKFLOW',
-    label: 'PersonalWorkflow',
-    minW: 2,
-    minH: 2,
-    maxW: 12,
-    maxH: 12,
-    w: 3,
-    h: 3,
-    component: 'LazyPersonalWorkflow',
-    setting: {
-      isTabView: false,
-      processKeys: []
-    }
-  },
-  PersonalWorkflowSingle: {
-    type: DASHBOARD_TYPE.workflow,
-    label: 'PersonalWorkflowSingle',
-    minW: 2,
-    minH: 2,
-    maxW: 12,
-    maxH: 12,
-    w: 3,
-    h: 3,
-    component: 'LazyPersonalWorkflowSingle',
-    setting: {
-      selectedWorkflow: '',
-      columns: []
-    }
-  },
+  // PersonalWorkflow: {
+  //   type: DASHBOARD_TYPE.workflow,
+  //   feature: 'WORKFLOW',
+  //   label: 'PersonalWorkflow',
+  //   minW: 2,
+  //   minH: 2,
+  //   maxW: 12,
+  //   maxH: 12,
+  //   w: 3,
+  //   h: 3,
+  //   component: 'LazyPersonalWorkflow',
+  //   setting: {
+  //     isTabView: false,
+  //     processKeys: []
+  //   }
+  // },
+  // PersonalWorkflowSingle: {
+  //   type: DASHBOARD_TYPE.workflow,
+  //   label: 'PersonalWorkflowSingle',
+  //   minW: 2,
+  //   minH: 2,
+  //   maxW: 12,
+  //   maxH: 12,
+  //   w: 3,
+  //   h: 3,
+  //   component: 'LazyPersonalWorkflowSingle',
+  //   setting: {
+  //     selectedWorkflow: '',
+  //     columns: []
+  //   }
+  // },
   // PersonalWorkflowSingleFilter:{
   //     type: 'personal',
   //     label: 'PersonalWorkflowSingle',
