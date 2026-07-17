@@ -152,7 +152,9 @@ export enum CellType {
   uniqueIdGenerator = 'UniqueIdGenerator',
   documentGenerationTask = 'DocumentGenerationTask',
   emailTask = 'EmailTask',
-  scriptTask = 'ScriptTask'
+  scriptTask = 'ScriptTask',
+
+  jsonEdit = 'JsonEdit'
 }
 
 // 組件Map
@@ -727,6 +729,13 @@ export const workflowElement: WorkflowElement = {
         label: 'Batch Update Dynamic Database',
         group: '',
         order: 0
+      },
+      {
+        id: CellType.jsonEdit,
+        icon: 'streamline-sharp:script-1',
+        label: 'Http JSON Edit',
+        group: '',
+        order: 0
       }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
@@ -1176,6 +1185,22 @@ const workflowCellElementTemplate: CellTypeItem = {
       metadata: {
         type: CellType.scriptTask,
         tags: WorkflowElementType.ScriptTask,
+        icon: '/workflowIcons/script.svg'
+      }
+    }
+  },
+  JsonEdit: {
+    ...createNodeShell('New_Http_Service', 'Http Service Task', 'New Http Service Task', '/workflowIcons/script.svg'),
+    data: {
+      id: '',
+      name: 'New Http Service Task',
+      documentation: '',
+      type: WorkflowElementType.HTTPRequestTask,
+      config: {},
+      execution: { ...LONG_RUNNING_EXECUTION },
+      metadata: {
+        type: CellType.jsonEdit,
+        tags: WorkflowElementType.HTTPRequestTask,
         icon: '/workflowIcons/script.svg'
       }
     }

@@ -336,10 +336,10 @@ defineExpose({ getFormData })
 
           <el-col :span="8">
             <el-form-item label="產品應用 Product Application" :prop="`infoList.${index}.product_application`" :rules="rules.product_application" required>
-              <el-input v-model="item.product_application" clearable />
+              <el-input v-model="item.product_application" />
             </el-form-item>
             <el-form-item label="最小包裝數 MPQ " prop="mpq">
-              <el-input v-model="item.mpq" disabled clearable />
+              <el-input-number v-model="item.mpq" disabled />
             </el-form-item>
 
             <el-form-item label="客戶零件編號 Customer Part Number" prop="customer_part_number">
@@ -383,14 +383,14 @@ defineExpose({ getFormData })
                 </div>
                 <el-divider />
                 <el-row class="targetPrice-item-card__table-header">
-                  <el-col :span="2">檔位 Tier</el-col>
+                  <el-col :span="1">檔位 Tier</el-col>
                   <el-col :span="10">起订量 MOQ (階梯遞增加 Step decrease)</el-col>
                   <el-col :span="10">目標價 Target Price</el-col>
-                  <el-col :span="2">操作 Actions</el-col>
+                  <el-col :span="2" class="targetPrice-item-card__actions">操作 Actions</el-col>
                 </el-row>
                 <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list.length > 5 }">
                   <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
-                    <el-col :span="2">第{{ targetPriceIndex + 1 }}檔 / T{{ targetPriceIndex + 1 }}</el-col>
+                    <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
                     <el-col :span="10">
                       <el-form-item
                         :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
@@ -487,6 +487,13 @@ defineExpose({ getFormData })
   &__table-header {
     margin-bottom: var(--app-space-xs);
     font-weight: 500;
+  }
+
+  &__tier-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
   }
 
   &__body {

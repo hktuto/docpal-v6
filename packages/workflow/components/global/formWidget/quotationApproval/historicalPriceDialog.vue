@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
+
 const { t } = useI18n()
 const emits = defineEmits(['submit'])
 const showDialog = ref<boolean>(false)
@@ -203,7 +205,11 @@ async function handleSearch() {
 function handleSubmit() {
   const uniqueCurrencies = new Set(selectList.value.map((item) => item.currency))
   if (uniqueCurrencies.size > 1) {
-    routerProvider?.message.error('只允許選擇一個幣種的階梯。')
+    ElMessage({
+      message: '只允許選擇一個幣種的階梯。',
+      type: 'warning',
+      plain: true
+    })
     return
   }
 
@@ -211,13 +217,15 @@ function handleSubmit() {
     .sort((a, b) => {
       const am = a.moq == null ? Infinity : Number(a.moq)
       const bm = b.moq == null ? Infinity : Number(b.moq)
-      return am - bm
+      if (am !== bm) return am - bm
+      return Number(b.cost) - Number(a.cost)
     })
     .map((item: any) => ({
       moq: item.moq,
       quantity: item.quantity,
       cost: item.cost,
-      currency: item.currency
+      currency: item.currency,
+      poCustomer: item.poCustomer
     }))
   emits('submit', { index: index.value, list })
   showDialog.value = false

@@ -38,6 +38,7 @@ type TargetPriceItem = {
   unit_price_no_tax: number
   cost_currency: string
   exchange_rate: number
+  customer_final_price: number
   profit: number
   status: 'A' | 'D'
 }
@@ -75,7 +76,17 @@ function calculateMargin(item: TargetPriceItem) {
 async function init() {
   formModel.value = {
     brand: formData.brand,
-    infoList: formData.sample_info_list
+    infoList: formData.sample_info_list.map((item: any) => {
+      const newPriceList = item.target_price_list.map((priceItem: any) => ({
+        ...priceItem,
+        customer_final_price: priceItem.unit_price_no_tax
+      }))
+
+      return {
+        ...item,
+        target_price_list: newPriceList
+      }
+    })
   }
 }
 
@@ -152,20 +163,14 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="價格類型 Price Type">
-              <el-input v-model="item.price_type" class="full-width-input" disabled />
-            </el-form-item>
-            <el-form-item label="交貨時間 Lead Time">
-              <el-date-picker v-model="item.lead_time" type="date" placeholder="請選擇交貨時間" disabled />
+            <el-form-item label="交易幣種 Currency">
+              <el-input v-model="formData.currency" disabled />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="交易幣種 Currency">
-              <el-input v-model="formData.currency" disabled />
-            </el-form-item>
             <el-form-item label="備注 Remarks" prop="remarks">
-              <el-input v-model="item.remarks" type="textarea" autosize disabled />
+              <el-input v-model="item.remarks" type="textarea" :autosize="{ minRows: 1, maxRows: 3 }" disabled />
             </el-form-item>
           </el-col>
 
@@ -173,51 +178,34 @@ defineExpose({ getFormData })
             <div class="targetPrice-item-card">
               <el-row class="targetPrice-item-card__table-header">
                 <el-col :span="1">檔位 Tier</el-col>
-                <el-col :span="2">幣種 Currency</el-col>
-                <el-col :span="3">匯率 Exchange Rate</el-col>
                 <el-col :span="3">起订量 MOQ</el-col>
-                <el-col :span="3">目標價 Target Price</el-col>
-                <el-col :span="4">單位成本 Unit Cost</el-col>
-                <el-col :span="4">單價(未稅) Unit Price(No Tax)</el-col>
-                <el-col :span="3">毛利率(%) Profit(%)</el-col>
+                <el-col :span="4">目標價 Target Price</el-col>
+                <el-col :span="5">單價(未稅) Unit Price(No Tax)</el-col>
+                <el-col :span="5">客戶最終報價 Final Quotation</el-col>
               </el-row>
               <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
                 <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
                   <template v-if="targetPriceItem.status !== 'D'">
                     <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
-                    <el-col :span="2">
-                      <el-input v-model="targetPriceItem.cost_currency" class="full-width-input" disabled style="width: 90%" />
-                    </el-col>
-                    <el-col :span="3">
-                      <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
-                    </el-col>
                     <el-col :span="3">
                       <el-input-number style="width: 90%" v-model="targetPriceItem.moq" disabled />
                     </el-col>
-                    <el-col :span="3">
+                    <el-col :span="4">
                       <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
                     </el-col>
-                    <el-col :span="4">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.unit_cost" disabled />
-                    </el-col>
-                    <el-col :span="4">
+                    <el-col :span="5">
                       <el-form-item class="target-price-form-item">
-                        <el-input-number
-                          style="width: 90%"
-                          v-model="targetPriceItem.unit_price_no_tax"
-                          controls-position="right"
-                          :min="0.00001"
-                          :step="0.00001"
-                          @change="handleUnitPriceNoTaxChange(targetPriceItem)"
-                        />
+                        <el-input-number style="width: 90%" v-model="targetPriceItem.unit_price_no_tax" disabled />
                       </el-form-item>
                     </el-col>
-                    <el-col :span="3">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.profit" disabled>
-                        <template #suffix>
-                          <span>%</span>
-                        </template>
-                      </el-input-number>
+                    <el-col :span="5">
+                      <el-input-number
+                        style="width: 90%"
+                        v-model="targetPriceItem.customer_final_price"
+                        controls-position="right"
+                        :min="targetPriceItem.unit_price_no_tax"
+                        :step="0.00001"
+                      />
                     </el-col>
                   </template>
                 </el-row>
