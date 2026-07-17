@@ -10,19 +10,19 @@ const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
 const state = reactive({
   formDialogVisible: false,
-  selectedWorkflow: {},
+  selectedWorkflow: {
+    id: '',
+    name: ''
+  },
   formVariables: [],
   loading: false
 })
 const emits = defineEmits(['reload'])
-const openWorkflowEdit = ref(false)
 const userId = useUserId()
 const workflowList = await getWorkflowList()
 
-async function workflowClickHandler(workflowItem: any) {
+async function workflowClickHandler(workflowItem: any, originalData?: any) {
   state.loading = true
-  openWorkflowEdit.value = false
-  openWorkflowEdit.value = true
   try {
     const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))
     if (!data) return
@@ -56,7 +56,7 @@ async function workflowClickHandler(workflowItem: any) {
 
     // Start Task has no set E-Form
     if (!startTask.config?.initialise?.form_key || startTask.config?.initialise?.form_key === '') {
-      await directlyStart(data.id)
+      await directlyStart(data.id, originalData)
       state.loading = false
       return
     }
@@ -67,11 +67,11 @@ async function workflowClickHandler(workflowItem: any) {
       state.formVariables = Object.entries(data.content.variables).map(([key, value]) => ({
         id: key,
         ...value
-      })) as any[]
+      })) as []
     }
 
-    // Open in new page
-    if (startTask.metadata.openInNewPage) {
+    // Open in new page, 從DB啓動的workflow不允許跳轉至外部分頁編輯
+    if (!originalData && startTask.metadata.openInNewPage) {
       state.loading = false
       const link = newWorkflowStartPage(data.name, data.id, startTask, state.formVariables)
       routerProvider?.navigateTo(link)
@@ -79,20 +79,21 @@ async function workflowClickHandler(workflowItem: any) {
     }
 
     state.formDialogVisible = true
-    await initForm(startTask)
+    await initForm(startTask, originalData)
   } catch (e) {
     routerProvider?.message.error('Failed to start workflow.')
     console.log(e)
   }
 }
 
-async function directlyStart(definition_id: string) {
+async function directlyStart(definition_id: string, workflowData?: any) {
   try {
     const formParams = {
       start_user_id: userId.value,
       definition_id: definition_id,
       variables: {
-        __system__user_creator_id: userId.value
+        __system__user_creator_id: userId.value,
+        ...workflowData
       }
     }
     await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
@@ -101,7 +102,7 @@ async function directlyStart(definition_id: string) {
   }
 }
 
-async function initForm(taskNode: any) {
+async function initForm(taskNode: any, workflowData?: any) {
   const formKey = taskNode.config.initialise.form_key
 
   const formJson = await newClientApi.getDmsFormPropertiesId(formKey).then((r) => r.data)
@@ -109,7 +110,7 @@ async function initForm(taskNode: any) {
   state.loading = false
   // @ts-ignore
   nextTick(() => {
-    vFormRef.value.setForm(formJson.jsonValue)
+    vFormRef.value.setForm(formJson.jsonValue, workflowData)
   })
 }
 
@@ -152,6 +153,14 @@ async function checkAndSubmit() {
 }
 
 defineExpose({ workflowClickHandler })
+
+const newWorkflowTask = useNewWorkflowTask()
+watch(newWorkflowTask, async (item) => {
+  if (!item?.id) return
+  const { id, data } = item
+  newWorkflowTask.value = null
+  await workflowClickHandler({ id }, data)
+})
 </script>
 
 <template>

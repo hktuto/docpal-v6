@@ -23,6 +23,7 @@ export function createDatabaseTableRowContextMenuEvents(options: {
 }) {
   const { t } = useI18n()
   const databaseHocuspocus = inject<{ broadcastChange?: (payload: any) => void } | null>('databaseHocuspocus', null)
+  const newWorkflowTask = useNewWorkflowTask()
 
   async function deleteTableRows(ids: string | string[]) {
     const idList = Array.isArray(ids) ? ids : [ids]
@@ -61,6 +62,22 @@ export function createDatabaseTableRowContextMenuEvents(options: {
         visible: ({ selectedRows }) => selectedRows.length === 0,
         onClick: async ({ row, selectedRows }) => {
           console.log('trigger fire', { row, selectedRows, workflowId: trigger.workflow_id })
+          if (!trigger.workflow_id || !row) return
+
+          // Map db data to workflow data
+          const result = Object.keys(trigger.map_workflow_parameters).reduce(
+            (acc, key) => {
+              const fieldName = trigger.map_workflow_parameters[key]
+              acc[key] = row[fieldName]
+              return acc
+            },
+            {} as Record<string, unknown>
+          )
+
+          newWorkflowTask.value = {
+            id: trigger.workflow_id,
+            data: result
+          }
         }
       }))
   }

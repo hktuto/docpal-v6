@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { clientApi, newClientApi } from 'api'
-import type { TriggerSettingDTO, TableFieldDTO } from 'api'
 import { ElMessage } from 'element-plus'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
@@ -10,7 +9,7 @@ const routerProvider = inject(MenuRouterKey)
 const { masterTableId, tableFields, trigger } = defineProps<{
   masterTableId: string
   tableFields: any[]
-  trigger?: TriggerSettingDTO
+  trigger?: any
 }>()
 const emit = defineEmits<{
   saved: []
@@ -20,7 +19,7 @@ const isEdit = computed(() => !!trigger?.id)
 const state = reactive({
   loading: false,
   saving: false,
-  fields: [] as TableFieldDTO[]
+  fields: []
 })
 const form = ref({
   trigger_name: '',
@@ -45,7 +44,7 @@ const eventTypeOptions = [
   { label: 'Record is updated', value: 'record_updated', desc: 'When any field of an existing record is modified.' },
   { label: 'Record is deleted', value: 'record_deleted', desc: 'When a record is removed from this table.' },
   { label: 'Field is changed', value: 'field_changed', desc: 'When a specific field value changes.' },
-  { label: 'Manual Trigger', value: 'manual', desc: "User can manual trigger this workflow"}
+  { label: 'Manual Trigger', value: 'manual', desc: 'User can manual trigger this workflow' }
 ]
 const workflowList = ref<any[]>([])
 const workflowErrorMessage = ref<string>('')
@@ -194,7 +193,7 @@ async function handleSave() {
     return
   }
   let map_workflow_parameters = {}
-  if (form.workflow_id !== '') {
+  if (form.value.workflow_id !== '') {
     const set: any[] = []
     map_workflow_parameters = workflowFormFields.value.reduce((acc: any, item: any) => {
       if (item.value === '') {
@@ -271,13 +270,21 @@ async function handleChangeWorkflow() {
       if (item.type == 'StartEvent' || item.type.type == 'startevent') return item
     })
 
-    workflowFormFields.value = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
+    const map: any[] = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
       id: field.id,
       name: field.name,
       type: field.type,
       display_type: field.display_type,
       value: ''
     }))
+    const allWorkflowVariables: any[] = Object.entries(data.content?.variables)
+      .filter(([key]) => !key.includes('__system__'))
+      .map(([key, value]) => ({
+        id: key,
+        ...value
+      }))
+
+    workflowFormFields.value = map.length > 0 ? map : allWorkflowVariables
   } catch (e) {
     console.log(e)
   }
@@ -379,14 +386,14 @@ onMounted(async () => {
       </div>
       <div class="field-group">
         <label class="field-label">Run workflow</label>
-        <el-select v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" @change="handleChangeWorkflow">
+        <el-select v-model="form.workflow_id" placeholder="Enter workflow ID" size="small" @change="handleChangeWorkflow" filterable>
           <el-option v-for="wf in workflowList" :key="wf.id" :label="wf.name" :value="wf.id" />
         </el-select>
       </div>
       <el-form label-width="auto">
         <template v-for="formField in workflowFormFields" :key="formField.id">
           <el-form-item :label="formField.name" size="small">
-            <el-select v-model="formField.value">
+            <el-select v-model="formField.value" filterable>
               <el-option v-for="field in tableFields" :key="field.field_name" :label="field.field_name_alias || field.field_name" :value="field.field_name" />
             </el-select>
           </el-form-item>

@@ -54,6 +54,9 @@
       />
       <ToolsContextMenuPopover ref="contextMenuRef" />
       <DatabaseAwarenessFloatingTags :viewType="currentView?.type" :get-element="getTableCell" :container-ref="tableBodyRef" />
+      <div v-show="false">
+        <WorkflowPopoverNewTask />
+      </div>
     </div>
 
     <div v-if="panelVisible" class="table-view-panel">
