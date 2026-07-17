@@ -109,44 +109,44 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
       showUserFilter: true
     }
   },
-  WorkflowCoCount: {
-    type: DASHBOARD_TYPE.workflowCount,
-    divided: true,
-    label: 'WorkflowCoCount',
-    minW: 4,
-    minH: 4,
-    maxW: 12,
-    maxH: 8,
-    w: 6,
-    h: 6,
-    component: 'LazyWorkflowCoCount',
-    setting: {
-      workflow: 'contractApproval',
-      displayList: [
-        'WorkflowNewCount',
-        'WorkflowTimeSpendPerTask',
-        'WorkflowTimeSpendPerWorkflow',
-        'WorkflowActiveCount'
-        // 'WorkflowApproveRate',
-      ],
-      showUserFilter: true
-    }
-  },
-  WorkflowGroup: {
-    type: DASHBOARD_TYPE.workflowCount,
-    label: 'WorkflowGroup',
-    minW: 4,
-    minH: 4,
-    maxW: 12,
-    maxH: 8,
-    w: 12,
-    h: 6,
-    component: 'LazyWorkflowGroup',
-    setting: {
-      groupId: '',
-      filterList: []
-    }
-  },
+  // WorkflowCoCount: {
+  //   type: DASHBOARD_TYPE.workflowCount,
+  //   divided: true,
+  //   label: 'WorkflowCoCount',
+  //   minW: 4,
+  //   minH: 4,
+  //   maxW: 12,
+  //   maxH: 8,
+  //   w: 6,
+  //   h: 6,
+  //   component: 'LazyWorkflowCoCount',
+  //   setting: {
+  //     workflow: 'contractApproval',
+  //     displayList: [
+  //       'WorkflowNewCount',
+  //       'WorkflowTimeSpendPerTask',
+  //       'WorkflowTimeSpendPerWorkflow',
+  //       'WorkflowActiveCount'
+  //       // 'WorkflowApproveRate',
+  //     ],
+  //     showUserFilter: true
+  //   }
+  // },
+  // WorkflowGroup: {
+  //   type: DASHBOARD_TYPE.workflowCount,
+  //   label: 'WorkflowGroup',
+  //   minW: 4,
+  //   minH: 4,
+  //   maxW: 12,
+  //   maxH: 8,
+  //   w: 12,
+  //   h: 6,
+  //   component: 'LazyWorkflowGroup',
+  //   setting: {
+  //     groupId: '',
+  //     filterList: []
+  //   }
+  // },
   // azure
   // 屏蔽Azure
   // AzureThreshold: {
@@ -367,49 +367,49 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     component: 'LazyPersonalSearchSubscribed',
     setting: {}
   },
-  PersonalCaseCreate: {
-    type: DASHBOARD_TYPE.case,
-    label: 'PersonalCaseCreate',
-    minW: 1,
-    minH: 2,
-    maxW: 12,
-    maxH: 6,
-    w: 2,
-    h: 3,
-    component: 'LazyPersonalCaseCreate',
-    setting: {}
-  },
-  PersonalCase: {
-    type: DASHBOARD_TYPE.case,
-    label: 'PersonalCase',
-    minW: 2,
-    minH: 2,
-    maxW: 12,
-    maxH: 6,
-    w: 3,
-    h: 3,
-    component: 'LazyPersonalCase',
-    setting: {
-      caseKeys: []
-    }
-  },
-  PersonalCaseSingle: {
-    type: DASHBOARD_TYPE.case,
-    label: 'PersonalCaseSingle',
-    minW: 2,
-    minH: 2,
-    maxW: 12,
-    maxH: 12,
-    w: 6,
-    h: 6,
-    component: 'LazyPersonalCaseSingle',
-    setting: {
-      caseId: '',
-      caseLabel: '',
-      newButtonLabel: 'common_add',
-      displayColumns: []
-    }
-  },
+  // PersonalCaseCreate: {
+  //   type: DASHBOARD_TYPE.case,
+  //   label: 'PersonalCaseCreate',
+  //   minW: 1,
+  //   minH: 2,
+  //   maxW: 12,
+  //   maxH: 6,
+  //   w: 2,
+  //   h: 3,
+  //   component: 'LazyPersonalCaseCreate',
+  //   setting: {}
+  // },
+  // PersonalCase: {
+  //   type: DASHBOARD_TYPE.case,
+  //   label: 'PersonalCase',
+  //   minW: 2,
+  //   minH: 2,
+  //   maxW: 12,
+  //   maxH: 6,
+  //   w: 3,
+  //   h: 3,
+  //   component: 'LazyPersonalCase',
+  //   setting: {
+  //     caseKeys: []
+  //   }
+  // },
+  // PersonalCaseSingle: {
+  //   type: DASHBOARD_TYPE.case,
+  //   label: 'PersonalCaseSingle',
+  //   minW: 2,
+  //   minH: 2,
+  //   maxW: 12,
+  //   maxH: 12,
+  //   w: 6,
+  //   h: 6,
+  //   component: 'LazyPersonalCaseSingle',
+  //   setting: {
+  //     caseId: '',
+  //     caseLabel: '',
+  //     newButtonLabel: 'common_add',
+  //     displayColumns: []
+  //   }
+  // },
   Browse: {
     type: DASHBOARD_TYPE.document,
     label: 'Browse',
@@ -458,4 +458,3 @@ export const getNormalizeSetting = (setting: DashboardWidget) => {
     maxH: item.maxH || 2
   }
 }
-
