@@ -6,13 +6,14 @@ import  Paragraph from '@editorjs/paragraph';
 import VariableOptions from './VariableOptions';
 import LinkInlineTool from './VariableLink';
 import VariableTable from './VariableTable'
-export const useEditor = () => {
+export const useEditor = (data) => {
+
 
     const editor = useState<any>('editorJS');
-    const data = useState<any>('editorData', () => ({}));
+    // const data = useState<any>('editorData', () => ({}));
     const variables = useState<string[]>('editorVariable', () => ([]));
     const containerId = useState('editorContainerId', () => ('emailContent'));
-    
+
     async function createEditor(id:string, formData:any) {
         if(!document.getElementById(id)) return;
         // throw error if no containerId or formData
@@ -20,11 +21,11 @@ export const useEditor = () => {
             throw new Error('containerId or formData is required');
         }
         // dispose if editor is exist
-       
+
         // set containerId
         containerId.value = id;
-        // set data 
-        data.value = formData;
+        // set data
+        // data.value = formData;
         // clean variable
         variables.value = [];
         // set up editor
@@ -44,7 +45,7 @@ export const useEditor = () => {
                 table:{
                     class: Table,
                     inlineToolbar: true,
-                    
+
                 },
                 link:{
                     class: LinkInlineTool,
@@ -72,7 +73,7 @@ export const useEditor = () => {
                         variables: variables.value
                     }
                 },
-                
+
             },
             i18n:{
                 messages:{
@@ -105,7 +106,7 @@ export const useEditor = () => {
                 }
             },
             onChange: (api, event) => {
-                
+
                 api.saver.save().then((outputData) => {
                     calculateVariable(outputData);
                 });
@@ -117,16 +118,16 @@ export const useEditor = () => {
                     if(json.blocks.length > 0) {
                         setData(json);
                         // set variable after ready
-                        
+
                     }
                 }
                 setTimeout(() => {
                     updateVariable()
                 }, 200)
             },
-            
+
         })
-        
+
     }
 
     function dispose():void{
@@ -140,7 +141,7 @@ export const useEditor = () => {
         if(!editor.value || !editor.value.render) return;
         editor.value?.render(data);
     }
-    
+
     function getAllVariablesFromString(str:string):string[] {
         if(!str) return [];
         // get all string between ${} in str
@@ -155,7 +156,7 @@ export const useEditor = () => {
                     const regex = /\((.*?)\)/g;
                     const matches = variable.match(regex);
                     if(matches) {
-                        
+
                         matches.forEach((variable:any) => {
                             // remove () in variable
                             const nv = variable.replace('(', '').replace(')', '');
@@ -168,14 +169,14 @@ export const useEditor = () => {
                         })
                     }
                 }else{
-                    
+
                     newVariable.push(variable.replace('${', '').replace('}', ''));
                 }
             })
         }
         return newVariable;
     }
-    
+
     async function updateVariable() {
         const data = await editor.value?.save();
 
@@ -211,15 +212,14 @@ export const useEditor = () => {
         // get string if ${} in data.subject
         newVariable.push(...getAllVariablesFromString(data.value.subject));
         //sprint data.To, data.CC, data.BCC by , and check if it is email, if not push to variable
-        
+
         // variables.value = newVariable;
         // remove duplicate
-        
+
         variables.value = [... new Set(newVariable)];
         return variables.value
-        console.log('set variable', variables.value);
     }
-    
+
     function getParagraphVariables(text:string){
         const newVariable:string[] = [];
         var t = document.createElement('template');
@@ -262,23 +262,24 @@ export const useEditor = () => {
             }
         })
         return [newVariable];
-        
+
     }
     function getListVariable(items:any) {
         const returnDate:string[] = [];
         items.forEach((level:any) => {
             returnDate.push(...getParagraphVariables(level.content));
-            
+
             if(level.items) {
                 returnDate.push(...getListVariable(level.items));
             }
         })
         return returnDate;
     }
-    async function getData(){
-        const data = await editor.value?.save();
+  async function getData() {
+      updateVariable()
+      const json = await editor.value?.save();
         let html = '<html><body>'
-        for( const block of data.blocks) {
+        for( const block of json.blocks) {
             switch(block.type){
                 case 'header':
                     html += `<h${block.data.level}>${htmlToString(block.data.text)}</h${block.data.level}>`;
@@ -296,17 +297,17 @@ export const useEditor = () => {
                     html += variableTableBlockToHtml(block);
                     break;
             }
-                
+
         }
-        html += '</body></html>';
-        console.log(html);
+      html += '</body></html>';
+      console.log("data", data.value)
         return {
             html,
-            json: data,
+            json,
             variable: variables.value
         }
     }
-    
+
     function variableTableBlockToHtml(block:any):string {
         const tableVariable = '${' + block.data.variable + '}';
         const header = block.data.withHeadings ? block.data.content[0] : undefined;
@@ -318,7 +319,7 @@ export const useEditor = () => {
                     <tr>${ header.map((header:string) => `<th>${stringToHtml(header)}</th>`).join('')}
                     </tr>
                 </thead>
-                
+
                 ` : ''
                 }
                 <tbody>
@@ -329,7 +330,7 @@ export const useEditor = () => {
             </table>
         `;
         // check need header
-        
+
         return html;
     }
 
@@ -344,7 +345,7 @@ export const useEditor = () => {
         }
         return html;
     }
-    
+
     function stringToHtml(str:string, prefix:string = ''):string{
         const regex = /\${(.*?)}/g;
         // check str contain # or ()
@@ -356,8 +357,8 @@ export const useEditor = () => {
 
     function htmlToString(html:string):string{
         var t = document.createElement('template');
-        t.innerHTML = html;  
-        
+        t.innerHTML = html;
+
         const varText = t.content.querySelectorAll('a.ce-text-item');
         // replace all var tag with span
         varText.forEach((variable) => {
@@ -389,7 +390,7 @@ export const useEditor = () => {
         // wrap html and body tag in stringHtml
         return stringHtml;
     }
-    
+
 
     return {
         createEditor,
@@ -400,5 +401,5 @@ export const useEditor = () => {
         updateVariable,
     }
 
-    
+
 }

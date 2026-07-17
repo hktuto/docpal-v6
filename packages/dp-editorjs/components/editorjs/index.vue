@@ -31,15 +31,15 @@ const props = defineProps<{
   }>()
 
 const { layout, data } = toRefs(props)
-  
+
   const emits = defineEmits([
     'save',
   ])
 
   const mode = ref<'desktop' | 'mobile'>('desktop');
   const contentHtml = ref()
-  const editor = useEditor();
-  
+  const editor = useEditor(data);
+
 //#endregion
 
 function layoutOrDataChange() {
@@ -55,8 +55,8 @@ function layoutOrDataChange() {
       editor.createEditor('emailContent', data.value);
     })
   })
-  
-  
+
+
 
 }
 
@@ -74,6 +74,7 @@ watch(()=> [layout.value, data.value], () => {
 defineExpose({
   getVariables,
   getData: () => editor.getData(),
+
 })
 
 
