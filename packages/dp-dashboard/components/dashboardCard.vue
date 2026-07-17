@@ -140,7 +140,7 @@ defineExpose({
   left: 0;
   width: 100% !important;
   height: 100% !important;
-  z-index: 2 !important;
+  z-index: 10 !important;
 }
 .el-card {
   --dashboard-item-padding: var(--app-space-s) !important;
