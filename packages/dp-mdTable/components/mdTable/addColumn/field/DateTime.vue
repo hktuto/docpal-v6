@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-form-item :label="t('mdTable.addColumnField.dateFormat')">
-      <el-select v-model="formData.dateFormat" filterable :placeholder="t('mdTable.addColumnField.selectDateFormat')" @visible-change="onSelectVisibleChange">
+      <el-select v-model="formData.dateFormat" allow-create filterable default-first-option :placeholder="t('mdTable.addColumnField.selectDateFormat')" @visible-change="onSelectVisibleChange">
         <el-option v-for="option in dateFormatOptions" :key="option.value" :label="option.label" :value="option.value" />
       </el-select>
     </el-form-item>
