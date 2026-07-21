@@ -140,7 +140,7 @@ async function handleFilePreview(file: any, fieldOptions: any) {
   if (!fieldOptions) return
   try {
     previewFile.loading = true
-    let fileId = ''
+    let fileId = file.id
     if (fieldOptions?.uploadName === 'file') {
       fileId = file.response?.data ? file.response.data.id : file.id
       previewFile.blob = (await newClientApi.postDmsDocumentDownloadPublic(
