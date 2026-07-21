@@ -86,41 +86,14 @@ async function handleData(data: any) {
 async function revert(result: any, key: string, value: string) {
   // 处理sub-form
   const arrWidgetKeys = getWidgetNames(WidgetNames.arr)
-  const uploadWidgetKeys = getWidgetNames(WidgetNames.upload)
   const numberWidgetKeys = getWidgetNames(WidgetNames.number)
   const selectWidgetKeys = getWidgetNames(WidgetNames.select, true)
   selectWidgetKeys.push(...getWidgetNames(WidgetNames.arrSelect))
 
   if (arrWidgetKeys.find((item: any) => item.name === key)) result[key] = value || []
-  else if (uploadWidgetKeys.find((item: any) => item.name === key)) {
-    const uploadWidget = uploadWidgetKeys.find((item: any) => item.name === key)
-    const mode = uploadWidget.uploadName === 'file' ? 'nuxeo' : 'workflow'
-    result[key] = await revertUploadFile(value, mode)
-  } else if (selectWidgetKeys.find((item: any) => item.name === key)) result[key] = value || []
+  else if (selectWidgetKeys.find((item: any) => item.name === key)) result[key] = value || []
   else if (numberWidgetKeys.find((item: any) => item.name === key)) result[key] = value || value == 0 ? Number(value) : value
   else if (value !== null) result[key] = value
-}
-
-async function revertUploadFile(ids: any, mode: 'workflow' | 'nuxeo' = 'workflow') {
-  const pList: any = []
-  const result: any = []
-  if (!ids) return result
-  ids = ids.split(',')
-  for (const item of ids) {
-    if (mode === 'nuxeo') {
-      // @ts-ignore
-      const promiseItem = newClientApi.getDmsDocument({ idOrPath: item, nonPermission: true }).then((res) => res.data)
-      pList.push(promiseItem)
-    } else {
-      const promiseItem = newClientApi.getWorkflowTaskAttachmentInfo({ attachmentId: item }).then((res) => res.data)
-      pList.push(promiseItem)
-    }
-  }
-  const response = await Promise.all(pList)
-  response.forEach((item) => {
-    if (item && item.name) result.push({ id: item.contentId || item.id, name: item.properties?.['dc:title'] || item.name })
-  })
-  return result
 }
 
 function handleTypeIds(properties: any) {
