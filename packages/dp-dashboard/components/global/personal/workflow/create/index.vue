@@ -40,7 +40,7 @@ function handleRefresh(chartSetting: any) {
 }
 
 async function getWorkflowId() {
-  if (props.setting.workflowList.length === 0) return
+  if (!props?.setting?.workflowList?.length) return
 
   state.workflowList = props.setting.workflowList.reduce((prev: any, item: any) => {
     const workflowItem = workflowList.find((workflow: any) => workflow.id === item.id)

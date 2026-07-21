@@ -209,6 +209,8 @@ async function getFormData(needValidation = true) {
 async function handleChangeBrand() {
   if (!formModel.value.brand || formModel.value.brand === '') return
 
+  handleSampleInfoAdd()
+
   const conditions = [
     {
       type: 'EQ',
