@@ -59,7 +59,7 @@ alwaysApply: true
 - **SFC 顺序：** script setup → template → style
 - **Script：** 强制使用 `<script setup>`，禁止普通 `<script>` 组件写法
 - **Style：** 使用 `scss`
-- **单文件组件：** 不超过 200 行，超出需拆分为子组件或 composable
+- **单文件组件：** 不超过 300 行，超出需拆分为子组件或 composable
 - **组件名：** 必须多词（如 UserProfile），避免与原生标签冲突
 - **事件处理函数：** 前缀 `handle`
 - **Tooltip：** 使用 `v-tooltip`，禁止仅用 `title`

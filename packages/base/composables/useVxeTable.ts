@@ -462,7 +462,9 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     }
     if (params.virtualScroll) {
       init.value = true
-      return await params?.api(args)
+      const result = await params?.api(args)
+      tableData.value = Array.isArray(result) ? result : (result?.result ?? [])
+      return result
     }
     const { page, sorts, filters } = args
     // 默认接收 Promise<{ result: [], page: { total: 100 } }>
@@ -482,8 +484,10 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     }
     const { data } = await params?.api(pageParams)
     init.value = true
+    const result = Array.isArray(data) ? data : data.entryList
+    tableData.value = result
     return {
-      result: Array.isArray(data) ? data : data.entryList,
+      result,
       page: {
         total: data.totalSize
       }
@@ -513,6 +517,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
       filters: [] // TODO : get filters from config
     })
     tableConfig.data.push(...data.result)
+    tableData.value = tableConfig.data
     tablePageParams.value.total = data.page.total
     tablePageParams.value.currentPage += 1
     tableConfig.loading = false
@@ -621,6 +626,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     tableConfig,
     tableEvent,
     tableRef,
+    tableData,
     cleanSelectedRows,
     reload,
     query

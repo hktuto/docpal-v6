@@ -1,0 +1,221 @@
+import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
+import { postDynamicActions } from 'api'
+import { SGLAItems, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
+import { useWHAReceivingVerificationInject } from './useWHAReceivingVerification'
+
+export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
+
+const SEARCH_FIELDS = [SGLAItems.Carton, SGLAItems.KoaCode, SGLAItems.CustomerPn, SGLAItems.PoLine] as const
+
+type EditableColumnType = 'text' | 'number'
+
+function editableColumn(type: EditableColumnType = 'text') {
+  if (type === 'number') {
+    return {
+      editRender: {
+        name: 'VxeInput',
+        autofocus: '.vxe-input--inner',
+        props: { type: 'number' }
+      }
+    }
+  }
+
+  return {
+    editRender: {
+      name: 'VxeTextarea',
+      autofocus: '.vxe-textarea--inner',
+      props: { rows: 2, autosize: { minRows: 2, maxRows: 6 } }
+    }
+  }
+}
+
+export const verificationTableColumns = [
+  {
+    field: SGLAItems.Carton,
+    title: 'CARTON',
+    minWidth: 70,
+    ...editableColumn()
+  },
+  {
+    field: SGLAItems.KoaCode,
+    title: 'KOA CODE',
+    minWidth: 150,
+    ...editableColumn()
+  },
+  {
+    field: SGLAItems.CustomerPn,
+    title: 'CUSTOMER PN',
+    minWidth: 170,
+    ...editableColumn()
+  },
+  {
+    field: SGLAItems.Qty,
+    title: 'QTY',
+    minWidth: 90,
+    type: 'number',
+    ...editableColumn('number')
+  },
+  {
+    field: SGLAItems.PoLine,
+    title: 'PO / LINE',
+    minWidth: 140,
+    ...editableColumn()
+  },
+  {
+    field: SGLAItems.Checked,
+    title: 'Verified',
+    width: 88,
+    align: 'center',
+    slots: { default: 'verifyStatus' }
+  }
+]
+
+export interface WHAReceivingVerificationTableContext {
+  loading: Ref<boolean>
+  tableData: Ref<any[]>
+  tableConfig: any
+  tableEvent: any
+  tableRef: Ref<any>
+  statusFilter: Ref<VerificationStatusFilter>
+  statusCounts: Ref<Record<VerificationStatusFilter, number>>
+  searchQuery: Ref<string>
+  columns: typeof verificationTableColumns
+  reload: () => void
+  SGLAItems: typeof SGLAItems
+}
+
+export const WHAReceivingVerificationTableKey: InjectionKey<WHAReceivingVerificationTableContext> = Symbol('WHAReceivingVerificationTable')
+
+function generateParams(masterTableId: string) {
+  return {
+    tableId: SGLA_ITEMS_TABLE_ID,
+    columns: [{ name: '*' }],
+    conditions: [
+      {
+        value: [
+          {
+            column: SGLAItems.MasterId,
+            type: 'EQ',
+            value: masterTableId
+          }
+        ],
+        type: 'AND'
+      }
+    ]
+  }
+}
+
+export function useWHAReceivingVerificationTableProvider(selectedInvoice: Ref<Record<string, any> | null>) {
+  const loading = ref(false)
+  const statusFilter = ref<VerificationStatusFilter>('all')
+  const searchQuery = ref('')
+  const tableData = ref<Record<string, any>[]>([])
+  function getFilteredItems(data: Record<string, any>[]) {
+    let list = data
+    if (statusFilter.value === 'ok') {
+      list = list.filter((row) => !!row[SGLAItems.Checked])
+    } else if (statusFilter.value === 'unVerified') {
+      list = list.filter((row) => !row[SGLAItems.Checked])
+    }
+    const q = searchQuery.value.trim().toLowerCase()
+    if (!q) return list
+    return list.filter((row) =>
+      SEARCH_FIELDS.some((field) =>
+        String(row[field] ?? '')
+          .toLowerCase()
+          .includes(q)
+      )
+    )
+  }
+
+  const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
+    id: 'wha-receiving-verification-items',
+    height: '100%',
+    refresh: false,
+    zoom: false,
+    saveColumnOrder: false,
+    columns: verificationTableColumns as any,
+    virtualScroll: true,
+    api: async () => {
+      const data = await fetchTableData()
+      tableData.value = data
+      return getFilteredItems(data)
+    },
+    editRender: {
+      editClosed: () => undefined,
+      editConfig: {
+        trigger: 'click',
+        mode: 'cell',
+        showIcon: false,
+        showStatus: false
+      }
+    },
+    optionalConfig: {
+      border: 'inner',
+      stripe: false,
+      pagerConfig: { enabled: false },
+      toolbarConfig: {
+        custom: false,
+        zoom: false,
+        refresh: false,
+        slots: { buttons: 'toolbar_buttons' }
+      }
+    }
+  })
+
+  const statusCounts = computed(() => {
+    const list = tableData.value
+    return {
+      all: list.length,
+      unVerified: list.filter((row: any) => !row[SGLAItems.Checked]).length,
+      ok: list.filter((row: any) => !!row[SGLAItems.Checked]).length
+    }
+  })
+
+  async function fetchTableData() {
+    const masterId = selectedInvoice.value?.id
+    if (!masterId) return []
+
+    loading.value = true
+    try {
+      const params = generateParams(masterId)
+      const { data } = await postDynamicActions(params)
+      return data?.data ?? []
+    } catch (error) {
+      console.error(error)
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const debouncedReload = useDebounceFn(() => reload(), 300)
+
+  watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => debouncedReload())
+
+  const context: WHAReceivingVerificationTableContext = {
+    loading,
+    tableData,
+    tableConfig,
+    tableEvent,
+    tableRef,
+    statusFilter,
+    statusCounts,
+    searchQuery,
+    columns: verificationTableColumns,
+    reload,
+    SGLAItems
+  }
+
+  provide(WHAReceivingVerificationTableKey, context)
+
+  return context
+}
+
+export function useWHAReceivingVerificationTableInject(): WHAReceivingVerificationTableContext {
+  const context = inject(WHAReceivingVerificationTableKey)
+  if (!context) {
+    throw new Error('WHAReceivingVerificationTable context not found. Make sure useWHAReceivingVerificationTableProvider is called in a parent component.')
+  }
+  return context
+}
