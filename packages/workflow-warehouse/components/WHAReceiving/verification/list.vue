@@ -41,7 +41,7 @@ function buildInvoiceAggParams(masterId: string) {
   }
 }
 async function loadInvoiceList() {
-  const batchId = formData.value?.batch_id
+  const batchId = formData.value?.batch_no
   if (!batchId) {
     invoiceList.value = []
     return
