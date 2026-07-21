@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { SGLA, SGLAItems } from '../../../../utils/variableMapping'
+import { SGLA, SGLA_ITEMS } from '../../../../utils/variableMapping'
 
 const { selectedInvoice } = useWHAReceivingVerificationInject()
 const { tableData } = useWHAReceivingVerificationTableInject()
@@ -66,7 +66,7 @@ const list = [
 
 function getUniqueCartons() {
   try {
-    return [...new Set(tableData.value.map((item) => item[SGLAItems.Carton]))].join(', ')
+    return [...new Set(tableData.value.map((item) => item[SGLA_ITEMS.Carton]))].join(', ')
   } catch (error) {
     console.error(error)
     return '—'

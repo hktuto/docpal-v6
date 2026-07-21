@@ -11,7 +11,7 @@
 
       <template #verifyStatus="{ row }">
         <div class="status-actions">
-          <el-checkbox v-model="row[SGLAItems.Checked]" />
+          <el-checkbox v-model="row[SGLA_ITEMS.Checked]" />
         </div>
       </template>
     </VxeGrid>
@@ -29,7 +29,7 @@ const {
   statusFilter,
   statusCounts,
   searchQuery,
-  SGLAItems
+  SGLA_ITEMS
 } = useWHAReceivingVerificationTableInject()
 </script>
 

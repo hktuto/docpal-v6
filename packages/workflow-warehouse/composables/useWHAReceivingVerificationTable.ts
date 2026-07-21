@@ -1,11 +1,11 @@
 import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
 import { postDynamicActions } from 'api'
-import { SGLAItems, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
+import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
 import { useWHAReceivingVerificationInject } from './useWHAReceivingVerification'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
-const SEARCH_FIELDS = [SGLAItems.Carton, SGLAItems.KoaCode, SGLAItems.CustomerPn, SGLAItems.PoLine] as const
+const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.KoaCode, SGLA_ITEMS.CustomerPn, SGLA_ITEMS.PoLine] as const
 
 type EditableColumnType = 'text' | 'number'
 
@@ -31,38 +31,38 @@ function editableColumn(type: EditableColumnType = 'text') {
 
 export const verificationTableColumns = [
   {
-    field: SGLAItems.Carton,
+    field: SGLA_ITEMS.Carton,
     title: 'CARTON',
     minWidth: 70,
     ...editableColumn()
   },
   {
-    field: SGLAItems.KoaCode,
+    field: SGLA_ITEMS.KoaCode,
     title: 'KOA CODE',
     minWidth: 150,
     ...editableColumn()
   },
   {
-    field: SGLAItems.CustomerPn,
+    field: SGLA_ITEMS.CustomerPn,
     title: 'CUSTOMER PN',
     minWidth: 170,
     ...editableColumn()
   },
   {
-    field: SGLAItems.Qty,
+    field: SGLA_ITEMS.Qty,
     title: 'QTY',
     minWidth: 90,
     type: 'number',
     ...editableColumn('number')
   },
   {
-    field: SGLAItems.PoLine,
+    field: SGLA_ITEMS.PoLine,
     title: 'PO / LINE',
     minWidth: 140,
     ...editableColumn()
   },
   {
-    field: SGLAItems.Checked,
+    field: SGLA_ITEMS.Checked,
     title: 'Verified',
     width: 88,
     align: 'center',
@@ -81,7 +81,7 @@ export interface WHAReceivingVerificationTableContext {
   searchQuery: Ref<string>
   columns: typeof verificationTableColumns
   reload: () => void
-  SGLAItems: typeof SGLAItems
+  SGLA_ITEMS: typeof SGLA_ITEMS
 }
 
 export const WHAReceivingVerificationTableKey: InjectionKey<WHAReceivingVerificationTableContext> = Symbol('WHAReceivingVerificationTable')
@@ -94,7 +94,7 @@ function generateParams(masterTableId: string) {
       {
         value: [
           {
-            column: SGLAItems.MasterId,
+            column: SGLA_ITEMS.MasterId,
             type: 'EQ',
             value: masterTableId
           }
@@ -113,9 +113,9 @@ export function useWHAReceivingVerificationTableProvider(selectedInvoice: Ref<Re
   function getFilteredItems(data: Record<string, any>[]) {
     let list = data
     if (statusFilter.value === 'ok') {
-      list = list.filter((row) => !!row[SGLAItems.Checked])
+      list = list.filter((row) => !!row[SGLA_ITEMS.Checked])
     } else if (statusFilter.value === 'unVerified') {
-      list = list.filter((row) => !row[SGLAItems.Checked])
+      list = list.filter((row) => !row[SGLA_ITEMS.Checked])
     }
     const q = searchQuery.value.trim().toLowerCase()
     if (!q) return list
@@ -167,8 +167,8 @@ export function useWHAReceivingVerificationTableProvider(selectedInvoice: Ref<Re
     const list = tableData.value
     return {
       all: list.length,
-      unVerified: list.filter((row: any) => !row[SGLAItems.Checked]).length,
-      ok: list.filter((row: any) => !!row[SGLAItems.Checked]).length
+      unVerified: list.filter((row: any) => !row[SGLA_ITEMS.Checked]).length,
+      ok: list.filter((row: any) => !!row[SGLA_ITEMS.Checked]).length
     }
   })
 
@@ -204,7 +204,7 @@ export function useWHAReceivingVerificationTableProvider(selectedInvoice: Ref<Re
     searchQuery,
     columns: verificationTableColumns,
     reload,
-    SGLAItems
+    SGLA_ITEMS
   }
 
   provide(WHAReceivingVerificationTableKey, context)

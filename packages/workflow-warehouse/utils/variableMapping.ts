@@ -12,7 +12,7 @@ export enum SGLA {
 
 // Supplier Goods List Attachment Items
 export const SGLA_ITEMS_TABLE_ID = '2812f4f0-738d-11f1-93f8-b1266e822267'
-export enum SGLAItems {
+export enum SGLA_ITEMS {
   MasterId = 'f_4856_72615eaf',
   // TODO: replace with real field ids from dynamic DB
   Carton = 'f_4864_c572140f',

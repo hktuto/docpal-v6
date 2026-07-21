@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
-import { SGLA, SGLA_TABLE_ID, SGLA_ITEMS_TABLE_ID, SGLAItems } from '../../../utils/variableMapping'
+import { SGLA, SGLA_TABLE_ID, SGLA_ITEMS_TABLE_ID, SGLA_ITEMS } from '../../../utils/variableMapping'
 
 const { formData, invoiceList, selectedInvoice, selectInvoice } = useWHAReceivingVerificationInject()
 
@@ -21,8 +21,8 @@ function buildInvoiceAggParams(masterId: string) {
     tableId: SGLA_ITEMS_TABLE_ID,
     columns: [
       {
-        name: SGLAItems.Qty,
-        alias: `agg_${SGLAItems.Qty}`,
+        name: SGLA_ITEMS.Qty,
+        alias: `agg_${SGLA_ITEMS.Qty}`,
         aggFunc: 'SUM'
       }
     ],
@@ -30,7 +30,7 @@ function buildInvoiceAggParams(masterId: string) {
       {
         value: [
           {
-            column: SGLAItems.MasterId,
+            column: SGLA_ITEMS.MasterId,
             type: 'EQ',
             value: masterId
           }
@@ -52,7 +52,7 @@ async function loadInvoiceList() {
     const invoiceDatas = data.data ?? []
     invoiceDatas.forEach(async (item: Record<string, any>) => {
       const { data: aggData } = await postDynamicActions(buildInvoiceAggParams(item.id))
-      item.total_qty = aggData.data[0][`agg_${SGLAItems.Qty}`]
+      item.total_qty = aggData.data[0][`agg_${SGLA_ITEMS.Qty}`]
     })
     invoiceList.value = invoiceDatas ?? []
     if (invoiceList.value.length > 0) {
