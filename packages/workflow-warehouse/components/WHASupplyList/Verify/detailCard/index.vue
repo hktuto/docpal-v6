@@ -81,18 +81,22 @@ async function handleSave(value: string, item: any) {
   item.status = 'loading'
   const res = await updateInvoiceData(value, item.invoiceKey)
   setTimeout(() => {
-    item.status = res.result ? 'pass' : 'fail'
+    item.status = !res.result ? 'pass' : 'fail'
   }, 1000)
 }
-function validate() {
-  let isValid = true
-  for (const item of list.value) {
-    if (item.status === 'fail' || item.status === 'loading') {
-      isValid = false
-      break
-    }
+async function validate() {
+  const hasInvalid = list.value.some((item) => item.status === 'fail' || item.status === 'loading')
+  if (!hasInvalid) return true
+  try {
+    await ElMessageBox.confirm('Some invoice data failed to submit. Force submit anyway?', 'Warning', {
+      confirmButtonText: 'Force Submit',
+      cancelButtonText: 'Cancel',
+      type: 'warning'
+    })
+    return true
+  } catch {
+    throw new Error('Please check the invoice data')
   }
-  return isValid
 }
 defineExpose({
   validate

@@ -41,10 +41,8 @@ const fileList = computed(() => {
 const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
 useWHASupplyListVerifyTableProvider(selectedInvoice)
 async function getFormData(needValidation: boolean) {
-  const isValid = detailCardRef.value?.validate()
-  if (needValidation && !isValid) {
-    throw new Error('Please check the invoice data')
-  }
+  if (!needValidation) return
+  await detailCardRef.value?.validate()
   invoiceList.value.forEach((item) => {
     if (item[SGLA.Status] !== 'confirm') {
       throw new Error('Please confirm the invoice first')
