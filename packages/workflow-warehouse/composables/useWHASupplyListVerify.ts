@@ -35,12 +35,13 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
     const invoiceData = {
       [SGLA[key]]: value
     }
-    await newClientApi.putDynamicDbTableTableidDataDataid(SGLA_TABLE_ID, invoiceId, {
+    const res = await newClientApi.putDynamicDbTableTableidDataDataid(SGLA_TABLE_ID, invoiceId, {
       data: invoiceData
     })
     if (selectedInvoice.value) {
       selectedInvoice.value[SGLA[key]] = value
     }
+    return res
   }
 
   const context: WHASupplyListVerifyContext = {

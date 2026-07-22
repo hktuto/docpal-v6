@@ -29,27 +29,38 @@
         />
       </div>
 
-      <button
-        type="button"
-        class="detail-value"
-        :class="{ 'is-readonly': disabled, 'is-hidden': isEditing }"
-        tabindex="0"
-        :aria-label="!disabled ? 'Click to edit' : label"
-        @click="handleStartEdit"
-        @keydown.enter.prevent="handleStartEdit"
-      >
-        <span class="detail-value-text" v-if="textValue">{{ textValue }}</span>
-        <span class="detail-value-text" v-else :title="displayValue">{{ displayValue }}</span>
-        <el-icon v-if="!disabled" class="detail-edit-icon" aria-hidden="true">
-          <EditPen />
-        </el-icon>
-      </button>
+      <div class="detail-value" :class="{ 'is-hidden': isEditing }">
+        <span v-if="textValue" class="detail-value-text">{{ textValue }}</span>
+        <span
+          v-else
+          class="detail-value-text"
+          :class="{ 'is-editable': !disabled }"
+          :title="displayValue"
+          :tabindex="disabled ? undefined : 0"
+          :aria-label="!disabled ? 'Click to edit' : label"
+          @click="handleStartEdit"
+          @keydown.enter.prevent="handleStartEdit"
+        >
+          {{ displayValue }}
+        </span>
+        <template v-if="!disabled">
+          <el-icon v-if="status === 'loading'" class="detail-edit-icon is-loading" aria-hidden="true">
+            <Loading />
+          </el-icon>
+          <el-icon v-else-if="status === 'fail'" class="detail-edit-icon is-fail" aria-hidden="true" @click="handleRetry">
+            <RefreshRight />
+          </el-icon>
+          <el-icon v-else class="detail-edit-icon" aria-hidden="true" @click="handleStartEdit">
+            <EditPen />
+          </el-icon>
+        </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { EditPen } from '@element-plus/icons-vue'
+import { EditPen, Loading, RefreshRight } from '@element-plus/icons-vue'
 import type { InputInstance } from 'element-plus'
 
 const props = withDefaults(
@@ -59,15 +70,18 @@ const props = withDefaults(
     textValue?: string
     disabled?: boolean
     type?: 'text' | 'date'
+    status?: 'pass' | 'fail' | 'loading'
   }>(),
   {
     disabled: false,
-    type: 'text'
+    type: 'text',
+    status: 'pass'
   }
 )
 
 const emit = defineEmits<{
   'update:value': [value: string]
+  save: [value: string]
 }>()
 
 const { formatDate } = useTime()
@@ -105,8 +119,15 @@ async function handleStartEdit() {
 
 function handleSave() {
   if (!isEditing.value || props.disabled) return
-  emit('update:value', draft.value ?? '')
+  const value = draft.value ?? ''
+  emit('update:value', value)
+  emit('save', value)
   isEditing.value = false
+}
+
+function handleRetry() {
+  if (props.disabled || props.status !== 'fail') return
+  emit('save', props.value == null ? '' : String(props.value))
 }
 
 function handleFocusOut(event: FocusEvent) {
@@ -154,27 +175,11 @@ function handleCancel() {
   justify-content: flex-end;
   gap: var(--app-space-xxs);
   width: 100%;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
   text-align: right;
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.4;
   color: var(--el-text-color-primary);
-
-  &:hover:not(.is-readonly) {
-    color: var(--el-color-primary);
-
-    .detail-edit-icon {
-      color: var(--el-color-primary);
-    }
-  }
-
-  &.is-readonly {
-    cursor: default;
-  }
 
   &.is-hidden {
     visibility: hidden;
@@ -187,12 +192,29 @@ function handleCancel() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &.is-editable {
+    cursor: pointer;
+
+    &:hover {
+      color: var(--el-color-primary);
+    }
+  }
 }
 
 .detail-edit-icon {
   flex-shrink: 0;
   color: var(--el-text-color-placeholder);
   font-size: 0.875rem;
+  cursor: pointer;
+
+  &:hover:not(.is-loading):not(.is-fail) {
+    color: var(--el-color-primary);
+  }
+
+  &.is-fail {
+    color: var(--el-color-danger);
+  }
 }
 
 .detail-value-edit {

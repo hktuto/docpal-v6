@@ -16,7 +16,8 @@
             :label="item.label"
             :type="item.type"
             :disabled="item.disabled"
-            @update:value="(v) => handleChange(v, item.invoiceKey)"
+            :status="item.status"
+            @save="(v) => handleSave(v, item)"
           />
           <template v-else>
             <WHASupplyListVerifyDetailCardItem :label="item.label" :textValue="item.value" :type="item.type" :disabled="item.disabled" />
@@ -36,21 +37,24 @@ import { SGLA, SGLA_ITEMS } from '../../../../utils/variableMapping'
 const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
 const key = 'VendorName'
-const list = [
+const list = ref([
   {
     label: 'Supplier',
     invoiceKey: 'VendorName',
-    type: 'text'
+    type: 'text',
+    status: 'pass'
   },
   {
     label: 'Customer',
     invoiceKey: 'CustomerName',
-    type: 'text'
+    type: 'text',
+    status: 'pass'
   },
   {
     label: 'Delivery Date',
     invoiceKey: 'DeliveryDate',
-    type: 'date'
+    type: 'date',
+    status: 'pass'
   },
   {
     label: 'Cartons',
@@ -64,7 +68,7 @@ const list = [
     type: 'text',
     disabled: true
   }
-]
+])
 
 function getUniqueCartons() {
   try {
@@ -75,8 +79,12 @@ function getUniqueCartons() {
   }
 }
 async function generateParams() {}
-function handleChange(value: string, key: keyof typeof SGLA) {
-  updateInvoiceData(value, key)
+async function handleSave(value: string, item: any) {
+  item.status = 'loading'
+  const res = await updateInvoiceData(value, item.invoiceKey)
+  setTimeout(() => {
+    item.status = res.result ? 'pass' : 'fail'
+  }, 1000)
 }
 </script>
 

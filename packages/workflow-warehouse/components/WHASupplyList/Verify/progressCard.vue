@@ -57,7 +57,7 @@ async function handleApprove() {
     const data = getFormData()
     await newClientApi.patchDynamicDbTableTableidDataBatchTransactional(SGLA_ITEMS_TABLE_ID, { data })
     const status = percentage.value === 100 ? 'confirm' : 'created'
-    await updateInvoiceData(status)
+    await updateInvoiceData(status, 'Status')
   } catch (error) {
     console.error(error)
   } finally {
