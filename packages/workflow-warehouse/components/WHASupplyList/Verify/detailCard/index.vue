@@ -11,11 +11,12 @@
       <div class="detail-card-body">
         <template v-for="item in list" :key="item.label">
           <WHASupplyListVerifyDetailCardItem
-            v-if="item.invoiceValue"
-            v-model:value="selectedInvoice[item.invoiceValue]"
+            v-if="item.invoiceKey"
+            v-model:value="selectedInvoice[SGLA[item.invoiceKey]]"
             :label="item.label"
             :type="item.type"
             :disabled="item.disabled"
+            @update:value="(v) => handleChange(v, item.invoiceKey)"
           />
           <template v-else>
             <WHASupplyListVerifyDetailCardItem :label="item.label" :textValue="item.value" :type="item.type" :disabled="item.disabled" />
@@ -29,25 +30,26 @@
 </template>
 
 <script setup lang="ts">
+import { newClientApi } from 'api'
 import { SGLA, SGLA_ITEMS } from '../../../../utils/variableMapping'
 
-const { selectedInvoice } = useWHASupplyListVerifyInject()
+const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
-
+const key = 'VendorName'
 const list = [
   {
     label: 'Supplier',
-    invoiceValue: SGLA.VendorName,
+    invoiceKey: 'VendorName',
     type: 'text'
   },
   {
     label: 'Customer',
-    invoiceValue: SGLA.CustomerName,
+    invoiceKey: 'CustomerName',
     type: 'text'
   },
   {
     label: 'Delivery Date',
-    invoiceValue: SGLA.DeliveryDate,
+    invoiceKey: 'DeliveryDate',
     type: 'date'
   },
   {
@@ -71,6 +73,10 @@ function getUniqueCartons() {
     console.error(error)
     return '—'
   }
+}
+async function generateParams() {}
+function handleChange(value: string, key: keyof typeof SGLA) {
+  updateInvoiceData(value, key)
 }
 </script>
 

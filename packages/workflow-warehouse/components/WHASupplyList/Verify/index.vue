@@ -33,7 +33,7 @@ const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList, docId } = useWHASupplyListVerifyProvider(props)
 const fileList = computed(() => {
   const list = props.formData?.file_info || []
-  if (!docId.value) {
+  if (!docId.value && list.length > 0) {
     docId.value = list[0].id
   }
   return list

@@ -13,12 +13,11 @@ export interface WHASupplyListVerifyContext {
   invoiceList: Ref<Record<string, any>[]>
   selectedInvoice: Ref<Record<string, any> | null>
   selectInvoice: (item: Record<string, any>) => void
-  updateInvoiceStatus: (status: string) => Promise<void>
+  updateInvoiceData: (value: string, key: keyof typeof SGLA) => Promise<void>
   docId: Ref<string>
 }
 
-export const WHASupplyListVerifyKey: InjectionKey<WHASupplyListVerifyContext> =
-  Symbol('WHASupplyListVerify')
+export const WHASupplyListVerifyKey: InjectionKey<WHASupplyListVerifyContext> = Symbol('WHASupplyListVerify')
 
 export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) {
   const formData = toRef(props, 'formData')
@@ -31,16 +30,16 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
     selectedInvoice.value = item
   }
 
-  async function updateInvoiceStatus(status: string) {
+  async function updateInvoiceData(value: string, key: keyof typeof SGLA) {
     const invoiceId = selectedInvoice.value?.id
     const invoiceData = {
-      [SGLA.Status]: status
+      [SGLA[key]]: value
     }
     await newClientApi.putDynamicDbTableTableidDataDataid(SGLA_TABLE_ID, invoiceId, {
       data: invoiceData
     })
     if (selectedInvoice.value) {
-      selectedInvoice.value[SGLA.Status] = status
+      selectedInvoice.value[SGLA[key]] = value
     }
   }
 
@@ -51,7 +50,7 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
     invoiceList,
     selectedInvoice,
     selectInvoice,
-    updateInvoiceStatus
+    updateInvoiceData
   }
 
   provide(WHASupplyListVerifyKey, context)
@@ -62,9 +61,7 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
 export function useWHASupplyListVerifyInject(): WHASupplyListVerifyContext {
   const context = inject(WHASupplyListVerifyKey)
   if (!context) {
-    throw new Error(
-      'WHASupplyListVerify context not found. Make sure useWHASupplyListVerifyProvider is called in a parent component.'
-    )
+    throw new Error('WHASupplyListVerify context not found. Make sure useWHASupplyListVerifyProvider is called in a parent component.')
   }
   return context
 }

@@ -22,7 +22,7 @@ import { Document } from '@element-plus/icons-vue'
 import { useWHASupplyListVerifyTableInject } from '../../../composables/useWHASupplyListVerifyTable'
 import { SGLA_ITEMS_TABLE_ID } from '../../../utils/variableMapping'
 
-const { updateInvoiceStatus } = useWHASupplyListVerifyInject()
+const { updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData, statusCounts, columns } = useWHASupplyListVerifyTableInject()
 const loading = ref(false)
 const percentage = computed(() => {
@@ -57,7 +57,7 @@ async function handleApprove() {
     const data = getFormData()
     await newClientApi.patchDynamicDbTableTableidDataBatchTransactional(SGLA_ITEMS_TABLE_ID, { data })
     const status = percentage.value === 100 ? 'confirm' : 'created'
-    await updateInvoiceStatus(status)
+    await updateInvoiceData(status)
   } catch (error) {
     console.error(error)
   } finally {
