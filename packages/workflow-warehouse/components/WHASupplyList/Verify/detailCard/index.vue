@@ -86,6 +86,19 @@ async function handleSave(value: string, item: any) {
     item.status = res.result ? 'pass' : 'fail'
   }, 1000)
 }
+function validate() {
+  let isValid = true
+  for (const item of list.value) {
+    if (item.status === 'fail' || item.status === 'loading') {
+      isValid = false
+      break
+    }
+  }
+  return isValid
+}
+defineExpose({
+  validate
+})
 </script>
 
 <style scoped lang="scss">

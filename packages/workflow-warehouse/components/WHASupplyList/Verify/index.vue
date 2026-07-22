@@ -19,7 +19,7 @@
         <WHASupplyListVerifyTable />
       </el-splitter-panel>
       <el-splitter-panel class="mg-left" size="12%" :collapsible="isCollapsible" :min="150">
-        <WHASupplyListVerifyDetailCard />
+        <WHASupplyListVerifyDetailCard ref="detailCardRef" />
         <WHASupplyListVerifyDetectedCard class="mg-top" />
         <WHASupplyListVerifyProgressCard class="mg-top" />
       </el-splitter-panel>
@@ -38,8 +38,13 @@ const fileList = computed(() => {
   }
   return list
 })
+const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
 useWHASupplyListVerifyTableProvider(selectedInvoice)
 async function getFormData(needValidation: boolean) {
+  const isValid = detailCardRef.value?.validate()
+  if (needValidation && !isValid) {
+    throw new Error('Please check the invoice data')
+  }
   invoiceList.value.forEach((item) => {
     if (item[SGLA.Status] !== 'confirm') {
       throw new Error('Please confirm the invoice first')

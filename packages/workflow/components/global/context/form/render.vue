@@ -128,8 +128,8 @@ async function getFormData(needValidation = true, onlyWritable = false) {
       ...resultFormData,
       ...slotData
     }
-  } catch (error) {
-    console.error(error)
+  } catch (error: any) {
+    throw error instanceof Error ? error : new Error(error?.message || String(error))
   }
 }
 
