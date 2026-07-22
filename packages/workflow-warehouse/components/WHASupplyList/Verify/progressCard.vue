@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="progress-card">
     <div class="progress-card-header">
       <h3 class="progress-card-title">Progress</h3>
@@ -19,11 +19,11 @@
 <script setup lang="ts">
 import { newClientApi } from 'api'
 import { Document } from '@element-plus/icons-vue'
-import { useWHAReceivingVerificationTableInject } from '../../../composables/useWHAReceivingVerificationTable'
+import { useWHASupplyListVerifyTableInject } from '../../../composables/useWHASupplyListVerifyTable'
 import { SGLA_ITEMS_TABLE_ID } from '../../../utils/variableMapping'
 
-const { updateInvoiceStatus } = useWHAReceivingVerificationInject()
-const { tableData, statusCounts, columns } = useWHAReceivingVerificationTableInject()
+const { updateInvoiceStatus } = useWHASupplyListVerifyInject()
+const { tableData, statusCounts, columns } = useWHASupplyListVerifyTableInject()
 const loading = ref(false)
 const percentage = computed(() => {
   if (!statusCounts.value.all) return 0

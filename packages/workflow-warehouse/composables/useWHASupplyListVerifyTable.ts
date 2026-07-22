@@ -1,7 +1,7 @@
-import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
+﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
 import { postDynamicActions } from 'api'
 import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
-import { useWHAReceivingVerificationInject } from './useWHAReceivingVerification'
+import { useWHASupplyListVerifyInject } from './useWHASupplyListVerify'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
@@ -70,7 +70,7 @@ export const verificationTableColumns = [
   }
 ]
 
-export interface WHAReceivingVerificationTableContext {
+export interface WHASupplyListVerifyTableContext {
   loading: Ref<boolean>
   tableData: Ref<any[]>
   tableConfig: any
@@ -84,7 +84,7 @@ export interface WHAReceivingVerificationTableContext {
   SGLA_ITEMS: typeof SGLA_ITEMS
 }
 
-export const WHAReceivingVerificationTableKey: InjectionKey<WHAReceivingVerificationTableContext> = Symbol('WHAReceivingVerificationTable')
+export const WHASupplyListVerifyTableKey: InjectionKey<WHASupplyListVerifyTableContext> = Symbol('WHASupplyListVerifyTable')
 
 function generateParams(masterTableId: string) {
   return {
@@ -105,7 +105,7 @@ function generateParams(masterTableId: string) {
   }
 }
 
-export function useWHAReceivingVerificationTableProvider(selectedInvoice: Ref<Record<string, any> | null>) {
+export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<string, any> | null>) {
   const loading = ref(false)
   const statusFilter = ref<VerificationStatusFilter>('all')
   const searchQuery = ref('')
@@ -193,7 +193,7 @@ export function useWHAReceivingVerificationTableProvider(selectedInvoice: Ref<Re
 
   watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => debouncedReload())
 
-  const context: WHAReceivingVerificationTableContext = {
+  const context: WHASupplyListVerifyTableContext = {
     loading,
     tableData,
     tableConfig,
@@ -207,15 +207,15 @@ export function useWHAReceivingVerificationTableProvider(selectedInvoice: Ref<Re
     SGLA_ITEMS
   }
 
-  provide(WHAReceivingVerificationTableKey, context)
+  provide(WHASupplyListVerifyTableKey, context)
 
   return context
 }
 
-export function useWHAReceivingVerificationTableInject(): WHAReceivingVerificationTableContext {
-  const context = inject(WHAReceivingVerificationTableKey)
+export function useWHASupplyListVerifyTableInject(): WHASupplyListVerifyTableContext {
+  const context = inject(WHASupplyListVerifyTableKey)
   if (!context) {
-    throw new Error('WHAReceivingVerificationTable context not found. Make sure useWHAReceivingVerificationTableProvider is called in a parent component.')
+    throw new Error('WHASupplyListVerifyTable context not found. Make sure useWHASupplyListVerifyTableProvider is called in a parent component.')
   }
   return context
 }

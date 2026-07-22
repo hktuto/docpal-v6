@@ -60,14 +60,21 @@ watch(
 
 <template>
   <div v-loading="previewFile.loading" class="workflow-preview">
-    <Reader v-if="previewFile.blob" v-bind="previewFile" />
+    <div class="workflow-preview__title">
+      <slot name="title">{{ previewFile.name }}</slot>
+    </div>
+    <Reader class="reader" v-if="previewFile.blob" v-bind="previewFile" />
   </div>
 </template>
-
 <style scoped lang="scss">
 .workflow-preview {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  .reader {
+    flex: 1;
+  }
 }
 </style>

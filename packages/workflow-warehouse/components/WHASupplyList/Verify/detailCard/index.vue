@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="detail-card">
     <template v-if="selectedInvoice">
       <div class="detail-card-header">
@@ -10,7 +10,7 @@
 
       <div class="detail-card-body">
         <template v-for="item in list" :key="item.label">
-          <WHAReceivingVerificationDetailCardItem
+          <WHASupplyListVerifyDetailCardItem
             v-if="item.invoiceValue"
             v-model:value="selectedInvoice[item.invoiceValue]"
             :label="item.label"
@@ -18,7 +18,7 @@
             :disabled="item.disabled"
           />
           <template v-else>
-            <WHAReceivingVerificationDetailCardItem :label="item.label" :textValue="item.value" :type="item.type" :disabled="item.disabled" />
+            <WHASupplyListVerifyDetailCardItem :label="item.label" :textValue="item.value" :type="item.type" :disabled="item.disabled" />
           </template>
         </template>
       </div>
@@ -31,8 +31,8 @@
 <script setup lang="ts">
 import { SGLA, SGLA_ITEMS } from '../../../../utils/variableMapping'
 
-const { selectedInvoice } = useWHAReceivingVerificationInject()
-const { tableData } = useWHAReceivingVerificationTableInject()
+const { selectedInvoice } = useWHASupplyListVerifyInject()
+const { tableData } = useWHASupplyListVerifyTableInject()
 
 const list = [
   {

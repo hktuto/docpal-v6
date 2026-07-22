@@ -1,8 +1,8 @@
-<template>
+﻿<template>
   <div class="verification-table" v-loading="loading">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <WHAReceivingVerificationTableToolbar
+        <WHASupplyListVerifyTableToolbar
           v-model="statusFilter"
           v-model:search="searchQuery"
           :counts="statusCounts"
@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { useWHAReceivingVerificationTableInject } from '../../../../composables/useWHAReceivingVerificationTable'
+import { useWHASupplyListVerifyTableInject } from '../../../../composables/useWHASupplyListVerifyTable'
 
 const {
   loading,
@@ -30,7 +30,7 @@ const {
   statusCounts,
   searchQuery,
   SGLA_ITEMS
-} = useWHAReceivingVerificationTableInject()
+} = useWHASupplyListVerifyTableInject()
 </script>
 
 <style lang="scss" scoped>

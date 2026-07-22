@@ -1,8 +1,8 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { postDynamicActions } from 'api'
 import { SGLA, SGLA_TABLE_ID, SGLA_ITEMS_TABLE_ID, SGLA_ITEMS } from '../../../utils/variableMapping'
 
-const { formData, invoiceList, selectedInvoice, selectInvoice } = useWHAReceivingVerificationInject()
+const { formData, invoiceList, selectedInvoice, selectInvoice } = useWHASupplyListVerifyInject()
 
 function buildInvoiceParams(batchId: string) {
   return {

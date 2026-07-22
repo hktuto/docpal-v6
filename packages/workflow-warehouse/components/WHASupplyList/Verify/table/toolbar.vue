@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="toolbar">
     <div class="status-tabs" role="tablist" aria-label="Verification status filter">
       <button
@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue'
-import type { VerificationStatusFilter } from '../../../../composables/useWHAReceivingVerificationTable'
+import type { VerificationStatusFilter } from '../../../../composables/useWHASupplyListVerifyTable'
 
 defineProps<{
   modelValue: VerificationStatusFilter
