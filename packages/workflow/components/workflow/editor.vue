@@ -187,9 +187,10 @@ function init() {
 
       // Set Edges Setting to X6Edge
       workflowJsonObject.value.edges.forEach((edge: any) => {
+        const edgeMetadata = edge.metadata || {}
         graph.value?.addEdge({
-          source: { cell: edge.source_node_id, port: edge.metadata.sourcePort || 'top' },
-          target: { cell: edge.target_node_id, port: edge.metadata.targetPort || 'from' },
+          source: { cell: edge.source_node_id, port: edgeMetadata.sourcePort || 'to' },
+          target: { cell: edge.target_node_id, port: edgeMetadata.targetPort || 'from' },
           attrs: {
             line: {
               stroke: '#000000',
@@ -197,8 +198,8 @@ function init() {
               strokeDasharray: 0
             }
           },
-          label: edge.metadata.label || null,
-          data: edge,
+          label: edgeMetadata.label || null,
+          data: { ...edge, metadata: edgeMetadata },
           router: {
             name: 'manhattan'
           }

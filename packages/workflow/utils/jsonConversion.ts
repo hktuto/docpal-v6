@@ -143,13 +143,60 @@ export const x6NodeToWorkflowJson = function (graphProvider: any) {
   }
 }
 
+const GATEWAY_TYPES = new Set(['ParallelGateway', 'ExclusiveGateway', 'InclusiveGateway', 'Gateway'])
+
+function resolveWorkflowElementType(nodeItem: NodeItem): WorkflowElementType | null {
+  const tags = nodeItem.metadata?.tags
+  if (tags && tags in workflowElement) {
+    return tags as WorkflowElementType
+  }
+
+  const type = (nodeItem.type || nodeItem.metadata?.type) as string
+  if (GATEWAY_TYPES.has(type)) {
+    return WorkflowElementType.Gateway
+  }
+  if (type && type in workflowElement) {
+    return type as WorkflowElementType
+  }
+  return null
+}
+
+/** 补齐缺失的 metadata，避免后端/外部 JSON 缺字段时整图转换中断 */
+function ensureNodeMetadata(nodeItem: NodeItem): NodeItem {
+  const type = (nodeItem.type || nodeItem.metadata?.type || '') as string
+  const isGateway = GATEWAY_TYPES.has(type)
+  const tags = (nodeItem.metadata?.tags || (isGateway ? WorkflowElementType.Gateway : type)) as WorkflowElementType
+
+  let maxOutgoing: number | undefined
+  if (type === 'ExclusiveGateway' || type === 'ConditionTask') maxOutgoing = 2
+  else if (type === 'ParallelGateway' || type === 'InclusiveGateway') maxOutgoing = 50
+
+  return {
+    ...nodeItem,
+    metadata: {
+      type: type || tags,
+      tags,
+      x: 60,
+      y: 60,
+      width: isGateway ? 200 : 120,
+      height: 64,
+      icon: isGateway ? '/workflowIcons/condition.svg' : undefined,
+      bgColor: isGateway ? '#ff8f31' : undefined,
+      textColor: isGateway ? '#fff' : undefined,
+      maxOutgoing,
+      ...nodeItem.metadata
+    }
+  }
+}
+
 export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   const cells: any = []
 
   workflowJson.nodes.forEach((nodeItem: NodeItem) => {
-    const type = nodeItem.metadata.tags as WorkflowElementType
-    if (type in workflowElement) {
-      const graphData = workflowElement[type].workflowDataToGraphData(nodeItem)
+    const normalizedNode = ensureNodeMetadata(nodeItem)
+    const type = resolveWorkflowElementType(normalizedNode)
+    if (type && type in workflowElement) {
+      const graphData = workflowElement[type].workflowDataToGraphData(normalizedNode)
       cells.push(graphData)
     }
   })
