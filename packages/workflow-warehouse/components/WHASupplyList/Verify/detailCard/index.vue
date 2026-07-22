@@ -1,13 +1,6 @@
 ﻿<template>
   <div class="detail-card">
     <template v-if="selectedInvoice">
-      <div class="detail-card-header">
-        <h3 class="detail-card-title" :title="selectedInvoice[SGLA.Name]">
-          {{ selectedInvoice[SGLA.Name] || '—' }}
-        </h3>
-        <p class="detail-card-subtitle">Sub-invoice summary — click to edit</p>
-      </div>
-
       <div class="detail-card-body">
         <template v-for="item in list" :key="item.label">
           <WHASupplyListVerifyDetailCardItem
@@ -38,6 +31,11 @@ const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
 const key = 'VendorName'
 const list = ref([
+  {
+    invoiceKey: 'Name',
+    type: 'text',
+    status: 'pass'
+  },
   {
     label: 'Supplier',
     invoiceKey: 'VendorName',

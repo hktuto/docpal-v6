@@ -1,6 +1,6 @@
 <template>
-  <div class="detail-item">
-    <span class="detail-label">{{ label }}</span>
+  <div class="detail-item" :class="{ 'is-no-label': !hasLabel }">
+    <span v-if="hasLabel" class="detail-label">{{ label }}</span>
 
     <div class="detail-value-wrap">
       <div v-if="isEditing && type === 'date'" class="detail-value-edit">
@@ -65,7 +65,7 @@ import type { InputInstance } from 'element-plus'
 
 const props = withDefaults(
   defineProps<{
-    label: string
+    label?: string
     value?: string | number | null
     textValue?: string
     disabled?: boolean
@@ -73,11 +73,14 @@ const props = withDefaults(
     status?: 'pass' | 'fail' | 'loading'
   }>(),
   {
+    label: '',
     disabled: false,
     type: 'text',
     status: 'pass'
   }
 )
+
+const hasLabel = computed(() => Boolean(props.label?.trim()))
 
 const emit = defineEmits<{
   'update:value': [value: string]
@@ -152,6 +155,20 @@ function handleCancel() {
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--app-space-m);
+
+  &.is-no-label {
+    justify-content: flex-start;
+
+    .detail-value-wrap {
+      max-width: 100%;
+    }
+
+    .detail-value {
+      justify-content: flex-start;
+      text-align: left;
+      font-size: 1.2rem;
+    }
+  }
 }
 
 .detail-label {
