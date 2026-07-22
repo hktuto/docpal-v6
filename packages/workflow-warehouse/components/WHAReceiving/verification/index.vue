@@ -6,7 +6,10 @@
         <WHAReceivingVerificationList />
       </el-splitter-panel>
       <el-splitter-panel :collapsible="isCollapsible" :min="200">
-        <div class="demo-panel">preview</div>
+        <el-tabs v-model="docId" @tab-click="handleClick">
+          <el-tab-pane v-for="file in fileList" :key="file.id" :label="file.file_name || file.name" :name="file.id"></el-tab-pane>
+        </el-tabs>
+        <WorkflowPreview :doc-id="docId" />
       </el-splitter-panel>
       <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200">
         <WHAReceivingVerificationTable />
@@ -23,6 +26,8 @@
 <script setup lang="ts">
 const props = defineProps(['formData', 'taskDetail'])
 const isCollapsible = ref(true)
+const docId = ref('')
+const fileList = computed(() => props.formData?.file_info || [])
 const { selectedInvoice, invoiceList } = useWHAReceivingVerificationProvider(props)
 useWHAReceivingVerificationTableProvider(selectedInvoice)
 async function getFormData(needValidation: boolean) {
