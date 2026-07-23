@@ -348,7 +348,7 @@ onMounted(async () => {
               <span v-if="index === 0">When</span>
               <span v-else>{{ form.match_type === 'all' ? 'And' : 'Or' }}</span>
             </div>
-            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2" @change="handleFieldChange(condition)">
+            <el-select v-model="condition.field_name" placeholder="Field" size="small" style="flex: 1.2" @change="handleFieldChange(condition)" filterable>
               <el-option v-for="opt in fieldOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
             <el-select v-model="condition.operator" placeholder="Operator" size="small" style="flex: 1">
@@ -393,7 +393,7 @@ onMounted(async () => {
       <el-form label-width="auto">
         <template v-for="formField in workflowFormFields" :key="formField.id">
           <el-form-item :label="formField.name" size="small">
-            <el-select v-model="formField.value" filterable>
+            <el-select v-model="formField.value" filterable clearable>
               <el-option v-for="field in tableFields" :key="field.field_name" :label="field.field_name_alias || field.field_name" :value="field.field_name" />
             </el-select>
           </el-form-item>
