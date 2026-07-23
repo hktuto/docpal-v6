@@ -3,19 +3,19 @@
     <h3 class="title">Verification & Mapping</h3>
     <small class="description"> Review OCR-parsed invoice lines, verify against customer PNs. </small>
     <el-splitter class="container mg-top">
-      <el-splitter-panel class="mg-right" size="7%" :collapsible="isCollapsible" :min="100">
+      <el-splitter-panel class="mg-right" size="7%" :collapsible="false" :min="50">
         <WHASupplyListVerifyList />
       </el-splitter-panel>
-      <el-splitter-panel class="mg-right" :collapsible="isCollapsible" :min="200">
+      <el-splitter-panel class="mg-right preview-panel" :collapsible="false" :min="200">
         <WorkflowPreview :doc-id="docId">
           <template #title>
-            <el-tabs v-model="docId" @tab-click="handleClick">
-              <el-tab-pane v-for="file in fileList" :key="file.id" :label="file.file_name || file.name" :name="file.id"></el-tab-pane>
+            <el-tabs v-model="docId" class="preview-file-tabs">
+              <el-tab-pane v-for="file in fileList" :key="file.id" :label="file.file_name || file.name" :name="file.id" />
             </el-tabs>
           </template>
         </WorkflowPreview>
       </el-splitter-panel>
-      <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200">
+      <el-splitter-panel :collapsible="false" size="40%" :min="200">
         <WHASupplyListVerifyTable />
       </el-splitter-panel>
       <el-splitter-panel class="mg-left" size="12%" :collapsible="isCollapsible" :min="150">
@@ -73,11 +73,44 @@ defineExpose({ getFormData })
 :deep(.mg-right) {
   margin-right: var(--app-space-xs);
 }
+:deep(.preview-panel) {
+  min-width: 0;
+  overflow: hidden;
+}
 .mg-top {
   margin-top: var(--app-space-s);
 }
 .title {
   margin: var(--app-space-xs) 0;
   padding: 0;
+}
+.preview-file-tabs {
+  width: 100%;
+  max-width: 100%;
+
+  :deep(.el-tabs__header) {
+    margin: 0;
+  }
+
+  :deep(.el-tabs__nav-wrap) {
+    width: 100%;
+  }
+
+  :deep(.el-tabs__nav-scroll) {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* 覆盖错误的滚动偏移，避免 tab 被移出可视区域 */
+  :deep(.el-tabs__nav) {
+    float: none;
+    transform: none !important;
+  }
+
+  :deep(.el-tabs__item) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 </style>

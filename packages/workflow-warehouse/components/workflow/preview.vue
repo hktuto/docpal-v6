@@ -70,11 +70,21 @@ watch(
 .workflow-preview {
   width: 100%;
   height: 100%;
+  min-width: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+
+  .workflow-preview__title {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
   .reader {
     flex: 1;
+    min-height: 0;
   }
 }
 </style>
