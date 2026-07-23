@@ -26,6 +26,10 @@ function setupEdge() {
   })
 
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
+    cell.attr('line/stroke', 'var(--app-primary-color)')
+    cell.attr('line/strokeDasharray', 5)
+    cell.attr('line/style/animation', 'running-line 60s infinite linear')
+
     if (graphProvider?.readonly.value) return
     // cell.setRouter('normal')
 
@@ -45,14 +49,14 @@ function setupEdge() {
           }
         }
       },
-      {
-        name: 'source-arrowhead',
-        args: {
-          attrs: {
-            fill: 'black'
-          }
-        }
-      },
+      // {
+      //   name: 'source-arrowhead',
+      //   args: {
+      //     attrs: {
+      //       fill: 'black'
+      //     }
+      //   }
+      // },
       {
         name: 'button-remove',
         args: {
@@ -63,9 +67,14 @@ function setupEdge() {
   })
 
   graphProvider?.graph.value?.on('edge:mouseleave', ({ cell }: any) => {
+    cell.attr('line/stroke', '#000')
+    cell.attr('line/strokeDasharray', '')
+    cell.attr('line/style/animation', '')
+
     if (graphProvider?.readonly.value) return
     cell.removeTools()
   })
+
 
   graphProvider?.graph.value?.on('edge:connected', ({ edge, isNew }) => {
     if (graphProvider?.readonly.value) return
