@@ -48,14 +48,14 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
-  // routerProvider?.navigateTo(
-  //   routeWorkflowDetail({
-  //     ...row,
-  //     workflowType: 'activeTask',
-  //     db_id: row.db_id
-  //   }),
-  //   false
-  // )
+  routerProvider?.navigateTo(
+    routeWorkflowDetail({
+      ...row,
+      workflowType: 'activeTask',
+      db_id: row.db_id
+    }),
+    false
+  )
 }
 
 function handleAssignee(assignee: string) {
