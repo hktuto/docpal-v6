@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref, unref, watch } from 'vue'
+import { computed, h, onMounted, reactive, ref, unref, watch } from 'vue'
 import { ElCheckbox, ElInputNumber, ElSelectV2 } from 'element-plus'
-import type { CheckboxValueType, Column } from 'element-plus'
+import type { CheckboxValueType, Column, FormInstance, FormRules } from 'element-plus'
 import { getGroupsSelectOption } from '#imports'
 import dayjs from 'dayjs'
 
@@ -23,7 +23,7 @@ interface OrderItem {
   customerName: string
   orderNumber: string
   orderType: string
-  salesperson: string
+  salesperson: string[]
   userGroup: string
   creationDate: number
   [key: string]: any
@@ -58,9 +58,34 @@ function normalizeSalesperson(value: unknown): string[] {
 
 const listData = ref<OrderItem[]>([])
 const selectData = ref<OrderItem[]>([])
+const formRef = ref<FormInstance>()
+const formModel = reactive({
+  selectDataLength: 0
+})
+
+const rules: FormRules = {
+  selectDataLength: [
+    {
+      validator: (_rule, value, callback) => {
+        if (!value || value == 0) {
+          callback(new Error('請選擇需要通知的信息'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    }
+  ]
+}
 
 function syncSelectData() {
   selectData.value = listData.value.filter((row: any) => row.checked)
+  formModel.selectDataLength = selectData.value.length
+  if (formModel.selectDataLength == 0) {
+    formRef.value?.validateField('selectDataLength')
+  } else {
+    formRef.value?.clearValidate('selectDataLength')
+  }
 }
 
 const columns = computed<Column<OrderItem>[]>(() => {
@@ -207,19 +232,18 @@ const columns = computed<Column<OrderItem>[]>(() => {
       width: 180,
       cellRenderer: ({ rowData }) =>
         h(ElSelectV2, {
-          // modelValue: normalizeSalesperson(rowData.salesperson),
-          modelValue: rowData.salesperson,
+          modelValue: normalizeSalesperson(rowData.salesperson),
           options: userOptions,
           size: 'small',
           filterable: true,
           clearable: true,
-          // multiple: true,
-          // collapseTags: true,
+          multiple: true,
+          collapseTags: true,
           teleported: true,
           placeholder: 'Select Salesperson',
           style: { width: '100%' },
           'onUpdate:modelValue': (val: string[] | undefined) => {
-            rowData.salesperson = val ?? ''
+            rowData.salesperson = val ?? []
           }
         })
     },
@@ -301,7 +325,8 @@ async function getUser() {
 }
 
 async function search() {
-  console.log(123, formData)
+  // TODO：根據 formData.part_number(必須), formData.currency, formData.customer_number, formData.date_range
+  // 查詢 quotation, quotation_line, quotation_line_pricing, order, order_line 表的數據
 
   const conditions = [
     {
@@ -326,7 +351,7 @@ async function search() {
       customerName: '星擎半導體科技股份有限公司',
       orderNumber: 'QSZ2600001',
       orderType: 'Pre Order',
-      salesperson: 'Joshua.Zheng',
+      salesperson: ['Joshua.Zheng'],
       userGroup: '',
       creationDate: 1784717318352
     },
@@ -342,7 +367,7 @@ async function search() {
       customerName: '星擎半導體科技股份有限公司',
       orderNumber: 'QSZ2600002',
       orderType: 'Pre Order',
-      salesperson: 'Joshua.Zheng',
+      salesperson: ['Joshua.Zheng'],
       userGroup: '',
       creationDate: 1784717318352
     },
@@ -358,7 +383,7 @@ async function search() {
       customerName: '星擎半導體科技股份有限公司',
       orderNumber: 'QSZ2600003',
       orderType: 'Quotation Completed',
-      salesperson: 'Joshua.Zheng',
+      salesperson: ['Joshua.Zheng'],
       userGroup: '',
       creationDate: 1784717318352
     },
@@ -374,7 +399,7 @@ async function search() {
       customerName: '星擎半導體科技股份有限公司',
       orderNumber: 'QSZ2600004',
       orderType: 'Quotation Completed',
-      salesperson: 'Joshua.Zheng',
+      salesperson: ['Joshua.Zheng'],
       userGroup: '',
       creationDate: 1784717318352
     }
@@ -417,34 +442,44 @@ async function getDbData(tableId: string, conditions?: any[]) {
 }
 
 async function getFormData(needValidation = true) {
-  const emailList: string[] = []
   const newData = selectData.value.map((item: any) => {
-    const recipient_list: string[] = []
-    if (!!item.salesperson) {
+    const set = new Set()
+    if (!!item.salesperson && item.salesperson.length > 0) {
+      const salespersonSet = new Set(item.salesperson.map((s: string) => s.toUpperCase()))
+
+      const list = userList.value.filter((userItem: any) => salespersonSet.has(userItem.value.toUpperCase()))
+      list.forEach((userItem: any) => {
+        set.add(userItem.email)
+      })
     }
 
     return {
       pa_number: '',
-      order_number: item.order_number,
+      order_number: item.orderNumber,
       markup: item.markup,
       moq: item.moq,
+      currency: item.currency,
       new_unit_price: item.newUnitPrice,
       original_unit_price: item.originalUnitPrice,
       part_number: formData.part_number,
       customer_number: item.customerNumber,
       customer_name: item.customerName,
-      salesperson: item.salesperson,
+      salesperson: item.salesperson.join(','),
       // salesperson_user_group: item.userGroup,
+      salesperson_user_group: '',
       price_controller: formData.user,
       office: formData.office,
-      branch_office: formData.branch_office
+      branch_office: formData.branch_office,
+      recipients: [...set].join(',')
     }
   })
 
-  return {
-    data_list: newData,
-    user_email_list: emailList
+  const result = {
+    data_list: newData
   }
+  if (!needValidation) return result
+  await formRef.value?.validate()
+  return result
 }
 
 onMounted(async () => {
@@ -471,7 +506,6 @@ defineExpose({ getFormData })
   <div style="margin-block-end: 22px; margin-block-start: 22px">
     <el-divider content-position="left">詳情 Detail</el-divider>
   </div>
-  <el-button @click="getFormData">A</el-button>
 
   <div class="price-announcement-list">
     <el-auto-resizer>
@@ -480,6 +514,12 @@ defineExpose({ getFormData })
       </template>
     </el-auto-resizer>
   </div>
+
+  <el-form ref="formRef" :model="formModel" :rules="rules">
+    <el-form-item prop="selectDataLength">
+      <input type="hidden" :value="formModel.selectDataLength" />
+    </el-form-item>
+  </el-form>
 </template>
 
 <style scoped lang="scss">
