@@ -67,9 +67,14 @@ function setupEdge() {
   })
 
   graphProvider?.graph.value?.on('edge:mouseleave', ({ cell }: any) => {
-    cell.attr('line/stroke', '#000')
-    cell.attr('line/strokeDasharray', '')
-    cell.attr('line/style/animation', '')
+    const source = cell.getSourceCell?.()
+    const keepFlowing = !!(source && graphProvider?.graph.value?.isSelected(source))
+
+    if (!keepFlowing) {
+      cell.attr('line/stroke', '#000')
+      cell.attr('line/strokeDasharray', '')
+      cell.attr('line/style/animation', '')
+    }
 
     if (graphProvider?.readonly.value) return
     cell.removeTools()

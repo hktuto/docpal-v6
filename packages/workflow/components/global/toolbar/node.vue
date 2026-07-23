@@ -55,6 +55,24 @@ function setupNode() {
     })
   })
 
+  graphProvider?.graph.value?.on('node:selected', ({ node }: any) => {
+    const outgoingEdges = graphProvider?.graph.value?.getConnectedEdges(node, { outgoing: true }) || []
+    outgoingEdges.forEach((edge: any) => {
+      edge.attr('line/stroke', 'var(--app-primary-color)')
+      edge.attr('line/strokeDasharray', 5)
+      edge.attr('line/style/animation', 'running-line 30s infinite linear')
+    })
+  })
+
+  graphProvider?.graph.value?.on('node:unselected', ({ node }: any) => {
+    const outgoingEdges = graphProvider?.graph.value?.getConnectedEdges(node, { outgoing: true }) || []
+    outgoingEdges.forEach((edge: any) => {
+      edge.attr('line/stroke', '#000')
+      edge.attr('line/strokeDasharray', '')
+      edge.attr('line/style/animation', '')
+    })
+  })
+
   graphProvider?.graph.value?.on('node:dblclick', handleNodeClick)
 
   graphProvider?.graph.value?.on('node:contextmenu', contextMenuHandler)
