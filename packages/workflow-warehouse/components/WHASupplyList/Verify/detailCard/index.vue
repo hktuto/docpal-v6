@@ -81,7 +81,7 @@ async function handleSave(value: string, item: any) {
   item.status = 'loading'
   const res = await updateInvoiceData(value, item.invoiceKey)
   setTimeout(() => {
-    item.status = !res.result ? 'pass' : 'fail'
+    item.status = res.result ? 'pass' : 'fail'
   }, 1000)
 }
 async function validate() {

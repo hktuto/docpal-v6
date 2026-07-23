@@ -7,18 +7,26 @@
 
     <el-progress :percentage="percentage" :show-text="false" :stroke-width="8" />
 
-    <el-button :loading="loading" class="progress-card-action" plain @click="handleApprove">
-      <el-icon class="progress-card-action-icon" aria-hidden="true">
-        <Document />
+    <button
+      type="button"
+      class="progress-card-action"
+      :disabled="loading"
+      aria-label="Approve & Push to PDA"
+      title="Approve & Push to PDA"
+      @click="handleApprove"
+    >
+      <el-icon class="progress-card-action-icon" :class="{ 'is-loading': loading }" aria-hidden="true">
+        <Loading v-if="loading" />
+        <Document v-else />
       </el-icon>
-      Approve &amp; Push to PDA
-    </el-button>
+      <span class="progress-card-action-text">Approve &amp; Push to PDA</span>
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { newClientApi } from 'api'
-import { Document } from '@element-plus/icons-vue'
+import { Document, Loading } from '@element-plus/icons-vue'
 import { useWHASupplyListVerifyTableInject } from '../../../composables/useWHASupplyListVerifyTable'
 import { SGLA_ITEMS_TABLE_ID } from '../../../utils/variableMapping'
 
@@ -40,7 +48,6 @@ function getFormData() {
     const data: Record<string, any> = {}
     formFields.value.forEach((field) => {
       const fieldColumn = columns.find((column) => column.field === field)
-      console.log(fieldColumn, 'fieldColumn')
       if (fieldColumn?.type === 'number') {
         data[field] = Number(item[field])
       } else {
@@ -72,6 +79,8 @@ async function handleApprove() {
   flex-direction: column;
   gap: var(--app-space-m);
   width: 100%;
+  min-width: 0;
+  overflow: hidden;
   padding: var(--app-space-m);
   border-radius: var(--app-border-radius-m);
   background-color: var(--el-bg-color);
@@ -99,23 +108,43 @@ async function handleApprove() {
 }
 
 .progress-card-action {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xs);
   width: 100%;
-  height: auto;
+  min-width: 0;
+  margin: 0;
   padding: var(--app-space-s) var(--app-space-m);
   border: none;
-  border-radius: var(--app-border-radius-max);
+  border-radius: var(--app-border-radius-s);
   background-color: var(--el-color-primary-light-9);
   color: var(--el-color-primary);
+  font: inherit;
   font-weight: 500;
+  text-align: left;
+  cursor: pointer;
 
-  &:hover,
-  &:focus {
+  &:hover:not(:disabled),
+  &:focus-visible {
     background-color: var(--el-color-primary-light-8);
-    color: var(--el-color-primary);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
   }
 }
 
 .progress-card-action-icon {
-  margin-right: var(--app-space-xs);
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.progress-card-action-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

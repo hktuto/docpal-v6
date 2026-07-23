@@ -18,7 +18,7 @@
       <el-splitter-panel :collapsible="false" size="40%" :min="200">
         <WHASupplyListVerifyTable />
       </el-splitter-panel>
-      <el-splitter-panel class="mg-left" size="12%" :collapsible="isCollapsible" :min="150">
+      <el-splitter-panel class="mg-left side-panel" size="12%" :collapsible="isCollapsible" :min="150">
         <WHASupplyListVerifyDetailCard ref="detailCardRef" />
         <WHASupplyListVerifyDetectedCard class="mg-top" />
         <WHASupplyListVerifyProgressCard class="mg-top" />
@@ -69,6 +69,10 @@ defineExpose({ getFormData })
   margin-right: var(--app-space-xs);
 }
 :deep(.preview-panel) {
+  min-width: 0;
+  overflow: hidden;
+}
+:deep(.side-panel) {
   min-width: 0;
   overflow: hidden;
 }
