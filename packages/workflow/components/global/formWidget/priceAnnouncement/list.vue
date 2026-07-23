@@ -205,7 +205,7 @@ const columns = computed<Column<OrderItem>[]>(() => {
       key: 'newUnitPrice',
       title: '新單價 New Unit Price',
       dataKey: 'newUnitPrice',
-      width: 180,
+      width: 160,
       cellRenderer: ({ rowData }) =>
         h(ElInputNumber, {
           modelValue: rowData.newUnitPrice,
@@ -225,21 +225,15 @@ const columns = computed<Column<OrderItem>[]>(() => {
       key: 'originalUnitPrice',
       title: '原單價 Original Unit Price',
       dataKey: 'originalUnitPrice',
-      width: 200,
-      cellRenderer: ({ rowData }) =>
-        h(ElInputNumber, {
-          modelValue: Number(rowData.originalUnitPrice),
-          size: 'small',
-          controls: false,
-          precision: 6,
-          disabled: true
-        })
+      width: 180,
+      align: 'center'
     },
     {
       key: 'currency',
       title: '貨幣 Currency',
       dataKey: 'currency',
-      width: 120
+      width: 120,
+      align: 'center'
     },
     {
       key: 'customerName',
@@ -251,7 +245,8 @@ const columns = computed<Column<OrderItem>[]>(() => {
       key: 'orderNumber',
       title: '訂單編號 Order Number',
       dataKey: 'orderNumber',
-      width: 200
+      width: 200,
+      align: 'center'
     },
     {
       key: 'orderType',
@@ -305,6 +300,7 @@ const columns = computed<Column<OrderItem>[]>(() => {
       title: '創建日期 Creation Date',
       dataKey: 'creationDate',
       width: 180,
+      align: 'center',
       cellRenderer: ({ cellData }) => {
         if (cellData == null) return ''
         const date = dayjs(Number(cellData))
