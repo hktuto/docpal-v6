@@ -49,15 +49,19 @@ async function loadInvoiceList() {
 
   try {
     const { data } = await postDynamicActions(buildInvoiceParams(batchId))
-    const invoiceDatas = data.data ?? []
-    invoiceDatas.forEach(async (item: Record<string, any>) => {
-      const { data: aggData } = await postDynamicActions(buildInvoiceAggParams(item.id))
-      item.total_qty = aggData.data[0][`agg_${SGLA_ITEMS.Qty}`]
-    })
-    invoiceList.value = invoiceDatas ?? []
+    const invoiceDatas = (data.data ?? []).map((item: Record<string, any>) => ({
+      ...item,
+      total_qty: undefined as number | undefined
+    }))
+    invoiceList.value = invoiceDatas
     if (invoiceList.value.length > 0) {
       selectInvoice(invoiceList.value[0])
     }
+    // 异步回填数量：必须改 invoiceList 里的响应式对象，才会触发重渲
+    invoiceList.value.forEach(async (item) => {
+      const { data: aggData } = await postDynamicActions(buildInvoiceAggParams(item.id))
+      item.total_qty = aggData.data[0]?.[`agg_${SGLA_ITEMS.Qty}`]
+    })
   } catch (error) {
     console.error(error)
     invoiceList.value = []
