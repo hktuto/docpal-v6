@@ -55,6 +55,10 @@ function setupNode() {
     })
   })
 
+  graphProvider?.graph.value?.on('node:mousedown', ({ node }: any) => {
+    node.toFront()
+  })
+
   graphProvider?.graph.value?.on('node:selected', ({ node }: any) => {
     const outgoingEdges = graphProvider?.graph.value?.getConnectedEdges(node, { outgoing: true }) || []
     outgoingEdges.forEach((edge: any) => {
@@ -62,6 +66,7 @@ function setupNode() {
       edge.attr('line/strokeDasharray', 5)
       edge.attr('line/style/animation', 'running-line 30s infinite linear')
     })
+    node.toFront()
   })
 
   graphProvider?.graph.value?.on('node:unselected', ({ node }: any) => {

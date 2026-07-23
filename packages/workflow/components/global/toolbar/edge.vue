@@ -18,6 +18,46 @@ type EdgeData = {
   metadata: any
 }
 
+function setEdgeFlowing(edge: any, flowing: boolean) {
+  if (flowing) {
+    edge.attr('line/stroke', 'var(--app-primary-color)')
+    edge.attr('line/strokeDasharray', 5)
+    edge.attr('line/style/animation', 'running-line 30s infinite linear')
+    return
+  }
+  edge.attr('line/stroke', '#000')
+  edge.attr('line/strokeDasharray', '')
+  edge.attr('line/style/animation', '')
+}
+
+function clearAllEdgeTools() {
+  graphProvider?.graph.value?.getEdges().forEach((edge: any) => edge.removeTools())
+}
+
+function getSelectedNodesOutgoingEdges(exceptEdgeId?: string) {
+  const graph = graphProvider?.graph.value
+  if (!graph) return []
+  return graph
+    .getSelectedCells()
+    .filter((cell: any) => cell.isNode?.())
+    .flatMap((node: any) => graph.getConnectedEdges(node, { outgoing: true }) || [])
+    .filter((edge: any) => edge.id !== exceptEdgeId)
+}
+
+function clearSelectedNodesOutgoingFlow(exceptEdgeId?: string) {
+  getSelectedNodesOutgoingEdges(exceptEdgeId).forEach((edge: any) => setEdgeFlowing(edge, false))
+}
+
+function restoreSelectedNodesOutgoingFlow() {
+  getSelectedNodesOutgoingEdges().forEach((edge: any) => setEdgeFlowing(edge, true))
+}
+
+function resetEdgeHoverState() {
+  clearAllEdgeTools()
+  graphProvider?.graph.value?.getEdges().forEach((edge: any) => setEdgeFlowing(edge, false))
+  restoreSelectedNodesOutgoingFlow()
+}
+
 function setupEdge() {
   graphProvider?.graph.value?.on('edge:dblclick', ({ edge, e }: any) => {
     if (edge.getData().metadata.sourceType !== CellType.conditionTask) return
@@ -26,12 +66,12 @@ function setupEdge() {
   })
 
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
-    cell.attr('line/stroke', 'var(--app-primary-color)')
-    cell.attr('line/strokeDasharray', 5)
-    cell.attr('line/style/animation', 'running-line 60s infinite linear')
+    // 悬停连线时，先卸掉节点选中产生的出边流动
+    clearAllEdgeTools()
+    clearSelectedNodesOutgoingFlow(cell.id)
+    setEdgeFlowing(cell, true)
 
     if (graphProvider?.readonly.value) return
-    // cell.setRouter('normal')
 
     cell.addTools([
       {
@@ -42,22 +82,6 @@ function setupEdge() {
       },
       'segments',
       {
-        name: 'target-arrowhead',
-        args: {
-          attrs: {
-            fill: 'red'
-          }
-        }
-      },
-      // {
-      //   name: 'source-arrowhead',
-      //   args: {
-      //     attrs: {
-      //       fill: 'black'
-      //     }
-      //   }
-      // },
-      {
         name: 'button-remove',
         args: {
           distance: -20
@@ -67,29 +91,32 @@ function setupEdge() {
   })
 
   graphProvider?.graph.value?.on('edge:mouseleave', ({ cell }: any) => {
-    const source = cell.getSourceCell?.()
-    const keepFlowing = !!(source && graphProvider?.graph.value?.isSelected(source))
-
-    if (!keepFlowing) {
-      cell.attr('line/stroke', '#000')
-      cell.attr('line/strokeDasharray', '')
-      cell.attr('line/style/animation', '')
+    if (!graphProvider?.readonly.value) {
+      cell.removeTools()
     }
-
-    if (graphProvider?.readonly.value) return
-    cell.removeTools()
+    setEdgeFlowing(cell, false)
+    restoreSelectedNodesOutgoingFlow()
   })
 
+  // 进入节点时强制卸掉连线 tools，避免热区挡住节点选中
+  graphProvider?.graph.value?.on('node:mouseenter', () => {
+    resetEdgeHoverState()
+  })
+
+  graphProvider?.graph.value?.on('node:mousedown', ({ node }: any) => {
+    resetEdgeHoverState()
+    node.toFront()
+  })
+
+  graphProvider?.graph.value?.on('blank:mousedown', () => {
+    resetEdgeHoverState()
+  })
 
   graphProvider?.graph.value?.on('edge:connected', ({ edge, isNew }) => {
     if (graphProvider?.readonly.value) return
     const source = edge.getSourceCell()
     const target = edge.getTargetCell()
     if (!source || !target) return
-
-    // console.log('----edge:connected edge ', isNew, edge)
-    // console.log('----edge:connected source ', source)
-    // console.log('----edge:connected target ', target)
 
     if (!isNew) {
       // update edge

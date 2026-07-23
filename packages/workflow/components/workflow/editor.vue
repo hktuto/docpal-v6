@@ -242,7 +242,9 @@ function graphReady() {
       rubberband: true,
       movable: true,
       showNodeSelectionBox: true,
-      modifiers: ['shift']
+      modifiers: ['shift'],
+      // 连线不进入选中态，避免 toFront 后挡住其他节点/连线点击
+      filter: (cell) => cell.isNode()
     })
   )
   graph.value?.use(
