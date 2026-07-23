@@ -9,7 +9,7 @@
       <el-splitter-panel class="mg-right preview-panel" :collapsible="false" :min="200">
         <WorkflowPreview :doc-id="docId">
           <template #title>
-            <el-tabs v-model="docId" class="preview-file-tabs">
+            <el-tabs :model-value="docId" class="preview-file-tabs">
               <el-tab-pane v-for="file in fileList" :key="file.id" :label="file.file_name || file.name" :name="file.id" />
             </el-tabs>
           </template>
@@ -31,13 +31,8 @@
 const props = defineProps(['formData', 'taskDetail'])
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList, docId } = useWHASupplyListVerifyProvider(props)
-const fileList = computed(() => {
-  const list = props.formData?.file_list_info || []
-  if (!docId.value && list.length > 0) {
-    docId.value = list[0].id
-  }
-  return list
-})
+const fileList = computed(() => props.formData?.file_list_info || [])
+
 const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
 useWHASupplyListVerifyTableProvider(selectedInvoice)
 async function getFormData(needValidation: boolean) {
