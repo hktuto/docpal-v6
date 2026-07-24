@@ -1,19 +1,56 @@
 <script setup lang="ts">
+import { ElMessageBox } from 'element-plus'
+
+const { t } = useI18n()
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
   options: any
 }>()
 
-const statistics = reactive({
-  subtotal: 0,
-  tax: 0,
-  charges: 0,
-  total: 0
+interface DataItemType {
+  line_id: string
+  customerPoLine: number
+  quantity: number
+  taxCode: string
+  requestDate: string
+  quantityCancelled: number
+  customerPo: string
+  uom: string
+  taxAmount: number
+  promiseDate: string
+  quantityShipped: number
+  customerItem: string
+  customerUnitPrice: number
+  returnOrder: string
+  leadTime: number
+  scheduledShipDate: string
+  scheduledArrivalDate: string
+  orderedItem: string
+  unitPrice: number
+  description: string
+  subInventory: string
+  references: string
+  piRemark: string
+  remarks: string
+}
+
+const subtotal = computed(() => {
+  return listData.value.length
+})
+const tax = computed(() => {
+  return 0
+})
+const charges = computed(() => {
+  return 0
+})
+const total = computed(() => {
+  return 0
 })
 
+const isApproval = ref<boolean>(false)
 const formRef = ref()
-const listData = ref<any[]>([])
+const listData = ref<DataItemType[]>([])
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'SalesOrderTableSetting',
@@ -22,9 +59,9 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   },
   columns: [
     {
-      field: 'line',
-      title: '行 Line',
-      minWidth: 80,
+      field: 'index',
+      title: '序號 Index',
+      minWidth: 100,
       treeNode: true
     },
     {
@@ -90,22 +127,35 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   remoteFilter: false,
   saveColumnOrder: false,
   dblClickAction: ({ row, column, event }) => {
-    open(row)
+    handleDblClick(row)
   },
   bodyActions: [
     [
       {
         code: 'open',
         name: 'Open',
-        action: ({ row }: any) => {
-          open(row)
+        action: ({ row }: { row: DataItemType }) => {
+          handleDblClick(row)
+        }
+      },
+      {
+        code: 'delete',
+        name: 'Delete',
+        action: ({ row }: { row: DataItemType }) => {
+          handleDelete(row)
         }
       }
     ]
   ],
-  permissionMethod: ({ options, column, row, rowIndex }: any) => {
+  permissionMethod: ({ code, row }: any) => {
     if (!row) {
       return { visible: false, disabled: false }
+    }
+    if (code === 'delete') {
+      return {
+        visible: !isApproval.value,
+        disabled: false
+      }
     }
     return {
       visible: true,
@@ -116,7 +166,13 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   optionalConfig: {}
 })
 
-function init() {}
+function loadData() {
+  tableRef.value?.loadData(listData.value)
+}
+
+function init() {
+  isApproval.value = true
+}
 
 async function getFormData(needValidation = true) {
   const result = { sample_list: '' }
@@ -126,57 +182,105 @@ async function getFormData(needValidation = true) {
 }
 
 const formWidgetSalesOrderApprovalDialogRef = ref()
-function open(row: any) {
+
+function handleAdd() {
+  formWidgetSalesOrderApprovalDialogRef.value.open()
+}
+
+function handleDblClick(row: any) {
   formWidgetSalesOrderApprovalDialogRef.value.open(row)
 }
 
-// watch(
-//   () => formData.order_item_list,
-//   (value) => {
-//     if (!!value && value.length > 0) {
-//       init()
-//     }
-//   },
-//   { immediate: true, deep: true }
-// )
+function handleSynchronizePoNumbers() {
+  if (listData.value.length === 0) return
+
+  const one = listData.value[0]
+  if (!one.customerPo) return
+}
+
+function handleCreate(newRow: DataItemType) {
+  if (isApproval.value) return
+  listData.value.push(newRow)
+  loadData()
+}
+
+function handleUpdate(data: any) {}
+
+async function handleDelete(row: DataItemType) {
+  if (isApproval.value) return
+  try {
+    const action = await ElMessageBox.confirm(`Are you sure you want to delete "${row.orderedItem}"?`, {
+      confirmButtonClass: 'el-button el-button--warning',
+      dangerouslyUseHTMLString: true,
+      confirmButtonText: t('common_confirmDelete')
+    })
+    if (action !== 'confirm') return
+
+    const index = listData.value.findIndex((item) => item.line_id === row.line_id)
+    if (index !== -1) {
+      listData.value.splice(index, 1)
+    }
+    loadData()
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+watch(
+  () => formData.order_item_list,
+  (value) => {
+    init()
+    if (!!value && value.length > 0) {
+      init()
+    }
+  },
+  { immediate: true, deep: true }
+)
 defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form label-position="top">
+  <el-form label-position="top" class="all-input-style">
     <el-row>
       <el-col :span="6">
         <el-form-item label="小計 Subtotal">
-          <el-input-number style="width: 90%" v-model="statistics.subtotal" disabled />
+          <el-input-number v-model="subtotal" disabled />
         </el-form-item>
       </el-col>
       <el-col :span="6">
         <el-form-item label="稅 Tax">
-          <el-input-number style="width: 90%" v-model="statistics.tax" disabled />
+          <el-input-number v-model="tax" disabled />
         </el-form-item>
       </el-col>
       <el-col :span="6">
         <el-form-item label="附加費 Charges">
-          <el-input-number style="width: 90%" v-model="statistics.charges" disabled />
+          <el-input-number v-model="charges" disabled />
         </el-form-item>
       </el-col>
       <el-col :span="6">
         <el-form-item label="總計 Total">
-          <el-input-number style="width: 90%" v-model="statistics.total" disabled />
+          <el-input-number v-model="total" disabled />
         </el-form-item>
       </el-col>
     </el-row>
   </el-form>
 
-  <div>
+  <div style="height: 60vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <el-button type="primary" @click="open">添加 Add</el-button>
+        <el-button type="primary" @click="handleAdd">添加商品 Add Goods</el-button>
+        <el-button type="warning" @click="handleSynchronizePoNumbers">同步全部客戶訂單編號 Synchronize All PO Numbers</el-button>
       </template>
     </VxeGrid>
   </div>
 
-  <LazyFormWidgetSalesOrderApprovalDialog ref="formWidgetSalesOrderApprovalDialogRef" />
+  <LazyFormWidgetSalesOrderApprovalDialog ref="formWidgetSalesOrderApprovalDialogRef" @create="handleCreate" @update="handleUpdate" />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.all-input-style {
+  ::v-deep(.el-input-number) {
+    width: 96%;
+  }
+}
+</style>
