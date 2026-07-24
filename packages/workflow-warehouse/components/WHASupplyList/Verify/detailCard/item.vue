@@ -120,12 +120,20 @@ async function handleStartEdit() {
   }
 }
 
+function getComparableValue(val: string | number | null | undefined) {
+  if (props.type === 'date') return toDateDraft(val)
+  return val == null ? '' : String(val)
+}
+
 function handleSave() {
   if (!isEditing.value || props.disabled) return
   const value = draft.value ?? ''
+  const oldValue = getComparableValue(props.value)
+  isEditing.value = false
+  // 未真正改动时不触发保存，避免无意义的 updateInvoiceData
+  if (value === oldValue) return
   emit('update:value', value)
   emit('save', value)
-  isEditing.value = false
 }
 
 function handleRetry() {

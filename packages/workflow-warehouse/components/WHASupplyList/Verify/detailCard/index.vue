@@ -51,7 +51,7 @@ const list = ref([
   {
     label: 'Delivery Date',
     invoiceKey: 'DeliveryDate',
-    type: 'date',
+    // type: 'date',
     status: 'pass'
   },
   {
