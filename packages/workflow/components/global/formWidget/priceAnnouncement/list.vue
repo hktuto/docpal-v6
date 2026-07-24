@@ -56,6 +56,32 @@ function normalizeSalesperson(value: unknown): string[] {
   return [String(value)]
 }
 
+/** markup * originalUnitPrice = newUnitPrice */
+function roundNumber(value: number, precision: number) {
+  const factor = 10 ** precision
+  return Math.round(value * factor) / factor
+}
+
+function handleMarkupChange(rowData: OrderItem, val: number | undefined) {
+  rowData.markup = val
+  const original = Number(rowData.originalUnitPrice)
+  if (val == null || !Number.isFinite(original)) {
+    rowData.newUnitPrice = undefined
+    return
+  }
+  rowData.newUnitPrice = roundNumber(val * original, 6)
+}
+
+function handleNewUnitPriceChange(rowData: OrderItem, val: number | undefined) {
+  rowData.newUnitPrice = val
+  const original = Number(rowData.originalUnitPrice)
+  if (val == null || !Number.isFinite(original) || original === 0) {
+    rowData.markup = undefined
+    return
+  }
+  rowData.markup = roundNumber(val / original, 2)
+}
+
 const listData = ref<OrderItem[]>([])
 const selectData = ref<OrderItem[]>([])
 const formRef = ref<FormInstance>()
@@ -146,7 +172,7 @@ const columns = computed<Column<OrderItem>[]>(() => {
             placeholder: 'Enter Markup',
             onKeydown: (e: Event) => blockInvalidNumberKey(e),
             'onUpdate:modelValue': (val: number | undefined) => {
-              rowData.markup = val
+              handleMarkupChange(rowData, val)
             }
           },
           {
@@ -156,7 +182,7 @@ const columns = computed<Column<OrderItem>[]>(() => {
     },
     {
       key: 'moq',
-      title: 'MOQ',
+      title: '起訂量 MOQ',
       dataKey: 'moq',
       width: 140,
       cellRenderer: ({ rowData }) =>
@@ -177,7 +203,7 @@ const columns = computed<Column<OrderItem>[]>(() => {
     },
     {
       key: 'newUnitPrice',
-      title: 'New Unit Price',
+      title: '新單價 New Unit Price',
       dataKey: 'newUnitPrice',
       width: 160,
       cellRenderer: ({ rowData }) =>
@@ -191,43 +217,46 @@ const columns = computed<Column<OrderItem>[]>(() => {
           placeholder: 'Enter Price',
           onKeydown: (e: Event) => blockInvalidNumberKey(e),
           'onUpdate:modelValue': (val: number | undefined) => {
-            rowData.newUnitPrice = val
+            handleNewUnitPriceChange(rowData, val)
           }
         })
     },
     {
       key: 'originalUnitPrice',
-      title: 'Original Unit Price',
+      title: '原單價 Original Unit Price',
       dataKey: 'originalUnitPrice',
-      width: 150
+      width: 180,
+      align: 'center'
     },
     {
       key: 'currency',
-      title: 'Currency',
+      title: '貨幣 Currency',
       dataKey: 'currency',
-      width: 100
+      width: 120,
+      align: 'center'
     },
     {
       key: 'customerName',
-      title: 'Customer Name',
+      title: '客戶名稱 Customer Name',
       dataKey: 'customerName',
-      width: 150
+      width: 200
     },
     {
       key: 'orderNumber',
-      title: 'Order Number',
+      title: '訂單編號 Order Number',
       dataKey: 'orderNumber',
-      width: 150
+      width: 200,
+      align: 'center'
     },
     {
       key: 'orderType',
-      title: 'Order Type',
+      title: '類型 Type',
       dataKey: 'orderType',
       width: 120
     },
     {
       key: 'salesperson',
-      title: 'Salesperson',
+      title: '銷售員 Salesperson',
       dataKey: 'salesperson',
       width: 180,
       cellRenderer: ({ rowData }) =>
@@ -236,7 +265,6 @@ const columns = computed<Column<OrderItem>[]>(() => {
           options: userOptions,
           size: 'small',
           filterable: true,
-          clearable: true,
           multiple: true,
           collapseTags: true,
           teleported: true,
@@ -249,7 +277,7 @@ const columns = computed<Column<OrderItem>[]>(() => {
     },
     // {
     //   key: 'userGroup',
-    //   title: 'User Group',
+    //   title: '用戶組 User Group',
     //   dataKey: 'userGroup',
     //   width: 200,
     //   cellRenderer: ({ rowData }) =>
@@ -269,9 +297,10 @@ const columns = computed<Column<OrderItem>[]>(() => {
     // },
     {
       key: 'creationDate',
-      title: 'Creation Date',
+      title: '創建日期 Creation Date',
       dataKey: 'creationDate',
-      width: 130,
+      width: 180,
+      align: 'center',
       cellRenderer: ({ cellData }) => {
         if (cellData == null) return ''
         const date = dayjs(Number(cellData))
