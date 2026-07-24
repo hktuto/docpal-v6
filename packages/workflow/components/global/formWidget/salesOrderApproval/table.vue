@@ -44,7 +44,7 @@ const tax = computed(() => {
 const charges = computed(() => {
   return 0
 })
-const total = computed(() => {
+const totalAmount = computed(() => {
   return 0
 })
 
@@ -72,7 +72,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     {
       field: 'customerItem',
       title: '客戶商品編號 Customer Item',
-      minWidth: 200
+      minWidth: 240
     },
     {
       field: 'customerPo',
@@ -171,11 +171,14 @@ function loadData() {
 }
 
 function init() {
-  isApproval.value = true
+  isApproval.value = formData.is_approval
 }
 
 async function getFormData(needValidation = true) {
-  const result = { sample_list: '' }
+  const result = {
+    order_item_list: '',
+    total_amount: total
+  }
   if (!needValidation) return result
   await formRef.value?.validate()
   return result
@@ -229,7 +232,6 @@ async function handleDelete(row: DataItemType) {
 watch(
   () => formData.order_item_list,
   (value) => {
-    init()
     if (!!value && value.length > 0) {
       init()
     }
@@ -259,7 +261,7 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="6">
         <el-form-item label="總計 Total">
-          <el-input-number v-model="total" disabled />
+          <el-input-number v-model="totalAmount" disabled />
         </el-form-item>
       </el-col>
     </el-row>
@@ -267,14 +269,14 @@ defineExpose({ getFormData })
 
   <div style="height: 60vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
+      <template v-if="!isApproval" #toolbar_buttons>
         <el-button type="primary" @click="handleAdd">添加商品 Add Goods</el-button>
         <el-button type="warning" @click="handleSynchronizePoNumbers">同步全部客戶訂單編號 Synchronize All PO Numbers</el-button>
       </template>
     </VxeGrid>
   </div>
 
-  <LazyFormWidgetSalesOrderApprovalDialog ref="formWidgetSalesOrderApprovalDialogRef" @create="handleCreate" @update="handleUpdate" />
+  <LazyFormWidgetSalesOrderApprovalDialog ref="formWidgetSalesOrderApprovalDialogRef" :isApproval="isApproval" @create="handleCreate" @update="handleUpdate" />
 </template>
 
 <style scoped lang="scss">

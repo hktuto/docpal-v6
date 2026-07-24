@@ -2,6 +2,10 @@
 import { clientApi, newClientApi } from 'api'
 import { v7 as uuidv7 } from 'uuid'
 
+const { isApproval } = defineProps<{
+  isApproval: boolean
+}>()
+
 const isEdit = ref<boolean>(false)
 const emits = defineEmits(['create', 'update'])
 const dialogVisible = ref(false)
@@ -154,7 +158,7 @@ defineExpose({ open })
 
 <template>
   <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯商品 Edit Goods' : '添加商品 Add Goods'">
-    <el-form label-position="top" class="all-input-style">
+    <el-form label-position="top" class="all-input-style" :disabled="isApproval1">
       <el-row>
         <el-col :span="6">
           <el-form-item label="客戶採購訂單行 Customer PO Line">
