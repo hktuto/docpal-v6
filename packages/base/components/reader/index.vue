@@ -11,7 +11,14 @@
         ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'].includes(state.fileType) && state.url
       "
     >
-      <LazyReaderExcel :src="state.url" :blob="blob" :file-type="state.fileType" :name="name"></LazyReaderExcel>
+      <LazyReaderExcel
+        :src="state.url"
+        :blob="blob"
+        :file-type="state.fileType"
+        :name="name"
+        :freeze-first-row="freezeFirstRow"
+        :freeze-first-col="freezeFirstCol"
+      ></LazyReaderExcel>
     </template>
     <template v-else-if="state.fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'">
       <LazyReaderDocx v-bind="props"></LazyReaderDocx>
@@ -58,13 +65,17 @@ const props = withDefaults(
     annotations?: Map<string, any>
     loading: Boolean
     options: PdfJsOptions
+    freezeFirstRow?: boolean
+    freezeFirstCol?: boolean
   }>(),
   {
     options: {
       print: false,
       loadAnnotations: false,
       readOnly: true
-    }
+    },
+    freezeFirstRow: false,
+    freezeFirstCol: false
   }
 )
 const state = reactive({

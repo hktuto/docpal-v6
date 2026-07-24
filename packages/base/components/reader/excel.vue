@@ -4,12 +4,22 @@ import '@vue-office/excel/lib/index.css'
 import { useDebounceFn, useResizeObserver } from '@vueuse/core'
 import * as XLSX from 'xlsx'
 
-const props = defineProps<{
-  src?: string
-  blob?: Blob
-  fileType?: string
-  name?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    src?: string
+    blob?: Blob
+    fileType?: string
+    name?: string
+    /** 冻结首行 */
+    freezeFirstRow?: boolean
+    /** 冻结首列 */
+    freezeFirstCol?: boolean
+  }>(),
+  {
+    freezeFirstRow: false,
+    freezeFirstCol: false
+  }
+)
 
 function isCsvFile(fileType?: string, name?: string) {
   if (fileType === 'text/csv') return true
@@ -25,8 +35,31 @@ function isXlsFile(fileType?: string, name?: string) {
   return lowerName.endsWith('.xls') && !lowerName.endsWith('.xlsx')
 }
 
+/**
+ * x-spreadsheet freeze cell = first unfrozen cell
+ * - A2: freeze row 1
+ * - B1: freeze col A
+ * - B2: freeze row 1 + col A
+ */
+const freezeCell = computed(() => {
+  if (props.freezeFirstRow && props.freezeFirstCol) return 'B2'
+  if (props.freezeFirstRow) return 'A2'
+  if (props.freezeFirstCol) return 'B1'
+  return ''
+})
+
+function applyFreeze(workbookData: Array<Record<string, unknown>>) {
+  const cell = freezeCell.value
+  if (!cell || !Array.isArray(workbookData)) return workbookData
+  return workbookData.map((sheet) => ({
+    ...sheet,
+    freeze: cell
+  }))
+}
+
 const excelOptions = computed(() => ({
   xls: isXlsFile(props.fileType, props.name),
+  ...(freezeCell.value ? { transformData: applyFreeze } : {})
 }))
 
 const excelSrc = ref<string | ArrayBuffer>('')
@@ -67,8 +100,9 @@ async function resolveExcelSrc() {
 
 const excelSrcKey = computed(() => {
   if (!excelSrc.value) return ''
-  if (typeof excelSrc.value === 'string') return excelSrc.value
-  return `${props.name}-${excelSrc.value.byteLength}`
+  const freezeKey = freezeCell.value || 'none'
+  if (typeof excelSrc.value === 'string') return `${excelSrc.value}-${freezeKey}`
+  return `${props.name}-${excelSrc.value.byteLength}-${freezeKey}`
 })
 
 watch(() => [props.src, props.blob, props.fileType, props.name], resolveExcelSrc, { immediate: true })

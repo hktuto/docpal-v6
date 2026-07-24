@@ -63,7 +63,7 @@ watch(
     <div class="workflow-preview__title">
       <slot name="title">{{ previewFile.name }}</slot>
     </div>
-    <Reader class="reader" v-if="previewFile.blob" v-bind="previewFile" />
+    <Reader class="reader" v-if="previewFile.blob" v-bind="previewFile" freeze-first-row freeze-first-col />
   </div>
 </template>
 <style scoped lang="scss">
