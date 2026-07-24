@@ -9,7 +9,7 @@
       <el-splitter-panel class="mg-right preview-panel" :collapsible="false" :min="200">
         <WorkflowPreview :doc-id="docId">
           <template #title>
-            <el-tabs :model-value="docId" class="preview-file-tabs">
+            <el-tabs v-model="docId" class="preview-file-tabs">
               <el-tab-pane v-for="file in fileList" :key="file.id" :label="file.file_name || file.name" :name="file.id" />
             </el-tabs>
           </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import VueOfficeExcel from '@vue-office/excel'
 import '@vue-office/excel/lib/index.css'
+import { useDebounceFn, useResizeObserver } from '@vueuse/core'
 import * as XLSX from 'xlsx'
 
 const props = defineProps<{
@@ -30,7 +31,9 @@ const excelOptions = computed(() => ({
 
 const excelSrc = ref<string | ArrayBuffer>('')
 const loading = ref(false)
+const containerRef = ref<HTMLElement | null>(null)
 let convertToken = 0
+let lastContainerSize = { width: 0, height: 0 }
 
 function csvToXlsxBuffer(buffer: ArrayBuffer): ArrayBuffer {
   const workbook = XLSX.read(buffer, { type: 'array' })
@@ -69,10 +72,34 @@ const excelSrcKey = computed(() => {
 })
 
 watch(() => [props.src, props.blob, props.fileType, props.name], resolveExcelSrc, { immediate: true })
+
+/**
+ * @vue-office/excel (x-spreadsheet) only reloads layout on window.resize.
+ * Splitter / flex panel width changes do not fire window resize, so notify it.
+ */
+const notifySpreadsheetResize = useDebounceFn(() => {
+  window.dispatchEvent(new Event('resize'))
+}, 50)
+
+useResizeObserver(containerRef, (entries) => {
+  const entry = entries[0]
+  if (!entry) return
+
+  const { width, height } = entry.contentRect
+  if (width <= 0 || height <= 0) return
+
+  const next = { width: Math.round(width), height: Math.round(height) }
+  const isFirst = lastContainerSize.width === 0 && lastContainerSize.height === 0
+  const unchanged = next.width === lastContainerSize.width && next.height === lastContainerSize.height
+  lastContainerSize = next
+
+  if (isFirst || unchanged) return
+  notifySpreadsheetResize()
+})
 </script>
 
 <template>
-  <div v-loading="loading" class="excel-reader">
+  <div ref="containerRef" v-loading="loading" class="excel-reader">
     <VueOfficeExcel
       v-if="excelSrc && !loading"
       :key="excelSrcKey"
@@ -87,9 +114,13 @@ watch(() => [props.src, props.blob, props.fileType, props.name], resolveExcelSrc
 .excel-reader {
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .vue-office-excel {
   width: 100%;
+  height: 100%;
 }
 </style>
