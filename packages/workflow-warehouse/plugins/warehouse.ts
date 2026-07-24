@@ -2,5 +2,5 @@
 
 export default defineNuxtPlugin((nuxtApp) => {
   const { formRenderSlots, formStartHandle } = useWorkflow()
-  formRenderSlots.value.push({ name: 'WHAReceivingVerification', component: WHASupplyListVerify })
+  formRenderSlots.value.push({ name: 'WHASupplyListVerify', component: WHASupplyListVerify })
 })
