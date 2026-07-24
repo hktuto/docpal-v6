@@ -71,6 +71,10 @@ export const useWorkflow = () => {
       {
         name: 'priceAnnouncementList',
         component: 'FormWidgetPriceAnnouncementList'
+      },
+      {
+        name: 'salesOrderApprovalTable',
+        component: 'FormWidgetSalesOrderApprovalTable'
       }
     ])
   )
