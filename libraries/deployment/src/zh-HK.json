@@ -3213,6 +3213,9 @@
       "uploadError": "上传错误: ",
       "uploadExceed": "最大上传数量({uploadLimit})已超出.",
       "uploadFormDocpalSetting": "Docpal 上傳設定",
+      "uploadTipFormat": "支持 {fileTypes}",
+      "uploadTipLimit": "限{limit}個",
+      "uploadTipSize": "單份≤{fileMaxSize}MB",
       "validationFailed": "表单数据校验失败"
     }
   },

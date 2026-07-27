@@ -3216,6 +3216,9 @@
       "uploadError": "Upload error: ",
       "uploadExceed": "The maximum number({uploadLimit}) of file uploads has been exceeded.",
       "uploadFormDocpalSetting": "Upload Form Docpal Setting",
+      "uploadTipFormat": "Supports {fileTypes}",
+      "uploadTipLimit": "max {limit}",
+      "uploadTipSize": "≤{fileMaxSize}MB each",
       "validationFailed": "Form validation failed"
     }
   },
