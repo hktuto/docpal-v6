@@ -1,49 +1,90 @@
 <script setup lang="ts">
 import { clientApi, newClientApi } from 'api'
+import { v7 as uuidv7 } from 'uuid'
+
+const { isApproval } = defineProps<{
+  isApproval: boolean
+}>()
 
 const isEdit = ref<boolean>(false)
-const emits = defineEmits(['submit'])
+const emits = defineEmits(['create', 'update'])
 const dialogVisible = ref(false)
-const rowData = ref<any>({
-  customerPo: '',
-  customerUnitPrice: '',
-  customerPoLine: '',
-  leadTime: 0,
-  description: '',
-  orderedItem: '',
-  unitPrice: '',
-  customerItem: '',
+
+interface DataItemType {
+  line_id: string
+  customerPoLine: number
+  quantity: number
+  taxCode: string
+  requestDate: string
+  quantityCancelled: number
+  customerPo: string
+  uom: string
+  taxAmount: number
+  promiseDate: string
+  quantityShipped: number
+  customerItem: string
+  customerUnitPrice: number
+  returnOrder: string
+  leadTime: number
+  scheduledShipDate: string
+  scheduledArrivalDate: string
+  orderedItem: string
+  unitPrice: number
+  description: string
+  subInventory: string
+  references: string
+  piRemark: string
+  remarks: string
+}
+
+const defaultRowData: DataItemType = {
+  line_id: uuidv7(),
+  customerPoLine: 0,
+  quantity: 0,
+  taxCode: '',
   requestDate: '',
+  quantityCancelled: 0,
+  customerPo: '',
+  uom: '',
+  taxAmount: 0,
   promiseDate: '',
-  quantity: '',
-  quantityCancelled: '',
-  quantityShipped: '',
+  quantityShipped: 0,
+  customerItem: '',
+  customerUnitPrice: 0,
+  leadTime: 0,
+  returnOrder: '',
   scheduledShipDate: '',
   scheduledArrivalDate: '',
-  uom: '',
+  orderedItem: '',
+  unitPrice: 0,
+  description: '',
   subInventory: '',
-  taxCode: '',
-  taxAmount: '',
   references: '',
-  returnOrder: '',
   piRemark: '',
   remarks: ''
-})
+}
+
+const rowData = ref<DataItemType>(defaultRowData)
 const partList = ref<any[]>([])
 const taxCodeList = ref<any[]>([])
 const subInventoryList = ref<any[]>([])
 
 function open(row?: any) {
-  dialogVisible.value = true
   isEdit.value = false
+  rowData.value = defaultRowData
   if (!!row) {
     rowData.value = row
     isEdit.value = true
   }
+  dialogVisible.value = true
 }
 
 function handleSubmit() {
-  emits('submit', rowData.value)
+  if (isEdit.value) {
+    emits('update', rowData.value)
+  } else {
+    emits('create', rowData.value)
+  }
   dialogVisible.value = false
 }
 
@@ -116,12 +157,12 @@ defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯 Edit' : '添加 Add'">
-    <el-form label-position="top" class="all-input-style">
+  <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯商品 Edit Goods' : '添加商品 Add Goods'">
+    <el-form label-position="top" class="all-input-style" :disabled="isApproval1">
       <el-row>
         <el-col :span="6">
           <el-form-item label="客戶採購訂單行 Customer PO Line">
-            <el-input v-model="rowData.customerPoLine" />
+            <el-input-number v-model="rowData.customerPoLine" controls-position="right" :min="1" :step="1" step-strictly />
           </el-form-item>
           <el-form-item label="數量 Quantity">
             <el-input-number v-model="rowData.quantity" controls-position="right" :min="1" :step="1" step-strictly />
@@ -182,7 +223,7 @@ defineExpose({ open })
             </el-select>
           </el-form-item>
           <el-form-item label="單價 Unit Price">
-            <el-input v-model="rowData.unitPrice" />
+            <el-input-number v-model="rowData.unitPrice" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
           </el-form-item>
           <el-form-item label="描述 Description">
             <el-input v-model="rowData.description" disabled />

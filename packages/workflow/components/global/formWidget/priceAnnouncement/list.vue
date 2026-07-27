@@ -4,6 +4,7 @@ import { ElCheckbox, ElInputNumber, ElSelectV2 } from 'element-plus'
 import type { CheckboxValueType, Column, FormInstance, FormRules } from 'element-plus'
 import { getGroupsSelectOption } from '#imports'
 import dayjs from 'dayjs'
+import Decimal from 'decimal.js'
 
 const { formData } = defineProps<{
   disabled: boolean
@@ -56,10 +57,8 @@ function normalizeSalesperson(value: unknown): string[] {
   return [String(value)]
 }
 
-/** markup * originalUnitPrice = newUnitPrice */
-function roundNumber(value: number, precision: number) {
-  const factor = 10 ** precision
-  return Math.round(value * factor) / factor
+function roundNumber(value: Decimal.Value, precision: number) {
+  return new Decimal(value).toDecimalPlaces(precision).toNumber()
 }
 
 function handleMarkupChange(rowData: OrderItem, val: number | undefined) {
@@ -69,7 +68,8 @@ function handleMarkupChange(rowData: OrderItem, val: number | undefined) {
     rowData.newUnitPrice = undefined
     return
   }
-  rowData.newUnitPrice = roundNumber(val * original, 6)
+  /** (1 + markup / 100) * originalUnitPrice = newUnitPrice */
+  rowData.newUnitPrice = roundNumber(new Decimal(1).plus(new Decimal(val).div(100)).times(original), 6)
 }
 
 function handleNewUnitPriceChange(rowData: OrderItem, val: number | undefined) {
@@ -79,7 +79,8 @@ function handleNewUnitPriceChange(rowData: OrderItem, val: number | undefined) {
     rowData.markup = undefined
     return
   }
-  rowData.markup = roundNumber(val / original, 2)
+  /** markup = (newUnitPrice / originalUnitPrice - 1) * 100 */
+  rowData.markup = roundNumber(new Decimal(val).div(original).minus(1).times(100), 2)
 }
 
 const listData = ref<OrderItem[]>([])
