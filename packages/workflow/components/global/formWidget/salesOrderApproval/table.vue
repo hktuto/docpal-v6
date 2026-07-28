@@ -180,6 +180,7 @@ function loadData() {
 
 function init() {
   isApproval.value = formData.is_approval
+  listData.value = formData.order_item_list
 }
 
 async function getFormData(needValidation = true) {
@@ -237,9 +238,9 @@ async function handleDelete(row: DataItemType) {
 }
 
 watch(
-  () => formData.order_item_list,
+  () => formData.is_approval,
   (value) => {
-    if (!!value && value.length > 0) {
+    if (!!value) {
       init()
     }
   },

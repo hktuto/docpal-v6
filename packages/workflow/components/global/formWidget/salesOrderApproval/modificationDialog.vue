@@ -41,8 +41,33 @@ const defaultRowData: DataItemType = {
 const oldRowData = ref<DataItemType>()
 const rowData = ref<DataItemType>()
 const partList = ref<any[]>([])
-const taxCodeList = ref<any[]>([])
-const subInventoryList = ref<any[]>([])
+const taxCodeList = ref<any[]>([
+  { label: 'VAT13', value: 'VAT13' },
+  { label: 'VAT16', value: 'VAT16' },
+  { label: 'VAT7', value: 'VAT7' }
+])
+const subInventoryList = ref<any[]>([
+  { label: 'CHECKING', value: 'CHECKING' },
+  { label: 'DUMMY', value: 'DUMMY' },
+  { label: 'ICHAUS', value: 'ICHAUS' },
+  { label: 'OSWF', value: 'OSWF' },
+  { label: 'STORE1', value: 'STORE1' },
+  { label: 'SZBYDA860', value: 'SZBYDA860' },
+  { label: 'SZBYDA961', value: 'SZBYDA961' },
+  { label: 'SZBYDA963', value: 'SZBYDA963' },
+  { label: 'SZBYDA964', value: 'SZBYDA964' },
+  { label: 'SZBYDA965', value: 'SZBYDA965' },
+  { label: 'SZBYDA966', value: 'SZBYDA966' },
+  { label: 'SZBYDH141', value: 'SZBYDH141' },
+  { label: 'SZBYDHZ25', value: 'SZBYDHZ25' },
+  { label: 'SZDAMAGE', value: 'SZDAMAGE' },
+  { label: 'SZHK2', value: 'SZHK2' },
+  { label: 'SZSH', value: 'SZSH' },
+  { label: 'SZSZ1', value: 'SZSZ1' },
+  { label: 'SZVMAX', value: 'SZVMAX' },
+  { label: 'SZXM1', value: 'SZXM1' },
+  { label: 'SZZHK', value: 'SZZHK' }
+])
 
 function open(newItem: boolean, row?: DataItemType, oldData?: DataItemType) {
   isEdit.value = false
