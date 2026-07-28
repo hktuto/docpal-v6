@@ -24,6 +24,7 @@
           v-model="draft"
           :options="options"
           :fit-input-width="false"
+          :popper-style="{ maxWidth: '50rem' }"
           placement="bottom-start"
           :fallback-placements="['bottom-start', 'bottom', 'bottom-end']"
           size="small"
