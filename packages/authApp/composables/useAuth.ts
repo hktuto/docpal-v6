@@ -1,6 +1,6 @@
 import { useState, createError } from '#imports'
 import { EventType, emitBus } from 'eventbus'
-import { newClientApi, globalApi } from 'api'
+import { newClientApi, globalApi, clientApi } from 'api'
 import type Keycloak from 'keycloak-js'
 
 import type { UserDTO } from 'api/src/generate/client'
@@ -58,50 +58,40 @@ export async function verifly() {
   logedIn.value = true
   const token = localStorage.getItem('access_token') || ''
   const decodedToken = parseJwt(token)
-  if (decodedToken && decodedToken.roles) {
 
+
+  if (decodedToken && decodedToken.roles) {
+    if (decodedToken.exp) {
+      // setup refresh token callback
+      const offset = (decodedToken.exp * 1000) - 60000
+      const now = Date.now()
+      setTimeout(async() => {
+        const refreshToken = localStorage.getItem('refresh_token')
+        const { data } = await clientApi.instance.post(
+          '/auth/token',
+          {},
+          {
+            headers: {
+              Authorization: 'Bearer ' + refreshToken
+            },
+            baseURL: '/api'
+          }
+        )
+        localStorage.setItem('access_token', data.data.access_token)
+        localStorage.setItem('refresh_token', data.data.refresh_token)
+        const token = useToken()
+        token.value = data.data.access_token
+      }, offset - now)
+    }
     const isAdmin = useIsAdmin()
     const isSuperAdmin = useIsSuperAdmin()
     const hasAdmin = decodedToken.roles.includes('ROLE_ADMIN')
     const hasSuperAdmin = decodedToken.roles.includes('ROLE_SUPER')
     isAdmin.value = hasAdmin || hasSuperAdmin
     isSuperAdmin.value = hasSuperAdmin
-    console.log('isAdmin', isAdmin.value)
   }
-  // check if user in in db
-  const userId = useUserId()
-  const user = useUserState()
 
-  const { create, findOne, deleteTable } = useSqliteTable({
-    schema: {
-      name: 'auth_user',
-      columns: [
-        {
-          name: 'id',
-          type: 'TEXT',
-          primaryKey: true
-        },
-        {
-          name: 'username',
-          type: 'TEXT',
-          primaryKey: false
-        }
-      ]
-    }
-  })
-  try {
-    console.log('user in db', userId.value)
-    await findOne({
-      id: userId.value
-    })
-  } catch (err) {
-    console.log('user not in db')
-    await deleteTable('docpal_documents')
-    await create({
-      id: userId.value,
-      username: user.value.username
-    })
-  }
+
   emitBus(EventType.USER_LOGIN__SUCCESS, '')
 }
 
@@ -127,7 +117,6 @@ export async function login() {
   try {
     // get access token from local storage
     const storageToken = localStorage.getItem('access_token')
-    console.log('useAuth', storageToken)
     if (!storageToken) {
       throw new Error('access token not found')
     }

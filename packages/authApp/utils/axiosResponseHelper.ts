@@ -111,8 +111,6 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     try {
       // 使用 refresh token 获取新的 access token
 
-      localStorage.setItem('access_token', refreshToken as string)
-
       const { data } = await axiosInstance.post(
         '/auth/token',
         {},
