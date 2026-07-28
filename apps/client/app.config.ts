@@ -77,9 +77,9 @@ export default defineAppConfig({
       ]
     },
 
-    {
-      name: 'client-master-table'
-    },
+    // {
+    //   name: 'client-master-table'
+    // },
     // {
     //   name: 'client-dashboard'
     // },
@@ -96,9 +96,9 @@ export default defineAppConfig({
     {
       name: 'contact-book'
     },
-    {
-      name: 'client-scan'
-    },
+    // {
+    //   name: 'client-scan'
+    // },
     {
       name:"dynamic-db"
     }
@@ -162,9 +162,9 @@ export default defineAppConfig({
         {
           name: 'admin-work-panel'
         },
-        {
-          name: 'admin-master-table'
-        }
+        // {
+        //   name: 'admin-master-table'
+        // }
       ]
     },
     {
@@ -275,9 +275,9 @@ export default defineAppConfig({
       name: 'admin-import-jobs'
     },
 
-    {
-      name: 'admin-azure'
-    },
+    // {
+    //   name: 'admin-azure'
+    // },
 
     {
       name: 'admin-easy-form'
@@ -285,8 +285,8 @@ export default defineAppConfig({
     // {
     //   name: 'admin-calendar-setting'
     // },
-    {
-      name: 'admin-scan'
-    }
+    // {
+    //   name: 'admin-scan'
+    // }
   ]
 })
