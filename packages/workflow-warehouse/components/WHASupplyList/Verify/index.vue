@@ -91,7 +91,6 @@ defineExpose({ getFormData })
 }
 .preview-file-tabs {
   width: 100%;
-  max-width: 100%;
 
   :deep(.el-tabs__header) {
     margin: 0;
@@ -99,17 +98,6 @@ defineExpose({ getFormData })
 
   :deep(.el-tabs__nav-wrap) {
     width: 100%;
-  }
-
-  :deep(.el-tabs__nav-scroll) {
-    width: 100%;
-    overflow: hidden;
-  }
-
-  /* 覆盖错误的滚动偏移，避免 tab 被移出可视区域 */
-  :deep(.el-tabs__nav) {
-    float: none;
-    transform: none !important;
   }
 
   :deep(.el-tabs__item) {
