@@ -24,7 +24,6 @@ interface DataItemType {
   quantityShipped: number
   customerItem: string
   customerUnitPrice: number
-  returnOrder: string
   leadTime: number
   scheduledShipDate: string
   scheduledArrivalDate: string
@@ -52,7 +51,6 @@ const defaultRowData: DataItemType = {
   customerItem: '',
   customerUnitPrice: 0,
   leadTime: 0,
-  returnOrder: '',
   scheduledShipDate: '',
   scheduledArrivalDate: '',
   orderedItem: '',
@@ -158,7 +156,7 @@ defineExpose({ open })
 
 <template>
   <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯商品 Edit Goods' : '添加商品 Add Goods'">
-    <el-form label-position="top" class="all-input-style" :disabled="isApproval1">
+    <el-form label-position="top" class="all-input-style" :disabled="isApproval">
       <el-row>
         <el-col :span="6">
           <el-form-item label="客戶採購訂單行 Customer PO Line">
@@ -211,8 +209,8 @@ defineExpose({ open })
           <el-form-item label="預定出貨日期 Scheduled Ship Date">
             <el-date-picker v-model="rowData.scheduledShipDate" type="date" />
           </el-form-item>
-          <el-form-item label="退貨單 Return Order">
-            <el-input v-model="rowData.returnOrder" disabled />
+          <el-form-item label="參考 References">
+            <el-input v-model="rowData.references" disabled />
           </el-form-item>
         </el-col>
 
@@ -237,14 +235,7 @@ defineExpose({ open })
             </el-select>
           </el-form-item>
         </el-col>
-
-        <el-col :span="6">
-          <el-form-item label="參考 References">
-            <el-input v-model="rowData.references" disabled />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item label="PI 備註 PI Remark">
             <el-input v-model="rowData.piRemark" style="width: 95%" />
           </el-form-item>

@@ -7,7 +7,6 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
-
 interface DataItemType {
   line_id: string
   customerPoLine: number
@@ -34,6 +33,9 @@ interface DataItemType {
   remarks: string
 }
 
+const isApproval = ref<boolean>(false)
+const formRef = ref()
+const listData = ref<DataItemType[]>([])
 const subtotal = computed(() => {
   return listData.value.length
 })
@@ -46,9 +48,6 @@ const charges = computed(() => {
 const totalAmount = computed(() => {
   return 0
 })
-
-const isApproval = ref<boolean>(false)
-const listData = ref<DataItemType[]>([])
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'SalesOrderTableSetting',
@@ -164,12 +163,12 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   optionalConfig: {}
 })
 
-function loadData() {
-  tableRef.value?.loadData(listData.value)
-}
-
 function init() {
   isApproval.value = formData.is_approval
+}
+
+function loadData() {
+  tableRef.value?.loadData(listData.value)
 }
 
 async function getFormData(needValidation = true) {
@@ -181,23 +180,19 @@ async function getFormData(needValidation = true) {
   return result
 }
 
-const formWidgetSalesOrderApprovalDialogRef = ref()
+const formWidgetSalesOrderApprovalModificationDialogRef = ref()
+
+function handleDblClick(row: DataItemType) {
+  // 匹配新舊數據
+  const isNewItem = true
+  const oldRowItem = undefined
+
+  formWidgetSalesOrderApprovalModificationDialogRef.value.open(isNewItem, row, oldRowItem)
+}
 
 function handleAdd() {
-  formWidgetSalesOrderApprovalDialogRef.value.open()
+  formWidgetSalesOrderApprovalModificationDialogRef.value.open(true)
 }
-
-function handleDblClick(row: any) {
-  formWidgetSalesOrderApprovalDialogRef.value.open(row)
-}
-
-function handleSynchronizePoNumbers() {
-  if (listData.value.length === 0) return
-
-  const one = listData.value[0]
-  if (!one.customerPo) return
-}
-
 function handleCreate(newRow: DataItemType) {
   if (isApproval.value) return
   listData.value.push(newRow)
@@ -226,15 +221,6 @@ async function handleDelete(row: DataItemType) {
   }
 }
 
-watch(
-  () => formData.order_item_list,
-  (value) => {
-    if (!!value && value.length > 0) {
-      init()
-    }
-  },
-  { immediate: true, deep: true }
-)
 defineExpose({ getFormData })
 </script>
 
@@ -268,12 +254,16 @@ defineExpose({ getFormData })
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template v-if="!isApproval" #toolbar_buttons>
         <el-button type="primary" @click="handleAdd">添加商品 Add Goods</el-button>
-        <el-button type="warning" @click="handleSynchronizePoNumbers">同步全部客戶訂單編號 Synchronize All PO Numbers</el-button>
       </template>
     </VxeGrid>
   </div>
 
-  <LazyFormWidgetSalesOrderApprovalDialog ref="formWidgetSalesOrderApprovalDialogRef" :isApproval="isApproval" @create="handleCreate" @update="handleUpdate" />
+  <LazyFormWidgetSalesOrderApprovalModificationDialog
+    ref="formWidgetSalesOrderApprovalModificationDialogRef"
+    :isApproval="isApproval"
+    @create="handleCreate"
+    @update="handleUpdate"
+  />
 </template>
 
 <style scoped lang="scss">
