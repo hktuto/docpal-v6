@@ -31,7 +31,13 @@
 const props = defineProps(['formData', 'taskDetail'])
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList, docId } = useWHASupplyListVerifyProvider(props)
-const fileList = computed(() => props.formData?.file_list_info || [])
+const fileList = computed(() => {
+  const fileList = props.formData?.file_list_info || []
+  if (fileList.length > 0) {
+    docId.value = fileList[0].id
+  }
+  return fileList
+})
 
 const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
 useWHASupplyListVerifyTableProvider(selectedInvoice)
