@@ -65,7 +65,7 @@ export const verificationTableColumns = [
     type: 'checkbox',
     title: 'Verified',
     width: 88,
-    align: 'left'
+    align: 'center'
   }
 ]
 
@@ -157,7 +157,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       border: 'inner',
       stripe: false,
       pagerConfig: { enabled: false },
-      // 覆盖 useVxeTable 默认的 labelField，避免勾选旁显示 true/false
+      // type=checkbox 列上的 field 是 label，不是勾选绑定；勾选状态靠 checkField
       checkboxConfig: {
         checkField: SGLA_ITEMS.Checked,
         highlight: true,
@@ -189,7 +189,11 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     try {
       const params = generateParams(masterId)
       const { data } = await postDynamicActions(params)
-      return data?.data ?? []
+      // checkField 要求严格 boolean，接口可能返回 null/0/1/'true' 等
+      return (data?.data ?? []).map((row: Record<string, any>) => ({
+        ...row,
+        [SGLA_ITEMS.Checked]: row[SGLA_ITEMS.Checked] === true || row[SGLA_ITEMS.Checked] === 1 || row[SGLA_ITEMS.Checked] === 'true'
+      }))
     } catch (error) {
       console.error(error)
       return []

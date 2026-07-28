@@ -32,6 +32,7 @@ const {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  --vxe-ui-font-primary-color: var(--app-primary-color);
 
   :deep(.vxe-grid) {
     height: 100%;

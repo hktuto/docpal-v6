@@ -28,7 +28,7 @@
 import { newClientApi } from 'api'
 import { Document, Loading } from '@element-plus/icons-vue'
 import { useWHASupplyListVerifyTableInject } from '../../../composables/useWHASupplyListVerifyTable'
-import { SGLA_ITEMS_TABLE_ID } from '../../../utils/variableMapping'
+import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../../../utils/variableMapping'
 
 const { updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData, statusCounts, columns } = useWHASupplyListVerifyTableInject()
@@ -39,14 +39,19 @@ const percentage = computed(() => {
 })
 
 const formFields = computed(() => {
-  const fields = columns.map((column) => column.field).filter((item) => item !== undefined)
-  return [...fields, 'id']
+  // checkbox 列用 checkField 绑定，列上没有 field，需显式带上 Checked
+  const fields = columns.map((column) => column.field).filter((item): item is string => item !== undefined)
+  return [...new Set([...fields, SGLA_ITEMS.Checked, 'id'])]
 })
 
 function getFormData() {
   return tableData.value.map((item) => {
     const data: Record<string, any> = {}
     formFields.value.forEach((field) => {
+      if (field === SGLA_ITEMS.Checked) {
+        data[field] = !!item[field]
+        return
+      }
       const fieldColumn = columns.find((column) => column.field === field)
       if (fieldColumn?.type === 'number') {
         data[field] = Number(item[field])
