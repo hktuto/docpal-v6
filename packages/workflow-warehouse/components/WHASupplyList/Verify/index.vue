@@ -31,22 +31,25 @@
 const props = defineProps(['formData', 'taskDetail'])
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList, docId } = useWHASupplyListVerifyProvider(props)
-const fileList = computed(() => {
-  const fileList = props.formData?.file_list_info || []
-  if (fileList.length > 0) {
-    docId.value = fileList[0].id
-  }
-  return fileList
-})
+const fileList = computed(() => props.formData?.file_list_info || [])
 
 const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
 useWHASupplyListVerifyTableProvider(selectedInvoice)
 async function getFormData(needValidation: boolean) {
   if (!needValidation) return
-  await detailCardRef.value?.validate()
+  const result = await detailCardRef.value?.validate()
+  if (result === 'cancel') throw new Error('__CANCEL__')
   invoiceList.value.forEach((item) => {
-    if (item[SGLA.Status] !== 'confirm') {
-      throw new Error('Please confirm the invoice first')
+    if (!item[SGLA.Name]) {
+      throw new Error('Please enter the invoice number')
+    } else if (item[SGLA.Status] !== 'confirm') {
+      throw new Error(`⌈${item[SGLA.Name]}⌋ Please approve the invoice first`)
+    } else if (!item[SGLA.VendorName]) {
+      throw new Error(`⌈${item[SGLA.Name]}⌋ Please select the supplier`)
+    } else if (!item[SGLA.CustomerName]) {
+      throw new Error(`⌈${item[SGLA.Name]}⌋ Please enter the customer name`)
+    } else if (!item[SGLA.DeliveryDate]) {
+      throw new Error(`⌈${item[SGLA.Name]}⌋ Please enter the delivery date`)
     }
   })
 }
@@ -80,7 +83,7 @@ defineExpose({ getFormData })
 }
 :deep(.side-panel) {
   min-width: 0;
-  overflow: hidden;
+  overflow: visible !important;
 }
 .mg-top {
   margin-top: var(--app-space-s);

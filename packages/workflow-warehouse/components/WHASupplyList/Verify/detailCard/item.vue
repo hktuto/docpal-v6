@@ -3,7 +3,7 @@
     <span v-if="hasLabel" class="detail-label">{{ label }}</span>
 
     <div class="detail-value-wrap">
-      <div v-if="isEditing && type === 'date'" class="detail-value-edit">
+      <div v-if="isEditing && type === 'date'" class="detail-value-edit is-date">
         <el-date-picker
           ref="datePickerRef"
           v-model="draft"
@@ -288,20 +288,26 @@ function handleCancel() {
 }
 
 .detail-value-edit {
-  z-index: 1;
+  z-index: 20;
   position: absolute;
   top: 0;
   right: 0;
   width: 100%;
+  overflow: visible;
 
   :deep(.el-date-editor),
   :deep(.el-select-v2) {
     width: 100%;
   }
 
+  &.is-date,
+  &.is-select,
   &.is-textarea {
     min-width: 10rem;
+    width: max(100%, 10rem);
+  }
 
+  &.is-textarea {
     :deep(.el-textarea__inner) {
       text-align: left;
       font-weight: 600;

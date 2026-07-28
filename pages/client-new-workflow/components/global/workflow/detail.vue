@@ -227,6 +227,7 @@ async function handleSubmit() {
     routerProvider?.replace(fallbackRoute)
   } catch (error) {
     console.log('error', error)
+    if (error?.message === '__CANCEL__') return
     routerProvider?.message.error(error.message)
   } finally {
     state.loading = false

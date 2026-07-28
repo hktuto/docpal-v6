@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { newClientApi, postDynamicActions } from 'api'
 import { SGLA, SGLA_ITEMS, SUPPLIER_LIST_TABLE_NAME } from '../../../../utils/variableMapping'
-
+import { ElMessageBox } from 'element-plus'
 const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
 const key = 'VendorName'
@@ -91,14 +91,14 @@ async function validate() {
   const hasInvalid = list.value.some((item) => item.status === 'fail' || item.status === 'loading')
   if (!hasInvalid) return true
   try {
-    await ElMessageBox.confirm('Some invoice data failed to submit. Force submit anyway?', 'Warning', {
+    const result = await ElMessageBox.confirm('Some invoice data failed to submit. Force submit anyway?', 'Warning', {
       confirmButtonText: 'Force Submit',
       cancelButtonText: 'Cancel',
       type: 'warning'
     })
-    return true
+    return result
   } catch {
-    throw new Error('Please check the invoice data')
+    return 'cancel'
   }
 }
 async function getSupplierList() {
@@ -146,6 +146,7 @@ defineExpose({
   border-radius: var(--app-border-radius-m);
   background-color: var(--el-bg-color);
   box-shadow: var(--el-box-shadow-light);
+  overflow: visible;
 }
 
 .detail-card-header {
@@ -173,5 +174,6 @@ defineExpose({
   display: flex;
   flex-direction: column;
   gap: var(--app-space-s);
+  overflow: visible;
 }
 </style>
