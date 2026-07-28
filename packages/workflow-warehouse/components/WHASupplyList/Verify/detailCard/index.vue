@@ -10,6 +10,7 @@
             :type="item.type"
             :disabled="item.disabled"
             :status="item.status"
+            :options="unref(item.options) ?? []"
             @save="(v) => handleSave(v, item)"
           />
           <template v-else>
@@ -24,12 +25,13 @@
 </template>
 
 <script setup lang="ts">
-import { newClientApi } from 'api'
-import { SGLA, SGLA_ITEMS } from '../../../../utils/variableMapping'
+import { newClientApi, postDynamicActions } from 'api'
+import { SGLA, SGLA_ITEMS, SUPPLIER_LIST_TABLE_NAME } from '../../../../utils/variableMapping'
 
 const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
 const key = 'VendorName'
+const SupplierList = ref([])
 const list = ref([
   {
     invoiceKey: 'Name',
@@ -39,8 +41,9 @@ const list = ref([
   {
     label: 'Supplier',
     invoiceKey: 'VendorName',
-    type: 'text',
-    status: 'pass'
+    type: 'select',
+    status: 'pass',
+    options: SupplierList
   },
   {
     label: 'Customer',
@@ -98,6 +101,39 @@ async function validate() {
     throw new Error('Please check the invoice data')
   }
 }
+async function getSupplierList() {
+  try {
+    const params = {
+      table: SUPPLIER_LIST_TABLE_NAME,
+      columns: [{ name: 'short_name' }, { name: 'code' }],
+      orderBy: [{ column: 'short_name', desc: false }]
+    }
+    const { data } = await postDynamicActions(params)
+    SupplierList.value =
+      data?.data.map((item: any) => ({
+        label: item.short_name,
+        value: item.code
+      })) ?? []
+    if (selectedInvoice.value[SGLA.VendorName]) {
+      const matched = SupplierList.value.find(
+        (opt) => String(opt.value) === String(selectedInvoice.value[SGLA.VendorName]) || String(opt.label) === String(selectedInvoice.value[SGLA.VendorName])
+      )
+      if (matched) {
+        selectedInvoice.value[SGLA.VendorName] = matched.value
+      } else {
+        selectedInvoice.value[SGLA.VendorName] = ''
+      }
+    }
+  } catch (error) {
+    console.error(error)
+    return []
+  } finally {
+  }
+}
+onMounted(() => {
+  console.log('getSupplierList')
+  getSupplierList()
+})
 defineExpose({
   validate
 })

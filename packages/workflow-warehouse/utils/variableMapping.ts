@@ -22,3 +22,6 @@ export enum SGLA_ITEMS {
   PoLine = 'f_4863_76fdba60',
   Checked = 'f_5481_4365d92c'
 }
+
+// Supplier List
+export const SUPPLIER_LIST_TABLE_NAME = 'wms_suppliers'

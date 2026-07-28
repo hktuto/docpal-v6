@@ -18,6 +18,25 @@
         />
       </div>
 
+      <div v-else-if="isEditing && type === 'select'" class="detail-value-edit is-select">
+        <el-select-v2
+          ref="selectRef"
+          v-model="draft"
+          :options="options"
+          :fit-input-width="false"
+          placement="bottom-start"
+          :fallback-placements="['bottom-start', 'bottom', 'bottom-end']"
+          size="small"
+          filterable
+          clearable
+          placeholder="Select"
+          aria-label="Edit select"
+          @change="handleSave"
+          @visible-change="handleSelectVisibleChange"
+          @keydown.esc.prevent="handleCancel"
+        />
+      </div>
+
       <div v-else-if="isEditing" class="detail-value-edit is-textarea" @focusout="handleFocusOut">
         <el-input
           ref="inputRef"
@@ -64,20 +83,27 @@
 import { EditPen, Loading, RefreshRight } from '@element-plus/icons-vue'
 import type { InputInstance } from 'element-plus'
 
+export type DetailSelectOption = {
+  label: string
+  value: string | number
+}
+
 const props = withDefaults(
   defineProps<{
     label?: string
     value?: string | number | null
     textValue?: string
     disabled?: boolean
-    type?: 'text' | 'date'
+    type?: 'text' | 'date' | 'select'
     status?: 'pass' | 'fail' | 'loading'
+    options?: DetailSelectOption[]
   }>(),
   {
     label: '',
     disabled: false,
     type: 'text',
-    status: 'pass'
+    status: 'pass',
+    options: () => []
   }
 )
 
@@ -91,15 +117,20 @@ const emit = defineEmits<{
 const { formatDate } = useTime()
 
 const isEditing = ref(false)
-const draft = ref('')
+const draft = ref<string | number>('')
 const inputRef = ref<InputInstance>()
 const datePickerRef = ref()
+const selectRef = ref()
 
 const displayValue = computed(() => {
   const val = props.value
   if (val === null || val === undefined || val === '') return '—'
   if (props.type === 'date') {
     return formatDate(String(val), 'YYYY/MM/DD') || String(val)
+  }
+  if (props.type === 'select') {
+    const matched = props.options.find((opt) => String(opt.value) === String(val))
+    return matched?.label ?? String(val)
   }
   return String(val)
 })
@@ -111,11 +142,17 @@ function toDateDraft(val: string | number | null | undefined) {
 
 async function handleStartEdit() {
   if (props.disabled) return
-  draft.value = props.type === 'date' ? toDateDraft(props.value) : props.value == null ? '' : String(props.value)
+  draft.value = props.type === 'date' ? toDateDraft(props.value) : props.value == null ? '' : props.value
   isEditing.value = true
   await nextTick()
   if (props.type === 'date') {
     datePickerRef.value?.focus?.()
+  } else if (props.type === 'select') {
+    // Defer open so the click that entered edit mode does not close the menu as outside-click
+    setTimeout(() => {
+      selectRef.value?.focus?.()
+      selectRef.value?.toggleMenu?.()
+    }, 0)
   } else {
     inputRef.value?.focus()
   }
@@ -128,7 +165,7 @@ function getComparableValue(val: string | number | null | undefined) {
 
 function handleSave() {
   if (!isEditing.value || props.disabled) return
-  const value = draft.value ?? ''
+  const value = draft.value == null ? '' : String(draft.value)
   const oldValue = getComparableValue(props.value)
   isEditing.value = false
   // 未真正改动时不触发保存，避免无意义的 updateInvoiceData
@@ -153,6 +190,10 @@ function handleDateVisibleChange(visible: boolean) {
   if (!visible) handleSave()
 }
 
+function handleSelectVisibleChange(visible: boolean) {
+  if (!visible) handleSave()
+}
+
 function handleCancel() {
   isEditing.value = false
 }
@@ -164,12 +205,14 @@ function handleCancel() {
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--app-space-m);
+  overflow: visible;
 
   &.is-no-label {
     justify-content: flex-start;
 
     .detail-value-wrap {
       max-width: 100%;
+      overflow: visible;
     }
 
     .detail-value {
@@ -247,14 +290,17 @@ function handleCancel() {
   z-index: 1;
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   width: 100%;
 
-  :deep(.el-date-editor) {
+  :deep(.el-date-editor),
+  :deep(.el-select-v2) {
     width: 100%;
   }
 
   &.is-textarea {
+    min-width: 10rem;
+
     :deep(.el-textarea__inner) {
       text-align: left;
       font-weight: 600;
