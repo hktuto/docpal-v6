@@ -26,6 +26,7 @@
           :autosize="{ minRows: 2, maxRows: 6 }"
           aria-label="Edit value"
           @keydown.esc.prevent="handleCancel"
+          @keydown.enter.exact.prevent="handleSave"
         />
       </div>
 
