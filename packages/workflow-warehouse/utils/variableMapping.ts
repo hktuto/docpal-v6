@@ -17,8 +17,8 @@ export enum SGLA_ITEMS {
   MasterId = 'f_4856_72615eaf',
   // TODO: replace with real field ids from dynamic DB
   Carton = 'f_4864_c572140f',
-  KoaCode = 'f_4865_208a1162',
-  CustomerPn = 'f_4866_f009e86d', // wcl_item_no
+  PartNo = 'f_4865_208a1162',
+  WCLItemNo = 'f_4866_f009e86d', // wcl_item_no
   Qty = 'f_4869_e60ac31e',
   PoLine = 'f_4863_76fdba60',
   Checked = 'f_5481_4365d92c'

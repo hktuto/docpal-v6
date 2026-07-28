@@ -5,7 +5,7 @@ import { useWHASupplyListVerifyInject } from './useWHASupplyListVerify'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
-const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.KoaCode, SGLA_ITEMS.CustomerPn, SGLA_ITEMS.PoLine] as const
+const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.PartNo, SGLA_ITEMS.WCLItemNo, SGLA_ITEMS.PoLine] as const
 
 type EditableColumnType = 'text' | 'number'
 
@@ -37,14 +37,14 @@ export const verificationTableColumns = [
     ...editableColumn()
   },
   {
-    field: SGLA_ITEMS.KoaCode,
-    title: 'KOA CODE',
+    field: SGLA_ITEMS.PartNo,
+    title: 'Part No',
     minWidth: 150,
     ...editableColumn()
   },
   {
-    field: SGLA_ITEMS.CustomerPn,
-    title: 'CUSTOMER PN',
+    field: SGLA_ITEMS.WCLItemNo,
+    title: 'WCL Item No',
     minWidth: 170,
     ...editableColumn()
   },
