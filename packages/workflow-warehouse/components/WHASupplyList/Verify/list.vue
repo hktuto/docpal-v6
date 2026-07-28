@@ -102,9 +102,10 @@ onMounted(() => {
     >
       <div class="invoice-card-body">
         <div class="invoice-card-name">{{ item[SGLA.Name] }}</div>
-        <div v-if="item[SGLA.Total_Ctn]" class="invoice-card-meta">{{ item[SGLA.Total_Ctn] }} cartons
-
-          <span v-if="item.total_qty" class="invoice-card-meta-qty">•{{ item.total_qty }} units</span>
+        <div v-if="item.total_qty || item[SGLA.Total_Ctn]" class="invoice-card-meta">
+          <template v-if="item.total_qty"> {{ item[SGLA.Total_Ctn] }} cartons </template>
+          <template v-if="item.total_qty && item[SGLA.Total_Ctn]"> • </template>
+          <span v-if="item.total_qty" class="invoice-card-meta-qty">{{ item.total_qty }} units</span>
         </div>
       </div>
       <span v-if="item[SGLA.Status] === 'confirm'" class="invoice-card-badge">OK</span>
