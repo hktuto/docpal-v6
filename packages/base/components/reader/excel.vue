@@ -65,8 +65,55 @@ const excelOptions = computed(() => ({
 const excelSrc = ref<string | ArrayBuffer>('')
 const loading = ref(false)
 const containerRef = ref<HTMLElement | null>(null)
+const isReaderActive = ref(false)
+const hasSelectedCell = ref(false)
+const selectedCellText = ref('')
 let convertToken = 0
 let lastContainerSize = { width: 0, height: 0 }
+
+function handleCellSelected(payload: { cell?: { text?: string | number } | null }) {
+  isReaderActive.value = true
+  hasSelectedCell.value = true
+  const text = payload.cell?.text
+  selectedCellText.value = text == null ? '' : String(text)
+}
+
+function handleReaderPointerDown() {
+  isReaderActive.value = true
+}
+
+function handleDocumentPointerDown(event: PointerEvent) {
+  const target = event.target as Node | null
+  if (!containerRef.value || !target || containerRef.value.contains(target)) return
+  isReaderActive.value = false
+}
+
+async function copySelectedCellText() {
+  const text = selectedCellText.value
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+  }
+}
+
+function handleWindowKeydown(event: KeyboardEvent) {
+  if (!isReaderActive.value || !hasSelectedCell.value) return
+  if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'c') return
+
+  const target = event.target as HTMLElement | null
+  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
+
+  event.preventDefault()
+  void copySelectedCellText()
+}
 
 function csvToXlsxBuffer(buffer: ArrayBuffer): ArrayBuffer {
   const workbook = XLSX.read(buffer, { type: 'array' })
@@ -107,6 +154,21 @@ const excelSrcKey = computed(() => {
 
 watch(() => [props.src, props.blob, props.fileType, props.name], resolveExcelSrc, { immediate: true })
 
+watch(excelSrcKey, () => {
+  hasSelectedCell.value = false
+  selectedCellText.value = ''
+})
+
+onMounted(() => {
+  document.addEventListener('pointerdown', handleDocumentPointerDown, true)
+  window.addEventListener('keydown', handleWindowKeydown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', handleDocumentPointerDown, true)
+  window.removeEventListener('keydown', handleWindowKeydown)
+})
+
 /**
  * @vue-office/excel (x-spreadsheet) only reloads layout on window.resize.
  * Splitter / flex panel width changes do not fire window resize, so notify it.
@@ -133,13 +195,19 @@ useResizeObserver(containerRef, (entries) => {
 </script>
 
 <template>
-  <div ref="containerRef" v-loading="loading" class="excel-reader">
+  <div
+    ref="containerRef"
+    v-loading="loading"
+    class="excel-reader"
+    @pointerdown="handleReaderPointerDown"
+  >
     <VueOfficeExcel
       v-if="excelSrc && !loading"
       :key="excelSrcKey"
       class="vue-office-excel"
       :src="excelSrc"
       :options="excelOptions"
+      @cell-selected="handleCellSelected"
     />
   </div>
 </template>

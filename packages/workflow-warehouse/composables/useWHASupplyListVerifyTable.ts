@@ -90,6 +90,10 @@ function generateParams(masterTableId: string) {
   return {
     tableId: SGLA_ITEMS_TABLE_ID,
     columns: [{ name: '*' }],
+    orderBy: [
+      { column: SGLA_ITEMS.Carton, desc: false },
+      { column: 'created_at', desc: false }
+    ],
     conditions: [
       {
         value: [
