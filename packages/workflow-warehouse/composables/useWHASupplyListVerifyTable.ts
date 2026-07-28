@@ -62,11 +62,10 @@ export const verificationTableColumns = [
     ...editableColumn()
   },
   {
-    field: SGLA_ITEMS.Checked,
+    type: 'checkbox',
     title: 'Verified',
     width: 88,
-    align: 'center',
-    slots: { default: 'verifyStatus' }
+    align: 'left'
   }
 ]
 
@@ -158,6 +157,12 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       border: 'inner',
       stripe: false,
       pagerConfig: { enabled: false },
+      // 覆盖 useVxeTable 默认的 labelField，避免勾选旁显示 true/false
+      checkboxConfig: {
+        checkField: SGLA_ITEMS.Checked,
+        highlight: true,
+        range: true
+      },
       toolbarConfig: {
         custom: false,
         zoom: false,

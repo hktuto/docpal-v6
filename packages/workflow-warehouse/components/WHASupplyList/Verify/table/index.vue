@@ -8,12 +8,6 @@
           :counts="statusCounts"
         />
       </template>
-
-      <template #verifyStatus="{ row }">
-        <div class="status-actions">
-          <el-checkbox v-model="row[SGLA_ITEMS.Checked]" />
-        </div>
-      </template>
     </VxeGrid>
   </div>
 </template>
@@ -28,8 +22,7 @@ const {
   tableRef,
   statusFilter,
   statusCounts,
-  searchQuery,
-  SGLA_ITEMS
+  searchQuery
 } = useWHASupplyListVerifyTableInject()
 </script>
 
@@ -60,11 +53,6 @@ const {
   }
 }
 
-.status-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
 :deep(.col--edit) {
   position: relative;
   overflow: visible;
