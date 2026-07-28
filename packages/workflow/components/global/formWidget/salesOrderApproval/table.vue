@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Decimal from 'decimal.js'
 import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
@@ -24,7 +25,7 @@ interface DataItemType {
   customerUnitPrice: number
   leadTime: number
   scheduledShipDate: string
-  scheduledArrivalDate: string
+  scheduleArrivalDate: string
   orderedItem: string
   unitPrice: number
   description: string
@@ -34,17 +35,26 @@ interface DataItemType {
   remarks: string
 }
 
-const subtotal = computed(() => {
+const quantityTotal = computed(() => {
   return listData.value.length
 })
+const subtotal = computed(() => {
+  return listData.value
+    .reduce((acc, curr) => acc.add(new Decimal(curr.unitPrice).mul(curr.quantity)), new Decimal(0))
+    .toDecimalPlaces(6)
+    .toNumber()
+})
 const tax = computed(() => {
-  return 0
+  return listData.value
+    .reduce((acc, curr) => acc.add(new Decimal(curr.taxAmount)), new Decimal(0))
+    .toDecimalPlaces(6)
+    .toNumber()
 })
 const charges = computed(() => {
   return 0
 })
 const totalAmount = computed(() => {
-  return 0
+  return new Decimal(subtotal.value).add(tax.value).add(charges.value).toDecimalPlaces(6).toNumber()
 })
 
 const isApproval = ref<boolean>(false)

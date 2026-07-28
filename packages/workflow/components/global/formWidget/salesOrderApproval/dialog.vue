@@ -26,7 +26,7 @@ interface DataItemType {
   customerUnitPrice: number
   leadTime: number
   scheduledShipDate: string
-  scheduledArrivalDate: string
+  scheduleArrivalDate: string
   orderedItem: string
   unitPrice: number
   description: string
@@ -52,7 +52,7 @@ const defaultRowData: DataItemType = {
   customerUnitPrice: 0,
   leadTime: 0,
   scheduledShipDate: '',
-  scheduledArrivalDate: '',
+  scheduleArrivalDate: '',
   orderedItem: '',
   unitPrice: 0,
   description: '',
@@ -227,7 +227,7 @@ defineExpose({ open })
             <el-input v-model="rowData.description" disabled />
           </el-form-item>
           <el-form-item label="預定抵達日期 Scheduled Arrival Date">
-            <el-date-picker v-model="rowData.scheduledArrivalDate" type="date" disabled />
+            <el-date-picker v-model="rowData.scheduleArrivalDate" type="date" disabled />
           </el-form-item>
           <el-form-item label="子庫存 Sub-Inventory">
             <el-select v-model="rowData.subInventory">

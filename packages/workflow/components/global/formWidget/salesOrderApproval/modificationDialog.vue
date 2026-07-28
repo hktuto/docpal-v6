@@ -28,7 +28,7 @@ const defaultRowData: DataItemType = {
   customerUnitPrice: 0,
   leadTime: 0,
   scheduledShipDate: '',
-  scheduledArrivalDate: '',
+  scheduleArrivalDate: '',
   orderedItem: '',
   unitPrice: 0,
   description: '',
