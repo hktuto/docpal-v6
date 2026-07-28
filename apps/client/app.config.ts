@@ -96,9 +96,9 @@ export default defineAppConfig({
     {
       name: 'contact-book'
     },
-    {
-      name: 'client-scan'
-    },
+    // {
+    //   name: 'client-scan'
+    // },
     {
       name:"dynamic-db"
     }
@@ -285,8 +285,8 @@ export default defineAppConfig({
     // {
     //   name: 'admin-calendar-setting'
     // },
-    {
-      name: 'admin-scan'
-    }
+    // {
+    //   name: 'admin-scan'
+    // }
   ]
 })
