@@ -19,7 +19,7 @@
       :model-value="search"
       clearable
       class="search-input"
-      placeholder="Search Part No, WCL Item No, carton..."
+      placeholder="Search Part No, WCL Item No, carton, qty..."
       :prefix-icon="Search"
       aria-label="Search items"
       @update:model-value="emit('update:search', $event)"

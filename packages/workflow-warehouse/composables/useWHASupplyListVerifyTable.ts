@@ -5,7 +5,12 @@ import { useWHASupplyListVerifyInject } from './useWHASupplyListVerify'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
-const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.PartNo, SGLA_ITEMS.WCLItemNo, SGLA_ITEMS.PoLine] as const
+const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.PartNo, SGLA_ITEMS.WCLItemNo, SGLA_ITEMS.Qty, SGLA_ITEMS.PoLine] as const
+
+function matchSearchValue(value: unknown, query: string): boolean {
+  if (value == null || value === '') return false
+  return String(value).toLowerCase().includes(query)
+}
 
 type EditableColumnType = 'text' | 'number'
 
@@ -122,13 +127,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     }
     const q = searchQuery.value.trim().toLowerCase()
     if (!q) return list
-    return list.filter((row) =>
-      SEARCH_FIELDS.some((field) =>
-        String(row[field] ?? '')
-          .toLowerCase()
-          .includes(q)
-      )
-    )
+    return list.filter((row) => SEARCH_FIELDS.some((field) => matchSearchValue(row[field], q)))
   }
 
   const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
