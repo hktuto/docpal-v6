@@ -206,8 +206,8 @@ defineExpose({ getFormData })
                           style="width: 90%"
                           v-model="targetPriceItem.unit_price_no_tax"
                           controls-position="right"
-                          :min="0.00001"
-                          :step="0.00001"
+                          :min="0.000001"
+                          :step="0.000001"
                           @change="handleUnitPriceNoTaxChange(targetPriceItem)"
                         />
                       </el-form-item>

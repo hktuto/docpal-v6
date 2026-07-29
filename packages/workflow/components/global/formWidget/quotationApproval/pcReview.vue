@@ -321,7 +321,7 @@ function calculateProfit(item: TargetPriceItem) {
 }
 
 function checkMinUnitPriceNoTax(item) {
-  if (!item || !item?.unit_cost || !item?.exchange_rate) return 1
+  if (!item || !item?.unit_cost || !item?.exchange_rate) return 0.000001
   return Number(new Decimal(item?.unit_cost).times(new Decimal(item?.exchange_rate)).toFixed(6))
 }
 
@@ -427,7 +427,7 @@ defineExpose({ getFormData })
               <el-input v-model="item.part_number" disabled />
             </el-form-item>
             <el-form-item label="系列 Series" v-if="formModel.brand === 'KOA'">
-              <el-select v-model="item.series" class="full-width-input" clearable filterable>
+              <el-select v-model="item.series" class="full-width-input" clearable filterable :value-on-clear="''">
                 <el-option v-for="part in seriesList" :key="part.id" :label="part.label" :value="part.value" />
               </el-select>
             </el-form-item>
@@ -516,8 +516,8 @@ defineExpose({ getFormData })
                         style="width: 90%"
                         v-model="targetPriceItem.unit_cost"
                         controls-position="right"
-                        :min="0.00001"
-                        :step="0.00001"
+                        :min="0.000001"
+                        :step="0.000001"
                         step-strictly
                         @change="handleUnitCostChange(index, targetPriceIndex, targetPriceItem)"
                       />
@@ -534,7 +534,7 @@ defineExpose({ getFormData })
                         v-model="targetPriceItem.unit_price_no_tax"
                         controls-position="right"
                         :min="checkMinUnitPriceNoTax(targetPriceItem)"
-                        :step="0.00001"
+                        :step="0.000001"
                         step-strictly
                         @change="handleUnitPriceNoTaxChange(index, targetPriceIndex, targetPriceItem)"
                       />
@@ -590,7 +590,7 @@ defineExpose({ getFormData })
               <el-form-item label="客戶零件編號 Customer Part Number" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item label="原銷售價格（不含稅） Old Sales Price(NoTax)" prop="old_sales_price_noTax">
+              <el-form-item label="原銷售價格(不含稅) Old Sales Price(NoTax)" prop="old_sales_price_noTax">
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>

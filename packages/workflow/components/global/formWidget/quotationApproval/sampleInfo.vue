@@ -255,11 +255,7 @@ async function getDbData(tableId: string, conditions?: any[]) {
   const param = {
     tableId: tableId,
     conditions,
-    columns: [
-      {
-        name: '*'
-      }
-    ],
+    columns: [{ name: 'f_7969_c576d886' }, { name: 'f_7965_9760c235' }, { name: 'f_8110_037ef712' }, { name: 'f_8100_c3428722' }],
     pagination: {
       pageSize: 1000,
       pageNum: 0
@@ -366,7 +362,7 @@ defineExpose({ getFormData })
 
             <el-form-item
               v-if="eFormData.quotation_reason === 'Discount Request'"
-              label="原銷售價格（不含稅） Old Sales Price(NoTax)"
+              label="原銷售價格(不含稅) Old Sales Price(NoTax)"
               :prop="`infoList.${index}.old_sales_price_noTax`"
               :rules="rules.old_sales_price_noTax"
               required
@@ -388,11 +384,11 @@ defineExpose({ getFormData })
                   <el-col :span="1">檔位 Tier</el-col>
                   <el-col :span="10">起订量 MOQ (階梯遞增加 Step decrease)</el-col>
                   <el-col :span="10">目標價 Target Price</el-col>
-                  <el-col :span="2" class="targetPrice-item-card__actions">操作 Actions</el-col>
+                  <el-col :span="2">操作 Actions</el-col>
                 </el-row>
                 <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list.length > 5 }">
                   <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
-                    <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
+                    <el-col :span="1" class="targetPrice-item-card__tier-col">T{{ targetPriceIndex + 1 }}</el-col>
                     <el-col :span="10">
                       <el-form-item
                         :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"

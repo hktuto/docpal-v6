@@ -57,6 +57,7 @@ function open(item: any) {
   searchData.value = {
     brand: item.brand,
     part_number: item.part_number || '',
+    series: item.series || '',
     series: item.series || ''
   }
   index.value = item.index
@@ -244,7 +245,7 @@ defineExpose({ open })
               <el-input v-model="searchData.part_number" disabled />
             </el-form-item>
             <el-form-item label="系列 Series" prop="series">
-              <el-input v-model="searchData.series" clearable />
+              <el-input v-model="searchData.series" disabled />
             </el-form-item>
             <el-form-item label="日期范圍 Date Range" prop="date_range">
               <el-date-picker v-model="searchData.date_range" type="daterange" format="YYYY-MM-DD" value-format="x" />

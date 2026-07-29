@@ -204,7 +204,7 @@ defineExpose({ getFormData })
                         v-model="targetPriceItem.customer_final_price"
                         controls-position="right"
                         :min="targetPriceItem.unit_price_no_tax"
-                        :step="0.00001"
+                        :step="0.000001"
                       />
                     </el-col>
                   </template>
@@ -245,7 +245,7 @@ defineExpose({ getFormData })
               <el-form-item label="客戶零件編號 Customer Part Number" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item label="原銷售價格（不含稅） Old Sales Price(NoTax)" prop="old_sales_price_noTax">
+              <el-form-item label="原銷售價格(不含稅) Old Sales Price(NoTax)" prop="old_sales_price_noTax">
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>
