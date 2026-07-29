@@ -69,6 +69,7 @@ function createDefaultRowData(): DataItemType {
 const rowData = ref<DataItemType>(createDefaultRowData())
 const partList = ref<any[]>([])
 const taxCodeList = ref<any[]>([
+  { label: 'NET PRICE', value: 'NET PRICE' },
   { label: 'VAT13', value: 'VAT13' },
   { label: 'VAT16', value: 'VAT16' },
   { label: 'VAT7', value: 'VAT7' }
@@ -143,14 +144,19 @@ async function getPartList() {
       id: item.inventory_item_id,
       label: item.segment1,
       value: item.segment1,
-      brand: item.attribute8
+      brand: item.attribute8,
+      description: item.description
     })
-
     return acc
   }, [])
 }
 
-async function getDbData(tableId: string) {
+function handlePartNumberChange() {
+  const find = partList.value.find((item: any) => item.value === rowData.value.orderedItem)
+  rowData.value.description = !!find ? find.description : ''
+}
+
+async function getDbData(tableId: string, conditions?: any) {
   // Get Filed Mapping
   const filedData: any = await newClientApi
     .getDocpalMasterTableUserConfig({
@@ -166,11 +172,8 @@ async function getDbData(tableId: string) {
 
   const param = {
     tableId: tableId,
-    columns: [
-      {
-        name: '*'
-      }
-    ],
+    conditions,
+    columns: [{ name: 'f_7969_c576d886' }, { name: 'f_7965_9760c235' }],
     pagination: {
       pageSize: 1000,
       pageNum: 0
@@ -259,7 +262,7 @@ defineExpose({ open })
 
         <el-col :span="6">
           <el-form-item label="訂單商品編號 Ordered Item">
-            <el-select v-model="rowData.orderedItem" filterable>
+            <el-select v-model="rowData.orderedItem" filterable @change="handlePartNumberChange">
               <el-option v-for="part in partList" :key="part.id" :label="part.label" :value="part.value" />
             </el-select>
           </el-form-item>
