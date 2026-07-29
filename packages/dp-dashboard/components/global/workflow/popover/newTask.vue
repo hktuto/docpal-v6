@@ -21,7 +21,7 @@ const emits = defineEmits(['reload'])
 const userId = useUserId()
 const workflowList = await getWorkflowList()
 
-async function workflowClickHandler(workflowItem: any, originalData?: any) {
+async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = false, originalData?: any) {
   state.loading = true
   try {
     const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))
@@ -71,7 +71,7 @@ async function workflowClickHandler(workflowItem: any, originalData?: any) {
     }
 
     // Open in new page, 從DB啓動的workflow不允許跳轉至外部分頁編輯
-    if (!originalData && startTask.metadata.openInNewPage) {
+    if (!isTrigger && startTask.metadata.openInNewPage) {
       state.loading = false
       const link = newWorkflowStartPage(data.name, data.id, startTask, state.formVariables)
       routerProvider?.navigateTo(link)
@@ -159,12 +159,12 @@ watch(newWorkflowTask, async (item) => {
   if (!item?.id) return
   const { id, data } = item
   newWorkflowTask.value = null
-  await workflowClickHandler({ id }, data)
+  await workflowClickHandler({ id }, true, data)
 })
 </script>
 
 <template>
-  <el-dropdown id="Workflow__NewWorkflow" popper-class="popover-auto" trigger="click" @command="workflowClickHandler">
+  <el-dropdown id="Workflow__NewWorkflow" popper-class="popover-auto" trigger="click" @command="(value: any) => workflowClickHandler(value, false, null)">
     <el-button type="primary" :loading="state.loading">
       {{ $t('workflow_newWorkflow') }}
       <el-icon class="el-icon--right">
