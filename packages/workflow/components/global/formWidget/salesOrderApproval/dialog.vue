@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { clientApi, newClientApi } from 'api'
+import type { FormInstance, FormRules } from 'element-plus'
 import { v7 as uuidv7 } from 'uuid'
 
 const { isApproval } = defineProps<{
@@ -9,6 +10,7 @@ const { isApproval } = defineProps<{
 const isEdit = ref<boolean>(false)
 const emits = defineEmits(['create', 'update'])
 const dialogVisible = ref(false)
+const formRef = ref<FormInstance>()
 
 interface DataItemType {
   line_id: string
@@ -26,7 +28,7 @@ interface DataItemType {
   customerUnitPrice: number
   leadTime: number
   scheduledShipDate: string
-  scheduledArrivalDate: string
+  scheduleArrivalDate: string
   orderedItem: string
   unitPrice: number
   description: string
@@ -36,48 +38,89 @@ interface DataItemType {
   remarks: string
 }
 
-const defaultRowData: DataItemType = {
-  line_id: uuidv7(),
-  customerPoLine: 0,
-  quantity: 0,
-  taxCode: '',
-  requestDate: '',
-  quantityCancelled: 0,
-  customerPo: '',
-  uom: '',
-  taxAmount: 0,
-  promiseDate: '',
-  quantityShipped: 0,
-  customerItem: '',
-  customerUnitPrice: 0,
-  leadTime: 0,
-  scheduledShipDate: '',
-  scheduledArrivalDate: '',
-  orderedItem: '',
-  unitPrice: 0,
-  description: '',
-  subInventory: '',
-  references: '',
-  piRemark: '',
-  remarks: ''
+function createDefaultRowData(): DataItemType {
+  return {
+    line_id: uuidv7(),
+    customerPoLine: 0,
+    quantity: 0,
+    taxCode: '',
+    requestDate: '',
+    quantityCancelled: 0,
+    customerPo: '',
+    uom: '',
+    taxAmount: 0,
+    promiseDate: '',
+    quantityShipped: 0,
+    customerItem: '',
+    customerUnitPrice: 0,
+    leadTime: 0,
+    scheduledShipDate: '',
+    scheduleArrivalDate: '',
+    orderedItem: '',
+    unitPrice: 0,
+    description: '',
+    subInventory: '',
+    references: '',
+    piRemark: '',
+    remarks: ''
+  }
 }
 
-const rowData = ref<DataItemType>(defaultRowData)
+const rowData = ref<DataItemType>(createDefaultRowData())
 const partList = ref<any[]>([])
-const taxCodeList = ref<any[]>([])
-const subInventoryList = ref<any[]>([])
+const taxCodeList = ref<any[]>([
+  { label: 'VAT13', value: 'VAT13' },
+  { label: 'VAT16', value: 'VAT16' },
+  { label: 'VAT7', value: 'VAT7' }
+])
+const subInventoryList = ref<any[]>([
+  { label: 'CHECKING', value: 'CHECKING' },
+  { label: 'DUMMY', value: 'DUMMY' },
+  { label: 'ICHAUS', value: 'ICHAUS' },
+  { label: 'OSWF', value: 'OSWF' },
+  { label: 'STORE1', value: 'STORE1' },
+  { label: 'SZBYDA860', value: 'SZBYDA860' },
+  { label: 'SZBYDA961', value: 'SZBYDA961' },
+  { label: 'SZBYDA963', value: 'SZBYDA963' },
+  { label: 'SZBYDA964', value: 'SZBYDA964' },
+  { label: 'SZBYDA965', value: 'SZBYDA965' },
+  { label: 'SZBYDA966', value: 'SZBYDA966' },
+  { label: 'SZBYDH141', value: 'SZBYDH141' },
+  { label: 'SZBYDHZ25', value: 'SZBYDHZ25' },
+  { label: 'SZDAMAGE', value: 'SZDAMAGE' },
+  { label: 'SZHK2', value: 'SZHK2' },
+  { label: 'SZSH', value: 'SZSH' },
+  { label: 'SZSZ1', value: 'SZSZ1' },
+  { label: 'SZVMAX', value: 'SZVMAX' },
+  { label: 'SZXM1', value: 'SZXM1' },
+  { label: 'SZZHK', value: 'SZZHK' }
+])
+
+const rules: FormRules<DataItemType> = {
+  quantity: [{ required: true, message: '請填寫數量 Quantity', trigger: 'change' }],
+  taxCode: [{ required: true, message: '請選擇稅碼 Tax Code', trigger: 'change' }],
+  requestDate: [{ required: true, message: '請選擇申請日期 Request Date', trigger: 'change' }],
+  unitPrice: [{ required: true, message: '請填寫單價 Unit Price', trigger: 'change' }],
+  subInventory: [{ required: true, message: '請選擇子庫存 Sub-Inventory', trigger: 'change' }]
+}
 
 function open(row?: any) {
   isEdit.value = false
-  rowData.value = defaultRowData
+  rowData.value = createDefaultRowData()
   if (!!row) {
-    rowData.value = row
+    rowData.value = { ...row }
     isEdit.value = true
   }
   dialogVisible.value = true
+  nextTick(() => {
+    formRef.value?.clearValidate()
+  })
 }
 
-function handleSubmit() {
+async function handleSubmit() {
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
+
   if (isEdit.value) {
     emits('update', rowData.value)
   } else {
@@ -156,21 +199,21 @@ defineExpose({ open })
 
 <template>
   <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯商品 Edit Goods' : '添加商品 Add Goods'">
-    <el-form label-position="top" class="all-input-style" :disabled="isApproval">
+    <el-form ref="formRef" :model="rowData" :rules="rules" label-position="top" class="all-input-style" :disabled="isApproval">
       <el-row>
         <el-col :span="6">
           <el-form-item label="客戶採購訂單行 Customer PO Line">
             <el-input-number v-model="rowData.customerPoLine" controls-position="right" :min="1" :step="1" step-strictly />
           </el-form-item>
-          <el-form-item label="數量 Quantity">
+          <el-form-item label="數量 Quantity" prop="quantity">
             <el-input-number v-model="rowData.quantity" controls-position="right" :min="1" :step="1" step-strictly />
           </el-form-item>
-          <el-form-item label="稅碼 Tax Code">
+          <el-form-item label="稅碼 Tax Code" prop="taxCode">
             <el-select v-model="rowData.taxCode">
               <el-option v-for="part in taxCodeList" :key="part.id" :label="part.label" :value="part.value" />
             </el-select>
           </el-form-item>
-          <el-form-item label="申請日期 Request Date">
+          <el-form-item label="申請日期 Request Date" prop="requestDate">
             <el-date-picker v-model="rowData.requestDate" type="date" />
           </el-form-item>
           <el-form-item label="取消數量 Quantity Cancelled">
@@ -220,16 +263,16 @@ defineExpose({ open })
               <el-option v-for="part in partList" :key="part.id" :label="part.label" :value="part.value" />
             </el-select>
           </el-form-item>
-          <el-form-item label="單價 Unit Price">
+          <el-form-item label="單價 Unit Price" prop="unitPrice">
             <el-input-number v-model="rowData.unitPrice" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
           </el-form-item>
           <el-form-item label="描述 Description">
             <el-input v-model="rowData.description" disabled />
           </el-form-item>
           <el-form-item label="預定抵達日期 Scheduled Arrival Date">
-            <el-date-picker v-model="rowData.scheduledArrivalDate" type="date" disabled />
+            <el-date-picker v-model="rowData.scheduleArrivalDate" type="date" disabled />
           </el-form-item>
-          <el-form-item label="子庫存 Sub-Inventory">
+          <el-form-item label="子庫存 Sub-Inventory" prop="subInventory">
             <el-select v-model="rowData.subInventory">
               <el-option v-for="part in subInventoryList" :key="part.id" :label="part.label" :value="part.value" />
             </el-select>
