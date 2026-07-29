@@ -51,7 +51,7 @@
       </div>
 
       <div class="detail-value" :class="{ 'is-hidden': isEditing }">
-        <span v-if="textValue" class="detail-value-text">{{ textValue }}</span>
+        <span v-if="textValue" class="detail-value-text" :title="String(textValue)">{{ textValue }}</span>
         <span
           v-else
           class="detail-value-text"
@@ -93,7 +93,7 @@ const props = withDefaults(
   defineProps<{
     label?: string
     value?: string | number | null
-    textValue?: string
+    textValue?: string | number
     disabled?: boolean
     type?: 'text' | 'date' | 'select'
     status?: 'pass' | 'fail' | 'loading'

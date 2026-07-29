@@ -105,8 +105,12 @@ defineExpose({ getFormData })
 
   :deep(.el-tabs__item) {
     max-width: 180px;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: bottom;
   }
 }
 </style>

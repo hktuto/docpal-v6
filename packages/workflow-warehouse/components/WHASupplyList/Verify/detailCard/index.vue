@@ -14,7 +14,7 @@
             @save="(v) => handleSave(v, item)"
           />
           <template v-else>
-            <WHASupplyListVerifyDetailCardItem :label="item.label" :textValue="item.value" :type="item.type" :disabled="item.disabled" />
+            <WHASupplyListVerifyDetailCardItem :label="item.label" :text-value="unref(item.value)" :type="item.type" :disabled="item.disabled" />
           </template>
         </template>
       </div>
