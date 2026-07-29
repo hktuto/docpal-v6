@@ -159,7 +159,7 @@ defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯商品 Edit Goods' : '添加商品 Add Goods'">
+  <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯零件 Edit Parts' : '添加零件 Add Parts'">
     <el-row :gutter="16">
       <el-col v-if="!isNewItem" :span="12">
         <div class="panel-title">舊數據 Old</div>

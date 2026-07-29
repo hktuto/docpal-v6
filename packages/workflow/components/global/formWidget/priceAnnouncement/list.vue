@@ -158,7 +158,7 @@ const columns = computed<Column<OrderItem>[]>(() => {
     },
     {
       key: 'markup',
-      title: 'Markup',
+      title: '幅度 Markup',
       dataKey: 'markup',
       width: 140,
       cellRenderer: ({ rowData }) =>

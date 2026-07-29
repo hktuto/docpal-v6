@@ -69,8 +69,8 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     {
       field: 'index',
       title: '序號 Index',
-      minWidth: 100,
-      treeNode: true
+      type: 'seq',
+      minWidth: 100
     },
     {
       field: 'orderedItem',
@@ -278,7 +278,7 @@ defineExpose({ getFormData })
   <div style="height: 60vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template v-if="!isApproval" #toolbar_buttons>
-        <el-button type="primary" @click="handleAdd">添加商品 Add Goods</el-button>
+        <el-button type="primary" @click="handleAdd">添加零件 Add Parts</el-button>
         <el-button type="warning" @click="handleSynchronizePoNumbers">同步全部客戶訂單編號 Synchronize All PO Numbers</el-button>
       </template>
     </VxeGrid>

@@ -74,11 +74,9 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     {
       field: 'index',
       title: '序號 Index',
+      type: 'seq',
       minWidth: 100,
-      fixed: 'left',
-      formatter: ({ itemIndex, cellValue, row }: any) => {
-        return itemIndex
-      }
+      fixed: 'left'
     },
     {
       field: 'orderedItem',
@@ -436,7 +434,7 @@ defineExpose({ getFormData })
   <div style="height: 60vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template v-if="!isApproval" #toolbar_buttons>
-        <el-button type="primary" @click="handleAdd">添加商品 Add Goods</el-button>
+        <el-button type="primary" @click="handleAdd">添加零件 Add Parts</el-button>
       </template>
     </VxeGrid>
   </div>
