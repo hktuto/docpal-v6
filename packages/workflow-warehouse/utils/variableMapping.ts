@@ -8,7 +8,8 @@ export enum SGLA {
   CustomerName = 'f_4858_a4fc10f8',
   DeliveryDate = 'f_5004_5c950eef',
   Total_Ctn = 'f_4880_652c59cd',
-  Preview_File_Name = 'f_4861_c31be213'
+  Preview_File_Name = 'f_4861_c31be213',
+  Org="f_6339_92fe26da"
 }
 
 // Supplier Goods List Attachment Items
@@ -17,11 +18,15 @@ export enum SGLA_ITEMS {
   MasterId = 'f_4856_72615eaf',
   // TODO: replace with real field ids from dynamic DB
   Carton = 'f_4864_c572140f',
-  PartNo = 'f_4865_208a1162',
-  WCLItemNo = 'f_4866_f009e86d', // wcl_item_no
+  Supplier_PN = 'f_4865_208a1162',
+  WCL_PN = 'f_4866_f009e86d', // wcl_item_no
   Qty = 'f_4869_e60ac31e',
   PoLine = 'f_4863_76fdba60',
-  Checked = 'f_5481_4365d92c'
+  Checked = 'f_5481_4365d92c',
+  DateCode = 'f_4868_a75f1f78',
+  CountryOfOrigin = 'f_4870_ae02c0a0',
+  CountryOfWafer = 'f_4871_02a19a70',
+  DrawingNo ='f_6357_f6d0b709'
 }
 
 // Supplier List

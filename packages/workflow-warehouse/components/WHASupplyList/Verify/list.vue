@@ -101,7 +101,7 @@ onMounted(() => {
       @keydown="handleKeydown($event, item)"
     >
       <div class="invoice-card-body">
-        <div class="invoice-card-name">{{ item[SGLA.Name] }}</div>
+        <div class="invoice-card-name">{{ item[SGLA.Name] || '--' }}</div>
         <div class="invoice-card-meta">
           {{ item[SGLA.Total_Ctn] || 0 }} cartons •
           <span class="invoice-card-meta-qty">{{ item.total_qty || 0 }} units</span>

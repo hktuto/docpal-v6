@@ -5,7 +5,7 @@ import { useWHASupplyListVerifyInject } from './useWHASupplyListVerify'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
-const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.PartNo, SGLA_ITEMS.WCLItemNo, SGLA_ITEMS.Qty, SGLA_ITEMS.PoLine] as const
+const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.Supplier_PN, SGLA_ITEMS.WCL_PN, SGLA_ITEMS.Qty, SGLA_ITEMS.PoLine] as const
 
 function matchSearchValue(value: unknown, query: string): boolean {
   if (value == null || value === '') return false
@@ -42,14 +42,14 @@ export const verificationTableColumns = [
     ...editableColumn()
   },
   {
-    field: SGLA_ITEMS.PartNo,
-    title: 'Part No',
+    field: SGLA_ITEMS.Supplier_PN,
+    title: 'Supplier PN',
     minWidth: 150,
     ...editableColumn()
   },
   {
-    field: SGLA_ITEMS.WCLItemNo,
-    title: 'WCL Item No',
+    field: SGLA_ITEMS.WCL_PN,
+    title: 'WCL PN',
     minWidth: 170,
     ...editableColumn()
   },
@@ -62,13 +62,38 @@ export const verificationTableColumns = [
   },
   {
     field: SGLA_ITEMS.PoLine,
-    title: 'PO / LINE',
+    title: 'PO',
+    minWidth: 140,
+    ...editableColumn()
+  },
+  {
+    field: SGLA_ITEMS.DateCode,
+    title: 'Date Code',
+    minWidth: 140,
+    ...editableColumn()
+  },
+  {
+    field: SGLA_ITEMS.CountryOfOrigin,
+    title: 'Country Of Origin',
+    minWidth: 140,
+    ...editableColumn()
+  },
+  {
+    field: SGLA_ITEMS.CountryOfWafer,
+    title: 'Country Of Wafer',
+    minWidth: 140,
+    ...editableColumn()
+  },
+  {
+    field: SGLA_ITEMS.DrawingNo,
+    title: 'Drawing No',
     minWidth: 140,
     ...editableColumn()
   },
   {
     type: 'checkbox',
     title: 'Verified',
+    fixed: 'right',
     width: 88,
     align: 'center'
   }
