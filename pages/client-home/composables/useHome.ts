@@ -22,7 +22,7 @@ export const useHomePage = () => {
       if (!dashboardList) dashboardList = []
       personal.id = 'PERSONAL'
       personal.name = 'PERSONAL'
-      homeList.value = [ ...dashboardList]
+      homeList.value = [personal, ...dashboardList]
       let storageHomeList = preference.value.userStoreHome || 'PERSONAL'
       console.log('storageHomeList', storageHomeList, dashboardList)
       // TODO : remove PERSONAL
