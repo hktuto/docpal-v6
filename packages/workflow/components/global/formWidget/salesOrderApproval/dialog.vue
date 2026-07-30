@@ -201,7 +201,7 @@ defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯商品 Edit Goods' : '添加商品 Add Goods'">
+  <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯零件 Edit Parts' : '添加零件 Add Parts'">
     <el-form ref="formRef" :model="rowData" :rules="rules" label-position="top" class="all-input-style" :disabled="isApproval">
       <el-row>
         <el-col :span="6">
