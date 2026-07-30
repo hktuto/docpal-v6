@@ -286,8 +286,8 @@ export interface ContactGroupRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -646,8 +646,8 @@ export interface TableDataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Master Table ID */
     master_table_id?: string;
@@ -1004,8 +1004,8 @@ export interface CaseTypeRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Case schema definition (JSON) */
     case_schema?: Record<string, any>;
@@ -1157,8 +1157,8 @@ export interface PersonalDashboardRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1266,173 +1266,6 @@ export interface ResultDocTemplateSignatureResponseDTO {
     message?: string;
     /** 文档模板签名响应 */
     data?: DocTemplateSignatureResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultContactGroupResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ContactGroupResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultMapStringObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, any>;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Calendar (Request) */
-export interface CalendarTaskReq {
-    /** Task ID */
-    taskId?: string;
-    /** Task Description */
-    title?: string;
-    /** Operate User */
-    operator?: string;
-    /**
-     * Start Time
-     * @format date-time
-     */
-    startTime?: string;
-    /**
-     * End Time
-     * @format date-time
-     */
-    endTime?: string;
-    /** Task Category */
-    category?: string;
-    /** Task Assignee */
-    assignee?: string;
-    /** Task Location */
-    location?: string;
-    /**
-     * Task Level
-     * @format int32
-     */
-    level?: number;
-    /** Task Status */
-    status?: string;
-    /** Task Remark */
-    remark?: string;
-    /** Business ID */
-    bizId?: string;
-    /** Fuzzy Search */
-    q?: string;
-    /** ID */
-    id?: string;
-    /** Event ID */
-    eventId?: string;
-    /** Event Name */
-    eventName?: string;
-    /** Event Description */
-    eventDescription?: string;
-    /** Action Type[Create/Edit/Cancel/Remove] */
-    actionType?: string;
-    /** Event all day */
-    isAllDay?: boolean;
-    /** Business Data */
-    bizData?: Record<string, any>;
-    /** Event Related User */
-    relatedUsers?: Record<string, any>;
-    /** Event Related Case */
-    relatedCases?: Record<string, any>;
-    /** Event Related Workflow */
-    relatedWorkflows?: Record<string, any>;
-    /** Reminder Providers */
-    reminders?: Record<string, any>[];
-    /** Where AND Condition */
-    where?: Record<string, any>;
-    users?: string[];
-    processKeys?: string[];
-    caseKeys?: string[];
-}
-
-export interface CalendarTaskReminder {
-    id?: string;
-    taskId?: string;
-    reminderType?: string;
-    /** @format int32 */
-    intervalTime?: number;
-    reminderJson?: string;
-    createdBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    emailReminder?: EmailReminder;
-}
-
-/** Calendar Task ResponseDTO */
-export interface CalendarTaskRespDTO {
-    /** ID */
-    id?: string;
-    /** Event ID */
-    eventId?: string;
-    /** Event Name */
-    eventName?: string;
-    /** Event Description */
-    eventDescription?: string;
-    /** Action Type */
-    actionType?: string;
-    /** Event all day */
-    isAllDay?: boolean;
-    /** Event Related Users */
-    relatedUsers?: Record<string, any>;
-    /** Event Related Case */
-    relatedCases?: Record<string, any>;
-    /** Event Related Workflow */
-    relatedWorkflows?: Record<string, any>;
-    taskId?: string;
-    title?: string;
-    location?: string;
-    /** @format date-time */
-    startTime?: string;
-    /** @format date-time */
-    endTime?: string;
-    bizId?: string;
-    category?: string;
-    assignee?: string;
-    status?: string;
-    /** @format int32 */
-    level?: number;
-    remark?: string;
-    createdBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    assigneeName?: string;
-    reminders?: CalendarTaskReminder[];
-}
-
-export interface EmailReminder {
-    emailTemplateId?: string;
-    receiverType?: string;
-    from?: string;
-    to?: string;
-    cc?: string;
-    bcc?: string;
-    variables?: Record<string, any>;
-}
-
-export interface ResultCalendarTaskRespDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Calendar Task ResponseDTO */
-    data?: CalendarTaskRespDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -1661,8 +1494,8 @@ export interface MTRecordRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1710,6 +1543,26 @@ export interface ResultExternalStorageImportJobDTO {
     message?: string;
     /** Updated import job information */
     data?: ExternalStorageImportJobDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultContactGroupResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ContactGroupResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultMapStringObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, any>;
     messageKey?: string;
     locale?: string;
 }
@@ -1863,8 +1716,8 @@ export interface CompanyChopRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1891,6 +1744,153 @@ export interface ResultCompanyChop {
     code?: number;
     message?: string;
     data?: CompanyChop;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Calendar (Request) */
+export interface CalendarTaskReq {
+    /** Task ID */
+    taskId?: string;
+    /** Task Description */
+    title?: string;
+    /** Operate User */
+    operator?: string;
+    /**
+     * Start Time
+     * @format date-time
+     */
+    startTime?: string;
+    /**
+     * End Time
+     * @format date-time
+     */
+    endTime?: string;
+    /** Task Category */
+    category?: string;
+    /** Task Assignee */
+    assignee?: string;
+    /** Task Location */
+    location?: string;
+    /**
+     * Task Level
+     * @format int32
+     */
+    level?: number;
+    /** Task Status */
+    status?: string;
+    /** Task Remark */
+    remark?: string;
+    /** Business ID */
+    bizId?: string;
+    /** Fuzzy Search */
+    q?: string;
+    /** ID */
+    id?: string;
+    /** Event ID */
+    eventId?: string;
+    /** Event Name */
+    eventName?: string;
+    /** Event Description */
+    eventDescription?: string;
+    /** Action Type[Create/Edit/Cancel/Remove] */
+    actionType?: string;
+    /** Event all day */
+    isAllDay?: boolean;
+    /** Business Data */
+    bizData?: Record<string, any>;
+    /** Event Related User */
+    relatedUsers?: Record<string, any>;
+    /** Event Related Case */
+    relatedCases?: Record<string, any>;
+    /** Event Related Workflow */
+    relatedWorkflows?: Record<string, any>;
+    /** Reminder Providers */
+    reminders?: Record<string, any>[];
+    /** Where AND Condition */
+    where?: Record<string, any>;
+    users?: string[];
+    processKeys?: string[];
+    caseKeys?: string[];
+}
+
+export interface CalendarTaskReminder {
+    id?: string;
+    taskId?: string;
+    reminderType?: string;
+    /** @format int32 */
+    intervalTime?: number;
+    reminderJson?: string;
+    createdBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    emailReminder?: EmailReminder;
+}
+
+/** Calendar Task ResponseDTO */
+export interface CalendarTaskRespDTO {
+    /** ID */
+    id?: string;
+    /** Event ID */
+    eventId?: string;
+    /** Event Name */
+    eventName?: string;
+    /** Event Description */
+    eventDescription?: string;
+    /** Action Type */
+    actionType?: string;
+    /** Event all day */
+    isAllDay?: boolean;
+    /** Event Related Users */
+    relatedUsers?: Record<string, any>;
+    /** Event Related Case */
+    relatedCases?: Record<string, any>;
+    /** Event Related Workflow */
+    relatedWorkflows?: Record<string, any>;
+    taskId?: string;
+    title?: string;
+    location?: string;
+    /** @format date-time */
+    startTime?: string;
+    /** @format date-time */
+    endTime?: string;
+    bizId?: string;
+    category?: string;
+    assignee?: string;
+    status?: string;
+    /** @format int32 */
+    level?: number;
+    remark?: string;
+    createdBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    assigneeName?: string;
+    reminders?: CalendarTaskReminder[];
+}
+
+export interface EmailReminder {
+    emailTemplateId?: string;
+    receiverType?: string;
+    from?: string;
+    to?: string;
+    cc?: string;
+    bcc?: string;
+    variables?: Record<string, any>;
+}
+
+export interface ResultCalendarTaskRespDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Calendar Task ResponseDTO */
+    data?: CalendarTaskRespDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -2002,8 +2002,8 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
-    primaryKey?: boolean;
     unique?: boolean;
+    primaryKey?: boolean;
     required?: boolean;
 }
 
@@ -2054,8 +2054,8 @@ export interface CmmnDashboardRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2228,7 +2228,7 @@ export interface DocumentTemplateRequestDTO {
     id?: string;
     /** Document Template Name */
     name?: string;
-    /** Nuxeo Document Id */
+    /** Document Id */
     documentId?: string;
     /** Document Template File Type */
     fileType?: string;
@@ -2261,8 +2261,8 @@ export interface DocumentTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2272,7 +2272,7 @@ export interface DocumentTemplateResponseDTO {
     id?: string;
     /** Document Template Name */
     name?: string;
-    /** Nuxeo Document Id */
+    /** Document Id */
     documentId?: string;
     /** Document Template File Type */
     fileType?: string;
@@ -2375,8 +2375,8 @@ export interface RetentionPolicyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2474,8 +2474,8 @@ export interface HoldPolicyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2979,15 +2979,15 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
+    /** @format int64 */
+    fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
     fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
-    fileContentMimeType?: string;
-    fileContentName?: string;
-    /** @format int64 */
-    fileContentLength?: number;
 }
 
 export interface FileContentDTO {
@@ -3282,8 +3282,8 @@ export interface QueryWorkflowJobRequest {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3502,8 +3502,8 @@ export interface ProcessVersionRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3620,8 +3620,8 @@ export interface ProcessDefinitionRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3698,6 +3698,412 @@ export interface WOPIFileDTO {
     IsUserLocked?: boolean;
     IsUserRestricted?: boolean;
     LastModifiedTime?: string;
+}
+
+export interface Supplier {
+    id?: string;
+    code?: string;
+    name?: string;
+    shortName?: string;
+}
+
+export interface ResultSupplier {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Supplier;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListSupplier {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Supplier[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface POInvoiceVO {
+    invoice_num?: string;
+    vendor_name?: string;
+    brand_name?: string;
+    wcl_company_name?: string;
+    /** @format int32 */
+    org_id?: number;
+    lot_code?: string;
+    wcl_item_no?: string;
+    vendor_item_no?: string;
+    coo?: string;
+    cow?: string;
+    po_no?: string;
+    po_line?: string;
+    /** @format int32 */
+    line_qty?: number;
+    date_code?: string;
+}
+
+export interface PackingDataRequestDTO {
+    schema?: string;
+    batchNo?: string;
+    invoice_numbers?: string[];
+    purchase_invoice?: POInvoiceVO[];
+}
+
+export interface PackingListLineItemVO {
+    id?: string;
+    master_id?: string;
+    po_no?: string;
+    po_line?: string;
+    ctn_no?: string;
+    vendor_item_no?: string;
+    wcl_item_no?: string;
+    date_code?: string;
+    country_of_origin?: string;
+    country_of_wafer?: string;
+    notes?: string;
+    line_qty?: number;
+    lot_no?: string;
+    drawing_no?: string;
+    Checked?: boolean;
+}
+
+export interface WMSPickingItem {
+    id?: string;
+    pickingOrderId?: string;
+    partNo?: string;
+    /** @format int32 */
+    qty?: number;
+    /** @format int32 */
+    pickedQty?: number;
+    /** @format int64 */
+    lineId?: number;
+    /** @format int32 */
+    lineNumber?: number;
+    /** @format int32 */
+    shipmentNumber?: number;
+    status?: string;
+    /** @format int32 */
+    allocatedQty?: number;
+    /** @format date-time */
+    createdAt?: string;
+    /** @format date-time */
+    updatedAt?: string;
+}
+
+export interface WMSPickingOrder {
+    id?: string;
+    orderNo?: string;
+    /** @format date-time */
+    deliveryDate?: string;
+    poNo?: string;
+    shipTo?: string;
+    customerCode?: string;
+    commodityInspection?: string;
+    issueReason?: string;
+    /** @format int32 */
+    issueQty?: number;
+    /** @format int32 */
+    issuePackSize?: number;
+    issueNote?: string;
+    issueRemark?: string;
+    /** @format date-time */
+    issueReportedAt?: string;
+    issueReportedBy?: string;
+    status?: string;
+    /** @format date-time */
+    createdAt?: string;
+    /** @format date-time */
+    updatedAt?: string;
+    pickingItems?: WMSPickingItem[];
+}
+
+export interface ResultWMSPickingOrder {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSPickingOrder;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WMSScheduleDeliveryOrder {
+    /** @format int64 */
+    id?: number;
+    batchId?: string;
+    status?: string;
+    orderNumber?: string;
+    /** @format int64 */
+    lineId?: number;
+    /** @format int32 */
+    lineNumber?: number;
+    /** @format int32 */
+    shipmentNumber?: number;
+    inventoryItemId?: number;
+    itemNo?: string;
+    itemDesc?: string;
+    orderQty?: number;
+    shippedQuantity?: number;
+    inventoryOrgId?: number;
+    /** @format int32 */
+    orgId?: number;
+    subinventory?: string;
+    custPoNumber?: string;
+    customerId?: number;
+    piInvoiceNum?: string;
+    /** @format date-time */
+    lastUpdateDate?: string;
+    plannedFlag?: string;
+    /** @format date-time */
+    scheduleShipDate?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    updatedDate?: string;
+}
+
+export interface ResultListWMSPickingOrder {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSPickingOrder[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface BasePageRequest {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    descSort?: SortObject;
+    desc?: boolean;
+    /** @format int32 */
+    pageIndex?: number;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+export interface PaginationDTOWMSPickingOrder {
+    entryList?: WMSPickingOrder[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOWMSPickingOrder {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWMSPickingOrder;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultWMSPickingItem {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSPickingItem;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOWMSPickingItem {
+    entryList?: WMSPickingItem[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOWMSPickingItem {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWMSPickingItem;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WMSPart {
+    id?: string;
+    partNo?: string;
+    internalCode?: string;
+    description?: string;
+    defaultCoo?: string;
+}
+
+export interface ResultWMSPart {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSPart;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AddInventoryLotRequestDTO {
+    customerName?: string;
+    partNo?: string;
+    id?: string;
+    wclItemNo?: string;
+    dateCode?: string;
+    lotCode?: string;
+    coo?: string;
+    cow?: string;
+    shelfCode?: string;
+    boxId?: string;
+    /** @format int32 */
+    totalQty?: number;
+    /** @format int32 */
+    allocatedQty?: number;
+    /** @format int32 */
+    availableQty?: number;
+}
+
+export interface ResultWMSInventoryLot {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSInventoryLot;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WMSInventoryLot {
+    id?: string;
+    partNo?: string;
+    wclItemNo?: string;
+    dateCode?: string;
+    lotCode?: string;
+    coo?: string;
+    cow?: string;
+    shelfCode?: string;
+    boxId?: string;
+    /** @format int32 */
+    totalQty?: number;
+    /** @format int32 */
+    allocatedQty?: number;
+    /** @format int32 */
+    availableQty?: number;
+}
+
+export interface WMSInventoryOrganization {
+    /** @format int64 */
+    orgId?: number;
+    orgName?: string;
+    orgCode?: string;
+    operatingUnit?: string;
+    enabled?: boolean;
+}
+
+export interface ResultWMSInventoryOrganization {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSInventoryOrganization;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOWMSInventoryOrganization {
+    entryList?: WMSInventoryOrganization[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOWMSInventoryOrganization {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWMSInventoryOrganization;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WMSInventoryLotSource {
+    id?: string;
+    inventoryLotId?: string;
+    receivingInvoiceItemId?: string;
+    /** @format int32 */
+    qty?: number;
+}
+
+export interface ResultWMSInventoryLotSource {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSInventoryLotSource;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOWMSInventoryLotSource {
+    entryList?: WMSInventoryLotSource[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOWMSInventoryLotSource {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWMSInventoryLotSource;
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface VerificationPermissionReq {
@@ -4253,10 +4659,10 @@ export interface PageNotificationRecord {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: NotificationRecord[];
@@ -4272,10 +4678,10 @@ export interface PageableObject {
     pageNumber?: number;
     /** @format int32 */
     pageSize?: number;
+    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
-    unpaged?: boolean;
 }
 
 export interface ResultPageNotificationRecord {
@@ -4314,8 +4720,8 @@ export interface QueryNotificationRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4379,8 +4785,8 @@ export interface QueryFileOverviewRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4390,10 +4796,10 @@ export interface PageUploadBatchDTO {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: UploadBatchDTO[];
@@ -4623,8 +5029,8 @@ export interface ExternalProfileRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
@@ -4692,8 +5098,8 @@ export interface ExternalStorageRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
@@ -4745,8 +5151,8 @@ export interface ExternalStorageImportJobRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4886,8 +5292,8 @@ export interface ListLockRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Filter by lock owner */
     lock_owner?: string;
@@ -5050,8 +5456,8 @@ export interface ListTriggerSettingsRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Filter by event type: record_created, record_updated, record_deleted, field_changed */
     event_type?: string;
@@ -5078,6 +5484,34 @@ export interface ResultPaginationDTOTriggerSettingDTO {
     data?: PaginationDTOTriggerSettingDTO;
     messageKey?: string;
     locale?: string;
+}
+
+/** SQL alias convert request DTO */
+export interface SqlAliasConvertRequestDTO {
+    /**
+     * Original SQL using view_alias and field_name_alias attribute8
+     * @minLength 1
+     */
+    sql: string;
+}
+
+export interface ResultSqlAliasConvertResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** SQL alias convert response DTO */
+    data?: SqlAliasConvertResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** SQL alias convert response DTO */
+export interface SqlAliasConvertResponseDTO {
+    /** Original SQL */
+    original_sql?: string;
+    /** Converted SQL using view_name and field_name */
+    converted_sql?: string;
 }
 
 /** Acquire Lock Request DTO */
@@ -5142,8 +5576,8 @@ export interface TableRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** URL name (unique per entity_id) */
     url_name?: string;
@@ -5451,8 +5885,8 @@ export interface WorkflowJobRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5579,8 +6013,8 @@ export interface UserDashboardRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5652,8 +6086,8 @@ export interface PluginRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5764,8 +6198,8 @@ export interface OcrTransactionLogRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6074,10 +6508,10 @@ export interface PageWatermarkSettingsTemplate {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: WatermarkSettingsTemplate[];
@@ -6274,8 +6708,8 @@ export interface IdTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6419,287 +6853,6 @@ export interface ResultBatchSendEmailResponseDTO {
     code?: number;
     message?: string;
     data?: BatchSendEmailResponseDTO;
-}
-
-export interface ResultListBasicField {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: BasicField[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListContactAttribute {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ContactAttribute[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOMapStringObject {
-    entryList?: Record<string, any>[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOMapStringObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOMapStringObject;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ContactImportRequestDTO {
-    groupId?: string;
-    /** @format binary */
-    file?: File;
-    columns?: string;
-    dataMapping?: Record<string, string>;
-    replace?: boolean;
-    operator?: string;
-}
-
-/** Import ResponseDTO */
-export interface ImportResponseDTO {
-    /** @format int32 */
-    totalRecords?: number;
-    /** @format int32 */
-    successCount?: number;
-    /** @format int32 */
-    failureCount?: number;
-    status?: string;
-}
-
-export interface ResultImportResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Import ResponseDTO */
-    data?: ImportResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOContactGroupResponseDTO {
-    entryList?: ContactGroupResponseDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOContactGroupResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOContactGroupResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case Process RequestDTO */
-export interface CmmnProcessRequestDTO {
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    caseInstanceId?: string;
-    businessKey?: string;
-    caseDefinitionId?: string;
-    processDefinitionKeys?: string[];
-    assignee?: string;
-    candidateOrAssigned?: string;
-    category?: string;
-    workflow?: string;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-/** Task */
-export interface CmmnTaskDTO {
-    /** Task ID */
-    id?: string;
-    /** Task Name */
-    name?: string;
-    /** Task Description */
-    description?: string;
-    /** Task Definition ID */
-    taskDefinitionId?: string;
-    /** Process Definition Version ID */
-    processDefinitionVersionId?: string;
-    /** Task Definition Key */
-    taskDefinitionKey?: string;
-    /** Task Assignee */
-    assignee?: string;
-    /** Task Form Key */
-    formKey?: string;
-    /** Task Instance ID */
-    instanceId?: string;
-    /** Task Parent ID */
-    parentId?: string;
-    /**
-     * Task Creation Date
-     * @format date-time
-     */
-    createDate?: string;
-    /**
-     * Task Due Date
-     * @format date-time
-     */
-    dueDate?: string;
-    /**
-     * Task Claim Date
-     * @format date-time
-     */
-    claimDate?: string;
-    /** Task Instance */
-    taskInstance?: InstanceDTO;
-    businessKey?: string;
-    processDefinitionName?: string;
-    startUserId?: string;
-    createDateStr?: string;
-    dueDateStr?: string;
-    variables?: Record<string, any>;
-    state?: string;
-    /** @format date-time */
-    endTime?: string;
-    /** @format int64 */
-    durationInMillis?: number;
-    caseDefinitionId?: string;
-    caseInstanceId?: string;
-    assignees?: string[];
-    candidateGroups?: string[];
-}
-
-export interface PaginationDTOCmmnTaskDTO {
-    entryList?: CmmnTaskDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOCmmnTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOCmmnTaskDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case Model Plan Form DTO */
-export interface CmmnPlanFormDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    casetable?: string;
-    fields?: PlanTableFieldDTO[];
-}
-
-/** PlanItemInstanceDTO */
-export interface PlanItemInstanceDTO {
-    caseDefinitionId?: string;
-    caseInstanceId?: string;
-    derivedCaseDefinitionId?: string;
-    formKey?: string;
-    id?: string;
-    name?: string;
-    planItemDefinitionId?: string;
-    planItemDefinitionType?: string;
-    referenceId?: string;
-    referenceType?: string;
-    stageInstanceId?: string;
-    startUserId?: string;
-    state?: string;
-    /** @format date-time */
-    completedTime?: string;
-    /** @format date-time */
-    createTime?: string;
-    /** @format date-time */
-    endedTime?: string;
-    /** @format date-time */
-    exitTime?: string;
-    active?: boolean;
-    businessKey?: string;
-    operator?: string;
-    variables?: Record<string, any>;
-    /** Workflow Instance Request Variables */
-    workflowVariables?: Record<string, any>;
-    /** Workflow PlanItem Instance */
-    subItems?: PlanItemInstanceDTO[];
-    /** Workflow PlanItem Form */
-    planForm?: CmmnPlanFormDTO;
-    humanTaskId?: string;
-    processInstanceId?: string;
-}
-
-export interface PlanTableFieldDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    accesstype?: string;
-    fieldMappingId?: string;
-    masterTable?: string;
-    documentType?: string;
-    displayField?: string;
-    vocabulary?: string;
-    require?: string;
-    readOnly?: string;
-}
-
-export interface ResultListCalendarTaskRespDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CalendarTaskRespDTO[];
-    messageKey?: string;
-    locale?: string;
 }
 
 export interface AuditLogQueryRequest {
@@ -7140,8 +7293,8 @@ export interface EmailTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7221,8 +7374,8 @@ export interface EmailLayoutRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7284,7 +7437,7 @@ export interface WorkflowGenerateDocumentReq {
     fileContentId?: string;
     /** Folder Cabinet ID */
     folderCabinetId?: string;
-    /** Nuxeo Parent Document Path */
+    /** Parent Document Path */
     parentPath?: string;
     /** Document Name */
     name?: string;
@@ -7350,8 +7503,8 @@ export interface SmartFolderRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7426,12 +7579,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    watermarkStatus?: string;
-    watermarkedLocalPath?: string;
-    watermarkFile?: string;
-    previewFile?: string;
     conversionId?: string;
     watermarkTemplateId?: string;
+    watermarkedLocalPath?: string;
+    watermarkStatus?: string;
+    watermarkFile?: string;
+    previewFile?: string;
 }
 
 /** EasyShare (Request) */
@@ -7471,9 +7624,9 @@ export interface WatermarkData {
 export interface EasyShareDTO {
     /** Token for access shared document */
     access_token?: string;
-    /** UUID of saved Nuxeo PATH */
+    /** UUID of saved PATH */
     shareId?: string;
-    /** document in Nuxeo with PATH */
+    /** document in with PATH */
     documentURL?: string;
     /** Document ID List */
     documentIdList?: string;
@@ -7653,32 +7806,6 @@ export interface SearchResponseHits {
     hits?: HitsHits[];
 }
 
-export interface BasePageRequest {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
 export interface NestedSearchLogV2 {
     searchRequest?: SearchRequestDTO;
     /** @format int64 */
@@ -7736,8 +7863,8 @@ export interface SearchDocumentVO {
     id?: string;
     properties?: Record<string, any>;
     updateChildName?: boolean;
-    folder?: boolean;
     ocr?: boolean;
+    folder?: boolean;
     be_index?: boolean;
     create_by?: string;
     /** @format date-time */
@@ -7805,8 +7932,8 @@ export interface RetentionPolicyDocumentRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7918,8 +8045,8 @@ export interface HoldDocumentRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8035,8 +8162,8 @@ export interface MasterTableRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8055,10 +8182,10 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
+    enable?: boolean;
+    create?: boolean;
     edit?: boolean;
     read?: boolean;
-    create?: boolean;
-    enable?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -8068,6 +8195,29 @@ export interface ResultMasterTableResponseDTO {
     message?: string;
     /** Master Table ResponseDTO */
     data?: MasterTableResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOMapStringObject {
+    entryList?: Record<string, any>[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOMapStringObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOMapStringObject;
     messageKey?: string;
     locale?: string;
 }
@@ -8129,8 +8279,8 @@ export interface MTAuditLogRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8202,10 +8352,10 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
+    enable?: boolean;
+    create?: boolean;
     edit?: boolean;
     read?: boolean;
-    create?: boolean;
-    enable?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -8428,6 +8578,39 @@ export interface WorkflowInstanceDTO {
 export interface WorkflowInstanceRequest {
     currWorkflowInstance?: WorkflowInstanceDTO;
     nextWorkflowInstance?: WorkflowInstanceDTO;
+}
+
+export interface PackingToReceiving {
+    status?: string;
+}
+
+export interface ReceivingOrder {
+    id?: string;
+    batchNo?: string;
+    supplierId?: string;
+    /** @format date-time */
+    deliveryDate?: string;
+    /** @format int32 */
+    orgId?: number;
+    dateCode?: string;
+    status?: string;
+    /** @format date-time */
+    arrivedAt?: string;
+    arrivedBy?: string;
+    /** @format date-time */
+    createdAt?: string;
+    /** @format date-time */
+    updatedAt?: string;
+}
+
+export interface ResultListReceivingOrder {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ReceivingOrder[];
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface WhatsAppUsageDTO {
@@ -8702,6 +8885,26 @@ export interface DocumentCopyDTO {
     targetDirectory?: string;
 }
 
+export interface ResultListBasicField {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: BasicField[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListContactAttribute {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ContactAttribute[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ContactRequestDTO {
     /** Fuzzy Search Parameter */
     q?: string;
@@ -8730,9 +8933,64 @@ export interface ContactRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
+}
+
+export interface ContactImportRequestDTO {
+    groupId?: string;
+    /** @format binary */
+    file?: File;
+    columns?: string;
+    dataMapping?: Record<string, string>;
+    replace?: boolean;
+    operator?: string;
+}
+
+/** Import ResponseDTO */
+export interface ImportResponseDTO {
+    /** @format int32 */
+    totalRecords?: number;
+    /** @format int32 */
+    successCount?: number;
+    /** @format int32 */
+    failureCount?: number;
+    status?: string;
+}
+
+export interface ResultImportResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Import ResponseDTO */
+    data?: ImportResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOContactGroupResponseDTO {
+    entryList?: ContactGroupResponseDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOContactGroupResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOContactGroupResponseDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 /** Case Instance (Request) */
@@ -8780,8 +9038,8 @@ export interface CaseInstanceRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8952,9 +9210,23 @@ export interface FormDesignRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
+}
+
+export interface PlanTableFieldDTO {
+    id?: string;
+    name?: string;
+    type?: string;
+    accesstype?: string;
+    fieldMappingId?: string;
+    masterTable?: string;
+    documentType?: string;
+    displayField?: string;
+    vocabulary?: string;
+    require?: string;
+    readOnly?: string;
 }
 
 /** Form Designer (Response) */
@@ -9055,8 +9327,8 @@ export interface EasyFormResultRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9136,8 +9408,8 @@ export interface EasyFormEmailQueryRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9279,8 +9551,8 @@ export interface TrashRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9533,15 +9805,15 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
+    /** @format int64 */
+    fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
     fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
-    fileContentMimeType?: string;
-    fileContentName?: string;
-    /** @format int64 */
-    fileContentLength?: number;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9791,8 +10063,8 @@ export interface CompanyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9884,6 +10156,16 @@ export interface ResultPaginationDTODocumentDTO {
     locale?: string;
 }
 
+export interface ResultListCalendarTaskRespDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CalendarTaskRespDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface PaginationDTOEventCalendarSetting {
     entryList?: EventCalendarSetting[];
     /** @format int32 */
@@ -9939,15 +10221,15 @@ export interface FolderCabinetRequestDTO {
     isDesc?: boolean;
     /** Folder Cabinet ID */
     id?: string;
-    /** Document ID of Nuxeo */
+    /** Document ID */
     rootId?: string;
     /** The parent ID of this folder cabinet */
     parentId?: string;
     /** The name of folder cabinet */
     label?: string;
-    /** The document type of nuxeo */
+    /** The document type */
     documentType?: string;
-    /** The document path of nuxeo */
+    /** The document path */
     documentPath?: string;
     /** Whether it is a folder? */
     folder?: boolean;
@@ -9986,8 +10268,8 @@ export interface FolderCabinetRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9995,7 +10277,7 @@ export interface FolderCabinetRequestDTO {
 export interface DocFolderCabinetResponseDTO {
     /** FolderCabinet ID */
     id?: string;
-    /** Document ID of Nuxeo */
+    /** Document ID */
     rootId?: string;
     /** The parent ID of this folder cabinet */
     parentId?: string;
@@ -10079,15 +10361,15 @@ export interface FolderCabinetResponseDTO {
     id?: string;
     /** Folder Cabinet Setting ID */
     folderCabinetSettingId?: string;
-    /** Document ID of Nuxeo */
+    /** Document ID */
     rootId?: string;
     /** The parent ID of this folder cabinet */
     parentId?: string;
     /** The name of folder cabinet */
     label?: string;
-    /** The document type of nuxeo */
+    /** The document type */
     documentType?: string;
-    /** The document path of nuxeo */
+    /** The document path */
     documentPath?: string;
     /** Whether it is a folder? */
     folder?: boolean;
@@ -10202,14 +10484,13 @@ export interface DocFolderCabinetRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    nuxeoSortSql?: string;
     jpasortOrderStr?: SortObject;
     descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10516,8 +10797,8 @@ export interface CmmnVersionRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10595,8 +10876,8 @@ export interface CaseTableRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10690,6 +10971,62 @@ export interface CaseInstanceTaskDTO {
     taskId?: string;
     assignee?: string;
     variables?: Record<string, any>;
+}
+
+/** Task */
+export interface CmmnTaskDTO {
+    /** Task ID */
+    id?: string;
+    /** Task Name */
+    name?: string;
+    /** Task Description */
+    description?: string;
+    /** Task Definition ID */
+    taskDefinitionId?: string;
+    /** Process Definition Version ID */
+    processDefinitionVersionId?: string;
+    /** Task Definition Key */
+    taskDefinitionKey?: string;
+    /** Task Assignee */
+    assignee?: string;
+    /** Task Form Key */
+    formKey?: string;
+    /** Task Instance ID */
+    instanceId?: string;
+    /** Task Parent ID */
+    parentId?: string;
+    /**
+     * Task Creation Date
+     * @format date-time
+     */
+    createDate?: string;
+    /**
+     * Task Due Date
+     * @format date-time
+     */
+    dueDate?: string;
+    /**
+     * Task Claim Date
+     * @format date-time
+     */
+    claimDate?: string;
+    /** Task Instance */
+    taskInstance?: InstanceDTO;
+    businessKey?: string;
+    processDefinitionName?: string;
+    startUserId?: string;
+    createDateStr?: string;
+    dueDateStr?: string;
+    variables?: Record<string, any>;
+    state?: string;
+    /** @format date-time */
+    endTime?: string;
+    /** @format int64 */
+    durationInMillis?: number;
+    caseDefinitionId?: string;
+    caseInstanceId?: string;
+    assignees?: string[];
+    candidateGroups?: string[];
 }
 
 export interface ResultListCmmnTaskDTO {
@@ -10803,9 +11140,55 @@ export interface PlanItemInstanceRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
+}
+
+/** Case Model Plan Form DTO */
+export interface CmmnPlanFormDTO {
+    id?: string;
+    name?: string;
+    type?: string;
+    casetable?: string;
+    fields?: PlanTableFieldDTO[];
+}
+
+/** PlanItemInstanceDTO */
+export interface PlanItemInstanceDTO {
+    caseDefinitionId?: string;
+    caseInstanceId?: string;
+    derivedCaseDefinitionId?: string;
+    formKey?: string;
+    id?: string;
+    name?: string;
+    planItemDefinitionId?: string;
+    planItemDefinitionType?: string;
+    referenceId?: string;
+    referenceType?: string;
+    stageInstanceId?: string;
+    startUserId?: string;
+    state?: string;
+    /** @format date-time */
+    completedTime?: string;
+    /** @format date-time */
+    createTime?: string;
+    /** @format date-time */
+    endedTime?: string;
+    /** @format date-time */
+    exitTime?: string;
+    active?: boolean;
+    businessKey?: string;
+    operator?: string;
+    variables?: Record<string, any>;
+    /** Workflow Instance Request Variables */
+    workflowVariables?: Record<string, any>;
+    /** Workflow PlanItem Instance */
+    subItems?: PlanItemInstanceDTO[];
+    /** Workflow PlanItem Form */
+    planForm?: CmmnPlanFormDTO;
+    humanTaskId?: string;
+    processInstanceId?: string;
 }
 
 export interface ResultListPlanItemInstanceDTO {
@@ -10909,6 +11292,63 @@ export interface ResultPaginationDTOCmmnDashboardResponseDTO {
     code?: number;
     message?: string;
     data?: PaginationDTOCmmnDashboardResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Case Process RequestDTO */
+export interface CmmnProcessRequestDTO {
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    caseInstanceId?: string;
+    businessKey?: string;
+    caseDefinitionId?: string;
+    processDefinitionKeys?: string[];
+    assignee?: string;
+    candidateOrAssigned?: string;
+    category?: string;
+    workflow?: string;
+    descSort?: SortObject;
+    desc?: boolean;
+    /** @format int32 */
+    pageIndex?: number;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+export interface PaginationDTOCmmnTaskDTO {
+    entryList?: CmmnTaskDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOCmmnTaskDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOCmmnTaskDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -11181,8 +11621,8 @@ export interface CaptureProjFormSettingRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11271,8 +11711,8 @@ export interface CaptureProjRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11477,8 +11917,8 @@ export interface CaptureQueryBatchListRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11820,10 +12260,10 @@ export interface PageBusinessResultRecord {
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: BusinessResultRecord[];
@@ -12036,8 +12476,8 @@ export interface MessageTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12366,8 +12806,8 @@ export interface QueryMetadataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12443,8 +12883,8 @@ export interface MetadataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12572,8 +13012,8 @@ export interface DocPalTypeRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12886,16 +13326,89 @@ export interface ResultListProcessDefinitionDraft {
     locale?: string;
 }
 
+export interface ResultListPackingListLineItemVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PackingListLineItemVO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PackingListHeaderVO {
+    id?: string;
+    /** @format int32 */
+    org_id?: number;
+    file_name?: string;
+    batch_id?: string;
+    vendor_name?: string;
+    wcl_company_name?: string;
+    invoice_num?: string;
+    total_qty?: number;
+    total_ctn?: number;
+    delivery_date?: string;
+    status?: string;
+}
+
+export interface ResultListPackingListHeaderVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PackingListHeaderVO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PackingListBatchVO {
+    batch_name?: string;
+    total_qty?: number;
+    notes?: string;
+    status?: string;
+    Files?: string;
+}
+
+export interface ResultListPackingListBatchVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PackingListBatchVO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListWMSPickingItem {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSPickingItem[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListWMSInventoryLotSource {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSInventoryLotSource[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface PageSearchHistory {
     /** @format int32 */
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: SearchHistory[];
@@ -13206,6 +13719,35 @@ export interface ResultListTableDTO {
     data?: TableDTO[];
     messageKey?: string;
     locale?: string;
+}
+
+export interface ResultListTableFieldStructureVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: TableFieldStructureVO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Table field structure VO */
+export interface TableFieldStructureVO {
+    /** Table alias */
+    view_alias?: string;
+    /** Table view name */
+    view_name?: string;
+    /** Field name */
+    field_name?: string;
+    /** Field alias */
+    field_name_alias?: string;
+    /** Field type */
+    field_type?: string;
+    /**
+     * Field length
+     * @format int32
+     */
+    field_length?: number;
 }
 
 export interface PermissionMemberDTO {
@@ -13532,118 +14074,6 @@ export interface ResultListDocTemplateSignatureResponseDTO {
     code?: number;
     message?: string;
     data?: DocTemplateSignatureResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CmmnDashboardDTO {
-    id?: string;
-    caseTypeId?: string;
-    deploymentId?: string;
-    cmmnVersionId?: string;
-    label?: string;
-    /** @deprecated */
-    userGroup?: string;
-    permissions?: BasicField[];
-    status?: string;
-    styleJson?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    caseDefinitionKey?: string;
-}
-
-export interface ResultListCmmnDashboardDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnDashboardDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CaseFormFieldData {
-    id?: string;
-    name?: string;
-    type?: string;
-    value?: any;
-    masterTable?: string;
-    documentType?: string;
-    displayField?: string;
-    vocabulary?: string;
-    require?: string;
-    readOnly?: string;
-}
-
-/** Case Model Form Data DTO */
-export interface CaseInstanceFormDataDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    casetable?: string;
-    fields?: PlanTableFieldDTO[];
-    rows?: CaseFormFieldData[];
-}
-
-export interface ResultCaseInstanceFormDataDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case Model Form Data DTO */
-    data?: CaseInstanceFormDataDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** case instance activity item */
-export interface CmmnActivityItem {
-    id?: string;
-    name?: string;
-    planItemDefinitionId?: string;
-    planItemDefinitionType?: string;
-    state?: string;
-    /** @format date-time */
-    completedTime?: string;
-    /** @format date-time */
-    createTime?: string;
-    /** @format date-time */
-    endedTime?: string;
-    /** @format date-time */
-    occurredTime?: string;
-}
-
-export interface ResultListCmmnActivityItem {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnActivityItem[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListCmmnDashboard {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnDashboard[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultCmmnPlanFormDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case Model Plan Form DTO */
-    data?: CmmnPlanFormDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -14265,6 +14695,17 @@ export interface ResultListPlanItemDefinitionDTO {
     locale?: string;
 }
 
+export interface ResultCmmnPlanFormDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Case Model Plan Form DTO */
+    data?: CmmnPlanFormDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListPlanTableFieldDTO {
     result?: boolean;
     /** @format int32 */
@@ -14409,6 +14850,40 @@ export interface UserEventInstanceDTO {
     state?: string;
 }
 
+export interface CaseFormFieldData {
+    id?: string;
+    name?: string;
+    type?: string;
+    value?: any;
+    masterTable?: string;
+    documentType?: string;
+    displayField?: string;
+    vocabulary?: string;
+    require?: string;
+    readOnly?: string;
+}
+
+/** Case Model Form Data DTO */
+export interface CaseInstanceFormDataDTO {
+    id?: string;
+    name?: string;
+    type?: string;
+    casetable?: string;
+    fields?: PlanTableFieldDTO[];
+    rows?: CaseFormFieldData[];
+}
+
+export interface ResultCaseInstanceFormDataDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Case Model Form Data DTO */
+    data?: CaseInstanceFormDataDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Case Model Information DTO */
 export interface CaseDefinitionDTO {
     id?: string;
@@ -14474,6 +14949,73 @@ export interface ResultCmmnInstance {
     code?: number;
     message?: string;
     data?: CmmnInstance;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CmmnDashboardDTO {
+    id?: string;
+    caseTypeId?: string;
+    deploymentId?: string;
+    cmmnVersionId?: string;
+    label?: string;
+    /** @deprecated */
+    userGroup?: string;
+    permissions?: BasicField[];
+    status?: string;
+    styleJson?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    caseDefinitionKey?: string;
+}
+
+export interface ResultListCmmnDashboardDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CmmnDashboardDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** case instance activity item */
+export interface CmmnActivityItem {
+    id?: string;
+    name?: string;
+    planItemDefinitionId?: string;
+    planItemDefinitionType?: string;
+    state?: string;
+    /** @format date-time */
+    completedTime?: string;
+    /** @format date-time */
+    createTime?: string;
+    /** @format date-time */
+    endedTime?: string;
+    /** @format date-time */
+    occurredTime?: string;
+}
+
+export interface ResultListCmmnActivityItem {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CmmnActivityItem[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListCmmnDashboard {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CmmnDashboard[];
     messageKey?: string;
     locale?: string;
 }
@@ -14713,11 +15255,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
-    create?: number;
-    pending?: number;
     completed?: number;
     finish?: number;
     error?: number;
+    create?: number;
+    pending?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -16518,173 +17060,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/api/docpal/doc/template/signature/${id}`,
                 method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name GetDocpalContactgroupId
-         * @summary Get contact group by id
-         * @request GET:/api/docpal/contactGroup/{id}
-         * @deprecated
-         */
-        getDocpalContactgroupId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultContactGroupResponseDTO, any>({
-                path: `/api/docpal/contactGroup/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * @description Update contact group with the specified information
-         *
-         * @tags ContactController
-         * @name PutDocpalContactgroupId
-         * @summary Update contact group
-         * @request PUT:/api/docpal/contactGroup/{id}
-         * @deprecated
-         */
-        putDocpalContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultContactGroupResponseDTO, any>({
-                path: `/api/docpal/contactGroup/${id}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Delete a contact group by ContactGroupId
-         *
-         * @tags ContactController
-         * @name DeleteDocpalContactgroupId
-         * @summary Delete contact group by id
-         * @request DELETE:/api/docpal/contactGroup/{id}
-         * @deprecated
-         */
-        deleteDocpalContactgroupId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/contactGroup/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * @description Update contact group with the specified information
-         *
-         * @tags ContactController
-         * @name PatchDocpalContactgroupId
-         * @summary Reference to update contact group
-         * @request PATCH:/api/docpal/contactGroup/{id}
-         * @deprecated
-         */
-        patchDocpalContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultContactGroupResponseDTO, any>({
-                path: `/api/docpal/contactGroup/${id}`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name GetDocpalContactgroupIdContactdetailContactdetailid
-         * @summary Get contact detail by id
-         * @request GET:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
-         * @deprecated
-         */
-        getDocpalContactgroupIdContactdetailContactdetailid: (
-            id: string,
-            contactDetailId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PutDocpalContactgroupIdContactdetailContactdetailid
-         * @summary Edit contact record with the specified information
-         * @request PUT:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
-         * @deprecated
-         */
-        putDocpalContactgroupIdContactdetailContactdetailid: (
-            id: string,
-            contactDetailId: string,
-            data: Record<string, any>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name DeleteDocpalContactgroupIdContactdetailContactdetailid
-         * @summary Delete contact record
-         * @request DELETE:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
-         * @deprecated
-         */
-        deleteDocpalContactgroupIdContactdetailContactdetailid: (
-            id: string,
-            contactDetailId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name PutDocpalCalendars
-         * @summary Update Event Task
-         * @request PUT:/api/docpal/calendars
-         * @deprecated
-         */
-        putDocpalCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, any>({
-                path: `/api/docpal/calendars`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name PostDocpalCalendars
-         * @summary Create a new event task
-         * @request POST:/api/docpal/calendars
-         * @deprecated
-         */
-        postDocpalCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, any>({
-                path: `/api/docpal/calendars`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -19658,6 +20033,376 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags supplier-controller
+         * @name PostWmsSuppliers
+         * @request POST:/api/wms/suppliers
+         */
+        postWmsSuppliers: (data: Supplier, params: RequestParams = {}) =>
+            this.request<ResultSupplier, any>({
+                path: `/api/wms/suppliers`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags supplier-controller
+         * @name PostWmsSuppliersList
+         * @request POST:/api/wms/suppliers/list
+         */
+        postWmsSuppliersList: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultListSupplier, any>({
+                path: `/api/wms/suppliers/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ReceivingOrderController
+         * @name PostWmsReceiveOrderPackingSync
+         * @request POST:/api/wms/receive/order/packing/sync
+         */
+        postWmsReceiveOrderPackingSync: (
+            query: {
+                schema: string;
+                /** @default "confirm" */
+                status?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, any>({
+                path: `/api/wms/receive/order/packing/sync`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ReceivingOrderController
+         * @name PostWmsReceiveOrderPackingSupplement
+         * @request POST:/api/wms/receive/order/packing/supplement
+         */
+        postWmsReceiveOrderPackingSupplement: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/receive/order/packing/supplement`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ReceivingOrderController
+         * @name PostWmsReceiveOrderLineItem
+         * @request POST:/api/wms/receive/order/line-item
+         */
+        postWmsReceiveOrderLineItem: (data: PackingListLineItemVO, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/receive/order/line-item`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name GetWmsPickingOrders
+         * @request GET:/api/wms/picking-orders
+         */
+        getWmsPickingOrders: (
+            query: {
+                orderNo: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultWMSPickingOrder, any>({
+                path: `/api/wms/picking-orders`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name PostWmsPickingOrders
+         * @request POST:/api/wms/picking-orders
+         */
+        postWmsPickingOrders: (data: WMSPickingOrder, params: RequestParams = {}) =>
+            this.request<ResultWMSPickingOrder, any>({
+                path: `/api/wms/picking-orders`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name PostWmsPickingOrdersTransferToPickingData
+         * @summary Transfer to Picking Data
+         * @request POST:/api/wms/picking-orders/transfer-to-picking-data
+         */
+        postWmsPickingOrdersTransferToPickingData: (data: WMSScheduleDeliveryOrder, params: RequestParams = {}) =>
+            this.request<ResultListWMSPickingOrder, any>({
+                path: `/api/wms/picking-orders/transfer-to-picking-data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name PostWmsPickingOrdersPage
+         * @request POST:/api/wms/picking-orders/page
+         */
+        postWmsPickingOrdersPage: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWMSPickingOrder, any>({
+                path: `/api/wms/picking-orders/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-item-controller
+         * @name GetWmsPickingItems
+         * @request GET:/api/wms/picking-items
+         */
+        getWmsPickingItems: (
+            query: {
+                partNo: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListWMSPickingItem, any>({
+                path: `/api/wms/picking-items`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-item-controller
+         * @name PostWmsPickingItems
+         * @request POST:/api/wms/picking-items
+         */
+        postWmsPickingItems: (data: WMSPickingItem, params: RequestParams = {}) =>
+            this.request<ResultWMSPickingItem, any>({
+                path: `/api/wms/picking-items`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-item-controller
+         * @name PostWmsPickingItemsPage
+         * @request POST:/api/wms/picking-items/page
+         */
+        postWmsPickingItemsPage: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWMSPickingItem, any>({
+                path: `/api/wms/picking-items/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-part-controller
+         * @name GetWmsParts
+         * @request GET:/api/wms/parts
+         */
+        getWmsParts: (
+            query: {
+                partNo: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultWMSPart, any>({
+                path: `/api/wms/parts`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-part-controller
+         * @name PostWmsParts
+         * @request POST:/api/wms/parts
+         */
+        postWmsParts: (data: WMSPart, params: RequestParams = {}) =>
+            this.request<ResultWMSPart, any>({
+                path: `/api/wms/parts`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags inventory-lot-controller
+         * @name PostWmsInventoryLots
+         * @request POST:/api/wms/inventory/lots
+         */
+        postWmsInventoryLots: (
+            query: {
+                partNo: string;
+            },
+            data: AddInventoryLotRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultWMSInventoryLot, any>({
+                path: `/api/wms/inventory/lots`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-organization-controller
+         * @name GetWmsInventoryOrganizations
+         * @request GET:/api/wms/inventory-organizations
+         */
+        getWmsInventoryOrganizations: (
+            query: {
+                orgCode: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultWMSInventoryOrganization, any>({
+                path: `/api/wms/inventory-organizations`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-organization-controller
+         * @name PostWmsInventoryOrganizations
+         * @request POST:/api/wms/inventory-organizations
+         */
+        postWmsInventoryOrganizations: (data: WMSInventoryOrganization, params: RequestParams = {}) =>
+            this.request<ResultWMSInventoryOrganization, any>({
+                path: `/api/wms/inventory-organizations`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-organization-controller
+         * @name PostWmsInventoryOrganizationsPage
+         * @request POST:/api/wms/inventory-organizations/page
+         */
+        postWmsInventoryOrganizationsPage: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWMSInventoryOrganization, any>({
+                path: `/api/wms/inventory-organizations/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name GetWmsInventoryLotSources
+         * @request GET:/api/wms/inventory-lot-sources
+         */
+        getWmsInventoryLotSources: (
+            query: {
+                receivingInvoiceItemId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name PostWmsInventoryLotSources
+         * @request POST:/api/wms/inventory-lot-sources
+         */
+        postWmsInventoryLotSources: (data: WMSInventoryLotSource, params: RequestParams = {}) =>
+            this.request<ResultWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name PostWmsInventoryLotSourcesPage
+         * @request POST:/api/wms/inventory-lot-sources/page
+         */
+        postWmsInventoryLotSourcesPage: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags VerificationPermissionController
          * @name PostVerificationPermission
          * @summary verification access control permission of acl user
@@ -20665,7 +21410,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          *
          * @tags micro-file-controller
          * @name PostFileUploadConfirmValidate
-         * @summary check file exist situation in nuxeo
          * @request POST:/api/file/upload/confirm/validate
          * @deprecated
          */
@@ -21311,6 +22055,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultPaginationDTOTriggerSettingDTO, any>({
                 path: `/api/dynamic-db/table/${masterTableId}/trigger-settings/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTableSqlConvertAliases
+         * @summary Convert SQL aliases to real table and field names
+         * @request POST:/api/dynamic-db/table/sql/convert-aliases
+         */
+        postDynamicDbTableSqlConvertAliases: (data: SqlAliasConvertRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSqlAliasConvertResponseDTO, any>({
+                path: `/api/dynamic-db/table/sql/convert-aliases`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23970,379 +24731,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Create a new contact group with the specified information
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroup
-         * @summary Create a new contact group
-         * @request POST:/api/docpal/contactGroup
-         * @deprecated
-         */
-        postDocpalContactgroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultContactGroupResponseDTO, any>({
-                path: `/api/docpal/contactGroup`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroupIdPermission
-         * @summary Add the contact permission
-         * @request POST:/api/docpal/contactGroup/{id}/permission
-         * @deprecated
-         */
-        postDocpalContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
-            this.request<ResultListBasicField, any>({
-                path: `/api/docpal/contactGroup/${id}/permission`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PatchDocpalContactgroupIdPermission
-         * @summary Remove the contact permission
-         * @request PATCH:/api/docpal/contactGroup/{id}/permission
-         * @deprecated
-         */
-        patchDocpalContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
-            this.request<ResultListBasicField, any>({
-                path: `/api/docpal/contactGroup/${id}/permission`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroupIdNewfields
-         * @summary Add new field to contact Group
-         * @request POST:/api/docpal/contactGroup/{id}/newFields
-         * @deprecated
-         */
-        postDocpalContactgroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
-            this.request<ResultListContactAttribute, any>({
-                path: `/api/docpal/contactGroup/${id}/newFields`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroupIdContactdetail
-         * @summary Adding a new contact record
-         * @request POST:/api/docpal/contactGroup/{id}/contactDetail
-         * @deprecated
-         */
-        postDocpalContactgroupIdContactdetail: (id: string, data: Record<string, any>, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/contactGroup/${id}/contactDetail`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroupIdContactdetailPage
-         * @summary Page query contact detail list
-         * @request POST:/api/docpal/contactGroup/{id}/contactDetail/page
-         * @deprecated
-         */
-        postDocpalContactgroupIdContactdetailPage: (
-            id: string,
-            data: Record<string, any>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOMapStringObject, any>({
-                path: `/api/docpal/contactGroup/${id}/contactDetail/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Import contacts from Excel or CSV file into the specified contact group
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroupIdContactdetailImport
-         * @summary Import contacts from file
-         * @request POST:/api/docpal/contactGroup/{id}/contactDetail/import
-         * @deprecated
-         */
-        postDocpalContactgroupIdContactdetailImport: (
-            id: string,
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format Boolean */
-                replace?: replace;
-                /**
-                 * @format object string
-                 * @example {"name":"username","email":"email","description":"notes"}
-                 */
-                columns?: map;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultImportResponseDTO, any>({
-                path: `/api/docpal/contactGroup/${id}/contactDetail/import`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroupIdContactdetailExport
-         * @summary Export contact record for file type include excel, csv, vcf
-         * @request POST:/api/docpal/contactGroup/{id}/contactDetail/export
-         * @deprecated
-         */
-        postDocpalContactgroupIdContactdetailExport: (
-            id: string,
-            query: {
-                /** File Type */
-                fileType: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/contactGroup/${id}/contactDetail/export`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroupReadTitle
-         * @summary Get header list through read the file
-         * @request POST:/api/docpal/contactGroup/read/title
-         * @deprecated
-         */
-        postDocpalContactgroupReadTitle: (
-            data: {
-                /** @format binary */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringInteger, any>({
-                path: `/api/docpal/contactGroup/read/title`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name PostDocpalContactgroupPage
-         * @summary Page query contact group
-         * @request POST:/api/docpal/contactGroup/page
-         * @deprecated
-         */
-        postDocpalContactgroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOContactGroupResponseDTO, any>({
-                path: `/api/docpal/contactGroup/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name PostDocpalCaseDashboardInstanceCaseidProcessInstancePage
-         * @summary Paging search process instance of this case instance
-         * @request POST:/api/docpal/case/dashboard/instance/{caseId}/process/instance/page
-         * @deprecated
-         */
-        postDocpalCaseDashboardInstanceCaseidProcessInstancePage: (
-            caseId: string,
-            data: CmmnProcessRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOCmmnTaskDTO, any>({
-                path: `/api/docpal/case/dashboard/instance/${caseId}/process/instance/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name PostDocpalCaseDashboardInstanceActionPreRequisite
-         * @summary Get Pre-requisite of planItem instance,
-         * @request POST:/api/docpal/case/dashboard/instance/action/pre-requisite
-         * @deprecated
-         */
-        postDocpalCaseDashboardInstanceActionPreRequisite: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/case/dashboard/instance/action/pre-requisite`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name PostDocpalCaseDashboardCasetypeCasetypeidRecordsPage
-         * @summary Paging Query instance data for deployed case types for the currently logged in user
-         * @request POST:/api/docpal/case/dashboard/caseType/{caseTypeId}/records/page
-         * @deprecated
-         */
-        postDocpalCaseDashboardCasetypeCasetypeidRecordsPage: (
-            caseTypeId: string,
-            data: CmmnDashboardRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/docpal/case/dashboard/caseType/${caseTypeId}/records/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name GetDocpalCalendarsWidgetSetting
-         * @summary Obtain calendar widget settings
-         * @request GET:/api/docpal/calendars/widget/setting
-         * @deprecated
-         */
-        getDocpalCalendarsWidgetSetting: (params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/calendars/widget/setting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name PostDocpalCalendarsWidgetSetting
-         * @summary Save calendar settings
-         * @request POST:/api/docpal/calendars/widget/setting
-         * @deprecated
-         */
-        postDocpalCalendarsWidgetSetting: (data: Record<string, any>, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/calendars/widget/setting`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name PostDocpalCalendarsValidate
-         * @request POST:/api/docpal/calendars/validate
-         * @deprecated
-         */
-        postDocpalCalendarsValidate: (params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/api/docpal/calendars/validate`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name GetDocpalCalendarsSetting
-         * @summary Obtain calendar settings
-         * @request GET:/api/docpal/calendars/setting
-         * @deprecated
-         */
-        getDocpalCalendarsSetting: (params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/calendars/setting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name PostDocpalCalendarsSetting
-         * @summary Save calendar settings
-         * @request POST:/api/docpal/calendars/setting
-         * @deprecated
-         */
-        postDocpalCalendarsSetting: (data: Record<string, any>, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/calendars/setting`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name PostDocpalCalendarsList
-         * @summary Query list
-         * @request POST:/api/docpal/calendars/list
-         * @deprecated
-         */
-        postDocpalCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultListCalendarTaskRespDTO, any>({
-                path: `/api/docpal/calendars/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
          * No description
          *
          * @tags Audit Log Management
@@ -24973,7 +25361,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name PostDmsSharePrepareDownloadCheckFileComplete
          * @summary check download file is complete
          * @request POST:/api/dms/share/prepare/download/check-file-complete
@@ -24990,7 +25378,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name PostDmsSharePage
          * @request POST:/api/dms/share/page
          */
@@ -25006,7 +25394,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name PostDmsShareNew
          * @summary generate share link
          * @request POST:/api/dms/share/new
@@ -25023,7 +25411,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name PostDmsShareGet
          * @request POST:/api/dms/share/get
          */
@@ -25129,7 +25517,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name PostDmsSearchSaveNestedSearchLog
          * @request POST:/api/dms/search/save-nested-search-log
          */
@@ -25145,7 +25533,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name PostDmsSearchOpenSearch
          * @summary Open Search
          * @request POST:/api/dms/search/open-search
@@ -25162,7 +25550,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name PostDmsSearchNestedSearchV2
          * @summary Open Search
          * @request POST:/api/dms/search/nested-search-v2
@@ -25179,7 +25567,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name PostDmsSearchManticoreSearch
          * @summary Manticore Search
          * @request POST:/api/dms/search/manticore-search
@@ -25196,7 +25584,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name PostDmsSearchHistory
          * @summary Open Search
          * @request POST:/api/dms/search/history
@@ -25213,7 +25601,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name PostDmsSearchDocument
          * @request POST:/api/dms/search/document
          */
@@ -25229,7 +25617,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name PostDmsSearchDocumentPaths
          * @request POST:/api/dms/search/document/paths
          */
@@ -25245,7 +25633,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name PostDmsSearchAdminOpenSearch
          * @summary Admin Open Search
          * @request POST:/api/dms/search/admin-open-search
@@ -26132,6 +26520,60 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsFacadeWorkflowJobsNext: (data: WorkflowInstanceRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/api/dms/facade/workflow/jobs/next`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsPackingListBatchnoReceivingOrders
+         * @summary Synchronize the Packing-List records to the receiving order records.
+         * @request POST:/api/dms/facade/wms/packing-list/{batchNo}/receiving-orders
+         */
+        postDmsFacadeWmsPackingListBatchnoReceivingOrders: (
+            batchNo: string,
+            data: PackingToReceiving,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListReceivingOrder, any>({
+                path: `/api/dms/facade/wms/packing-list/${batchNo}/receiving-orders`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsPackingListSupplement
+         * @summary Query supplier purchase order data and add it to the Packing-List Record.
+         * @request POST:/api/dms/facade/wms/packing-list/supplement
+         */
+        postDmsFacadeWmsPackingListSupplement: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/facade/wms/packing-list/supplement`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsInventoryLots
+         * @request POST:/api/dms/facade/wms/inventory/lots
+         */
+        postDmsFacadeWmsInventoryLots: (data: AddInventoryLotRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/facade/wms/inventory/lots`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -28874,6 +29316,32 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AbbyyController
+         * @name PostDmsAbbyyOcrStartSo
+         * @request POST:/api/dms/abbyy/ocr/start_so
+         */
+        postDmsAbbyyOcrStartSo: (
+            data: {
+                /** @format binary */
+                file: File;
+            },
+            query?: {
+                outRequestNo?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultAbbyyOcrResp, any>({
+                path: `/api/dms/abbyy/ocr/start_so`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AbbyyController
          * @name PostDmsAbbyyOcrStart
          * @request POST:/api/dms/abbyy/ocr/start
          */
@@ -30862,22 +31330,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CalendarController
-         * @name PatchDocpalCalendarsIdStatusStatus
-         * @summary Modify status by id
-         * @request PATCH:/api/docpal/calendars/{id}/status/{status}
-         * @deprecated
-         */
-        patchDocpalCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/calendars/${id}/status/${status}`,
-                method: "PATCH",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags SmartFolderController
          * @name PatchDmsSmartFolderDeprecate
          * @summary Save Smart Folder
@@ -30933,7 +31385,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name PatchDmsShareSave
          * @request PATCH:/api/dms/share/save
          */
@@ -31821,6 +32273,279 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags ReceivingOrderController
+         * @name GetWmsReceiveOrderPackingSupplementOrigin
+         * @request GET:/api/wms/receive/order/packing/supplement/origin
+         */
+        getWmsReceiveOrderPackingSupplementOrigin: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/receive/order/packing/supplement/origin`,
+                method: "GET",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ReceivingOrderController
+         * @name GetWmsReceiveOrderPackingLineItems
+         * @request GET:/api/wms/receive/order/packing/line-items
+         */
+        getWmsReceiveOrderPackingLineItems: (
+            query: {
+                schema: string;
+                headerId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPackingListLineItemVO, any>({
+                path: `/api/wms/receive/order/packing/line-items`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ReceivingOrderController
+         * @name GetWmsReceiveOrderPackingHeaders
+         * @request GET:/api/wms/receive/order/packing/headers
+         */
+        getWmsReceiveOrderPackingHeaders: (
+            query: {
+                schema: string;
+                batchNo: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPackingListHeaderVO, any>({
+                path: `/api/wms/receive/order/packing/headers`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ReceivingOrderController
+         * @name GetWmsReceiveOrderPackingBatches
+         * @request GET:/api/wms/receive/order/packing/batches
+         */
+        getWmsReceiveOrderPackingBatches: (
+            query: {
+                schema: string;
+                /** @default "confirm" */
+                status?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPackingListBatchVO, any>({
+                path: `/api/wms/receive/order/packing/batches`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name GetWmsPickingOrdersId
+         * @request GET:/api/wms/picking-orders/{id}
+         */
+        getWmsPickingOrdersId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultWMSPickingOrder, any>({
+                path: `/api/wms/picking-orders/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name DeleteWmsPickingOrdersId
+         * @request DELETE:/api/wms/picking-orders/{id}
+         */
+        deleteWmsPickingOrdersId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/picking-orders/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name GetWmsPickingOrdersOracleEbs
+         * @request GET:/api/wms/picking-orders/oracle/ebs
+         */
+        getWmsPickingOrdersOracleEbs: (
+            query: {
+                orgIds: number[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/picking-orders/oracle/ebs`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-item-controller
+         * @name GetWmsPickingItemsId
+         * @request GET:/api/wms/picking-items/{id}
+         */
+        getWmsPickingItemsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultWMSPickingItem, any>({
+                path: `/api/wms/picking-items/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-item-controller
+         * @name DeleteWmsPickingItemsId
+         * @request DELETE:/api/wms/picking-items/{id}
+         */
+        deleteWmsPickingItemsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/picking-items/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-item-controller
+         * @name GetWmsPickingItemsByOrder
+         * @request GET:/api/wms/picking-items/by-order
+         */
+        getWmsPickingItemsByOrder: (
+            query: {
+                pickingOrderId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListWMSPickingItem, any>({
+                path: `/api/wms/picking-items/by-order`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-organization-controller
+         * @name GetWmsOrganizationList
+         * @request GET:/api/wms/organization/list
+         */
+        getWmsOrganizationList: (
+            query?: {
+                /** @format int32 */
+                orgId?: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/organization/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-organization-controller
+         * @name GetWmsInventoryOrganizationsOrgid
+         * @request GET:/api/wms/inventory-organizations/{orgId}
+         */
+        getWmsInventoryOrganizationsOrgid: (orgId: number, params: RequestParams = {}) =>
+            this.request<ResultWMSInventoryOrganization, any>({
+                path: `/api/wms/inventory-organizations/${orgId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-organization-controller
+         * @name DeleteWmsInventoryOrganizationsOrgid
+         * @request DELETE:/api/wms/inventory-organizations/{orgId}
+         */
+        deleteWmsInventoryOrganizationsOrgid: (orgId: number, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/inventory-organizations/${orgId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name GetWmsInventoryLotSourcesId
+         * @request GET:/api/wms/inventory-lot-sources/{id}
+         */
+        getWmsInventoryLotSourcesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name DeleteWmsInventoryLotSourcesId
+         * @request DELETE:/api/wms/inventory-lot-sources/{id}
+         */
+        deleteWmsInventoryLotSourcesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/inventory-lot-sources/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name GetWmsInventoryLotSourcesByInventoryLotId
+         * @request GET:/api/wms/inventory-lot-sources/by-inventory-lot-id
+         */
+        getWmsInventoryLotSourcesByInventoryLotId: (
+            query: {
+                inventoryLotId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources/by-inventory-lot-id`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags VerificationPermissionController
          * @name GetVerificationPermissionBusinessBusinessid
          * @request GET:/api/verification/permission/business/{businessId}
@@ -32270,21 +32995,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/api/permission/user/group/all`,
                 method: "GET",
                 query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ViewSettingController
-         * @name GetNuxeoSettingView
-         * @request GET:/api/nuxeo/setting/view
-         * @deprecated
-         */
-        getNuxeoSettingView: (params: RequestParams = {}) =>
-            this.request<ResultViewSettingResponseDTO, any>({
-                path: `/api/nuxeo/setting/view`,
-                method: "GET",
                 ...params,
             }),
 
@@ -32925,6 +33635,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultListTableDTO, any>({
                 path: `/api/dynamic-db/table/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name GetDynamicDbTableFieldStructure
+         * @summary Query field structure by table aliases
+         * @request GET:/api/dynamic-db/table/field-structure
+         */
+        getDynamicDbTableFieldStructure: (
+            query: {
+                tableAliases: string[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListTableFieldStructureVO, any>({
+                path: `/api/dynamic-db/table/field-structure`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -34159,327 +34890,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * No description
-         *
-         * @tags ContactController
-         * @name GetDocpalContactgroupIdUserUseridPermission
-         * @summary Get permission of contact group
-         * @request GET:/api/docpal/contactGroup/{id}/user/{userId}/permission
-         * @deprecated
-         */
-        getDocpalContactgroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
-            this.request<ResultListString, any>({
-                path: `/api/docpal/contactGroup/${id}/user/${userId}/permission`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name GetDocpalContactgroupIdContactdetaillist
-         * @summary Get contact detail list include filter and sort by
-         * @request GET:/api/docpal/contactGroup/{id}/contactDetailList
-         * @deprecated
-         */
-        getDocpalContactgroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
-            this.request<ResultListMapStringObject, any>({
-                path: `/api/docpal/contactGroup/${id}/contactDetailList`,
-                method: "GET",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name GetDocpalContactgroupList
-         * @summary Query all contact group without filter condition
-         * @request GET:/api/docpal/contactGroup/list
-         * @deprecated
-         */
-        getDocpalContactgroupList: (params: RequestParams = {}) =>
-            this.request<ResultListContactGroupResponseDTO, any>({
-                path: `/api/docpal/contactGroup/list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardId
-         * @summary Retrieve case dashboard detail
-         * @request GET:/api/docpal/case/dashboard/{id}
-         * @deprecated
-         */
-        getDocpalCaseDashboardId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboardResponseDTO, any>({
-                path: `/api/docpal/case/dashboard/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardVersionCmmnversionidPermission
-         * @summary Show all dashboard views that belong to the current user of this case type. (Case Dashboard)
-         * @request GET:/api/docpal/case/dashboard/version/{cmmnVersionId}/permission
-         * @deprecated
-         */
-        getDocpalCaseDashboardVersionCmmnversionidPermission: (cmmnVersionId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnDashboardDTO, any>({
-                path: `/api/docpal/case/dashboard/version/${cmmnVersionId}/permission`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardInstanceCaseidTasks
-         * @summary Retrieve tasks of this case instance
-         * @request GET:/api/docpal/case/dashboard/instance/{caseId}/tasks
-         * @deprecated
-         */
-        getDocpalCaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, any>({
-                path: `/api/docpal/case/dashboard/instance/${caseId}/tasks`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardInstanceCaseidStages
-         * @summary Retrieve Stage planItem Instances of this case instance
-         * @request GET:/api/docpal/case/dashboard/instance/{caseId}/stages
-         * @deprecated
-         */
-        getDocpalCaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/docpal/case/dashboard/instance/${caseId}/stages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardInstanceCaseidProcessInstancePageConditions
-         * @summary Obtain process instance conditions that has been used
-         * @request GET:/api/docpal/case/dashboard/instance/{caseId}/process/instance/page/conditions
-         * @deprecated
-         */
-        getDocpalCaseDashboardInstanceCaseidProcessInstancePageConditions: (
-            caseId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListConditionResponseDTO, any>({
-                path: `/api/docpal/case/dashboard/instance/${caseId}/process/instance/page/conditions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardInstanceCaseidPrimaryformData
-         * @summary Retrieve information and information data of this case instance
-         * @request GET:/api/docpal/case/dashboard/instance/{caseId}/primaryForm/data
-         * @deprecated
-         */
-        getDocpalCaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, any>({
-                path: `/api/docpal/case/dashboard/instance/${caseId}/primaryForm/data`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardInstanceCaseidActivity
-         * @summary Retrieve activities of this case instance
-         * @request GET:/api/docpal/case/dashboard/instance/{caseId}/activity
-         * @deprecated
-         */
-        getDocpalCaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnActivityItem, any>({
-                path: `/api/docpal/case/dashboard/instance/${caseId}/activity`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardInstanceCaseidActions
-         * @summary Retrieve my action list of this case instance
-         * @request GET:/api/docpal/case/dashboard/instance/{caseId}/actions
-         * @deprecated
-         */
-        getDocpalCaseDashboardInstanceCaseidActions: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/docpal/case/dashboard/instance/${caseId}/actions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber
-         * @summary Retrieve case dashboard detail of version number
-         * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/versionNumber/{versionNumber}
-         * @deprecated
-         */
-        getDocpalCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber: (
-            caseTypeId: string,
-            versionNumber: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCmmnDashboard, any>({
-                path: `/api/docpal/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardCasetypeCasetypeidRecordsPageConditions
-         * @summary Obtain all conditions that paging search data of deployed case type
-         * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/records/page/conditions
-         * @deprecated
-         */
-        getDocpalCaseDashboardCasetypeCasetypeidRecordsPageConditions: (
-            caseTypeId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListConditionResponseDTO, any>({
-                path: `/api/docpal/case/dashboard/caseType/${caseTypeId}/records/page/conditions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardCasetypeCasetypeidPrimaryform
-         * @summary Get information form of case type
-         * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/primaryForm
-         * @deprecated
-         */
-        getDocpalCaseDashboardCasetypeCasetypeidPrimaryform: (
-            caseTypeId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/api/docpal/case/dashboard/caseType/${caseTypeId}/primaryForm`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags api-cmmn-dashboard-controller
-         * @name GetDocpalCaseDashboardCaseinstanceCaseinstanceid
-         * @summary Show all dashboard views that belong to the current user of this case type. (Case Dashboard)
-         * @request GET:/api/docpal/case/dashboard/caseInstance/{caseInstanceId}
-         * @deprecated
-         */
-        getDocpalCaseDashboardCaseinstanceCaseinstanceid: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnDashboardDTO, any>({
-                path: `/api/docpal/case/dashboard/caseInstance/${caseInstanceId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name GetDocpalCalendarsId
-         * @request GET:/api/docpal/calendars/{id}
-         * @deprecated
-         */
-        getDocpalCalendarsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, any>({
-                path: `/api/docpal/calendars/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name DeleteDocpalCalendarsId
-         * @summary Delete the Task  it must not have been used yet
-         * @request DELETE:/api/docpal/calendars/{id}
-         * @deprecated
-         */
-        deleteDocpalCalendarsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/calendars/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name GetDocpalCalendarsSettingTables
-         * @summary Obtain calendar tables
-         * @request GET:/api/docpal/calendars/setting/tables
-         * @deprecated
-         */
-        getDocpalCalendarsSettingTables: (params: RequestParams = {}) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/docpal/calendars/setting/tables`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController
-         * @name GetDocpalCalendarsActive
-         * @request GET:/api/docpal/calendars/active
-         * @deprecated
-         */
-        getDocpalCalendarsActive: (params: RequestParams = {}) =>
-            this.request<ResultListCalendarTaskRespDTO, any>({
-                path: `/api/docpal/calendars/active`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
          * @description Get detailed information about a specific user, including roles, groups, and configuration rules
          *
          * @tags User Management
@@ -34940,7 +35350,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name GetDmsSharePreview
          * @request GET:/api/dms/share/preview
          */
@@ -34961,7 +35371,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name GetDmsSharePreviewRetry
          * @request GET:/api/dms/share/preview/retry
          */
@@ -34982,7 +35392,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name GetDmsSharePrepareDownloadDocidGetDownloadStatus
          * @summary Get Status of download file is complete
          * @request GET:/api/dms/share/prepare/download/{docId}/get-download-status
@@ -34997,7 +35407,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name GetDmsShareDownload
          * @request GET:/api/dms/share/download
          */
@@ -35018,7 +35428,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name GetDmsShareDownloadRetry
          * @request GET:/api/dms/share/download/retry
          */
@@ -35039,7 +35449,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name GetDmsShareDocuments
          * @summary Get sharing documents through ID
          * @request GET:/api/dms/share/documents
@@ -35151,7 +35561,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name GetDmsSearchSearchallparent
          * @summary Search All Parent Documents
          * @request GET:/api/dms/search/searchAllParent
@@ -35172,7 +35582,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name GetDmsSearchQueryNestedSearchLog
          * @request GET:/api/dms/search/query-nested-search-log
          */
@@ -35186,7 +35596,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name GetDmsSearchOpenSearchDocumentid
          * @summary Open Search By Id
          * @request GET:/api/dms/search/open-search/{documentId}
@@ -35201,7 +35611,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name GetDmsSearchGetexportheader
          * @summary get export header for Nested Search
          * @request GET:/api/dms/search/getExportHeader
@@ -38890,49 +39300,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ContactController
-         * @name DeleteDocpalContactgroupIdFieldsFieldname
-         * @summary Add new field to contact Group
-         * @request DELETE:/api/docpal/contactGroup/{id}/fields/{fieldName}
-         * @deprecated
-         */
-        deleteDocpalContactgroupIdFieldsFieldname: (
-            id: string,
-            fieldName: string,
-            data: any,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListContactAttribute, any>({
-                path: `/api/docpal/contactGroup/${id}/fields/${fieldName}`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ContactController
-         * @name DeleteDocpalContactgroupIdContactContactdetailid
-         * @summary Physically delete contact records
-         * @request DELETE:/api/docpal/contactGroup/{id}/contact/{contactDetailId}
-         * @deprecated
-         */
-        deleteDocpalContactgroupIdContactContactdetailid: (
-            id: string,
-            contactDetailId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/contactGroup/${id}/contact/${contactDetailId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Document
          * @name DeleteDmsUploadTmpFileId
          * @summary delete Temp File By Id
@@ -38948,7 +39315,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
+         * @tags Share
          * @name DeleteDmsShare
          * @request DELETE:/api/dms/share
          */
@@ -38978,7 +39345,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
+         * @tags Search Controller
          * @name DeleteDmsSearchDeleteNestedSearchLogId
          * @request DELETE:/api/dms/search/delete-nested-search-log/{id}
          */

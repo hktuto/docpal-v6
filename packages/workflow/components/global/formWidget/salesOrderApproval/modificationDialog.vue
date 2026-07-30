@@ -14,39 +14,40 @@ const emits = defineEmits(['create', 'update'])
 
 const defaultRowData: DataItemType = {
   line_id: uuidv7(),
-  customerPoLine: 0,
+  customer_po_line: 0,
   quantity: 0,
-  taxCode: '',
-  requestDate: '',
-  quantityCancelled: 0,
-  customerPo: '',
+  tax_code: '',
+  request_date: '',
+  quantity_cancelled: 0,
+  customer_po: '',
   uom: '',
-  taxAmount: 0,
-  promiseDate: '',
-  quantityShipped: 0,
-  customerItem: '',
-  customerUnitPrice: 0,
-  leadTime: 0,
-  scheduledShipDate: '',
-  scheduleArrivalDate: '',
-  orderedItem: '',
-  unitPrice: 0,
+  tax_amount: 0,
+  promise_date: '',
+  quantity_shipped: 0,
+  customer_item: '',
+  customer_unit_price: 0,
+  lead_time: 0,
+  scheduled_ship_date: '',
+  schedule_arrival_date: '',
+  ordered_item: '',
+  unit_price: 0,
   description: '',
-  subInventory: '',
+  sub_inventory: '',
   references: '',
-  piRemark: '',
-  remarks: ''
+  pi_remark: '',
+  remarks: '',
+  status: 'create'
 }
 
 const oldRowData = ref<DataItemType>()
 const rowData = ref<DataItemType>()
 const partList = ref<any[]>([])
-const taxCodeList = ref<any[]>([
+const tax_codeList = ref<any[]>([
   { label: 'VAT13', value: 'VAT13' },
   { label: 'VAT16', value: 'VAT16' },
   { label: 'VAT7', value: 'VAT7' }
 ])
-const subInventoryList = ref<any[]>([
+const sub_inventoryList = ref<any[]>([
   { label: 'CHECKING', value: 'CHECKING' },
   { label: 'DUMMY', value: 'DUMMY' },
   { label: 'ICHAUS', value: 'ICHAUS' },
@@ -159,7 +160,15 @@ defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body class="big" :title="isEdit ? '編輯零件 Edit Parts' : '添加零件 Add Parts'">
+  <el-dialog
+    v-model="dialogVisible"
+    append-to-body
+    class="big"
+    :title="isEdit ? '編輯零件 Edit Parts' : '添加零件 Add Parts'"
+    destroy-on-close
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+  >
     <el-row :gutter="16">
       <el-col v-if="!isNewItem" :span="12">
         <div class="panel-title">舊數據 Old</div>
@@ -168,8 +177,8 @@ defineExpose({ open })
           disabled
           :columns="2"
           :part-list="partList"
-          :tax-code-list="taxCodeList"
-          :sub-inventory-list="subInventoryList"
+          :tax-code-list="tax_codeList"
+          :sub-inventory-list="sub_inventoryList"
         />
       </el-col>
 
@@ -180,8 +189,8 @@ defineExpose({ open })
           :disabled="isApproval"
           :columns="!isNewItem ? 2 : 4"
           :part-list="partList"
-          :tax-code-list="taxCodeList"
-          :sub-inventory-list="subInventoryList"
+          :tax-code-list="tax_codeList"
+          :sub-inventory-list="sub_inventoryList"
         />
       </el-col>
     </el-row>

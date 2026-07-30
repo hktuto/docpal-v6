@@ -32,6 +32,7 @@ const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
 const key = 'VendorName'
 const SupplierList = ref([])
+const OrgList = ref([])
 const list = ref([
   {
     invoiceKey: 'Name',
@@ -46,10 +47,12 @@ const list = ref([
     options: SupplierList
   },
   {
-    label: 'Customer',
-    invoiceKey: 'CustomerName',
-    type: 'text',
-    status: 'pass'
+    label: 'Org',
+    invoiceKey: 'Org',
+    type: 'select',
+    valueType: 'number',
+    status: 'pass',
+    options: OrgList
   },
   {
     label: 'Delivery Date',
@@ -82,7 +85,8 @@ function getUniqueCartons() {
 async function generateParams() {}
 async function handleSave(value: string, item: any) {
   item.status = 'loading'
-  const res = await updateInvoiceData(value, item.invoiceKey)
+  const payload = item.valueType === 'number' && value !== '' && value != null ? Number(value) : value
+  const res = await updateInvoiceData(payload, item.invoiceKey)
   setTimeout(() => {
     item.status = res.result ? 'pass' : 'fail'
   }, 1000)
@@ -130,9 +134,22 @@ async function getSupplierList() {
   } finally {
   }
 }
-onMounted(() => {
+async function getOrgList() {
+  try {
+    const { data } = await newClientApi.getWmsOrganizationList()
+    OrgList.value = data.map((item: any) => ({
+      label: item.org_name || item.org_id,
+      value: item.org_id
+    })).filter(item => item.value)
+  } catch (error) {
+    console.error(error)
+  } finally {
+  }
+}
+onMounted(async () => {
   console.log('getSupplierList')
-  getSupplierList()
+  await getSupplierList()
+  await getOrgList()
 })
 defineExpose({
   validate

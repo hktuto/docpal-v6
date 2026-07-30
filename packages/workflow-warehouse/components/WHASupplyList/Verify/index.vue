@@ -94,7 +94,7 @@ defineExpose({ getFormData })
 }
 .preview-file-tabs {
   width: 100%;
-
+  // --el-tabs-header-height: 1.6rem;
   :deep(.el-tabs__header) {
     margin: 0;
   }
@@ -111,6 +111,7 @@ defineExpose({ getFormData })
     white-space: nowrap;
     display: inline-block;
     vertical-align: bottom;
+    line-height: 40px;
   }
 }
 </style>

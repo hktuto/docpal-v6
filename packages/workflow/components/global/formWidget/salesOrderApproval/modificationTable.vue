@@ -10,28 +10,29 @@ const { disabled, formData, options } = defineProps<{
 }>()
 interface DataItemType {
   line_id: string
-  customerPoLine: number
+  customer_po_line: number
   quantity: number
-  taxCode: string
-  requestDate: string
-  quantityCancelled: number
-  customerPo: string
+  tax_code: string
+  request_date: string
+  quantity_cancelled: number
+  customer_po: string
   uom: string
-  taxAmount: number
-  promiseDate: string
-  quantityShipped: number
-  customerItem: string
-  customerUnitPrice: number
-  leadTime: number
-  scheduledShipDate: string
-  scheduleArrivalDate: string
-  orderedItem: string
-  unitPrice: number
+  tax_amount: number
+  promise_date: string
+  quantity_shipped: number
+  customer_item: string
+  customer_unit_price: number
+  lead_time: number
+  scheduled_ship_date: string
+  schedule_arrival_date: string
+  ordered_item: string
+  unit_price: number
   description: string
-  subInventory: string
+  sub_inventory: string
   references: string
-  piRemark: string
+  pi_remark: string
   remarks: string
+  status: string
 }
 
 const isApproval = ref<boolean>(false)
@@ -43,13 +44,13 @@ const quantityTotal = computed(() => {
 })
 const subtotal = computed(() => {
   return listData.value
-    .reduce((acc, curr) => acc.add(new Decimal(curr.unitPrice).mul(curr.quantity)), new Decimal(0))
+    .reduce((acc, curr) => acc.add(new Decimal(curr.unit_price).mul(curr.quantity)), new Decimal(0))
     .toDecimalPlaces(6)
     .toNumber()
 })
 const tax = computed(() => {
   return listData.value
-    .reduce((acc, curr) => acc.add(new Decimal(curr.taxAmount)), new Decimal(0))
+    .reduce((acc, curr) => acc.add(new Decimal(curr.tax_amount)), new Decimal(0))
     .toDecimalPlaces(6)
     .toNumber()
 })
@@ -79,17 +80,17 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       fixed: 'left'
     },
     {
-      field: 'orderedItem',
+      field: 'ordered_item',
       title: '訂單商品編號 Ordered Item',
       minWidth: 200
     },
     {
-      field: 'customerItem',
+      field: 'customer_item',
       title: '客戶商品編號 Customer Item',
       minWidth: 240
     },
     {
-      field: 'customerPo',
+      field: 'customer_po',
       title: '客戶訂單 Customer PO',
       minWidth: 200
     },
@@ -99,7 +100,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 120
     },
     {
-      field: 'unitPrice',
+      field: 'unit_price',
       title: '單價 Unit Price',
       minWidth: 120
     },
@@ -114,22 +115,22 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 200
     },
     {
-      field: 'subInventory',
+      field: 'sub_inventory',
       title: '子庫存 Sub-Inventory',
       minWidth: 180
     },
     {
-      field: 'taxCode',
+      field: 'tax_code',
       title: '稅碼 Tax Code',
       minWidth: 120
     },
     {
-      field: 'requestDate',
+      field: 'request_date',
       title: '申請日期 Request Date',
       minWidth: 180
     },
     {
-      field: 'scheduleArrivalDate',
+      field: 'schedule_arrival_date',
       title: '預定抵達日期 Schedule Arrival Date',
       minWidth: 260
     }
@@ -186,127 +187,127 @@ function init() {
   listData.value = [
     {
       line_id: '1',
-      customerPoLine: 1,
+      customer_po_line: 1,
       quantity: 100,
-      taxCode: 'VAT0',
-      requestDate: '2026-07-01',
-      quantityCancelled: 0,
-      customerPo: 'PO-2026-001',
+      tax_code: 'VAT0',
+      request_date: '2026-07-01',
+      quantity_cancelled: 0,
+      customer_po: 'PO-2026-001',
       uom: 'PCS',
-      taxAmount: 0,
-      promiseDate: '2026-07-15',
-      quantityShipped: 0,
-      customerItem: 'CUST-ITEM-A01',
-      customerUnitPrice: 12.5,
-      leadTime: 14,
-      scheduledShipDate: '2026-07-10',
-      scheduleArrivalDate: '2026-07-20',
-      orderedItem: 'PART-1001',
-      unitPrice: 12.5,
+      tax_amount: 0,
+      promise_date: '2026-07-15',
+      quantity_shipped: 0,
+      customer_item: 'CUST-ITEM-A01',
+      customer_unit_price: 12.5,
+      lead_time: 14,
+      scheduled_ship_date: '2026-07-10',
+      schedule_arrival_date: '2026-07-20',
+      ordered_item: 'PART-1001',
+      unit_price: 12.5,
       description: 'Aluminum Housing Type A',
-      subInventory: 'FG',
+      sub_inventory: 'FG',
       references: 'REF-001',
-      piRemark: 'Urgent shipment',
+      pi_remark: 'Urgent shipment',
       remarks: 'First mock line'
     },
     {
       line_id: '2',
-      customerPoLine: 2,
+      customer_po_line: 2,
       quantity: 250,
-      taxCode: 'VAT5',
-      requestDate: '2026-07-02',
-      quantityCancelled: 10,
-      customerPo: 'PO-2026-001',
+      tax_code: 'VAT5',
+      request_date: '2026-07-02',
+      quantity_cancelled: 10,
+      customer_po: 'PO-2026-001',
       uom: 'PCS',
-      taxAmount: 156.25,
-      promiseDate: '2026-07-18',
-      quantityShipped: 50,
-      customerItem: 'CUST-ITEM-B02',
-      customerUnitPrice: 8.25,
-      leadTime: 21,
-      scheduledShipDate: '2026-07-12',
-      scheduleArrivalDate: '2026-07-22',
-      orderedItem: 'PART-1002',
-      unitPrice: 8.25,
+      tax_amount: 156.25,
+      promise_date: '2026-07-18',
+      quantity_shipped: 50,
+      customer_item: 'CUST-ITEM-B02',
+      customer_unit_price: 8.25,
+      lead_time: 21,
+      scheduled_ship_date: '2026-07-12',
+      schedule_arrival_date: '2026-07-22',
+      ordered_item: 'PART-1002',
+      unit_price: 8.25,
       description: 'Plastic Cover Type B',
-      subInventory: 'FG',
+      sub_inventory: 'FG',
       references: 'REF-002',
-      piRemark: '',
+      pi_remark: '',
       remarks: 'Partial shipped'
     },
     {
       line_id: '3',
-      customerPoLine: 3,
+      customer_po_line: 3,
       quantity: 50,
-      taxCode: 'VAT0',
-      requestDate: '2026-07-03',
-      quantityCancelled: 0,
-      customerPo: 'PO-2026-001',
+      tax_code: 'VAT0',
+      request_date: '2026-07-03',
+      quantity_cancelled: 0,
+      customer_po: 'PO-2026-001',
       uom: 'SET',
-      taxAmount: 0,
-      promiseDate: '2026-07-25',
-      quantityShipped: 0,
-      customerItem: 'CUST-ITEM-C03',
-      customerUnitPrice: 45.0,
-      leadTime: 30,
-      scheduledShipDate: '2026-07-20',
-      scheduleArrivalDate: '2026-07-30',
-      orderedItem: 'PART-2001',
-      unitPrice: 42.8,
+      tax_amount: 0,
+      promise_date: '2026-07-25',
+      quantity_shipped: 0,
+      customer_item: 'CUST-ITEM-C03',
+      customer_unit_price: 45.0,
+      lead_time: 30,
+      scheduled_ship_date: '2026-07-20',
+      schedule_arrival_date: '2026-07-30',
+      ordered_item: 'PART-2001',
+      unit_price: 42.8,
       description: 'Motor Assembly Kit',
-      subInventory: 'WIP',
+      sub_inventory: 'WIP',
       references: 'REF-003',
-      piRemark: 'Need QC report',
+      pi_remark: 'Need QC report',
       remarks: 'Custom color'
     },
     {
       line_id: '4',
-      customerPoLine: 1,
+      customer_po_line: 1,
       quantity: 1000,
-      taxCode: 'VAT8',
-      requestDate: '2026-07-05',
-      quantityCancelled: 0,
-      customerPo: 'PO-2026-001',
+      tax_code: 'VAT8',
+      request_date: '2026-07-05',
+      quantity_cancelled: 0,
+      customer_po: 'PO-2026-001',
       uom: 'PCS',
-      taxAmount: 960,
-      promiseDate: '2026-08-01',
-      quantityShipped: 200,
-      customerItem: 'CUST-ITEM-D04',
-      customerUnitPrice: 1.2,
-      leadTime: 7,
-      scheduledShipDate: '2026-07-28',
-      scheduleArrivalDate: '2026-08-05',
-      orderedItem: 'PART-3001',
-      unitPrice: 1.2,
+      tax_amount: 960,
+      promise_date: '2026-08-01',
+      quantity_shipped: 200,
+      customer_item: 'CUST-ITEM-D04',
+      customer_unit_price: 1.2,
+      lead_time: 7,
+      scheduled_ship_date: '2026-07-28',
+      schedule_arrival_date: '2026-08-05',
+      ordered_item: 'PART-3001',
+      unit_price: 1.2,
       description: 'Screw M3x8',
-      subInventory: 'RM',
+      sub_inventory: 'RM',
       references: 'REF-004',
-      piRemark: 'Bulk order',
+      pi_remark: 'Bulk order',
       remarks: ''
     },
     {
       line_id: '5',
-      customerPoLine: 2,
+      customer_po_line: 2,
       quantity: 80,
-      taxCode: 'VAT5',
-      requestDate: '2026-07-08',
-      quantityCancelled: 5,
-      customerPo: 'PO-2026-001',
+      tax_code: 'VAT5',
+      request_date: '2026-07-08',
+      quantity_cancelled: 5,
+      customer_po: 'PO-2026-001',
       uom: 'PCS',
-      taxAmount: 95.2,
-      promiseDate: '2026-08-10',
-      quantityShipped: 0,
-      customerItem: 'CUST-ITEM-E05',
-      customerUnitPrice: 23.8,
-      leadTime: 28,
-      scheduledShipDate: '2026-08-05',
-      scheduleArrivalDate: '2026-08-15',
-      orderedItem: 'PART-4001',
-      unitPrice: 23.8,
+      tax_amount: 95.2,
+      promise_date: '2026-08-10',
+      quantity_shipped: 0,
+      customer_item: 'CUST-ITEM-E05',
+      customer_unit_price: 23.8,
+      lead_time: 28,
+      scheduled_ship_date: '2026-08-05',
+      schedule_arrival_date: '2026-08-15',
+      ordered_item: 'PART-4001',
+      unit_price: 23.8,
       description: 'Control Board PCB',
-      subInventory: 'FG',
+      sub_inventory: 'FG',
       references: 'REF-005',
-      piRemark: 'Firmware v2.1',
+      pi_remark: 'Firmware v2.1',
       remarks: 'Hold for confirmation'
     }
   ]
@@ -355,7 +356,7 @@ function handleUpdate(row: DataItemType) {}
 async function handleDelete(row: DataItemType) {
   if (isApproval.value) return
   try {
-    const action = await ElMessageBox.confirm(`Are you sure you want to delete "${row.orderedItem}"?`, {
+    const action = await ElMessageBox.confirm(`Are you sure you want to delete "${row.ordered_item}"?`, {
       confirmButtonClass: 'el-button el-button--warning',
       dangerouslyUseHTMLString: true,
       confirmButtonText: t('common_confirmDelete')
