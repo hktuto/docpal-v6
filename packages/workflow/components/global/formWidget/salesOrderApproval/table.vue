@@ -11,54 +11,60 @@ const { disabled, formData, options } = defineProps<{
 
 interface DataItemType {
   line_id: string
-  customerPoLine: number
+  customer_po_line: number
   quantity: number
-  taxCode: string
-  requestDate: string
-  quantityCancelled: number
-  customerPo: string
+  tax_code: string
+  request_date: string
+  quantity_cancelled: number
+  customer_po: string
   uom: string
-  taxAmount: number
-  promiseDate: string
-  quantityShipped: number
-  customerItem: string
-  customerUnitPrice: number
-  leadTime: number
-  scheduledShipDate: string
-  scheduleArrivalDate: string
-  orderedItem: string
-  unitPrice: number
+  tax_amount: number
+  promise_date: string
+  quantity_shipped: number
+  customer_item: string
+  customer_unit_price: number
+  lead_time: number
+  scheduled_ship_date: string
+  schedule_arrival_date: string
+  ordered_item: string
+  unit_price: number
   description: string
-  subInventory: string
+  sub_inventory: string
   references: string
-  piRemark: string
+  pi_remark: string
   remarks: string
+  status: string
 }
 
 const quantityTotal = computed(() => {
   return listData.value.length
 })
 const subtotal = computed(() => {
+  if (!listData.value) return 0
   return listData.value
-    .reduce((acc, curr) => acc.add(new Decimal(curr.unitPrice).mul(curr.quantity)), new Decimal(0))
+    .reduce((acc, curr) => acc.add(new Decimal(curr.unit_price).mul(curr.quantity)), new Decimal(0))
     .toDecimalPlaces(6)
     .toNumber()
 })
 const tax = computed(() => {
+  if (!listData.value) return 0
   return listData.value
-    .reduce((acc, curr) => acc.add(new Decimal(curr.taxAmount)), new Decimal(0))
+    .reduce((acc, curr) => acc.add(new Decimal(curr.tax_amount)), new Decimal(0))
     .toDecimalPlaces(6)
     .toNumber()
 })
 const charges = computed(() => {
+  if (!listData.value) return 0
   return 0
 })
 const totalAmount = computed(() => {
+  if (!listData.value) return 0
   return new Decimal(subtotal.value).add(tax.value).add(charges.value).toDecimalPlaces(6).toNumber()
 })
 
 const isApproval = ref<boolean>(false)
 const listData = ref<DataItemType[]>([])
+const customerPo = ref<string>('')
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'SalesOrderTableSetting',
@@ -73,17 +79,17 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 100
     },
     {
-      field: 'orderedItem',
+      field: 'ordered_item',
       title: '訂單商品編號 Ordered Item',
       minWidth: 200
     },
     {
-      field: 'customerItem',
+      field: 'customer_item',
       title: '客戶商品編號 Customer Item',
       minWidth: 240
     },
     {
-      field: 'customerPo',
+      field: 'customer_po',
       title: '客戶訂單 Customer PO',
       minWidth: 200
     },
@@ -93,7 +99,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 120
     },
     {
-      field: 'unitPrice',
+      field: 'unit_price',
       title: '單價 Unit Price',
       minWidth: 120
     },
@@ -108,22 +114,22 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 200
     },
     {
-      field: 'subInventory',
+      field: 'sub_inventory',
       title: '子庫存 Sub-Inventory',
       minWidth: 180
     },
     {
-      field: 'taxCode',
+      field: 'tax_code',
       title: '稅碼 Tax Code',
       minWidth: 120
     },
     {
-      field: 'requestDate',
+      field: 'request_date',
       title: '申請日期 Request Date',
       minWidth: 180
     },
     {
-      field: 'scheduleArrivalDate',
+      field: 'schedule_arrival_date',
       title: '預定抵達日期 Schedule Arrival Date',
       minWidth: 260
     }
@@ -179,14 +185,18 @@ function loadData() {
 }
 
 function init() {
+  console.log(123, formData)
   isApproval.value = formData.is_approval
   listData.value = formData.order_item_list
 }
 
 async function getFormData(needValidation = true) {
   const result = {
-    order_item_list: '',
-    total_amount: total
+    order_item_list: listData.value,
+    subtotal: subtotal.value,
+    tax: tax.value,
+    charges: charges.value,
+    total_amount: totalAmount.value
   }
   if (!needValidation) return result
   return result
@@ -205,8 +215,12 @@ function handleDblClick(row: any) {
 function handleSynchronizePoNumbers() {
   if (listData.value.length === 0) return
 
-  const one = listData.value[0]
-  if (!one.customerPo) return
+  const po = formData.customer_po
+  listData.value = listData.value.map((item: any) => ({
+    ...item,
+    customer_po: po
+  }))
+  loadData()
 }
 
 function handleCreate(newRow: DataItemType) {
@@ -220,7 +234,7 @@ function handleUpdate(row: DataItemType) {}
 async function handleDelete(row: DataItemType) {
   if (isApproval.value) return
   try {
-    const action = await ElMessageBox.confirm(`Are you sure you want to delete "${row.orderedItem}"?`, {
+    const action = await ElMessageBox.confirm(`Are you sure you want to delete "${row.ordered_item}"?`, {
       confirmButtonClass: 'el-button el-button--warning',
       dangerouslyUseHTMLString: true,
       confirmButtonText: t('common_confirmDelete')
@@ -240,6 +254,7 @@ async function handleDelete(row: DataItemType) {
 watch(
   () => formData.is_approval,
   (value) => {
+    customerPo.value = formData.customer_po
     if (!!value) {
       init()
     }
@@ -284,7 +299,13 @@ defineExpose({ getFormData })
     </VxeGrid>
   </div>
 
-  <LazyFormWidgetSalesOrderApprovalDialog ref="formWidgetSalesOrderApprovalDialogRef" :isApproval="isApproval" @create="handleCreate" @update="handleUpdate" />
+  <LazyFormWidgetSalesOrderApprovalDialog
+    ref="formWidgetSalesOrderApprovalDialogRef"
+    :customerPo="customerPo"
+    :isApproval="isApproval"
+    @create="handleCreate"
+    @update="handleUpdate"
+  />
 </template>
 
 <style scoped lang="scss">
