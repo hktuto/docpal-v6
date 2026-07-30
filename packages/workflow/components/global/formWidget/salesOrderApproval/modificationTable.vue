@@ -75,6 +75,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     {
       field: 'index',
       title: '序號 Index',
+      align: 'center',
       type: 'seq',
       minWidth: 100,
       fixed: 'left'

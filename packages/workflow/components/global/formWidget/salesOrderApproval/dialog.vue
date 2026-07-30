@@ -123,6 +123,7 @@ function open(row?: any) {
 }
 
 async function handleSubmit() {
+  if (isApproval) return
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) return
 
@@ -211,7 +212,7 @@ defineExpose({ open })
     v-model="dialogVisible"
     append-to-body
     class="big"
-    :title="isEdit ? '編輯零件 Edit Parts' : '添加零件 Add Parts'"
+    :title="isApproval ? '零件明細 Part Detail' : isEdit ? '編輯零件 Edit Parts' : '添加零件 Add Parts'"
     destroy-on-close
     :close-on-click-modal="false"
     :close-on-press-escape="false"
@@ -309,7 +310,7 @@ defineExpose({ open })
       </el-row>
     </el-form>
     <template #footer>
-      <el-button type="primary" @click="handleSubmit">Submit</el-button>
+      <el-button v-if="!isApproval" type="primary" @click="handleSubmit">Submit</el-button>
     </template>
   </el-dialog>
 </template>

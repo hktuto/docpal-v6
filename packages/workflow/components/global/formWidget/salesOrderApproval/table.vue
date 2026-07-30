@@ -68,13 +68,14 @@ const customerPo = ref<string>('')
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'SalesOrderTableSetting',
-  api: (pageParams: any) => {
-    return []
+  api: () => {
+    return listData.value
   },
   columns: [
     {
       field: 'index',
       title: '序號 Index',
+      align: 'center',
       type: 'seq',
       minWidth: 100
     },
@@ -185,14 +186,21 @@ function loadData() {
 }
 
 function init() {
-  console.log(123, formData)
   isApproval.value = formData.is_approval
   listData.value = formData.order_item_list
+  nextTick(() => {
+    reload()
+  })
 }
 
 async function getFormData(needValidation = true) {
+  const list = listData.value.map((item: any) => {
+    delete item['_X_ROW_KEY']
+    return item
+  })
+
   const result = {
-    order_item_list: listData.value,
+    order_item_list: list,
     subtotal: subtotal.value,
     tax: tax.value,
     charges: charges.value,
@@ -252,15 +260,23 @@ async function handleDelete(row: DataItemType) {
 }
 
 watch(
-  () => formData.is_approval,
+  () => formData.order_item_list,
   (value) => {
-    customerPo.value = formData.customer_po
     if (!!value) {
       init()
     }
   },
   { immediate: true, deep: true }
 )
+
+watch(
+  () => formData.customer_po,
+  (value) => {
+    customerPo.value = value
+  },
+  { immediate: true, deep: true }
+)
+
 defineExpose({ getFormData })
 </script>
 
@@ -292,9 +308,11 @@ defineExpose({ getFormData })
 
   <div style="height: 60vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template v-if="!isApproval" #toolbar_buttons>
-        <el-button type="primary" @click="handleAdd">添加零件 Add Parts</el-button>
-        <el-button type="warning" @click="handleSynchronizePoNumbers">同步全部客戶訂單編號 Synchronize All PO Numbers</el-button>
+      <template #toolbar_buttons>
+        <div v-if="!isApproval">
+          <el-button type="primary" @click="handleAdd">添加零件 Add Parts</el-button>
+          <el-button type="warning" @click="handleSynchronizePoNumbers">同步全部客戶訂單編號 Synchronize All PO Numbers</el-button>
+        </div>
       </template>
     </VxeGrid>
   </div>
