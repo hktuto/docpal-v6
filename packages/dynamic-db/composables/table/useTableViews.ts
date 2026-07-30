@@ -272,6 +272,14 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (!view) return
     // @ts-ignore
     currentView.value[fieldName] = value
+    // 立即同步运行时规则，避免 refresh 仍读到删除前的旧数据
+    if (fieldName === 'filterInfo') {
+      columnFilterRules.value = value
+    } else if (fieldName === 'sortInfo') {
+      columnSortRules.value = value ?? []
+    } else if (fieldName === 'groupInfo') {
+      columnGroupRules.value = value ?? []
+    }
     await updateView(view.id, { [fieldName]: value })
   }
 

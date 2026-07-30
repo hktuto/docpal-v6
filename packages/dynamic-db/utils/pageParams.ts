@@ -22,6 +22,23 @@ function isDateField(columns: any[] | undefined, field: string) {
   return column?.business_type === ColumnFieldType.DateTime
 }
 
+const OPERATORS_WITHOUT_VALUE = ['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE']
+
+function isEmptyFilterValue(value: unknown): boolean {
+  if (value == null) return true
+  if (typeof value === 'string' && value.trim() === '') return true
+  if (Array.isArray(value)) {
+    return value.length === 0 || value.every((item) => item == null || item === '')
+  }
+  return false
+}
+
+function shouldKeepFilterCondition(rule: any): boolean {
+  if (!rule?.field || !rule?.operator) return false
+  if (OPERATORS_WITHOUT_VALUE.includes(rule.operator)) return true
+  return !isEmptyFilterValue(rule.value)
+}
+
 function buildFilterRules(columnFilterRules: PageParamsInput['columnFilterRules'], columns?: any[]) {
   if (!columnFilterRules) {
     return []
@@ -29,8 +46,9 @@ function buildFilterRules(columnFilterRules: PageParamsInput['columnFilterRules'
   const filterRules = {
     value:
       columnFilterRules.conditions
-        ?.map((rule: any) => convertFilterRuleToCondition(rule, (field) => isDateField(columns, field)))
-        .filter((rule: any) => rule.column && rule.type) || [],
+        ?.filter(shouldKeepFilterCondition)
+        .map((rule: any) => convertFilterRuleToCondition(rule, (field) => isDateField(columns, field)))
+        .filter((rule: any) => (rule.column && rule.type) || rule.type === 'AND') || [],
     type: columnFilterRules.conjunction || 'AND'
   }
   return [filterRules]
@@ -57,12 +75,13 @@ export function buildPageParams(
   const { group = true, orderBy = true } = options
   const { columnFilterRules, columnSortRules, columnGroupRules, columns } = input
   const params: Record<string, any> = {}
-
   if (columnFilterRules && columnFilterRules.conditions?.length) {
     const conditions = buildFilterRules(columnFilterRules, columns)
     if (conditions[0].value?.length) {
       params.conditions = conditions
     }
+  } else {
+    params.conditions = []
   }
 
   if (columns) {
@@ -95,6 +114,6 @@ export function buildPageParams(
       params.orderBy = sortOrderBy
     }
   }
-
+  console.log('params', params)
   return params
 }
