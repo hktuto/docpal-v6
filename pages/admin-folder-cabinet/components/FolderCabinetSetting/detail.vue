@@ -84,7 +84,6 @@ if (!routerProvider) {
 const props = defineProps(['data', 'isRoot', 'id', 'tree'])
 const emits = defineEmits(['update'])
 // @ts-ignore
-const ignoreList = getIgnoreSchemas()
 const { t } = useI18n()
 const FormRendererRef = ref()
 const state = reactive<any>({
