@@ -127,12 +127,18 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     {
       field: 'request_date',
       title: '申請日期 Request Date',
-      minWidth: 180
+      minWidth: 180,
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
     },
     {
       field: 'schedule_arrival_date',
       title: '預定抵達日期 Schedule Arrival Date',
-      minWidth: 260
+      minWidth: 260,
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
     }
   ],
   zoom: false,

@@ -72,17 +72,10 @@ const sub_inventoryList = ref<any[]>([
 ])
 
 function open(newItem: boolean, row?: DataItemType, oldData?: DataItemType) {
-  isEdit.value = false
+  isEdit.value = !!row
   isNewItem.value = newItem
-  rowData.value = deepCopy(defaultRowData)
-  if (!newItem && !!oldData) {
-    oldRowData.value = oldData
-  }
-
-  if (!!row) {
-    rowData.value = { ...row }
-    isEdit.value = true
-  }
+  oldRowData.value = deepCopy(oldData)
+  rowData.value = !!row ? deepCopy(row) : deepCopy(defaultRowData)
   dialogVisible.value = true
 }
 
@@ -188,6 +181,7 @@ defineExpose({ open })
         <div v-if="!isNewItem" class="panel-title">新數據 New</div>
         <ModificationFormFields
           v-model="rowData"
+          :old-data="oldRowData"
           :disabled="isApproval"
           :columns="!isNewItem ? 2 : 4"
           :part-list="partList"
@@ -198,7 +192,7 @@ defineExpose({ open })
     </el-row>
 
     <template #footer>
-      <el-button type="primary" :disabled="isApproval" @click="handleSubmit">Submit</el-button>
+      <el-button v-if="!isApproval" type="primary" @click="handleSubmit">Submit</el-button>
     </template>
   </el-dialog>
 </template>

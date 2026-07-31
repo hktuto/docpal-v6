@@ -41,15 +41,18 @@ const listData = ref<DataItemType[]>([])
 const oldListData = ref<DataItemType[]>([])
 
 const quantityTotal = computed(() => {
+  if (!listData.value) return 0
   return listData.value.length
 })
 const subtotal = computed(() => {
+  if (!listData.value) return 0
   return listData.value
     .reduce((acc, curr) => acc.add(new Decimal(curr.unit_price).mul(curr.quantity)), new Decimal(0))
     .toDecimalPlaces(6)
     .toNumber()
 })
 const tax = computed(() => {
+  if (!listData.value) return 0
   return listData.value
     .reduce((acc, curr) => acc.add(new Decimal(curr.tax_amount)), new Decimal(0))
     .toDecimalPlaces(6)
@@ -59,6 +62,7 @@ const charges = computed(() => {
   return 0
 })
 const totalAmount = computed(() => {
+  if (!listData.value) return 0
   return new Decimal(subtotal.value).add(tax.value).add(charges.value).toDecimalPlaces(6).toNumber()
 })
 const historyQuantityTotal = ref<number>(0)
@@ -66,6 +70,23 @@ const historySubtotal = ref<number>(0)
 const historyTax = ref<number>(0)
 const historyCharges = ref<number>(0)
 const historyTotalAmount = ref<number>(0)
+const historyChange = computed(() => {
+  if (!listData.value || !oldListData.value) return 0
+
+  let sum = 0
+  listData.value.forEach((item: DataItemType) => {
+    const oldItem = oldListData.value.find((oldItem: DataItemType) => oldItem.line_id === item.line_id)
+    if (!oldItem) {
+      sum += 1
+      return
+    }
+
+    if (JSON.stringify(item) !== JSON.stringify(oldItem)) {
+      sum += 1
+    }
+  })
+  return sum
+})
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'ModificationSalesOrderTableSetting',
@@ -129,12 +150,18 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     {
       field: 'request_date',
       title: '申請日期 Request Date',
-      minWidth: 180
+      minWidth: 180,
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
     },
     {
       field: 'schedule_arrival_date',
       title: '預定抵達日期 Schedule Arrival Date',
-      minWidth: 260
+      minWidth: 260,
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
     }
   ],
   zoom: false,
@@ -183,9 +210,8 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   optionalConfig: {}
 })
 
-function init() {
-  isApproval.value = formData.is_approval
-
+async function getPartsDetails() {
+  if (formData.is_approval) return
   const list = [
     {
       line_id: '1',
@@ -312,17 +338,38 @@ function init() {
       pi_remark: 'Firmware v2.1',
       remarks: 'Hold for confirmation'
     }
-  ]
+  ] as DataItemType[]
   listData.value = deepCopy(list)
   oldListData.value = deepCopy(list)
 
-  loadData()
+  nextTick(() => {
+    reload()
+  })
+}
 
-  historyQuantityTotal.value = 5
-  historySubtotal.value = 8556.5
-  historyTax.value = 1211.45
-  historyCharges.value = 0
-  historyTotalAmount.value = 9767.95
+function init() {
+  isApproval.value = formData.is_approval
+  if (!isApproval.value) return
+
+  listData.value = formData.order_item_list
+
+  nextTick(() => {
+    reload()
+  })
+
+  if (formData.is_approval) {
+    historyQuantityTotal.value = formData.history_quantity_total
+    historySubtotal.value = formData.history_subtotal
+    historyTax.value = formData.history_tax
+    historyCharges.value = formData.history_charges
+    historyTotalAmount.value = formData.history_total_amount
+  } else {
+    historyQuantityTotal.value = 5
+    historySubtotal.value = 8556.5
+    historyTax.value = 1211.45
+    historyCharges.value = 0
+    historyTotalAmount.value = 9767.95
+  }
 }
 
 function loadData() {
@@ -337,16 +384,18 @@ async function getFormData(needValidation = true) {
 
   const result = {
     order_item_list: list,
+    old_order_item_list: oldListData.value,
     history_quantity_total: historyQuantityTotal.value,
     history_subtotal: historySubtotal.value,
     history_tax: historyTax.value,
     history_charges: historyCharges.value,
     history_total_amount: historyTotalAmount.value,
+    history_change: historyChange.value,
     quantity_total: quantityTotal.value,
     subtotal: subtotal.value,
     tax: tax.value,
     charges: charges.value,
-    total_amount: totalAmount.value,
+    total_amount: totalAmount.value
   }
   if (!needValidation) return result
   return result
@@ -372,7 +421,7 @@ function handleDblClick(row: DataItemType) {
 }
 
 function handleAdd() {
-  formWidgetSalesOrderApprovalModificationDialogRef.value.open(true)
+  formWidgetSalesOrderApprovalModificationDialogRef.value.open(true, undefined, undefined)
 }
 function handleCreate(newRow: DataItemType) {
   if (isApproval.value) return
@@ -413,10 +462,20 @@ watch(
 )
 
 watch(
-  () => formData.order_number,
+  () => formData.old_order_item_list,
   (value) => {
-    if (!!value && value !== '') {
-      init()
+    if (!!value) {
+      oldListData.value = value
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+watch(
+  () => formData.order_number,
+  async (value) => {
+    if (!!value && value === '123692222') {
+      await getPartsDetails()
     }
   },
   { immediate: true, deep: true }
@@ -428,7 +487,7 @@ defineExpose({ getFormData })
 <template>
   <el-form label-position="top" class="all-input-style">
     <el-row>
-      <el-col :span="5">
+      <el-col :span="4">
         <el-form-item label="歷史數量 History Quantity Total">
           <el-input-number v-model="historyQuantityTotal" disabled />
         </el-form-item>
@@ -466,6 +525,11 @@ defineExpose({ getFormData })
         </el-form-item>
         <el-form-item label="總計 Total">
           <el-input-number v-model="totalAmount" disabled />
+        </el-form-item>
+      </el-col>
+      <el-col :span="4">
+        <el-form-item label="歷史變更 History Change">
+          <el-input-number v-model="historyChange" disabled />
         </el-form-item>
       </el-col>
     </el-row>
