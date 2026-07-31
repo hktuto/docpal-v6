@@ -6,7 +6,7 @@
       <el-splitter-panel class="mg-right" size="7%" :collapsible="false" :min="50">
         <WHASupplyListVerifyList />
       </el-splitter-panel>
-      <el-splitter-panel class="mg-right preview-panel" :collapsible="false" :min="200">
+      <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200" >
         <WorkflowPreview :doc-id="docId">
           <template #title>
             <el-tabs v-model="docId" class="preview-file-tabs">
@@ -15,7 +15,7 @@
           </template>
         </WorkflowPreview>
       </el-splitter-panel>
-      <el-splitter-panel :collapsible="false" size="40%" :min="200">
+      <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200" >
         <WHASupplyListVerifyTable />
       </el-splitter-panel>
       <el-splitter-panel class="mg-left side-panel" size="12%" :collapsible="isCollapsible" :min="150">
@@ -28,6 +28,8 @@
 </template>
 
 <script setup lang="ts">
+import { TabRouter, type LazyContextServiceTaskValidateRule } from '#components'
+
 const props = defineProps(['formData', 'taskDetail'])
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList, docId } = useWHASupplyListVerifyProvider(props)

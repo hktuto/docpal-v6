@@ -11,15 +11,15 @@
       type="button"
       class="progress-card-action"
       :disabled="loading"
-      aria-label="Approve & Push to PDA"
-      title="Approve & Push to PDA"
+      aria-label="Approve"
+      title="Approve"
       @click="handleApprove"
     >
       <el-icon class="progress-card-action-icon" :class="{ 'is-loading': loading }" aria-hidden="true">
         <Loading v-if="loading" />
         <Document v-else />
       </el-icon>
-      <span class="progress-card-action-text">Approve &amp; Push to PDA</span>
+      <span class="progress-card-action-text">Approve</span>
     </button>
   </div>
 </template>
