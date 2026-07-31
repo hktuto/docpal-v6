@@ -39,21 +39,25 @@ const isApproval = ref<boolean>(false)
 const formRef = ref()
 const listData = ref<DataItemType[]>([])
 const oldListData = ref<DataItemType[]>([])
+const filterCancelList = computed(() => {
+  if (!listData.value) return []
+  return deepCopy(listData.value).filter((item: any) => item.status !== 'cancel')
+})
 
 const quantityTotal = computed(() => {
-  if (!listData.value) return 0
-  return listData.value.length
+  if (!filterCancelList.value) return 0
+  return filterCancelList.value.length
 })
 const subtotal = computed(() => {
-  if (!listData.value) return 0
-  return listData.value
+  if (!filterCancelList.value) return 0
+  return filterCancelList.value
     .reduce((acc, curr) => acc.add(new Decimal(curr.unit_price).mul(curr.quantity)), new Decimal(0))
     .toDecimalPlaces(6)
     .toNumber()
 })
 const tax = computed(() => {
-  if (!listData.value) return 0
-  return listData.value
+  if (!filterCancelList.value) return 0
+  return filterCancelList.value
     .reduce((acc, curr) => acc.add(new Decimal(curr.tax_amount)), new Decimal(0))
     .toDecimalPlaces(6)
     .toNumber()
@@ -62,7 +66,7 @@ const charges = computed(() => {
   return 0
 })
 const totalAmount = computed(() => {
-  if (!listData.value) return 0
+  if (!filterCancelList.value) return 0
   return new Decimal(subtotal.value).add(tax.value).add(charges.value).toDecimalPlaces(6).toNumber()
 })
 const historyQuantityTotal = ref<number>(0)
