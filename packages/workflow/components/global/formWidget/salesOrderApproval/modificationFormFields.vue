@@ -6,18 +6,18 @@ export interface DataItemType {
   customer_po_line: number
   quantity: number
   tax_code: string
-  request_date: string
+  request_date: number
   quantity_cancelled: number
   customer_po: string
   uom: string
   tax_amount: number
-  promise_date: string
+  promise_date: number
   quantity_shipped: number
   customer_item: string
   customer_unit_price: number
   lead_time: number
-  scheduled_ship_date: string
-  schedule_arrival_date: string
+  scheduled_ship_date: number
+  schedule_arrival_date: number
   ordered_item: string
   unit_price: number
   description: string
@@ -72,7 +72,6 @@ function normalizeValue(value: unknown): string {
 
 /** 與 oldData 原值比對，不一致則高亮 */
 function isFieldChanged(field: keyof DataItemType): boolean {
-  console.log(123, oldData)
   if (!disabled && !oldData) return false
   if (!oldData || Object.keys(oldData).length === 0) return false
   return normalizeValue(rowData.value[field]) !== normalizeValue(oldData[field])
@@ -95,7 +94,7 @@ function isFieldChanged(field: keyof DataItemType): boolean {
           </el-select>
         </el-form-item>
         <el-form-item label="申請日期 Request Date" prop="request_date" :class="{ 'field-changed': isFieldChanged('request_date') }">
-          <el-date-picker v-model="rowData.request_date" type="date" />
+          <el-date-picker v-model="rowData.request_date" type="date" format="YYYY/MM/DD" value-format="x" />
         </el-form-item>
         <el-form-item label="取消數量 Quantity Cancelled" :class="{ 'field-changed': isFieldChanged('quantity_cancelled') }">
           <el-input v-model="rowData.quantity_cancelled" disabled />
@@ -113,7 +112,7 @@ function isFieldChanged(field: keyof DataItemType): boolean {
           <el-input v-model="rowData.tax_amount" disabled />
         </el-form-item>
         <el-form-item label="承諾日期 Promise Date" :class="{ 'field-changed': isFieldChanged('promise_date') }">
-          <el-date-picker v-model="rowData.promise_date" type="date" />
+          <el-date-picker v-model="rowData.promise_date" type="date" format="YYYY/MM/DD" value-format="x" />
         </el-form-item>
         <el-form-item label="出貨數量 Quantity Shipped" :class="{ 'field-changed': isFieldChanged('quantity_shipped') }">
           <el-input v-model="rowData.quantity_shipped" disabled />
@@ -131,7 +130,7 @@ function isFieldChanged(field: keyof DataItemType): boolean {
           <el-input-number v-model="rowData.lead_time" controls-position="right" :min="0" :step="1" step-strictly />
         </el-form-item>
         <el-form-item label="預定出貨日期 Scheduled Ship Date" :class="{ 'field-changed': isFieldChanged('scheduled_ship_date') }">
-          <el-date-picker v-model="rowData.scheduled_ship_date" type="date" />
+          <el-date-picker v-model="rowData.scheduled_ship_date" type="date" format="YYYY/MM/DD" value-format="x" />
         </el-form-item>
         <el-form-item label="參考 References" :class="{ 'field-changed': isFieldChanged('references') }">
           <el-input v-model="rowData.references" disabled />
@@ -151,7 +150,7 @@ function isFieldChanged(field: keyof DataItemType): boolean {
           <el-input v-model="rowData.description" disabled />
         </el-form-item>
         <el-form-item label="預定抵達日期 Scheduled Arrival Date" :class="{ 'field-changed': isFieldChanged('schedule_arrival_date') }">
-          <el-date-picker v-model="rowData.schedule_arrival_date" type="date" disabled />
+          <el-date-picker v-model="rowData.schedule_arrival_date" type="date" disabled format="YYYY/MM/DD" value-format="x" />
         </el-form-item>
         <el-form-item label="子庫存 Sub-Inventory" prop="sub_inventory" :class="{ 'field-changed': isFieldChanged('sub_inventory') }">
           <el-select v-model="rowData.sub_inventory">
@@ -192,7 +191,7 @@ function isFieldChanged(field: keyof DataItemType): boolean {
   :deep(.el-input__wrapper),
   :deep(.el-select__wrapper),
   :deep(.el-textarea__inner) {
-    box-shadow: 0 0 0 1px #ff8c00 inset;
+    box-shadow: 0 0 0 2px #ff8c00 inset;
   }
 }
 </style>

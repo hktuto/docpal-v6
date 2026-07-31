@@ -18,18 +18,18 @@ interface DataItemType {
   customer_po_line: number
   quantity: number
   tax_code: string
-  request_date: string
+  request_date: number
   quantity_cancelled: number
   customer_po: string
   uom: string
   tax_amount: number
-  promise_date: string
+  promise_date: number
   quantity_shipped: number
   customer_item: string
   customer_unit_price: number
   lead_time: number
-  scheduled_ship_date: string
-  schedule_arrival_date: string
+  scheduled_ship_date: number
+  schedule_arrival_date: number
   ordered_item: string
   unit_price: number
   description: string
@@ -51,13 +51,13 @@ function createDefaultRowData(): DataItemType {
     customer_po: customerPo,
     uom: '',
     tax_amount: 0,
-    promise_date: '',
+    promise_date: 0,
     quantity_shipped: 0,
     customer_item: '',
     customer_unit_price: 0,
     lead_time: 0,
-    scheduled_ship_date: '',
-    schedule_arrival_date: '',
+    scheduled_ship_date: 0,
+    schedule_arrival_date: 0,
     ordered_item: '',
     unit_price: 0,
     description: '',
@@ -232,7 +232,7 @@ defineExpose({ open })
             </el-select>
           </el-form-item>
           <el-form-item label="申請日期 Request Date" prop="request_date">
-            <el-date-picker v-model="rowData.request_date" type="date" />
+            <el-date-picker v-model="rowData.request_date" type="date" format="YYYY/MM/DD" value-format="x" />
           </el-form-item>
           <el-form-item label="取消數量 Quantity Cancelled">
             <el-input v-model="rowData.quantity_cancelled" disabled />
@@ -250,7 +250,7 @@ defineExpose({ open })
             <el-input v-model="rowData.tax_amount" disabled />
           </el-form-item>
           <el-form-item label="承諾日期 Promise Date">
-            <el-date-picker v-model="rowData.promise_date" type="date" />
+            <el-date-picker v-model="rowData.promise_date" type="date" format="YYYY/MM/DD" value-format="x" />
           </el-form-item>
           <el-form-item label="出貨數量 Quantity Shipped">
             <el-input v-model="rowData.quantity_shipped" disabled />
@@ -268,7 +268,7 @@ defineExpose({ open })
             <el-input-number v-model="rowData.lead_time" controls-position="right" :min="0" :step="1" step-strictly />
           </el-form-item>
           <el-form-item label="預定出貨日期 Scheduled Ship Date">
-            <el-date-picker v-model="rowData.scheduled_ship_date" type="date" />
+            <el-date-picker v-model="rowData.scheduled_ship_date" type="date" format="YYYY/MM/DD" value-format="x" />
           </el-form-item>
           <el-form-item label="參考 References">
             <el-input v-model="rowData.references" disabled />
@@ -288,7 +288,7 @@ defineExpose({ open })
             <el-input v-model="rowData.description" disabled type="textarea" :rows="1" :autosize="{ minRows: 1, maxRows: 4 }" />
           </el-form-item>
           <el-form-item label="預定抵達日期 Scheduled Arrival Date">
-            <el-date-picker v-model="rowData.schedule_arrival_date" type="date" disabled />
+            <el-date-picker v-model="rowData.schedule_arrival_date" type="date" disabled format="YYYY/MM/DD" value-format="x" />
           </el-form-item>
           <el-form-item label="子庫存 Sub-Inventory" prop="sub_inventory">
             <el-select v-model="rowData.sub_inventory">
