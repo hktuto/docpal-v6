@@ -98,7 +98,7 @@ const historyChangeByApproval = ref<number>(0)
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'ModificationSalesOrderTableSetting',
   api: (pageParams: any) => {
-    return listData.value
+    return listData.value.filter((item: any) => item.status !== 'cancel')
   },
   columns: [
     {
@@ -391,10 +391,6 @@ function init() {
   }
 }
 
-function loadData() {
-  tableRef.value?.loadData(listData.value)
-}
-
 async function getFormData(needValidation = true) {
   const list = deepCopy(listData.value).map((item: any) => {
     delete item['_X_ROW_KEY']
@@ -445,13 +441,13 @@ function handleAdd() {
 function handleCreate(newRow: DataItemType) {
   if (isApproval.value) return
   listData.value.push(newRow)
-  loadData()
+  reload()
 }
 
 function handleUpdate(row: DataItemType) {
   const index: number = listData.value.findIndex((item: DataItemType) => item.line_id === row.line_id)
   listData.value[index] = row
-  loadData()
+  reload()
 }
 
 async function handleDelete(row: DataItemType) {
@@ -465,10 +461,10 @@ async function handleDelete(row: DataItemType) {
     if (action !== 'confirm') return
 
     const index = listData.value.findIndex((item) => item.line_id === row.line_id)
-    if (index !== -1) {
-      listData.value.splice(index, 1)
-    }
-    loadData()
+    const oldItem = listData.value[index]
+    listData.value[index] = { ...oldItem, status: 'cancel' }
+
+    reload()
   } catch (error) {
     console.log(error)
   }
