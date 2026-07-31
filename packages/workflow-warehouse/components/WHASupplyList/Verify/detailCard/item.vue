@@ -3,19 +3,28 @@
     <span v-if="hasLabel" class="detail-label">{{ label }}</span>
 
     <div class="detail-value-wrap">
-      <div v-if="isEditing && type === 'date'" class="detail-value-edit is-date">
+      <div v-if="isEditing && type === 'date'" class="detail-value-edit is-date" :class="{ 'has-action': !!buttonText }">
         <el-date-picker
           ref="datePickerRef"
           v-model="draft"
           type="date"
           size="small"
-          format="YYYY/MM/DD"
-          value-format="YYYY/MM/DD"
+          :format="format"
+          :value-format="format"
           aria-label="Edit date"
-          @change="handleSave"
+          @change="handleDateChange"
           @visible-change="handleDateVisibleChange"
           @keydown.esc.prevent="handleCancel"
         />
+        <el-button
+          v-if="buttonText"
+          v-tooltip="buttonTitle || buttonText"
+          type="primary"
+          size="small"
+          @click="handleBotton"
+        >
+          {{ buttonText }}
+        </el-button>
       </div>
 
       <div v-else-if="isEditing && type === 'select'" class="detail-value-edit is-select">
@@ -98,13 +107,19 @@ const props = withDefaults(
     type?: 'text' | 'date' | 'select'
     status?: 'pass' | 'fail' | 'loading'
     options?: DetailSelectOption[]
+    buttonText?: string
+    buttonTitle?: string
+    format?: string
   }>(),
   {
     label: '',
     disabled: false,
     type: 'text',
     status: 'pass',
-    options: () => []
+    options: () => [],
+    buttonText: '',
+    buttonTitle: '',
+    format: 'YYYY/MM/DD'
   }
 )
 
@@ -113,6 +128,7 @@ const hasLabel = computed(() => Boolean(props.label?.trim()))
 const emit = defineEmits<{
   'update:value': [value: string]
   save: [value: string]
+  button: [value: string]
 }>()
 
 const { formatDate } = useTime()
@@ -127,7 +143,7 @@ const displayValue = computed(() => {
   const val = props.value
   if (val === null || val === undefined || val === '') return '—'
   if (props.type === 'date') {
-    return formatDate(String(val), 'YYYY/MM/DD') || String(val)
+    return formatDate(String(val), props.format) || String(val)
   }
   if (props.type === 'select') {
     const matched = props.options.find((opt) => String(opt.value) === String(val))
@@ -138,7 +154,7 @@ const displayValue = computed(() => {
 
 function toDateDraft(val: string | number | null | undefined) {
   if (val === null || val === undefined || val === '') return ''
-  return formatDate(String(val), 'YYYY/MM/DD') || String(val)
+  return formatDate(String(val), props.format) || String(val)
 }
 
 async function handleStartEdit() {
@@ -175,6 +191,12 @@ function handleSave() {
   emit('save', value)
 }
 
+function handleBotton() {
+  if (props.disabled) return
+  const value = draft.value == null ? '' : String(draft.value)
+  emit('button', value)
+}
+
 function handleRetry() {
   if (props.disabled || props.status !== 'fail') return
   emit('save', props.value == null ? '' : String(props.value))
@@ -184,6 +206,10 @@ function handleFocusOut(event: FocusEvent) {
   const current = event.currentTarget as HTMLElement | null
   const next = event.relatedTarget as Node | null
   if (current && next && current.contains(next)) return
+  handleSave()
+}
+
+function handleDateChange() {
   handleSave()
 }
 
@@ -305,6 +331,22 @@ function handleCancel() {
   &.is-textarea {
     min-width: 10rem;
     width: max(100%, 10rem);
+  }
+
+  &.is-date.has-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--app-space-xxs);
+    width: max(100%, 14rem);
+
+    :deep(.el-date-editor) {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .el-button {
+      flex-shrink: 0;
+    }
   }
 
   &.is-textarea {

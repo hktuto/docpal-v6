@@ -1,3 +1,4 @@
+export const DELIVERY_DATE_FORMAT = 'YYYY/MM/DD'
 // Supplier Goods List Attachment
 export const SGLA_TABLE_ID = 'fe424e50-738c-11f1-93f8-b1266e822267'
 export enum SGLA {

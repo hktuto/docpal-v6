@@ -11,7 +11,11 @@
             :disabled="item.disabled"
             :status="item.status"
             :options="unref(item.options) ?? []"
+            :button-text="item.buttonText"
+            :button-title="item.buttonTitle"
+            :format="item.format"
             @save="(v) => handleSave(v, item)"
+            @button="(v) => handleBotton(v, item)"
           />
           <template v-else>
             <WHASupplyListVerifyDetailCardItem :label="item.label" :text-value="unref(item.value)" :type="item.type" :disabled="item.disabled" />
@@ -26,8 +30,15 @@
 
 <script setup lang="ts">
 import { newClientApi, postDynamicActions } from 'api'
-import { SGLA, SGLA_ITEMS, SUPPLIER_LIST_TABLE_NAME } from '../../../../utils/variableMapping'
+import { SGLA, SGLA_ITEMS, SUPPLIER_LIST_TABLE_NAME, DELIVERY_DATE_FORMAT } from '../../../../utils/variableMapping'
 import { ElMessageBox } from 'element-plus'
+import dayjs from 'dayjs'
+import isoWeek from 'dayjs/plugin/isoWeek'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
+
+dayjs.extend(isoWeek)
+dayjs.extend(advancedFormat)
+
 const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
 const key = 'VendorName'
@@ -57,8 +68,11 @@ const list = ref([
   {
     label: 'Delivery Date',
     invoiceKey: 'DeliveryDate',
-    // type: 'date',
-    status: 'pass'
+    type: 'date',
+    status: 'pass',
+    buttonText: 'Apply',
+    buttonTitle: 'Update all datecodes to the selected date',
+    format: DELIVERY_DATE_FORMAT
   },
   {
     label: 'Cartons',
@@ -90,6 +104,15 @@ async function handleSave(value: string, item: any) {
   setTimeout(() => {
     item.status = res.result ? 'pass' : 'fail'
   }, 1000)
+}
+async function handleBotton(value: string, item: any) {
+  if (item.invoiceKey === 'DeliveryDate') {
+    // WW 需 advancedFormat + isoWeek，如 2026/07/31 → 3126
+    const dateCode = dayjs(value, DELIVERY_DATE_FORMAT).format('WWYY')
+    tableData.value.forEach((row) => {
+      row[SGLA_ITEMS.DateCode] = dateCode
+    })
+  }
 }
 async function validate() {
   const hasInvalid = list.value.some((item) => item.status === 'fail' || item.status === 'loading')
@@ -137,10 +160,12 @@ async function getSupplierList() {
 async function getOrgList() {
   try {
     const { data } = await newClientApi.getWmsOrganizationList()
-    OrgList.value = data.map((item: any) => ({
-      label: item.org_name || item.org_id,
-      value: item.org_id
-    })).filter(item => item.value)
+    OrgList.value = data
+      .map((item: any) => ({
+        label: item.org_name || item.org_id,
+        value: item.org_id
+      }))
+      .filter((item) => item.value)
   } catch (error) {
     console.error(error)
   } finally {
