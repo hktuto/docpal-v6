@@ -1,6 +1,7 @@
 ﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
 import { postDynamicActions } from 'api'
 import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
+import { COUNTRY_STATIC_ALIASES } from '../utils/countryAliases'
 import { useWHASupplyListVerifyInject } from './useWHASupplyListVerify'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
@@ -12,15 +13,32 @@ function matchSearchValue(value: unknown, query: string): boolean {
   return String(value).toLowerCase().includes(query)
 }
 
-type EditableColumnType = 'text' | 'number'
+type EditableColumnType = 'text' | 'number' | 'select'
 
-function editableColumn(type: EditableColumnType = 'text') {
+type SelectOption = { label: string; value: string | number }
+
+function editableColumn(type: EditableColumnType = 'text', selectOptions: SelectOption[] = []) {
   if (type === 'number') {
     return {
       editRender: {
         name: 'VxeInput',
         autofocus: '.vxe-input--inner',
         props: { type: 'number' }
+      }
+    }
+  }
+
+  if (type === 'select') {
+    return {
+      editRender: {
+        name: 'VxeSelect',
+        options: selectOptions,
+        props: {
+          clearable: true,
+          filterable: true,
+          transfer: true,
+          popupClassName: 'wha-verify-select-panel'
+        }
       }
     }
   }
@@ -39,7 +57,7 @@ export const verificationTableColumns = [
     type: 'seq',
     width: 50,
     align: 'right',
-    fixed: 'left',
+    fixed: 'left'
   },
   {
     field: SGLA_ITEMS.Carton,
@@ -82,13 +100,13 @@ export const verificationTableColumns = [
     field: SGLA_ITEMS.CountryOfOrigin,
     title: 'Country Of Origin',
     minWidth: 140,
-    ...editableColumn()
+    ...editableColumn('select')
   },
   {
     field: SGLA_ITEMS.CountryOfWafer,
     title: 'Country Of Wafer',
     minWidth: 140,
-    ...editableColumn()
+    ...editableColumn('select')
   },
   {
     field: SGLA_ITEMS.DrawingNo,
@@ -149,6 +167,75 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const statusFilter = ref<VerificationStatusFilter>('all')
   const searchQuery = ref('')
   const tableData = ref<Record<string, any>[]>([])
+  const countryList = ref<SelectOption[]>([])
+
+  /** U.S.A. / USA 等统一成可比较 key */
+  function normalizeCountryKey(value: unknown): string {
+    return String(value ?? '')
+      .toLowerCase()
+      .replace(/\([^)]*\)/g, ' ')
+      .replace(/[^a-z0-9]+/g, '')
+  }
+
+  function buildCountryLookup(list: SelectOption[]) {
+    const map = new Map<string, string | number>()
+    const add = (key: unknown, code: string | number) => {
+      const raw = String(key ?? '').trim()
+      if (!raw) return
+      map.set(raw.toLowerCase(), code)
+      const normalized = normalizeCountryKey(raw)
+      if (normalized) map.set(normalized, code)
+    }
+    for (const item of list) {
+      add(item.label, item.value)
+      add(item.value, item.value)
+      const code = String(item.value ?? '')
+        .trim()
+        .toUpperCase()
+      const aliases = COUNTRY_STATIC_ALIASES[code] ?? []
+      aliases.forEach((alias) => add(alias, item.value))
+    }
+    return map
+  }
+
+  function normalizeCountryFields(rows: Record<string, any>[]) {
+    if (!countryList.value.length) return rows
+    const lookup = buildCountryLookup(countryList.value)
+    const fields = [SGLA_ITEMS.CountryOfOrigin, SGLA_ITEMS.CountryOfWafer]
+    return rows.map((row) => {
+      const next = { ...row }
+      fields.forEach((field) => {
+        const raw = next[field]
+        if (raw == null || raw === '') return
+        const code = lookup.get(String(raw).toLowerCase()) ?? lookup.get(normalizeCountryKey(raw))
+        if (code != null) next[field] = code
+      })
+      return next
+    })
+  }
+
+  async function getCountryList() {
+    try {
+      const { data } = await postDynamicActions({
+        table: 'cfg_country_dict',
+        columns: [{ name: '*' }]
+      })
+      countryList.value = (data?.data ?? []).map((item: any) => ({
+        label: item.country_name_en,
+        value: item.country_code
+      }))
+      const selectFields = [SGLA_ITEMS.CountryOfOrigin, SGLA_ITEMS.CountryOfWafer]
+      selectFields.forEach((field) => {
+        const column = verificationTableColumns.find((col: any) => col.field === field) as any
+        if (column?.editRender) {
+          column.editRender.options = countryList.value
+        }
+      })
+    } catch (error) {
+      console.error(error)
+      countryList.value = []
+    }
+  }
   function getFilteredItems(data: Record<string, any>[]) {
     let list = data
     if (statusFilter.value === 'ok') {
@@ -170,9 +257,11 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     columns: verificationTableColumns as any,
     virtualScroll: true,
     api: async () => {
+      if (!countryList.value.length) await getCountryList()
       const data = await fetchTableData()
-      tableData.value = data
-      return getFilteredItems(data)
+      const normalized = normalizeCountryFields(data)
+      tableData.value = normalized
+      return getFilteredItems(normalized)
     },
     editRender: {
       editClosed: () => undefined,
@@ -235,7 +324,6 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const debouncedReload = useDebounceFn(() => reload(), 300)
 
   watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => debouncedReload())
-
   const context: WHASupplyListVerifyTableContext = {
     loading,
     tableData,

@@ -66,3 +66,35 @@ const {
   }
 }
 </style>
+
+<style lang="scss">
+/* teleported to body — cannot use scoped */
+.wha-verify-select-panel {
+  &.vxe-select--panel > .vxe-select--panel-wrapper::after {
+    display: none;
+  }
+
+  .vxe-select--panel-wrapper {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--app-paper, #fff) !important;
+  }
+
+  .vxe-select--panel-search {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    background-color: var(--app-paper, #fff);
+  }
+
+  .vxe-select--panel-body {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .vxe-select-search--input,
+  .vxe-select-search--input .vxe-input--inner {
+    background-color: var(--app-paper, #fff);
+  }
+}
+</style>
