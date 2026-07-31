@@ -13,18 +13,18 @@ interface DataItemType {
   customer_po_line: number
   quantity: number
   tax_code: string
-  request_date: string
+  request_date: number
   quantity_cancelled: number
   customer_po: string
   uom: string
   tax_amount: number
-  promise_date: string
+  promise_date: number
   quantity_shipped: number
   customer_item: string
   customer_unit_price: number
   lead_time: number
-  scheduled_ship_date: string
-  schedule_arrival_date: string
+  scheduled_ship_date: number
+  schedule_arrival_date: number
   ordered_item: string
   unit_price: number
   description: string
@@ -74,24 +74,31 @@ const historyChange = computed(() => {
   if (!listData.value || !oldListData.value) return 0
 
   let sum = 0
-  listData.value.forEach((item: DataItemType) => {
-    const oldItem = oldListData.value.find((oldItem: DataItemType) => oldItem.line_id === item.line_id)
+
+  const oldMap = new Map(oldListData.value.map((oldItem: any) => [oldItem.line_id, oldItem]))
+  for (const item0 of listData.value) {
+    const oldItem = oldMap.get(item0.line_id)
     if (!oldItem) {
       sum += 1
-      return
+      continue
     }
+
+    const item = { ...item0 }
+    delete item['_X_ROW_KEY']
 
     if (JSON.stringify(item) !== JSON.stringify(oldItem)) {
       sum += 1
     }
-  })
+  }
+
   return sum
 })
+const historyChangeByApproval = ref<number>(0)
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'ModificationSalesOrderTableSetting',
   api: (pageParams: any) => {
-    return listData.value
+    return listData.value.filter((item: any) => item.status !== 'cancel')
   },
   columns: [
     {
@@ -218,125 +225,130 @@ async function getPartsDetails() {
       customer_po_line: 1,
       quantity: 100,
       tax_code: 'VAT0',
-      request_date: '2026-07-01',
+      request_date: 1751385600000,
       quantity_cancelled: 0,
       customer_po: 'PO-2026-001',
       uom: 'PCS',
       tax_amount: 0,
-      promise_date: '2026-07-15',
+      promise_date: 1752595200000,
       quantity_shipped: 0,
       customer_item: 'CUST-ITEM-A01',
       customer_unit_price: 12.5,
       lead_time: 14,
-      scheduled_ship_date: '2026-07-10',
-      schedule_arrival_date: '2026-07-20',
+      scheduled_ship_date: 1752163200000,
+      schedule_arrival_date: 1752940800000,
       ordered_item: 'PART-1001',
       unit_price: 12.5,
       description: 'Aluminum Housing Type A',
       sub_inventory: 'FG',
       references: 'REF-001',
       pi_remark: 'Urgent shipment',
-      remarks: 'First mock line'
+      remarks: 'First mock line',
+      status: 'create'
     },
     {
       line_id: '2',
       customer_po_line: 2,
       quantity: 250,
       tax_code: 'VAT5',
-      request_date: '2026-07-02',
+      request_date: 1751558400000,
       quantity_cancelled: 10,
       customer_po: 'PO-2026-001',
       uom: 'PCS',
       tax_amount: 156.25,
-      promise_date: '2026-07-18',
+      promise_date: 1752768000000,
       quantity_shipped: 50,
       customer_item: 'CUST-ITEM-B02',
       customer_unit_price: 8.25,
       lead_time: 21,
-      scheduled_ship_date: '2026-07-12',
-      schedule_arrival_date: '2026-07-22',
+      scheduled_ship_date: 1752336000000,
+      schedule_arrival_date: 1753113600000,
       ordered_item: 'PART-1002',
       unit_price: 8.25,
       description: 'Plastic Cover Type B',
       sub_inventory: 'FG',
       references: 'REF-002',
       pi_remark: '',
-      remarks: 'Partial shipped'
+      remarks: 'Partial shipped',
+      status: 'create'
     },
     {
       line_id: '3',
       customer_po_line: 3,
       quantity: 50,
       tax_code: 'VAT0',
-      request_date: '2026-07-03',
+      request_date: 1751644800000,
       quantity_cancelled: 0,
       customer_po: 'PO-2026-001',
       uom: 'SET',
       tax_amount: 0,
-      promise_date: '2026-07-25',
+      promise_date: 1753372800000,
       quantity_shipped: 0,
       customer_item: 'CUST-ITEM-C03',
       customer_unit_price: 45.0,
       lead_time: 30,
-      scheduled_ship_date: '2026-07-20',
-      schedule_arrival_date: '2026-07-30',
+      scheduled_ship_date: 1753027200000,
+      schedule_arrival_date: 1753804800000,
       ordered_item: 'PART-2001',
       unit_price: 42.8,
       description: 'Motor Assembly Kit',
       sub_inventory: 'WIP',
       references: 'REF-003',
       pi_remark: 'Need QC report',
-      remarks: 'Custom color'
+      remarks: 'Custom color',
+      status: 'create'
     },
     {
       line_id: '4',
       customer_po_line: 1,
       quantity: 1000,
       tax_code: 'VAT8',
-      request_date: '2026-07-05',
+      request_date: 1751817600000,
       quantity_cancelled: 0,
       customer_po: 'PO-2026-001',
       uom: 'PCS',
       tax_amount: 960,
-      promise_date: '2026-08-01',
+      promise_date: 1785513600000,
       quantity_shipped: 200,
       customer_item: 'CUST-ITEM-D04',
       customer_unit_price: 1.2,
       lead_time: 7,
-      scheduled_ship_date: '2026-07-28',
-      schedule_arrival_date: '2026-08-05',
+      scheduled_ship_date: 1753632000000,
+      schedule_arrival_date: 1754409600000,
       ordered_item: 'PART-3001',
       unit_price: 1.2,
       description: 'Screw M3x8',
       sub_inventory: 'RM',
       references: 'REF-004',
       pi_remark: 'Bulk order',
-      remarks: ''
+      remarks: '',
+      status: 'create'
     },
     {
       line_id: '5',
       customer_po_line: 2,
       quantity: 80,
       tax_code: 'VAT5',
-      request_date: '2026-07-08',
+      request_date: 1783440000000,
       quantity_cancelled: 5,
       customer_po: 'PO-2026-001',
       uom: 'PCS',
       tax_amount: 95.2,
-      promise_date: '2026-08-10',
+      promise_date: 1786291200000,
       quantity_shipped: 0,
       customer_item: 'CUST-ITEM-E05',
       customer_unit_price: 23.8,
       lead_time: 28,
-      scheduled_ship_date: '2026-08-05',
-      schedule_arrival_date: '2026-08-15',
+      scheduled_ship_date: 1785859200000,
+      schedule_arrival_date: 1786723200000,
       ordered_item: 'PART-4001',
       unit_price: 23.8,
       description: 'Control Board PCB',
       sub_inventory: 'FG',
       references: 'REF-005',
       pi_remark: 'Firmware v2.1',
-      remarks: 'Hold for confirmation'
+      remarks: 'Hold for confirmation',
+      status: 'create'
     }
   ] as DataItemType[]
   listData.value = deepCopy(list)
@@ -345,6 +357,18 @@ async function getPartsDetails() {
   nextTick(() => {
     reload()
   })
+
+  historyQuantityTotal.value = oldListData.value.length
+  historySubtotal.value = oldListData.value
+    .reduce((acc, curr) => acc.add(new Decimal(curr.unit_price).mul(curr.quantity)), new Decimal(0))
+    .toDecimalPlaces(6)
+    .toNumber()
+  historyTax.value = listData.value
+    .reduce((acc, curr) => acc.add(new Decimal(curr.tax_amount)), new Decimal(0))
+    .toDecimalPlaces(6)
+    .toNumber()
+  historyCharges.value = 0
+  historyTotalAmount.value = new Decimal(subtotal.value).add(tax.value).add(charges.value).toDecimalPlaces(6).toNumber()
 }
 
 function init() {
@@ -363,21 +387,12 @@ function init() {
     historyTax.value = formData.history_tax
     historyCharges.value = formData.history_charges
     historyTotalAmount.value = formData.history_total_amount
-  } else {
-    historyQuantityTotal.value = 5
-    historySubtotal.value = 8556.5
-    historyTax.value = 1211.45
-    historyCharges.value = 0
-    historyTotalAmount.value = 9767.95
+    historyChangeByApproval.value = formData.history_change
   }
 }
 
-function loadData() {
-  tableRef.value?.loadData(listData.value)
-}
-
 async function getFormData(needValidation = true) {
-  const list = listData.value.map((item: any) => {
+  const list = deepCopy(listData.value).map((item: any) => {
     delete item['_X_ROW_KEY']
     return item
   })
@@ -426,10 +441,14 @@ function handleAdd() {
 function handleCreate(newRow: DataItemType) {
   if (isApproval.value) return
   listData.value.push(newRow)
-  loadData()
+  reload()
 }
 
-function handleUpdate(row: DataItemType) {}
+function handleUpdate(row: DataItemType) {
+  const index: number = listData.value.findIndex((item: DataItemType) => item.line_id === row.line_id)
+  listData.value[index] = row
+  reload()
+}
 
 async function handleDelete(row: DataItemType) {
   if (isApproval.value) return
@@ -442,10 +461,10 @@ async function handleDelete(row: DataItemType) {
     if (action !== 'confirm') return
 
     const index = listData.value.findIndex((item) => item.line_id === row.line_id)
-    if (index !== -1) {
-      listData.value.splice(index, 1)
-    }
-    loadData()
+    const oldItem = listData.value[index]
+    listData.value[index] = { ...oldItem, status: 'cancel' }
+
+    reload()
   } catch (error) {
     console.log(error)
   }
@@ -529,7 +548,8 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="4">
         <el-form-item label="歷史變更 History Change">
-          <el-input-number v-model="historyChange" disabled />
+          <el-input-number v-if="!isApproval" v-model="historyChange" disabled />
+          <el-input-number v-else v-model="historyChangeByApproval" disabled />
         </el-form-item>
       </el-col>
     </el-row>

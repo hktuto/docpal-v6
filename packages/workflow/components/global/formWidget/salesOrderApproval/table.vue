@@ -14,18 +14,18 @@ interface DataItemType {
   customer_po_line: number
   quantity: number
   tax_code: string
-  request_date: string
+  request_date: number
   quantity_cancelled: number
   customer_po: string
   uom: string
   tax_amount: number
-  promise_date: string
+  promise_date: number
   quantity_shipped: number
   customer_item: string
   customer_unit_price: number
   lead_time: number
-  scheduled_ship_date: string
-  schedule_arrival_date: string
+  scheduled_ship_date: number
+  schedule_arrival_date: number
   ordered_item: string
   unit_price: number
   description: string
@@ -243,7 +243,12 @@ function handleCreate(newRow: DataItemType) {
   loadData()
 }
 
-function handleUpdate(row: DataItemType) {}
+function handleUpdate(row: DataItemType) {
+  const index: number = listData.value.findIndex((item: DataItemType) => item.line_id === row.line_id)
+
+  listData.value[index] = row
+  loadData()
+}
 
 async function handleDelete(row: DataItemType) {
   if (isApproval.value) return
