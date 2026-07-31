@@ -36,6 +36,12 @@ function editableColumn(type: EditableColumnType = 'text') {
 
 export const verificationTableColumns = [
   {
+    type: 'seq',
+    width: 50,
+    align: 'right',
+    fixed: 'left',
+  },
+  {
     field: SGLA_ITEMS.Carton,
     title: 'CARTON',
     minWidth: 70,
