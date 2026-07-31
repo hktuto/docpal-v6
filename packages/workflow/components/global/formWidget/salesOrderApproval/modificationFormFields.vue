@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { FormRules } from 'element-plus'
+
 export interface DataItemType {
   line_id: string
   customer_po_line: number
@@ -27,41 +29,53 @@ export interface DataItemType {
 }
 
 const rowData = defineModel<DataItemType>({ required: true })
-
 const {
   disabled = false,
   columns = 4,
   partList = [],
-  tax_codeList = [],
-  sub_inventoryList = []
+  taxCodeList = [],
+  subInventoryList = []
 } = defineProps<{
   disabled?: boolean
   columns?: 2 | 4
   partList?: any[]
-  tax_codeList?: any[]
-  sub_inventoryList?: any[]
+  taxCodeList?: any[]
+  subInventoryList?: any[]
 }>()
-
 const colSpan = computed(() => (columns === 2 ? 12 : 6))
 const remarkSpan = computed(() => (columns === 2 ? 24 : 12))
+const rules: FormRules<DataItemType> = {
+  ordered_item: [{ required: true, message: '請選擇訂單商品編號 Ordered Item', trigger: 'change' }],
+  quantity: [{ required: true, message: '請填寫數量 Quantity', trigger: 'change' }],
+  tax_code: [{ required: true, message: '請選擇稅碼 Tax Code', trigger: 'change' }],
+  request_date: [{ required: true, message: '請選擇申請日期 Request Date', trigger: 'change' }],
+  unit_price: [{ required: true, message: '請填寫單價 Unit Price', trigger: 'change' }],
+  sub_inventory: [{ required: true, message: '請選擇子庫存 Sub-Inventory', trigger: 'change' }]
+}
+
+function handlePartNumberChange() {
+  const find = partList.find((item: any) => item.value === rowData.value.ordered_item)
+  rowData.value.description = !!find ? find.description : ''
+  rowData.value.uom = !!find ? find.uom : ''
+}
 </script>
 
 <template>
-  <el-form label-position="top" class="all-input-style" :disabled="disabled">
+  <el-form ref="formRef" :model="rowData" :rules="rules" label-position="top" class="all-input-style" :disabled="disabled">
     <el-row>
       <el-col :span="colSpan">
         <el-form-item label="客戶採購訂單行 Customer PO Line">
           <el-input-number v-model="rowData.customer_po_line" controls-position="right" :min="1" :step="1" step-strictly />
         </el-form-item>
-        <el-form-item label="數量 Quantity">
+        <el-form-item label="數量 Quantity" prop="quantity">
           <el-input-number v-model="rowData.quantity" controls-position="right" :min="1" :step="1" step-strictly />
         </el-form-item>
-        <el-form-item label="稅碼 Tax Code">
+        <el-form-item label="稅碼 Tax Code" prop="tax_code">
           <el-select v-model="rowData.tax_code">
-            <el-option v-for="part in tax_codeList" :key="part.id" :label="part.label" :value="part.value" />
+            <el-option v-for="part in taxCodeList" :key="part.id" :label="part.label" :value="part.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="申請日期 Request Date">
+        <el-form-item label="申請日期 Request Date" prop="request_date">
           <el-date-picker v-model="rowData.request_date" type="date" />
         </el-form-item>
         <el-form-item label="取消數量 Quantity Cancelled">
@@ -73,8 +87,8 @@ const remarkSpan = computed(() => (columns === 2 ? 24 : 12))
         <el-form-item label="客戶訂單 Customer PO">
           <el-input v-model="rowData.customer_po" />
         </el-form-item>
-        <el-form-item label="計量單位 UOM">
-          <el-input v-model="rowData.uom" />
+        <el-form-item label="計量單位 UOM" >
+          <el-input v-model="rowData.uom" disabled/>
         </el-form-item>
         <el-form-item label="稅額 Tax Amount">
           <el-input v-model="rowData.tax_amount" disabled />
@@ -95,7 +109,7 @@ const remarkSpan = computed(() => (columns === 2 ? 24 : 12))
           <el-input-number v-model="rowData.customer_unit_price" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
         </el-form-item>
         <el-form-item label="交貨週期（天）Lead Time(Days)">
-          <el-input-number v-model="rowData.lead_time" controls-position="right" :min="0" />
+          <el-input-number v-model="rowData.lead_time" controls-position="right" :min="0" :step="1" step-strictly />
         </el-form-item>
         <el-form-item label="預定出貨日期 Scheduled Ship Date">
           <el-date-picker v-model="rowData.scheduled_ship_date" type="date" />
@@ -106,12 +120,12 @@ const remarkSpan = computed(() => (columns === 2 ? 24 : 12))
       </el-col>
 
       <el-col :span="colSpan">
-        <el-form-item label="訂單商品編號 Ordered Item">
-          <el-select v-model="rowData.ordered_item" filterable>
+        <el-form-item label="訂單商品編號 Ordered Item" prop="ordered_item">
+          <el-select v-model="rowData.ordered_item" filterable @change="handlePartNumberChange">
             <el-option v-for="part in partList" :key="part.id" :label="part.label" :value="part.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="單價 Unit Price">
+        <el-form-item label="單價 Unit Price" prop="unit_price">
           <el-input-number v-model="rowData.unit_price" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
         </el-form-item>
         <el-form-item label="描述 Description">
@@ -120,9 +134,9 @@ const remarkSpan = computed(() => (columns === 2 ? 24 : 12))
         <el-form-item label="預定抵達日期 Scheduled Arrival Date">
           <el-date-picker v-model="rowData.schedule_arrival_date" type="date" disabled />
         </el-form-item>
-        <el-form-item label="子庫存 Sub-Inventory">
+        <el-form-item label="子庫存 Sub-Inventory" prop="sub_inventory">
           <el-select v-model="rowData.sub_inventory">
-            <el-option v-for="part in sub_inventoryList" :key="part.id" :label="part.label" :value="part.value" />
+            <el-option v-for="part in subInventoryList" :key="part.id" :label="part.label" :value="part.value" />
           </el-select>
         </el-form-item>
       </el-col>

@@ -38,6 +38,7 @@ interface DataItemType {
 const isApproval = ref<boolean>(false)
 const formRef = ref()
 const listData = ref<DataItemType[]>([])
+const oldListData = ref<DataItemType[]>([])
 
 const quantityTotal = computed(() => {
   return listData.value.length
@@ -67,9 +68,9 @@ const historyCharges = ref<number>(0)
 const historyTotalAmount = ref<number>(0)
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'SalesOrderTableSetting',
+  id: 'ModificationSalesOrderTableSetting',
   api: (pageParams: any) => {
-    return []
+    return listData.value
   },
   columns: [
     {
@@ -185,7 +186,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 function init() {
   isApproval.value = formData.is_approval
 
-  listData.value = [
+  const list = [
     {
       line_id: '1',
       customer_po_line: 1,
@@ -312,6 +313,9 @@ function init() {
       remarks: 'Hold for confirmation'
     }
   ]
+  listData.value = deepCopy(list)
+  oldListData.value = deepCopy(list)
+
   loadData()
 
   historyQuantityTotal.value = 5
@@ -326,8 +330,23 @@ function loadData() {
 }
 
 async function getFormData(needValidation = true) {
+  const list = listData.value.map((item: any) => {
+    delete item['_X_ROW_KEY']
+    return item
+  })
+
   const result = {
-    order_item_list: []
+    order_item_list: list,
+    history_quantity_total: historyQuantityTotal.value,
+    history_subtotal: historySubtotal.value,
+    history_tax: historyTax.value,
+    history_charges: historyCharges.value,
+    history_total_amount: historyTotalAmount.value,
+    quantity_total: quantityTotal.value,
+    subtotal: subtotal.value,
+    tax: tax.value,
+    charges: charges.value,
+    total_amount: totalAmount.value,
   }
   if (!needValidation) return result
   return result
@@ -336,9 +355,18 @@ async function getFormData(needValidation = true) {
 const formWidgetSalesOrderApprovalModificationDialogRef = ref()
 
 function handleDblClick(row: DataItemType) {
-  // 匹配新舊數據
-  const isNewItem = true
-  const oldRowItem = undefined
+  const line_id = row.line_id
+  let isNewItem
+  let oldRowItem
+
+  const find = oldListData.value.find((item: DataItemType) => item.line_id === line_id)
+  if (!!find) {
+    isNewItem = false
+    oldRowItem = find
+  } else {
+    isNewItem = true
+    oldRowItem = undefined
+  }
 
   formWidgetSalesOrderApprovalModificationDialogRef.value.open(isNewItem, row, oldRowItem)
 }
@@ -373,6 +401,16 @@ async function handleDelete(row: DataItemType) {
     console.log(error)
   }
 }
+
+watch(
+  () => formData.order_item_list,
+  (value) => {
+    if (!!value) {
+      init()
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 watch(
   () => formData.order_number,
@@ -435,8 +473,10 @@ defineExpose({ getFormData })
 
   <div style="height: 60vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template v-if="!isApproval" #toolbar_buttons>
-        <el-button type="primary" @click="handleAdd">添加零件 Add Parts</el-button>
+      <template #toolbar_buttons>
+        <div v-if="!isApproval">
+          <el-button type="primary" @click="handleAdd">添加零件 Add Parts</el-button>
+        </div>
       </template>
     </VxeGrid>
   </div>

@@ -43,6 +43,7 @@ const oldRowData = ref<DataItemType>()
 const rowData = ref<DataItemType>()
 const partList = ref<any[]>([])
 const tax_codeList = ref<any[]>([
+  { label: 'NET PRICE', value: 'NET PRICE' },
   { label: 'VAT13', value: 'VAT13' },
   { label: 'VAT16', value: 'VAT16' },
   { label: 'VAT7', value: 'VAT7' }
@@ -108,14 +109,16 @@ async function getPartList() {
       id: item.inventory_item_id,
       label: item.segment1,
       value: item.segment1,
-      brand: item.attribute8
+      brand: item.attribute8,
+      description: item.description,
+      uom: item.primary_uom_code
     })
-
     return acc
   }, [])
 }
 
-async function getDbData(tableId: string) {
+async function getDbData(tableId: string, conditions?: any) {
+  // Get Filed Mapping
   const filedData: any = await newClientApi
     .getDocpalMasterTableUserConfig({
       tableId: tableId,
@@ -130,19 +133,18 @@ async function getDbData(tableId: string) {
 
   const param = {
     tableId: tableId,
-    columns: [
-      {
-        name: '*'
-      }
-    ],
+    conditions,
+    columns: [{ name: 'f_7969_c576d886' }, { name: 'f_7965_9760c235' }, { name: 'f_8100_c3428722' }],
     pagination: {
       pageSize: 1000,
       pageNum: 0
     }
   }
 
+  // Get BD Data
   const dbData = await clientApi.instance.post('/apis/v1/dynamic-actions', param).then((res: any) => res.data.data)
 
+  // 匹配數據
   return dbData.map((row: any) => {
     const out = {}
     for (const [fromKey, toKey] of Object.entries(filedMapping)) {
@@ -164,7 +166,7 @@ defineExpose({ open })
     v-model="dialogVisible"
     append-to-body
     class="big"
-    :title="isEdit ? '編輯零件 Edit Parts' : '添加零件 Add Parts'"
+    :title="isApproval ? '零件明細 Part Detail' : isEdit ? '編輯零件 Edit Parts' : '添加零件 Add Parts'"
     destroy-on-close
     :close-on-click-modal="false"
     :close-on-press-escape="false"
