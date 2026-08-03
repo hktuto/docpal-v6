@@ -98,6 +98,7 @@ const historyChange = computed(() => {
   return sum
 })
 const historyChangeByApproval = ref<number>(0)
+const historyDelete = ref<number>(0)
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'ModificationSalesOrderTableSetting',
@@ -392,6 +393,7 @@ function init() {
     historyCharges.value = formData.history_charges
     historyTotalAmount.value = formData.history_total_amount
     historyChangeByApproval.value = formData.history_change
+    historyDelete.value = formData.history_delete
   }
 }
 
@@ -410,6 +412,7 @@ async function getFormData(needValidation = true) {
     history_charges: historyCharges.value,
     history_total_amount: historyTotalAmount.value,
     history_change: historyChange.value,
+    history_delete: historyDelete.value,
     quantity_total: quantityTotal.value,
     subtotal: subtotal.value,
     tax: tax.value,
@@ -467,6 +470,8 @@ async function handleDelete(row: DataItemType) {
     const index = listData.value.findIndex((item) => item.line_id === row.line_id)
     const oldItem = listData.value[index]
     listData.value[index] = { ...oldItem, status: 'cancel' }
+
+    historyDelete.value += 1
 
     reload()
   } catch (error) {
@@ -554,6 +559,9 @@ defineExpose({ getFormData })
         <el-form-item label="歷史變更 History Change">
           <el-input-number v-if="!isApproval" v-model="historyChange" disabled />
           <el-input-number v-else v-model="historyChangeByApproval" disabled />
+        </el-form-item>
+        <el-form-item label="歷史刪除 History Delete">
+          <el-input-number v-model="historyDelete" disabled />
         </el-form-item>
       </el-col>
     </el-row>
