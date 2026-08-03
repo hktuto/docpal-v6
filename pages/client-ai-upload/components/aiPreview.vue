@@ -92,5 +92,9 @@ function checkExtension(filename: string) {
 .viewerContainer {
   width: 100%;
   height: 100%;
+  position: relative;
+}
+:deep(.editToggleButton) {
+  display: none;
 }
 </style>
