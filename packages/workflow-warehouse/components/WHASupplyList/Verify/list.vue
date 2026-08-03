@@ -103,11 +103,11 @@ onMounted(() => {
       <div class="invoice-card-body">
         <div class="invoice-card-name">{{ item[SGLA.Name] || '--' }}</div>
         <div class="invoice-card-meta">
-          {{ item[SGLA.Total_Ctn] || 0 }} cartons •
-          <span class="invoice-card-meta-qty">{{ item.total_qty || 0 }} units</span>
+          {{ item[SGLA.Total_Ctn] || 0 }} {{ $t('workflowWarehouse.cartonsUnit') }} •
+          <span class="invoice-card-meta-qty">{{ item.total_qty || 0 }} {{ $t('workflowWarehouse.units') }}</span>
         </div>
       </div>
-      <span v-if="item[SGLA.Status] === 'confirm'" class="invoice-card-badge">OK</span>
+      <span v-if="item[SGLA.Status] === 'confirm'" class="invoice-card-badge">{{ $t('workflowWarehouse.ok') }}</span>
     </div>
   </div>
 </template>

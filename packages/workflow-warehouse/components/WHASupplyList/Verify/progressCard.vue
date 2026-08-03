@@ -1,8 +1,10 @@
 ﻿<template>
   <div class="progress-card">
     <div class="progress-card-header">
-      <h3 class="progress-card-title">Progress</h3>
-      <p class="progress-card-subtitle">Verified {{ statusCounts.ok }} of {{ statusCounts.all }} lines.</p>
+      <h3 class="progress-card-title">{{ $t('workflowWarehouse.progress') }}</h3>
+      <p class="progress-card-subtitle">
+        {{ $t('workflowWarehouse.verifiedProgress', { ok: statusCounts.ok, all: statusCounts.all }) }}
+      </p>
     </div>
 
     <el-progress :percentage="percentage" :show-text="false" :stroke-width="8" />
@@ -11,15 +13,15 @@
       type="button"
       class="progress-card-action"
       :disabled="loading"
-      aria-label="Approve"
-      title="Approve"
+      :aria-label="$t('dpTool_approve')"
+      :title="$t('dpTool_approve')"
       @click="handleApprove"
     >
       <el-icon class="progress-card-action-icon" :class="{ 'is-loading': loading }" aria-hidden="true">
         <Loading v-if="loading" />
         <Document v-else />
       </el-icon>
-      <span class="progress-card-action-text">Approve</span>
+      <span class="progress-card-action-text">{{ $t('dpTool_approve') }}</span>
     </button>
   </div>
 </template>

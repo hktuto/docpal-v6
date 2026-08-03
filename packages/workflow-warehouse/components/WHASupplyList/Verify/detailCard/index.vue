@@ -24,7 +24,7 @@
       </div>
     </template>
 
-    <el-empty v-else description="Select a sub-invoice" :image-size="64" />
+    <el-empty v-else :description="$t('workflowWarehouse.selectSubInvoice')" :image-size="64" />
   </div>
 </template>
 
@@ -39,6 +39,7 @@ import advancedFormat from 'dayjs/plugin/advancedFormat'
 dayjs.extend(isoWeek)
 dayjs.extend(advancedFormat)
 
+const { t } = useI18n()
 const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
 const key = 'VendorName'
@@ -51,14 +52,14 @@ const list = ref([
     status: 'pass'
   },
   {
-    label: 'Supplier',
+    label: t('workflowWarehouse.supplier'),
     invoiceKey: 'VendorName',
     type: 'select',
     status: 'pass',
     options: SupplierList
   },
   {
-    label: 'Org',
+    label: t('workflowWarehouse.org'),
     invoiceKey: 'Org',
     type: 'select',
     valueType: 'number',
@@ -66,22 +67,22 @@ const list = ref([
     options: OrgList
   },
   {
-    label: 'Delivery Date',
+    label: t('workflowWarehouse.deliveryDate'),
     invoiceKey: 'DeliveryDate',
     type: 'date',
     status: 'pass',
-    buttonText: 'Apply',
-    buttonTitle: 'Update all datecodes to the selected date',
+    buttonText: t('workflowWarehouse.apply'),
+    buttonTitle: t('workflowWarehouse.updateAllDatecodes'),
     format: DELIVERY_DATE_FORMAT
   },
   {
-    label: 'Cartons',
+    label: t('workflowWarehouse.cartons'),
     value: computed(() => getUniqueCartons()),
     type: 'text',
     disabled: true
   },
   {
-    label: 'Lines',
+    label: t('workflowWarehouse.lines'),
     value: computed(() => tableData.value.length),
     type: 'text',
     disabled: true
@@ -118,9 +119,9 @@ async function validate() {
   const hasInvalid = list.value.some((item) => item.status === 'fail' || item.status === 'loading')
   if (!hasInvalid) return true
   try {
-    const result = await ElMessageBox.confirm('Some invoice data failed to submit. Force submit anyway?', 'Warning', {
-      confirmButtonText: 'Force Submit',
-      cancelButtonText: 'Cancel',
+    const result = await ElMessageBox.confirm(t('workflowWarehouse.forceSubmitConfirm'), t('dpTip_warning'), {
+      confirmButtonText: t('workflowWarehouse.forceSubmit'),
+      cancelButtonText: t('common_cancel'),
       type: 'warning'
     })
     return result

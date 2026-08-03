@@ -11,7 +11,7 @@
           size="small"
           :format="format"
           :value-format="format"
-          aria-label="Edit date"
+          :aria-label="$t('workflowWarehouse.editDate')"
           @change="handleDateChange"
           @visible-change="handleDateVisibleChange"
           @keydown.esc.prevent="handleCancel"
@@ -39,8 +39,8 @@
           size="small"
           filterable
           clearable
-          placeholder="Select"
-          aria-label="Edit select"
+          :placeholder="$t('el.select.placeholder')"
+          :aria-label="$t('workflowWarehouse.editSelect')"
           @change="handleSave"
           @visible-change="handleSelectVisibleChange"
           @keydown.esc.prevent="handleCancel"
@@ -53,7 +53,7 @@
           v-model="draft"
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 6 }"
-          aria-label="Edit value"
+          :aria-label="$t('workflowWarehouse.editValue')"
           @keydown.esc.prevent="handleCancel"
           @keydown.enter.exact.prevent="handleSave"
         />
@@ -67,7 +67,7 @@
           :class="{ 'is-editable': !disabled }"
           :title="displayValue"
           :tabindex="disabled ? undefined : 0"
-          :aria-label="!disabled ? 'Click to edit' : label"
+          :aria-label="!disabled ? $t('workflowWarehouse.clickToEdit') : label"
           @click="handleStartEdit"
           @keydown.enter.prevent="handleStartEdit"
         >

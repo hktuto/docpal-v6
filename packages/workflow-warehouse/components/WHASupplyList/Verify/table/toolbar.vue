@@ -1,6 +1,6 @@
 ﻿<template>
   <div class="toolbar">
-    <div class="status-tabs" role="tablist" aria-label="Verification status filter">
+    <div class="status-tabs" role="tablist" :aria-label="$t('workflowWarehouse.statusFilterAria')">
       <button
         v-for="tab in tabs"
         :key="tab.value"
@@ -19,9 +19,9 @@
       :model-value="search"
       clearable
       class="search-input"
-      placeholder="Search"
+      :placeholder="$t('search.text')"
       :prefix-icon="Search"
-      aria-label="Search items"
+      :aria-label="$t('workflowWarehouse.searchItemsAria')"
       @update:model-value="emit('update:search', $event)"
     />
   </div>
@@ -42,11 +42,13 @@ const emit = defineEmits<{
   'update:search': [value: string]
 }>()
 
-const tabs: { label: string; value: VerificationStatusFilter }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Unverified', value: 'unVerified' },
-  { label: 'OK', value: 'ok' }
-]
+const { t } = useI18n()
+
+const tabs = computed(() => [
+  { label: t('All'), value: 'all' as VerificationStatusFilter },
+  { label: t('workflowWarehouse.unverified'), value: 'unVerified' as VerificationStatusFilter },
+  { label: t('workflowWarehouse.ok'), value: 'ok' as VerificationStatusFilter }
+])
 </script>
 
 <style lang="scss" scoped>

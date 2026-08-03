@@ -52,76 +52,80 @@ function editableColumn(type: EditableColumnType = 'text', selectOptions: Select
   }
 }
 
-export const verificationTableColumns = [
-  {
-    type: 'seq',
-    width: 50,
-    align: 'right',
-    fixed: 'left'
-  },
-  {
-    field: SGLA_ITEMS.Carton,
-    title: 'CARTON',
-    minWidth: 70,
-    ...editableColumn()
-  },
-  {
-    field: SGLA_ITEMS.Supplier_PN,
-    title: 'Supplier PN',
-    minWidth: 150,
-    ...editableColumn()
-  },
-  {
-    field: SGLA_ITEMS.WCL_PN,
-    title: 'WCL PN',
-    minWidth: 170,
-    ...editableColumn()
-  },
-  {
-    field: SGLA_ITEMS.Qty,
-    title: 'QTY',
-    minWidth: 90,
-    type: 'number',
-    ...editableColumn('number')
-  },
-  {
-    field: SGLA_ITEMS.PoLine,
-    title: 'PO',
-    minWidth: 140,
-    ...editableColumn()
-  },
-  {
-    field: SGLA_ITEMS.DateCode,
-    title: 'Date Code',
-    minWidth: 140,
-    ...editableColumn()
-  },
-  {
-    field: SGLA_ITEMS.CountryOfOrigin,
-    title: 'Country Of Origin',
-    minWidth: 140,
-    ...editableColumn('select')
-  },
-  {
-    field: SGLA_ITEMS.CountryOfWafer,
-    title: 'Country Of Wafer',
-    minWidth: 140,
-    ...editableColumn('select')
-  },
-  {
-    field: SGLA_ITEMS.DrawingNo,
-    title: 'Drawing No',
-    minWidth: 140,
-    ...editableColumn()
-  },
-  {
-    type: 'checkbox',
-    title: 'Verified',
-    fixed: 'right',
-    width: 88,
-    align: 'center'
-  }
-]
+export function createVerificationTableColumns(t: (key: string) => string) {
+  return [
+    {
+      type: 'seq',
+      width: 50,
+      align: 'right',
+      fixed: 'left'
+    },
+    {
+      field: SGLA_ITEMS.Carton,
+      title: t('workflowWarehouse.carton'),
+      minWidth: 70,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Supplier_PN,
+      title: t('workflowWarehouse.supplierPn'),
+      minWidth: 150,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.WCL_PN,
+      title: t('workflowWarehouse.wclPn'),
+      minWidth: 170,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Qty,
+      title: t('workflowWarehouse.qty'),
+      minWidth: 90,
+      type: 'number',
+      ...editableColumn('number')
+    },
+    {
+      field: SGLA_ITEMS.PoLine,
+      title: t('workflowWarehouse.po'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.DateCode,
+      title: t('workflowWarehouse.dateCode'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.CountryOfOrigin,
+      title: t('workflowWarehouse.countryOfOrigin'),
+      minWidth: 140,
+      ...editableColumn('select')
+    },
+    {
+      field: SGLA_ITEMS.CountryOfWafer,
+      title: t('workflowWarehouse.countryOfWafer'),
+      minWidth: 140,
+      ...editableColumn('select')
+    },
+    {
+      field: SGLA_ITEMS.DrawingNo,
+      title: t('workflowWarehouse.drawingNo'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      type: 'checkbox',
+      title: t('workflowWarehouse.verified'),
+      fixed: 'right',
+      width: 88,
+      align: 'center'
+    }
+  ]
+}
+
+export type VerificationTableColumn = ReturnType<typeof createVerificationTableColumns>[number]
 
 export interface WHASupplyListVerifyTableContext {
   loading: Ref<boolean>
@@ -132,7 +136,7 @@ export interface WHASupplyListVerifyTableContext {
   statusFilter: Ref<VerificationStatusFilter>
   statusCounts: Ref<Record<VerificationStatusFilter, number>>
   searchQuery: Ref<string>
-  columns: typeof verificationTableColumns
+  columns: VerificationTableColumn[]
   reload: () => void
   SGLA_ITEMS: typeof SGLA_ITEMS
 }
@@ -163,6 +167,8 @@ function generateParams(masterTableId: string) {
 }
 
 export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<string, any> | null>) {
+  const { t } = useI18n()
+  const verificationTableColumns = createVerificationTableColumns(t)
   const loading = ref(false)
   const statusFilter = ref<VerificationStatusFilter>('all')
   const searchQuery = ref('')

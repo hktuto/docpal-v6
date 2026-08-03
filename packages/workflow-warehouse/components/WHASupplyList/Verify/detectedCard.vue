@@ -1,15 +1,15 @@
 <template>
   <div class="detected-card">
     <div class="detected-card-header">
-      <h3 class="detected-card-title">Detected Issues</h3>
-      <p class="detected-card-subtitle">Issues detected by the rules engine</p>
+      <h3 class="detected-card-title">{{ $t('workflowWarehouse.detectedIssues') }}</h3>
+      <p class="detected-card-subtitle">{{ $t('workflowWarehouse.detectedIssuesSubtitle') }}</p>
     </div>
 
     <div class="detected-card-status">
       <el-icon class="detected-card-status-icon" aria-hidden="true">
         <CircleCheckFilled />
       </el-icon>
-      <span>No automatic issues.</span>
+      <span>{{ $t('workflowWarehouse.noAutomaticIssues') }}</span>
     </div>
   </div>
 </template>

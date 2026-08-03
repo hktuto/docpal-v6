@@ -1,7 +1,7 @@
 ﻿<template>
   <div class="verification">
-    <h3 class="title">Verification & Mapping</h3>
-    <small class="description"> Review OCR-parsed invoice lines, verify against customer PNs. </small>
+    <h3 class="title">{{ $t('workflowWarehouse.title') }}</h3>
+    <small class="description">{{ $t('workflowWarehouse.description') }}</small>
     <el-splitter class="container mg-top">
       <el-splitter-panel class="mg-right" size="7%" :collapsible="false" :min="50">
         <WHASupplyListVerifyList />
@@ -28,9 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { TabRouter, type LazyContextServiceTaskValidateRule } from '#components'
+import { SGLA } from '../../../utils/variableMapping'
 
 const props = defineProps(['formData', 'taskDetail'])
+const { t } = useI18n()
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList, docId } = useWHASupplyListVerifyProvider(props)
 const fileList = computed(() => props.formData?.file_list_info || [])
@@ -43,15 +44,15 @@ async function getFormData(needValidation: boolean) {
   if (result === 'cancel') throw new Error('__CANCEL__')
   invoiceList.value.forEach((item) => {
     if (!item[SGLA.Name]) {
-      throw new Error('Please enter the invoice number')
+      throw new Error(t('workflowWarehouse.pleaseEnterInvoiceNumber'))
     } else if (item[SGLA.Status] !== 'confirm') {
-      throw new Error(`⌈${item[SGLA.Name]}⌋ Please approve the invoice first`)
+      throw new Error(t('workflowWarehouse.pleaseApproveInvoice', { name: item[SGLA.Name] }))
     } else if (!item[SGLA.VendorName]) {
-      throw new Error(`⌈${item[SGLA.Name]}⌋ Please select the supplier`)
+      throw new Error(t('workflowWarehouse.pleaseSelectSupplier', { name: item[SGLA.Name] }))
     } else if (!item[SGLA.CustomerName]) {
-      throw new Error(`⌈${item[SGLA.Name]}⌋ Please enter the customer name`)
+      throw new Error(t('workflowWarehouse.pleaseEnterCustomerName', { name: item[SGLA.Name] }))
     } else if (!item[SGLA.DeliveryDate]) {
-      throw new Error(`⌈${item[SGLA.Name]}⌋ Please enter the delivery date`)
+      throw new Error(t('workflowWarehouse.pleaseEnterDeliveryDate', { name: item[SGLA.Name] }))
     }
   })
 }
