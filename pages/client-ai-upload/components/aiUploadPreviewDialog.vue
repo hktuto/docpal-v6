@@ -15,9 +15,7 @@
 <script lang="ts" setup>
 import { newClientApi } from 'api'
 
-const emits = defineEmits([
-  'refresh'
-])
+const emits = defineEmits(['refresh'])
 const { arrayToTree } = useUploadAIStore()
 const state = reactive({
   loading: false,
@@ -33,11 +31,13 @@ function handleOpen(row) {
 }
 
 async function init(id) {
-  let docList = await newClientApi.postDmsUploadQueryItems({
-    userId: userId.value,
-    uploadId: id
-  }).then(res => res.data)
-  docList = docList.map(item => ({
+  let docList = await newClientApi
+    .postDmsUploadQueryItems({
+      userId: userId.value,
+      uploadId: id
+    })
+    .then((res) => res.data)
+  docList = docList.map((item) => ({
     ...item,
     isFolder: item.fileType === 'Folder'
   }))
@@ -46,10 +46,14 @@ async function init(id) {
 
 defineExpose({ handleOpen })
 </script>
+<style scoped lang="scss">
+:deep(.el-tree-node) {
+  height: 2.4rem;
+}
+</style>
 <style lang="scss">
 .aiUploadPreviewDialog {
   height: 50vh;
   width: 600px !important;
 }
 </style>
-    

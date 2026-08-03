@@ -446,7 +446,9 @@ onMounted(async () => {
     height: 100%;
   }
 }
-
+:deep(.el-tree-node) {
+  height: 2.4rem;
+}
 .pageContainer {
   height: 100%;
   width: 100%;
