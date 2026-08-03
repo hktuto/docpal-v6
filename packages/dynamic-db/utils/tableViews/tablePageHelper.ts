@@ -49,8 +49,9 @@ async function updateColumn(table: string, updateDatas: any[], tableFields: any[
     if (updateData) {
       column.hidden = updateData.hidden ?? false
       if (updateData.display_structure?.width) {
-        column.display_structure = updateData.display_structure ?? {}
-        column.display_structure.width = updateData.display_structure.width
+        column.display_structure = {
+          width: updateData.display_structure.width
+        }
       }
     }
   })

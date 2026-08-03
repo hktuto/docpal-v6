@@ -62,6 +62,11 @@ const columnSettings = [
           color: 'red'
         },
         {
+          label: 'Prepare',
+          id: 'Prepare',
+          color: 'yellow'
+        },
+        {
           label: 'Confirmed',
           id: 'Confirmed',
           color: 'orange'

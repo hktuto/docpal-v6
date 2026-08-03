@@ -136,7 +136,16 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
       seenIds.add(idStr)
       const field = tableFields.find((f) => f.id === fieldId)
       if (!field) continue
-      ordered.push({ ...field, ...col })
+      const fieldDisplay = (field as any).display_structure ?? {}
+      const savedWidth = (col as any).display_structure?.width
+      ordered.push({
+        ...field,
+        ...col,
+        display_structure: {
+          ...fieldDisplay,
+          ...(savedWidth != null ? { width: savedWidth } : {})
+        }
+      })
     }
   }
 
@@ -148,12 +157,11 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
     seenIds.add(idStr)
     ordered.push(f)
   }
-  const result = ordered.map((c: any) => ({
+  return ordered.map((c: any) => ({
     ...c,
     field: c.field_name,
     title: c.field_name_alias
   }))
-  return result
 }
 
 /**
