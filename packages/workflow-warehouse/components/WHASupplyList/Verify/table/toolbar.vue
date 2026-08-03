@@ -57,33 +57,46 @@ const tabs = computed(() => [
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--app-space-sm);
+  gap: var(--app-space-m);
   width: 100%;
+  padding: var(--app-space-s) var(--app-space-m);
+  border-radius: var(--app-border-radius-m);
+  background-color: var(--el-bg-color);
+  box-shadow: var(--el-box-shadow-light);
 }
 
 .status-tabs {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  gap: var(--app-space-xs);
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--app-border-radius-s);
+  background-color: var(--el-fill-color-light);
 }
 
 .status-tab {
   border: none;
   background: transparent;
-  padding: 4px 8px;
+  padding: 6px 12px;
   cursor: pointer;
   color: var(--el-text-color-regular);
   font-size: 13px;
-  border-radius: 4px;
+  line-height: 1.2;
+  border-radius: calc(var(--app-border-radius-s) - 1px);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 
   &.active {
     color: var(--el-color-primary);
     font-weight: 600;
-    background: var(--el-color-primary-light-9);
+    background-color: var(--el-bg-color);
+    box-shadow: var(--el-box-shadow-lighter);
   }
 
-  &:hover {
+  &:hover:not(.active) {
     color: var(--el-color-primary);
   }
 }

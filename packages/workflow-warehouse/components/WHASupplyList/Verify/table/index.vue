@@ -39,7 +39,8 @@ const {
   }
 
   :deep(.vxe-toolbar) {
-    padding: var(--app-space-xs) 0;
+    padding: var(--app-space-s) 0;
+    background-color: transparent;
   }
 
   :deep(.vxe-buttons--wrapper) {
@@ -51,6 +52,9 @@ const {
     font-weight: 600;
     color: var(--el-text-color-secondary);
     text-transform: uppercase;
+  }
+  :deep(.vxe-toolbar) {
+    gap: unset;
   }
 }
 
