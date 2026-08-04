@@ -376,3 +376,28 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: blur(6.3px);
   border: 1px solid rgba(255, 255, 255, 0.31);
 }
+
+// 用户资料「组」等用的是 el-input-tag，禁用时 tag 与底色同色会糊成纯文字
+.el-input-tag.is-disabled {
+  background-color: var(--app-grey-950);
+  box-shadow: 0 0 0 1px var(--app-border) inset;
+
+  .el-tag {
+    --el-tag-bg-color: var(--app-paper);
+    --el-tag-border-color: var(--app-border-light);
+    --el-tag-text-color: var(--app-text-regular);
+    background-color: var(--app-paper) !important;
+    border-color: var(--app-border-light) !important;
+    color: var(--app-text-regular) !important;
+  }
+}
+
+.el-select__wrapper.is-disabled .el-tag {
+  --el-tag-bg-color: var(--app-paper);
+  --el-tag-border-color: var(--app-border-light);
+  --el-tag-text-color: var(--app-text-regular);
+  background-color: var(--app-paper) !important;
+  border-color: var(--app-border-light) !important;
+  color: var(--app-text-regular) !important;
+}
+
