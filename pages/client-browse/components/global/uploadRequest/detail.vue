@@ -1,358 +1,95 @@
 <script lang="ts" setup>
-import { CircleCheckFilled, WarningFilled, Download } from '@element-plus/icons-vue'
-import { createUploadRequestPageParams } from '../../../utils/browseMenuHelper'
-import { newClientApi } from 'api'
-import { MenuRouterKey } from '#imports'
+const props = defineProps<{
+  paramKey?: string
+  id: string
+}>()
 
-const routerProvider = inject(MenuRouterKey)
-const props = defineProps(['paramKey', 'id'])
-const router = useRouter()
-const state = reactive<any>({
-  uploadId: '',
-  applyDocumentType: 'File',
-  fileTypes: [],
-  errorFileNum: 0,
-  loading: false,
-  submitLoading: false,
-  selectedRow: {},
-  selectedRows: [],
-
-  checkAll: false,
-  tableData: []
-})
-const MetaFormRef = ref()
-const paramKey = (props.paramKey ? props.paramKey : 'processInstanceId') as string
-const userId = useUserId()
-
-function normalizeProperties(properties: any) {
-  if (!properties) return {}
-  if (typeof properties !== 'string') {
-    return typeof properties === 'object' && !Array.isArray(properties) ? properties : {}
-  }
-
-  try {
-    const parsedProperties = JSON.parse(properties)
-    return parsedProperties && typeof parsedProperties === 'object' && !Array.isArray(parsedProperties) ? parsedProperties : {}
-  } catch (error) {
-    return {}
-  }
-}
-
-// #region module: 1. table and init
-async function getData() {
-  state.loading = true
-  try {
-    const response: any = await newClientApi.getDmsUploadRequestId(props.id).then((res) => res.data)
-    state.uploadId = response.id
-
-    state.tableData = response.uploadRequestItemList.map((item: any) => ({
-      ...item,
-      approved: item.approved || false,
-      documentType: item.fileType || 'File',
-      properties: normalizeProperties(item.metaDatas)
-    }))
-    if (state.tableData.length > 0) handleDblclick(state.tableData[0])
-  } catch (error) {
-    state.tableData = []
-    state.selectedRow = []
-  } finally {
-    state.loading = false
-  }
-}
-
-// #endregion
-// #region module: 4. handleSubmit
-const formRef = ref()
-
-async function handleSubmit() {
-  try {
-    await formRef.value.validate()
-  } catch (e) {
-    console.error(e)
-    return
-  }
-  state.submitLoading = true
-  try {
-    const param = {
-      uploadRequestId: state.uploadId,
-      userId: userId.value,
-      uploadRequestItemList: state.tableData.map((item: any) => {
-        return {
-          id: item.id,
-          docName: item.initName || item.name,
-          approve: item.approved || false,
-          documentType: item.documentType,
-          metadatas: JSON.stringify(item.properties)
-        }
-      })
-    }
-    const res = await newClientApi.postDmsUploadRequestApproval(param).then((res: any) => res.result)
-    if (!!res) routerProvider?.navigateTo(createUploadRequestPageParams({}))
-  } catch (error) {}
-  state.submitLoading = false
-}
-
-// #endregion
-
-// #region module: 3.1 applyToSelect change
-async function handleDocTypeChange(row: any) {
-  if (MetaFormRef) await MetaFormRef.value.init(row.documentType)
-}
-
-function handleMetaChange(data: any) {
-  if (!state.loading) state.selectedRow.properties = deepCopy(data.formModel)
-}
-
-const treeRef = ref()
-
-function applyToSelect(key: string, value: string, docType?: string) {
-  state.selectedRows = treeRef.value.getCheckedNodes()
-  state.loading = true
-  if (key === 'documentType') {
-    state.selectedRows.forEach(async (item: any) => {
-      item.documentType = value
-      item.properties = {}
-    })
-  }
-  handleDocTypeChange(state.selectedRow)
-  setTimeout(() => {
-    state.loading = false
-  }, 500)
-}
-
-function handleApply(formModel: any) {
-  state.tableData.forEach((item: any) => {
-    if (item.documentType === state.selectedRow.documentType) {
-      item.properties = normalizeProperties(item.properties)
-      item.properties[formModel.name] = formModel.value
-    }
-  })
-}
-
-// #endregion
-// #region module: 2. previewFile
-const previewFile = reactive<any>({
-  blob: null,
-  name: '',
-  id: '',
-  loading: false,
-  downloadLoading: false,
-  options: {
-    readOnly: true
-  }
-})
-
-async function handleDblclick(row: any) {
-  getPreview()
-  state.loading = true
-  state.selectedRow = row
-  await handleDocTypeChange(row)
-  if (state.selectedRow.properties) await MetaFormRef.value.setData(state.selectedRow.properties)
-  setTimeout(() => {
-    state.loading = false
-  }, 1000)
-
-  async function getPreview() {
-    previewFile.loading = true
-    try {
-      previewFile.name = row.initName
-      previewFile.blob = await newClientApi.getDmsUploadRequestTempFileId(row.id, {
-        format: 'blob',
-        timeout: 0
-      })
-    } catch (error) {}
-    previewFile.loading = false
-    previewFile.id = row.id
-  }
-}
-
-async function handleDownload(file: any) {
-  try {
-    file.downloadLoading = true
-    const blob: any = await newClientApi.getDmsUploadRequestTempFileId(file.id, {
-      format: 'blob',
-      timeout: 0
-    })
-    downloadBlob(blob, file.name || state.selectedRow.name, blob.type)
-  } catch (error) {
-  } finally {
-    file.downloadLoading = false
-  }
-}
-
-// #endregion
-// #region module: 3.2 handleCheckChange
-function handleCheckAll(value: boolean) {
-  if (value) treeRef.value.setCheckedKeys(state.tableData.map((item: any) => item.id))
-  else treeRef.value.setCheckedKeys([])
-}
-
-function handleCheckChange() {
-  state.selectedRows = treeRef.value.getCheckedNodes()
-  if (state.selectedRows.length === state.tableData.length) state.checkAll = true
-  else state.checkAll = false
-}
-
-// #endregion
-onMounted(() => {
-  getData()
-})
-onMounted(async () => {
-  const res: any = await newClientApi.getDmsDocpalTypeActive().then((res) => res.data)
-  state.fileTypes = res.filter((item: any) => !item.isFolder)
-})
+const {
+  state,
+  previewFile,
+  listRef,
+  formRef,
+  applyToSelect,
+  handleNodeClick,
+  handleCheckAll,
+  handleCheckChange,
+  handleDocTypeChange,
+  handleMetaChange,
+  handleApply,
+  handleDownload,
+  handleSubmit
+} = useUploadRequestDetail(props)
 </script>
+
 <template>
-  <div class="pageContainer--padding uploadRequest-detail">
-    <div class="left-top">
-      <div class="flex-x-between">
-        <el-select v-model="state.applyDocumentType" filterable default-first-option>
-          <el-option v-for="item in state.fileTypes" :key="item.name" :value="item.name" :label="item.name"></el-option>
-        </el-select>
-        <el-button class="el-icon--right" @click="applyToSelect('documentType', state.applyDocumentType)">{{ $t('dpButtom_apply') }} </el-button>
-      </div>
-    </div>
-    <div class="left-bottom">
-      <el-checkbox v-model="state.checkAll" @change="handleCheckAll">{{ $t('button.selectAll') }} </el-checkbox>
-      <el-tree
-        ref="treeRef"
-        :data="state.tableData"
-        show-checkbox
-        node-key="id"
-        default-expand-all
-        highlight-current
-        :current-node-key="state.selectedRow.id"
-        :expand-on-click-node="false"
-        @node-click="handleDblclick"
-        @check-change="handleCheckChange"
-      >
-        <template #default="{ node, data }">
-          <div class="flex-x-between tree-item">
-            <div class="tree-item--title ellipsis" :title="data.name">
-              {{ data.name }}
-            </div>
-            <div class="tree-item--right">
-              <div class="tree-item--documentType ellipsis" :title="data.documentType">
-                {{ data.documentType }}
-              </div>
-              <el-icon v-if="data.approved" color="#529b2e">
-                <CircleCheckFilled />
-              </el-icon>
-              <el-icon v-else color="#c45656">
-                <WarningFilled />
-              </el-icon>
-            </div>
-          </div>
-        </template>
-      </el-tree>
-    </div>
-    <div class="middle-top flex-x-end">
-      <el-button type="info" :icon="Download" :loading="previewFile.downloadLoading" @click="handleDownload(previewFile)">
-        {{ $t('download') }}
-      </el-button>
-      <el-button type="primary" :loading="state.submitLoading" @click="handleSubmit">
-        {{ $t('submit') }}
-      </el-button>
-    </div>
-    <div class="middle-bottom">
-      <el-form ref="formRef" :model="state.selectedRow" label-position="top">
-        <el-form-item
-          :label="$t('dpDocument_fileName')"
-          prop="name"
-          :rules="[{ required: true, message: $t('dpDocument_fileName') + $t('render.hint.fieldRequired') }]"
-        >
-          <el-input v-model="state.selectedRow.name" />
-        </el-form-item>
-        <el-form-item :label="$t('dpTool_approve')" prop="approved">
-          <el-switch v-model="state.selectedRow.approved" />
-        </el-form-item>
-        <el-form-item :label="$t('dpDocument_fileType')" prop="documentType">
-          <el-select v-model="state.selectedRow.documentType" filterable default-first-option @change="handleDocTypeChange(state.selectedRow)">
-            <el-option v-for="item in state.fileTypes" :key="item.name" :value="item.name" :label="item.name"></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <MetaRenderForm2 ref="MetaFormRef" mode="fileRequest" @formChange="handleMetaChange" @handleApply="handleApply"></MetaRenderForm2>
-    </div>
-    <el-card class="right">
-      <div class="flex-x-between">
-        <div>{{ previewFile.name }}</div>
-      </div>
-      <Reader ref="ReaderRef" v-bind="previewFile"></Reader>
-    </el-card>
+  <div class="pageContainer--padding uploadRequest-detail" v-loading="state.loading">
+    <el-splitter>
+      <el-splitter-panel class="main-left" size="300px" :min="200" collapsible>
+        <UploadRequestList
+          ref="listRef"
+          v-model:check-all="state.checkAll"
+          v-model:apply-document-type="state.applyDocumentType"
+          :table-data="state.tableData"
+          :file-types="state.fileTypes"
+          :selected-row="state.selectedRow"
+          @apply="applyToSelect"
+          @node-click="handleNodeClick"
+          @check-change="handleCheckChange"
+          @check-all="handleCheckAll"
+        />
+      </el-splitter-panel>
+
+      <el-splitter-panel class="main-middle" :min="280">
+        <UploadRequestForm
+          ref="formRef"
+          :selected-row="state.selectedRow"
+          :file-types="state.fileTypes"
+          :submit-loading="state.submitLoading"
+          :download-loading="previewFile.downloadLoading"
+          @download="handleDownload"
+          @submit="handleSubmit"
+          @doc-type-change="handleDocTypeChange"
+          @form-change="handleMetaChange"
+          @handle-apply="handleApply"
+        />
+      </el-splitter-panel>
+
+      <el-splitter-panel class="main-right" size="40%" :min="240" collapsible>
+        <UploadRequestPreview :preview-file="previewFile" />
+      </el-splitter-panel>
+    </el-splitter>
   </div>
 </template>
+
 <style lang="scss" scoped>
 .uploadRequest-detail {
-  display: grid;
-  grid-template-columns: 300px 1fr 1fr;
-  grid-template-rows: min-content 1fr;
-  gap: var(--app-space-xs);
-
-  .left-top {
-    grid-area: 1 / 1 / 2 / 2;
-  }
-
-  .left-bottom {
-    grid-area: 2 / 1 / 3 / 2;
-    overflow: auto;
-  }
-
-  .middle-top {
-    grid-area: 1 / 2 / 2 / 3;
-    padding: 0 12px;
-  }
-
-  .middle-bottom {
-    grid-area: 2 / 2 / 3 / 3;
-    overflow: auto;
-  }
-
-  .right {
-    grid-area: 1 / 3 / 3 / 4;
-  }
-}
-
-.tree-item {
-  width: 100%;
-
-  &--title {
-    min-width: 0;
-    display: block;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &--right {
-    display: flex;
-    align-items: center;
-    gap: var(--app-input-padding);
-  }
-
-  &--documentType {
-    min-width: 0;
-    display: block;
-    max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-.right :deep(.el-card__body) {
-  display: grid;
-  grid-template-rows: min-content 1fr;
-  gap: var(--app-space-xs);
   height: 100%;
+  overflow: hidden;
+
+  :deep(.el-splitter) {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  :deep(.el-splitter-panel) {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  :deep(.el-splitter-bar) {
+    margin: 0 var(--app-space-xs);
+  }
 }
 
-:deep(.el-row) {
-  margin: unset !important;
+:deep(.main-left),
+:deep(.main-middle),
+:deep(.main-right) {
+  background-color: var(--app-grey-0000);
 }
 
-.el-form {
-  padding: 0 12px;
+:deep(.main-right) {
+  min-height: 0;
+  overflow: hidden;
 }
 </style>
