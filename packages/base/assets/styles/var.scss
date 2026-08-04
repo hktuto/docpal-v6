@@ -35,6 +35,15 @@ $shadow-color: (
   xl: ((0 2px 25px -5px, .4), (0 3px 10px -5px, .15), (0 2px 6px -2px, .1)),
 );
 
+// LoadingBg / 兼容别名
+$accent: #0077ff;
+$gradient: (
+  1: #119de9,
+  2: #637fdc,
+  3: #1dd6c3,
+  4: #9adfee,
+);
+
 // ============================================================
 // 生成器
 // ============================================================
@@ -186,7 +195,13 @@ $shadow-color: (
   @include gen-el();
   @include gen-size-shadow();
 
-  --sx-color-primary: var(--app-primary-color);
+  // LoadingBg / 业务兼容别名（缺失会导致登录背景白屏）
+  --app-main-color: var(--app-primary-color);
+  --app-accent-color: #{$accent};
+  --sx-color-primary: var(--app-accent-color);
+  @each $i,$c in $gradient {
+    --gradient-color-#{$i}: #{$c};
+  }
 }
 
 // ============================================================
