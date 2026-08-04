@@ -5,12 +5,14 @@ import { SGLA, SGLA_TABLE_ID } from '../utils/variableMapping'
 export interface WHASupplyListVerifyProps {
   formData: Record<string, any>
   taskDetail?: Record<string, any>
+  disabled?: boolean
 }
 
 export interface WHASupplyListVerifyContext {
   formData: Ref<Record<string, any>>
   taskDetail: Ref<Record<string, any> | undefined>
   invoiceList: Ref<Record<string, any>[]>
+  disabled: Ref<boolean | undefined>
   selectedInvoice: Ref<Record<string, any> | null>
   selectInvoice: (item: Record<string, any>) => void
   /** 切换预览文件（tab），并同步选中对应发票 */
@@ -30,6 +32,7 @@ function resolveDocId(previewFileName: string, fileList: Record<string, any>[] =
 export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) {
   const formData = toRef(props, 'formData')
   const taskDetail = toRef(props, 'taskDetail')
+  const disabled = toRef(props, 'disabled')
   const invoiceList = ref<Record<string, any>[]>([])
   const selectedInvoice = ref<Record<string, any> | null>(null)
   const docId = ref<string>('')
@@ -63,7 +66,8 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
     invoiceList,
     selectedInvoice,
     selectInvoice,
-    updateInvoiceData
+    updateInvoiceData,
+    disabled
   }
 
   provide(WHASupplyListVerifyKey, context)

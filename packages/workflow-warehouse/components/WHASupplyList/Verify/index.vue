@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { SGLA } from '../../../utils/variableMapping'
 
-const props = defineProps(['formData', 'taskDetail'])
+const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const { t } = useI18n()
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList, docId } = useWHASupplyListVerifyProvider(props)

@@ -8,31 +8,28 @@
     </div>
 
     <el-progress :percentage="percentage" :show-text="false" :stroke-width="8" />
-
-    <button
-      type="button"
+    <el-button
       class="progress-card-action"
-      :disabled="loading"
+      type="primary"
+      :icon="Document"
+      :loading="loading"
       :aria-label="$t('dpTool_approve')"
       :title="$t('dpTool_approve')"
+      :disabled="disabled"
       @click="handleApprove"
     >
-      <el-icon class="progress-card-action-icon" :class="{ 'is-loading': loading }" aria-hidden="true">
-        <Loading v-if="loading" />
-        <Document v-else />
-      </el-icon>
-      <span class="progress-card-action-text">{{ $t('dpTool_approve') }}</span>
-    </button>
+      {{ $t('dpTool_approve') }}
+    </el-button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { newClientApi } from 'api'
-import { Document, Loading } from '@element-plus/icons-vue'
+import { Document } from '@element-plus/icons-vue'
 import { useWHASupplyListVerifyTableInject } from '../../../composables/useWHASupplyListVerifyTable'
 import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../../../utils/variableMapping'
 
-const { updateInvoiceData } = useWHASupplyListVerifyInject()
+const { updateInvoiceData, disabled } = useWHASupplyListVerifyInject()
 const { tableData, statusCounts, columns } = useWHASupplyListVerifyTableInject()
 const loading = ref(false)
 const percentage = computed(() => {
@@ -115,43 +112,6 @@ async function handleApprove() {
 }
 
 .progress-card-action {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-xs);
   width: 100%;
-  min-width: 0;
-  margin: 0;
-  padding: var(--app-space-s) var(--app-space-m);
-  border: none;
-  border-radius: var(--app-border-radius-s);
-  background-color: var(--el-color-primary-light-9);
-  color: var(--el-color-primary);
-  font: inherit;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-
-  &:hover:not(:disabled),
-  &:focus-visible {
-    background-color: var(--el-color-primary-light-8);
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
-}
-
-.progress-card-action-icon {
-  flex-shrink: 0;
-  font-size: 1rem;
-}
-
-.progress-card-action-text {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 </style>

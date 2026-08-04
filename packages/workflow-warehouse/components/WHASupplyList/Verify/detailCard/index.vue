@@ -8,7 +8,7 @@
             v-model:value="selectedInvoice[SGLA[item.invoiceKey]]"
             :label="item.label"
             :type="item.type"
-            :disabled="item.disabled"
+            :disabled="item.disabled || disabled"
             :status="item.status"
             :options="unref(item.options) ?? []"
             :button-text="item.buttonText"
@@ -40,7 +40,7 @@ dayjs.extend(isoWeek)
 dayjs.extend(advancedFormat)
 
 const { t } = useI18n()
-const { selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
+const { selectedInvoice, updateInvoiceData, disabled } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
 const key = 'VendorName'
 const SupplierList = ref([])
