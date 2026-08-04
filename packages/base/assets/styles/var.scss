@@ -1,7 +1,8 @@
 @use 'sass:map';
+@use 'sass:list';
 
 // ============================================================
-// 配置区：改主题色只动这里
+// 配置区：改主题只动这里
 // ============================================================
 $colors: (
   primary: (h: 173, s: 82%, l: 42%, deep: .35),
@@ -13,6 +14,26 @@ $colors: (
 $colors: map.merge($colors, (error: map.get($colors, danger))); // error 复用 danger
 
 $grey: (50:5%, 100:10%, 200:20%, 300:30%, 400:40%, 500:50%, 600:60%, 700:70%, 800:80%, 900:90%, 950:97%);
+
+$space: (xxs:.2rem, xs:.4rem, s:.8rem, m:1.2rem, l:2.4rem, xl:3.6rem, xxl:4.8rem);
+$font-size: (xxs:.5rem, xs:.6rem, s:.75rem, m:1rem, l:1.2rem, xl:1.5rem, xxl:2rem);
+$border-radius: (s:.4rem, m:.6rem, l:1.2rem, xl:2rem, xxl:4rem, max:10e5px);
+
+// 中性阴影
+$shadow: (
+  s: (0 1px 2px 0 rgba(0,0,0,.02), 0 2px 4px rgba(0,0,0,.01)),
+  m: (0 1px 6px -1px rgba(0,0,0,.2), 0 2px 4px -1px rgba(0,0,0,.1)),
+  l: (0 1px 15px -3px rgba(0,0,0,.2), 0 2px 6px -2px rgba(0,0,0,.1)),
+  xl: (0 2px 25px -5px rgba(0,0,0,.4), 0 3px 10px -5px rgba(0,0,0,.1), 0 2px 6px -2px rgba(0,0,0,.05)),
+);
+// 彩色阴影：每档为 (offset, alpha) 列表
+$shadow-color-names: primary, success, warning, danger;
+$shadow-color: (
+  s: ((0 1px 2px 0, .4), (0 2px 4px, .1)),
+  m: ((0 1px 6px -1px, .35), (0 2px 4px -1px, .15)),
+  l: ((0 1px 15px -3px, .35), (0 2px 6px -2px, .15)),
+  xl: ((0 2px 25px -5px, .4), (0 3px 10px -5px, .15), (0 2px 6px -2px, .1)),
+);
 
 // ============================================================
 // 生成器
@@ -123,6 +144,25 @@ $grey: (50:5%, 100:10%, 200:20%, 300:30%, 400:40%, 500:50%, 600:60%, 700:70%, 80
   }
 }
 
+// 尺寸 + 阴影
+@mixin gen-size-shadow() {
+  @each $k,$v in $space { --app-space-#{$k}: #{$v}; }
+  @each $k,$v in $font-size { --app-font-size-#{$k}: #{$v}; }
+  @each $k,$v in $border-radius { --app-border-radius-#{$k}: #{$v}; }
+  @each $k,$v in $shadow { --app-shadow-#{$k}: #{$v}; }
+  @each $n in $shadow-color-names {
+    @each $s,$layers in $shadow-color {
+      $parts: ();
+      @each $layer in $layers {
+        $offset: list.nth($layer, 1);
+        $alpha: list.nth($layer, 2);
+        $parts: list.append($parts, #{$offset} hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), #{$alpha}), comma);
+      }
+      --app-shadow-#{$n}-#{$s}: #{$parts};
+    }
+  }
+}
+
 // ============================================================
 // :root 亮色
 // ============================================================
@@ -144,29 +184,7 @@ $grey: (50:5%, 100:10%, 200:20%, 300:30%, 400:40%, 500:50%, 600:60%, 700:70%, 80
   }
 
   @include gen-el();
-
-  // 尺寸
-  @each $k,$v in (xxs:.2rem, xs:.4rem, s:.8rem, m:1.2rem, l:2.4rem, xl:3.6rem, xxl:4.8rem) {
-    --app-space-#{$k}: #{$v};
-  }
-  @each $k,$v in (xxs:.5rem, xs:.6rem, s:.75rem, m:1rem, l:1.2rem, xl:1.5rem, xxl:2rem) {
-    --app-font-size-#{$k}: #{$v};
-  }
-  @each $k,$v in (s:.4rem, m:.6rem, l:1.2rem, xl:2rem, xxl:4rem, max:10e5px) {
-    --app-border-radius-#{$k}: #{$v};
-  }
-
-  // 阴影
-  --app-shadow-s: 0 1px 2px 0 rgba(0,0,0,.02), 0 2px 4px rgba(0,0,0,.01);
-  --app-shadow-m: 0 1px 6px -1px rgba(0,0,0,.2), 0 2px 4px -1px rgba(0,0,0,.1);
-  --app-shadow-l: 0 1px 15px -3px rgba(0,0,0,.2), 0 2px 6px -2px rgba(0,0,0,.1);
-  --app-shadow-xl: 0 2px 25px -5px rgba(0,0,0,.4), 0 3px 10px -5px rgba(0,0,0,.1), 0 2px 6px -2px rgba(0,0,0,.05);
-  @each $n in primary,success,warning,danger {
-    --app-shadow-#{$n}-s: 0 1px 2px 0 hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .4), 0 2px 4px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .1);
-    --app-shadow-#{$n}-m: 0 1px 6px -1px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .35), 0 2px 4px -1px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .15);
-    --app-shadow-#{$n}-l: 0 1px 15px -3px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .35), 0 2px 6px -2px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .15);
-    --app-shadow-#{$n}-xl: 0 2px 25px -5px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .4), 0 3px 10px -5px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .15), 0 2px 6px -2px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .1);
-  }
+  @include gen-size-shadow();
 
   --sx-color-primary: var(--app-primary-color);
 }
