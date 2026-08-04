@@ -5,298 +5,198 @@
 @use './elements/index.scss';
 
 // ============================================================
-// 改主题色：只动下面这个 map
-// deep = 最深一档系数（light 的 #6 / dark 的 #1）
+// 配置区：改主题色只动这里
 // ============================================================
-$app-theme-colors: (
-  primary: (h: 173, s: 82%, l: 42%, deep: 0.35),
-  success: (h: 119, s: 93%, l: 42%, deep: 0.25),
-  warning: (h: 36, s: 77%, l: 57%, deep: 0.25),
-  danger: (h: 0, s: 87%, l: 69%, deep: 0.25),
-  error: (h: 0, s: 87%, l: 69%, deep: 0.25),
-  info: (h: 220, s: 4%, l: 58%, deep: 0.25)
+$colors: (
+  primary: (h: 173, s: 82%, l: 42%, deep: .35),
+  success: (h: 119, s: 93%, l: 42%, deep: .25),
+  warning: (h: 36, s: 77%, l: 57%, deep: .25),
+  danger: (h: 0, s: 87%, l: 69%, deep: .25),
+  info: (h: 220, s: 4%, l: 58%, deep: .25)
 );
+$colors: map.merge($colors, (error: map.get($colors, danger))); // error 复用 danger
 
-$app-grey-steps: (
-  50: 5%,
-  100: 10%,
-  200: 20%,
-  300: 30%,
-  400: 40%,
-  500: 50%,
-  600: 60%,
-  700: 70%,
-  800: 80%,
-  900: 90%,
-  950: 97%,
-  1000: 100%
-);
+$grey: (50:5%, 100:10%, 200:20%, 300:30%, 400:40%, 500:50%, 600:60%, 700:70%, 800:80%, 900:90%, 950:97%);
 
 // ============================================================
-// 下面一般不用改
+// 生成器
 // ============================================================
 
-@mixin app-scale-theme($prefix, $map) {
-  @each $key, $value in $map {
-    --#{$prefix}-#{$key}: #{$value};
-  }
-}
-
-@mixin app-grey-theme($invert: false) {
-  @each $step, $lightness in $app-grey-steps {
-    $l: $lightness;
-    @if $invert {
-      @if $step == 950 {
-        $l: 5%;
-      } @else {
-        $l: 100% - $lightness;
-      }
-    }
-    --app-grey-#{$step}: hsl(var(--app-grey-hue), var(--app-grey-saturation), #{$l});
-  }
-}
-
-// 生成 --app-{name}-color / alpha / 1~6
-@mixin app-light-theme($name, $deep) {
+// 生成基础色、透明度与 6 档深浅色
+@mixin gen-color($name, $deep, $dark: false) {
+  // 基础色 / alpha：亮暗都写，避免只依赖 :root 继承
   --app-#{$name}-color: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l));
-
-  @each $step in 10, 30, 50, 70, 90 {
-    --app-#{$name}-alpha-#{$step}: hsl(
-      var(--app-#{$name}-h),
-      var(--app-#{$name}-s),
-      calc(var(--app-#{$name}-l) * var(--transparent-factor)),
-      #{$step * 0.01}
-    );
+  @each $a in 10,30,50,70,90 {
+    --app-#{$name}-alpha-#{$a}: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * 1.2), #{$a * .01});
   }
-
-  --app-#{$name}-1: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * 0.85), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * 0.15));
-  --app-#{$name}-2: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * 0.7), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * 0.3));
-  --app-#{$name}-3: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * 0.55), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * 0.45));
-  --app-#{$name}-4: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * 0.75));
-  --app-#{$name}-5: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * 0.5));
-  --app-#{$name}-6: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * #{$deep}));
-}
-
-// dark 下翻转 1~6
-@mixin app-dark-theme($name, $deep) {
-  --app-#{$name}-1: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * #{$deep}));
-  --app-#{$name}-2: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * 0.5));
-  --app-#{$name}-3: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * 0.75));
-  --app-#{$name}-4: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * 0.55), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * 0.45));
-  --app-#{$name}-5: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * 0.7), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * 0.3));
-  --app-#{$name}-6: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * 0.85), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * 0.15));
-}
-
-@mixin app-element-theme($name) {
-  --el-color-#{$name}: var(--app-#{$name}-color) !important;
-  --el-color-#{$name}-light-3: var(--app-#{$name}-1) !important;
-  --el-color-#{$name}-light-5: var(--app-#{$name}-2) !important;
-  --el-color-#{$name}-light-7: var(--app-#{$name}-3) !important;
-  --el-color-#{$name}-light-8: hsl(
-    var(--app-#{$name}-h),
-    calc(var(--app-#{$name}-s) * 0.55),
-    calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * 0.7)
-  ) !important;
-  --el-color-#{$name}-light-9: hsl(
-    var(--app-#{$name}-h),
-    calc(var(--app-#{$name}-s) * 0.55),
-    calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * 0.9)
-  ) !important;
-  --el-color-#{$name}-dark-2: var(--app-#{$name}-4) !important;
-}
-
-@mixin app-shadow-theme($name) {
-  --app-shadow-#{$name}-s: 0 1px 2px 0 hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.4),
-    0 2px 4px hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.1);
-  --app-shadow-#{$name}-m: 0 1px 6px -1px hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.4),
-    0 2px 4px -1px hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.2);
-  --app-shadow-#{$name}-l: 0 1px 15px -3px hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.4),
-    0 2px 6px -2px hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.2);
-  --app-shadow-#{$name}-xl: 0 2px 25px -5px hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.4),
-    0 3px 10px -5px hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.1),
-    0 2px 6px -2px hsla(var(--app-#{$name}-h), var(--app-#{$name}-s), var(--app-#{$name}-l), 0.05);
-}
-
-:root {
-  // ---------- 主题色 ----------
-  @each $name, $cfg in $app-theme-colors {
-    --app-#{$name}-h: #{map.get($cfg, h)};
-    --app-#{$name}-s: #{map.get($cfg, s)};
-    --app-#{$name}-l: #{map.get($cfg, l)};
-    @include app-light-theme($name, map.get($cfg, deep));
-    @include app-element-theme($name);
+  @if $dark {
+    // 暗色：深浅翻转
+    --app-#{$name}-1: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * #{$deep}));
+    --app-#{$name}-2: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * .5));
+    --app-#{$name}-3: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * .75));
+    --app-#{$name}-4: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * .55), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * .45));
+    --app-#{$name}-5: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * .7), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * .3));
+    --app-#{$name}-6: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * .85), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * .15));
+  } @else {
+    // 亮色
+    --app-#{$name}-1: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * .85), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * .15));
+    --app-#{$name}-2: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * .7), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * .3));
+    --app-#{$name}-3: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * .55), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * .45));
+    --app-#{$name}-4: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * .75));
+    --app-#{$name}-5: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * .5));
+    --app-#{$name}-6: hsl(var(--app-#{$name}-h), var(--app-#{$name}-s), calc(var(--app-#{$name}-l) * #{$deep}));
   }
+}
 
-  @each $name in primary, success, warning, danger {
-    @include app-shadow-theme($name);
+// 生成灰色
+@mixin gen-grey($dark: false) {
+  @each $s,$l in $grey {
+    $v: if($dark and $l != 50%, 100% - $l, $l);
+    --app-grey-#{$s}: hsl(var(--app-grey-h), var(--app-grey-s), #{$v});
   }
+  // 兼容旧写法 --app-grey-050
+  --app-grey-050: var(--app-grey-50);
+}
 
-  --app-accent-color: #0077ff;
-  --app-main-color: var(--app-primary-color);
-  --sx-color-primary: var(--app-accent-color) !important;
-
-  // ---------- 基础常量 ----------
-  --app-grey-hue: 200;
-  --app-grey-saturation: 25%;
-  --app-max-width: 1200px;
-  --app-custom-font: 'Roboto';
-  --transparent-factor: 1.2;
-  --app-paper: #fff;
-  --app-black: #000;
-  --app-text-color: #000;
-  --app-line-height: 1.2;
-  --app-font-weight: 400;
-  --app-font-weight-title: bold;
-  --app-font-family: var(--app-custom-font), 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-  --app-bg: radial-gradient(72% 72% at 2% -5%, #ddf2f7 0%, #dae7f1 100%);
-
-  @include app-scale-theme(
-    app-font-size,
-    (
-      xxs: 0.5rem,
-      xs: 0.6rem,
-      s: 0.75rem,
-      m: 1rem,
-      l: 1.2rem,
-      xl: 1.5rem,
-      xxl: 2rem
-    )
-  );
-  @include app-scale-theme(
-    app-border-radius,
-    (
-      s: 0.4rem,
-      m: 0.6rem,
-      l: 1.2rem,
-      xl: 2rem,
-      xxl: 4rem,
-      max: 10e5px
-    )
-  );
-  @include app-scale-theme(
-    app-space,
-    (
-      xxs: 0.2rem,
-      xs: 0.4rem,
-      s: 0.8rem,
-      m: 1.2rem,
-      l: 2.4rem,
-      xl: 3.6rem,
-      xxl: 4.8rem
-    )
-  );
-  @include app-grey-theme;
-
-  --app-shadow-s: 0 1px 2px 0 rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.01);
-  --app-shadow-m: 0 1px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-  --app-shadow-l: 0 1px 15px -3px rgba(0, 0, 0, 0.2), 0 2px 6px -2px rgba(0, 0, 0, 0.1);
-  --app-shadow-xl: 0 2px 25px -5px rgba(0, 0, 0, 0.4), 0 3px 10px -5px rgba(0, 0, 0, 0.1), 0 2px 6px -2px rgba(0, 0, 0, 0.05);
-
-  // ---------- 语义色（直接改这里） ----------
-  --app-text-color-primary: var(--app-grey-100);
-  --app-text-color-regular: var(--app-grey-200);
-  --app-text-color-secondary: var(--app-grey-400);
-  --app-text-color-placeholder: var(--app-grey-500);
-  --app-text-color-disabled: var(--app-grey-600);
-
-  --app-border-color: var(--app-grey-800);
-  --app-border-color-light: var(--app-grey-900);
-  --app-border-color-lighter: var(--app-grey-950);
-  --app-border-color-dark: var(--app-grey-700);
-  --app-border-color-darker: var(--app-grey-600);
-
+// 生成语义变量（亮/暗共用）
+@mixin gen-semantic($dark: false) {
+  $map: if($dark, (
+    text-primary: 50, text-regular: 100, text-secondary: 300,
+    border: 800, border-light: 900, border-lighter: 950,
+    bg-page: 950, bg-overlay: 900,
+    fill-light: (hsl(var(--app-grey-h), var(--app-grey-s), 2.5%)),
+    fill-lighter: (hsl(var(--app-grey-h), var(--app-grey-s), 1.5%)),
+  ), (
+    text-primary: 100, text-regular: 200, text-secondary: 400,
+    border: 800, border-light: 900, border-lighter: 950,
+    bg-page: 950, bg-overlay: paper,
+    fill-light: 900, fill-lighter: (hsl(var(--app-grey-h), var(--app-grey-s), 97.5%)),
+  ));
+  @each $k,$v in $map {
+    @if $v == paper { --app-#{$k}: var(--app-paper); }
+    @else if type-of($v) == number { --app-#{$k}: var(--app-grey-#{$v}); }
+    @else { --app-#{$k}: #{$v}; }
+  }
+  // 与 gen-el 对齐的短名（权威），*-color-* 保留为兼容别名
+  --app-text-placeholder: var(--app-grey-500);
+  --app-text-disabled: var(--app-grey-600);
+  --app-text-color-placeholder: var(--app-text-placeholder);
+  --app-text-color-disabled: var(--app-text-disabled);
+  --app-border-dark: var(--app-grey-700);
+  --app-border-darker: var(--app-grey-600);
+  --app-border-color-dark: var(--app-border-dark);
+  --app-border-color-darker: var(--app-border-darker);
   --app-bg-color: var(--app-paper);
-  --app-bg-color-page: var(--app-grey-950);
-  --app-bg-color-overlay: var(--app-paper);
-
   --app-fill-color: var(--app-grey-950);
-  --app-fill-color-light: var(--app-grey-900);
-  --app-fill-color-lighter: hsl(var(--app-grey-hue), var(--app-grey-saturation), 97.5%);
-  --app-fill-color-dark: var(--app-grey-900);
-  --app-fill-color-darker: var(--app-grey-800);
-  --app-fill-color-blank: var(--app-paper);
+  --app-fill-dark: var(--app-grey-900);
+  --app-fill-darker: var(--app-grey-800);
+  --app-fill-blank: var(--app-paper);
+  --app-fill-color-dark: var(--app-fill-dark);
+  --app-fill-color-darker: var(--app-fill-darker);
+  --app-fill-color-blank: var(--app-fill-blank);
+}
 
-  // ---------- Element Plus / VXE 映射 ----------
-  --el-font-family: var(--app-font-family) !important;
+// 一键生成 Element Plus 映射
+@mixin gen-el() {
+  --el-font-family: var(--app-font-family);
   --el-checkbox-font-size: var(--app-font-size-m);
   --el-border-radius-base: var(--app-border-radius-m);
-
-  @each $key in primary, regular, secondary, placeholder, disabled {
-    --el-text-color-#{$key}: var(--app-text-color-#{$key}) !important;
+  @each $k in primary,regular,secondary,placeholder,disabled {
+    --el-text-color-#{$k}: var(--app-text-#{$k});
   }
-  --el-border-color: var(--app-border-color) !important;
-  @each $key in light, lighter, dark, darker {
-    --el-border-color-#{$key}: var(--app-border-color-#{$key}) !important;
+  @each $k in light,lighter,dark,darker {
+    --el-border-color-#{$k}: var(--app-border-#{$k});
   }
-  --el-bg-color: var(--app-bg-color) !important;
-  @each $key in page, overlay {
-    --el-bg-color-#{$key}: var(--app-bg-color-#{$key}) !important;
+  @each $k in page,overlay {
+    --el-bg-color-#{$k}: var(--app-bg-#{$k});
   }
-  --el-fill-color: var(--app-fill-color) !important;
-  @each $key in light, lighter, dark, darker, blank {
-    --el-fill-color-#{$key}: var(--app-fill-color-#{$key}) !important;
+  @each $k in light,lighter,dark,darker,blank {
+    --el-fill-color-#{$k}: var(--app-fill-#{$k});
   }
-
-  --vxe-ui-font-family: var(--app-font-family) !important;
-  --vxe-ui-font-color: var(--app-text-color-regular) !important;
-  --vxe-ui-layout-background-color: transparent !important;
-  --vxe-ui-table-header-background-color: var(--app-paper) !important;
-  --vxe-ui-table-header-font-color: var(--app-text-color-regular) !important;
-  --vxe-ui-table-menu-background-color: var(--app-paper) !important;
-  --vxe-ui-base-popup-border-color: var(--app-grey-900) !important;
+  --el-border-color: var(--app-border);
+  --el-bg-color: var(--app-bg-color);
+  --el-fill-color: var(--app-fill-color);
+  @each $name,$cfg in $colors {
+    --el-color-#{$name}: var(--app-#{$name}-color);
+    --el-color-#{$name}-light-3: var(--app-#{$name}-1);
+    --el-color-#{$name}-light-5: var(--app-#{$name}-2);
+    --el-color-#{$name}-light-7: var(--app-#{$name}-3);
+    --el-color-#{$name}-light-8: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s)*.55), calc(var(--app-#{$name}-l)+(95% - var(--app-#{$name}-l))*.7));
+    --el-color-#{$name}-light-9: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s)*.55), calc(var(--app-#{$name}-l)+(95% - var(--app-#{$name}-l))*.9));
+    --el-color-#{$name}-dark-2: var(--app-#{$name}-4);
+  }
 }
 
+// ============================================================
+// :root 亮色
+// ============================================================
+:root {
+  --app-paper: #fff;
+  --app-bg: radial-gradient(72% 72% at 2% -5%, #ddf2f7 0%, #dae7f1 100%);
+  --app-font-family: 'Roboto', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  --app-grey-h: 200;
+  --app-grey-s: 25%;
+
+  @include gen-grey(false);
+  @include gen-semantic(false);
+
+  @each $n,$c in $colors {
+    --app-#{$n}-h: #{map.get($c, h)};
+    --app-#{$n}-s: #{map.get($c, s)};
+    --app-#{$n}-l: #{map.get($c, l)};
+    @include gen-color($n, map.get($c, deep), false);
+  }
+
+  @include gen-el();
+
+  // 尺寸
+  @each $k,$v in (xxs:.2rem, xs:.4rem, s:.8rem, m:1.2rem, l:2.4rem, xl:3.6rem, xxl:4.8rem) {
+    --app-space-#{$k}: #{$v};
+  }
+  @each $k,$v in (xxs:.5rem, xs:.6rem, s:.75rem, m:1rem, l:1.2rem, xl:1.5rem, xxl:2rem) {
+    --app-font-size-#{$k}: #{$v};
+  }
+  @each $k,$v in (s:.4rem, m:.6rem, l:1.2rem, xl:2rem, xxl:4rem, max:10e5px) {
+    --app-border-radius-#{$k}: #{$v};
+  }
+
+  // 阴影
+  --app-shadow-s: 0 1px 2px 0 rgba(0,0,0,.02), 0 2px 4px rgba(0,0,0,.01);
+  --app-shadow-m: 0 1px 6px -1px rgba(0,0,0,.2), 0 2px 4px -1px rgba(0,0,0,.1);
+  --app-shadow-l: 0 1px 15px -3px rgba(0,0,0,.2), 0 2px 6px -2px rgba(0,0,0,.1);
+  --app-shadow-xl: 0 2px 25px -5px rgba(0,0,0,.4), 0 3px 10px -5px rgba(0,0,0,.1), 0 2px 6px -2px rgba(0,0,0,.05);
+  @each $n in primary,success,warning,danger {
+    --app-shadow-#{$n}-s: 0 1px 2px 0 hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .4), 0 2px 4px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .1);
+    --app-shadow-#{$n}-m: 0 1px 6px -1px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .35), 0 2px 4px -1px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .15);
+    --app-shadow-#{$n}-l: 0 1px 15px -3px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .35), 0 2px 6px -2px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .15);
+    --app-shadow-#{$n}-xl: 0 2px 25px -5px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .4), 0 3px 10px -5px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .15), 0 2px 6px -2px hsla(var(--app-#{$n}-h), var(--app-#{$n}-s), var(--app-#{$n}-l), .1);
+  }
+
+  --sx-color-primary: var(--app-primary-color);
+}
+
+// ============================================================
+// 暗色：只覆盖变化的部分
+// ============================================================
 html.dark {
-  --app-bg: radial-gradient(72% 72% at 2% -5%, #2d3234 0%, #2f3737 51%, #3f3f3f 100%);
   --app-paper: #141414;
-  --app-text-color: #fff;
+  --app-bg: radial-gradient(72% 72% at 2% -5%, #2d3234 0%, #2f3737 51%, #3f3f3f 100%);
 
-  @include app-grey-theme(true);
-
-  @each $name, $cfg in $app-theme-colors {
-    @include app-dark-theme($name, map.get($cfg, deep));
+  @include gen-grey(true);
+  @include gen-semantic(true);
+  @each $n,$c in $colors {
+    @include gen-color($n, map.get($c, deep), true);
   }
-
-  --app-text-color-primary: var(--app-grey-50);
-  --app-text-color-regular: var(--app-grey-100);
-  --app-text-color-secondary: var(--app-grey-300);
-  --app-text-color-placeholder: var(--app-grey-500);
-  --app-text-color-disabled: var(--app-grey-600);
-
-  --app-border-color: var(--app-grey-800);
-  --app-border-color-light: var(--app-grey-900);
-  --app-border-color-lighter: var(--app-grey-950);
-  --app-border-color-dark: var(--app-grey-700);
-  --app-border-color-darker: var(--app-grey-600);
-
-  --app-bg-color: var(--app-paper);
-  --app-bg-color-page: var(--app-grey-950);
-  --app-bg-color-overlay: var(--app-grey-900);
-
-  --app-fill-color: var(--app-grey-950);
-  --app-fill-color-light: hsl(var(--app-grey-hue), var(--app-grey-saturation), 2.5%);
-  --app-fill-color-lighter: hsl(var(--app-grey-hue), var(--app-grey-saturation), 1.5%);
-  --app-fill-color-dark: var(--app-grey-900);
-  --app-fill-color-darker: var(--app-grey-800);
-  --app-fill-color-blank: var(--app-paper);
+  // el-* 自动继承，不需要重写
 }
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: var(--app-font-family);
-  font-size: var(--app-font-size-m);
-  line-height: var(--app-line-height);
-  font-weight: var(--app-font-weight);
-  --gradient-color-1: #119de9;
-  --gradient-color-2: #637fdc;
-  --gradient-color-3: #1dd6c3;
-  --gradient-color-4: #9adfee;
-  --vxe-ui-font-family: var(--app-font-family);
-  --vxe-ui-table-menu-item-width: initial;
+// ============================================================
+// 全局
+// ============================================================
+html,body {
+  padding:0;margin:0;
+  font-family:var(--app-font-family);
+  font-size:var(--app-font-size-m);
+  line-height:1.2;
 }
-
-* {
-  box-sizing: border-box;
-}
+* { box-sizing:border-box; }
