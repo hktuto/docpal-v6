@@ -1,4 +1,5 @@
 import { createError, useState } from '#imports'
+import { FormWidgetProformaInvoiceInfo } from '#components'
 
 type FormRenderSlotsType = {
   name: string
@@ -79,6 +80,14 @@ export const useWorkflow = () => {
       {
         name: 'salesOrderApprovalModificationTable',
         component: 'FormWidgetSalesOrderApprovalModificationTable'
+      },
+      {
+        name: 'proformaInvoiceInfo',
+        component: 'FormWidgetProformaInvoiceInfo'
+      },
+      {
+        name: 'proformaInvoiceApproval',
+        component: 'FormWidgetProformaInvoiceApproval'
       }
     ])
   )
