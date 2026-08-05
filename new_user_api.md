@@ -706,6 +706,7 @@ X-Is-Admin: true
 
 ### 7.1 创建用户组
 
+- Replace Api: `POST /admin/api/ucenter/group`
 - Method: `POST`
 - Path: `{{baseUrl}}/groups/create`
 - Body(JSON):
@@ -721,6 +722,7 @@ X-Is-Admin: true
 
 ### 7.2 用户组分页
 
+- Replace Api: `POST: /admin/api/ucenter/member`
 - Method: `POST`
 - Path: `{{baseUrl}}/groups/page`
 - Body(JSON):
@@ -739,6 +741,7 @@ X-Is-Admin: true
 
 ### 7.3 更新用户组
 
+- Replace Api: `PATCH: /admin/api/ucenter/group`
 - Method: `PUT`
 - Path: `{{baseUrl}}/groups/update`
 - Body(JSON):
@@ -755,11 +758,13 @@ X-Is-Admin: true
 
 ### 7.4 删除用户组
 
+- Replace Api: `DELETE : /admin/api/ucenter/group`
 - Method: `DELETE`
 - Path: `{{baseUrl}}/groups/{id}`
 
 ### 7.5 批量分配用户到组
 
+- Replace Api: `POST /admin/api/ucenter/group/batch/add/users`
 - Method: `POST`
 - Path: `{{baseUrl}}/groups/assign-users`
 - Body(JSON):
@@ -776,6 +781,7 @@ X-Is-Admin: true
 
 ### 7.6 批量移除组成员
 
+- Replace Api: `POST: /admin/api/ucenter/group/batch/remove/users`
 - Method: `POST`
 - Path: `{{baseUrl}}/groups/remove-users`
 - Body(JSON):
@@ -792,6 +798,7 @@ X-Is-Admin: true
 
 ### 7.7 用户组成员分页
 
+- Replace Api: `POST: /admin/api/ucenter/member`
 - Method: `POST`
 - Path: `{{baseUrl}}/groups/users`
 - Body(JSON):
@@ -806,6 +813,7 @@ X-Is-Admin: true
 
 ### 7.8 用户组下拉
 
+- Replace Api: `` 
 - Method: `GET`
 - Path: `{{baseUrl}}/groups/select`
 - Query:
@@ -821,12 +829,14 @@ X-Is-Admin: true
 
 ### 8.1 获取用户设置
 
+- Replace Api; `GET /api/dms/user/setting`
 - Method: `GET`
 - Path: `{{baseUrl}}/user-settings`
 - Headers: `Authorization`
 
 ### 8.2 保存用户设置
 
+- Replace Api; `PUT /api/dms/user/setting`
 - Method: `PUT`
 - Path: `{{baseUrl}}/user-settings`
 - Headers: `Authorization`
@@ -842,13 +852,14 @@ X-Is-Admin: true
 ```
 
 ### 8.3 获取用户资料 Schema
-
+- Replace API : `GET /admin/api/dms/user/system/fields`
 - Method: `GET`
 - Path: `{{baseUrl}}/user-settings/profile-schema`
 - Headers: `Authorization`
 
 ### 8.4 保存用户资料 Schema
 
+- Replace API : `PUT /admin/api/dms/user/system/fields`
 - Method: `PUT`
 - Path: `{{baseUrl}}/user-settings/profile-schema`
 - Headers: `Authorization`
@@ -874,11 +885,13 @@ X-Is-Admin: true
 
 ### 9.1 ACL 健康检查
 
+- Replace Api: `NA`
 - Method: `GET`
 - Path: `{{baseUrl}}/acl/test`
 
 ### 9.2 角色列表
 
+- Replace Api: `/admin/api/docpal/acl/role/page`
 - Method: `GET`
 - Path: `{{baseUrl}}/acl/role/list`
 - Query:
@@ -889,6 +902,7 @@ X-Is-Admin: true
 
 ### 9.3 角色树
 
+- Replace Api : `GET: /api/docpal/acl/role/root`
 - Method: `GET`
 - Path: `{{baseUrl}}/acl/role/tree`
 
@@ -898,6 +912,7 @@ X-Is-Admin: true
 
 ### 10.1 发现文档
 
+- Replace Api: `NA`
 - Method: `GET`
 - Path: `{{baseUrl}}/.well-known/openid-configuration`
 
@@ -908,6 +923,7 @@ X-Is-Admin: true
 
 ### 10.3 授权码模式授权端点
 
+- Replace Api: `NA`
 - Method: `GET`
 - Path: `{{baseUrl}}/oauth2/authorize`
 - Headers: `Authorization`
@@ -926,6 +942,7 @@ X-Is-Admin: true
 
 ### 10.4 Token 端点
 
+- Replace Api: `NA`
 - Method: `POST`
 - Path: `{{baseUrl}}/oauth2/token`
 - Content-Type: `application/x-www-form-urlencoded`
@@ -977,6 +994,7 @@ password=Admin123
 
 ### 10.5 UserInfo
 
+- Replace Api: `NA`
 - Method: `GET`
 - Path: `{{baseUrl}}/oauth2/userinfo`
 - Headers: `Authorization`
