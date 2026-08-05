@@ -122,34 +122,35 @@ $gradient: (
   --app-fill-color-blank: var(--app-fill-blank);
 }
 
-// 一键生成 Element Plus 映射
+// 一键生成 Element Plus 映射（!important：避免被 EP 默认/:root/dark 变量覆盖）
 @mixin gen-el() {
-  --el-font-family: var(--app-font-family);
+  --el-font-family: var(--app-font-family) !important;
   --el-checkbox-font-size: var(--app-font-size-m);
   --el-border-radius-base: var(--app-border-radius-m);
   @each $k in primary,regular,secondary,placeholder,disabled {
-    --el-text-color-#{$k}: var(--app-text-#{$k});
+    --el-text-color-#{$k}: var(--app-text-#{$k}) !important;
   }
   @each $k in light,lighter,dark,darker {
-    --el-border-color-#{$k}: var(--app-border-#{$k});
+    --el-border-color-#{$k}: var(--app-border-#{$k}) !important;
   }
   @each $k in page,overlay {
-    --el-bg-color-#{$k}: var(--app-bg-#{$k});
+    --el-bg-color-#{$k}: var(--app-bg-#{$k}) !important;
   }
   @each $k in light,lighter,dark,darker,blank {
-    --el-fill-color-#{$k}: var(--app-fill-#{$k});
+    --el-fill-color-#{$k}: var(--app-fill-#{$k}) !important;
   }
-  --el-border-color: var(--app-border);
-  --el-bg-color: var(--app-bg-color);
-  --el-fill-color: var(--app-fill-color);
+  --el-border-color: var(--app-border) !important;
+  --el-bg-color: var(--app-bg-color) !important;
+  --el-fill-color: var(--app-fill-color) !important;
   @each $name,$cfg in $colors {
-    --el-color-#{$name}: var(--app-#{$name}-color);
-    --el-color-#{$name}-light-3: var(--app-#{$name}-1);
-    --el-color-#{$name}-light-5: var(--app-#{$name}-2);
-    --el-color-#{$name}-light-7: var(--app-#{$name}-3);
-    --el-color-#{$name}-light-8: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s)*.55), calc(var(--app-#{$name}-l)+(95% - var(--app-#{$name}-l))*.7));
-    --el-color-#{$name}-light-9: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s)*.55), calc(var(--app-#{$name}-l)+(95% - var(--app-#{$name}-l))*.9));
-    --el-color-#{$name}-dark-2: var(--app-#{$name}-4);
+    --el-color-#{$name}: var(--app-#{$name}-color) !important;
+    --el-color-#{$name}-light-3: var(--app-#{$name}-1) !important;
+    --el-color-#{$name}-light-5: var(--app-#{$name}-2) !important;
+    --el-color-#{$name}-light-7: var(--app-#{$name}-3) !important;
+    // calc 的 + / - 两侧必须有空格，否则整段 hsl 无效，Message 会回退到 info 灰底
+    --el-color-#{$name}-light-8: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * .55), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * .7)) !important;
+    --el-color-#{$name}-light-9: hsl(var(--app-#{$name}-h), calc(var(--app-#{$name}-s) * .55), calc(var(--app-#{$name}-l) + (95% - var(--app-#{$name}-l)) * .9)) !important;
+    --el-color-#{$name}-dark-2: var(--app-#{$name}-4) !important;
   }
 }
 
@@ -216,5 +217,6 @@ html.dark {
   @each $n,$c in $colors {
     @include gen-color($n, map.get($c, deep), true);
   }
-  // el-* 自动继承，不需要重写
+  // 必须重写：EP dark 会覆盖 --el-color-*-light-9 等，导致 Message 背景变深灰
+  @include gen-el();
 }
