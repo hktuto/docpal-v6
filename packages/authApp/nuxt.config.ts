@@ -4,6 +4,13 @@ const config = {
   devtools: { enabled: true },
   modules: [],
   extends: ['../base', '../../pages/client-user-setting', '../../pages/admin-setting'],
+  app: {
+    head: {
+      script: [
+        { src: "https://cdnjs.cloudflare.com/ajax/libs/decimal.js/9.0.0/decimal.min.js", async: true }
+      ]
+    }
+  },
   runtimeConfig: {
     public: {
       needAuth: true,
