@@ -187,10 +187,6 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   optionalConfig: {}
 })
 
-function loadData() {
-  tableRef.value?.loadData(listData.value)
-}
-
 function init() {
   isApproval.value = formData.is_approval
   listData.value = formData.order_item_list
@@ -234,20 +230,20 @@ function handleSynchronizePoNumbers() {
     ...item,
     customer_po: po
   }))
-  loadData()
+  reload()
 }
 
 function handleCreate(newRow: DataItemType) {
   if (isApproval.value) return
   listData.value.push(newRow)
-  loadData()
+  reload()
 }
 
 function handleUpdate(row: DataItemType) {
   const index: number = listData.value.findIndex((item: DataItemType) => item.line_id === row.line_id)
 
   listData.value[index] = row
-  loadData()
+  reload()
 }
 
 async function handleDelete(row: DataItemType) {
@@ -264,7 +260,7 @@ async function handleDelete(row: DataItemType) {
     if (index !== -1) {
       listData.value.splice(index, 1)
     }
-    loadData()
+    reload()
   } catch (error) {
     console.log(error)
   }
