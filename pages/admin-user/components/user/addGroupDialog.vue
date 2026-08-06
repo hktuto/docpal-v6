@@ -10,12 +10,11 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { userProviderDetailKey } from '~/util/userProvider'
 import formJson from './addGroupDialog.vform.json'
 import { ElMessage } from 'element-plus'
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
-const userProviderDetail = inject(userProviderDetailKey)
+const { batchUserAddGroups, fetchGroupList } = useAdminUser()
 const props = defineProps<{
   user: object,
 }>()
@@ -37,7 +36,7 @@ async function handleSubmit() {
       groupIds: data.id,
       userId: props.user.userId
     }
-    await userProviderDetail?.BatchUserAddGroupsApi(param)
+    await batchUserAddGroups(param)
     ElMessage.success(t('user_userGroupsAssignedSuccessMsg'))
     state.visible = false
     FormRendererRef.value.vFormRenderRef.resetForm()
@@ -51,7 +50,7 @@ async function handleSubmit() {
 function handleOpen(exitList: any) {
   state.visible = true
   setTimeout(async () => {
-    state.groupList = await userProviderDetail?.GetGroupListApi()
+    state.groupList = await fetchGroupList()
     handleOptions(exitList)
   })
 }

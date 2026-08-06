@@ -2,8 +2,8 @@ import { newAdminApi, newClientApi, gatewayApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 /**
- * Admin 用户列表相关 API / 导航。
- * 替代原先 list.vue 的 provide(userProviderKey)。
+ * Admin 用户相关 API / 导航。
+ * 替代原先 list/detail 的 provide。
  */
 export function useAdminUser() {
   const routerProvider = inject(MenuRouterKey, null)
@@ -11,6 +11,10 @@ export function useAdminUser() {
   async function fetchUsersPage(params: Record<string, any>) {
     const res: any = await gatewayApi.users.postUsersPage(params)
     return res?.data as { conditions?: any[]; page?: any }
+  }
+
+  async function fetchUserById(userId: string) {
+    return await newAdminApi.getUcenterUserUserid(userId).then((r) => r.data)
   }
 
   function setUserStatus(params: any) {
@@ -40,6 +44,18 @@ export function useAdminUser() {
     return newAdminApi.postUcenterUsersBatchAddGroups(params)
   }
 
+  function batchUserRemoveGroups(params: any) {
+    return newAdminApi.postUcenterUserBatchRemoveGroups(params)
+  }
+
+  function fetchUserGroups(params: any) {
+    return newAdminApi.postUcenterMemberGroup(params)
+  }
+
+  function updateUserPassword(params: any) {
+    return newAdminApi.patchUcenterPasswordUpdatePassword(params)
+  }
+
   async function fetchGroupList() {
     return await newAdminApi.postUcenterGroups().then((r) => r.data)
   }
@@ -64,6 +80,24 @@ export function useAdminUser() {
     )
   }
 
+  function openUserList(openInNewTab = false) {
+    if (!routerProvider) {
+      throw new Error('MenuRouterKey is not provided')
+    }
+    routerProvider.navigateTo(
+      {
+        menuKey: routerProvider.menuSymbol,
+        id: 'admin-user',
+        name: 'admin-user-list',
+        icon: 'lucide:user',
+        label: 'Admin User',
+        component: 'LazyAdminUserList',
+        props: {}
+      },
+      openInNewTab
+    )
+  }
+
   async function sendInvitation(data: any) {
     if (!data.registered) {
       throw new Error('only non-register user can be invite')
@@ -74,14 +108,19 @@ export function useAdminUser() {
 
   return {
     fetchUsersPage,
+    fetchUserById,
     setUserStatus,
     batchActiveUsers,
     batchDeleteUsers,
     fetchLicenseUserCount,
     batchUserAddGroups,
     batchUsersToGroups,
+    batchUserRemoveGroups,
+    fetchUserGroups,
+    updateUserPassword,
     fetchGroupList,
     openUserDetail,
+    openUserList,
     sendInvitation
   }
 }

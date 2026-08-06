@@ -54,11 +54,10 @@
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { userProviderDetailKey } from '~/util/userProvider'
 import type { UserDTO } from 'api/src/generate/admin'
 
 const { t } = useI18n()
-const userProviderDetail = inject(userProviderDetailKey)
+const { batchDeleteUsers, setUserStatus, openUserList } = useAdminUser()
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps<{
   user: UserDTO
@@ -74,9 +73,9 @@ async function handleDelete() {
     })
 
     if (action !== 'confirm') return
-    const res = await userProviderDetail?.BatchDeleteUserApi({ userIds: [props.user.userId] })
+    const res = await batchDeleteUsers({ userIds: [props.user.userId] })
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('User') }))
-    if (!!res) userProviderDetail?.openUserList()
+    if (!!res) openUserList()
   } catch (error) {
     console.log(error)
   }
@@ -97,7 +96,7 @@ function openDialog() {
 async function handleSetStatus(status, row) {
   row.loading = true
   row.properties = null
-  const res = await userProviderDetail?.SetUserStatusApi(row)
+  const res = await setUserStatus(row)
   if (!res) {
     row.status = status === 'A' ? 'D' : 'A'
   } else {

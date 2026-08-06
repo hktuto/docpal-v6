@@ -16,13 +16,12 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { userProviderDetailKey } from '~/util/userProvider'
 import { ElMessage } from 'element-plus'
-import { newAdminApi, gatewayApi } from 'api'
+import { gatewayApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const userProviderDetail = inject(userProviderDetailKey)
+const { updateUserPassword } = useAdminUser()
 
 const props = defineProps<{
   user: object
@@ -120,7 +119,7 @@ async function handleSubmit() {
       newPassword: form.password,
       userId: props.user.userId
     }
-    await userProviderDetail?.PatchUserPasswordApi(param)
+    await updateUserPassword(param)
     ElMessage.success(
       t('tip_updateMsg', {
         modelName: t('user_userPassword'),
@@ -142,11 +141,7 @@ async function handleSubmit() {
 
 async function getPasswordPolicy() {
   console.log('getPasswordPolicy')
-  const response = await gatewayApi.password
-    .getPasswordPolicy({
-      data: { serviceId: 'docpal' }
-    } as any)
-    .then((r) => r.data)
+  const response = await gatewayApi.password.getPasswordPolicy().then((r) => r.data)
   if (!response) {
     routerProvider?.message.error(t('Password policy rules not found'))
     state.visible = false

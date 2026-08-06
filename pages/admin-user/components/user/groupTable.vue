@@ -34,14 +34,10 @@
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { userProviderDetailKey } from '~/util/userProvider'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const userProviderDetail = inject(userProviderDetailKey)
-if (!userProviderDetail) {
-  throw new Error('userProviderDetailKey not found')
-}
+const { fetchUserGroups, batchUserRemoveGroups } = useAdminUser()
 const props = defineProps<{
   user: any
 }>()
@@ -77,10 +73,9 @@ function handleGroupAddMemberFormShow() {
 
 async function getMemberGroupList() {
   if (!isFilter) {
-    tableData = await userProviderDetail?.MemberGroupGetApi({
-        userId: props.user.userId
-      })
-      .then((res) => res.data)
+    tableData = await fetchUserGroups({
+      userId: props.user.userId
+    }).then((res) => res.data)
   }
   let filterData = JSON.parse(JSON.stringify(tableData))
   if (!!extraParams.q) {
@@ -100,7 +95,7 @@ async function handleDelete(row: any) {
       confirmButtonText: `${t('common_confirmDelete')}`
     })
     if (action !== 'confirm') return
-    await userProviderDetail?.BatchUserRemoveGroupsApi({
+    await batchUserRemoveGroups({
       groupIds: [row.id],
       userId: props.user.userId
     })
@@ -122,7 +117,7 @@ async function handleDeleteSelected() {
       routerProvider?.message.warning(t('userTip.noValidGroups', { groupIds: noDeleteList.join(',') }))
       return
     }
-    await userProviderDetail?.BatchUserRemoveGroupsApi({
+    await batchUserRemoveGroups({
       groupIds: ids,
       userId: props.user.userId
     })
