@@ -21,8 +21,8 @@ export const useNotification = () => {
   function connect() {
     try {
       const userId = useUserId();
-      const token = useToken();
-      Cookies.value = token.value || '';
+      const { access_token } = useToken();
+      Cookies.value = access_token.value || '';
       const { status, data, error, close } = useEventSource('/notification/api/v1/receive/messages?username=' + userId.value, [], {
         withCredentials: true
       });

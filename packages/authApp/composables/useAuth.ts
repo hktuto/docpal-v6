@@ -1,6 +1,6 @@
 import { useState, createError } from '#imports'
 import { EventType, emitBus } from 'eventbus'
-import { newClientApi, globalApi, clientApi } from 'api'
+import { newClientApi, globalApi } from 'api'
 import type Keycloak from 'keycloak-js'
 
 import type { UserDTO } from 'api/src/generate/client'
@@ -24,7 +24,6 @@ export const useLoginHook = () => useState<any>(() => shallowRef([]))
 export const useUserId = () => useState<string>(() => '')
 export const useUserPreference = () => useState<Record<string, any>>()
 export const useFeature = () => useState<Record<string, boolean>>('app-feature')
-export const useToken = () => useState<string>('auth-token')
 export const useOcrSetting = () => useState<any>('ocr-setting')
 export const useLoginState = () => useState<boolean>('auth-login-state', () => false)
 export const useUserRole = () => useState<string>('auth-user-role', () => '')
@@ -56,33 +55,10 @@ export async function verifly() {
   isDesktopMode.value = !(!window || !window.navigator || !window.navigator.userAgent || !window.navigator.userAgent.toLowerCase().includes('electron'))
   isMac.value = window.navigator.userAgent.toLowerCase().includes('apple')
   logedIn.value = true
-  const token = localStorage.getItem('access_token') || ''
-  const decodedToken = parseJwt(token)
-
+  const { access_token } = useToken()
+  const decodedToken = parseJwt(access_token.value || localStorage.getItem('access_token') || '')
 
   if (decodedToken && decodedToken.roles) {
-    if (decodedToken.exp) {
-      // setup refresh token callback
-      const offset = (decodedToken.exp * 1000) - 60000
-      const now = Date.now()
-      setTimeout(async() => {
-        const refreshToken = localStorage.getItem('refresh_token')
-        const { data } = await clientApi.instance.post(
-          '/auth/token',
-          {},
-          {
-            headers: {
-              Authorization: 'Bearer ' + refreshToken
-            },
-            baseURL: '/api'
-          }
-        )
-        localStorage.setItem('access_token', data.data.access_token)
-        localStorage.setItem('refresh_token', data.data.refresh_token)
-        const token = useToken()
-        token.value = data.data.access_token
-      }, offset - now)
-    }
     const isAdmin = useIsAdmin()
     const isSuperAdmin = useIsSuperAdmin()
     const hasAdmin = decodedToken.roles.includes('ROLE_ADMIN')
@@ -120,8 +96,12 @@ export async function login() {
     if (!storageToken) {
       throw new Error('access token not found')
     }
-    const token = useToken()
-    token.value = storageToken
+    useToken().setToken({
+      access_token: storageToken,
+      refresh_token: localStorage.getItem('refresh_token') || undefined,
+      sessionId: localStorage.getItem('sessionId') || undefined,
+      accessTokenExpiry: localStorage.getItem('accessTokenExpiry') || undefined
+    })
     await verifly()
     await checkPassword()
   } catch (error) {

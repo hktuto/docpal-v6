@@ -40,7 +40,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
@@ -57,7 +57,9 @@ const router = useRouter()
 async function getPasswordPolicy() {
   let config: any = {}
   try {
-    config = await newClientApi.getUcenterPasswordConfig().then((res) => res.data)
+    config = await gatewayApi.password.getPasswordPolicy({
+      serviceId: 'docpal'
+    }).then((res) => res.data)
   } catch (e) {
     console.error(e)
   }

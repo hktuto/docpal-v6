@@ -144,6 +144,14 @@ const config = {
           'accept-encoding': 'identity'
         }
       },
+      '/gateway/v1': {
+        target: process.env.DOCPAL_GATEWAY_PROXY_V1,
+        changeOrigin: true,
+        prependPath: true,
+        headers: {
+          'accept-encoding': 'identity'
+        }
+      },
       '/oniflow': {
         target: process.env.WORKFLOW_PROXY,
         changeOrigin: true,

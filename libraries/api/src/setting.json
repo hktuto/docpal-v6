@@ -2,5 +2,6 @@
   "CLIENT_URL": "https://sit-v3.wclsolution.com",
   "ADMIN_URL": "https://sit-v3.wclsolution.com/admin",
   "PUBLIC_URL": "https://sit-v3.wclsolution.com/public-api/report/v1",
-  "TEMPLATE_URL": "https://sit-v3.wclsolution.com/open-api/template"
+  "TEMPLATE_URL": "https://sit-v3.wclsolution.com/open-api/template",
+  "DOCPAL_GATEWAY_PROXY": "https://sit-v3.wclsolution.com/apis"
 }

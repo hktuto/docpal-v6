@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 
 const loading = ref(false)
 const form = reactive({
@@ -24,17 +24,18 @@ async function submit() {
       return
     }
 
-    const data = await newClientApi
-      .postAuthLogin({
-        username: form.username,
-        password: form.password
-      })
-      .then((res) => res.data)
-    localStorage.setItem('access_token', data.access_token)
-    localStorage.setItem('token', data.access_token)
-    localStorage.setItem('refresh_token', data.refresh_token)
-    const token = useToken()
-    token.value = data.access_token
+    const data = await gatewayApi.auth.postAuthLogin({
+      username: form.username,
+      password: form.password,
+      serviceId: 'docpal',
+      rememberMe: true
+    }).then((res) => res.data)
+    useToken().setToken({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      sessionId: data.sessionId,
+      accessTokenExpiry: data.accessTokenExpiry || data.expiresAt || data.expires_at
+    })
     // console.log(data)
     //    const {isRequired2FA} = await userStore.login(form.username, form.password);
     form.username = ''
@@ -77,7 +78,7 @@ async function initLoginPage() {
       if (usernameEl.value) usernameEl.value.focus()
     })
   } catch (error) {
-    console.log("error to fetch language", error)
+    console.log('error to fetch language', error)
     systemError.value = 'Failed to load language'
     throw createError({
       message: 'Failed to load language',

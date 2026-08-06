@@ -1,7 +1,18 @@
 import { defineNuxtPlugin, useAuth,  } from '#imports';
-import { clientApi, adminApi } from 'api';
+import { clientApi, adminApi, gatewayApi } from 'api';
 import Keycloak from 'keycloak-js';
 import { requestSuccessHelper, requestErrorHelper, responseSuccessHelper, responseErrorHelper } from '~/utils/axiosResponseHelper';
+
+function bindAuthInterceptors(axiosInstance: typeof clientApi.instance) {
+  axiosInstance.interceptors.request.use(
+    (config) => requestSuccessHelper(config, axiosInstance),
+    (error) => requestErrorHelper(error, axiosInstance)
+  )
+  axiosInstance.interceptors.response.use(
+    (response) => responseSuccessHelper(response, axiosInstance),
+    (error) => responseErrorHelper(error, axiosInstance)
+  )
+}
 
 export default defineNuxtPlugin(async (nuxtApp) => {
 
@@ -40,22 +51,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   });
 
-  // set refresh token to clientApi and adminApi
-  clientApi.instance.interceptors.request.use(
-    (config) => requestSuccessHelper(config, clientApi.instance),
-    (error) => requestErrorHelper(error, clientApi.instance)
-  );
-  clientApi.instance.interceptors.response.use(
-    (config) => responseSuccessHelper(config, clientApi.instance),
-    (error) => responseErrorHelper(error, clientApi.instance)
-  );
-  adminApi.instance.interceptors.request.use(
-    (config) => requestSuccessHelper(config, adminApi.instance),
-    (error) => requestErrorHelper(error, adminApi.instance)
-  );
-  adminApi.instance.interceptors.response.use(
-    (config) => responseSuccessHelper(config, adminApi.instance),
-    (error) => responseErrorHelper(error, adminApi.instance)
-  );
+  // 每个 instance 自带 baseURL；401 retry 必须回到「触发错误的那个 instance」
+  bindAuthInterceptors(clientApi.instance)
+  bindAuthInterceptors(adminApi.instance)
+  bindAuthInterceptors(gatewayApi.instance)
 
 });
