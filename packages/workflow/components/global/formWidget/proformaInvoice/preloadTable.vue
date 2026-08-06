@@ -51,7 +51,7 @@ function getColumns() {
       minWidth: 200
     },
     {
-      field: 'pi_number',
+      field: 'balance_quantity',
       title: '剩餘數量 Balance Quantity',
       minWidth: 200
     },
@@ -183,7 +183,7 @@ defineExpose({ reload, selectedRowsList })
             <el-button type="primary" @click="handleClear">清除 Clear</el-button>
             <el-button type="primary" @click="handleRemoveUnSelectedLines">刪除未選取的行 Remove Un Selected Lines</el-button>
           </div>
-          <slot name="length"/>
+          <slot name="length" />
         </div>
       </template>
     </VxeGrid>

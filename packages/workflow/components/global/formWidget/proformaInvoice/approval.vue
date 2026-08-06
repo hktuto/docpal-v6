@@ -6,8 +6,15 @@ const { disabled, formData, options } = defineProps<{
 }>()
 
 const temporary_list = ref<any[]>([])
+const formWidgetProformaInvoicePreloadTable = ref()
 
-function init() {}
+function init() {
+  temporary_list.value = formData.order_item_list || []
+
+  nextTick(() => {
+    formWidgetProformaInvoicePreloadTable.value.reload()
+  })
+}
 
 function getFormData() {
   return {}
@@ -27,11 +34,7 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <FormWidgetProformaInvoicePreloadTable
-    ref="formWidgetProformaInvoicePreloadTable"
-    :disabled="true"
-    :temporary_list="temporary_list"
-  />
+  <FormWidgetProformaInvoicePreloadTable ref="formWidgetProformaInvoicePreloadTable" :disabled="true" :temporary_list="temporary_list" />
 </template>
 
 <style scoped lang="scss"></style>

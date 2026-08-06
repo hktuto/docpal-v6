@@ -168,7 +168,7 @@ function handleDelete(row: any) {
 }
 
 function init() {
-  temporary_list.value = formData.order_item_list
+  temporary_list.value = formData.order_item_list || []
 
   nextTick(() => {
     formWidgetProformaInvoicePreloadTable.value.reload()
@@ -176,21 +176,22 @@ function init() {
 }
 
 async function getFormData(needValidation = true) {
-  if (formRef.value.validate()) {
+  if (!needValidation) return {}
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) {
     ElMessage.error('請選擇訂單')
     throw new Error('')
   }
 
-  const list = deepCopy(temporary_list.value).map((item: any) => {
+  const selectedRowsList = formWidgetProformaInvoicePreloadTable.value?.selectedRowsList
+  const list = deepCopy(selectedRowsList).map((item: any) => {
     delete item['_X_ROW_KEY']
     return item
   })
 
-  const result = {
+  return {
     order_item_list: list
   }
-  if (!needValidation) return result
-  return result
 }
 
 watch(
