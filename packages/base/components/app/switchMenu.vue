@@ -10,8 +10,8 @@ const showSwitchMenu = computed(() => {
 })
 
 function switchPlatform(platform: string) {
-  const url = platform === 'admin' ? '/admin' : '/'
-  window.location.href = url
+  const path = platform === 'admin' ? '/admin' : '/'
+  useRouter().push(path)
 }
 
 </script>

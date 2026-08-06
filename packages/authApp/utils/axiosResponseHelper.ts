@@ -32,10 +32,7 @@ function resolveBaseUrl(baseURL: string) {
 }
 
 function expireSession() {
-  localStorage.removeItem('access_token')
-  localStorage.removeItem('refresh_token')
-  localStorage.removeItem('sessionId')
-  localStorage.removeItem('accessTokenExpiry')
+  useToken().clearToken()
   emitBus(EventType.USER_LOGIN__EXPIRE)
   // TODO: remove logout, should use event bus
   logout()

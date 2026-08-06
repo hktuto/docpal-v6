@@ -1,7 +1,6 @@
-import { useState, createError } from '#imports'
+import { useState } from '#imports'
 import { EventType, emitBus } from 'eventbus'
-import { newClientApi, globalApi } from 'api'
-import type Keycloak from 'keycloak-js'
+import { newClientApi, globalApi, gatewayApi } from 'api'
 
 import type { UserDTO } from 'api/src/generate/client'
 
@@ -31,12 +30,17 @@ export const useIsAdmin = () => useState<boolean>('auth-is-admin', () => false)
 export const useIsSuperAdmin = () => useState<boolean>('auth-is-super-admin', () => true)
 export const useIsMac = () => useState<boolean>('auth-is-mac', () => false)
 
+export type LoginWithPasswordResult =
+  | { ok: true; passwordResetRequired?: boolean }
+  | { ok: false; reason: 'locked' | 'invalid'; message: string }
+
 export const useAuth = () => {
   const loggedIn = useLoginState()
   return {
     loggedIn,
     logout,
-    login,
+    loginWithPassword,
+    silentLogin,
     verifly
   }
 }
@@ -67,15 +71,8 @@ export async function verifly() {
     isSuperAdmin.value = hasSuperAdmin
   }
 
-
   emitBus(EventType.USER_LOGIN__SUCCESS, '')
 }
-
-/**
- *  從 keycloak 拿回用戶 token, 放到 localStorage,
- *  登陸後先  {@link useFeature}
- *  再
- */
 
 function parseJwt(token: string) {
   if (!token) {
@@ -86,12 +83,57 @@ function parseJwt(token: string) {
   return JSON.parse(window.atob(base64))
 }
 
-export async function login() {
-  // const keyCloakState = useKeyCloakState()
+/** 账号密码登录：锁检查 → 登录 API → setToken → verifly → checkPassword */
+export async function loginWithPassword(
+  username: string,
+  password: string
+): Promise<LoginWithPasswordResult> {
+  const checkUserLock: any = await newClientApi
+    .getUcenterPasswordHasLockUserid(username)
+    .then((r) => r.data)
+  if (checkUserLock?.lockStatus) {
+    return {
+      ok: false,
+      reason: 'locked',
+      message: `The user is locked, please try again after ${checkUserLock.lockMinutes} minutes.`
+    }
+  }
 
-  // check route is superAdmin
   try {
-    // get access token from local storage
+    const data = await gatewayApi.auth
+      .postAuthLogin({
+        username,
+        password,
+        serviceId: 'docpal',
+        rememberMe: true
+      })
+      .then((res) => res.data)
+
+    useToken().setToken({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      sessionId: data.sessionId,
+      accessTokenExpiry: data.accessTokenExpiry || data.expiresAt || data.expires_at
+    })
+    await verifly()
+    const passwordResetRequired = await checkPassword()
+    return { ok: true, passwordResetRequired }
+  } catch (error) {
+    await newClientApi
+      .getUcenterPasswordCheckLockUserUserid(username, { skipAddLoginCount: false })
+      .then((r) => r.data)
+      .catch(() => {})
+    return {
+      ok: false,
+      reason: 'invalid',
+      message: 'Username or password is incorrect'
+    }
+  }
+}
+
+/** 已有 token 时恢复会话（plugin / 刷新后） */
+export async function silentLogin() {
+  try {
     const storageToken = localStorage.getItem('access_token')
     if (!storageToken) {
       throw new Error('access token not found')
@@ -105,24 +147,21 @@ export async function login() {
     await verifly()
     await checkPassword()
   } catch (error) {
-    console.log('login error', error)
+    console.log('silentLogin error', error)
     logout()
   }
 }
 
 async function checkPassword() {
-  // let result = {
-  //   accountExpire: false,
-  //   firstLoginForceResetPassword: true
-  // }
   try {
     const data = await newClientApi.getUcenterPasswordUserStatus().then((r) => r.data)
-    console.log(data)
     if (data?.firstLoginForceResetPassword || data?.accountExpire) {
       const router = useRouter()
-      router.push('/resetPassword')
+      await router.push('/resetPassword')
+      return true
     }
   } catch (error) {}
+  return false
 }
 
 export function getOCRSetting() {
@@ -138,11 +177,16 @@ export function canOCR(extension: string): boolean {
 
 export function logout() {
   const logedIn = useLoginState()
-
   const userState = useUserState()
   const router = useRouter()
   const route = useRoute()
   const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/initPassword', '/admin']
+
+  useToken().clearToken()
+  userState.value = null
+  logedIn.value = false
+  localStorage.clear()
+
   router.push({
     path: '/login',
     query: {
@@ -150,10 +194,6 @@ export function logout() {
       redirect: ignoreRedirectPath.includes(route.path) ? '/' : route.path
     }
   })
-  // clean up local storage
-
-  localStorage.clear()
-  logedIn.value = false
 }
 
 /**

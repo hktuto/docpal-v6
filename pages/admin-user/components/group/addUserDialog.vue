@@ -10,14 +10,13 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { groupProviderDetailKey } from '~/util/userProvider'
 import formJson from './addUserDialog.vform.json'
 import type { UserDTO, GroupDTO } from 'api/src/generate/admin'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
-const groupProviderDetail = inject(groupProviderDetailKey)
+const { assignUsersToGroup, fetchUserList } = useAdminGroup()
 const props = defineProps<{
   group: GroupDTO,
 }>()
@@ -43,7 +42,7 @@ async function handleSubmit() {
       groupId: props.group.id,
       userIds: data.id
     }
-    await groupProviderDetail?.BatchGroupAddUsersApi(param)
+    await assignUsersToGroup(param)
     setTimeout(() => {
       state.visible = false
     }, 300)
@@ -67,7 +66,7 @@ function handleOpen(exitList: UserDTO[]) {
 async function handleOptions(exitList: UserDTO[]) {
   try {
     console.log(exitList)
-    if (!state.userList || state.userList.length === 0) state.userList = await groupProviderDetail?.getUserListApi()
+    if (!state.userList || state.userList.length === 0) state.userList = await fetchUserList()
     const idRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('id')
 
     const options = userListFilter()

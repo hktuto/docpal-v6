@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 
 const platform = useAppPlatform()
 const router = useRouter()
@@ -33,7 +33,7 @@ async function init() {
       }))
 
     if (state.list.length > 0) {
-      const data = await newClientApi.getDmsUserGetapplication().then((res: any) => res.data)
+      const data = await gatewayApi.users.getUsersApplication().then((res: any) => res.data)
 
       state.form.id = data.id
       state.list.forEach((item: any) => {

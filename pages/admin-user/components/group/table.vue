@@ -12,39 +12,46 @@
       </el-button>
     </template>
   </VxeGrid>
-  <GroupDialog ref="GroupDialogRef" :groups="state._groupList" @refresh="getGroup"></GroupDialog>
+  <GroupDialog ref="GroupDialogRef" :groups="currentGroups" @refresh="reload" />
 </template>
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { groupProviderKey } from '~/util/userProvider'
 
 const routerProvider = inject(MenuRouterKey)
-const emits = defineEmits(['filter-change', 'refresh'])
-const groupProvider = inject(groupProviderKey)
+const { fetchGroupsPage, deleteGroup, openGroupDetail } = useAdminGroup()
 
-type State = {
-  groupList: any
-  _groupList: any[]
-}
-const state = reactive<State>({
-  groupList: [],
-  _groupList: []
-})
-let filterParams: any = {}
+const currentGroups = ref<any[]>([])
+const filterParams = ref<Record<string, any>>({})
 const { t } = useI18n()
-const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
-  api: (pageParams: any) => {
-    ResponsiveFilterRef.value.handleFilter()
-    return getGroup()
-  },
+
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'a-groupTable',
+  api: async (pageParams: any) => {
+    const { pageNum = 0, pageSize, orderBy, isDesc } = pageParams
+    const data = await fetchGroupsPage({
+      page: pageNum + 1,
+      pageSize,
+      orderBy,
+      isDesc,
+      ...(filterParams.value.userNameOrEmail
+        ? { groupName: filterParams.value.userNameOrEmail }
+        : {})
+    })
+    currentGroups.value = data?.list ?? []
+    return {
+      data: {
+        entryList: currentGroups.value,
+        totalSize: data?.total ?? 0
+      }
+    }
+  },
   columns: [
-    { field: 'name', title: 'user_userGroupName', fixed: 'left' },
-    { field: 'id', title: 'user_userGroupIdentifer' }
+    { field: 'groupName', title: 'user_userGroupName', fixed: 'left' },
+    { field: 'groupId', title: 'user_userGroupIdentifer' }
   ],
-  dblClickAction: ({ row, column, event }: any) => {
-    groupProvider?.openGroupDetail(row)
+  dblClickAction: ({ row }: any) => {
+    openGroupDetail(row)
   },
   bodyActions: [
     [
@@ -54,7 +61,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
         visible: true,
         disabled: false,
         action: ({ row }: any) => {
-          groupProvider?.openGroupDetail(row)
+          openGroupDetail(row)
         }
       },
       {
@@ -68,11 +75,11 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
       }
     ]
   ],
-  virtualScroll: true,
   permissionMethod: ({ row, code }: any) => {
     if (code === 'delete_group') {
+      const groupId = row.groupId ?? row.id
       return {
-        visible: row.id !== 'members' && row.id !== 'administrators',
+        visible: groupId !== 'members' && groupId !== 'administrators',
         disabled: false
       }
     }
@@ -84,13 +91,6 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   optionalConfig: {}
 })
 
-// #endregion
-const UserDialogRef = ref()
-
-function handleUserDialogShow() {
-  UserDialogRef.value.handleOpen()
-}
-
 async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('user_userGroupDeletedMsg')}`, {
@@ -99,48 +99,27 @@ async function handleDelete(row: any) {
       dangerouslyUseHTMLString: true
     })
     if (action !== 'confirm') return
-    const res = await groupProvider?.DeleteGroupApi({ groupId: row.id })
+    const res = await deleteGroup(row.groupId ?? row.id)
     if (!!res) {
       routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('dataField.type.group') }))
-      await getGroup()
+      reload()
     }
   } catch (error) {
     console.log(error)
   }
 }
 
-// #region module: ResponsiveFilterRef
 const ResponsiveFilterRef = ref()
 
 function handleFilterFormChange(formModel: any) {
-  filterParams = formModel
-  if (formModel.userNameOrEmail) {
-    state._groupList = state.groupList.filter((item: any) => {
-      return item.name.toLowerCase().includes(formModel.userNameOrEmail.toLowerCase())
-    })
-  } else {
-    state._groupList = [...state.groupList]
-  }
-  tableRef.value?.loadData(state._groupList)
-}
-
-// #endregion
-async function getGroup() {
-  tableConfig.loading = true
-  state.groupList = await groupProvider?.GetGroupListApi()
-  handleFilterFormChange(filterParams)
-  tableConfig.loading = false
-  return state.groupList
+  filterParams.value = { ...formModel }
+  reload()
 }
 
 const GroupDialogRef = ref()
 
 function handleGroupDialogShow() {
   GroupDialogRef.value.handleOpen()
-}
-
-function refresh() {
-  getGroup()
 }
 
 defineExpose({ reload })
