@@ -16,6 +16,7 @@ function getColumns() {
       title: '序號 Index',
       align: 'center',
       type: 'seq',
+      fixed: 'left',
       minWidth: 100
     },
     {
@@ -170,20 +171,44 @@ function handleRemoveUnSelectedLines() {
   selectedRowsList.value = []
 }
 
-defineExpose({ reload })
+defineExpose({ reload, selectedRowsList })
 </script>
 
 <template>
   <div style="height: 60vh; margin-block-start: 20px">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <div v-if="!disabled">
-          <el-button type="primary" @click="handleClear">清除 Clear</el-button>
-          <el-button type="primary" @click="handleRemoveUnSelectedLines">刪除未選取的行 Remove Un Selected Lines</el-button>
+        <div v-if="!disabled" class="toolbar-actions">
+          <div class="toolbar-actions__left">
+            <el-button type="primary" @click="handleClear">清除 Clear</el-button>
+            <el-button type="primary" @click="handleRemoveUnSelectedLines">刪除未選取的行 Remove Un Selected Lines</el-button>
+          </div>
+          <slot name="length"/>
         </div>
       </template>
     </VxeGrid>
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  &__right {
+    margin-bottom: 0;
+    :deep(.el-form-item) {
+      margin-bottom: 0;
+    }
+    :deep(.el-input) {
+      width: 80px;
+    }
+  }
+}
+</style>

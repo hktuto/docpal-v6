@@ -1,17 +1,45 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
   options: any
 }>()
 
+const formRef = ref()
 const formWidgetProformaInvoicePreloadTable = ref()
 const temporary_list = ref<any[]>([])
+const formModel = reactive({
+  selectedRowsListLength: 0
+})
+const rules = {
+  selectedRowsListLength: [
+    {
+      validator: (_rule, value, callback) => {
+        if (!value || Number(value) < 1) {
+          callback(new Error(''))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
+}
+
+const selectedRowsListLength = computed(() => {
+  return formWidgetProformaInvoicePreloadTable.value?.selectedRowsList?.length || 0
+})
+watch(
+  selectedRowsListLength,
+  (len) => {
+    formModel.selectedRowsListLength = len
+  },
+  { immediate: true }
+)
 
 function handleSearch() {
-  console.log('formData', formData)
-
   if ((!formData.customer_number && !formData.so_number) || (formData.customer_number === '' && formData.so_number === '')) {
     ElMessage.error('請填寫客戶編號或訂單編號')
     return
@@ -148,7 +176,12 @@ function init() {
 }
 
 async function getFormData(needValidation = true) {
-  const list = temporary_list.value.map((item: any) => {
+  if (formRef.value.validate()) {
+    ElMessage.error('請選擇訂單')
+    throw new Error('')
+  }
+
+  const list = deepCopy(temporary_list.value).map((item: any) => {
     delete item['_X_ROW_KEY']
     return item
   })
@@ -184,7 +217,15 @@ defineExpose({ getFormData })
     @clear="handleClear"
     @removeUnSelectedLines="handleRemoveUnSelectedLines"
     @delete="handleDelete"
-  />
+  >
+    <template #length>
+      <el-form ref="formRef" :model="formModel" :rules="rules" label-position="left" inline>
+        <el-form-item label="已選中數量 Selected Quantity" prop="selectedRowsListLength">
+          <el-input v-model="formModel.selectedRowsListLength" disabled />
+        </el-form-item>
+      </el-form>
+    </template>
+  </FormWidgetProformaInvoicePreloadTable>
 </template>
 
 <style scoped lang="scss"></style>
