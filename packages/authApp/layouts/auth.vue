@@ -8,7 +8,7 @@ const defaultTab = useAppDefaultTab()
 
 
 const tabAppRef = useTemplateRef<typeof TabApp>('tabAppRef');
-const emits = defineEmits(["ready"]); 
+const emits = defineEmits(["ready"]);
 
 const { globalSlots } = useGlobalSetting();
 
@@ -19,15 +19,15 @@ const inited = ref(false)
 const preference = useUserPreference()
 async function getTabsFromServer() {
   // check if new tab
-  
+
   if(inited.value) return
-  
+
   const userStoreTab = preference.value.userStoreTab
-  
+
   let storageTabs = userStoreTab ? userStoreTab[appPlatform.value] : null
   try {
     if (storageTabs) {
-      
+
       const newLayout = JSON.parse(storageTabs);
       // check and set layout
       newLayout.forEach((item:any) => {
@@ -74,19 +74,19 @@ async function getTabsFromServer() {
       query: {},
     });
   };
-  
+
 }
 
 function saveHighlightPanel(panelID: string) {
   const tabStorageKey = appPlatform.value + '-app-hightLightPanel'
-  
+
   localStorage.setItem(tabStorageKey, panelID);
 }
 
 async function saveTabsToLocalStorage(layout: TabPanel[]) {
-  
+
   const saveData = JSON.parse(JSON.stringify(layout));
-  
+
   // loop all panel and tabs to reset all initized to false
   saveData.forEach((panel: any) => {
     panel.tabs.forEach((tab: any) => {
@@ -98,7 +98,7 @@ async function saveTabsToLocalStorage(layout: TabPanel[]) {
   }
   preference.value.userStoreTab[appPlatform.value] = JSON.stringify(saveData)
   await newClientApi.putDmsUserSetting(preference.value as any)
-  
+
   // localStorage.setItem(tabStorageKey, JSON.stringify(saveData));
 }
 const { t } = useI18n();
@@ -112,7 +112,7 @@ const { t } = useI18n();
 <template>
   <AuthState>
     <template #default="{ loggedIn, logout }">
-      <TabApp 
+      <TabApp
         ref="tabAppRef"
         @ready="getTabsFromServer"
         @layoutChanged="saveTabsToLocalStorage"
@@ -126,7 +126,7 @@ const { t } = useI18n();
             :key="s.name"
             :is="s.component"
             v-bind="$props"
-          /> 
+          />
         </template>
       </TabApp>
     </template>
@@ -137,4 +137,3 @@ const { t } = useI18n();
     </template>
   </AuthState>
 </template>
-
