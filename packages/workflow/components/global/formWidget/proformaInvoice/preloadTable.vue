@@ -100,7 +100,7 @@ function getColumns() {
 }
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'SalesOrderTableSetting',
+  id: 'preloadTableSetting',
   api: () => {
     return temporary_list
   },

@@ -88,6 +88,10 @@ export const useWorkflow = () => {
       {
         name: 'proformaInvoiceApproval',
         component: 'FormWidgetProformaInvoiceApproval'
+      },
+      {
+        name: 'returnMerchandiseApprovalTable',
+        component: 'FormWidgetReturnMerchandiseApprovalTable'
       }
     ])
   )

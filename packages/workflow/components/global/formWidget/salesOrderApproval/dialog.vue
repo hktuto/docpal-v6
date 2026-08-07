@@ -258,7 +258,7 @@ defineExpose({ open })
         </el-col>
 
         <el-col :span="6">
-          <el-form-item label="客戶商品編號 Customer Item">
+          <el-form-item label="客戶零件編編號 Customer Item">
             <el-input v-model="rowData.customer_item" />
           </el-form-item>
           <el-form-item label="客戶單價 Customer Unit Price">
@@ -276,7 +276,7 @@ defineExpose({ open })
         </el-col>
 
         <el-col :span="6">
-          <el-form-item label="訂單商品編號 Ordered Item" prop="ordered_item">
+          <el-form-item label="訂單零件編號 Ordered Item" prop="ordered_item">
             <el-select v-model="rowData.ordered_item" filterable @change="handlePartNumberChange">
               <el-option v-for="part in partList" :key="part.id" :label="part.label" :value="part.value" />
             </el-select>
