@@ -83,22 +83,11 @@ function parseJwt(token: string) {
   return JSON.parse(window.atob(base64))
 }
 
-/** 账号密码登录：锁检查 → 登录 API → setToken → verifly → checkPassword */
+/** 账号密码登录：登录 API → setToken → verifly → checkPassword */
 export async function loginWithPassword(
   username: string,
   password: string
 ): Promise<LoginWithPasswordResult> {
-  const checkUserLock: any = await newClientApi
-    .getUcenterPasswordHasLockUserid(username)
-    .then((r) => r.data)
-  if (checkUserLock?.lockStatus) {
-    return {
-      ok: false,
-      reason: 'locked',
-      message: `The user is locked, please try again after ${checkUserLock.lockMinutes} minutes.`
-    }
-  }
-
   try {
     const data = await gatewayApi.auth
       .postAuthLogin({
@@ -119,10 +108,6 @@ export async function loginWithPassword(
     const passwordResetRequired = await checkPassword()
     return { ok: true, passwordResetRequired }
   } catch (error) {
-    await newClientApi
-      .getUcenterPasswordCheckLockUserUserid(username, { skipAddLoginCount: false })
-      .then((r) => r.data)
-      .catch(() => {})
     return {
       ok: false,
       reason: 'invalid',
