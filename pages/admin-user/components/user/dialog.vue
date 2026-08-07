@@ -11,12 +11,11 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { newAdminApi } from 'api'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
-const { batchUserAddGroups } = useAdminUser()
+const { createUser } = useAdminUser()
 const emits = defineEmits(['refresh'])
 const state = reactive({
   loading: false,
@@ -33,13 +32,11 @@ async function handleSubmit() {
       return
     }
     state.loading = true
-    await newAdminApi.postUcenterUser(data).then((r) => r.data)
-    if (data.groupList.length > 0) {
-      await batchUserAddGroups({
-        userId: data.userId,
-        groupIds: data.groupList
-      })
-    }
+    await createUser({
+      ...data,
+      userName: data.username,
+      groupIds: data.groupList?.length ? data.groupList : undefined
+    })
     ElMessage.success(t('tip_createdMsg', { modelName: t('User') }))
     emits('refresh')
     FormRendererRef.value.vFormRenderRef.resetForm()

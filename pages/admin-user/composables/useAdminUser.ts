@@ -9,12 +9,23 @@ export function useAdminUser() {
   const routerProvider = inject(MenuRouterKey, null)
 
   async function fetchUsersPage(params: Record<string, any>) {
-    const res: any = await gatewayApi.users.postUsersPage(params)
-    return res?.data as { conditions?: any[]; page?: any }
+    const res: any = await gatewayApi.users.postUsersPage({
+      ...params,
+      page: params.pageNum + 1,
+      pageSize: params.pageSize
+    })
+    return {
+      entryList: res?.data?.list ?? [],
+      totalSize: res?.data?.total ?? 0
+    }
   }
 
   async function fetchUserById(userId: string) {
     return await newAdminApi.getUcenterUserUserid(userId).then((r) => r.data)
+  }
+
+  function createUser(params: any) {
+    return gatewayApi.users.postUsers(params)
   }
 
   function setUserStatus(params: any) {
@@ -30,8 +41,17 @@ export function useAdminUser() {
   }
 
   async function fetchLicenseUserCount() {
-    const res = await newAdminApi.postUcenterGetLicenseUserNumAndActiveCount()
-    return res.data as { ActiveCount?: number; licenseUserNum?: number }
+    const res: any = await gatewayApi.users.getUsersStats()
+    return res?.data as {
+      totalActive?: number
+      licenseUserNum?: number
+      activeEssential?: number
+      activePremium?: number
+      activeStandard?: number
+      essential?: number
+      premium?: number
+      standard?: number
+    }
   }
 
   /** 单个用户添加多个 group */
@@ -53,7 +73,7 @@ export function useAdminUser() {
   }
 
   function updateUserPassword(params: any) {
-    return newAdminApi.patchUcenterPasswordUpdatePassword(params)
+    return gatewayApi.password.postPasswordReset(params)
   }
 
   async function fetchGroupList() {
@@ -109,6 +129,7 @@ export function useAdminUser() {
   return {
     fetchUsersPage,
     fetchUserById,
+    createUser,
     setUserStatus,
     batchActiveUsers,
     batchDeleteUsers,

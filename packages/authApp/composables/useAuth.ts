@@ -153,9 +153,13 @@ export async function silentLogin() {
 }
 
 async function checkPassword() {
+  const userId = useUserId().value
+  if (userId === 'Administrator' || userId === 'administrator') {
+    return false
+  }
   try {
-    const data = await newClientApi.getUcenterPasswordUserStatus().then((r) => r.data)
-    if (data?.firstLoginForceResetPassword || data?.accountExpire) {
+    const data = await gatewayApi.password.getPasswordStatus().then((r) => r.data)
+    if (data?.mustResetPassword || data?.isExpired) {
       const router = useRouter()
       await router.push('/resetPassword')
       return true
@@ -310,7 +314,7 @@ async function getUser() {
   const user = useUserState()
   const userId = useUserId()
   const userRole = useUserRole()
-  const data: any = await newClientApi.getDmsUserGetapplication().then((r) => r.data)
+  const data: any = await gatewayApi.users.getUsersApplication().then((r) => r.data)
   if (!data) {
     throw new Error('Get Application Is Null')
   }

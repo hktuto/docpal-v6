@@ -76,18 +76,9 @@
 import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
-const {
-  fetchUsersPage,
-  setUserStatus,
-  batchActiveUsers,
-  batchDeleteUsers,
-  fetchLicenseUserCount,
-  openUserDetail,
-  sendInvitation
-} = useAdminUser()
+const { fetchUsersPage, setUserStatus, batchActiveUsers, batchDeleteUsers, fetchLicenseUserCount, openUserDetail, sendInvitation } = useAdminUser()
 
 const filterParams = ref<Record<string, any>>({})
-const filterInited = ref(false)
 
 type TableState = {
   activeUsers: number
@@ -100,54 +91,16 @@ const state = reactive<TableState>({
   selectList: []
 })
 
-const ResponsiveFilterRef = ref()
-
-function initFilter(conditions: any[] = [], initParams: any = {}) {
-  if (filterInited.value || !ResponsiveFilterRef.value) return
-  conditions.forEach((condition: any) => {
-    if (condition.options) {
-      condition.options.sort((a: any, b: any) => a.value.localeCompare(b.value))
-    }
-  })
-  conditions.unshift(
-    {
-      key: 'orderBy',
-      label: 'tableHeader.sortBy',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'user_email', value: 'email' },
-        { label: 'user_level', value: 'userLevel' },
-        { label: 'common_status', value: 'status' },
-        { label: 'user_registered', value: 'registered' },
-        { label: 'user_username', value: 'username' }
-      ]
-    },
-    {
-      key: 'isDesc',
-      label: 'tableHeader.sortOrder',
-      type: 'string',
-      isMultiple: false,
-      options: [
-        { label: 'tableHeader.asc', value: false },
-        { label: 'tableHeader.desc', value: true }
-      ]
-    }
-  )
-  ResponsiveFilterRef.value.init(conditions, initParams)
-  filterInited.value = true
-}
-
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-user-table',
   api: async (pageParams: any) => {
     cleanSelectedRows()
-    const { conditions, page } = await fetchUsersPage({
-      ...pageParams,
-      ...filterParams.value
-    })
-    initFilter(conditions || [], filterParams.value)
-    return { data: page }
+    return {
+      data: await fetchUsersPage({
+        ...pageParams,
+        ...filterParams.value
+      })
+    }
   },
   columns: [
     { field: 'username', title: 'user_username', fixed: 'left', type: 'checkbox' },
@@ -295,7 +248,7 @@ async function handleSetStatus(status: 'A' | 'D', row: any) {
 
 async function refreshLicenseCount() {
   const data = await fetchLicenseUserCount()
-  state.activeUsers = data?.ActiveCount || 0
+  state.activeUsers = data?.totalActive || 0
   state.licenseUsers = data?.licenseUserNum || 0
 }
 

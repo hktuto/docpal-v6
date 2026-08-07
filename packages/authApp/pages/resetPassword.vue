@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 import { ElMessage } from 'element-plus'
 const { t } = useI18n()
 const formRef = ref()
@@ -90,8 +90,8 @@ async function onSubmit() {
         })
         .then((r) => r.data)
     } else {
-      res = await newClientApi
-        .patchUcenterPasswordUpdatePassword({
+      res = await gatewayApi.password
+        .postPasswordChange({
           oldPassword: form.oldPassword,
           newPassword: form.newPassword
         })
