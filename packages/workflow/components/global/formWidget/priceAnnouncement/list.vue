@@ -4,7 +4,6 @@ import { ElCheckbox, ElInputNumber, ElSelectV2 } from 'element-plus'
 import type { CheckboxValueType, Column, FormInstance, FormRules } from 'element-plus'
 import { getGroupsSelectOption } from '#imports'
 import dayjs from 'dayjs'
-import Decimal from 'decimal.js'
 
 const { formData } = defineProps<{
   disabled: boolean

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Decimal from 'decimal.js'
-
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any

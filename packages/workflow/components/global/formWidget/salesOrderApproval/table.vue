@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Decimal from 'decimal.js'
+
 import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()

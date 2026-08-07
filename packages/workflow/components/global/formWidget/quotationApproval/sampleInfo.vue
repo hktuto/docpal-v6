@@ -2,7 +2,6 @@
 import { Delete, Plus } from '@element-plus/icons-vue'
 import { clientApi, newClientApi } from 'api'
 import { v7 as uuidv7 } from 'uuid'
-import Decimal from 'decimal.js'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean

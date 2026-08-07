@@ -34,6 +34,7 @@ defineExpose({ getFormData })
 </script>
 
 <template>
+  <el-divider content-position="left">訂單表 Orders Table</el-divider>
   <FormWidgetProformaInvoicePreloadTable ref="formWidgetProformaInvoicePreloadTable" :disabled="true" :temporary_list="temporary_list" />
 </template>
 
