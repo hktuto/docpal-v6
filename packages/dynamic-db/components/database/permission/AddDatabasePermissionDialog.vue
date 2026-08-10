@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { clientApi, gatewayApi } from 'api'
 type PermissionLevel = 'Member' | 'Manage'
 
 interface TargetOption {
@@ -72,10 +72,10 @@ async function loadRoles() {
 }
 
 async function loadGroups() {
-  const { data } = await clientApi.admin.postUcenterGroups()
+  const { data } = await gatewayApi.groups.getGroupsSelect()
   groups.value = (data || []).map((g: any) => ({
-    id: g.id,
-    name: g.name
+    id: g.value,
+    name: g.label
   }))
 }
 

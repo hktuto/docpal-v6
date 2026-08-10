@@ -14,7 +14,7 @@
         <span
           ><h3>{{ $t('user_userGroupAssignment') }}</h3></span
         >
-        <el-button id="UserList__Info__AssignUserGroup" class="button" type="primary" @click="handleGroupAddMemberFormShow()">
+        <el-button id="UserList__Info__AssignUserGroup" class="button" type="primary" @click="handleAddGroup()">
           {{ $t('user_addGroups') }}
         </el-button>
       </div>
@@ -25,7 +25,7 @@
         <ResponsiveFilter ref="ResponsiveFilterRef" inputPlaceHolder="placeHolder.userGroupName" @form-change="handleFilterFormChange" inputKey="q" />
       </template>
       <template #more="{ row }">
-        <Icon v-if="!noDeleteList.includes(row.id)" name="material-symbols:delete-rounded" class="normal cursor-pointer" @click="handleDelete(row)"></Icon>
+        <Icon v-if="!noDeleteList.includes(row.groupId ?? row.id)" name="material-symbols:delete-rounded" class="normal cursor-pointer" @click="handleDelete(row)"></Icon>
       </template>
     </VxeGrid>
     <UserAddGroupDialog ref="UserAddGroupDialogRef" :user="user" @refresh="reload"></UserAddGroupDialog>
@@ -55,8 +55,8 @@ const { tableConfig, tableEvent, tableRef, cleanSelectedRows, reload } = useVxeT
     return data
   },
   columns: [
-    { field: 'name', title: 'user_userGroupName', fixed: 'left', type: 'checkbox' },
-    { field: 'id', title: 'user_userGroupIdentifer' }
+    { field: 'groupName', title: 'user_userGroupName', fixed: 'left', type: 'checkbox' },
+    { field: 'groupId', title: 'user_userGroupIdentifer' }
   ],
   selectChangeHander: (selectedRows: any[]) => {
     state.selectedRows = [...selectedRows]
@@ -67,20 +67,18 @@ const { tableConfig, tableEvent, tableRef, cleanSelectedRows, reload } = useVxeT
 const noDeleteList = ['members']
 const UserAddGroupDialogRef = ref()
 
-function handleGroupAddMemberFormShow() {
-  UserAddGroupDialogRef.value.handleOpen(tableConfig.data)
+function handleAddGroup() {
+  UserAddGroupDialogRef.value.handleOpen(tableData)
 }
 
 async function getMemberGroupList() {
   if (!isFilter) {
-    tableData = await fetchUserGroups({
-      userId: props.user.userId
-    }).then((res) => res.data)
+    tableData = (await fetchUserGroups(props.user.userId)) as any[]
   }
   let filterData = JSON.parse(JSON.stringify(tableData))
   if (!!extraParams.q) {
     filterData = filterData.filter((item: any) => {
-      const name = (item.name || '').toLowerCase()
+      const name = (item.groupName ?? item.name ?? '').toLowerCase()
       return name.includes(extraParams.q.toLowerCase())
     })
   }
@@ -96,7 +94,7 @@ async function handleDelete(row: any) {
     })
     if (action !== 'confirm') return
     await batchUserRemoveGroups({
-      groupIds: [row.id],
+      groupIds: [row.groupId ?? row.id],
       userId: props.user.userId
     })
     reload()
@@ -112,7 +110,9 @@ async function handleDeleteSelected() {
       confirmButtonText: t('common_confirmRemove')
     })
     if (action !== 'confirm') return
-    const ids = state.selectedRows.filter((item: any) => !noDeleteList.includes(item.id)).map((item: any) => item.id)
+    const ids = state.selectedRows
+      .filter((item: any) => !noDeleteList.includes(item.groupId ?? item.id))
+      .map((item: any) => item.groupId ?? item.id)
     if (ids.length === 0) {
       routerProvider?.message.warning(t('userTip.noValidGroups', { groupIds: noDeleteList.join(',') }))
       return

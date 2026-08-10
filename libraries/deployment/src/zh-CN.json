@@ -880,7 +880,9 @@
   },
   "dataFieldUg": {
     "api": "Api",
+    "baseURL": "Base URL",
     "labelKey": "标签字段",
+    "method": "请求方法",
     "valueKey": "选中值字段"
   },
   "dataVerificationResult": "数据验证结果",

@@ -129,7 +129,7 @@ async function save() {
         newUserInfo[item.key] = state.form[item.key]
       }
     })
-    await newClientApi.patchUcenterUser(newUserInfo).then(r => r.data)
+    await gatewayApi.users.putUsersUpdate(newUserInfo).then(r => r.data)
 
     await newClientApi.putDmsUserSetting(userPreference.value as any).then(r => r.data)
 

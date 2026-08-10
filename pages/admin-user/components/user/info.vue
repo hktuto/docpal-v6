@@ -57,7 +57,7 @@ import { ElMessageBox } from 'element-plus'
 import type { UserDTO } from 'api/src/generate/admin'
 
 const { t } = useI18n()
-const { batchDeleteUsers, setUserStatus, openUserList } = useAdminUser()
+const { batchDeleteUsers, batchActiveUsers, openUserList } = useAdminUser()
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps<{
   user: UserDTO
@@ -96,13 +96,18 @@ function openDialog() {
 async function handleSetStatus(status, row) {
   row.loading = true
   row.properties = null
-  const res = await setUserStatus(row)
-  if (!res) {
+  try {
+    await batchActiveUsers({
+      userIds: [row.userId],
+      status
+    })
+  } catch (error) {
     row.status = status === 'A' ? 'D' : 'A'
-  } else {
-    // await getAllUserAndActiveCount()
+  } finally {
+    setTimeout(() => {
+      row.loading = false
+    }, 1000)
   }
-  row.loading = false
 }
 </script>
 

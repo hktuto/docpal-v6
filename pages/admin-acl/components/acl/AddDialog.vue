@@ -9,7 +9,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { adminApi, clientApi, gatewayApi } from 'api'
 import formJson from './acl.vform.json'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
@@ -81,12 +81,13 @@ onMounted(async () => {
     item.value = item.userId
     item.label = item.username
   })
-  const groupResponse = await clientApi.api.postUcenterGroups()
-  state.groupList = groupResponse.data || ([] as any)
-  state.groupList.forEach((item: any) => {
-    item.value = item.id
-    item.label = item.name
-  })
+  const groupResponse = await gatewayApi.groups.getGroupsSelect()
+  state.groupList = (groupResponse.data || []).map((item: any) => ({
+    ...item,
+    value: item.value,
+    label: item.label,
+    id: item.value,
+  }))
 })
 defineExpose({ handleOpen })
 </script>

@@ -1,4 +1,4 @@
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 
 interface PermissionOption {
   id: string;
@@ -265,13 +265,13 @@ export const getGroupsSelectOption = async (refresh?: boolean) => {
   const options = useGroupsPermissionOption()
   if (options.value.length === 0 || refresh) {
     try {
-      let list: any = await newClientApi.postUcenterGroups().then((res) => res.data)
-      if (list.length === 0) return []
+      let list: any = await gatewayApi.groups.getGroupsSelect().then((res) => res.data)
+      if (!list || list.length === 0) return []
 
       options.value = list.map((item: any) => ({
-        id: item.id,
-        value: item.id,
-        label: item.name
+        id: item.value,
+        value: item.value,
+        label: item.label
       })).sort((a: any, b: any) => a.label.localeCompare(b.label))
     } catch (e) {
       console.log(e)

@@ -1,6 +1,6 @@
 import type { WidgetItem } from '@/types/vform'
 import type { DocumentMetadata, VariableItem } from '@/types/vform.extend'
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 import { mounteMasterTableOptions, mounteRoleOptions } from './metadata.vform.extent'
 import dayjs from 'dayjs'
 
@@ -517,10 +517,10 @@ function makeFlapRoleList(data: any[], roleList: any[] = []) {
 
 export async function getUserGroupList(type: string = 'group') {
   try {
-    const data: any = await newClientApi.postUcenterGroups().then(r => r.data)
-    return data.map((item: any) => ({
-      label: item.name,
-      value: item.id,
+    const data: any = await gatewayApi.groups.getGroupsSelect().then(r => r.data)
+    return (data || []).map((item: any) => ({
+      label: item.label,
+      value: item.value,
       type: type
     }))
   } catch (error) {

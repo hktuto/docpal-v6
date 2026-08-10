@@ -200,7 +200,7 @@ watch(form, () => {
                 <template v-else-if="selectedType.target.type === 'userGroup'">
                     <ElFormItem  label="User Group" prop="attr_targetValue" required>
                         <ElSelect v-model="form.attr_targetValue" filterable placeholder="Select" :disabled="editorProvider.readonly.value" >
-                            <ElOption v-for="item in conditionProvider.userGroupOption.value" :key="item.id" :label="item.name" :value="item.id" />
+                            <ElOption v-for="item in conditionProvider.userGroupOption.value" :key="item.value || item.id" :label="item.label || item.name" :value="item.value || item.id" />
                         </ElSelect>
                     </ElFormItem>
                 </template>

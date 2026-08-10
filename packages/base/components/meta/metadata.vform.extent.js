@@ -18,24 +18,24 @@ async function getOptions() {
   }
 }
 async function getUserList() {
-  const data = await $api.post('/api/ucenter/users', {}).then((res) => res.data.data)
+  const data = await $api.get('/users/select', { baseURL: '/gateway/v1' }).then((res) => res.data.data)
   return data.reduce((prev, item) => {
-    if (item.userId)
+    if (item.value)
       prev.push({
-        label: item.username,
-        value: item.userId,
+        label: item.label,
+        value: item.value,
         type: 'user'
       })
     return prev
   }, [])
 }
 async function getGroupList() {
-  const data = await $api.post('/api/ucenter/groups', {}).then((res) => res.data.data)
+  const data = await $api.get('/groups/select', { baseURL: '/gateway/v1' }).then((res) => res.data.data)
   return data.reduce((prev, item) => {
-    if (item.id)
+    if (item.value)
       prev.push({
-        label: item.name,
-        value: item.id,
+        label: item.label,
+        value: item.value,
         type: 'group'
       })
     return prev

@@ -7,7 +7,7 @@
           <Icon id="UserList__ClearSelected" name="ic:baseline-clear" class="normal cursor-pointer" @click="cleanSelectedRows"></Icon>
         </div>
         <div class="flex-x-end">
-          <el-button id="UserList__Delete" type="danger" @click="handleDeleteSelected()">
+          <el-button id="UserList__Delete" type="danger" @click="handleDelete()">
             {{ $t('common_delete') }}
           </el-button>
           <el-divider direction="vertical" />
@@ -26,9 +26,7 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-button id="UserList__AssignUserGroup" type="primary" @click="handleGroupSelected()">
-            {{ $t('userManage.group') }}
-          </el-button>
+          <el-button id="UserList__AssignUserGroup" type="primary" @click="handleGroupSelected()"> {{ $t('userManage.group') }}aa </el-button>
         </div>
       </header>
       <header v-show="state.selectList.length === 0" class="header-flex">
@@ -50,9 +48,11 @@
       </header>
     </template>
     <template #group="{ row }">
-      <el-tag class="el-icon--left table-tag" v-for="item in row.groupDTOList" :key="item.id || item.name">
-        {{ item.name }}
-      </el-tag>
+      <div class="groups-cell">
+        <el-tag v-for="item in row.groups" :key="item.id || item.name" class="el-icon--left table-tag" v-tooltip="item.name">
+          {{ item.name }}
+        </el-tag>
+      </div>
     </template>
     <template #status="{ row }">
       <el-switch
@@ -69,14 +69,15 @@
   </VxeGrid>
 
   <UserDialog ref="UserDialogRef" @refresh="reload" />
-  <UserAddGroupsDialog ref="UserAddGroupDialogRef" @refresh="reload()" />
+  <UserAddGroupDialog ref="UserAddGroupDialogRef" @refresh="reload()" />
 </template>
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
-const { fetchUsersPage, setUserStatus, batchActiveUsers, batchDeleteUsers, fetchLicenseUserCount, openUserDetail, sendInvitation } = useAdminUser()
+const routerProvider = inject(MenuRouterKey)
+const { fetchUsersPage, batchActiveUsers, batchDeleteUsers, fetchLicenseUserCount, openUserDetail, sendInvitation } = useAdminUser()
 
 const filterParams = ref<Record<string, any>>({})
 
@@ -107,9 +108,10 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     { field: 'email', title: 'user_email' },
     { field: 'role.roleName', title: 'user_role' },
     {
-      field: 'groupDTOList',
+      field: 'groups',
       title: 'user_groups',
-      slots: { default: 'group' }
+      slots: { default: 'group' },
+      showOverflow: false
     },
     { field: 'userLevel', title: 'user_level' },
     {
@@ -140,7 +142,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         name: 'Delete User',
         visible: true,
         disabled: false,
-        action: ({ row }: any) => handleDelete(row)
+        action: ({ row }: any) => handleDelete([row])
       }
     ]
   ],
@@ -164,7 +166,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         const key = column.property
         if (!key || !row) return ''
         const value = row[key] ?? ''
-        if (key === 'groupDTOList') {
+        if (key === 'groups' || key === 'groupDTOList') {
           return Array.isArray(value) ? value.map((item: any) => item.name).join(', ') : value
         }
         if (typeof value === 'string') return value
@@ -178,6 +180,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
   dblClickAction: ({ row }: any) => openUserDetail(row)
 })
 
+const ResponsiveFilterRef = ref()
 const UserDialogRef = ref()
 const UserAddGroupDialogRef = ref()
 
@@ -192,7 +195,10 @@ function handleFilterFormChange(formModel: any) {
   reload()
 }
 
-async function handleDeleteSelected() {
+async function handleDelete(rows?: any[]) {
+  const targets = rows?.length ? rows : state.selectList
+  const userIds = targets.map((item: any) => item.userId).filter(Boolean)
+  if (!userIds.length) return
   try {
     const action = await ElMessageBox.confirm(t('userTip.confirmWhetherToDeleteItems'), {
       confirmButtonClass: 'el-button el-button--warning',
@@ -200,25 +206,8 @@ async function handleDeleteSelected() {
       dangerouslyUseHTMLString: true
     })
     if (action !== 'confirm') return
-    await batchDeleteUsers({
-      userIds: state.selectList.map((item: any) => item.userId)
-    })
-    routerProvider?.message.success(t('userTip.userSelectedDeleteMsg'))
-    reload()
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-async function handleDelete(row: any) {
-  try {
-    const action = await ElMessageBox.confirm(t('userTip.confirmWhetherToDeleteItems'), {
-      confirmButtonClass: 'el-button el-button--warning',
-      confirmButtonText: `${t('common_confirmDelete')}`,
-      dangerouslyUseHTMLString: true
-    })
-    if (action !== 'confirm') return
-    const res = await batchDeleteUsers({ userIds: [row.userId] })
+    const res = await batchDeleteUsers({ userIds })
+    console.log(res)
     if (!!res) {
       routerProvider?.message.success(t('userTip.userSelectedDeleteMsg'))
       reload()
@@ -237,7 +226,10 @@ async function handleSetStatus(status: 'A' | 'D', row: any) {
   }
   try {
     row.loading = true
-    await setUserStatus(row)
+    await batchActiveUsers({
+      userIds: [row.userId],
+      status
+    })
     await refreshLicenseCount()
   } catch (error) {
     row.status = row.status === 'A' ? 'D' : 'A'
@@ -258,35 +250,55 @@ async function handleActiveSelected(status: 'A' | 'D') {
     routerProvider?.message.warning(t('user_activeUserOverLimit'))
     return
   }
-  const params = {
-    ids: state.selectList.map((item: any) => item.id),
-    userIds: state.selectList.map((item: any) => item.userId),
-    active: status
+  try {
+    await batchActiveUsers({
+      userIds: state.selectList.map((item: any) => item.userId),
+      status
+    })
+    routerProvider?.message.success(status === 'A' ? t('user.activate.successfully.msg') : t('user.inactivate.successfully.msg'))
+    await refreshLicenseCount()
+    reload()
+  } catch (error) {
+    console.log(error)
   }
-  const result: any = await batchActiveUsers(params)
-  if (result?.length > 0) {
-    routerProvider?.message.error(
-      t('userTip.operationFailed', {
-        users: result.join(',')
-      })
-    )
-  } else if (status === 'A') {
-    routerProvider?.message.success(t('user.activate.successfully.msg'))
-  } else {
-    routerProvider?.message.success(t('user.inactivate.successfully.msg'))
-  }
-  await refreshLicenseCount()
-  reload()
 }
 
 function handleGroupSelected() {
-  UserAddGroupDialogRef.value.handleOpen([], {
-    ids: state.selectList.map((item: any) => item.id),
-    userIds: state.selectList.map((item: any) => item.userId)
-  })
+  UserAddGroupDialogRef.value.handleOpen(
+    [],
+    state.selectList.map((item: any) => item.userId)
+  )
 }
-
+function initFilter() {
+  const conditions = [
+    {
+      key: 'orderBy',
+      label: 'tableHeader.sortBy',
+      type: 'string',
+      isMultiple: false,
+      options: [
+        { label: 'user_email', value: 'email' },
+        { label: 'user_level', value: 'userLevel' },
+        { label: 'common_status', value: 'status' },
+        { label: 'user_registered', value: 'registered' },
+        { label: 'user_username', value: 'username' }
+      ]
+    },
+    {
+      key: 'isDesc',
+      label: 'tableHeader.sortOrder',
+      type: 'string',
+      isMultiple: false,
+      options: [
+        { label: 'tableHeader.asc', value: false },
+        { label: 'tableHeader.desc', value: true }
+      ]
+    }
+  ]
+  ResponsiveFilterRef.value.init(conditions)
+}
 onMounted(() => {
+  initFilter()
   refreshLicenseCount()
   state.selectList = []
 })
@@ -301,8 +313,26 @@ onMounted(() => {
   width: 250px;
 }
 
+.groups-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .table-tag {
-  margin-bottom: 5px;
+  max-width: 100%;
+  overflow: hidden;
+
+  :deep(.el-tag__content) {
+    display: inline-block;
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
 }
 
 :deep(.headerLeftExpand) {

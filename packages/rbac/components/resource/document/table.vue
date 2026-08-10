@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newAdminApi } from 'api'
+import { newAdminApi, gatewayApi } from 'api'
 
 const props = defineProps<{
   id: string
@@ -249,7 +249,7 @@ const { flatRole } = useRBAC()
 async function getFilter() {
   async function getGroupList() {
     try {
-      return await newAdminApi.postUcenterGroups().then(r => r.data)
+      return await gatewayApi.groups.getGroupsSelect().then(r => r.data ?? [])
     } catch (error) {
       console.error(error)
       return []

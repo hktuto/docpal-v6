@@ -94,7 +94,29 @@ export interface DtoAssignUsersToGroupRequest {
     userIds: string[];
 }
 
+export interface DtoAssignedGroupDTO {
+    description?: string;
+    groupId?: string;
+    groupName?: string;
+    id?: string;
+    status?: string;
+}
+
+export interface DtoBatchAssignUserGroupsRequest {
+    /** @minItems 1 */
+    groupIds: string[];
+    /** @minItems 1 */
+    userIds: string[];
+}
+
 export interface DtoBatchDeleteRequest {
+    /** @minItems 1 */
+    userIds: string[];
+}
+
+export interface DtoBatchRemoveUserGroupsRequest {
+    /** @minItems 1 */
+    groupIds: string[];
     /** @minItems 1 */
     userIds: string[];
 }
@@ -133,7 +155,7 @@ export interface DtoCreateUserRequest {
     status?: "A" | "I" | "L" | "D";
     /** @maxLength 64 */
     userId?: string;
-    userLevel?: "premium" | "standard" | "essential";
+    userLevel?: string;
     /** @maxLength 64 */
     userName: string;
 }
@@ -144,7 +166,9 @@ export interface DtoForgotPasswordConfirmRequest {
 }
 
 export interface DtoForgotPasswordRequest {
-    loginName: string;
+    loginName?: string;
+    userId?: string;
+    userName?: string;
 }
 
 export interface DtoGroupPageRequest {
@@ -158,10 +182,10 @@ export interface DtoGroupPageRequest {
      */
     orderBy?: string;
     /**
-     * @min 1
-     * @default 1
+     * @min 0
+     * @default 0
      */
-    page?: number;
+    pageNum?: number;
     /**
      * @min 1
      * @max 100
@@ -190,11 +214,13 @@ export interface DtoGroupResponse {
 
 export interface DtoGroupUserListRequest {
     groupId: string;
+    isDesc?: boolean;
+    orderBy?: string;
     /**
-     * @min 1
-     * @default 1
+     * @min 0
+     * @default 0
      */
-    page?: number;
+    pageNum?: number;
     /**
      * @min 1
      * @max 100
@@ -205,8 +231,10 @@ export interface DtoGroupUserListRequest {
 
 export interface DtoImportJobPageRequest {
     fileName?: string;
-    /** @min 1 */
-    page?: number;
+    isDesc?: boolean;
+    orderBy?: string;
+    /** @min 0 */
+    pageNum?: number;
     /**
      * @min 1
      * @max 100
@@ -276,7 +304,7 @@ export interface DtoUpdateUserRequest {
     registered?: boolean;
     status?: "A" | "I" | "L" | "D";
     userId: string;
-    userLevel?: "premium" | "standard" | "essential";
+    userLevel?: string;
     userName?: string;
 }
 
@@ -284,8 +312,8 @@ export interface DtoUserPageRequest {
     email?: string;
     isDesc?: boolean;
     orderBy?: string;
-    /** @min 1 */
-    page?: number;
+    /** @min 0 */
+    pageNum?: number;
     /**
      * @min 1
      * @max 100
@@ -327,6 +355,48 @@ export interface DtoValidateResetTokenRequest {
     token: string;
 }
 
+export interface HandlerAuthCurrentResponse {
+    bizUserId?: string;
+    isAdmin?: boolean;
+    roles?: string[];
+    sessionId?: string;
+    tenantId?: string;
+    userId?: string;
+    userName?: string;
+}
+
+export interface HandlerCurrentProfileResponse {
+    aclUserDetail?: ClientUserDetailVO;
+    company?: string;
+    department?: string;
+    email?: string;
+    firstName?: string;
+    /** null in example */
+    groups?: any;
+    id?: string;
+    isConnected?: boolean;
+    /** "2026-03-02 11:16:41 GMT" */
+    jwtExpiredAt?: string;
+    /** same as ID in example */
+    kcUserId?: string;
+    lastName?: string;
+    mustResetPassword?: boolean;
+    password?: string;
+    phone?: string;
+    properties?: any;
+    registered?: boolean;
+    role?: any;
+    /** JWT token? */
+    sessionId?: string;
+    status?: string;
+    timeout?: number;
+    userId?: string;
+    userLevel?: string;
+    userName?: string;
+    /** Duplicate of UserName, lowercase? */
+    username?: string;
+}
+
 export interface HandlerExchangeRequest {
     publicKey: string;
 }
@@ -338,6 +408,23 @@ export interface HandlerGenerateKeyPairRequest {
 export interface HandlerGetMyKeyRequest {
     serviceId: string;
 }
+
+export interface HandlerImportCommitPayload {
+    jobId?: string;
+    result?: ServiceImportPreviewResult;
+}
+
+export interface HandlerImportJobDetailPayload {
+    items?: ModelUserImportItem[];
+    job?: ModelUserImportJob;
+}
+
+export interface HandlerImportPreviewPayload {
+    jobId?: string;
+    preview?: ServiceImportPreviewResult;
+}
+
+export type HandlerJSONMapResponse = Record<string, any>;
 
 export interface HandlerLoginRequest {
     password: string;
@@ -359,6 +446,21 @@ export interface HandlerRegisterRequest {
     email: string;
     password: string;
     username: string;
+}
+
+export interface HandlerServiceKeyPairResponse {
+    keyVersion?: number;
+    kid?: string;
+    privateKey?: string;
+    publicKey?: string;
+}
+
+export interface HandlerValidateResetTokenResponse {
+    bizUserId?: string;
+    expiredAt?: string;
+    userId?: string;
+    userName?: string;
+    valid?: boolean;
 }
 
 export interface HandlerVerify2FARequest {
@@ -400,11 +502,76 @@ export interface ModelUser {
     userName?: string;
 }
 
+export interface ModelUserImportItem {
+    createdBy?: string;
+    createdDate?: string;
+    deleteFlag?: boolean;
+    email?: string;
+    errorMessage?: string;
+    groupIds?: string;
+    /** Use uuid type in Postgres for ULID storage (128-bit) */
+    id?: string;
+    jobId?: string;
+    modifiedBy?: string;
+    modifiedDate?: string;
+    rawJson?: number[];
+    rowNumber?: number;
+    status?: string;
+    userId?: string;
+    userName?: string;
+}
+
+export interface ModelUserImportJob {
+    createdBy?: string;
+    createdDate?: string;
+    deleteFlag?: boolean;
+    errorMessage?: string;
+    failureCount?: number;
+    fileName?: string;
+    /** Use uuid type in Postgres for ULID storage (128-bit) */
+    id?: string;
+    importMode?: string;
+    modifiedBy?: string;
+    modifiedDate?: string;
+    operatorName?: string;
+    operatorUserId?: string;
+    resultJson?: number[];
+    status?: string;
+    successCount?: number;
+    totalCount?: number;
+}
+
 export interface ResponseResponse {
     code?: number;
     data?: any;
     message?: string;
     result?: boolean;
+}
+
+export interface ServiceImportPreviewResult {
+    headers?: string[];
+    initialPassword?: string;
+    notes?: string[];
+    rows?: ServiceImportPreviewRow[];
+    valid?: boolean;
+}
+
+export interface ServiceImportPreviewRow {
+    email?: string;
+    errors?: string[];
+    finalUserId?: string;
+    firstName?: string;
+    groups?: string[];
+    lastName?: string;
+    mustResetPassword?: boolean;
+    phone?: string;
+    registered?: boolean;
+    rowNumber?: number;
+    status?: string;
+    userId?: string;
+    userLevel?: string;
+    userName?: string;
+    warnings?: string[];
 }
 
 export interface ServicePasswordPolicyConfig {
@@ -457,6 +624,7 @@ export interface ServiceTokenValidationResult {
     bizUserId?: string;
     expiresAt?: string;
     issuedAt?: string;
+    roles?: string[];
     serviceId?: string;
     sessionId?: string;
     tenantId?: string;
@@ -623,7 +791,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
          * @request GET:/.well-known/openid-configuration
          */
         getWellKnownOpenidConfiguration: (params: RequestParams = {}) =>
-            this.request<Record<string, any>, any>({
+            this.request<HandlerJSONMapResponse, any>({
                 path: `/.well-known/openid-configuration`,
                 method: "GET",
                 format: "json",
@@ -753,7 +921,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postAuthChangePassword: (request: DtoChangePasswordRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -778,7 +946,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         getAuthCurrent: (params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerAuthCurrentResponse;
                 },
                 ResponseResponse
             >({
@@ -824,7 +992,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postAuthForgotPasswordConfirm: (request: DtoForgotPasswordConfirmRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -837,7 +1005,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description 根据用户名、业务 ID 或邮箱生成临时重置令牌。
+         * @description 根据 userId、userName 或兼容字段 loginName 触发忘记密码邮件发送；接口默认返回成功，不暴露账户是否存在。
          *
          * @tags password
          * @name PostAuthForgotPasswordRequest
@@ -847,7 +1015,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postAuthForgotPasswordRequest: (request: DtoForgotPasswordRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -870,7 +1038,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postAuthGenerateKey: (request: HandlerGenerateKeyPairRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerServiceKeyPairResponse;
                 },
                 ResponseResponse
             >({
@@ -893,7 +1061,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postAuthGetMyKey: (request: HandlerGetMyKeyRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerServiceKeyPairResponse;
                 },
                 ResponseResponse
             >({
@@ -940,7 +1108,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postAuthLogout: (request: DtoLogoutRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -965,7 +1133,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postAuthLogoutAll: (params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1052,7 +1220,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postAuthResetPassword: (request: DtoResetPasswordRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1200,7 +1368,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description Remove users from a group
+         * @description Remove users from a group by physically deleting relation records
          *
          * @tags group
          * @name PostGroupsRemoveUsers
@@ -1281,7 +1449,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description Soft delete a group
+         * @description Soft delete a group and physically delete its user-group relations
          *
          * @tags group
          * @name DeleteGroupsId
@@ -1327,7 +1495,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             },
             params: RequestParams = {},
         ) =>
-            this.request<any, void | Record<string, any>>({
+            this.request<any, void | HandlerJSONMapResponse>({
                 path: `/oauth2/authorize`,
                 method: "GET",
                 query: query,
@@ -1343,7 +1511,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
          * @request GET:/oauth2/jwks
          */
         getOauth2Jwks: (params: RequestParams = {}) =>
-            this.request<Record<string, any>, Record<string, any>>({
+            this.request<HandlerJSONMapResponse, HandlerJSONMapResponse>({
                 path: `/oauth2/jwks`,
                 method: "GET",
                 format: "json",
@@ -1359,7 +1527,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
          * @request POST:/oauth2/token
          */
         postOauth2Token: (params: RequestParams = {}) =>
-            this.request<Record<string, any>, Record<string, any>>({
+            this.request<HandlerJSONMapResponse, HandlerJSONMapResponse>({
                 path: `/oauth2/token`,
                 method: "POST",
                 type: ContentType.UrlEncoded,
@@ -1376,7 +1544,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
          * @request GET:/oauth2/userinfo
          */
         getOauth2Userinfo: (params: RequestParams = {}) =>
-            this.request<Record<string, any>, Record<string, any>>({
+            this.request<HandlerJSONMapResponse, HandlerJSONMapResponse>({
                 path: `/oauth2/userinfo`,
                 method: "GET",
                 format: "json",
@@ -1396,7 +1564,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postPasswordChange: (request: DtoChangePasswordRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1420,7 +1588,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postPasswordForgotConfirm: (request: DtoForgotPasswordConfirmRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1433,7 +1601,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description 根据用户名、业务 ID 或邮箱生成临时重置令牌。
+         * @description 根据 userId、userName 或兼容字段 loginName 触发忘记密码邮件发送；接口默认返回成功，不暴露账户是否存在。
          *
          * @tags password
          * @name PostPasswordForgotRequest
@@ -1443,7 +1611,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postPasswordForgotRequest: (request: DtoForgotPasswordRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1466,7 +1634,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postPasswordForgotValidate: (request: DtoValidateResetTokenRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerValidateResetTokenResponse;
                 },
                 ResponseResponse
             >({
@@ -1512,7 +1680,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postPasswordReset: (request: DtoResetPasswordRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1568,7 +1736,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postPasswordUnlockUser: (request: DtoUnlockUserRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1594,7 +1762,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         getUserSettings: (params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerJSONMapResponse;
                 },
                 ResponseResponse
             >({
@@ -1618,7 +1786,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         putUserSettings: (request: DtoSaveUserSettingRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1643,7 +1811,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         getUserSettingsProfileSchema: (params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerJSONMapResponse;
                 },
                 ResponseResponse
             >({
@@ -1667,7 +1835,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         putUserSettingsProfileSchema: (request: DtoSaveProfileSchemaRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1727,7 +1895,25 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description Delete multiple users
+         * @description Assign multiple groups to multiple users
+         *
+         * @tags user
+         * @name PostUsersAssignGroups
+         * @summary Batch Assign Groups To Users
+         * @request POST:/users/assign-groups
+         */
+        postUsersAssignGroups: (request: DtoBatchAssignUserGroupsRequest, params: RequestParams = {}) =>
+            this.request<ResponseResponse, ResponseResponse>({
+                path: `/users/assign-groups`,
+                method: "POST",
+                body: request,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Soft delete multiple users and physically delete their user-group relations
          *
          * @tags user
          * @name PostUsersBatchDelete
@@ -1763,7 +1949,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description Get user details by business user_id or internal id
+         * @description Get user details by business user_id
          *
          * @tags user
          * @name GetUsersBizBizid
@@ -1796,7 +1982,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         getUsersCurrentProfile: (params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerCurrentProfileResponse;
                 },
                 ResponseResponse
             >({
@@ -1820,7 +2006,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         putUsersCurrentProfile: (request: DtoUserProfileRequest, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: boolean;
                 },
                 ResponseResponse
             >({
@@ -1864,7 +2050,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postUsersImportCommit: (data: any, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerImportCommitPayload;
                 },
                 ResponseResponse
             >({
@@ -1914,7 +2100,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         getUsersImportJobsJobid: (jobId: string, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerImportJobDetailPayload;
                 },
                 ResponseResponse
             >({
@@ -1938,7 +2124,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         postUsersImportPreview: (data: any, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: Record<string, any>;
+                    data?: HandlerImportPreviewPayload;
                 },
                 ResponseResponse
             >({
@@ -1984,6 +2170,24 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
                 ResponseResponse
             >({
                 path: `/users/page`,
+                method: "POST",
+                body: request,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Remove multiple groups from multiple users
+         *
+         * @tags user
+         * @name PostUsersRemoveGroups
+         * @summary Batch Remove Groups From Users
+         * @request POST:/users/remove-groups
+         */
+        postUsersRemoveGroups: (request: DtoBatchRemoveUserGroupsRequest, params: RequestParams = {}) =>
+            this.request<ResponseResponse, ResponseResponse>({
+                path: `/users/remove-groups`,
                 method: "POST",
                 body: request,
                 type: ContentType.Json,
@@ -2069,6 +2273,28 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
                 ResponseResponse
             >({
                 path: `/users/${id}`,
+                method: "GET",
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description 根据用户业务 ID(user_id) 获取该用户当前分配的本地用户组列表。
+         *
+         * @tags user
+         * @name GetUsersUseridGroups
+         * @summary 获取用户所属用户组
+         * @request GET:/users/{userId}/groups
+         */
+        getUsersUseridGroups: (userId: string, params: RequestParams = {}) =>
+            this.request<
+                ResponseResponse & {
+                    data?: DtoAssignedGroupDTO[];
+                },
+                ResponseResponse
+            >({
+                path: `/users/${userId}/groups`,
                 method: "GET",
                 type: ContentType.Json,
                 format: "json",

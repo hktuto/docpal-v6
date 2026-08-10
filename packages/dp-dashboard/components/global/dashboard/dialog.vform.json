@@ -82,7 +82,7 @@
         "labelIconPosition": "rear",
         "labelTooltip": null,
         "onCreated": "",
-        "onMounted": "const _this = this\n_this.setValue(['members'])\n$api.post('/api/ucenter/groups', {}).then(res => {\n  res = res.data.data\n  res.forEach((item) => {\n    item.value = item.id\n    item.label = item.name\n  })\n  _this.loadOptions(res)\n  \n}).catch(err => {\n})",
+        "onMounted": "const _this = this\n_this.setValue(['members'])\n$api.get('/groups/select', { baseURL: '/gateway/v1' }).then(res => {\n  res = res.data.data\n  const result = res.reduce((prev, item) => {\n    if (item.value) prev.push({\n      label: item.label,\n      value: item.value\n    })\n    return prev\n  }, [])\n  _this.loadOptions(result)\n  \n}).catch(err => {\n})",
         "onRemoteQuery": "",
         "onChange": "if(value.length === 0) this.setValue(['members'])",
         "onFocus": "",

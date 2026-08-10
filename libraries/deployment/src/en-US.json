@@ -874,7 +874,9 @@
   },
   "dataFieldUg": {
     "api": "Api",
+    "baseURL": "Base URL",
     "labelKey": "Label field",
+    "method": "Method",
     "valueKey": "Value field"
   },
   "dataVerificationResult": "Data Verification Result",

@@ -1,5 +1,14 @@
-import { newAdminApi, newClientApi, gatewayApi } from 'api'
+import { gatewayApi } from 'api'
 import { ElMessage } from 'element-plus'
+
+/** 统一抽出 groupId / id / value，并去重 */
+function toIds(list: any = []): string[] {
+  return [...new Set(
+    (Array.isArray(list) ? list : [list])
+      .map((item) => (typeof item === 'string' ? item : item?.groupId ?? item?.id ?? item?.value))
+      .filter(Boolean)
+  )]
+}
 
 /**
  * Admin 用户相关 API / 导航。
@@ -21,23 +30,23 @@ export function useAdminUser() {
   }
 
   async function fetchUserById(userId: string) {
-    return await newAdminApi.getUcenterUserUserid(userId).then((r) => r.data)
+    return await gatewayApi.users.getUsersBizBizid(userId).then((r) => r.data)
   }
 
   function createUser(params: any) {
     return gatewayApi.users.postUsers(params)
   }
 
-  function setUserStatus(params: any) {
-    return newClientApi.putUcenterStatus(params)
+  function updateUser(params: any) {
+    return gatewayApi.users.putUsersUpdate(params)
   }
 
-  function batchActiveUsers(params: any) {
-    return newClientApi.postUcenterBatchActive(params)
+  function batchActiveUsers(params: { userIds: string[]; status: 'A' | 'I' | 'L' | 'D' }) {
+    return gatewayApi.users.postUsersBatchStatus(params)
   }
 
-  function batchDeleteUsers(params: any) {
-    return newAdminApi.postUcenterUsersBatchDelete(params)
+  async function batchDeleteUsers(params: any) {
+    return await gatewayApi.users.postUsersBatchDelete(params).then((r) => r.data)
   }
 
   async function fetchLicenseUserCount() {
@@ -54,22 +63,30 @@ export function useAdminUser() {
     }
   }
 
-  /** 单个用户添加多个 group */
-  function batchUserAddGroups(params: any) {
-    return newAdminApi.postUcenterUserBatchAddGroups(params)
+  /**
+   * 用户列表页：批量给用户分配 groups。
+   * POST /users/assign-groups
+   */
+  function batchAddGroup(params: { userIds: string[]; groupIds: string | string[] }) {
+    return gatewayApi.users.postUsersAssignGroups({
+      userIds: toIds(params.userIds),
+      groupIds: toIds(params.groupIds)
+    })
   }
 
-  /** 多个用户批量加入 groups */
-  function batchUsersToGroups(params: any) {
-    return newAdminApi.postUcenterUsersBatchAddGroups(params)
+  /**
+   * 用户详情页：从用户移除 groups。
+   * POST /users/remove-groups
+   */
+  function batchUserRemoveGroups(params: { userId: string; groupIds: string | string[] }) {
+    return gatewayApi.users.postUsersRemoveGroups({
+      userIds: [params.userId],
+      groupIds: toIds(params.groupIds)
+    })
   }
 
-  function batchUserRemoveGroups(params: any) {
-    return newAdminApi.postUcenterUserBatchRemoveGroups(params)
-  }
-
-  function fetchUserGroups(params: any) {
-    return newAdminApi.postUcenterMemberGroup(params)
+  async function fetchUserGroups(userId: string) {
+    return await gatewayApi.users.getUsersUseridGroups(userId).then((r) => r.data ?? [])
   }
 
   function updateUserPassword(params: any) {
@@ -77,7 +94,7 @@ export function useAdminUser() {
   }
 
   async function fetchGroupList() {
-    return await newAdminApi.postUcenterGroups().then((r) => r.data)
+    return await gatewayApi.groups.getGroupsSelect().then((r) => r.data ?? [])
   }
 
   function openUserDetail(data: any, openInNewTab = false) {
@@ -130,12 +147,11 @@ export function useAdminUser() {
     fetchUsersPage,
     fetchUserById,
     createUser,
-    setUserStatus,
+    updateUser,
     batchActiveUsers,
     batchDeleteUsers,
     fetchLicenseUserCount,
-    batchUserAddGroups,
-    batchUsersToGroups,
+    batchAddGroup,
     batchUserRemoveGroups,
     fetchUserGroups,
     updateUserPassword,

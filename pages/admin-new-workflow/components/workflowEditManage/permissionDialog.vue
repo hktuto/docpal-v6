@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { clientApi, newClientApi } from 'api'
+import { clientApi, newClientApi, gatewayApi } from 'api'
 
 interface TargetOption {
   id: string
@@ -172,10 +172,10 @@ async function loadRoles() {
 }
 
 async function loadGroups() {
-  const { data } = await clientApi.admin.postUcenterGroups()
+  const { data } = await gatewayApi.groups.getGroupsSelect()
   groups.value = (data || []).map((g: any) => ({
-    id: g.id,
-    name: g.name
+    id: g.value,
+    name: g.label
   }))
 }
 

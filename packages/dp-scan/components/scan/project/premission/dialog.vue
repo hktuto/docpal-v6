@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { clientApi, gatewayApi } from 'api'
 const props = defineProps<{
   projectId: string
 }>()
@@ -29,9 +29,9 @@ const useOptions = ref<any[]>([])
 const groupOptions = ref<any[]>([])
 async function getUserAndUserGroup() {
   const { data: userData } = await clientApi.admin.postUcenterGetAllUsers({})
-  const { data: groupData } = await clientApi.admin.postUcenterGroups({})
+  const { data: groupData } = await gatewayApi.groups.getGroupsSelect()
   useOptions.value = userData.page.entryList.map((u) => ({ label: u.username, value: `user:${u.userId}` }))
-  groupOptions.value = groupData.map((g) => ({ label: g.name, value: `group:${g.id}` }))
+  groupOptions.value = (groupData || []).map((g) => ({ label: g.label, value: `group:${g.value}` }))
 }
 
 async function getPremission() {
