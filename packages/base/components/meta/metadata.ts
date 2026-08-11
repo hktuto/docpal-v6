@@ -1,6 +1,7 @@
 import type { WidgetItem } from '@/types/vform'
 import type { DocumentMetadata, VariableItem } from '@/types/vform.extend'
 import { newClientApi, gatewayApi } from 'api'
+import { fetchUsersSelectSorted } from '../../composables/usePermissionOption'
 import { mounteMasterTableOptions, mounteRoleOptions } from './metadata.vform.extent'
 import dayjs from 'dayjs'
 
@@ -477,11 +478,7 @@ function getParseDataItem(s: string) {
 
 export async function getUserList() {
   try {
-    const data: any =  await newClientApi.postUcenterUsers({}).then((res) => res.data)
-    return data.map((item: any) => ({
-      label: item.username,
-      value: item.userId
-    }))
+    return await fetchUsersSelectSorted()
   } catch (error) {
     console.error(error)
     return []

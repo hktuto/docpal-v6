@@ -3050,6 +3050,7 @@
     "lowerUpper": "大小写字母",
     "lowerUpperDesc": "必须包含大小写字母 [a-z][A-Z]",
     "newPassword": "新密码",
+    "noTokenProvided": "未提供令牌",
     "oldPassword": "旧密码",
     "oldPasswordTip": "需要旧密码",
     "retryPeriod": "重试周期（分钟）",
@@ -3060,7 +3061,8 @@
     "saveSuccess": "密码策略保存成功",
     "special": "特殊字符",
     "specialDesc": "必须包含特殊字符{char}",
-    "updatePassword": "更新密码"
+    "updatePassword": "更新密码",
+    "updatePasswordSuccess": "密码更新成功"
   },
   "pending_approval": "待批准",
   "pending_completed": "已完成",

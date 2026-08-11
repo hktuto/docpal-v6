@@ -30,6 +30,7 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { newAdminApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import { ElNotification } from 'element-plus'
 
 interface UserOption {
@@ -70,7 +71,7 @@ const loadUsers = async () => {
     // type 1 = role
     // type 2 = group
     // need to check type if type is 1 , use role user dropdown 
-    let allUsers = []
+    let allUsers: UserOption[] = []
     if (props.type === 1) {
       const response = await newAdminApi.getDocpalAclRoleUsersDropdown({
         params: {
@@ -85,14 +86,10 @@ const loadUsers = async () => {
         value: item.userId || ''
       }))
     } else if (props.type === 2) {
-      const groupUserResponse = await newAdminApi.postUcenterUsers({}).then((res) => res.data)
-      if (!groupUserResponse) {
+      allUsers = await fetchUsersSelectSorted()
+      if (!allUsers.length) {
         throw new Error(t('common.invalidResponseFormat'))
       }
-      allUsers = groupUserResponse.map((item) => ({
-        label: item.username || '',
-        value: item.userId || ''
-      }))
     }
     users.value = allUsers
 

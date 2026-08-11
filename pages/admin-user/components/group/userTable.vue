@@ -85,7 +85,7 @@ function handleFilterFormChange(formModel: any) {
 }
 
 function handleGroupAddMemberFormShow() {
-  UserAddGroupDialogRef.value.handleOpen(tableConfig.data)
+  UserAddGroupDialogRef.value.handleOpen(state.userList)
 }
 
 async function getMemberGroupList() {

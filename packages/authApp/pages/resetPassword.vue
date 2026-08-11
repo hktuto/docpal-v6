@@ -48,122 +48,48 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
-import { newClientApi, gatewayApi } from 'api'
+import { gatewayApi } from 'api'
 import { ElMessage } from 'element-plus'
+
 const { t } = useI18n()
 const formRef = ref()
-const form = reactive({
-  oldPassword: '',
-  newPassword: '',
-  confirmPassword: ''
-})
 const route = useRoute()
-const ready = ref(false)
-const passwordPolicy = ref<any>({})
-const rules = ref<any>({})
+const router = useRouter()
 const tokenRef = ref<string>()
-async function getPasswordPolicy() {
-  let config: any = {}
-  try {
-    config = await newClientApi.getUcenterPasswordConfig().then((res) => res.data)
-  } catch (e) {
-    console.error(e)
-  }
-  passwordPolicy.value = {
-    minPasswordLength: 8,
-    containLowerAndUppercase: true,
-    containNumericDigits: true,
-    containSpecialCharacters: true,
-    ...config
-  }
-}
+
+const { form, passwordPolicy, rules, ready, initPasswordPolicyForm } = usePasswordPolicyForm()
+
 async function onSubmit() {
   try {
     await formRef.value.validate()
     let res
     if (!!tokenRef.value && tokenRef.value !== '') {
-      res = await newClientApi
-        .postUcenterPasswordResetPassword({
+      res = await gatewayApi.auth
+        .postAuthForgotPasswordConfirm({
           token: tokenRef.value,
           newPassword: form.newPassword
         })
         .then((r) => r.data)
-    } else {
-      res = await gatewayApi.password
-        .postPasswordChange({
-          oldPassword: form.oldPassword,
-          newPassword: form.newPassword
-        })
-        .then((res) => res.data)
     }
 
     if (!!res) {
       ElMessage.success(t('passwordPolicy.updatePasswordSuccess'))
-      const router = useRouter()
       await verifly()
       router.push('/')
     }
   } catch (e) {
     console.error(e)
-    return
   }
 }
+
 onMounted(async () => {
   await isLocaleFinished()
-  await getPasswordPolicy()
-  // Need to wait for translation
-  rules.value = {
-    oldPassword: [{ required: true, message: t('render.hint.fieldRequired', { name: t('passwordPolicy.oldPassword') }), trigger: 'blur' }],
-    newPassword: [
-      { required: true, message: t('render.hint.fieldRequired', { name: t('passwordPolicy.newPassword') }), trigger: 'blur' }
-      // {
-      //   validator: (rule, value) => value === form.oldPassword,
-      //   message: t('tip.samePassword'),
-      //   trigger: 'blur'
-      // }
-    ],
-    confirmPassword: [
-      { required: true, message: t('render.hint.fieldRequired', { name: t('passwordPolicy.confirmPassword') }), trigger: 'blur' },
-      {
-        validator: (rule: any, value: string) => value === form.newPassword,
-        message: t('tip.inputUserPasswordMatch'),
-        trigger: 'blur'
-      }
-    ]
+  if (route.query.token) {
+    tokenRef.value = route.query.token as string
   }
-  if (passwordPolicy.value.containLowerAndUppercase) {
-    rules.value.newPassword.push({
-      validator: (rule: any, value: string) => {
-        return /^(?=.*[a-z])(?=.*[A-Z]).*$/.test(value)
-      },
-      message: t('passwordPolicy.containLowerAndUppercase'),
-      trigger: 'blur'
-    })
-  }
-  if (passwordPolicy.value.containNumericDigits) {
-    rules.value.newPassword.push({
-      validator: (rule: any, value: string) => {
-        return /.*[0-9].*/.test(value)
-      },
-      message: t('passwordPolicy.containNumericDigits'),
-      trigger: 'blur'
-    })
-  }
-  if (passwordPolicy.value.containSpecialCharacters) {
-    rules.value.newPassword.push({
-      validator: (rule: any, value: string) => {
-        return /^(?=.*[!@#$%^&*()\-+=\[\]{}:;'",.<>/\\|]).+$/.test(value)
-      },
-      message: t('passwordPolicy.containSpecialCharacters'),
-      trigger: 'blur'
-    })
-  }
-  ready.value = true
-  // formRef.value.resetFields()
-  if (!!route.query.token) {
-    tokenRef.value = route.query.token
-  }
+  await initPasswordPolicyForm({
+    requireOldPassword: !tokenRef.value
+  })
 })
 </script>
 

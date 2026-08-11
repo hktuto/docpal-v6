@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { newClientApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import type { CalendarEventExternal } from '@schedule-x/calendar'
 
 const { t } = useI18n()
@@ -53,15 +54,15 @@ async function getFilterOptions() {
       const res = await newClientApi.getPermissionUserGroupGroupidUsers(props.options.userFilter).then((res) => res.data)
       user = res.users
     } else {
-      user =  await newClientApi.postUcenterUsers({}).then((res) => res.data)
-      if (!user) throw new Error('no user')
+      user = await fetchUsersSelectSorted()
+      if (!user.length) throw new Error('no user')
     }
 
     userFiterOptions.value = user
       .map((item) => {
         return {
-          label: item.username,
-          value: item.userId
+          label: item.label || item.username,
+          value: item.value || item.userId
         }
       })
       .sort((a, b) => a.label.localeCompare(b.label))

@@ -16,7 +16,7 @@ import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
-const { assignUsersToGroup, fetchUserList } = useAdminGroup()
+const { assignUsersToGroup } = useAdminGroup()
 const props = defineProps<{
   group: GroupDTO,
 }>()
@@ -65,25 +65,11 @@ function handleOpen(exitList: UserDTO[]) {
 
 async function handleOptions(exitList: UserDTO[]) {
   try {
-    console.log(exitList)
-    if (!state.userList || state.userList.length === 0) state.userList = await fetchUserList()
     const idRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('id')
-
-    const options = userListFilter()
-
-    idRef.loadOptions(options)
-
-    function userListFilter() {
-      return state.userList.reduce((prev: any[], item: UserDTO & any) => {
-        const index = exitList.findIndex(exitItem => exitItem.userId === item.userId)
-        if (index === -1 && item.userId) {
-          item.value = item.userId
-          item.label = item.username
-          prev.push(item)
-        }
-        return prev
-      }, [])
-    }
+    const options = idRef.getOptionItems()
+    const exitIds = new Set(exitList.map((item: any) => item.userId ?? item.id ?? item.value).filter(Boolean))
+    const newOptions = options.filter((item: any) => !exitIds.has(item.value))
+    idRef.loadOptions(newOptions)
   } catch (e) {
     console.log(e)
   }

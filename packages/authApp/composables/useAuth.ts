@@ -38,6 +38,7 @@ export const useAuth = () => {
   const loggedIn = useLoginState()
   return {
     loggedIn,
+    clearAuthSession,
     logout,
     loginWithPassword,
     silentLogin,
@@ -164,18 +165,23 @@ export function canOCR(extension: string): boolean {
   return ocrSetting.value.supportedInputFormats.includes(extension)
 }
 
-export function logout() {
-  const logedIn = useLoginState()
+/** 清除本地认证态（token / 用户信息 / loginState / localStorage），不负责跳转 */
+export function clearAuthSession() {
+  const loggedIn = useLoginState()
   const userState = useUserState()
+  useToken().clearToken()
+  userState.value = null
+  loggedIn.value = false
+  localStorage.clear()
+}
+
+/** 用户主动退出：清会话并跳转登录页 */
+export function logout() {
   const router = useRouter()
   const route = useRoute()
   const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/initPassword', '/admin']
 
-  useToken().clearToken()
-  userState.value = null
-  logedIn.value = false
-  localStorage.clear()
-
+  clearAuthSession()
   router.push({
     path: '/login',
     query: {

@@ -62,16 +62,14 @@ async function handleOptions() {
   const groupList = idRef.getOptionItems()
   const exitIds = new Set(state.exitGroupIds)
   const options = groupList
-    .reduce((prev: any[], item: any) => {
+    .filter((item: any) => {
       const value = item.value ?? item.id
-      if (!value) return prev
-      prev.push({
-        value,
-        label: item.label ?? item.name ?? value,
-        disabled: exitIds.has(value)
-      })
-      return prev
-    }, [])
+      return value && !exitIds.has(value)
+    })
+    .map((item: any) => ({
+      value: item.value ?? item.id,
+      label: item.label ?? item.name ?? item.value ?? item.id
+    }))
     .sort((a: any, b: any) => a.label.localeCompare(b.label))
   idRef.loadOptions(options)
 }

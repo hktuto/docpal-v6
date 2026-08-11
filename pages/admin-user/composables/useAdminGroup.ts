@@ -29,17 +29,14 @@ export function useAdminGroup() {
     return res?.data as { list?: any[]; total?: number }
   }
 
-  function removeUsersFromGroup(params: any) {
-    return newAdminApi.postUcenterGroupBatchRemoveUsers(params)
+  function removeUsersFromGroup(params: { groupId: string; userIds: string[] }) {
+    return gatewayApi.groups.postGroupsRemoveUsers(params)
   }
 
-  function assignUsersToGroup(params: any) {
-    return newAdminApi.postUcenterGroupBatchAddUsers(params)
+  function assignUsersToGroup(params: { groupId: string; userIds: string[] }) {
+    return gatewayApi.groups.postGroupsAssignUsers(params)
   }
 
-  async function fetchUserList() {
-    return await newAdminApi.postUcenterUsers({}).then((res) => res.data)
-  }
 
   function openGroupDetail(data: any, openInNewTab = false) {
     if (!routerProvider) {
@@ -88,7 +85,6 @@ export function useAdminGroup() {
     fetchGroupMembers,
     removeUsersFromGroup,
     assignUsersToGroup,
-    fetchUserList,
     openGroupDetail,
     openGroupList
   }

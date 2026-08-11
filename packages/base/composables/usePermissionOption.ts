@@ -213,24 +213,35 @@ export const convertSelectOptions = (permissions: any) => {
   return permission
 }
 
-// User Select Option
+/** 无缓存：拉取用户下拉并按 label 排序，作为 getUsersSelect 的唯一入口 */
+export const fetchUsersSelectSorted = async () => {
+  try {
+    const list = await gatewayApi.users.getUsersSelect().then((res) => res.data)
+    if (!list?.length) return []
+    return [...list]
+      .map((item) => ({
+        label: item.label || '',
+        value: item.value || ''
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  } catch (e) {
+    console.log(e)
+    return []
+  }
+}
+
+// User Select Option（带缓存）
 export const getUserSelectOption = async (refresh?: boolean) => {
   const options = useUserPermissionOption()
   if (options.value.length === 0 || refresh) {
-    try {
-      const list: any = await newClientApi.postUcenterUsers().then((res) => res.data)
-      if (list.length === 0) return []
+    const list = await fetchUsersSelectSorted()
+    if (list.length === 0) return []
 
-      options.value = list.map((item: any) => ({
-        id: item.userId,
-        value: item.userId,
-        label: item.username || item.userName || item.name || '',
-        email: item.email
-      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
-    } catch (e) {
-      console.log(e)
-      return []
-    }
+    options.value = list.map((item) => ({
+      id: item.value,
+      value: item.value,
+      label: item.label
+    }))
   }
   return options.value
 }

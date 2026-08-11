@@ -5,8 +5,7 @@ import { useUpdateStatus } from './useUpdateStatus'
 import type { TableDataRefreshOptions } from './useTableData'
 
 export type RefreshTableData = (options?: TableDataRefreshOptions) => Promise<void>
-import { clientApi } from 'api'
-import { newClientApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import type { ColumnConfig } from '@packages/dp-mdTable/types/column-types'
 export interface mdTable {
@@ -103,10 +102,10 @@ export function useMDTable(props: any) {
       return userList.value
     }
     try {
-      const data: any = await newClientApi.postUcenterUsers()
-      userList.value = data.data.map((item: any) => ({
-        label: item.username,
-        id: item.userId
+      const data = await fetchUsersSelectSorted()
+      userList.value = data.map((item) => ({
+        label: item.label,
+        id: item.value
       }))
       console.log('userList', userList.value)
       lastLoadTime = Date.now()

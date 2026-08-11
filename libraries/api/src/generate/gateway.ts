@@ -61,16 +61,19 @@ export interface DtoApplicationUserDTO {
     company?: string;
     department?: string;
     email?: string;
+    failedLoginCount?: number;
     firstName?: string;
     /** null in example */
     groups?: any;
     id?: string;
     isConnected?: boolean;
+    isLocked?: boolean;
     /** "2026-03-02 11:16:41 GMT" */
     jwtExpiredAt?: string;
     /** same as ID in example */
     kcUserId?: string;
     lastName?: string;
+    lockedUntil?: string;
     mustResetPassword?: boolean;
     password?: string;
     phone?: string;
@@ -110,6 +113,11 @@ export interface DtoBatchAssignUserGroupsRequest {
 }
 
 export interface DtoBatchDeleteRequest {
+    /** @minItems 1 */
+    userIds: string[];
+}
+
+export interface DtoBatchInitPasswordRequest {
     /** @minItems 1 */
     userIds: string[];
 }
@@ -169,6 +177,16 @@ export interface DtoForgotPasswordRequest {
     loginName?: string;
     userId?: string;
     userName?: string;
+}
+
+export interface DtoGroupBoundUserSelectDTO {
+    email?: string;
+    firstName?: string;
+    label?: string;
+    lastName?: string;
+    userId?: string;
+    userName?: string;
+    value?: string;
 }
 
 export interface DtoGroupPageRequest {
@@ -246,6 +264,11 @@ export interface DtoImportJobPageRequest {
 export interface DtoImportJobPageResponse {
     list?: any;
     total?: number;
+}
+
+export interface DtoInitPasswordConfirmRequest {
+    initPassword: string;
+    token: string;
 }
 
 export interface DtoLogoutRequest {
@@ -370,16 +393,19 @@ export interface HandlerCurrentProfileResponse {
     company?: string;
     department?: string;
     email?: string;
+    failedLoginCount?: number;
     firstName?: string;
     /** null in example */
     groups?: any;
     id?: string;
     isConnected?: boolean;
+    isLocked?: boolean;
     /** "2026-03-02 11:16:41 GMT" */
     jwtExpiredAt?: string;
     /** same as ID in example */
     kcUserId?: string;
     lastName?: string;
+    lockedUntil?: string;
     mustResetPassword?: boolean;
     password?: string;
     phone?: string;
@@ -458,6 +484,7 @@ export interface HandlerServiceKeyPairResponse {
 export interface HandlerValidateResetTokenResponse {
     bizUserId?: string;
     expiredAt?: string;
+    tokenPurpose?: string;
     userId?: string;
     userName?: string;
     valid?: boolean;
@@ -574,6 +601,14 @@ export interface ServiceImportPreviewRow {
     warnings?: string[];
 }
 
+export interface ServiceLoginFailureState {
+    failedLoginCount?: number;
+    isLocked?: boolean;
+    lockedUntil?: string;
+    lockoutCount?: number;
+    remainingAttempts?: number;
+}
+
 export interface ServicePasswordPolicyConfig {
     containLowerAndUppercase?: boolean;
     containNumericDigits?: boolean;
@@ -615,6 +650,7 @@ export interface ServiceSessionRecord {
     serviceId?: string;
     sessionId?: string;
     tenantId?: string;
+    tokenPurpose?: string;
     userAgent?: string;
     userId?: string;
     userName?: string;
@@ -1028,6 +1064,29 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
+         * @description 仅校验 `forgot_password` 用途的临时令牌是否有效。
+         *
+         * @tags password
+         * @name PostAuthForgotPasswordValidate
+         * @summary 校验忘记密码令牌
+         * @request POST:/auth/forgot-password/validate
+         */
+        postAuthForgotPasswordValidate: (request: DtoValidateResetTokenRequest, params: RequestParams = {}) =>
+            this.request<
+                ResponseResponse & {
+                    data?: HandlerValidateResetTokenResponse;
+                },
+                ResponseResponse
+            >({
+                path: `/auth/forgot-password/validate`,
+                method: "POST",
+                body: request,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
          * @description Generate new ECC key pair for a service
          *
          * @tags auth
@@ -1074,6 +1133,77 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
+         * @description 使用初始化密码邮件中的临时令牌提交初始化密码，并将用户初始化状态更新为已完成。
+         *
+         * @tags password
+         * @name PostAuthInitPasswordConfirm
+         * @summary 确认初始化密码
+         * @request POST:/auth/init-password/confirm
+         */
+        postAuthInitPasswordConfirm: (request: DtoInitPasswordConfirmRequest, params: RequestParams = {}) =>
+            this.request<
+                ResponseResponse & {
+                    data?: boolean;
+                },
+                ResponseResponse
+            >({
+                path: `/auth/init-password/confirm`,
+                method: "POST",
+                body: request,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description 管理员按用户业务 ID 批量触发初始化密码邮件发送。接口默认返回成功，不暴露具体账户命中情况；仅当命中用户且配置了邮箱时，系统才会生成专属初始化 token 并发送邮件。
+         *
+         * @tags password
+         * @name PostAuthInitPasswordRequest
+         * @summary 批量发送初始化密码邮件
+         * @request POST:/auth/init-password/request
+         * @secure
+         */
+        postAuthInitPasswordRequest: (request: DtoBatchInitPasswordRequest, params: RequestParams = {}) =>
+            this.request<
+                ResponseResponse & {
+                    data?: boolean;
+                },
+                ResponseResponse
+            >({
+                path: `/auth/init-password/request`,
+                method: "POST",
+                body: request,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description 仅校验 `init_password` 用途的临时令牌是否有效。
+         *
+         * @tags password
+         * @name PostAuthInitPasswordValidate
+         * @summary 校验初始化密码令牌
+         * @request POST:/auth/init-password/validate
+         */
+        postAuthInitPasswordValidate: (request: DtoValidateResetTokenRequest, params: RequestParams = {}) =>
+            this.request<
+                ResponseResponse & {
+                    data?: HandlerValidateResetTokenResponse;
+                },
+                ResponseResponse
+            >({
+                path: `/auth/init-password/validate`,
+                method: "POST",
+                body: request,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
          * @description Authenticate user with username, password and serviceId
          *
          * @tags auth
@@ -1086,7 +1216,10 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
                 ResponseResponse & {
                     data?: Record<string, string>;
                 },
-                ResponseResponse
+                | ResponseResponse
+                | (ResponseResponse & {
+                      data?: ServiceLoginFailureState;
+                  })
             >({
                 path: `/auth/login`,
                 method: "POST",
@@ -1449,6 +1582,40 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
+         * @description 根据组业务 ID(groupId) 查询该组当前已绑定的有效用户下拉列表，返回 userId、userName、email、firstName、lastName 等字段。
+         *
+         * @tags group
+         * @name GetGroupsGroupidUsersSelect
+         * @summary 获取组已绑定用户下拉列表
+         * @request GET:/groups/{groupId}/users/select
+         */
+        getGroupsGroupidUsersSelect: (
+            groupId: string,
+            query?: {
+                /** Search keyword */
+                keyword?: string;
+                /** Optional user field name used as label. Supported: id,user_id,user_name,email,first_name,last_name */
+                label?: string;
+                /** Optional user field name used as value. Supported: id,user_id,user_name,email,first_name,last_name */
+                value?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<
+                ResponseResponse & {
+                    data?: DtoGroupBoundUserSelectDTO[];
+                },
+                ResponseResponse
+            >({
+                path: `/groups/${groupId}/users/select`,
+                method: "GET",
+                query: query,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
          * @description Soft delete a group and physically delete its user-group relations
          *
          * @tags group
@@ -1624,11 +1791,11 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description 校验忘记密码流程中的临时重置令牌是否有效。
+         * @description 仅校验 `forgot_password` 用途的临时令牌是否有效。
          *
          * @tags password
          * @name PostPasswordForgotValidate
-         * @summary 校验重置令牌
+         * @summary 校验忘记密码令牌
          * @request POST:/password/forgot/validate
          */
         postPasswordForgotValidate: (request: DtoValidateResetTokenRequest, params: RequestParams = {}) =>
@@ -1639,6 +1806,77 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
                 ResponseResponse
             >({
                 path: `/password/forgot/validate`,
+                method: "POST",
+                body: request,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description 使用初始化密码邮件中的临时令牌提交初始化密码，并将用户初始化状态更新为已完成。
+         *
+         * @tags password
+         * @name PostPasswordInitConfirm
+         * @summary 确认初始化密码
+         * @request POST:/password/init/confirm
+         */
+        postPasswordInitConfirm: (request: DtoInitPasswordConfirmRequest, params: RequestParams = {}) =>
+            this.request<
+                ResponseResponse & {
+                    data?: boolean;
+                },
+                ResponseResponse
+            >({
+                path: `/password/init/confirm`,
+                method: "POST",
+                body: request,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description 管理员按用户业务 ID 批量触发初始化密码邮件发送。接口默认返回成功，不暴露具体账户命中情况；仅当命中用户且配置了邮箱时，系统才会生成专属初始化 token 并发送邮件。
+         *
+         * @tags password
+         * @name PostPasswordInitRequest
+         * @summary 批量发送初始化密码邮件
+         * @request POST:/password/init/request
+         * @secure
+         */
+        postPasswordInitRequest: (request: DtoBatchInitPasswordRequest, params: RequestParams = {}) =>
+            this.request<
+                ResponseResponse & {
+                    data?: boolean;
+                },
+                ResponseResponse
+            >({
+                path: `/password/init/request`,
+                method: "POST",
+                body: request,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description 仅校验 `init_password` 用途的临时令牌是否有效。
+         *
+         * @tags password
+         * @name PostPasswordInitValidate
+         * @summary 校验初始化密码令牌
+         * @request POST:/password/init/validate
+         */
+        postPasswordInitValidate: (request: DtoValidateResetTokenRequest, params: RequestParams = {}) =>
+            this.request<
+                ResponseResponse & {
+                    data?: HandlerValidateResetTokenResponse;
+                },
+                ResponseResponse
+            >({
+                path: `/password/init/validate`,
                 method: "POST",
                 body: request,
                 type: ContentType.Json,
@@ -2196,22 +2434,39 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description Get list of users for dropdown selection
+         * @description Get list of users for dropdown selection. Optional label/value query params can specify user table field names; defaults to label=user_name and value=user_id.
          *
          * @tags user
          * @name GetUsersSelect
          * @summary Get User Dropdown List
          * @request GET:/users/select
          */
-        getUsersSelect: (params: RequestParams = {}) =>
+        getUsersSelect: (
+            query?: {
+                /** Search keyword */
+                keyword?: string;
+                /** Page number, starts from 0. Default: 0 */
+                pageNum?: number;
+                /** Page size. Default: 20, max: 50 */
+                pageSize?: number;
+                /** Legacy alias of pageSize. Used only when pageSize is not provided */
+                limit?: number;
+                /** User table field name used as option label. Supported: id,user_id,user_name,email,phone,first_name,last_name,status,user_level. Default: user_name */
+                label?: string;
+                /** User table field name used as option value. Supported: id,user_id,user_name,email,phone,first_name,last_name,status,user_level. Default: user_id */
+                value?: string;
+            },
+            params: RequestParams = {},
+        ) =>
             this.request<
                 ResponseResponse & {
                     data?: DtoSelectOptionDTO[];
                 },
-                any
+                ResponseResponse
             >({
                 path: `/users/select`,
                 method: "GET",
+                query: query,
                 type: ContentType.Json,
                 format: "json",
                 ...params,

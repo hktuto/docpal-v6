@@ -77,7 +77,7 @@ import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
-const { fetchUsersPage, batchActiveUsers, batchDeleteUsers, fetchLicenseUserCount, openUserDetail, sendInvitation } = useAdminUser()
+const { fetchUsersPage, batchActiveUsers, batchDeleteUsers, fetchLicenseUserCount, openUserDetail, sendInvitation, unlockUser } = useAdminUser()
 
 const filterParams = ref<Record<string, any>>({})
 
@@ -134,7 +134,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'sendInvitation',
         name: 'Send Invitation',
         action: ({ row }: any) => {
-          if (row.registered === 'Pending') sendInvitation(row)
+          sendInvitation(row)
         }
       },
       {
@@ -143,13 +143,20 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         visible: true,
         disabled: false,
         action: ({ row }: any) => handleDelete([row])
+      },
+      {
+        code: 'unlock_user',
+        name: 'Unlock User',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => handleUnlock(row)
       }
     ]
   ],
   permissionMethod: ({ row, code }) => {
     if (code === 'sendInvitation') {
       return {
-        visible: row.registered === 'Pending',
+        visible: !row.registered,
         disabled: false
       }
     }
@@ -194,7 +201,17 @@ function handleFilterFormChange(formModel: any) {
   filterParams.value = { ...formModel }
   reload()
 }
-
+async function handleUnlock(row: any) {
+  if (!row?.userId) return
+  try {
+    const res = await unlockUser(row.userId).then((r) => r.data)
+    if (res) {
+      routerProvider?.message.success(t('commons_success'))
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
 async function handleDelete(rows?: any[]) {
   const targets = rows?.length ? rows : state.selectList
   const userIds = targets.map((item: any) => item.userId).filter(Boolean)

@@ -39,144 +39,61 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
-import { newClientApi, gatewayApi } from 'api'
+import { gatewayApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
 const formRef = ref()
-const form = reactive({
-  newPassword: '',
-  confirmPassword: ''
-})
-const ready = ref(false)
-const passwordPolicy = ref<any>({})
-const rules = ref<any>({})
 const router = useRouter()
+const route = useRoute()
+const id = ref('')
 
-async function getPasswordPolicy() {
-  let config: any = {}
-  try {
-    config = await gatewayApi.password.getPasswordPolicy({
-      serviceId: 'docpal'
-    }).then((res) => res.data)
-  } catch (e) {
-    console.error(e)
-  }
-  passwordPolicy.value = {
-    minPasswordLength: 8,
-    containLowerAndUppercase: true,
-    containNumericDigits: true,
-    containSpecialCharacters: true,
-    ...config
-  }
-}
+const { form, passwordPolicy, rules, ready, initPasswordPolicyForm } = usePasswordPolicyForm()
 
 async function onSubmit() {
   try {
     await formRef.value.validate()
-    const res = await newClientApi.postUcenterPasswordInitPassword({
-      password: form.newPassword
-    }).then((res) => res.data)
+    const res = await gatewayApi.password
+      .postPasswordReset({
+        userId: id.value,
+        newPassword: form.newPassword
+      })
+      .then((res) => res.data)
     if (!!res) {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('token')
       ElMessage.success(t('passwordPolicy.updatePasswordSuccess'))
-
-      window.location.href = window.location.origin
-      // router.push('/')
+      clearAuthSession()
+      router.push({ path: '/login' })
     }
   } catch (e) {
     console.error(e)
-    return
   }
 }
 
 function parseJwt(token: string) {
-  if (!token) {
-    return
-  }
+  if (!token) return
   const base64Url = token.split('.')[1]
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
   return JSON.parse(window.atob(base64))
 }
 
-const route = useRoute()
-
-const id = ref('')
 onMounted(async () => {
   const token = route.query.token
   if (!token) {
-    ElMessage.error(t('no token provided'))
-    router.push({
-      path: '/login'
-    })
+    ElMessage.error(t('passwordPolicy.noTokenProvided'))
+    router.push({ path: '/login' })
     return
   }
   const decodedToken = parseJwt(token as string)
   if (!decodedToken) {
-    ElMessage.error(t('no token provided'))
-    router.push({
-      path: '/login'
-    })
+    ElMessage.error(t('passwordPolicy.noTokenProvided'))
+    router.push({ path: '/login' })
     return
   }
 
   id.value = decodedToken.userId
-  // get user detail from decodedToken
   localStorage.setItem('access_token', token as string)
   localStorage.setItem('token', token as string)
-  await getPasswordPolicy()
-  // Need to wait for translation 
-  rules.value = {
-    newPassword: [
-      {
-        required: true,
-        message: t('render.hint.fieldRequired', { name: t('passwordPolicy.newPassword') }),
-        trigger: 'blur'
-      }
-    ],
-    confirmPassword: [
-      {
-        required: true,
-        message: t('render.hint.fieldRequired', { name: t('passwordPolicy.confirmPassword') }),
-        trigger: 'blur'
-      },
-      {
-        validator: (rule: any, value: string) => value === form.newPassword,
-        message: t('tip.inputUserPasswordMatch'),
-        trigger: 'blur'
-      }
-    ]
-  }
-  if (passwordPolicy.value.containLowerAndUppercase) {
-    rules.value.newPassword.push({
-      validator: (rule: any, value: string) => {
-        return /^(?=.*[a-z])(?=.*[A-Z]).*$/.test(value)
-      },
-      message: t('passwordPolicy.containLowerAndUppercase'),
-      trigger: 'blur'
-    })
-  }
-  if (passwordPolicy.value.containNumericDigits) {
-    rules.value.newPassword.push({
-      validator: (rule: any, value: string) => {
-        return /.*[0-9].*/.test(value)
-      },
-      message: t('passwordPolicy.containNumericDigits'),
-      trigger: 'blur'
-    })
-  }
-  if (passwordPolicy.value.containSpecialCharacters) {
-    rules.value.newPassword.push({
-      validator: (rule: any, value: string) => {
-        return /^(?=.*[!@#$%^&*()\-+=\[\]{}:;'",.<>/\\|]).+$/.test(value)
-      },
-      message: t('passwordPolicy.containSpecialCharacters'),
-      trigger: 'blur'
-    })
-  }
-  ready.value = true
+  await initPasswordPolicyForm()
 })
 </script>
 

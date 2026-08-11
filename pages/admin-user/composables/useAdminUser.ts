@@ -93,6 +93,10 @@ export function useAdminUser() {
     return gatewayApi.password.postPasswordReset(params)
   }
 
+  function unlockUser(userId: string) {
+    return gatewayApi.password.postPasswordUnlockUser({ userId })
+  }
+
   async function fetchGroupList() {
     return await gatewayApi.groups.getGroupsSelect().then((r) => r.data ?? [])
   }
@@ -135,12 +139,15 @@ export function useAdminUser() {
     )
   }
 
-  async function sendInvitation(data: any) {
-    if (!data.registered) {
-      throw new Error('only non-register user can be invite')
+  async function sendInvitation(users: any | any[]) {
+    const list = (Array.isArray(users) ? users : [users]).filter((user) => user?.userId && !user.registered)
+    const userIds = list.map((user) => user.userId)
+    if (!userIds.length) {
+      ElMessage.warning('Non-register user can be invite')
+      return
     }
-    // TODO: 接入真实邀请接口
-    ElMessage.success('Invitation sent successfully')
+    const res = await gatewayApi.auth.postAuthInitPasswordRequest({ userIds }).then((r) => r.data)
+    if (res) ElMessage.success('Invitation sent successfully')
   }
 
   return {
@@ -155,6 +162,7 @@ export function useAdminUser() {
     batchUserRemoveGroups,
     fetchUserGroups,
     updateUserPassword,
+    unlockUser,
     fetchGroupList,
     openUserDetail,
     openUserList,
