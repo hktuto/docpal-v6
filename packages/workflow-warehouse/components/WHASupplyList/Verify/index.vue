@@ -1,11 +1,12 @@
 ﻿<template>
   <div class="verification">
-       <WHASupplyListVerifyList v-show="false" />
-     <!-- <h3 class="title">{{ $t('workflowWarehouse.title') }}</h3>
-    <small class="description">{{ $t('workflowWarehouse.description') }}</small>  -->
-    <el-splitter class="container mg-top" layout="vertical">
-
-      <el-splitter-panel class="mg-right preview-panel"  :collapsible="isCollapsible" min="50" >
+    <h3 class="title">{{ $t('workflowWarehouse.title') }}</h3>
+    <small class="description">{{ $t('workflowWarehouse.description') }}</small>
+    <el-splitter class="container mg-top">
+      <el-splitter-panel class="mg-right" size="7%" :collapsible="false" :min="50">
+        <WHASupplyListVerifyList />
+      </el-splitter-panel>
+      <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200" >
         <WorkflowPreview :doc-id="docId">
           <template #title>
             <el-tabs v-model="docId" class="preview-file-tabs">
