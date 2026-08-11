@@ -5,152 +5,7 @@ const { disabled, formData, options } = defineProps<{
   options: any
 }>()
 
-const part_list = ref<any[]>([
-  {
-    line_number: 1,
-    quantity_return: 10,
-    shipment_number: 'SHP-2026-0001',
-    quantity_ordered: 100,
-    tax_code: 'VAT0',
-    request_date: '2026-07-01',
-    quantity_cancelled: 0,
-    customer_po_line: 'PO-LINE-01',
-    uom: 'PCS',
-    tax_amount: 0,
-    promise_date: '2026-07-15',
-    quantity_shipped: 100,
-    customer_item: 'CUST-PN-3002B',
-    customer_unit_price: 12.5,
-    lead_time: 14,
-    schedule_ship_date: '2026-07-10',
-    po_remarks: 'Partial return - damaged packaging',
-    ordered_item: 'KOA/RS73F1JTTD 3002B',
-    unit_price: 12.5,
-    reference: 'RMA-REF-001',
-    schedule_arrival_date: '2026-07-20',
-    sub_inventory: 'FG'
-  },
-  {
-    line_number: 2,
-    quantity_return: 25,
-    shipment_number: 'SHP-2026-0001',
-    quantity_ordered: 250,
-    tax_code: 'VAT5',
-    request_date: '2026-07-02',
-    quantity_cancelled: 5,
-    customer_po_line: 'PO-LINE-02',
-    uom: 'PCS',
-    tax_amount: 10.31,
-    promise_date: '2026-07-18',
-    quantity_shipped: 245,
-    customer_item: 'CUST-PN-3001B25',
-    customer_unit_price: 8.25,
-    lead_time: 10,
-    schedule_ship_date: '2026-07-12',
-    po_remarks: 'Wrong quantity shipped',
-    ordered_item: 'KOA/RN73H1JTTD 3001B25',
-    unit_price: 8.25,
-    reference: 'RMA-REF-002',
-    schedule_arrival_date: '2026-07-22',
-    sub_inventory: 'FG'
-  },
-  {
-    line_number: 3,
-    quantity_return: 5,
-    shipment_number: 'SHP-2026-0002',
-    quantity_ordered: 50,
-    tax_code: 'VAT0',
-    request_date: '2026-07-03',
-    quantity_cancelled: 0,
-    customer_po_line: 'PO-LINE-03',
-    uom: 'PCS',
-    tax_amount: 0,
-    promise_date: '2026-07-20',
-    quantity_shipped: 50,
-    customer_item: 'CUST-PN-3002B-WIP',
-    customer_unit_price: 42.8,
-    lead_time: 21,
-    schedule_ship_date: '2026-07-15',
-    po_remarks: 'Quality issue - failed inspection',
-    ordered_item: 'KOA/RS73F1JTTD 3002B',
-    unit_price: 42.8,
-    reference: 'RMA-REF-003',
-    schedule_arrival_date: '2026-07-25',
-    sub_inventory: 'WIP'
-  },
-  {
-    line_number: 4,
-    quantity_return: 80,
-    shipment_number: 'SHP-2026-0003',
-    quantity_ordered: 1000,
-    tax_code: 'VAT8',
-    request_date: '2026-07-05',
-    quantity_cancelled: 20,
-    customer_po_line: 'PO-LINE-04',
-    uom: 'PCS',
-    tax_amount: 96,
-    promise_date: '2026-07-25',
-    quantity_shipped: 980,
-    customer_item: 'CUST-PN-3002B-RM',
-    customer_unit_price: 1.2,
-    lead_time: 7,
-    schedule_ship_date: '2026-07-18',
-    po_remarks: 'Customer order cancellation',
-    ordered_item: 'KOA/RS73F1JTTD 3002B',
-    unit_price: 1.2,
-    reference: 'RMA-REF-004',
-    schedule_arrival_date: '2026-07-28',
-    sub_inventory: 'RM'
-  },
-  {
-    line_number: 5,
-    quantity_return: 15,
-    shipment_number: 'SHP-2026-0004',
-    quantity_ordered: 80,
-    tax_code: 'VAT5',
-    request_date: '2026-07-08',
-    quantity_cancelled: 0,
-    customer_po_line: 'PO-LINE-05',
-    uom: 'PCS',
-    tax_amount: 17.85,
-    promise_date: '2026-07-28',
-    quantity_shipped: 80,
-    customer_item: 'CUST-PN-3002B-TW',
-    customer_unit_price: 23.8,
-    lead_time: 12,
-    schedule_ship_date: '2026-07-22',
-    po_remarks: 'Label mismatch',
-    ordered_item: 'KOA/RS73F1JTTD 3002B',
-    unit_price: 23.8,
-    reference: 'RMA-REF-005',
-    schedule_arrival_date: '2026-08-01',
-    sub_inventory: 'FG'
-  },
-  {
-    line_number: 6,
-    quantity_return: 30,
-    shipment_number: 'SHP-2026-0005',
-    quantity_ordered: 120,
-    tax_code: 'VAT0',
-    request_date: '2026-07-10',
-    quantity_cancelled: 10,
-    customer_po_line: 'PO-LINE-06',
-    uom: 'PCS',
-    tax_amount: 0,
-    promise_date: '2026-07-30',
-    quantity_shipped: 110,
-    customer_item: 'CUST-PN-3002B-SG',
-    customer_unit_price: 30,
-    lead_time: 18,
-    schedule_ship_date: '2026-07-25',
-    po_remarks: 'Surplus stock return',
-    ordered_item: 'KOA/RS73F1JTTD 3002B',
-    unit_price: 30,
-    reference: 'RMA-REF-006',
-    schedule_arrival_date: '2026-08-05',
-    sub_inventory: 'FG'
-  }
-])
+const part_list = ref<any[]>([])
 const returnMerchandiseApprovalDialogRef = ref()
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'returnMerchandiseApprovalTableSetting',
@@ -315,6 +170,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   optionalConfig: {}
 })
 
+function init() {
+  part_list.value = formData.order_item_list
+  reload()
+}
+
 async function getFormData(needValidation = true) {
   const list = deepCopy(part_list.value).map((item: any) => {
     delete item['_X_ROW_KEY']
@@ -332,6 +192,16 @@ async function getFormData(needValidation = true) {
 function handleDblClick(row: any) {
   returnMerchandiseApprovalDialogRef.value.open(row)
 }
+
+watch(
+  () => formData.order_item_list,
+  (value) => {
+    if (!!value && value.length > 0) {
+      init()
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 defineExpose({ getFormData })
 </script>
