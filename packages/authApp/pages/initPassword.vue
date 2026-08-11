@@ -46,17 +46,21 @@ const { t } = useI18n()
 const formRef = ref()
 const router = useRouter()
 const route = useRoute()
-const id = ref('')
+const tokenRef = ref('')
 
 const { form, passwordPolicy, rules, ready, initPasswordPolicyForm } = usePasswordPolicyForm()
 
 async function onSubmit() {
   try {
     await formRef.value.validate()
-    const res = await gatewayApi.password
-      .postPasswordReset({
-        userId: id.value,
-        newPassword: form.newPassword
+    if (!tokenRef.value) {
+      ElMessage.error(t('passwordPolicy.noTokenProvided'))
+      return
+    }
+    const res = await gatewayApi.auth
+      .postAuthInitPasswordConfirm({
+        token: tokenRef.value,
+        initPassword: form.newPassword
       })
       .then((res) => res.data)
     if (!!res) {
@@ -69,13 +73,6 @@ async function onSubmit() {
   }
 }
 
-function parseJwt(token: string) {
-  if (!token) return
-  const base64Url = token.split('.')[1]
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-  return JSON.parse(window.atob(base64))
-}
-
 onMounted(async () => {
   const token = route.query.token
   if (!token) {
@@ -83,16 +80,7 @@ onMounted(async () => {
     router.push({ path: '/login' })
     return
   }
-  const decodedToken = parseJwt(token as string)
-  if (!decodedToken) {
-    ElMessage.error(t('passwordPolicy.noTokenProvided'))
-    router.push({ path: '/login' })
-    return
-  }
-
-  id.value = decodedToken.userId
-  localStorage.setItem('access_token', token as string)
-  localStorage.setItem('token', token as string)
+  tokenRef.value = token as string
   await initPasswordPolicyForm()
 })
 </script>

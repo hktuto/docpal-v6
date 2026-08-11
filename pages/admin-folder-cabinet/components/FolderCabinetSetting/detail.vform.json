@@ -20508,7 +20508,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "const _this = this\nconst needUserList = [\n  'notificationReminder.tos',\n  'emailReminder.tos',\n  'emailReminder.ccs',\n  'emailReport.tos',\n  'emailReport.ccs'\n]\n$api.get('/users/select', { baseURL: '/gateway/v1' }).then(res => {\n  res = res.data.data\n  const result = []\n  res.forEach(item => {\n    if(item.value) {\n      result.push({\n        label: item.label,\n        value: item.value\n      })\n    }\n  })\n  result.sort((a, b) => a.label.localeCompare(b.label))\n  result.unshift({\n     value: 'createBy',\n     label: $t('role.creator')\n  })\n  needUserList.forEach(key => {\n    const keyRef = _this.getWidgetRef(key)\n    if(!!keyRef) keyRef.loadOptions(result)\n  })\n}).catch(err => {\n})",
+                "onMounted": "const _this = this\nconst needUserList = [\n  'notificationReminder.tos',\n  'emailReminder.tos',\n  'emailReminder.ccs',\n  'emailReport.tos',\n  'emailReport.ccs'\n]\n$api.get('/users/select', { baseURL: '/gateway' }).then(res => {\n  res = res.data.data\n  const result = []\n  res.forEach(item => {\n    if(item.value) {\n      result.push({\n        label: item.label,\n        value: item.value\n      })\n    }\n  })\n  result.sort((a, b) => a.label.localeCompare(b.label))\n  result.unshift({\n     value: 'createBy',\n     label: $t('role.creator')\n  })\n  needUserList.forEach(key => {\n    const keyRef = _this.getWidgetRef(key)\n    if(!!keyRef) keyRef.loadOptions(result)\n  })\n}).catch(err => {\n})",
                 "onRemoteQuery": "",
                 "onChange": "",
                 "onFocus": "",

@@ -136,15 +136,8 @@ const config = {
           'accept-encoding': 'identity'
         }
       },
+      // ucenter gateway v1 → DOCPAL_GATEWAY_PROXY_V1；旧 gateway 请用 /apis
       '/gateway': {
-        target: process.env.DOCPAL_GATEWAY_PROXY,
-        changeOrigin: true,
-        prependPath: true,
-        headers: {
-          'accept-encoding': 'identity'
-        }
-      },
-      '/gateway/v1': {
         target: process.env.DOCPAL_GATEWAY_PROXY_V1,
         changeOrigin: true,
         prependPath: true,

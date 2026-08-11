@@ -8,7 +8,7 @@ export type { MenuDTO, MenuRequestDTO, ResultListMenuDTO } from './generate/newC
 let clientBaseURL = '/'
 // let publicBaseURL = '/public-api/report/v1/api'
 let templateBaseURL = '/open-api/template'
-let gatewayBaseURL = '/gateway/v1'
+let gatewayBaseURL = '/gateway'
 export const clientApi = new Standard({
   baseURL: clientBaseURL,
   timeout: 50000
@@ -63,14 +63,12 @@ export interface DynamicActionsRequestBody {
 }
 
 export function postDynamicActions(body: DynamicActionsRequestBody) {
-  // 使用相对 path，便于 dev 走 Vite 代理、生产在拦截器里把 baseURL 换成 DOCPAL_GATEWAY_PROXY
   return clientApi.instance.post('/v1/dynamic-actions', body, {
-    baseURL: '/gateway',
+    baseURL: '/apis',
     headers: {
-        'Content-Type': 'application/json'
-      }
+      'Content-Type': 'application/json'
     }
-  )
+  })
 }
 
 // if node env mode is dev set proxy

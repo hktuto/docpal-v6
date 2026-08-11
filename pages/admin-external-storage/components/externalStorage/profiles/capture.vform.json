@@ -627,7 +627,7 @@
           },
           {
             "value": "Income Statement",
-            "label": "损益表"
+            "label": "损益�?
           },
           {
             "value": "Escalation Procedure",
@@ -1051,7 +1051,7 @@
         "optionItems": [
           {
             "value": "user_groups",
-            "label": "分配的用户群组",
+            "label": "分配的用户群�?,
             "options": [
               {
                 "label": "Adhoc Group",
@@ -1197,12 +1197,12 @@
         "selectSetting": {
           "userApi": "/users/select",
           "userMethod": "get",
-          "userBaseURL": "/gateway/v1",
+          "userBaseURL": "/gateway",
           "userValueKey": "value",
           "userLabelKey": "label",
           "groupApi": "/groups/select",
           "groupMethod": "get",
-          "groupBaseURL": "/gateway/v1",
+          "groupBaseURL": "/gateway",
           "groupValueKey": "value",
           "groupLabelKey": "label"
         },
@@ -1214,7 +1214,7 @@
         "labelIconClass": null,
         "labelIconPosition": "rear",
         "labelTooltip": null,
-        "onCreated": "const _this = this\nasync function getOptions() {\n  const options = [\n        { value: 'user_groups', label: $i18n.t('user_groups'), options: await groupListFilter() },\n        { value: 'user_users', label: $i18n.t('user_users'), options: await userListFilter() }\n  ]\n  _this.loadOptions(options)\n}\nasync function userListFilter () {\n  const data = await $api.get('/users/select', { baseURL: '/gateway/v1' }).then(res => res.data.data)\n  return data.reduce((prev,item) => {\n    if (item.value) prev.push({\n      label: item.label,\n      value: item.value\n    })\n    return prev\n  }, [])\n}\nasync function groupListFilter () {\n  const data = await $api.get('/groups/select', { baseURL: '/gateway/v1' }).then(res => res.data.data)\n  return data.reduce((prev,item) => {\n    if (item.value) prev.push({\n      label: item.label,\n      value: item.value\n    })\n    return prev\n  }, [])\n}\ngetOptions()",
+        "onCreated": "const _this = this\nasync function getOptions() {\n  const options = [\n        { value: 'user_groups', label: $i18n.t('user_groups'), options: await groupListFilter() },\n        { value: 'user_users', label: $i18n.t('user_users'), options: await userListFilter() }\n  ]\n  _this.loadOptions(options)\n}\nasync function userListFilter () {\n  const data = await $api.get('/users/select', { baseURL: '/gateway' }).then(res => res.data.data)\n  return data.reduce((prev,item) => {\n    if (item.value) prev.push({\n      label: item.label,\n      value: item.value\n    })\n    return prev\n  }, [])\n}\nasync function groupListFilter () {\n  const data = await $api.get('/groups/select', { baseURL: '/gateway' }).then(res => res.data.data)\n  return data.reduce((prev,item) => {\n    if (item.value) prev.push({\n      label: item.label,\n      value: item.value\n    })\n    return prev\n  }, [])\n}\ngetOptions()",
         "onMounted": "",
         "onRemoteQuery": "",
         "onChange": "",

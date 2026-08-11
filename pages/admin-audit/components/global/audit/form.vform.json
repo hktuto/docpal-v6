@@ -379,7 +379,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "const _this = this\n$api.get('/users/select', { baseURL: '/gateway/v1' }).then(res => {\n  const reponse = res.data.data.reduce((prev, item) => {\n    if(item.value) {\n      prev.push({\n        value: item.value,\n        label: item.label\n      })\n    }\n   return prev\n  }, [])\n  _this.loadOptions(reponse)\n}).catch(err => {\n})",
+                "onMounted": "const _this = this\n$api.get('/users/select', { baseURL: '/gateway' }).then(res => {\n  const reponse = res.data.data.reduce((prev, item) => {\n    if(item.value) {\n      prev.push({\n        value: item.value,\n        label: item.label\n      })\n    }\n   return prev\n  }, [])\n  _this.loadOptions(reponse)\n}).catch(err => {\n})",
                 "onRemoteQuery": "",
                 "onChange": "",
                 "onFocus": "",

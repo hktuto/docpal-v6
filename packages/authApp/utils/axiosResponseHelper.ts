@@ -13,19 +13,17 @@ function resolveBaseUrl(baseURL: string) {
     public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DOCPAL_GATEWAY_PROXY, DOCPAL_GATEWAY_PROXY_V1 }
   } = useRuntimeConfig()
 
-  const gateway = (DOCPAL_GATEWAY_PROXY as string) || '/apis'
   const map: Record<string, string> = {
     '/dashboard': DASHBOARD_PROXY || '/public-api/report/v1/api',
     '/client': CLIENT_PROXY || '/api',
     '/admin/api': ADMIN_PROXY || '/admin/api',
     '/adminApi/api': ADMIN_PROXY || '/admin/api',
-    '/apis': gateway,
+    '/apis': (DOCPAL_GATEWAY_PROXY as string) || '/apis',
     '/api': PROXY || '/api',
     '/docpalApi': PROXY || '/api',
     '/public-api/report/v1/api': DASHBOARD_PROXY || '/public-api/report/v1/api',
     '/open-api/template': (OPEN_PROXY as string) || '/open-api/template',
-    '/gateway': gateway,
-    '/gateway/v1': (DOCPAL_GATEWAY_PROXY_V1 as string) || '/apis/v1/ucenter'
+    '/gateway': (DOCPAL_GATEWAY_PROXY_V1 as string) || '/apis/v1/ucenter'
   }
 
   return map[baseURL] || baseURL

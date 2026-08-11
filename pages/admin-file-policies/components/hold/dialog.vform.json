@@ -272,7 +272,7 @@
                         "labelIconPosition": "rear",
                         "labelTooltip": null,
                         "onCreated": "",
-                        "onMounted": "const _this = this\nconst removeApprovalId = this.getWidgetRef('removeApprovalId')\n$api.get('/users/select', { baseURL: '/gateway/v1' }).then(res => {\n  res = res.data.data\n  const result = []\n  res.forEach(item => {\n    if(item.value) {\n      result.push({\n        label: item.label,\n        value: item.value\n      })\n    }\n  })\n  result.sort((a, b) => a.label.localeCompare(b.label))\n  _this.loadOptions(result)\n  removeApprovalId.loadOptions(result)\n}).catch(err => {\n})",
+                        "onMounted": "const _this = this\nconst removeApprovalId = this.getWidgetRef('removeApprovalId')\n$api.get('/users/select', { baseURL: '/gateway' }).then(res => {\n  res = res.data.data\n  const result = []\n  res.forEach(item => {\n    if(item.value) {\n      result.push({\n        label: item.label,\n        value: item.value\n      })\n    }\n  })\n  result.sort((a, b) => a.label.localeCompare(b.label))\n  _this.loadOptions(result)\n  removeApprovalId.loadOptions(result)\n}).catch(err => {\n})",
                         "onRemoteQuery": "",
                         "onChange": "",
                         "onFocus": "",

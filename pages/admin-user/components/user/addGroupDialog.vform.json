@@ -44,7 +44,7 @@
         "onCreatedSetting": "async-select",
         "onChangeSetting": true,
         "onCreated": "",
-        "onCreatedPlus": "const _this = this\nconst filterKey = 'undefined'\nasync function getList() {\n  try {\n    const data = await $api.get('/groups/select', {params: {}, baseURL: '/gateway/v1'}).then(res => res.data.data)\n    return data.reduce((prev, item) => {\n      if(!item.value || !item.label || prev.find(p => p.value === item.value)) return prev \n      const resultItem = {\n        value: item.value,\n        label: item.label || '' \n      }\n      if(filterKey === 'masterTableColumn') resultItem.disabled = !item.status\n      prev.push(resultItem) \n      return prev\n    }, []).sort((a,b)=> (a.label.localeCompare(b.label) ))\n  } catch (e) { return [] }\n}\nasync function init() {\n  const options = await getList()\n  _this.loadOptions(options)\n}\ninit()",
+        "onCreatedPlus": "const _this = this\nconst filterKey = 'undefined'\nasync function getList() {\n  try {\n    const data = await $api.get('/groups/select', {params: {}, baseURL: '/gateway'}).then(res => res.data.data)\n    return data.reduce((prev, item) => {\n      if(!item.value || !item.label || prev.find(p => p.value === item.value)) return prev \n      const resultItem = {\n        value: item.value,\n        label: item.label || '' \n      }\n      if(filterKey === 'masterTableColumn') resultItem.disabled = !item.status\n      prev.push(resultItem) \n      return prev\n    }, []).sort((a,b)=> (a.label.localeCompare(b.label) ))\n  } catch (e) { return [] }\n}\nasync function init() {\n  const options = await getList()\n  _this.loadOptions(options)\n}\ninit()",
         "onMounted": "",
         "onRemoteQuery": "",
         "onChange": "",

@@ -120,7 +120,7 @@ async function loadPermissions() {
   try {
     const { data } = await clientApi.instance
       .get(`/v2/acl/resource-permissions/resource/${currentWorkflowId.value}`, {
-        baseURL: '/gateway',
+        baseURL: '/apis',
         params: {
           resourceType: 3
         }
@@ -197,7 +197,7 @@ async function handleAddPermission() {
         permissionLevel: 'default'
       },
       {
-        baseURL: '/gateway'
+        baseURL: '/apis'
       }
     )
     ElMessage.success(t('dpMsg_success'))
@@ -224,7 +224,7 @@ async function handleRemovePermission(row: PermissionRow) {
       type: 'warning'
     })
     await clientApi.instance.delete(`/v2/acl/resource-permissions/${row.id}`, {
-      baseURL: '/gateway'
+      baseURL: '/apis'
     })
     ElMessage.success(t('dpMsg_success'))
     await loadPermissions()

@@ -18,7 +18,7 @@ async function getOptions() {
   }
 }
 async function getUserList() {
-  const data = await $api.get('/users/select', { baseURL: '/gateway/v1' }).then((res) => res.data.data)
+  const data = await $api.get('/users/select', { baseURL: '/gateway' }).then((res) => res.data.data)
   return data.reduce((prev, item) => {
     if (item.value)
       prev.push({
@@ -30,7 +30,7 @@ async function getUserList() {
   }, [])
 }
 async function getGroupList() {
-  const data = await $api.get('/groups/select', { baseURL: '/gateway/v1' }).then((res) => res.data.data)
+  const data = await $api.get('/groups/select', { baseURL: '/gateway' }).then((res) => res.data.data)
   return data.reduce((prev, item) => {
     if (item.value)
       prev.push({

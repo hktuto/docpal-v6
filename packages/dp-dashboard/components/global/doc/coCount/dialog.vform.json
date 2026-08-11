@@ -164,7 +164,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "$api.get('/users/select', { baseURL: '/gateway/v1' }).then(res => {\n   res = res.data.data\n  const reponse = res.map(item => ({\n    value: item.value,\n    label: item.label\n  }))\n  this.loadOptions(reponse)\n}).catch(err => {\n})",
+                "onMounted": "$api.get('/users/select', { baseURL: '/gateway' }).then(res => {\n   res = res.data.data\n  const reponse = res.map(item => ({\n    value: item.value,\n    label: item.label\n  }))\n  this.loadOptions(reponse)\n}).catch(err => {\n})",
                 "onRemoteQuery": "",
                 "onChange": "",
                 "onFocus": "",

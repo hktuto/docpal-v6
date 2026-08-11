@@ -54,7 +54,7 @@ export async function getWorkflowList() {
     const userId = useUserId()
     return await clientApi.instance
       .get('v1/dynamic-actions/acl/query', {
-        baseURL: '/gateway',
+        baseURL: '/apis',
         headers: {
           'Content-Type': 'application/json'
         },
