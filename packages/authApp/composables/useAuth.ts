@@ -7,17 +7,26 @@ import type { UserDTO } from 'api/src/generate/client'
 export const useDesktopMode = () => useState<boolean>('is-desktop')
 export const useUserState = () => useState<UserDTO | null>('auth-user')
 
-export const usePublicPageState = () =>
-  useState<string[]>('auth-public-page', () => [
-    '/forgetPassword',
-    '/forgetPassword/',
-    '/resetPassword/',
-    '/resetPassword',
-    '/login/',
-    '/login',
-    '/initPassword/',
-    '/initPassword',
-  ])
+/** 无需登录即可访问的认证页 */
+export const AUTH_PUBLIC_PATHS = ['/login', '/forgetPassword', '/resetPassword', '/initPassword'] as const
+
+/** 跳转登录时不应作为 redirect 回写的路径 */
+export const AUTH_IGNORE_REDIRECT_PATHS = [...AUTH_PUBLIC_PATHS, '/admin'] as const
+
+export function normalizeAuthPath(path: string) {
+  const bare = (path || '/').split('?')[0]
+  return bare.length > 1 && bare.endsWith('/') ? bare.slice(0, -1) : bare
+}
+
+export function isPublicPath(pathname: string) {
+  const p = normalizeAuthPath(pathname)
+  return (AUTH_PUBLIC_PATHS as readonly string[]).includes(p) || p.startsWith('/public')
+}
+
+export function shouldIgnoreAuthRedirect(pathname: string) {
+  return (AUTH_IGNORE_REDIRECT_PATHS as readonly string[]).includes(normalizeAuthPath(pathname))
+}
+
 export const useLoginHook = () => useState<any>(() => shallowRef([]))
 
 export const useUserId = () => useState<string>(() => '')
@@ -30,9 +39,7 @@ export const useIsAdmin = () => useState<boolean>('auth-is-admin', () => false)
 export const useIsSuperAdmin = () => useState<boolean>('auth-is-super-admin', () => true)
 export const useIsMac = () => useState<boolean>('auth-is-mac', () => false)
 
-export type LoginWithPasswordResult =
-  | { ok: true; passwordResetRequired?: boolean }
-  | { ok: false; reason: 'locked' | 'invalid'; message: string }
+export type LoginWithPasswordResult = { ok: true; passwordResetRequired?: boolean } | { ok: false; reason: 'locked' | 'invalid'; message: string }
 
 export const useAuth = () => {
   const loggedIn = useLoginState()
@@ -62,7 +69,6 @@ export async function verifly() {
   logedIn.value = true
   const { access_token } = useToken()
   const decodedToken = parseJwt(access_token.value || localStorage.getItem('access_token') || '')
-
   if (decodedToken && decodedToken.roles) {
     const isAdmin = useIsAdmin()
     const isSuperAdmin = useIsSuperAdmin()
@@ -85,10 +91,7 @@ function parseJwt(token: string) {
 }
 
 /** 账号密码登录：登录 API → setToken → verifly → checkPassword */
-export async function loginWithPassword(
-  username: string,
-  password: string
-): Promise<LoginWithPasswordResult> {
+export async function loginWithPassword(username: string, password: string): Promise<LoginWithPasswordResult> {
   try {
     const data = await gatewayApi.auth
       .postAuthLogin({
@@ -134,7 +137,7 @@ export async function silentLogin() {
     await checkPassword()
   } catch (error) {
     console.log('silentLogin error', error)
-    logout()
+    clearAuthSession()
   }
 }
 
@@ -155,6 +158,7 @@ async function checkPassword() {
 }
 
 export function getOCRSetting() {
+  if (!allowFeature('OCR')) return false
   const ocrSetting = useOcrSetting()
   ocrSetting.value = newClientApi.getDmsSettingSystem('OCR').then((res) => res.data)
 }
@@ -175,18 +179,26 @@ export function clearAuthSession() {
   localStorage.clear()
 }
 
-/** 用户主动退出：清会话并跳转登录页 */
-export function logout() {
+/** 用户主动退出：先通知服务端，再清会话并跳转登录页 */
+export async function logout() {
   const router = useRouter()
   const route = useRoute()
-  const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/initPassword', '/admin']
+  const { access_token, sessionId } = useToken()
+  const token = access_token.value || localStorage.getItem('access_token') || ''
+
+  try {
+    // 必须在 clearAuthSession 之前发请求；显式带 Authorization，避免拦截器读到已清空的 token
+    await gatewayApi.auth.postAuthLogout({ sessionId: sessionId.value })
+  } catch (error) {
+    console.error(error)
+  }
 
   clearAuthSession()
   router.push({
     path: '/login',
     query: {
       ...route.query,
-      redirect: ignoreRedirectPath.includes(route.path) ? '/' : route.path
+      redirect: shouldIgnoreAuthRedirect(route.path) ? '/' : route.path
     }
   })
 }

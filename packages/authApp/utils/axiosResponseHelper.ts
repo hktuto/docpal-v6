@@ -29,11 +29,36 @@ function resolveBaseUrl(baseURL: string) {
   return map[baseURL] || baseURL
 }
 
+const LOGOUT_PATH = '/auth/logout'
+
+let isExpiringSession = false
+
 function expireSession() {
-  useToken().clearToken()
-  emitBus(EventType.USER_LOGIN__EXPIRE)
-  // TODO: remove logout, should use event bus
-  logout()
+  if (isExpiringSession) return
+  isExpiringSession = true
+  try {
+    useToken().clearToken()
+    emitBus(EventType.USER_LOGIN__EXPIRE)
+    // 会话过期只清本地态并跳转，不要调 logout API，否则 401 会再次进入这里形成死循环
+    clearAuthSession()
+    const router = useRouter()
+    const route = useRoute()
+    if (!shouldIgnoreAuthRedirect(route.path)) {
+      router.push({
+        path: '/login',
+        query: {
+          ...route.query,
+          redirect: route.path
+        }
+      })
+    } else if (normalizeAuthPath(route.path) !== '/login') {
+      router.push({ path: '/login' })
+    }
+  } finally {
+    queueMicrotask(() => {
+      isExpiringSession = false
+    })
+  }
 }
 
 function refreshAccessToken() {
@@ -90,10 +115,16 @@ export async function responseErrorHelper(error: AxiosError, axiosInstance: Axio
   // 401：刷新 token 后，用「原请求所在 instance」重试，保留各自 baseURL
   if (status === 401) {
     const isRefreshCall = originalRequest?.url?.includes(TOKEN_PATH)
+    const isLogoutCall = originalRequest?.url?.includes(LOGOUT_PATH)
     const alreadyRetried = originalRequest?._retry
     const hasRefreshToken = !!localStorage.getItem('refresh_token')
 
-    if (!originalRequest || !axiosInstance || isRefreshCall || alreadyRetried || !hasRefreshToken) {
+    // logout / refresh 自身的 401 不再触发 expireSession，避免死循环
+    if (isLogoutCall || isRefreshCall) {
+      return Promise.reject(error)
+    }
+
+    if (!originalRequest || !axiosInstance || alreadyRetried || !hasRefreshToken) {
       expireSession()
       return Promise.reject(error)
     }

@@ -1,4 +1,4 @@
-import { defineNuxtPlugin, useAuth } from '#imports'
+import { defineNuxtPlugin, useAuth, isPublicPath } from '#imports'
 import { clientApi, adminApi, gatewayApi } from 'api'
 import { requestSuccessHelper, requestErrorHelper, responseSuccessHelper, responseErrorHelper } from '~/utils/axiosResponseHelper'
 
@@ -11,11 +11,6 @@ function bindAuthInterceptors(axiosInstance: typeof clientApi.instance) {
     (response) => responseSuccessHelper(response, axiosInstance),
     (error) => responseErrorHelper(error, axiosInstance)
   )
-}
-
-function isPublicPath(pathname: string) {
-  const publicPage = usePublicPageState()
-  return publicPage.value.includes(pathname) || pathname.startsWith('/public')
 }
 
 export default defineNuxtPlugin(async (nuxtApp) => {

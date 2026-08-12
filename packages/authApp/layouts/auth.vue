@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { TabApp } from "#components";
 import { newClientApi } from 'api'
+import { useDebounceFn } from '@vueuse/core'
 const {public : { platform }} = useRuntimeConfig()
 const localeReady = ref(false)
 const appPlatform = useAppPlatform()
@@ -83,10 +84,9 @@ function saveHighlightPanel(panelID: string) {
   localStorage.setItem(tabStorageKey, panelID);
 }
 
-async function saveTabsToLocalStorage(layout: TabPanel[]) {
-  
+async function persistTabsLayout(layout: TabPanel[]) {
   const saveData = JSON.parse(JSON.stringify(layout));
-  
+
   // loop all panel and tabs to reset all initized to false
   saveData.forEach((panel: any) => {
     panel.tabs.forEach((tab: any) => {
@@ -98,9 +98,18 @@ async function saveTabsToLocalStorage(layout: TabPanel[]) {
   }
   preference.value.userStoreTab[appPlatform.value] = JSON.stringify(saveData)
   await newClientApi.putDmsUserSetting(preference.value as any)
-  
-  // localStorage.setItem(tabStorageKey, JSON.stringify(saveData));
 }
+
+/** 初始化阶段跳过；之后短时间多次 layout 变更合并为一次 PUT */
+const persistTabsLayoutDebounced = useDebounceFn((layout: TabPanel[]) => {
+  return persistTabsLayout(layout)
+}, 400)
+
+function saveTabsToLocalStorage(layout: TabPanel[]) {
+  if (!inited.value) return
+  persistTabsLayoutDebounced(layout)
+}
+
 const { t } = useI18n();
 // onMounted(async () => {
 //   await getLocale();

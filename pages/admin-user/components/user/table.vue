@@ -77,7 +77,7 @@ import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
-const { fetchUsersPage, batchActiveUsers, batchDeleteUsers, fetchLicenseUserCount, openUserDetail, sendInvitation, unlockUser } = useAdminUser()
+const { fetchUsersPage, batchActiveUsers, batchDeleteUsers, fetchLicenseUserCount, openUserDetail, sendInvitation, unlockUser, fetchGroupList } = useAdminUser()
 
 const filterParams = ref<Record<string, any>>({})
 
@@ -119,7 +119,13 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
       title: 'user_status',
       slots: { default: 'status' }
     },
-    { field: 'registered', title: 'user_registered' }
+    {
+      field: 'registered',
+      title: 'user_registered',
+      formatter: ({ row }: any) => {
+        return row.registered ? 'Registered' : 'Pending'
+      }
+    }
   ],
   bodyActions: [
     [
@@ -196,8 +202,7 @@ function handleUserDialogShow() {
 }
 
 function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
+  if (formModel.isDesc === undefined) formModel.isDesc = true
   filterParams.value = { ...formModel }
   reload()
 }
@@ -286,7 +291,7 @@ function handleGroupSelected() {
     state.selectList.map((item: any) => item.userId)
   )
 }
-function initFilter() {
+async function initFilter() {
   const conditions = [
     {
       key: 'orderBy',
@@ -304,14 +309,74 @@ function initFilter() {
     {
       key: 'isDesc',
       label: 'tableHeader.sortOrder',
-      type: 'string',
+      type: 'boolean',
       isMultiple: false,
       options: [
         { label: 'tableHeader.asc', value: false },
         { label: 'tableHeader.desc', value: true }
       ]
+    },
+    {
+      key: 'status',
+      label: 'Active',
+      type: 'string',
+      options: [
+        {
+          value: 'A',
+          label: 'isActive'
+        },
+        {
+          value: 'D',
+          label: 'noActive'
+        }
+      ],
+      isMultiple: false
+    },
+    {
+      key: 'registered',
+      label: 'Registered',
+      type: 'boolean',
+      options: [
+        {
+          value: true,
+          label: 'Registered'
+        },
+        {
+          value: false,
+          label: 'Pending'
+        }
+      ],
+      isMultiple: false
+    },
+    {
+      key: 'userLevel',
+      label: 'User Level',
+      type: 'string',
+      options: [
+        {
+          value: 'Premium',
+          label: 'Premium'
+        },
+        {
+          value: 'Standard',
+          label: 'Standard'
+        },
+        {
+          value: 'Essential',
+          label: 'Essential'
+        }
+      ],
+      isMultiple: false
     }
   ]
+  const groups = await fetchGroupList()
+  conditions.push({
+    key: 'groups',
+    label: 'Groups',
+    type: 'string',
+    options: groups,
+    isMultiple: true
+  })
   ResponsiveFilterRef.value.init(conditions)
 }
 onMounted(() => {
