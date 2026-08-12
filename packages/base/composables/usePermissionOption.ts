@@ -213,15 +213,23 @@ export const convertSelectOptions = (permissions: any) => {
   return permission
 }
 
-/** 无缓存：拉取用户下拉并按 label 排序，作为 getUsersSelect 的唯一入口 */
-export const fetchUsersSelectSorted = async () => {
+/** 无缓存：拉取用户下拉并按 label 排序；有 groupId 时取该组已绑定用户 */
+export type FetchUsersSelectQuery = {
+  label?: string
+  value?: string
+  keyword?: string
+}
+
+export const fetchUsersSelectSorted = async (groupId?: string, query?: FetchUsersSelectQuery) => {
   try {
-    const list = await gatewayApi.users.getUsersSelect().then((res) => res.data)
+    const list = groupId
+      ? await gatewayApi.groups.getGroupsGroupidUsersSelect(groupId, query).then((res) => res.data)
+      : await gatewayApi.users.getUsersSelect(query).then((res) => res.data)
     if (!list?.length) return []
     return [...list]
-      .map((item) => ({
-        label: item.label || '',
-        value: item.value || ''
+      .map((item: any) => ({
+        label: item.label || item.userName || '',
+        value: item.value || item.userId || ''
       }))
       .sort((a, b) => a.label.localeCompare(b.label))
   } catch (e) {
