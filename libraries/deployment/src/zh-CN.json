@@ -4759,6 +4759,7 @@
     "pleaseSelectSupplier": "⌈{name}⌋ 请选择供应商",
     "pleaseEnterCustomerName": "⌈{name}⌋ 请输入客户名称",
     "pleaseEnterDeliveryDate": "⌈{name}⌋ 请输入交货日期",
+    "SupplierItemRefNo": "Ref No",
     "cartonsUnit": "箱",
     "units": "件",
     "ok": "OK",

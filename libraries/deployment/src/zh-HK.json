@@ -4831,6 +4831,7 @@
     "pleaseSelectSupplier": "⌈{name}⌋ 請選擇供應商",
     "pleaseEnterCustomerName": "⌈{name}⌋ 請輸入客戶名稱",
     "pleaseEnterDeliveryDate": "⌈{name}⌋ 請輸入交貨日期",
+    "SupplierItemRefNo": "Ref No",
     "cartonsUnit": "箱",
     "units": "件",
     "ok": "OK",

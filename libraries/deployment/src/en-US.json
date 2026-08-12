@@ -4834,6 +4834,7 @@
     "pleaseSelectSupplier": "⌈{name}⌋ Please select the supplier",
     "pleaseEnterCustomerName": "⌈{name}⌋ Please enter the customer name",
     "pleaseEnterDeliveryDate": "⌈{name}⌋ Please enter the delivery date",
+    "SupplierItemRefNo":"Ref No",
     "cartonsUnit": "cartons",
     "units": "units",
     "ok": "OK",

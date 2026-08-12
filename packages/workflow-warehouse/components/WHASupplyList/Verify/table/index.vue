@@ -9,10 +9,16 @@
         />
       </template>
     </VxeGrid>
+    <WHASupplyListVerifyTableEditColumn
+      :selectedColumn="selectedColumn"
+      :batchEditDialogVisible="batchEditDialogVisible"
+      :applyBatchEdit="applyBatchEdit"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+
 import { useWHASupplyListVerifyTableInject } from '../../../../composables/useWHASupplyListVerifyTable'
 
 const {
@@ -22,7 +28,10 @@ const {
   tableRef,
   statusFilter,
   statusCounts,
-  searchQuery
+  searchQuery,
+  batchEditDialogVisible,
+  selectedColumn,
+  applyBatchEdit
 } = useWHASupplyListVerifyTableInject()
 </script>
 

@@ -27,6 +27,7 @@ export enum SGLA_ITEMS {
   DateCode = 'f_4868_a75f1f78',
   CountryOfOrigin = 'f_4870_ae02c0a0',
   CountryOfWafer = 'f_4871_02a19a70',
+  SupplierItemRefNo='f_6369_b43bcd75',
   DrawingNo ='f_6357_f6d0b709'
 }
 

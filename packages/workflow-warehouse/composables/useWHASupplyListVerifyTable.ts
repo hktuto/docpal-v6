@@ -92,6 +92,12 @@ export function createVerificationTableColumns(t: (key: string) => string) {
       ...editableColumn()
     },
     {
+      field: SGLA_ITEMS.SupplierItemRefNo,
+      title: t('workflowWarehouse.SupplierItemRefNo'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
       field: SGLA_ITEMS.DateCode,
       title: t('workflowWarehouse.dateCode'),
       minWidth: 140,
@@ -138,7 +144,10 @@ export interface WHASupplyListVerifyTableContext {
   searchQuery: Ref<string>
   columns: VerificationTableColumn[]
   reload: () => void
-  SGLA_ITEMS: typeof SGLA_ITEMS
+  SGLA_ITEMS: typeof SGLA_ITEMS,
+  batchEditDialogVisible: Ref<boolean>
+  selectedColumn: Ref<string | undefined>
+  applyBatchEdit: (val: string) => void
 }
 
 export const WHASupplyListVerifyTableKey: InjectionKey<WHASupplyListVerifyTableContext> = Symbol('WHASupplyListVerifyTable')
@@ -174,6 +183,8 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const searchQuery = ref('')
   const tableData = ref<Record<string, any>[]>([])
   const countryList = ref<SelectOption[]>([])
+
+
 
   /** U.S.A. / USA 等统一成可比较 key */
   function normalizeCountryKey(value: unknown): string {
@@ -269,6 +280,14 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       tableData.value = normalized
       return getFilteredItems(normalized)
     },
+    headerActions:[
+      [{
+        code: 'batchEdit', name: 'BatchEdit', action: ({ menu, row, column }) => {
+          batchEditDialogVisible.value = true
+          selectedColumn.value = column.field
+        }
+      },]
+    ],
     editRender: {
       editClosed: () => undefined,
       editConfig: {
@@ -293,10 +312,21 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
         zoom: false,
         refresh: false,
         slots: { buttons: 'toolbar_buttons' }
-      }
+      },
     }
   })
 
+  // selected column for batch edit //
+  const selectedColumn = ref<string | undefined>(undefined)
+  const batchEditDialogVisible = ref(false)
+  function applyBatchEdit(val: string) {
+    if (!selectedColumn.value) return
+    const {tableData} = tableRef.value.getTableData()
+    tableData.forEach((row: any) => {
+      row[selectedColumn.value] = val
+    })
+    batchEditDialogVisible.value = false
+  }
   const statusCounts = computed(() => {
     const list = tableData.value
     return {
@@ -341,7 +371,10 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     searchQuery,
     columns: verificationTableColumns,
     reload,
-    SGLA_ITEMS
+    SGLA_ITEMS,
+    batchEditDialogVisible,
+    selectedColumn,
+    applyBatchEdit
   }
 
   provide(WHASupplyListVerifyTableKey, context)
