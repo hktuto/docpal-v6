@@ -50,6 +50,7 @@ async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = fal
 
     // 未配置流程
     if (startTask.flow.outgoing.length === 0) {
+      state.loading = false
       routerProvider?.message.error('Workflow No process')
       return
     }
@@ -81,6 +82,7 @@ async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = fal
     state.formDialogVisible = true
     await initForm(startTask, originalData)
   } catch (e) {
+    state.loading = false
     routerProvider?.message.error('Failed to start workflow.')
     console.log(e)
   }

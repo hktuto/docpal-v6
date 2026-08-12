@@ -172,7 +172,9 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 
 function init() {
   part_list.value = formData.order_item_list
-  reload()
+  nextTick(() => {
+    reload()
+  })
 }
 
 async function getFormData(needValidation = true) {
