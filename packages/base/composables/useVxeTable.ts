@@ -82,7 +82,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     refresh = true,
     permissionMethod = (args: PermissionMethodParams) => {
       if (!args.row) {
-        return { visible: false, disabled: false }
+        return { visible: true, disabled: false }
       }
       return { visible: true, disabled: false }
     },
@@ -221,7 +221,8 @@ export const useVxeTable = (params: UseVxeTableParams) => {
                 item.disabled = allDisabled
               } else {
                 const permission = permissionMethod({ row, rowIndex, code: item.code, additionalData })
-                if(!permission){
+                console.log("permission", permission)
+                if (!permission) {
                   item.visible = true
                   item.disabled = false
                 }else{
@@ -265,13 +266,14 @@ export const useVxeTable = (params: UseVxeTableParams) => {
       emitBus(EventType.TABLE_ZOOM_REVERT)
     }
   }
+  tableEvent.menuClick = ({ menu, type, row, column }: any) => {
+    if (menu.action) {
+      menu.action({ menu, row, column })
+    }
+  }
   // Step 2: handle body actions
   if (actions && actions.length > 0) {
-    tableEvent.menuClick = ({ menu, row, column }: any) => {
-      if (menu.action) {
-        menu.action({ menu, row, column })
-      }
-    }
+
     tableConfig.menuConfig.body.options = actions
     // add column to tableConfig
     const actionsColumn: any = {
@@ -398,6 +400,9 @@ export const useVxeTable = (params: UseVxeTableParams) => {
   // Step 3: handle header actions
   if (params.headerActions && params.headerActions.length > 0) {
     tableConfig.menuConfig.header.options = params.headerActions
+    tableEvent.headerCellMenu = (params) => {
+      console.log('headerCellMenu', params)
+    }
   }
   // Step 4: handle footer actions
   if (params.footerActions && params.footerActions.length > 0) {
