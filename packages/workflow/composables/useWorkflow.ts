@@ -92,6 +92,10 @@ export const useWorkflow = () => {
       {
         name: 'returnMerchandiseApprovalTable',
         component: 'FormWidgetReturnMerchandiseApprovalTable'
+      },
+      {
+        name: 'tnApprovalTable',
+        component: 'FormWidgetTnApprovalTable'
       }
     ])
   )
