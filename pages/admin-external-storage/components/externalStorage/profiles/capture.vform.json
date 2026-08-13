@@ -627,7 +627,7 @@
           },
           {
             "value": "Income Statement",
-            "label": "损益�?
+            "label": "损益表"
           },
           {
             "value": "Escalation Procedure",
@@ -1051,7 +1051,7 @@
         "optionItems": [
           {
             "value": "user_groups",
-            "label": "分配的用户群�?,
+            "label": "分配的用户群组",
             "options": [
               {
                 "label": "Adhoc Group",
