@@ -68,7 +68,7 @@
     </template>
   </VxeGrid>
 
-  <UserDialog ref="UserDialogRef" @refresh="reload" />
+  <UserDialog ref="UserDialogRef" @refresh="handleUserCreated" />
   <UserAddGroupDialog ref="UserAddGroupDialogRef" @refresh="reload()" />
 </template>
 
@@ -199,6 +199,11 @@ const UserAddGroupDialogRef = ref()
 
 function handleUserDialogShow() {
   UserDialogRef.value.handleOpen()
+}
+
+async function handleUserCreated() {
+  await refreshLicenseCount()
+  reload()
 }
 
 function handleFilterFormChange(formModel: any) {
