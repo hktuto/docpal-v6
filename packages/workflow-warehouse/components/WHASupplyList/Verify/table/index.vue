@@ -11,7 +11,7 @@
     </VxeGrid>
     <WHASupplyListVerifyTableEditColumn
       :selectedColumn="selectedColumn"
-      :batchEditDialogVisible="batchEditDialogVisible"
+      v-model:batchEditDialogVisible="batchEditDialogVisible"
       :applyBatchEdit="applyBatchEdit"
     />
   </div>
