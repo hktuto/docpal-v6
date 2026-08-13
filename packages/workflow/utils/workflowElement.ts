@@ -476,8 +476,8 @@ function graphItemFromWorkflowNode(
     zIndex: 1,
     visible: true,
     position: {
-      x: metadata.x || 60,
-      y: metadata.y || 60
+      x: metadata.x ?? 60,
+      y: metadata.y ?? 60
     },
     size: {
       width: dw,
