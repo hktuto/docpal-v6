@@ -138,6 +138,16 @@ export async function silentLogin() {
   } catch (error) {
     console.log('silentLogin error', error)
     clearAuthSession()
+    // AuthState 在 !loggedIn 时一直显示「载入中」，失败后必须离开受保护页
+    const router = useRouter()
+    const route = useRoute()
+    if (isPublicPath(route.path)) return
+    await router.push({
+      path: '/login',
+      query: shouldIgnoreAuthRedirect(route.path)
+        ? undefined
+        : { redirect: route.path }
+    })
   }
 }
 
