@@ -11,6 +11,7 @@
 </template>
 <script lang="ts" setup>
 import { globalApi, gatewayApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 
 const props = withDefaults(
   // @ts-ignore
@@ -219,10 +220,10 @@ async function turnFields(fields: any, initData: any, flexible: boolean = false)
         label: item.label,
         value: item.value
       }))
-      const users = await globalApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
-      const _users = users?.map((item) => ({
-        label: item.username,
-        value: item.userId
+      const users = await fetchUsersSelectSorted()
+      const _users = users.map((item) => ({
+        label: item.label,
+        value: item.value
       }))
       field.type = 'select-v2'
       field.options.optionItems = [

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { newAdminApi, gatewayApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 
 const props = defineProps<{
   id: string
@@ -258,7 +259,7 @@ async function getFilter() {
 
   async function getUserList() {
     try {
-      return await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
+      return await fetchUsersSelectSorted()
     } catch (error) {
       console.error(error)
       return []

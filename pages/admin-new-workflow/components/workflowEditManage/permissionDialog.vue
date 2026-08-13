@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { clientApi, newClientApi, gatewayApi } from 'api'
+import { clientApi, gatewayApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 
 interface TargetOption {
   id: string
@@ -152,11 +153,11 @@ async function loadTargets() {
 }
 
 async function loadUsers() {
-  const { data } = await newClientApi.postUcenterGetKeycloakAllUsers()
-  users.value = (data || []).map((u: any) => ({
-    id: u.userId,
-    username: u.username,
-    name: u.name || u.email || u.username
+  const data = await fetchUsersSelectSorted()
+  users.value = data.map((u) => ({
+    id: u.value,
+    username: u.label,
+    name: u.label
   }))
 }
 
