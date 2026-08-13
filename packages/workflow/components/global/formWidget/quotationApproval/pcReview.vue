@@ -440,7 +440,7 @@ defineExpose({ getFormData })
               </el-select>
             </el-form-item>
             <el-form-item label="交貨時間 Lead Time">
-              <el-date-picker v-model="item.lead_time" type="date" placeholder="請選擇交貨時間" />
+              <el-date-picker v-model="item.lead_time" type="date" placeholder="請選擇交貨時間" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 

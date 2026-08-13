@@ -154,6 +154,11 @@ function getColumns() {
       field: 'commodity_inspection',
       title: '商品檢驗 Commodity Inspection',
       minWidth: 240
+    },
+    {
+      field: 'status',
+      title: '狀態 Status',
+      minWidth: 240
     }
   ]
 
@@ -187,6 +192,13 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         action: ({ row }: { row: any }) => {
           handleDblClick(row)
         }
+      },
+      {
+        code: 'cancel',
+        name: 'Cancel',
+        action: ({ row }: { row: any }) => {
+          row.status = 'cancel'
+        }
       }
     ]
   ],
@@ -194,6 +206,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     if (!row) {
       return { visible: false, disabled: false }
     }
+
+    if (isApproval.value && code === 'cancel') {
+      return { visible: false, disabled: false }
+    }
+
     return {
       visible: true,
       disabled: false

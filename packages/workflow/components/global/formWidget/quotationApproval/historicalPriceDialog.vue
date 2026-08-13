@@ -248,7 +248,7 @@ defineExpose({ open })
               <el-input v-model="searchData.series" disabled />
             </el-form-item>
             <el-form-item label="日期范圍 Date Range" prop="date_range">
-              <el-date-picker v-model="searchData.date_range" type="daterange" format="YYYY-MM-DD" value-format="x" />
+              <el-date-picker v-model="searchData.date_range" type="daterange" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
             <el-form-item label="類型 Type" prop="type">
               <el-select v-model="searchData.type" placeholder="請選擇類型" clearable>

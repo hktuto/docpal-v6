@@ -109,7 +109,7 @@ defineExpose({ getFormData })
               <el-input v-model="item.sales_admin" />
             </el-form-item>
             <el-form-item label="供應商預計發貨時間" required :prop="`list.${index}.etd`" :rules="rules.etd">
-              <el-date-picker v-model="item.etd" type="date" placeholder="Pick a day" :clearable="false" />
+              <el-date-picker v-model="item.etd" type="date" placeholder="Pick a day" :clearable="false" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 
@@ -118,7 +118,7 @@ defineExpose({ getFormData })
               <el-input v-model="item.vendor_attn" />
             </el-form-item>
             <el-form-item label="供應商樣品預計到達時間" required :prop="`list.${index}.eta`" :rules="rules.eta">
-              <el-date-picker v-model="item.eta" type="date" placeholder="Pick a day" :clearable="false" />
+              <el-date-picker v-model="item.eta" type="date" placeholder="Pick a day" :clearable="false" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
         </el-row>

@@ -153,7 +153,7 @@ defineExpose({ getFormData })
           </el-col>
           <el-col :span="8">
             <el-form-item label="快遞日期">
-              <el-date-picker v-model="item.tracking_date" type="date" placeholder="Pick a day" />
+              <el-date-picker v-model="item.tracking_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 

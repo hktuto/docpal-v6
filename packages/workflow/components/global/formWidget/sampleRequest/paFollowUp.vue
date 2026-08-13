@@ -106,7 +106,7 @@ defineExpose({ getFormData })
             </el-form-item>
 
             <el-form-item label="收到供應商樣品時間" required :prop="`list.${index}.received_date`">
-              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" />
+              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 

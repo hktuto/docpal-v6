@@ -16,11 +16,11 @@ const subInventoryList = ref<any[]>([
   { label: 'SZBYDA961', value: 'SZBYDA961' },
   { label: 'SZBYDA963', value: 'SZBYDA963' },
   { label: 'SZBYDA964', value: 'SZBYDA964' },
-  { label: 'S7S711', value: 'S7S711' },
+  { label: 'S7S711', value: 'S7S711' }
 ])
 const officeList = ref<any[]>([
   { label: '深圳创能', value: '深圳创能' },
-  { label: '金领导', value: '金领导' },
+  { label: '金领导', value: '金领导' }
 ])
 
 function open(row: any) {
@@ -48,7 +48,7 @@ defineExpose({ open })
             <el-input-number v-model="rowData.qty" controls-position="right" :min="0" :step="1" step-strictly />
           </el-form-item>
           <el-form-item label="子庫存 Sub-Inventory">
-            <el-select v-model="rowData.sub_inventory" style="width: 90%" >
+            <el-select v-model="rowData.sub_inventory" style="width: 90%">
               <el-option v-for="item in subInventoryList" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
@@ -64,7 +64,7 @@ defineExpose({ open })
             <el-input v-model="rowData.part_number" style="width: 90%" disabled />
           </el-form-item>
           <el-form-item label="單價 Unit Price">
-            <el-input-number v-model="rowData.unit_price" controls-position="right" disabled />
+            <el-input-number v-model="rowData.unit_price" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
           </el-form-item>
           <el-form-item label="TN計畫日期 TN Planned Date">
             <el-date-picker v-model="rowData.tn_planned_date" type="date" format="YYYY/MM/DD" value-format="x" style="width: 90%" />
@@ -81,10 +81,10 @@ defineExpose({ open })
             <el-input v-model="rowData.part_description" style="width: 90%" disabled />
           </el-form-item>
           <el-form-item label="出貨編號 Shipment Number">
-            <el-input v-model="rowData.shipment_number" style="width: 90%" disabled />
+            <el-input v-model="rowData.shipment_number" style="width: 90%" />
           </el-form-item>
           <el-form-item label="辦公室 To Office">
-            <el-select v-model="rowData.office" style="width: 90%" >
+            <el-select v-model="rowData.office" style="width: 90%">
               <el-option v-for="item in officeList" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
@@ -107,6 +107,9 @@ defineExpose({ open })
           </el-form-item>
           <el-form-item label="來自子庫存 From Sub-Inventory">
             <el-input v-model="rowData.from_sub_inventory" style="width: 90%" disabled />
+          </el-form-item>
+          <el-form-item label="狀態 Status">
+            <el-input v-model="rowData.status" style="width: 90%" disabled />
           </el-form-item>
         </el-col>
       </el-row>
