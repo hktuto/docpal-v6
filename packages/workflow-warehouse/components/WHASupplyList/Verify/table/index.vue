@@ -62,6 +62,13 @@ const {
     color: var(--el-text-color-secondary);
     text-transform: uppercase;
   }
+
+  :deep(.vxe-header--column.is-required .vxe-cell--title::before) {
+    content: '*';
+    color: var(--el-color-danger);
+    margin-right: 2px;
+  }
+
   :deep(.vxe-toolbar) {
     gap: unset;
   }

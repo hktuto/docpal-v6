@@ -47,8 +47,8 @@ async function getFormData(needValidation: boolean) {
       throw new Error(t('workflowWarehouse.pleaseEnterInvoiceNumber'))
     } else if (item[SGLA.Status] !== 'confirm') {
       throw new Error(t('workflowWarehouse.pleaseApproveInvoice', { name: item[SGLA.Name] }))
-    } else if (!item[SGLA.VendorName]) {
-      throw new Error(t('workflowWarehouse.pleaseSelectSupplier', { name: item[SGLA.Name] }))
+    } else if (!item[SGLA.Org]) {
+      throw new Error(t('workflowWarehouse.pleaseSelectOrg', { name: item[SGLA.Name] }))
     } else if (!item[SGLA.CustomerName]) {
       throw new Error(t('workflowWarehouse.pleaseEnterCustomerName', { name: item[SGLA.Name] }))
     } else if (!item[SGLA.DeliveryDate]) {

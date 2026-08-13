@@ -4829,6 +4829,7 @@
     "pleaseEnterInvoiceNumber": "請輸入發票號",
     "pleaseApproveInvoice": "⌈{name}⌋ 請先批准該發票",
     "pleaseSelectSupplier": "⌈{name}⌋ 請選擇供應商",
+    "pleaseSelectOrg": "⌈{name}⌋ 請選擇組織",
     "pleaseEnterCustomerName": "⌈{name}⌋ 請輸入客戶名稱",
     "pleaseEnterDeliveryDate": "⌈{name}⌋ 請輸入交貨日期",
     "SupplierItemRefNo": "Ref No",
@@ -4866,6 +4867,7 @@
     "countryOfOrigin": "原產國",
     "countryOfWafer": "晶圓原產國",
     "drawingNo": "圖紙號",
+    "remark": "備註",
     "verified": "已核驗"
   }
 }

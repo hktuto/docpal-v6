@@ -14,6 +14,7 @@
             :button-text="item.buttonText"
             :button-title="item.buttonTitle"
             :format="item.format"
+            :required="item.required"
             @save="(v) => handleSave(v, item)"
             @button="(v) => handleBotton(v, item)"
           />
@@ -54,6 +55,7 @@ const list = ref([
   {
     label: t('workflowWarehouse.supplier'),
     invoiceKey: 'VendorName',
+    required: true,
     type: 'select',
     status: 'pass',
     options: SupplierList
@@ -61,6 +63,7 @@ const list = ref([
   {
     label: t('workflowWarehouse.org'),
     invoiceKey: 'Org',
+    required: true,
     type: 'select',
     valueType: 'number',
     status: 'pass',
@@ -69,6 +72,7 @@ const list = ref([
   {
     label: t('workflowWarehouse.deliveryDate'),
     invoiceKey: 'DeliveryDate',
+    required: true,
     type: 'date',
     status: 'pass',
     buttonText: t('workflowWarehouse.apply'),

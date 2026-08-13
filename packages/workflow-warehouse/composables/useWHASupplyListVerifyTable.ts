@@ -1,4 +1,5 @@
 ﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import { postDynamicActions } from 'api'
 import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
 import { COUNTRY_STATIC_ALIASES } from '../utils/countryAliases'
@@ -70,12 +71,16 @@ export function createVerificationTableColumns(t: (key: string) => string) {
       field: SGLA_ITEMS.Supplier_PN,
       title: t('workflowWarehouse.supplierPn'),
       minWidth: 150,
+      required: true,
+      headerClassName: 'is-required',
       ...editableColumn()
     },
     {
       field: SGLA_ITEMS.WCL_PN,
       title: t('workflowWarehouse.wclPn'),
       minWidth: 170,
+      required: true,
+      headerClassName: 'is-required',
       ...editableColumn()
     },
     {
@@ -83,11 +88,21 @@ export function createVerificationTableColumns(t: (key: string) => string) {
       title: t('workflowWarehouse.qty'),
       minWidth: 90,
       type: 'number',
+      required: true,
+      headerClassName: 'is-required',
       ...editableColumn('number')
     },
     {
       field: SGLA_ITEMS.PoLine,
       title: t('workflowWarehouse.po'),
+      minWidth: 140,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.SupplierItemRefNo,
+      title: t('workflowWarehouse.SupplierItemRefNo'),
       minWidth: 140,
       ...editableColumn()
     },
@@ -118,6 +133,12 @@ export function createVerificationTableColumns(t: (key: string) => string) {
     {
       field: SGLA_ITEMS.DrawingNo,
       title: t('workflowWarehouse.drawingNo'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Remark,
+      title: t('workflowWarehouse.remark'),
       minWidth: 140,
       ...editableColumn()
     },
@@ -265,6 +286,27 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     return list.filter((row) => SEARCH_FIELDS.some((field) => matchSearchValue(row[field], q)))
   }
 
+  const requiredColumns = verificationTableColumns.filter((col: any) => col.required && col.field)
+
+  /** 返回未填必填列标题；空数组表示可勾选 */
+  function getMissingRequiredLabels(row: Record<string, any>) {
+    return requiredColumns
+      .filter((col: any) => row[col.field] == null || row[col.field] === '')
+      .map((col: any) => col.title)
+  }
+
+  /** 勾选为 true 时校验必填；不通过则回滚。cancelWarn 用于批量时由外层统一提示 */
+  function assertCanVerify(row: Record<string, any>, options?: { silent?: boolean }) {
+    const missing = getMissingRequiredLabels(row)
+    if (!missing.length) return true
+    row[SGLA_ITEMS.Checked] = false
+    nextTick(() => tableRef.value?.setCheckboxRow?.(row, false))
+    if (!options?.silent) {
+      ElMessage.warning(t('render.hint.fieldRequired', { name: missing.join(', ') }))
+    }
+    return false
+  }
+
   const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     id: 'wha-receiving-verification-items',
     height: '100%',
@@ -315,6 +357,30 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       },
     }
   })
+
+  tableEvent.checkboxChange = ({ checked, row }: { checked: boolean; row: Record<string, any> }) => {
+    if (checked) assertCanVerify(row)
+  }
+
+  tableEvent.checkboxAll = ({ checked }: { checked: boolean }) => {
+    if (!checked) return
+    nextTick(() => {
+      const invalid = (tableRef.value?.getCheckboxRecords?.() || []).filter(
+        (row: Record<string, any>) => !assertCanVerify(row, { silent: true })
+      )
+      if (invalid.length) {
+        ElMessage.warning(t('render.hint.fieldRequired', { name: requiredColumns.map((col: any) => col.title).join(', ') }))
+      }
+    })
+  }
+
+  tableEvent.checkboxRangeChange = () => {
+    nextTick(() => {
+      ;(tableRef.value?.getCheckboxRecords?.() || []).forEach((row: Record<string, any>) => {
+        if (row[SGLA_ITEMS.Checked]) assertCanVerify(row, { silent: true })
+      })
+    })
+  }
 
   // selected column for batch edit //
   const selectedColumn = ref<string | undefined>(undefined)
