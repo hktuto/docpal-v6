@@ -4836,6 +4836,7 @@
     "pleaseEnterInvoiceNumber": "Please enter the invoice number",
     "pleaseApproveInvoice": "⌈{name}⌋ Please approve the invoice first",
     "pleaseSelectSupplier": "⌈{name}⌋ Please select the supplier",
+    "pleaseSelectOrg": "⌈{name}⌋ Please select the org",
     "pleaseEnterCustomerName": "⌈{name}⌋ Please enter the customer name",
     "pleaseEnterDeliveryDate": "⌈{name}⌋ Please enter the delivery date",
     "cartonsUnit": "cartons",
@@ -4872,6 +4873,7 @@
     "countryOfOrigin": "Country Of Origin",
     "countryOfWafer": "Country Of Wafer",
     "drawingNo": "Drawing No",
+    "remark": "Remark",
     "verified": "Verified"
   }
 }

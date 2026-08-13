@@ -10,7 +10,7 @@ export enum SGLA {
   DeliveryDate = 'f_5004_5c950eef',
   Total_Ctn = 'f_4880_652c59cd',
   Preview_File_Name = 'f_4861_c31be213',
-  Org="f_6339_92fe26da"
+  Org = 'f_6339_92fe26da'
 }
 
 // Supplier Goods List Attachment Items
@@ -27,7 +27,8 @@ export enum SGLA_ITEMS {
   DateCode = 'f_4868_a75f1f78',
   CountryOfOrigin = 'f_4870_ae02c0a0',
   CountryOfWafer = 'f_4871_02a19a70',
-  DrawingNo ='f_6357_f6d0b709'
+  DrawingNo = 'f_6357_f6d0b709',
+  Remark = 'f_4872_a63b6209'
 }
 
 // Supplier List

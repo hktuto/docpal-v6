@@ -1,6 +1,6 @@
 <template>
   <div class="detail-item" :class="{ 'is-no-label': !hasLabel }">
-    <span v-if="hasLabel" class="detail-label">{{ label }}</span>
+    <span v-if="hasLabel" class="detail-label" :class="{ 'is-required': required }">{{ label }}</span>
 
     <div class="detail-value-wrap">
       <div v-if="isEditing && type === 'date'" class="detail-value-edit is-date" :class="{ 'has-action': !!buttonText }">
@@ -110,6 +110,7 @@ const props = withDefaults(
     buttonText?: string
     buttonTitle?: string
     format?: string
+    required?: boolean
   }>(),
   {
     label: '',
@@ -119,7 +120,8 @@ const props = withDefaults(
     options: () => [],
     buttonText: '',
     buttonTitle: '',
-    format: 'YYYY/MM/DD'
+    format: 'YYYY/MM/DD',
+    required: false
   }
 )
 
@@ -255,6 +257,12 @@ function handleCancel() {
   color: var(--el-text-color-secondary);
   font-size: 0.875rem;
   line-height: 1.4;
+
+  &.is-required::before {
+    content: '*';
+    color: var(--el-color-danger);
+    margin-right: 2px;
+  }
 }
 
 .detail-value-wrap {
