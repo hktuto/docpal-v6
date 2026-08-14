@@ -10,12 +10,20 @@ type EdgeData = {
   id: string
   source_node_id: string
   target_node_id: string
-  flow_control: {
+  flow_control?: {
     type: 'sequence' | 'conditional'
     condition?: string
   }
   label?: string
-  metadata: any
+  metadata: {
+    label: string
+    conditionStatus: 'success' | 'failure'
+    sourceType: string
+    targetType: string
+    sourcePort: string
+    targetPort: string
+    vertices: any[]
+  }
 }
 
 function setEdgeFlowing(edge: any, flowing: boolean) {
@@ -98,15 +106,28 @@ function setupEdge() {
     restoreSelectedNodesOutgoingFlow()
   })
 
-  // 进入节点时强制卸掉连线 tools，避免热区挡住节点选中
-  graphProvider?.graph.value?.on('node:mouseenter', () => {
-    resetEdgeHoverState()
+  // 拐點事件
+  graphProvider?.graph.value?.on('edge:change:vertices', ({ edge }: any) => {
+    const data = edge.data
+    const newData = {
+      ...data,
+      metadata: {
+        ...data.metadata,
+        vertices: edge.vertices
+      }
+    }
+    edge.setData(newData, { overwrite: true, deep: true })
   })
 
-  graphProvider?.graph.value?.on('node:mousedown', ({ node }: any) => {
-    resetEdgeHoverState()
-    node.toFront()
-  })
+  // // 进入节点时强制卸掉连线 tools，避免热区挡住节点选中
+  // graphProvider?.graph.value?.on('node:mouseenter', () => {
+  //   resetEdgeHoverState()
+  // })
+  //
+  // graphProvider?.graph.value?.on('node:mousedown', ({ node }: any) => {
+  //   resetEdgeHoverState()
+  //   node.toFront()
+  // })
 
   graphProvider?.graph.value?.on('blank:mousedown', () => {
     resetEdgeHoverState()
@@ -120,8 +141,8 @@ function setupEdge() {
 
     if (!isNew) {
       // update edge
-      const data = edge.data
-      const newData = {
+      const data: EdgeData = edge.data
+      const newData: EdgeData = {
         ...data,
         id: `edge-${edge.id}`,
         source_node_id: source.id,
@@ -152,7 +173,8 @@ function setupEdge() {
         sourceType: source.getData().metadata.type,
         targetType: target.getData().metadata.type,
         sourcePort: edge.source.port,
-        targetPort: edge.target.port
+        targetPort: edge.target.port,
+        vertices: []
       }
     }
 
@@ -167,7 +189,7 @@ function setupEdge() {
       }
     }
 
-    const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge: any) => {
+    const allNodeConnected: any[] = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge: any) => {
       return connectedEdge.id !== edge.id && connectedEdge.source.cell === source.id
     })
 
