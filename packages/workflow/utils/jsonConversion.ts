@@ -135,6 +135,7 @@ export const x6NodeToWorkflowJson = function (graphProvider: any) {
     workflowJson.variables = workflowConfig.data.variables
     // Update Nodes
     workflowJson.nodes = x6NodesToWorkflowJsonNodes(addFlowForChildNodes(x6Nodes, workflowJson.edges) || [])
+    workflowJson.version += 1
 
     console.log('---- workflowJson', workflowJson)
     return workflowJson

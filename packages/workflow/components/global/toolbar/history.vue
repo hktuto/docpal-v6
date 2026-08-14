@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { x6NodeToWorkflowJson } from '#imports'
-import { newAdminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
@@ -19,9 +19,6 @@ const emits = defineEmits(['updateActivate'])
 
 const debouncedSave = useDebounceFn(save, 300)
 async function save() {
-  const appPlatform = useAppPlatform()
-  if (appPlatform.value !== 'admin') return
-
   const workflowJson = x6NodeToWorkflowJson(graphProvider)
 
   if (!workflowId || workflowId === '') {
@@ -40,17 +37,23 @@ async function save() {
     routerProvider?.message.error(e)
     console.log(e)
   }
-  graphProvider.updateWorkflowJson(workflowJson)
+  graphProvider?.updateWorkflowJson(workflowJson)
 }
 
 function setupHistory() {
   graphProvider?.graph.value?.on('history:change', () => {
     state.value.canUndo = graphProvider?.graph.value?.canUndo() || false
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
+
+    const appPlatform = useAppPlatform()
+    if (appPlatform.value !== 'admin') return
+
     // check if workflow is empty
-    if (graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length > 0) {
-      debouncedSave()
-    }
+    if (!graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length === 0) return
+
+    // check workflow Has the process changed
+
+    debouncedSave()
   })
 }
 

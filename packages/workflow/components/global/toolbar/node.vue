@@ -24,9 +24,10 @@ function setupNode() {
   graphProvider?.graph.value?.on('node:mouseenter', ({ node }: any) => {
     if (graphProvider?.readonly.value) return
 
-    const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(node).filter((connectedEdge: any) => {
-      return connectedEdge.source.cell === node.id
-    })
+    const allNodeConnected =
+      graphProvider?.graph.value?.getConnectedEdges(node).filter((connectedEdge: any) => {
+        return connectedEdge.source.cell === node.id
+      }) || []
     if (!!node.getData().metadata.maxOutgoing) {
       // 當超出node設定的最大連出綫，該節點不在顯示節點標識符
       if (allNodeConnected.length === node.getData().metadata.maxOutgoing) return
