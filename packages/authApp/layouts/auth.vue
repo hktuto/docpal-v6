@@ -65,16 +65,15 @@ async function getTabsFromServer() {
         tabs: [defaultTab.value],
       },
     ]);
-  }finally {
-
-    inited.value = true;
-    const router = useRouter();
-
-    router.push({
-      hash: "",
-      query: {},
-    });
-  };
+  } finally {
+    inited.value = true
+    const route = useRoute()
+    const hasQuery = Object.keys(route.query || {}).length > 0
+    const hasHash = !!route.hash
+    if (hasQuery || hasHash) {
+      useRouter().replace({ path: route.path, hash: '', query: {} })
+    }
+  }
   
 }
 

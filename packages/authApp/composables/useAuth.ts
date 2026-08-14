@@ -1,6 +1,7 @@
 import { useState } from '#imports'
 import { EventType, emitBus } from 'eventbus'
 import { newClientApi, globalApi, gatewayApi } from 'api'
+import { useToken } from './useToken'
 
 import type { UserDTO } from 'api/src/generate/client'
 
@@ -58,18 +59,37 @@ export const userDisplayTimeSetting = () => {
   return userPreference.value?.metaDateFormat ? userPreference.value.metaDateFormat : 'YYYY-MM-DD'
 }
 
-export async function verifly() {
-  const logedIn = useLoginState()
+/** 会话初始化单例，避免 login / silentLogin 重复请求 */
+let sessionPromise: Promise<void> | null = null
+
+/**
+ * 加载会话：user + feature + preference → loggedIn。
+ * OCR / theme 在 loggedIn 之后后台跑，不阻塞。
+ */
+export function verifly(): Promise<void> {
+  if (useLoginState().value) return Promise.resolve()
+  if (!sessionPromise) {
+    sessionPromise = loadSession().catch((error) => {
+      sessionPromise = null
+      throw error
+    })
+  }
+  return sessionPromise
+}
+
+async function loadSession() {
+  const loggedIn = useLoginState()
   const isDesktopMode = useDesktopMode()
   const isMac = useIsMac()
-  const { initializeTheme } = useStyle()
-  await Promise.all([getUser(), getFeature(), getUserPreference(), getOCRSetting(), initializeTheme()])
+
+  await Promise.all([getUser(), getFeature(), getUserPreference()])
+
   isDesktopMode.value = !(!window || !window.navigator || !window.navigator.userAgent || !window.navigator.userAgent.toLowerCase().includes('electron'))
   isMac.value = window.navigator.userAgent.toLowerCase().includes('apple')
-  logedIn.value = true
+
   const { access_token } = useToken()
   const decodedToken = parseJwt(access_token.value || localStorage.getItem('access_token') || '')
-  if (decodedToken && decodedToken.roles) {
+  if (decodedToken?.roles) {
     const isAdmin = useIsAdmin()
     const isSuperAdmin = useIsSuperAdmin()
     const hasAdmin = decodedToken.roles.includes('ROLE_ADMIN')
@@ -78,19 +98,29 @@ export async function verifly() {
     isSuperAdmin.value = hasSuperAdmin
   }
 
+  loggedIn.value = true
   emitBus(EventType.USER_LOGIN__SUCCESS, '')
+  void loadSessionBackground()
+}
+
+async function loadSessionBackground() {
+  try {
+    const { initializeTheme } = useStyle()
+    getOCRSetting()
+    await initializeTheme()
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 function parseJwt(token: string) {
-  if (!token) {
-    return
-  }
+  if (!token) return
   const base64Url = token.split('.')[1]
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
   return JSON.parse(window.atob(base64))
 }
 
-/** 账号密码登录：登录 API → setToken → 密码状态检查；正常登录不阻塞等待完整 verifly */
+/** 登录：setToken → verifly ∥ passwordStatus → 再决定是否去改密页 */
 export async function loginWithPassword(username: string, password: string): Promise<LoginWithPasswordResult> {
   try {
     const data = await gatewayApi.auth
@@ -108,30 +138,26 @@ export async function loginWithPassword(username: string, password: string): Pro
       sessionId: data.sessionId,
       accessTokenExpiry: data.accessTokenExpiry || data.expiresAt || data.expires_at
     })
-
-    const isAdminUser = username === 'Administrator' || username === 'administrator'
-    const bootstrap = verifly()
-    void bootstrap.catch((error) => {
-      console.error(error)
-      clearAuthSession()
-      useRouter().push({ path: '/login' })
-    })
-
-    if (!isAdminUser) {
-      try {
-        const status = await gatewayApi.password.getPasswordStatus().then((r) => r.data)
-        if (status?.mustResetPassword || status?.isExpired) {
-          // 强制改密：等会话就绪，保证改密后回首页时 loggedIn 已为 true
-          await bootstrap
-          await useRouter().push('/resetPassword')
-          return { ok: true, passwordResetRequired: true }
-        }
-      } catch {}
+  } catch (error) {
+    return {
+      ok: false,
+      reason: 'invalid',
+      message: 'Username or password is incorrect'
     }
+  }
 
-    // 正常登录：立刻返回以便跳转；首页 AuthState 在 verifly 完成前显示 loading
+  try {
+    const [, mustReset] = await Promise.all([
+      verifly(),
+      isAdminAccount(username) ? Promise.resolve(false) : fetchMustResetPassword()
+    ])
+    if (mustReset) {
+      await useRouter().push('/resetPassword')
+      return { ok: true, passwordResetRequired: true }
+    }
     return { ok: true, passwordResetRequired: false }
   } catch (error) {
+    clearAuthSession()
     return {
       ok: false,
       reason: 'invalid',
@@ -140,7 +166,7 @@ export async function loginWithPassword(username: string, password: string): Pro
   }
 }
 
-/** 已有 token 时恢复会话（plugin / 刷新后） */
+/** 刷新恢复：setToken → verifly ∥ passwordStatus */
 export async function silentLogin() {
   try {
     const storageToken = localStorage.getItem('access_token')
@@ -153,38 +179,34 @@ export async function silentLogin() {
       sessionId: localStorage.getItem('sessionId') || undefined,
       accessTokenExpiry: localStorage.getItem('accessTokenExpiry') || undefined
     })
-    await verifly()
-    await checkPassword()
+    const [, mustReset] = await Promise.all([verifly(), fetchMustResetPassword()])
+    if (!isAdminAccount(useUserId().value) && mustReset) {
+      await useRouter().push('/resetPassword')
+    }
   } catch (error) {
     console.log('silentLogin error', error)
     clearAuthSession()
-    // AuthState 在 !loggedIn 时一直显示「载入中」，失败后必须离开受保护页
     const router = useRouter()
     const route = useRoute()
     if (isPublicPath(route.path)) return
     await router.push({
       path: '/login',
-      query: shouldIgnoreAuthRedirect(route.path)
-        ? undefined
-        : { redirect: route.path }
+      query: shouldIgnoreAuthRedirect(route.path) ? undefined : { redirect: route.path }
     })
   }
 }
 
-async function checkPassword() {
-  const userId = useUserId().value
-  if (userId === 'Administrator' || userId === 'administrator') {
-    return false
-  }
+function isAdminAccount(id: string) {
+  return id === 'Administrator' || id === 'administrator'
+}
+
+async function fetchMustResetPassword() {
   try {
     const data = await gatewayApi.password.getPasswordStatus().then((r) => r.data)
-    if (data?.mustResetPassword || data?.isExpired) {
-      const router = useRouter()
-      await router.push('/resetPassword')
-      return true
-    }
-  } catch (error) {}
-  return false
+    return !!(data?.mustResetPassword || data?.isExpired)
+  } catch {
+    return false
+  }
 }
 
 export function getOCRSetting() {
@@ -201,6 +223,7 @@ export function canOCR(extension: string): boolean {
 
 /** 清除本地认证态（token / 用户信息 / loginState / localStorage），不负责跳转 */
 export function clearAuthSession() {
+  sessionPromise = null
   const loggedIn = useLoginState()
   const userState = useUserState()
   useToken().clearToken()

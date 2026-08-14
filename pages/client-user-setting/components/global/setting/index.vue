@@ -33,11 +33,14 @@ async function init() {
       }))
 
     if (state.list.length > 0) {
-      const data = await gatewayApi.users.getUsersApplication().then((res: any) => res.data)
+      const userState = useUserState()
+      const data = userState.value
+        ? userState.value
+        : await gatewayApi.users.getUsersApplication().then((res: any) => res.data)
 
-      state.form.id = data.id
+      state.form.id = (data as any).id
       state.list.forEach((item: any) => {
-        state.form[item.key] = data[item.key]
+        state.form[item.key] = (data as any)[item.key]
       })
     }
 
