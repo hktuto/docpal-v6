@@ -71,11 +71,22 @@ async function onSubmit() {
         })
         .then((r) => r.data)
     }
-
+    else {
+      res = await gatewayApi.auth
+        .postAuthChangePassword({
+          oldPassword: form.oldPassword,
+          newPassword: form.newPassword
+        })
+        .then((r) => r.data)
+    }
     if (!!res) {
       ElMessage.success(t('passwordPolicy.updatePasswordSuccess'))
-      await verifly()
-      router.push('/')
+      if (tokenRef.value) {
+        clearAuthSession()
+        router.push({ path: '/login' })
+      } else {
+        router.push('/')
+      }
     }
   } catch (e) {
     console.error(e)

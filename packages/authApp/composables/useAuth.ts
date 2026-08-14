@@ -90,7 +90,7 @@ function parseJwt(token: string) {
   return JSON.parse(window.atob(base64))
 }
 
-/** 账号密码登录：登录 API → setToken → verifly → checkPassword */
+/** 账号密码登录：登录 API → setToken → 密码状态检查；正常登录不阻塞等待完整 verifly */
 export async function loginWithPassword(username: string, password: string): Promise<LoginWithPasswordResult> {
   try {
     const data = await gatewayApi.auth
@@ -108,9 +108,29 @@ export async function loginWithPassword(username: string, password: string): Pro
       sessionId: data.sessionId,
       accessTokenExpiry: data.accessTokenExpiry || data.expiresAt || data.expires_at
     })
-    await verifly()
-    const passwordResetRequired = await checkPassword()
-    return { ok: true, passwordResetRequired }
+
+    const isAdminUser = username === 'Administrator' || username === 'administrator'
+    const bootstrap = verifly()
+    void bootstrap.catch((error) => {
+      console.error(error)
+      clearAuthSession()
+      useRouter().push({ path: '/login' })
+    })
+
+    if (!isAdminUser) {
+      try {
+        const status = await gatewayApi.password.getPasswordStatus().then((r) => r.data)
+        if (status?.mustResetPassword || status?.isExpired) {
+          // 强制改密：等会话就绪，保证改密后回首页时 loggedIn 已为 true
+          await bootstrap
+          await useRouter().push('/resetPassword')
+          return { ok: true, passwordResetRequired: true }
+        }
+      } catch {}
+    }
+
+    // 正常登录：立刻返回以便跳转；首页 AuthState 在 verifly 完成前显示 loading
+    return { ok: true, passwordResetRequired: false }
   } catch (error) {
     return {
       ok: false,
