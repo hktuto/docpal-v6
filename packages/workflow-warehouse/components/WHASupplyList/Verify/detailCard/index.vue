@@ -146,7 +146,7 @@ async function getSupplierList() {
         label: item.short_name,
         value: item.code
       })) ?? []
-    if (selectedInvoice.value[SGLA.VendorName]) {
+    if (selectedInvoice.value?.[SGLA.VendorName]) {
       const matched = SupplierList.value.find(
         (opt) => String(opt.value) === String(selectedInvoice.value[SGLA.VendorName]) || String(opt.label) === String(selectedInvoice.value[SGLA.VendorName])
       )
