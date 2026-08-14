@@ -119,16 +119,6 @@ function setupEdge() {
     edge.setData(newData, { overwrite: true, deep: true })
   })
 
-  // // 进入节点时强制卸掉连线 tools，避免热区挡住节点选中
-  // graphProvider?.graph.value?.on('node:mouseenter', () => {
-  //   resetEdgeHoverState()
-  // })
-  //
-  // graphProvider?.graph.value?.on('node:mousedown', ({ node }: any) => {
-  //   resetEdgeHoverState()
-  //   node.toFront()
-  // })
-
   graphProvider?.graph.value?.on('blank:mousedown', () => {
     resetEdgeHoverState()
   })
