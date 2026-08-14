@@ -161,7 +161,7 @@ watch(
     <div class="actionsContainer">
       <el-button type="primary" id="Workflow__UserTask__EditField" @click="editField">Edit Form Field</el-button>
       <el-button type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</el-button>
-      <el-button type="success" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
+      <el-button v-if="formKey !== ''" type="success" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
     </div>
     <div class="actionsContainer">
       <el-button size="small" @click="copyFormAndFieldSetting">Copy Form</el-button>
