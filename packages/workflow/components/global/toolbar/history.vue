@@ -41,7 +41,14 @@ async function save() {
 }
 
 function setupHistory() {
-  graphProvider?.graph.value?.on('history:change', () => {
+  graphProvider?.graph.value?.on('history:change', (args: any) => {
+    console.log('history:change args = ', args)
+
+    const cmdItem = args.cmds[args.cmds.length - 1]
+    if (!!cmdItem && cmdItem.event === 'cell:change:attrs') {
+      return
+    }
+
     state.value.canUndo = graphProvider?.graph.value?.canUndo() || false
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
 

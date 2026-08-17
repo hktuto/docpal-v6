@@ -81,9 +81,8 @@ async function previewForm() {
 
   await getFormJson()
   formRenderVisible.value = true
-  setTimeout(() => {
-    fromRenderRef.value.setForm(formJson.value)
-  }, 100)
+  await until(fromRenderRef).toBeTruthy()
+  fromRenderRef.value.setForm(formJson.value)
 }
 
 function handelSubmitForm(id: string) {
