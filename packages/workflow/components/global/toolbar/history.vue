@@ -42,8 +42,8 @@ async function save() {
 
 function setupHistory() {
   graphProvider?.graph.value?.on('history:change', (args: any) => {
-    console.log('history:change args = ', args)
 
+    // 更新頁面樣式時不調用更新接口
     const cmdItem = args.cmds[args.cmds.length - 1]
     if (!!cmdItem && cmdItem.event === 'cell:change:attrs') {
       return
