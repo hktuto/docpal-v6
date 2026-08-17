@@ -43,10 +43,6 @@ defineExpose({
 
 <template>
   <div :class="{ contextHandler: true, opened }">
-    <div class="propertiesHeader" @click="opened = false">
-      <Icon name="lucide:settings-2" />
-      Properties
-    </div>
     <!-- tabs container -->
     <el-tabs v-model="activeTab" type="card">
       <el-tab-pane label="Properties" name="properties">
