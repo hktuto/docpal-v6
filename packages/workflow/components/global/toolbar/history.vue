@@ -58,8 +58,6 @@ function setupHistory() {
     // check if workflow is empty
     if (!graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length === 0) return
 
-    // check workflow Has the process changed
-
     debouncedSave()
   })
 }
