@@ -16,39 +16,39 @@ function setupNode() {
       padding: 24
     })
     const currentZoom = graphProvider?.graph.value?.zoom()
-    console.log('currentZoom', currentZoom)
     if (currentZoom && currentZoom < 0.18) {
       graphProvider?.graph.value?.zoom(0.16)
     }
   })
 
-  graphProvider?.graph.value?.on('node:mouseenter', ({ cell }: any) => {
+  graphProvider?.graph.value?.on('node:mouseenter', ({ node }: any) => {
     if (graphProvider?.readonly.value) return
 
-    const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(cell).filter((connectedEdge: any) => {
-      return connectedEdge.source.cell === cell.id
-    })
-    if (!!cell.getData().metadata.maxOutgoing) {
+    const allNodeConnected =
+      graphProvider?.graph.value?.getConnectedEdges(node).filter((connectedEdge: any) => {
+        return connectedEdge.source.cell === node.id
+      }) || []
+    if (!!node.getData().metadata.maxOutgoing) {
       // 當超出node設定的最大連出綫，該節點不在顯示節點標識符
-      if (allNodeConnected.length === cell.getData().metadata.maxOutgoing) return
+      if (allNodeConnected.length === node.getData().metadata.maxOutgoing) return
     }
 
     // 获取该节点下的所有连接桩
-    const ports = cell.getPorts() || []
+    const ports = node.getPorts() || []
     ports.forEach((port: any) => {
-      cell.setPortProp(port.id, 'attrs/circle', {
+      node.setPortProp(port.id, 'attrs/circle', {
         fill: '#fff',
         stroke: '#85A5FF'
       })
     })
   })
 
-  graphProvider?.graph.value?.on('node:mouseleave', ({ cell }: any) => {
+  graphProvider?.graph.value?.on('node:mouseleave', ({ node }: any) => {
     if (graphProvider?.readonly.value) return
     // 获取该节点下的所有连接桩
-    const ports = cell.getPorts() || []
+    const ports = node.getPorts() || []
     ports.forEach((port: any) => {
-      cell.setPortProp(port.id, 'attrs/circle', {
+      node.setPortProp(port.id, 'attrs/circle', {
         fill: 'transparent',
         stroke: 'transparent'
       })
@@ -60,13 +60,22 @@ function setupNode() {
   })
 
   graphProvider?.graph.value?.on('node:selected', ({ node }: any) => {
+    // 隱藏錨點
+    const ports = node.getPorts() || []
+    ports.forEach((port: any) => {
+      node.setPortProp(port.id, 'attrs/circle', {
+        fill: 'transparent',
+        stroke: 'transparent'
+      })
+    })
+
+    // 標記輸出綫
     const outgoingEdges = graphProvider?.graph.value?.getConnectedEdges(node, { outgoing: true }) || []
     outgoingEdges.forEach((edge: any) => {
       edge.attr('line/stroke', 'var(--app-primary-color)')
       edge.attr('line/strokeDasharray', 5)
       edge.attr('line/style/animation', 'running-line 30s infinite linear')
     })
-    node.toFront()
   })
 
   graphProvider?.graph.value?.on('node:unselected', ({ node }: any) => {

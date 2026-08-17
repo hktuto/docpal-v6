@@ -191,6 +191,7 @@ function init() {
         graph.value?.addEdge({
           source: { cell: edge.source_node_id, port: edgeMetadata.sourcePort || 'to' },
           target: { cell: edge.target_node_id, port: edgeMetadata.targetPort || 'from' },
+          vertices: edgeMetadata.vertices ?? [],
           attrs: {
             line: {
               stroke: '#000000',

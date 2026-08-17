@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 import { x6NodeToWorkflowJson } from '#imports'
-import { newAdminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw new Error('graph provider not found')
+}
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey not found')
 }
 const { workflowId, isActivate } = defineProps<{
   workflowId: string
@@ -14,10 +18,7 @@ const { workflowId, isActivate } = defineProps<{
 const emits = defineEmits(['updateActivate'])
 
 const debouncedSave = useDebounceFn(save, 300)
-async function save(){
-  const appPlatform = useAppPlatform()
-  if (appPlatform.value !== 'admin' ) return
-
+async function save() {
   const workflowJson = x6NodeToWorkflowJson(graphProvider)
 
   if (!workflowId || workflowId === '') {
@@ -33,19 +34,26 @@ async function save(){
   try {
     clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r: any) => r.data)
   } catch (e) {
+    routerProvider?.message.error(e)
     console.log(e)
   }
-  graphProvider.updateWorkflowJson(workflowJson)
+  graphProvider?.updateWorkflowJson(workflowJson)
 }
 
 function setupHistory() {
   graphProvider?.graph.value?.on('history:change', () => {
     state.value.canUndo = graphProvider?.graph.value?.canUndo() || false
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
+
+    const appPlatform = useAppPlatform()
+    if (appPlatform.value !== 'admin') return
+
     // check if workflow is empty
-    if (graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length > 0) {
-      debouncedSave()
-    }
+    if (!graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length === 0) return
+
+    // check workflow Has the process changed
+
+    debouncedSave()
   })
 }
 

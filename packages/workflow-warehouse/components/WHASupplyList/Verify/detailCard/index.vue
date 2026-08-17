@@ -146,6 +146,7 @@ async function getSupplierList() {
         label: item.short_name,
         value: item.code
       })) ?? []
+
   } catch (error) {
     console.error(error)
     return []

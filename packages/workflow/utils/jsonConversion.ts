@@ -135,6 +135,7 @@ export const x6NodeToWorkflowJson = function (graphProvider: any) {
     workflowJson.variables = workflowConfig.data.variables
     // Update Nodes
     workflowJson.nodes = x6NodesToWorkflowJsonNodes(addFlowForChildNodes(x6Nodes, workflowJson.edges) || [])
+    workflowJson.version += 1
 
     console.log('---- workflowJson', workflowJson)
     return workflowJson
@@ -161,32 +162,44 @@ function resolveWorkflowElementType(nodeItem: NodeItem): WorkflowElementType | n
   return null
 }
 
-/** 补齐缺失的 metadata，避免后端/外部 JSON 缺字段时整图转换中断 */
+/**
+ * 补齐缺失的 metadata，避免后端/外部 JSON 缺字段时整图转换中断
+ */
 function ensureNodeMetadata(nodeItem: NodeItem): NodeItem {
-  const type = (nodeItem.type || nodeItem.metadata?.type || '') as string
-  const isGateway = GATEWAY_TYPES.has(type)
-  const tags = (nodeItem.metadata?.tags || (isGateway ? WorkflowElementType.Gateway : type)) as WorkflowElementType
+  const taskType: CellType = nodeItem.type
+  const metadataType: string = nodeItem.metadata?.type || CellType.jsonEdit
 
-  let maxOutgoing: number | undefined
-  if (type === 'ExclusiveGateway' || type === 'ConditionTask') maxOutgoing = 2
-  else if (type === 'ParallelGateway' || type === 'InclusiveGateway') maxOutgoing = 50
+  const isGateway: boolean = GATEWAY_TYPES.has(taskType)
+  const tags = (nodeItem.metadata?.tags || (isGateway ? WorkflowElementType.Gateway : WorkflowElementType.HTTPRequestTask)) as WorkflowElementType
 
-  return {
+  let maxOutgoing: number = 3
+  if (taskType === 'ExclusiveGateway' || taskType === 'ConditionTask') maxOutgoing = 2
+  else if (taskType === 'ParallelGateway' || taskType === 'InclusiveGateway') maxOutgoing = 50
+
+  // 手動配置的node
+  let x6Node: NodeItem = {
     ...nodeItem,
     metadata: {
-      type: type || tags,
-      tags,
+      ...nodeItem.metadata,
+      type: metadataType,
+      tags: tags,
       x: 60,
       y: 60,
       width: isGateway ? 200 : 120,
       height: 64,
       icon: isGateway ? '/workflowIcons/condition.svg' : undefined,
-      bgColor: isGateway ? '#ff8f31' : undefined,
-      textColor: isGateway ? '#fff' : undefined,
-      maxOutgoing,
-      ...nodeItem.metadata
+      bgColor: isGateway ? '#ff8f31' : '#fff',
+      textColor: isGateway ? '#fff' : '#000',
+      maxOutgoing
     }
   }
+
+  // 已存在的 TaskNode
+  if (metadataType === 'StartEvent' || metadataType === 'EndEvent' || Object.values(CellType).includes(metadataType as CellType)) {
+    x6Node = { ...nodeItem }
+  }
+
+  return x6Node
 }
 
 export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
