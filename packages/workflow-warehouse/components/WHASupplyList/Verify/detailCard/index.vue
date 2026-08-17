@@ -167,19 +167,20 @@ async function getOrgList() {
   } finally {
   }
 }
-function syncVendorName() {
+function syncSelectField(field: keyof typeof SGLA, options: { label: string; value: string | number }[]) {
   const invoice = selectedInvoice.value
-  if (!invoice || !SupplierList.value.length) return
-  const current = invoice[SGLA.VendorName]
+  if (!invoice || !options.length) return
+  const current = invoice[SGLA[field]]
   if (current == null || current === '') return
-  const matched = SupplierList.value.find(
-    (opt: { label: string; value: string }) => String(opt.value) === String(current) || String(opt.label) === String(current)
+  const matched = options.find(
+    (opt) => String(opt.value) === String(current) || String(opt.label) === String(current)
   )
-  invoice[SGLA.VendorName] = matched ? matched.value : ''
+  invoice[SGLA[field]] = matched ? matched.value : ''
 }
 
-watch([() => selectedInvoice.value?.id, SupplierList], () => {
-  syncVendorName()
+watch([() => selectedInvoice.value?.id, SupplierList, OrgList], () => {
+  syncSelectField('VendorName', SupplierList.value)
+  syncSelectField('Org', OrgList.value)
 }, { immediate: true })
 
 onMounted(async () => {
