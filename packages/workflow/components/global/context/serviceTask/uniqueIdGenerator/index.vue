@@ -56,7 +56,6 @@ function getVariables(variableList: any) {
 }
 
 function init() {
-  console.log(123,config)
   formData.value.templateId = config?.http_request?.body?.templateId || ''
   const om: any = Object.keys(config.output_mapping)
   if (om.length > 0) {
