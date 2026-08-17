@@ -42,18 +42,16 @@ async function save() {
 
 function setupHistory() {
   graphProvider?.graph.value?.on('history:change', (args: any) => {
-
     // 更新頁面樣式時不調用更新接口
     const cmdItem = args.cmds[args.cmds.length - 1]
     if (!!cmdItem && cmdItem.event === 'cell:change:attrs') {
       return
     }
+    const appPlatform = useAppPlatform()
+    if (appPlatform.value !== 'admin') return
 
     state.value.canUndo = graphProvider?.graph.value?.canUndo() || false
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
-
-    const appPlatform = useAppPlatform()
-    if (appPlatform.value !== 'admin') return
 
     // check if workflow is empty
     if (!graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length === 0) return
