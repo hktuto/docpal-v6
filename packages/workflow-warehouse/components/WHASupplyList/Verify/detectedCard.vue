@@ -14,7 +14,7 @@ async function handleDetect() {
     await saveTableData()
     const res = await newClientApi.postWmsPackingOrderCompare({
       batchNo: formData.value?.batch_no,
-      InvoiceNum: selectedInvoice.value?.[SGLA.Name]
+      invoiceNum: selectedInvoice.value?.[SGLA.Name]
     })
     unmatchedList.value = res.data
       .filter((item: any) => !item.is_match)
@@ -32,6 +32,9 @@ async function handleDetect() {
     detecting.value = false
   }
 }
+watch(selectedInvoice, () => {
+  unmatchedList.value = []
+})
 </script>
 
 <template>

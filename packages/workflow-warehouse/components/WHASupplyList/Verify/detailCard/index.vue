@@ -43,7 +43,6 @@ dayjs.extend(advancedFormat)
 const { t } = useI18n()
 const { selectedInvoice, updateInvoiceData, disabled } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
-const key = 'VendorName'
 const SupplierList = ref([])
 const OrgList = ref([])
 const list = ref([
@@ -54,7 +53,7 @@ const list = ref([
   },
   {
     label: t('workflowWarehouse.supplier'),
-    invoiceKey: 'VendorName',
+    invoiceKey: 'VendorId',
     required: true,
     type: 'select',
     status: 'pass',
@@ -104,9 +103,16 @@ function getUniqueCartons() {
 async function generateParams() {}
 async function handleSave(value: string, item: any) {
   item.status = 'loading'
-  if(!value) value = null
+  if (!value) value = null
   const payload = item.valueType === 'number' && value !== '' && value != null ? Number(value) : value
-  const res = await updateInvoiceData(payload, item.invoiceKey)
+  const invoiceData: Record<string, any> = { [SGLA[item.invoiceKey]]: payload }
+  if (item.invoiceKey === 'VendorId' && !!payload) {
+    const matched = SupplierList.value.find(
+      (opt) => String(opt.value) === String(payload)
+    )
+    invoiceData[SGLA.VendorName] = matched?.label ?? null
+  }
+  const res = await updateInvoiceData(invoiceData)
   setTimeout(() => {
     item.status = res.result ? 'pass' : 'fail'
   }, 1000)
@@ -180,7 +186,7 @@ function syncSelectField(field: keyof typeof SGLA, options: { label: string; val
 }
 
 watch([() => selectedInvoice.value?.id, SupplierList, OrgList], () => {
-  syncSelectField('VendorName', SupplierList.value)
+  syncSelectField('VendorId', SupplierList.value)
   syncSelectField('Org', OrgList.value)
 }, { immediate: true })
 
