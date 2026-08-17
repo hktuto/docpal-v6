@@ -10,7 +10,25 @@ if (!graphProvider) {
 
 const ignoreTypeList: string[] = []
 
+const setEdgesStyle = (graph: any, node: any, flowing: boolean) => {
+  const outgoingEdges = graph?.getConnectedEdges(node, { outgoing: true }) || []
+
+  outgoingEdges.forEach((edge: any) => {
+    edge.attr({
+      line: {
+        stroke: flowing ? 'var(--app-primary-color)' : '#000',
+        strokeDasharray: flowing ? 5 : '',
+        style: {
+          animation: flowing ? 'running-line 30s infinite linear' : ''
+        }
+      }
+    })
+  })
+}
+
 function setupNode() {
+  graphProvider?.graph.value?.on('blank:mousedown', () => {})
+
   graphProvider?.graph.value?.on('blank:dblclick', () => {
     graphProvider?.graph.value?.zoomToFit({
       padding: 24
@@ -33,7 +51,7 @@ function setupNode() {
       if (allNodeConnected.length === node.getData().metadata.maxOutgoing) return
     }
 
-    // 获取该节点下的所有连接桩
+    // 顯示連接樁
     const ports = node.getPorts() || []
     ports.forEach((port: any) => {
       node.setPortProp(port.id, 'attrs/circle', {
@@ -45,7 +63,8 @@ function setupNode() {
 
   graphProvider?.graph.value?.on('node:mouseleave', ({ node }: any) => {
     if (graphProvider?.readonly.value) return
-    // 获取该节点下的所有连接桩
+
+    // 移除連接樁
     const ports = node.getPorts() || []
     ports.forEach((port: any) => {
       node.setPortProp(port.id, 'attrs/circle', {
@@ -56,10 +75,12 @@ function setupNode() {
   })
 
   graphProvider?.graph.value?.on('node:mousedown', ({ node }: any) => {
-    node.toFront()
+    node.toFront({ silent: true })
   })
 
   graphProvider?.graph.value?.on('node:selected', ({ node }: any) => {
+    const graph = graphProvider?.graph.value
+
     // 隱藏錨點
     const ports = node.getPorts() || []
     ports.forEach((port: any) => {
@@ -69,22 +90,15 @@ function setupNode() {
       })
     })
 
-    // 標記輸出綫
-    const outgoingEdges = graphProvider?.graph.value?.getConnectedEdges(node, { outgoing: true }) || []
-    outgoingEdges.forEach((edge: any) => {
-      edge.attr('line/stroke', 'var(--app-primary-color)')
-      edge.attr('line/strokeDasharray', 5)
-      edge.attr('line/style/animation', 'running-line 30s infinite linear')
-    })
+    setEdgesStyle(graph, node, true)
   })
 
+  // 節點取消選中事件
   graphProvider?.graph.value?.on('node:unselected', ({ node }: any) => {
-    const outgoingEdges = graphProvider?.graph.value?.getConnectedEdges(node, { outgoing: true }) || []
-    outgoingEdges.forEach((edge: any) => {
-      edge.attr('line/stroke', '#000')
-      edge.attr('line/strokeDasharray', '')
-      edge.attr('line/style/animation', '')
-    })
+    const graph = graphProvider?.graph.value
+
+    // 恢復輸出線預設樣式（關閉流動樣式）
+    setEdgesStyle(graph, node, false)
   })
 
   graphProvider?.graph.value?.on('node:dblclick', handleNodeClick)

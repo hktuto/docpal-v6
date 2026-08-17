@@ -27,43 +27,15 @@ type EdgeData = {
 }
 
 function setEdgeFlowing(edge: any, flowing: boolean) {
-  if (flowing) {
-    edge.attr('line/stroke', 'var(--app-primary-color)')
-    edge.attr('line/strokeDasharray', 5)
-    edge.attr('line/style/animation', 'running-line 30s infinite linear')
-    return
-  }
-  edge.attr('line/stroke', '#000')
-  edge.attr('line/strokeDasharray', '')
-  edge.attr('line/style/animation', '')
-}
-
-function clearAllEdgeTools() {
-  graphProvider?.graph.value?.getEdges().forEach((edge: any) => edge.removeTools())
-}
-
-function getSelectedNodesOutgoingEdges(exceptEdgeId?: string) {
-  const graph = graphProvider?.graph.value
-  if (!graph) return []
-  return graph
-    .getSelectedCells()
-    .filter((cell: any) => cell.isNode?.())
-    .flatMap((node: any) => graph.getConnectedEdges(node, { outgoing: true }) || [])
-    .filter((edge: any) => edge.id !== exceptEdgeId)
-}
-
-function clearSelectedNodesOutgoingFlow(exceptEdgeId?: string) {
-  getSelectedNodesOutgoingEdges(exceptEdgeId).forEach((edge: any) => setEdgeFlowing(edge, false))
-}
-
-function restoreSelectedNodesOutgoingFlow() {
-  getSelectedNodesOutgoingEdges().forEach((edge: any) => setEdgeFlowing(edge, true))
-}
-
-function resetEdgeHoverState() {
-  clearAllEdgeTools()
-  graphProvider?.graph.value?.getEdges().forEach((edge: any) => setEdgeFlowing(edge, false))
-  restoreSelectedNodesOutgoingFlow()
+  edge.attr({
+    line: {
+      stroke: flowing ? 'var(--app-primary-color)' : '#000',
+      strokeDasharray: flowing ? 5 : 0,
+      style: {
+        animation: flowing ? 'running-line 30s infinite linear' : ''
+      }
+    }
+  })
 }
 
 function setupEdge() {
@@ -74,14 +46,19 @@ function setupEdge() {
   })
 
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
-    // 悬停连线时，先卸掉节点选中产生的出边流动
-    clearAllEdgeTools()
-    clearSelectedNodesOutgoingFlow(cell.id)
     setEdgeFlowing(cell, true)
 
     if (graphProvider?.readonly.value) return
 
     cell.addTools([
+      {
+        name: 'target-arrowhead',
+        args: {
+          attrs: {
+            fill: 'red'
+          }
+        }
+      },
       {
         name: 'vertices',
         args: {
@@ -103,7 +80,6 @@ function setupEdge() {
       cell.removeTools()
     }
     setEdgeFlowing(cell, false)
-    restoreSelectedNodesOutgoingFlow()
   })
 
   // 拐點事件
@@ -117,10 +93,6 @@ function setupEdge() {
       }
     }
     edge.setData(newData, { overwrite: true, deep: true })
-  })
-
-  graphProvider?.graph.value?.on('blank:mousedown', () => {
-    resetEdgeHoverState()
   })
 
   graphProvider?.graph.value?.on('edge:connected', ({ edge, isNew }) => {
