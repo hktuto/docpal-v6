@@ -54,16 +54,11 @@ watch(selectedInvoice, () => {
     </div>
     <div v-else class="detected-issue-list">
       <div v-for="item in unmatchedList" :key="item.id" class="detected-issue-card">
-        <b>{{ item.supplierPn }}</b>
+        <b>{{ item.supplierPn }}</b>({{item.poLine}})
         <div v-if="item.dbTotalQty !== item.totalQty">
           <span>{{ item.dbTotalQty }}</span>
           <span class="is-danger">{{ item.totalQty }}</span>
           (QTY)
-        </div>
-        <div v-if="item.dbPo !== item.poLine">
-          <span>{{ item.dbPo }}</span>
-          <span class="is-danger">{{ item.poLine }}</span>
-          (PO)
         </div>
       </div>
     </div>
