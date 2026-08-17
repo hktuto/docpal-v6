@@ -6,6 +6,7 @@ export enum SGLA {
   BatchId = 'f_4855_8f7fd4bb',
   Status = 'f_4862_4bf7a406',
   VendorName = 'f_4857_e65e6089', // supplier name
+  VendorId = 'f_5486_d9a576df', // supplier id
   CustomerName = 'f_4858_a4fc10f8',
   DeliveryDate = 'f_5004_5c950eef',
   Total_Ctn = 'f_4880_652c59cd',

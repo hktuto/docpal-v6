@@ -15,8 +15,8 @@ export interface WHASupplyListVerifyContext {
   disabled: Ref<boolean | undefined>
   selectedInvoice: Ref<Record<string, any> | null>
   selectInvoice: (item: Record<string, any>) => void
-  /** 切换预览文件（tab），并同步选中对应发票 */
-  updateInvoiceData: (value: string | number, key: keyof typeof SGLA) => Promise<any>
+  /** 更新当前选中发票字段 */
+  updateInvoiceData: (invoiceData: Record<string, any>) => Promise<any>
   docId: Ref<string>
 }
 
@@ -45,16 +45,13 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
     }
   }
 
-  async function updateInvoiceData(value: string | number, key: keyof typeof SGLA) {
+  async function updateInvoiceData(invoiceData: Record<string, any>) {
     const invoiceId = selectedInvoice.value?.id
-    const invoiceData = {
-      [SGLA[key]]: value
-    }
     const res = await newClientApi.putDynamicDbTableTableidDataDataid(SGLA_TABLE_ID, invoiceId, {
       data: invoiceData
     })
     if (selectedInvoice.value) {
-      selectedInvoice.value[SGLA[key]] = value
+      Object.assign(selectedInvoice.value, invoiceData)
     }
     return res
   }

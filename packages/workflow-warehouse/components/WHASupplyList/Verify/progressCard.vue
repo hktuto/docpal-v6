@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { Document } from '@element-plus/icons-vue'
 import { useWHASupplyListVerifyTableInject } from '../../../composables/useWHASupplyListVerifyTable'
+import { SGLA } from '../../../utils/variableMapping'
 
 const { updateInvoiceData, disabled } = useWHASupplyListVerifyInject()
 const { statusCounts, saveTableData } = useWHASupplyListVerifyTableInject()
@@ -40,7 +41,7 @@ async function handleApprove() {
     loading.value = true
     await saveTableData()
     const status = percentage.value === 100 ? 'confirm' : 'created'
-    await updateInvoiceData(status, 'Status')
+    await updateInvoiceData({ [SGLA.Status]: status })
   } catch (error) {
     console.error(error)
   } finally {
