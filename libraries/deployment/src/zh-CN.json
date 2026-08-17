@@ -4785,6 +4785,7 @@
     "verifiedProgress": "已核验 {ok} / {all} 行。",
     "detectedIssues": "检测到的问题",
     "detectedIssuesSubtitle": "规则引擎检测到的问题",
+    "detect": "检测",
     "noAutomaticIssues": "暂无自动检测到的问题。",
     "carton": "箱号",
     "supplierPn": "供应商料号",

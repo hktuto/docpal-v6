@@ -1,11 +1,16 @@
 ﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { postDynamicActions } from 'api'
+import { newClientApi, postDynamicActions } from 'api'
 import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
 import { COUNTRY_STATIC_ALIASES } from '../utils/countryAliases'
 import { useWHASupplyListVerifyInject } from './useWHASupplyListVerify'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
+
+export type HighlightMatchKey = {
+  supplierPn: string | number
+  poLine: string | number
+}
 
 const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.Supplier_PN, SGLA_ITEMS.WCL_PN, SGLA_ITEMS.Qty, SGLA_ITEMS.PoLine] as const
 
@@ -14,6 +19,9 @@ function matchSearchValue(value: unknown, query: string): boolean {
   return String(value).toLowerCase().includes(query)
 }
 
+function rowMatchKey(supplierPn: unknown, poLine: unknown) {
+  return `${String(supplierPn ?? '').trim()}::${String(poLine ?? '').trim()}`
+}
 type EditableColumnType = 'text' | 'number' | 'select'
 
 type SelectOption = { label: string; value: string | number }
@@ -169,6 +177,10 @@ export interface WHASupplyListVerifyTableContext {
   batchEditDialogVisible: Ref<boolean>
   selectedColumn: Ref<string | undefined>
   applyBatchEdit: (val: string) => void
+  /** 按 Supplier_PN + PoLine 高亮匹配行（红底），可传单条或数组 */
+  highlightMatchingRows: (matches: HighlightMatchKey | HighlightMatchKey[]) => void
+  clearMatchingRowHighlight: () => void
+  saveTableData: () => Promise<void>
 }
 
 export const WHASupplyListVerifyTableKey: InjectionKey<WHASupplyListVerifyTableContext> = Symbol('WHASupplyListVerifyTable')
@@ -204,10 +216,25 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const searchQuery = ref('')
   const tableData = ref<Record<string, any>[]>([])
   const countryList = ref<SelectOption[]>([])
+  /** Supplier_PN::PoLine → 高亮 */
+  const highlightedMatchKeys = ref<Set<string>>(new Set())
 
+  function highlightMatchingRows(matches: HighlightMatchKey | HighlightMatchKey[]) {
+    const list = Array.isArray(matches) ? matches : [matches]
+    highlightedMatchKeys.value = new Set(list.map((m) => rowMatchKey(m.supplierPn, m.poLine)))
+    nextTick(() => {
+      tableRef.value?.updateData?.()
+      const first = tableData.value.find((row) =>
+        highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine]))
+      )
+      if (first) tableRef.value?.scrollToRow?.(first)
+    })
+  }
 
-
-  /** U.S.A. / USA 等统一成可比较 key */
+  function clearMatchingRowHighlight() {
+    highlightedMatchKeys.value = new Set()
+    nextTick(() => tableRef.value?.updateData?.())
+  }
   function normalizeCountryKey(value: unknown): string {
     return String(value ?? '')
       .toLowerCase()
@@ -343,6 +370,10 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       border: 'inner',
       stripe: false,
       pagerConfig: { enabled: false },
+      rowClassName: ({ row }: { row: Record<string, any> }) =>
+        highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine]))
+          ? 'wha-verify-row-highlight'
+          : '',
       // type=checkbox 列上的 field 是 label，不是勾选绑定；勾选状态靠 checkField
       checkboxConfig: {
         checkField: SGLA_ITEMS.Checked,
@@ -426,6 +457,36 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const debouncedReload = useDebounceFn(() => reload(), 300)
 
   watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => debouncedReload())
+
+  function getFormData() {
+    // checkbox 列用 checkField 绑定，列上没有 field，需显式带上 Checked
+    const fields = verificationTableColumns
+      .map((column: any) => column.field)
+      .filter((item): item is string => item !== undefined)
+    const formFields = [...new Set([...fields, SGLA_ITEMS.Checked, 'id'])]
+    return tableData.value.map((item) => {
+      const data: Record<string, any> = {}
+      formFields.forEach((field) => {
+        if (field === SGLA_ITEMS.Checked) {
+          data[field] = !!item[field]
+          return
+        }
+        const fieldColumn = verificationTableColumns.find((column: any) => column.field === field)
+        if (fieldColumn?.type === 'number') {
+          data[field] = Number(item[field])
+        } else {
+          data[field] = item[field] ?? ''
+        }
+      })
+      return data
+    })
+  }
+
+  async function saveTableData() {
+    const data = getFormData()
+    await newClientApi.patchDynamicDbTableTableidDataBatchTransactional(SGLA_ITEMS_TABLE_ID, { data })
+  }
+
   const context: WHASupplyListVerifyTableContext = {
     loading,
     tableData,
@@ -440,7 +501,10 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     SGLA_ITEMS,
     batchEditDialogVisible,
     selectedColumn,
-    applyBatchEdit
+    applyBatchEdit,
+    highlightMatchingRows,
+    clearMatchingRowHighlight,
+    saveTableData
   }
 
   provide(WHASupplyListVerifyTableKey, context)

@@ -72,6 +72,11 @@ const {
   :deep(.vxe-toolbar) {
     gap: unset;
   }
+
+  :deep(.vxe-body--row.wha-verify-row-highlight),
+  :deep(.vxe-body--row.wha-verify-row-highlight .vxe-body--column) {
+    background-color: var(--el-color-danger-light-7) !important;
+  }
 }
 
 :deep(.col--edit) {

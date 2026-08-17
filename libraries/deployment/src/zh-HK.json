@@ -4857,6 +4857,7 @@
     "verifiedProgress": "已核驗 {ok} / {all} 行。",
     "detectedIssues": "偵測到的問題",
     "detectedIssuesSubtitle": "規則引擎偵測到的問題",
+    "detect": "偵測",
     "noAutomaticIssues": "暫無自動偵測到的問題。",
     "carton": "箱號",
     "supplierPn": "供應商料號",

@@ -127,6 +127,17 @@ export interface UserDTO {
     properties?: Record<string, any>;
     /** active status , A = active , D = unActive */
     status?: string;
+    /**
+     * Failed login count
+     * @format int32
+     */
+    failedLoginCount?: number;
+    /** Whether user is locked */
+    isLocked?: boolean;
+    /** User locked until */
+    lockedUntil?: string;
+    /** Whether password reset is required */
+    mustResetPassword?: boolean;
     /** User groups */
     groupDTOList?: GroupDTO[];
     /** User groups */
@@ -286,8 +297,8 @@ export interface ContactGroupRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -646,8 +657,8 @@ export interface TableDataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Master Table ID */
     master_table_id?: string;
@@ -1004,8 +1015,8 @@ export interface CaseTypeRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Case schema definition (JSON) */
     case_schema?: Record<string, any>;
@@ -1157,8 +1168,8 @@ export interface PersonalDashboardRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -1494,8 +1505,8 @@ export interface MTRecordRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -1716,8 +1727,8 @@ export interface CompanyChopRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2054,8 +2065,8 @@ export interface CmmnDashboardRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2261,8 +2272,8 @@ export interface DocumentTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2375,8 +2386,8 @@ export interface RetentionPolicyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2474,8 +2485,8 @@ export interface HoldPolicyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2642,8 +2653,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    validationRuleName?: string;
     isMultiple?: boolean;
+    validationRuleName?: string;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -2979,15 +2990,15 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
     fileContentName?: string;
-    fileContentExtension?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
 }
 
 export interface FileContentDTO {
@@ -3282,8 +3293,8 @@ export interface QueryWorkflowJobRequest {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -3502,8 +3513,8 @@ export interface ProcessVersionRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -3620,8 +3631,8 @@ export interface ProcessDefinitionRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -3701,10 +3712,15 @@ export interface WOPIFileDTO {
 }
 
 export interface Supplier {
+    /** @format uuid */
     id?: string;
     code?: string;
     name?: string;
     shortName?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    last_update_date?: string;
 }
 
 export interface ResultSupplier {
@@ -3727,37 +3743,88 @@ export interface ResultListSupplier {
     locale?: string;
 }
 
+export interface OracleDataRequestDTO {
+    invoiceNum?: string;
+    vendorItemNo?: string;
+    oracleSQLConfigKey?: string;
+    /** @format date-time */
+    lastUpdateDate?: string;
+    orgIds?: number[];
+    statusCode?: string;
+    plannedFlag?: string;
+    subinventory?: string[];
+    orderNumbers?: number[];
+    invoiceNumbers?: string[];
+    updateDate?: string;
+}
+
 export interface POInvoiceVO {
     invoice_num?: string;
+    po_no?: string;
+    /** @format int32 */
+    po_line?: number;
+    wcl_item_no?: string;
+    vendor_item_no?: string;
+    /** @format int32 */
+    line_qty?: number;
     vendor_name?: string;
+    /** @format int64 */
+    vendor_id?: number;
     brand_name?: string;
     wcl_company_name?: string;
     /** @format int32 */
     org_id?: number;
     lot_code?: string;
-    wcl_item_no?: string;
-    vendor_item_no?: string;
     coo?: string;
     cow?: string;
-    po_no?: string;
-    po_line?: string;
-    /** @format int32 */
-    line_qty?: number;
+    delivery_date?: string;
     date_code?: string;
+    ctn_no?: string;
+    drawing_no?: string;
+    supplier_item_ref_no?: string;
+}
+
+export interface ResultListPOInvoiceVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: POInvoiceVO[];
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface PackingDataRequestDTO {
     schema?: string;
     batchNo?: string;
+    headerVOs?: PackingListHeaderVO[];
+    poInvoiceVOS?: POInvoiceVO[];
+    lineItems?: PackingListLineItemVO[];
     invoice_numbers?: string[];
     purchase_invoice?: POInvoiceVO[];
+}
+
+export interface PackingListHeaderVO {
+    id?: string;
+    /** @format int32 */
+    org_id?: number;
+    file_name?: string;
+    batch_id?: string;
+    vendor_name?: string;
+    wcl_company_name?: string;
+    invoice_num?: string;
+    total_qty?: number;
+    total_ctn?: number;
+    delivery_date?: string;
+    status?: string;
 }
 
 export interface PackingListLineItemVO {
     id?: string;
     master_id?: string;
     po_no?: string;
-    po_line?: string;
+    /** @format int32 */
+    po_line?: number;
     ctn_no?: string;
     vendor_item_no?: string;
     wcl_item_no?: string;
@@ -3768,74 +3835,15 @@ export interface PackingListLineItemVO {
     line_qty?: number;
     lot_no?: string;
     drawing_no?: string;
+    supplier_item_ref_no?: string;
     Checked?: boolean;
 }
 
-export interface WMSPickingItem {
-    id?: string;
-    pickingOrderId?: string;
-    partNo?: string;
-    /** @format int32 */
-    qty?: number;
-    /** @format int32 */
-    pickedQty?: number;
-    /** @format int64 */
-    lineId?: number;
-    /** @format int32 */
-    lineNumber?: number;
-    /** @format int32 */
-    shipmentNumber?: number;
-    status?: string;
-    /** @format int32 */
-    allocatedQty?: number;
-    /** @format date-time */
-    createdAt?: string;
-    /** @format date-time */
-    updatedAt?: string;
-}
-
-export interface WMSPickingOrder {
-    id?: string;
-    orderNo?: string;
-    /** @format date-time */
-    deliveryDate?: string;
-    poNo?: string;
-    shipTo?: string;
-    customerCode?: string;
-    commodityInspection?: string;
-    issueReason?: string;
-    /** @format int32 */
-    issueQty?: number;
-    /** @format int32 */
-    issuePackSize?: number;
-    issueNote?: string;
-    issueRemark?: string;
-    /** @format date-time */
-    issueReportedAt?: string;
-    issueReportedBy?: string;
-    status?: string;
-    /** @format date-time */
-    createdAt?: string;
-    /** @format date-time */
-    updatedAt?: string;
-    pickingItems?: WMSPickingItem[];
-}
-
-export interface ResultWMSPickingOrder {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSPickingOrder;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface WMSScheduleDeliveryOrder {
-    /** @format int64 */
-    id?: number;
+    id?: string;
     batchId?: string;
     status?: string;
+    piInvoiceNum?: string;
     orderNumber?: string;
     /** @format int64 */
     lineId?: number;
@@ -3843,23 +3851,42 @@ export interface WMSScheduleDeliveryOrder {
     lineNumber?: number;
     /** @format int32 */
     shipmentNumber?: number;
+    /** @format int32 */
     inventoryItemId?: number;
     itemNo?: string;
+    vendorItemNo?: string;
     itemDesc?: string;
+    /** @format int32 */
     orderQty?: number;
+    /** @format int32 */
     shippedQuantity?: number;
+    statusCode?: string;
+    plannedFlag?: string;
+    /** @format int32 */
     inventoryOrgId?: number;
     /** @format int32 */
     orgId?: number;
     subinventory?: string;
     custPoNumber?: string;
     customerId?: number;
-    piInvoiceNum?: string;
     /** @format date-time */
     lastUpdateDate?: string;
-    plannedFlag?: string;
     /** @format date-time */
     scheduleShipDate?: string;
+    /** @format date-time */
+    orderHeaderLastUpdate?: string;
+    /** @format date-time */
+    orderLineLastUpdate?: string;
+    /** @format date-time */
+    wshDeliveryDetailsLastUpdate?: string;
+    /** @format date-time */
+    wshDeliveryAssignmentsLastUpdate?: string;
+    /** @format date-time */
+    wshNewDeliveriesLastUpdate?: string;
+    /** @format date-time */
+    wshDeliveryLegsLastUpdate?: string;
+    /** @format int32 */
+    organizationId?: number;
     /** @format date-time */
     createdDate?: string;
     /** @format date-time */
@@ -3876,94 +3903,86 @@ export interface ResultListWMSPickingOrder {
     locale?: string;
 }
 
-export interface BasePageRequest {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    descSort?: SortObject;
-    desc?: boolean;
+export interface WMSPickingItem {
+    id?: string;
+    pickingOrderId?: string;
+    partNo?: string;
     /** @format int32 */
-    pageIndex?: number;
-    orderByValue?: string;
-    sortOrModifiedDate?: SortObject;
-    sort?: SortObject;
+    qty?: number;
+    /** @format int32 */
+    pickedQty?: number;
+    /** @format int32 */
+    allocatedQty?: number;
+    /** @format int64 */
+    lineId?: number;
+    /** @format int32 */
+    lineNumber?: number;
+    /** @format int32 */
+    shipmentNumber?: number;
+    status?: string;
+    additionalData?: Record<string, any>;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    lastUpdatedDate?: string;
 }
 
-export interface PaginationDTOWMSPickingOrder {
-    entryList?: WMSPickingOrder[];
+export interface WMSPickingOrder {
+    id?: string;
+    orderNo?: string;
+    /** @format date-time */
+    deliveryDate?: string;
+    poNo?: string;
+    shipTo?: string;
+    customerCode?: string;
     /** @format int32 */
-    totalSize?: number;
+    orgId?: number;
     /** @format int32 */
-    currentPageSize?: number;
+    prioritySeq?: number;
+    subInventoryCode?: string;
+    commodityInspection?: string;
+    working_by?: string;
+    /** @format date-time */
+    workingAt?: string;
+    issueReason?: string;
     /** @format int32 */
-    pageNum?: number;
+    issueQty?: number;
     /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
+    issuePackSize?: number;
+    issueNote?: string;
+    issueRemark?: string;
+    /** @format date-time */
+    issueReportedAt?: string;
+    issueReportedBy?: string;
+    status?: string;
+    allocation_status?: string;
+    /** @format date-time */
+    shippedAt?: string;
+    shippedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    lastUpdateDate?: string;
+    pickingItems?: WMSPickingItem[];
 }
 
-export interface ResultPaginationDTOWMSPickingOrder {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWMSPickingOrder;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultWMSPickingItem {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSPickingItem;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOWMSPickingItem {
-    entryList?: WMSPickingItem[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOWMSPickingItem {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWMSPickingItem;
-    messageKey?: string;
-    locale?: string;
+export interface WMSPickingOrderReq {
+    batchNo?: string;
+    orderNo?: string;
+    lineIds?: number[];
 }
 
 export interface WMSPart {
+    /** @format uuid */
     id?: string;
     partNo?: string;
-    internalCode?: string;
+    wcl_item_no?: string;
+    brand?: string;
     description?: string;
-    defaultCoo?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    lastUpdateDate?: string;
 }
 
 export interface ResultWMSPart {
@@ -3976,132 +3995,24 @@ export interface ResultWMSPart {
     locale?: string;
 }
 
-export interface AddInventoryLotRequestDTO {
-    customerName?: string;
-    partNo?: string;
-    id?: string;
-    wclItemNo?: string;
-    dateCode?: string;
-    lotCode?: string;
-    coo?: string;
-    cow?: string;
-    shelfCode?: string;
-    boxId?: string;
-    /** @format int32 */
-    totalQty?: number;
-    /** @format int32 */
-    allocatedQty?: number;
-    /** @format int32 */
-    availableQty?: number;
+export interface CompareSide {
+    vendor_item_no?: string;
+    po?: string;
+    total_qty?: number;
 }
 
-export interface ResultWMSInventoryLot {
+export interface PICompareRespDTO {
+    ocr?: CompareSide;
+    database?: CompareSide;
+    is_match?: boolean;
+}
+
+export interface ResultListPICompareRespDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: WMSInventoryLot;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WMSInventoryLot {
-    id?: string;
-    partNo?: string;
-    wclItemNo?: string;
-    dateCode?: string;
-    lotCode?: string;
-    coo?: string;
-    cow?: string;
-    shelfCode?: string;
-    boxId?: string;
-    /** @format int32 */
-    totalQty?: number;
-    /** @format int32 */
-    allocatedQty?: number;
-    /** @format int32 */
-    availableQty?: number;
-}
-
-export interface WMSInventoryOrganization {
-    /** @format int64 */
-    orgId?: number;
-    orgName?: string;
-    orgCode?: string;
-    operatingUnit?: string;
-    enabled?: boolean;
-}
-
-export interface ResultWMSInventoryOrganization {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSInventoryOrganization;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOWMSInventoryOrganization {
-    entryList?: WMSInventoryOrganization[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOWMSInventoryOrganization {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWMSInventoryOrganization;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WMSInventoryLotSource {
-    id?: string;
-    inventoryLotId?: string;
-    receivingInvoiceItemId?: string;
-    /** @format int32 */
-    qty?: number;
-}
-
-export interface ResultWMSInventoryLotSource {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSInventoryLotSource;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOWMSInventoryLotSource {
-    entryList?: WMSInventoryLotSource[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOWMSInventoryLotSource {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWMSInventoryLotSource;
+    data?: PICompareRespDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -4720,8 +4631,8 @@ export interface QueryNotificationRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -4785,8 +4696,8 @@ export interface QueryFileOverviewRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -5029,8 +4940,8 @@ export interface ExternalProfileRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
@@ -5098,8 +5009,8 @@ export interface ExternalStorageRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
@@ -5151,8 +5062,8 @@ export interface ExternalStorageImportJobRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -5292,8 +5203,8 @@ export interface ListLockRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Filter by lock owner */
     lock_owner?: string;
@@ -5456,8 +5367,8 @@ export interface ListTriggerSettingsRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Filter by event type: record_created, record_updated, record_deleted, field_changed */
     event_type?: string;
@@ -5576,8 +5487,8 @@ export interface TableRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** URL name (unique per entity_id) */
     url_name?: string;
@@ -5885,8 +5796,8 @@ export interface WorkflowJobRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6013,8 +5924,8 @@ export interface UserDashboardRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6086,8 +5997,8 @@ export interface PluginRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6198,8 +6109,8 @@ export interface OcrTransactionLogRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6708,8 +6619,8 @@ export interface IdTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6732,6 +6643,16 @@ export interface ResultPaginationDTOIdTemplate {
     code?: number;
     message?: string;
     data?: PaginationDTOIdTemplate;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListIdTemplate {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: IdTemplate[];
     messageKey?: string;
     locale?: string;
 }
@@ -7293,8 +7214,8 @@ export interface EmailTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -7374,8 +7295,8 @@ export interface EmailLayoutRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -7503,8 +7424,8 @@ export interface SmartFolderRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -7578,13 +7499,13 @@ export interface EasyShareDocumentDetails {
     readOnly?: boolean;
     watermarkData?: WatermarkData;
     createdBy?: string;
-    originFilePath?: string;
-    conversionId?: string;
     watermarkTemplateId?: string;
+    conversionId?: string;
     watermarkedLocalPath?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
+    originFilePath?: string;
 }
 
 /** EasyShare (Request) */
@@ -7664,6 +7585,16 @@ export interface SystemSetting {
     systemId?: string;
     systemIdType?: string;
     jsonValue?: string;
+}
+
+export interface OracleConfig {
+    id?: string;
+    configType?: string;
+    configName?: string;
+    configDesc?: string;
+    configJson?: Record<string, any>;
+    /** @format date-time */
+    updatedDate?: string;
 }
 
 export interface FeatureSaveRequestDTO {
@@ -7806,6 +7737,32 @@ export interface SearchResponseHits {
     hits?: HitsHits[];
 }
 
+export interface BasePageRequest {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    descSort?: SortObject;
+    desc?: boolean;
+    /** @format int32 */
+    pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
+    sort?: SortObject;
+}
+
 export interface NestedSearchLogV2 {
     searchRequest?: SearchRequestDTO;
     /** @format int64 */
@@ -7932,8 +7889,8 @@ export interface RetentionPolicyDocumentRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8045,8 +8002,8 @@ export interface HoldDocumentRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8162,8 +8119,8 @@ export interface MasterTableRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8182,10 +8139,10 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
-    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
+    enable?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -8279,8 +8236,8 @@ export interface MTAuditLogRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8352,10 +8309,10 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
-    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
+    enable?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -8562,6 +8519,16 @@ export interface ResultInternalShareAudit {
     locale?: string;
 }
 
+export interface ResultListFormPropertiesRelation {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: FormPropertiesRelation[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface WorkflowInstanceDTO {
     processDefinitionKey?: string;
     creator?: string;
@@ -8582,12 +8549,13 @@ export interface WorkflowInstanceRequest {
 
 export interface PackingToReceiving {
     status?: string;
+    sql?: string;
 }
 
 export interface ReceivingOrder {
     id?: string;
     batchNo?: string;
-    supplierId?: string;
+    supplierCode?: string;
     /** @format date-time */
     deliveryDate?: string;
     /** @format int32 */
@@ -8598,9 +8566,9 @@ export interface ReceivingOrder {
     arrivedAt?: string;
     arrivedBy?: string;
     /** @format date-time */
-    createdAt?: string;
+    createdDate?: string;
     /** @format date-time */
-    updatedAt?: string;
+    lastUpdatedDate?: string;
 }
 
 export interface ResultListReceivingOrder {
@@ -8933,8 +8901,8 @@ export interface ContactRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9038,8 +9006,8 @@ export interface CaseInstanceRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9086,6 +9054,7 @@ export interface ResultCaseInstanceDTO {
 export interface AbbyyOcrReq {
     outRequestNo?: string;
     documentId?: string;
+    module?: string;
     documentIds?: string[];
 }
 
@@ -9210,8 +9179,8 @@ export interface FormDesignRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9327,8 +9296,8 @@ export interface EasyFormResultRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9408,8 +9377,8 @@ export interface EasyFormEmailQueryRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9551,8 +9520,8 @@ export interface TrashRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9805,15 +9774,15 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
     fileContentName?: string;
-    fileContentExtension?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -10063,8 +10032,8 @@ export interface CompanyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -10261,15 +10230,15 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
+    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
-    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -10489,8 +10458,8 @@ export interface DocFolderCabinetRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -10705,10 +10674,10 @@ export interface PlanItemDefinitionDTO {
     /** PlanItem Definition Sub-List */
     subItems?: any[];
     fields?: PlanTableFieldDTO[];
+    upFormProperties?: FormPropertyDTO[];
     assigneeField?: PlanTableFieldDTO;
     isStartTask?: boolean;
     upProcessTaskKey?: string;
-    upFormProperties?: FormPropertyDTO[];
 }
 
 export interface ResultCaseTypeResponseDTO {
@@ -10797,8 +10766,8 @@ export interface CmmnVersionRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -10876,8 +10845,8 @@ export interface CaseTableRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -11140,8 +11109,8 @@ export interface PlanItemInstanceRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -11187,8 +11156,8 @@ export interface PlanItemInstanceDTO {
     subItems?: PlanItemInstanceDTO[];
     /** Workflow PlanItem Form */
     planForm?: CmmnPlanFormDTO;
-    humanTaskId?: string;
     processInstanceId?: string;
+    humanTaskId?: string;
 }
 
 export interface ResultListPlanItemInstanceDTO {
@@ -11325,8 +11294,8 @@ export interface CmmnProcessRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -11621,8 +11590,8 @@ export interface CaptureProjFormSettingRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -11711,8 +11680,8 @@ export interface CaptureProjRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -11917,8 +11886,8 @@ export interface CaptureQueryBatchListRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -12476,8 +12445,8 @@ export interface MessageTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -12806,8 +12775,8 @@ export interface QueryMetadataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -12883,8 +12852,8 @@ export interface MetadataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -13012,8 +12981,8 @@ export interface DocPalTypeRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -13336,21 +13305,6 @@ export interface ResultListPackingListLineItemVO {
     locale?: string;
 }
 
-export interface PackingListHeaderVO {
-    id?: string;
-    /** @format int32 */
-    org_id?: number;
-    file_name?: string;
-    batch_id?: string;
-    vendor_name?: string;
-    wcl_company_name?: string;
-    invoice_num?: string;
-    total_qty?: number;
-    total_ctn?: number;
-    delivery_date?: string;
-    status?: string;
-}
-
 export interface ResultListPackingListHeaderVO {
     result?: boolean;
     /** @format int32 */
@@ -13366,7 +13320,7 @@ export interface PackingListBatchVO {
     total_qty?: number;
     notes?: string;
     status?: string;
-    Files?: string;
+    files?: string;
 }
 
 export interface ResultListPackingListBatchVO {
@@ -13375,26 +13329,6 @@ export interface ResultListPackingListBatchVO {
     code?: number;
     message?: string;
     data?: PackingListBatchVO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListWMSPickingItem {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSPickingItem[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListWMSInventoryLotSource {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSInventoryLotSource[];
     messageKey?: string;
     locale?: string;
 }
@@ -14026,16 +13960,6 @@ export interface ResultListPersonalDashboard {
     locale?: string;
 }
 
-export interface ResultListIdTemplate {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: IdTemplate[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface DocPalEmailTemplate {
     id?: string;
     /** @format int64 */
@@ -14393,16 +14317,6 @@ export interface ResultFormPropertiesRelation {
     code?: number;
     message?: string;
     data?: FormPropertiesRelation;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListFormPropertiesRelation {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: FormPropertiesRelation[];
     messageKey?: string;
     locale?: string;
 }
@@ -14915,10 +14829,10 @@ export interface CaseDefinitionDTO {
         /** PlanItem Definition Sub-List */
         subItems?: any[];
         fields?: PlanTableFieldDTO[];
+        upFormProperties?: FormPropertyDTO[];
         assigneeField?: PlanTableFieldDTO;
         isStartTask?: boolean;
         upProcessTaskKey?: string;
-        upFormProperties?: FormPropertyDTO[];
     }[];
     permissions?: CmmnPlanPermissionDTO[];
 }
@@ -15255,11 +15169,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
+    create?: number;
+    pending?: number;
     completed?: number;
     finish?: number;
     error?: number;
-    create?: number;
-    pending?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -16605,6 +16519,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultTableDataDTO, any>({
                 path: `/api/dynamic-db/table/${tableId}/record/${dataId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PutDynamicDbTableTableidRecordAliasMappingRecordid
+         * @request PUT:/api/dynamic-db/table/{tableId}/record/alias-mapping/{recordId}
+         */
+        putDynamicDbTableTableidRecordAliasMappingRecordid: (
+            tableId: string,
+            recordId: string,
+            data: Record<string, any>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/record/alias-mapping/${recordId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -20066,6 +20001,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ReceivingOrderController
+         * @name PostWmsReceiveOrderSupplierInvoice
+         * @request POST:/api/wms/receive/order/supplier/invoice
+         */
+        postWmsReceiveOrderSupplierInvoice: (data: OracleDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListPOInvoiceVO, any>({
+                path: `/api/wms/receive/order/supplier/invoice`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ReceivingOrderController
          * @name PostWmsReceiveOrderPackingSync
          * @request POST:/api/wms/receive/order/packing/sync
          */
@@ -20119,33 +20070,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags wms-picking-order-controller
-         * @name GetWmsPickingOrders
-         * @request GET:/api/wms/picking-orders
+         * @tags ReceivingOrderController
+         * @name PostWmsReceiveOrderGoodsReceiptNote
+         * @request POST:/api/wms/receive/order/goods-receipt-note
          */
-        getWmsPickingOrders: (
-            query: {
-                orderNo: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultWMSPickingOrder, any>({
-                path: `/api/wms/picking-orders`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-order-controller
-         * @name PostWmsPickingOrders
-         * @request POST:/api/wms/picking-orders
-         */
-        postWmsPickingOrders: (data: WMSPickingOrder, params: RequestParams = {}) =>
-            this.request<ResultWMSPickingOrder, any>({
-                path: `/api/wms/picking-orders`,
+        postWmsReceiveOrderGoodsReceiptNote: (data: OracleDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/receive/order/goods-receipt-note`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20173,64 +20104,28 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags wms-picking-order-controller
-         * @name PostWmsPickingOrdersPage
-         * @request POST:/api/wms/picking-orders/page
+         * @name GetWmsPickingOrdersCancelled
+         * @summary Query cancelled Picking Order Data
+         * @request GET:/api/wms/picking-orders/cancelled
          */
-        postWmsPickingOrdersPage: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWMSPickingOrder, any>({
-                path: `/api/wms/picking-orders/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-item-controller
-         * @name GetWmsPickingItems
-         * @request GET:/api/wms/picking-items
-         */
-        getWmsPickingItems: (
-            query: {
-                partNo: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListWMSPickingItem, any>({
-                path: `/api/wms/picking-items`,
+        getWmsPickingOrdersCancelled: (params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, any>({
+                path: `/api/wms/picking-orders/cancelled`,
                 method: "GET",
-                query: query,
                 ...params,
             }),
 
         /**
          * No description
          *
-         * @tags wms-picking-item-controller
-         * @name PostWmsPickingItems
-         * @request POST:/api/wms/picking-items
+         * @tags wms-picking-order-controller
+         * @name PostWmsPickingOrdersCancelled
+         * @summary Execute cancelled Picking Order Data
+         * @request POST:/api/wms/picking-orders/cancelled
          */
-        postWmsPickingItems: (data: WMSPickingItem, params: RequestParams = {}) =>
-            this.request<ResultWMSPickingItem, any>({
-                path: `/api/wms/picking-items`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-item-controller
-         * @name PostWmsPickingItemsPage
-         * @request POST:/api/wms/picking-items/page
-         */
-        postWmsPickingItemsPage: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWMSPickingItem, any>({
-                path: `/api/wms/picking-items/page`,
+        postWmsPickingOrdersCancelled: (data: WMSPickingOrderReq, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/picking-orders/cancelled`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20276,124 +20171,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags inventory-lot-controller
-         * @name PostWmsInventoryLots
-         * @request POST:/api/wms/inventory/lots
+         * @tags wms-packing-order-controller
+         * @name PostWmsPackingOrderCompare
+         * @request POST:/api/wms/packing-order/compare
          */
-        postWmsInventoryLots: (
-            query: {
-                partNo: string;
-            },
-            data: AddInventoryLotRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultWMSInventoryLot, any>({
-                path: `/api/wms/inventory/lots`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-organization-controller
-         * @name GetWmsInventoryOrganizations
-         * @request GET:/api/wms/inventory-organizations
-         */
-        getWmsInventoryOrganizations: (
-            query: {
-                orgCode: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultWMSInventoryOrganization, any>({
-                path: `/api/wms/inventory-organizations`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-organization-controller
-         * @name PostWmsInventoryOrganizations
-         * @request POST:/api/wms/inventory-organizations
-         */
-        postWmsInventoryOrganizations: (data: WMSInventoryOrganization, params: RequestParams = {}) =>
-            this.request<ResultWMSInventoryOrganization, any>({
-                path: `/api/wms/inventory-organizations`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-organization-controller
-         * @name PostWmsInventoryOrganizationsPage
-         * @request POST:/api/wms/inventory-organizations/page
-         */
-        postWmsInventoryOrganizationsPage: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWMSInventoryOrganization, any>({
-                path: `/api/wms/inventory-organizations/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name GetWmsInventoryLotSources
-         * @request GET:/api/wms/inventory-lot-sources
-         */
-        getWmsInventoryLotSources: (
-            query: {
-                receivingInvoiceItemId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name PostWmsInventoryLotSources
-         * @request POST:/api/wms/inventory-lot-sources
-         */
-        postWmsInventoryLotSources: (data: WMSInventoryLotSource, params: RequestParams = {}) =>
-            this.request<ResultWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name PostWmsInventoryLotSourcesPage
-         * @request POST:/api/wms/inventory-lot-sources/page
-         */
-        postWmsInventoryLotSourcesPage: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources/page`,
+        postWmsPackingOrderCompare: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListPICompareRespDTO, any>({
+                path: `/api/wms/packing-order/compare`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21893,6 +21677,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBatchUpdateResultDTO, any>({
                 path: `/api/dynamic-db/table/${tableId}/record/batch-transactional`,
                 method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTableTableidRecordAliasMapping
+         * @request POST:/api/dynamic-db/table/{tableId}/record/alias-mapping
+         */
+        postDynamicDbTableTableidRecordAliasMapping: (
+            tableId: string,
+            data: BatchInsertRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBatchInsertResultDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/record/alias-mapping`,
+                method: "POST",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -24599,6 +24403,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController
+         * @name PostDocpalIdTemplatesImport
+         * @summary Import id templates
+         * @request POST:/api/docpal/id-templates/import
+         */
+        postDocpalIdTemplatesImport: (data: IdTemplate[], params: RequestParams = {}) =>
+            this.request<ResultListIdTemplate, any>({
+                path: `/api/docpal/id-templates/import`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
          * @name PostDocpalIdTemplatesGenerate
          * @summary Generated ID using id template
          * @request POST:/api/docpal/id-templates/generate
@@ -24606,6 +24427,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDocpalIdTemplatesGenerate: (data: GenerateIdReq, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/api/docpal/id-templates/generate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name PostDocpalIdTemplatesExport
+         * @summary Export id templates by id list
+         * @request POST:/api/docpal/id-templates/export
+         */
+        postDocpalIdTemplatesExport: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultListIdTemplate, any>({
+                path: `/api/docpal/id-templates/export`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25418,6 +25256,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMap, any>({
                 path: `/api/dms/share/get`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SettingController
+         * @name PostDmsSettingOracleConfiguration
+         * @request POST:/api/dms/setting/oracle/configuration
+         */
+        postDmsSettingOracleConfiguration: (data: OracleConfig, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/setting/oracle/configuration`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -26449,6 +26303,38 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags form-properties-relation-controller
+         * @name PostDmsFormPropertiesImport
+         * @request POST:/api/dms/form-properties/import
+         */
+        postDmsFormPropertiesImport: (data: FormPropertiesRelation[], params: RequestParams = {}) =>
+            this.request<ResultListFormPropertiesRelation, any>({
+                path: `/api/dms/form-properties/import`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags form-properties-relation-controller
+         * @name PostDmsFormPropertiesExport
+         * @request POST:/api/dms/form-properties/export
+         */
+        postDmsFormPropertiesExport: (data: number[], params: RequestParams = {}) =>
+            this.request<ResultListFormPropertiesRelation, any>({
+                path: `/api/dms/form-properties/export`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Facade API
          * @name PostDmsFacadeWorkflowJobsVariables
          * @request POST:/api/dms/facade/workflow/jobs/variables
@@ -26568,12 +26454,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
-         * @name PostDmsFacadeWmsInventoryLots
-         * @request POST:/api/dms/facade/wms/inventory/lots
+         * @name PostDmsFacadeWmsPackingListCompare
+         * @summary Query supplier purchase order data and add it to the Packing-List Record.
+         * @request POST:/api/dms/facade/wms/packing-list/compare
          */
-        postDmsFacadeWmsInventoryLots: (data: AddInventoryLotRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/dms/facade/wms/inventory/lots`,
+        postDmsFacadeWmsPackingListCompare: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListPICompareRespDTO, any>({
+                path: `/api/dms/facade/wms/packing-list/compare`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -29352,6 +29239,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             query?: {
                 outRequestNo?: string;
+                module?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -29375,6 +29263,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             query: {
                 files: File[];
                 outRequestNo?: string;
+                module?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -32353,102 +32242,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags wms-picking-order-controller
-         * @name GetWmsPickingOrdersId
-         * @request GET:/api/wms/picking-orders/{id}
-         */
-        getWmsPickingOrdersId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultWMSPickingOrder, any>({
-                path: `/api/wms/picking-orders/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-order-controller
-         * @name DeleteWmsPickingOrdersId
-         * @request DELETE:/api/wms/picking-orders/{id}
-         */
-        deleteWmsPickingOrdersId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/wms/picking-orders/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-order-controller
-         * @name GetWmsPickingOrdersOracleEbs
-         * @request GET:/api/wms/picking-orders/oracle/ebs
-         */
-        getWmsPickingOrdersOracleEbs: (
-            query: {
-                orgIds: number[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/wms/picking-orders/oracle/ebs`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-item-controller
-         * @name GetWmsPickingItemsId
-         * @request GET:/api/wms/picking-items/{id}
-         */
-        getWmsPickingItemsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultWMSPickingItem, any>({
-                path: `/api/wms/picking-items/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-item-controller
-         * @name DeleteWmsPickingItemsId
-         * @request DELETE:/api/wms/picking-items/{id}
-         */
-        deleteWmsPickingItemsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/wms/picking-items/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-item-controller
-         * @name GetWmsPickingItemsByOrder
-         * @request GET:/api/wms/picking-items/by-order
-         */
-        getWmsPickingItemsByOrder: (
-            query: {
-                pickingOrderId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListWMSPickingItem, any>({
-                path: `/api/wms/picking-items/by-order`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags wms-organization-controller
          * @name GetWmsOrganizationList
          * @request GET:/api/wms/organization/list
@@ -32462,82 +32255,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultObject, any>({
                 path: `/api/wms/organization/list`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-organization-controller
-         * @name GetWmsInventoryOrganizationsOrgid
-         * @request GET:/api/wms/inventory-organizations/{orgId}
-         */
-        getWmsInventoryOrganizationsOrgid: (orgId: number, params: RequestParams = {}) =>
-            this.request<ResultWMSInventoryOrganization, any>({
-                path: `/api/wms/inventory-organizations/${orgId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-organization-controller
-         * @name DeleteWmsInventoryOrganizationsOrgid
-         * @request DELETE:/api/wms/inventory-organizations/{orgId}
-         */
-        deleteWmsInventoryOrganizationsOrgid: (orgId: number, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/wms/inventory-organizations/${orgId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name GetWmsInventoryLotSourcesId
-         * @request GET:/api/wms/inventory-lot-sources/{id}
-         */
-        getWmsInventoryLotSourcesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name DeleteWmsInventoryLotSourcesId
-         * @request DELETE:/api/wms/inventory-lot-sources/{id}
-         */
-        deleteWmsInventoryLotSourcesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/wms/inventory-lot-sources/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name GetWmsInventoryLotSourcesByInventoryLotId
-         * @request GET:/api/wms/inventory-lot-sources/by-inventory-lot-id
-         */
-        getWmsInventoryLotSourcesByInventoryLotId: (
-            query: {
-                inventoryLotId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources/by-inventory-lot-id`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -35505,6 +35222,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getDmsSettingSystemLanguage: (params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/api/dms/setting/system/language`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SettingController
+         * @name GetDmsSettingOracleConfigurationConfigtype
+         * @request GET:/api/dms/setting/oracle/configuration/{configType}
+         */
+        getDmsSettingOracleConfigurationConfigtype: (configType: string, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/setting/oracle/configuration/${configType}`,
                 method: "GET",
                 ...params,
             }),

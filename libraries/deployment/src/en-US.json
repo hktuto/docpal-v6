@@ -4860,6 +4860,7 @@
     "verifiedProgress": "Verified {ok} of {all} lines.",
     "detectedIssues": "Detected Issues",
     "detectedIssuesSubtitle": "Issues detected by the rules engine",
+    "detect": "Detect",
     "noAutomaticIssues": "No automatic issues.",
     "carton": "CARTON",
     "supplierPn": "Supplier PN",

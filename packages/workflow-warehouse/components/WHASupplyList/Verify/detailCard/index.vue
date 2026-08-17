@@ -146,16 +146,6 @@ async function getSupplierList() {
         label: item.short_name,
         value: item.code
       })) ?? []
-    if (selectedInvoice.value[SGLA.VendorName]) {
-      const matched = SupplierList.value.find(
-        (opt) => String(opt.value) === String(selectedInvoice.value[SGLA.VendorName]) || String(opt.label) === String(selectedInvoice.value[SGLA.VendorName])
-      )
-      if (matched) {
-        selectedInvoice.value[SGLA.VendorName] = matched.value
-      } else {
-        selectedInvoice.value[SGLA.VendorName] = ''
-      }
-    }
   } catch (error) {
     console.error(error)
     return []
@@ -176,8 +166,22 @@ async function getOrgList() {
   } finally {
   }
 }
+function syncVendorName() {
+  const invoice = selectedInvoice.value
+  if (!invoice || !SupplierList.value.length) return
+  const current = invoice[SGLA.VendorName]
+  if (current == null || current === '') return
+  const matched = SupplierList.value.find(
+    (opt: { label: string; value: string }) => String(opt.value) === String(current) || String(opt.label) === String(current)
+  )
+  invoice[SGLA.VendorName] = matched ? matched.value : ''
+}
+
+watch([() => selectedInvoice.value?.id, SupplierList], () => {
+  syncVendorName()
+}, { immediate: true })
+
 onMounted(async () => {
-  console.log('getSupplierList')
   await getSupplierList()
   await getOrgList()
 })
