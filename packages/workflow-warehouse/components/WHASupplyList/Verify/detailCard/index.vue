@@ -104,6 +104,7 @@ function getUniqueCartons() {
 async function generateParams() {}
 async function handleSave(value: string, item: any) {
   item.status = 'loading'
+  if(!value) value = null
   const payload = item.valueType === 'number' && value !== '' && value != null ? Number(value) : value
   const res = await updateInvoiceData(payload, item.invoiceKey)
   setTimeout(() => {
