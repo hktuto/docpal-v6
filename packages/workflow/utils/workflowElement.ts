@@ -461,6 +461,7 @@ function graphItemFromWorkflowNode(
     dataExtra?: Record<string, unknown>
   }
 ): GraphItem {
+  if(!workflowNodeItem.metadata) workflowNodeItem.metadata = {} as any
   const metadata = workflowNodeItem.metadata
   const dw = metadata.width || 120
   const dh = metadata.height || 64
