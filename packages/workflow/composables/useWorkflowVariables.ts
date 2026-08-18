@@ -160,10 +160,26 @@ export function conversionFormDataByVariables(formData: any, formFields: Variabl
       acc[item.id] = item
       return acc
     }, {})
-    return convertFormDataEntries(formData, variableSchema)
+
+    const fields = removeRedundantFields(variableSchema, formData)
+    if (Object.keys(fields).length === 0) return {}
+
+    return convertFormDataEntries(fields, variableSchema)
   } catch (e) {
     console.log(e)
   }
+}
+
+/**
+ * Remove formData that is not defined in form fields
+ * 移除多餘字段
+ * @param variableSchema
+ * @param formData
+ */
+function removeRedundantFields(variableSchema: any, formData: any) {
+  const validIds = new Set(Object.keys(variableSchema))
+
+  return Object.fromEntries(Object.entries(formData).filter(([key]) => validIds.has(key)))
 }
 
 function convertFormDataEntries(formData: any, variableSchema: any) {
