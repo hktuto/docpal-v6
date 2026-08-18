@@ -24,11 +24,11 @@ const loading = ref(false)
 
 async function searchName(query?: string) {
   if (query !== '') {
-    const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?query=${query}&limit=${100}`).then((r) => r.data?.items)
+    const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?query=${query}&limit=${5000}`).then((r: any) => r.data?.items)
 
-    const numberOptions = []
-    const nameOptions = []
-    const englishNameOptions = []
+    const numberOptions: any[] = []
+    const nameOptions: any[] = []
+    const englishNameOptions: any[] = []
     parties.value = data
 
     data.forEach((item: any) => {
@@ -85,7 +85,7 @@ async function numberChange(value: string) {
 }
 
 async function nameChange(value: string) {
-  if (!value) {
+  if (!value || value === '') {
     customerDetail.value.customer_name = ''
   } else {
     const find = parties.value.find((item) => item.account_number === value)
@@ -101,7 +101,7 @@ async function nameChange(value: string) {
 }
 
 async function enNameChange(value: string) {
-  if (!value) {
+  if (!value || value === '') {
     customerDetail.value.customer_english_name = ''
   } else {
     const find = parties.value.find((item) => item.account_number === value)
