@@ -8,27 +8,27 @@ const { formData } = defineProps<{
 const customerDetail = ref({
   customer_number: '',
   customer_name: '',
-  customer_engineer_name: '',
+  customer_english_name: '',
   customer_location: ''
 })
 const searchData = ref({
   customerName: '',
-  customerEngineerName: ''
+  customerEnglishName: ''
 })
 
 const parties = ref<any[]>([])
 const customerNumberOptions = ref<{ label: string; value: string }[]>([])
 const customerNameOptions = ref<{ label: string; value: string }[]>([])
-const customerEngineerNameOptions = ref<{ label: string; value: string }[]>([])
+const customerEnglishNameOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref(false)
 
 async function searchName(query?: string) {
   if (query !== '') {
-    const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?query=${query}&limit=${100}`).then((r) => r.data?.items)
+    const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?query=${query}&limit=${5000}`).then((r: any) => r.data?.items)
 
-    const numberOptions = []
-    const nameOptions = []
-    const englishNameOptions = []
+    const numberOptions: any[] = []
+    const nameOptions: any[] = []
+    const englishNameOptions: any[] = []
     parties.value = data
 
     data.forEach((item: any) => {
@@ -48,47 +48,51 @@ async function searchName(query?: string) {
 
     customerNumberOptions.value = numberOptions
     customerNameOptions.value = nameOptions
-    customerEngineerNameOptions.value = englishNameOptions
+    customerEnglishNameOptions.value = englishNameOptions
   }
+}
+
+async function getCustomerInfo(customerNumber: string) {
+  if (!customerNumber || customerNumber === '') return
+  const info = await $api.get(`apis/v1/ms/oracle/customers/${customerNumber}`).then((r: any) => r.data)
+
+  customerDetail.value.customer_location = info.customer_location
 }
 
 function getFormData() {
   return customerDetail.value
 }
 
-function numberChange(value: string) {
+async function numberChange(value: string) {
   if (!value || value === '') {
     searchData.value.customerName = ''
-    searchData.value.customerEngineerName = ''
+    searchData.value.customerEnglishName = ''
   } else if (!!value) {
     searchData.value.customerName = value
-    searchData.value.customerEngineerName = value
+    searchData.value.customerEnglishName = value
 
     const find = parties.value.find((item) => item.account_number === value)
     if (!!find) {
       customerDetail.value.customer_name = find.customer_name
-      customerDetail.value.customer_engineer_name = find.customer_eng_name
-
-      // customerLocationRef.setValue(find.cust_location)
-      // customerBackgroundRef.setValue(find.cust_describe)
+      customerDetail.value.customer_english_name = find.customer_eng_name
+      await getCustomerInfo(value)
     } else {
-      // customerLocationRef.setValue('')
-      // customerBackgroundRef.setValue('')
+      customerDetail.value.customer_location = ''
     }
   } else if (value === '') {
-    // customerLocationRef.setValue('')
-    // customerBackgroundRef.setValue('')
+    customerDetail.value.customer_location = ''
   }
 }
 
-function nameChange(value: string) {
-  if (!value) {
+async function nameChange(value: string) {
+  if (!value || value === '') {
     customerDetail.value.customer_name = ''
   } else {
     const find = parties.value.find((item) => item.account_number === value)
     if (!!find) {
       customerDetail.value.customer_number = value
-      searchData.value.customerEngineerName = value
+      searchData.value.customerEnglishName = value
+      await getCustomerInfo(value)
     } else {
       customerDetail.value.customer_number = ''
       customerDetail.value.customer_name = value
@@ -96,17 +100,18 @@ function nameChange(value: string) {
   }
 }
 
-function enNameChange(value: string) {
-  if (!value) {
-    customerDetail.value.customer_engineer_name = ''
+async function enNameChange(value: string) {
+  if (!value || value === '') {
+    customerDetail.value.customer_english_name = ''
   } else {
     const find = parties.value.find((item) => item.account_number === value)
     if (!!find) {
       customerDetail.value.customer_number = value
       searchData.value.customerName = value
+      await getCustomerInfo(value)
     } else {
       customerDetail.value.customer_number = ''
-      customerDetail.value.customer_engineer_name = value
+      customerDetail.value.customer_english_name = value
     }
   }
 }
@@ -158,7 +163,7 @@ defineExpose({ getFormData })
       <el-col :span="6">
         <el-form-item label="客户英文名">
           <el-select-v2
-            v-model="searchData.customerEngineerName"
+            v-model="searchData.customerEnglishName"
             allow-create
             :reserve-keyword="false"
             filterable
@@ -166,7 +171,7 @@ defineExpose({ getFormData })
             :remote-method="searchName"
             remote-show-suffix
             clearable
-            :options="customerEngineerNameOptions"
+            :options="customerEnglishNameOptions"
             :loading="loading"
             placeholder="Please enter a keyword"
             @change="enNameChange"

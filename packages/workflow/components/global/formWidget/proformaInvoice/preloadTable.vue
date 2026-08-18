@@ -36,8 +36,8 @@ function getColumns() {
       minWidth: 240
     },
     {
-      field: 'customer_engineer_name',
-      title: '客戶英文名 Customer Engineer Name',
+      field: 'customer_english_name',
+      title: '客戶英文名 Customer English Name',
       minWidth: 240
     },
     {
