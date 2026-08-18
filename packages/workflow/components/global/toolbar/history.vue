@@ -40,15 +40,19 @@ async function save() {
   graphProvider?.updateWorkflowJson(workflowJson)
 }
 
+/**
+ * TODO: 在刪除或者連綫時，因爲x6NodeToWorkflowJson方法會調整Task的flow内的數據。導致每次更新都會調用兩次'history:change'事件
+ */
 function setupHistory() {
   graphProvider?.graph.value?.on('history:change', (args: any) => {
-    // 更新頁面樣式時不調用更新接口
-    const cmdItem = args.cmds[args.cmds.length - 1]
-    if (!!cmdItem && cmdItem.event === 'cell:change:attrs') {
-      return
-    }
+    // console.log('args', args)
+
     const appPlatform = useAppPlatform()
     if (appPlatform.value !== 'admin') return
+
+    // 更新頁面樣式時不調用更新接口
+    const cmdItem = args.cmds[0]
+    if (!!cmdItem && cmdItem.event === 'cell:change:attrs') return
 
     state.value.canUndo = graphProvider?.graph.value?.canUndo() || false
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
