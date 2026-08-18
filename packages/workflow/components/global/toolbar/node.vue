@@ -258,36 +258,4 @@ onMounted(() => {
     border-top: 1px solid var(--app-grey-800);
   }
 }
-.propertiesHeader {
-  width: 100%;
-  padding-block: var(--app-space-xs);
-  border-bottom: 1px solid var(--app-grey-800);
-}
-.contextHandler {
-  position: absolute;
-  width: 280px;
-  height: calc(100% - var(--app-space-xs) * 2);
-  overflow: auto;
-  right: var(--app-space-xs);
-  top: var(--app-space-xs);
-  z-index: 2;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  opacity: 0;
-  padding: var(--app-space-xs);
-  border-radius: var(--app-border-radius-m);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  transform: translateX(100%);
-  transition: all 0.2s ease-in-out;
-  display: grid;
-  grid-template-rows: min-content 1fr;
-  gap: var(--app-space-xs);
-  &.opened {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-.opened {
-  opacity: 1;
-}
 </style>

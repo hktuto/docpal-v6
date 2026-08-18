@@ -34,6 +34,10 @@ export const useWorkflow = () => {
         component: 'FormWidgetUploadFromDocpal'
       },
       {
+        name: 'customerVisitCustomerSelect',
+        component: 'FormWidgetCustomerVisitCustomerSelect'
+      },
+      {
         name: 'sampleRequestInfo',
         component: 'FormWidgetSampleRequestInfo'
       },
