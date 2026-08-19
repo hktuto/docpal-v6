@@ -156,13 +156,13 @@ export type WorkflowVariablesProvideContext = {
  */
 export function conversionFormDataByVariables(formData: any, formFields: VariableItem[]) {
   try {
-    if (!formData || typeof formData !== 'object') return formData || {}
-    if (!Array.isArray(formFields) || formFields.length === 0) return formData
-
     const variableSchema: any = formFields.reduce((acc: Record<string, VariableItem>, item: VariableItem) => {
-      if (item?.id) acc[item.id] = item
+      acc[item.id] = item
       return acc
     }, {})
+
+    // const fields = removeRedundantFields(variableSchema, formData)
+    // if (Object.keys(fields).length === 0) return {}
 
     return convertFormDataEntries(formData, variableSchema)
   } catch (e) {
@@ -171,13 +171,24 @@ export function conversionFormDataByVariables(formData: any, formFields: Variabl
   }
 }
 
+/**
+ * Remove formData that is not defined in form fields
+ * 移除多餘字段
+ * @param variableSchema
+ * @param formData
+ */
+function removeRedundantFields(variableSchema: any, formData: any) {
+  const validIds = new Set(Object.keys(variableSchema))
+
+  return Object.fromEntries(Object.entries(formData).filter(([key]) => validIds.has(key)))
+}
+
 function convertFormDataEntries(formData: any, variableSchema: any) {
-  if (!formData || typeof formData !== 'object') return formData
   const formattedVariables: Record<string, any> = {}
 
-  for (const key of Object.keys(formData)) {
+  for (const key in formData) {
     const value = formData[key]
-    const definition: VariableItem = variableSchema?.[key]
+    const definition: VariableItem = variableSchema[key]
     formattedVariables[key] = definition ? convertValueByDefinition(value, definition) : value
   }
   return formattedVariables
@@ -186,7 +197,6 @@ function convertFormDataEntries(formData: any, variableSchema: any) {
 function convertValueByDefinition(value: any, definition: VariableItem): any {
   switch (definition.display_type) {
     case 'dateRange':
-      if (!Array.isArray(value)) return value
       return value.map((item: string) => dayjs(item).format(definition?.items?.properties?.start?.validation?.pattern))
     case 'array':
       return conversionSubData(value, definition)
@@ -205,7 +215,7 @@ function conversionSubData(formData: any, definition: VariableItem) {
 
   try {
     if (typeof formData === 'string') {
-      return conversionSubData(JSON.parse(formData), definition)
+      return JSON.parse(formData)
     } else if (Array.isArray(formData)) {
       return formData.map((item) => {
         return convertFormDataEntries(item, definition.items?.properties)
