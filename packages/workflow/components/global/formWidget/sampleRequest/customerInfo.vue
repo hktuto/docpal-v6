@@ -39,7 +39,7 @@ function resetFormModel() {
 
 async function searchName(query?: string) {
   if (query !== '') {
-    const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?query=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+    const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
 
     const numberOptions: any[] = []
     const nameOptions: any[] = []
@@ -161,7 +161,7 @@ onMounted(() => {
 })
 
 watch(
-  () => formData,
+  () => formData.cust_name,
   () => {
     init()
   },

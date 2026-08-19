@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { clientApi, newClientApi } from 'api'
 import { Plus, Delete, Switch } from '@element-plus/icons-vue'
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -8,6 +7,7 @@ const { disabled, formData, options } = defineProps<{
 }>()
 const formRef = ref()
 const isSeries = ref<boolean>(false)
+const loading = ref(false)
 
 type dataType = {
   id?: string
@@ -60,7 +60,7 @@ function handleAdd(index?: number) {
     cust_selected_parts: 'Introduced by Sales',
     competitor_name: '',
     competitor_pn: '',
-    competitor_unit_price: '',
+    competitor_unit_price: 1,
     remarks: '',
     actual_received_qty: 0
   } as dataType
@@ -97,90 +97,39 @@ async function getFormData(needValidation = true) {
   return result
 }
 
-async function getPartList() {
-  const list = await getDbData('12ba8480-6936-11f1-922e-adee4ecc74b2')
-  const seen = new Set<any>()
-
-  partList.value = list.reduce((acc: any[], item: any) => {
-    const value = item.segment1
-
-    if (seen.has(value)) return acc
-    seen.add(value)
-
-    acc.push({
-      id: item.inventory_item_id,
-      label: item.segment1,
-      value: item.segment1,
-      brand: item.attribute8
-    })
-
-    return acc
-  }, [])
+async function searchPartList(partNumber?: string) {
+  if (!partNumber || partNumber === '') return
+  await getPartList(partNumber)
 }
 
-async function getSeriesList() {
-  const list = await getDbData('c13ccf90-7101-11f1-a5ba-a73b7858cef3')
-  const seen = new Set<any>()
+async function getPartList(partNumber?: string) {
+  const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?q=${partNumber}&pageNum=1&pageSize=200`).then((r) => r.data.items)
 
-  seriesList.value = list.reduce((acc: any[], item: any) => {
-    const value = item.mfg_part_num
-    if (seen.has(value)) return acc
-    seen.add(value)
+  partList.value = data.map((item: any) => ({
+    id: item.inventory_item_id,
+    label: item.wcl_item_no,
+    value: item.wcl_item_no,
+    brand: item.brand
+  }))
+}
 
-    acc.push({
-      id: item.id,
-      label: item.mfg_part_num,
-      value: value,
-      brand: ''
-    })
-    return acc
-  }, [])
+async function searchSeriesList(series?: string) {
+  if (!series || series === '') return
+  await getSeriesList(series)
+}
+
+async function getSeriesList(series?: string) {
+  const data = await $api.get(`apis/v1/ms/oracle/series?q=${series}&pageNum=1&pageSize=200`).then((r) => r.data.items)
+  seriesList.value = data.map((item: any) => ({
+    label: item.displayName,
+    value: item.value
+  }))
 }
 
 async function init() {
   if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
     data.value = formData.sample_info_list
   }
-}
-
-async function getDbData(tableId: string) {
-  // Get Filed Mapping
-  const filedData: any = await newClientApi
-    .getDocpalMasterTableUserConfig({
-      tableId: tableId,
-      userId: 'master',
-      type: 'detail'
-    })
-    .then((res) => res.data)
-  const filedMapping: any = {}
-  filedData.tableFields.forEach((item: any) => {
-    filedMapping[item.field_name as string] = item.validation_rules.title
-  })
-
-  const param = {
-    tableId: tableId,
-    columns: [
-      {
-        name: '*'
-      }
-    ],
-    pagination: {
-      pageSize: 1000,
-      pageNum: 0
-    }
-  }
-
-  // Get BD Data
-  const dbData = await clientApi.instance.post('/apis/v1/dynamic-actions', param).then((res: any) => res.data.data)
-
-  // 匹配數據
-  return dbData.map((row: any) => {
-    const out = {}
-    for (const [fromKey, toKey] of Object.entries(filedMapping)) {
-      if (fromKey in row) out[toKey] = row[fromKey]
-    }
-    return out
-  })
 }
 
 function changePartNumber(item: any) {
@@ -190,7 +139,7 @@ function changePartNumber(item: any) {
 
 onMounted(async () => {
   try {
-    await getPartList()
+    await getPartList('')
     await getSeriesList()
   } catch (e) {
     console.log(e)
@@ -247,12 +196,31 @@ defineExpose({ getFormData })
               :rules="isSeries ? rules.series : rules.part_number"
             >
               <div class="partNumber-series-change">
-                <el-select v-if="isSeries" v-model="item.series" filterable>
-                  <el-option v-for="part in seriesList" :key="part.id" :label="part.label" :value="part.value" />
-                </el-select>
-                <el-select v-else v-model="item.part_number" @change="changePartNumber(item)" filterable>
-                  <el-option v-for="part in partList" :key="part.id" :label="part.label" :value="part.value" />
-                </el-select>
+                <el-select-v2
+                  v-if="!isSeries"
+                  v-model="item.part_number"
+                  filterable
+                  remote
+                  :remote-method="searchPartList"
+                  remote-show-suffix
+                  clearable
+                  :options="partList"
+                  :loading="loading"
+                  placeholder="Please enter a keyword"
+                  @change="changePartNumber(item)"
+                />
+                <el-select-v2
+                  v-else
+                  v-model="item.series"
+                  filterable
+                  remote
+                  :remote-method="searchSeriesList"
+                  remote-show-suffix
+                  clearable
+                  :options="seriesList"
+                  :loading="loading"
+                  placeholder="Please enter a keyword"
+                />
                 <el-button :icon="Switch" type="primary" @click="changePartNumberAndSeries(item, index)" />
               </div>
             </el-form-item>
@@ -306,7 +274,7 @@ defineExpose({ getFormData })
               />
             </el-form-item>
             <el-form-item label="競爭者價格">
-              <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="1" :step="1" step-strictly />
+              <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="0.000001" :step="1" step-strictly />
             </el-form-item>
           </el-col>
 
