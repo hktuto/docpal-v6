@@ -4861,6 +4861,7 @@
     "detectedIssues": "Detected Issues",
     "detectedIssuesSubtitle": "Issues detected by the rules engine",
     "detect": "Detect",
+    "reDetect": "Re-detect",
     "noAutomaticIssues": "No automatic issues.",
     "carton": "CARTON",
     "supplierPn": "Supplier PN",

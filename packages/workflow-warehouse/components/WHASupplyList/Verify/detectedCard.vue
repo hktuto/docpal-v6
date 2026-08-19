@@ -7,11 +7,12 @@ const detecting = ref(false)
 const unmatchedList = ref([])
 const { formData, selectedInvoice } = useWHASupplyListVerifyInject()
 const { saveTableData, highlightMatchingRows } = useWHASupplyListVerifyTableInject()
-async function handleDetect() {
+async function handleDetect(isInit = true) {
   if (detecting.value) return
   detecting.value = true
   try {
-    await saveTableData()
+    console.log('handleDetect', isInit)
+    if (!isInit) await saveTableData()
     const res = await newClientApi.postWmsPackingOrderCompare({
       batchNo: formData.value?.batch_no,
       invoiceNum: selectedInvoice.value?.[SGLA.Name]
@@ -32,8 +33,16 @@ async function handleDetect() {
     detecting.value = false
   }
 }
-watch(selectedInvoice, () => {
-  unmatchedList.value = []
+watch(
+  selectedInvoice,
+  (invoice) => {
+    unmatchedList.value = []
+    if (invoice) handleDetect()
+  },
+  { immediate: true }
+)
+defineExpose({
+  handleDetect
 })
 </script>
 
@@ -54,7 +63,8 @@ watch(selectedInvoice, () => {
     </div>
     <div v-else class="detected-issue-list">
       <div v-for="item in unmatchedList" :key="item.id" class="detected-issue-card">
-        <b>{{ item.supplierPn }}</b>({{item.poLine}})
+        <b>{{ item.supplierPn }}</b
+        >({{ item.poLine }})
         <div v-if="item.dbTotalQty !== item.totalQty">
           <span>{{ item.dbTotalQty }}</span>
           <span class="is-danger">{{ item.totalQty }}</span>
@@ -67,11 +77,11 @@ watch(selectedInvoice, () => {
       type="primary"
       :loading="detecting"
       tabindex="0"
-      :aria-label="t('workflowWarehouse.detect')"
-      @click="handleDetect"
-      @keydown.enter="handleDetect"
+      :aria-label="t('workflowWarehouse.reDetect')"
+      @click="handleDetect(false)"
+      @keydown.enter="handleDetect(false)"
     >
-      {{ $t('workflowWarehouse.detect') }}
+      {{ $t('workflowWarehouse.reDetect') }}
     </el-button>
   </div>
 </template>
