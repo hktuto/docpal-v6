@@ -173,7 +173,9 @@ export function conversionFormDataByVariables(formData: any, formFields: Variabl
 
 /**
  * Remove formData that is not defined in form fields
- * 移除多餘字段
+ * TODO: 該方法會導致 Packing List 相關的動態預覽的數據丟失。
+ * TODO: 當E-form使用臨時字段緩存過量數據時，提交數據會導致JSON數據超量導致提交接口異常。
+ *
  * @param variableSchema
  * @param formData
  */
