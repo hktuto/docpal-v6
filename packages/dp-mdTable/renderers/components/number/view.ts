@@ -6,8 +6,8 @@ export const NumberView = ({ options, params }: ViewRenderFunctionParams<number>
   const { $grid, row, column } = params
   const numberOptions = options?.props
   const value = row[column.field]
-  if (isNaN(value)) {
-    return !!value ? h('span', 'no a valid number') : ''
+  if (value === '' || value == null || Number.isNaN(Number(value))) {
+    return value != null && value !== '' ? h('span', 'no a valid number') : ''
   }
   const precision = numberOptions?.precision || 0
   let formattedValue = Number(value).toFixed(precision)
@@ -53,6 +53,7 @@ export const NumberEdit = ({ options, params }: ViewRenderFunctionParams<number>
     },
     precision,
     controls: false,
+    valueOnClear: null,
     align: 'left',
     class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius mdTable-number-edit',
     onVnodeMounted: () => {

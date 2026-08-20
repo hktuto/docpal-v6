@@ -8,6 +8,7 @@
       :step="1"
       align="left"
       :disabled="disabled"
+      :value-on-clear="null"
       controls-position="right"
     >
       <template v-if="properties.symbol && properties.symbolAlign === 'right'" #suffix>
