@@ -107,9 +107,7 @@ async function handleSave(value: string, item: any) {
   const payload = item.valueType === 'number' && value !== '' && value != null ? Number(value) : value
   const invoiceData: Record<string, any> = { [SGLA[item.invoiceKey]]: payload }
   if (item.invoiceKey === 'VendorId' && !!payload) {
-    const matched = SupplierList.value.find(
-      (opt) => String(opt.value) === String(payload)
-    )
+    const matched = SupplierList.value.find((opt) => String(opt.label) === String(payload))
     invoiceData[SGLA.VendorName] = matched?.label ?? null
   }
   const res = await updateInvoiceData(invoiceData)
@@ -144,16 +142,18 @@ async function getSupplierList() {
   try {
     const params = {
       table: SUPPLIER_LIST_TABLE_NAME,
-      columns: [{ name: 'short_name' }, { name: 'code' }],
-      orderBy: [{ column: 'short_name', desc: false }]
+      columns: [
+        { name: 'name' },
+        { name: 'code' }
+      ],
+      orderBy: [{ column: 'name', desc: false }]
     }
     const { data } = await postDynamicActions(params)
     SupplierList.value =
       data?.data.map((item: any) => ({
-        label: item.short_name,
+        label: item.name,
         value: item.code
       })) ?? []
-
   } catch (error) {
     console.error(error)
     return []
@@ -179,16 +179,18 @@ function syncSelectField(field: keyof typeof SGLA, options: { label: string; val
   if (!invoice || !options.length) return
   const current = invoice[SGLA[field]]
   if (current == null || current === '') return
-  const matched = options.find(
-    (opt) => String(opt.value) === String(current) || String(opt.label) === String(current)
-  )
+  const matched = options.find((opt) => String(opt.value) === String(current) || String(opt.label) === String(current))
   invoice[SGLA[field]] = matched ? matched.value : ''
 }
 
-watch([() => selectedInvoice.value?.id, SupplierList, OrgList], () => {
-  syncSelectField('VendorId', SupplierList.value)
-  syncSelectField('Org', OrgList.value)
-}, { immediate: true })
+watch(
+  [() => selectedInvoice.value?.id, SupplierList, OrgList],
+  () => {
+    syncSelectField('VendorId', SupplierList.value)
+    syncSelectField('Org', OrgList.value)
+  },
+  { immediate: true }
+)
 
 onMounted(async () => {
   await getSupplierList()
