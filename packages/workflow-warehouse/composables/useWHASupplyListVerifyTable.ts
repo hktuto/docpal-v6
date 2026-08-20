@@ -40,6 +40,7 @@ function editableColumn(type: EditableColumnType = 'text', selectOptions: Select
     return {
       editRender: {
         name: 'VxeSelect',
+        autofocus: '.vxe-input--inner',
         options: selectOptions,
         props: {
           clearable: true,
@@ -396,12 +397,19 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
         trigger: 'click',
         mode: 'cell',
         showIcon: false,
-        showStatus: false
+        showStatus: false,
+        autoFocus: true
       }
     },
     optionalConfig: {
       border: 'inner',
       stripe: false,
+      mouseConfig: {
+        selected: true
+      },
+      keyboardConfig: {
+        isEsc: true
+      },
       pagerConfig: { enabled: false },
       rowClassName: ({ row }: { row: Record<string, any> }) =>
         highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine]))
@@ -421,6 +429,12 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       },
     }
   })
+
+  const { focusEditCell, keyboardConfig, onEditActivated } = useVxeGridCellKeyboard(tableRef, {
+    getVisibleRows: () => getFilteredItems(tableData.value)
+  })
+  Object.assign(tableConfig.keyboardConfig ?? {}, keyboardConfig)
+  tableEvent.editActivated = onEditActivated
 
   tableEvent.checkboxChange = ({ checked, row }: { checked: boolean; row: Record<string, any> }) => {
     if (checked) assertCanVerify(row)
@@ -533,6 +547,8 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       nextTick(() => {
         grid?.scrollToRow?.(insertedRow)
         grid?.setEditCell?.(insertedRow, SGLA_ITEMS.Supplier_PN)
+        const supplierPnColumn = verificationTableColumns.find((col: any) => col.field === SGLA_ITEMS.Supplier_PN)
+        focusEditCell(supplierPnColumn as any, insertedRow)
       })
     } catch (error) {
       console.error(error)
