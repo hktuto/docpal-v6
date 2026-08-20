@@ -168,7 +168,7 @@ export interface WHASupplyListVerifyTableContext {
   searchQuery: Ref<string>
   columns: VerificationTableColumn[]
   reload: () => void
-  SGLA_ITEMS: typeof SGLA_ITEMS,
+  SGLA_ITEMS: typeof SGLA_ITEMS
   batchEditDialogVisible: Ref<boolean>
   selectedColumn: Ref<string | undefined>
   applyBatchEdit: (val: string) => void
@@ -186,7 +186,7 @@ function generateParams(masterTableId: string) {
     tableId: SGLA_ITEMS_TABLE_ID,
     columns: [{ name: '*' }],
     orderBy: [
-      { column: 'created_at', desc: false },
+      { column: 'created_at', desc: false }
       // { column: SGLA_ITEMS.Carton, desc: false }
     ],
     conditions: [
@@ -221,9 +221,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     highlightedMatchKeys.value = new Set(list.map((m) => rowMatchKey(m.supplierPn, m.poLine)))
     nextTick(() => {
       tableRef.value?.updateData?.()
-      const first = tableData.value.find((row) =>
-        highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine]))
-      )
+      const first = tableData.value.find((row) => highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine])))
       if (first) tableRef.value?.scrollToRow?.(first)
     })
   }
@@ -314,9 +312,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
   /** 返回未填必填列标题；空数组表示可勾选 */
   function getMissingRequiredLabels(row: Record<string, any>) {
-    return requiredColumns
-      .filter((col: any) => row[col.field] == null || row[col.field] === '')
-      .map((col: any) => col.title)
+    return requiredColumns.filter((col: any) => row[col.field] == null || row[col.field] === '').map((col: any) => col.title)
   }
 
   /** 勾选为 true 时校验必填；不通过则回滚。cancelWarn 用于批量时由外层统一提示 */
@@ -335,15 +331,11 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     if (!row?.id) return
 
     try {
-      await ElMessageBox.confirm(
-        t('contextMenu.confirmDelete'),
-        t('dpTip_warning'),
-        {
-          type: 'warning',
-          confirmButtonText: t('common_delete'),
-          cancelButtonText: t('common_cancel')
-        }
-      )
+      await ElMessageBox.confirm(t('contextMenu.confirmDelete'), t('dpTip_warning'), {
+        type: 'warning',
+        confirmButtonText: t('common_delete'),
+        cancelButtonText: t('common_cancel')
+      })
       await newClientApi.deleteDynamicDbTableTableidDataDataid(SGLA_ITEMS_TABLE_ID, row.id)
       tableData.value = tableData.value.filter((item) => item.id !== row.id)
       const nextHighlightedKeys = new Set(highlightedMatchKeys.value)
@@ -374,13 +366,17 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       tableData.value = normalized
       return getFilteredItems(normalized)
     },
-    headerActions:[
-      [{
-        code: 'batchEdit', name: 'BatchEdit', action: ({ menu, row, column }) => {
-          batchEditDialogVisible.value = true
-          selectedColumn.value = column.field
+    headerActions: [
+      [
+        {
+          code: 'batchEdit',
+          name: 'BatchEdit',
+          action: ({ menu, row, column }) => {
+            batchEditDialogVisible.value = true
+            selectedColumn.value = column.field
+          }
         }
-      },]
+      ]
     ],
     bodyActions: [
       [
@@ -391,6 +387,12 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
         }
       ]
     ],
+    permissionMethod: ({ row }) => {
+      return {
+        visible: !!row,
+        disabled: false
+      }
+    },
     editRender: {
       editClosed: () => undefined,
       editConfig: {
@@ -412,9 +414,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       },
       pagerConfig: { enabled: false },
       rowClassName: ({ row }: { row: Record<string, any> }) =>
-        highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine]))
-          ? 'wha-verify-row-highlight'
-          : '',
+        highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine])) ? 'wha-verify-row-highlight' : '',
       // type=checkbox 列上的 field 是 label，不是勾选绑定；勾选状态靠 checkField
       checkboxConfig: {
         checkField: SGLA_ITEMS.Checked,
@@ -426,7 +426,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
         zoom: false,
         refresh: false,
         slots: { buttons: 'toolbar_buttons' }
-      },
+      }
     }
   })
 
@@ -443,9 +443,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   tableEvent.checkboxAll = ({ checked }: { checked: boolean }) => {
     if (!checked) return
     nextTick(() => {
-      const invalid = (tableRef.value?.getCheckboxRecords?.() || []).filter(
-        (row: Record<string, any>) => !assertCanVerify(row, { silent: true })
-      )
+      const invalid = (tableRef.value?.getCheckboxRecords?.() || []).filter((row: Record<string, any>) => !assertCanVerify(row, { silent: true }))
       if (invalid.length) {
         ElMessage.warning(t('render.hint.fieldRequired', { name: requiredColumns.map((col: any) => col.title).join(', ') }))
       }
@@ -465,7 +463,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const batchEditDialogVisible = ref(false)
   function applyBatchEdit(val: string) {
     if (!selectedColumn.value) return
-    const {tableData} = tableRef.value.getTableData()
+    const { tableData } = tableRef.value.getTableData()
     tableData.forEach((row: any) => {
       row[selectedColumn.value] = val
     })
@@ -563,9 +561,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
   function getFormData() {
     // checkbox 列用 checkField 绑定，列上没有 field，需显式带上 Checked
-    const fields = verificationTableColumns
-      .map((column: any) => column.field)
-      .filter((item): item is string => item !== undefined)
+    const fields = verificationTableColumns.map((column: any) => column.field).filter((item): item is string => item !== undefined)
     const formFields = [...new Set([...fields, SGLA_ITEMS.Checked, 'id'])]
     return tableData.value.map((item) => {
       const data: Record<string, any> = {}
