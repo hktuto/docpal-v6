@@ -1,6 +1,7 @@
 import { h, type Component } from 'vue'
 import type { ViewRenderFunctionParams } from '../../../types/column-types'
-import { ElInput } from 'element-plus'
+import { ElInputNumber } from 'element-plus'
+
 export const NumberView = ({ options, params }: ViewRenderFunctionParams<number>) => {
   const { $grid, row, column } = params
   const numberOptions = options?.props
@@ -27,31 +28,36 @@ export const NumberView = ({ options, params }: ViewRenderFunctionParams<number>
       class: 'number-view mb-table-cell',
       'data-title': formattedValue,
       onMouseenter: (e) => {
-        $grid.dispatchEvent('cell-mouseenter', { row, column },e)
+        $grid.dispatchEvent('cell-mouseenter', { row, column }, e)
       },
       onMouseleave: (e) => {
-         $grid.dispatchEvent('cell-mouseleave', { row, column },e)
-      },
+        $grid.dispatchEvent('cell-mouseleave', { row, column }, e)
+      }
     },
     formattedValue
   )
 }
+
 export const NumberEdit = ({ options, params }: ViewRenderFunctionParams<number>) => {
   const { row, column } = params
-  const { options: numberOptions } = options?.props
+  const numberOptions = options?.props ?? {}
+  const precision = typeof numberOptions.precision === 'number' ? numberOptions.precision : 0
   const currentValue = row[column.field]
   const inputRef = ref<any>(null)
-  return h(ElInput as Component, {
+
+  return h(ElInputNumber as Component, {
     ref: inputRef,
-    modelValue: currentValue != null ? String(currentValue) : '',
-    'onUpdate:modelValue': (value: string | number | null) => {
-      row[column.field] = value !== null && value !== '' ? Number(value) : undefined
+    modelValue: currentValue != null && currentValue !== '' ? Number(currentValue) : null,
+    'onUpdate:modelValue': (value: number | undefined | null) => {
+      row[column.field] = value ?? null
     },
-    class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius',
-    type: 'number',
+    precision,
+    controls: false,
+    align: 'left',
+    class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius mdTable-number-edit',
     onVnodeMounted: () => {
       nextTick(() => {
-        inputRef.value.focus()
+        inputRef.value?.focus?.()
       })
     }
   })

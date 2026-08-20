@@ -52,6 +52,21 @@ export function getRowCellValue(row: Record<string, any> | undefined, column: an
   return row?.[dataField]
 }
 
+function resolveColumnBusinessType(column: any): string {
+  return String(column?.business_type ?? column?.type ?? column?.cellRender?.name ?? '')
+}
+
+/** 提交前按列类型规范化单元格值（如 Number 列避免字符串） */
+export function normalizeFieldValueForSubmit(value: unknown, column: any): unknown {
+  const columnType = resolveColumnBusinessType(column)
+  if (columnType === ColumnFieldType.Number || columnType === 'Number') {
+    if (value === '' || value == null) return null
+    const n = Number(value)
+    return Number.isFinite(n) ? n : value
+  }
+  return value
+}
+
 /**
  * 按字段配置格式化日期时间（支持 dateFormat、includeTime、dateTimeFormat、timezone）
  */

@@ -38,9 +38,15 @@ watchEffect(() => {
   }
 
   const currentValue = props.formData[modelField.value]
+  if (currentValue === '' || currentValue == null) {
+    if (currentValue !== null) {
+      props.formData[modelField.value] = null
+    }
+    return
+  }
   if (typeof currentValue === 'string') {
     const n = Number(currentValue.trim())
-    props.formData[modelField.value] = Number.isFinite(n) ? n : undefined
+    props.formData[modelField.value] = Number.isFinite(n) ? n : null
   }
 })
 

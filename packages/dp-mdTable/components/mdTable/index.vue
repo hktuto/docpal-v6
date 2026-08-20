@@ -90,6 +90,7 @@ import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import { useMDTable } from '../../composables/useMDTable'
+import { useCount } from '../../composables/useCount'
 import { useGridEvents } from '../../composables/mdTableEvent'
 import { onClickOutside } from '@vueuse/core'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
@@ -547,6 +548,13 @@ onClickOutside(
   .el-select__wrapper,
   .el-select__selection {
     height: 100%;
+  }
+}
+:deep(.mdTable-number-edit) {
+  width: 100%;
+  .el-input__wrapper {
+    padding-left: var(--app-space-xs);
+    padding-right: var(--app-space-xs);
   }
 }
 

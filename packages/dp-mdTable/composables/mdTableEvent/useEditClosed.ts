@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { normalizeFieldValueForSubmit } from '../../utils/fieldValueFormat'
 import { useUpdateStatus } from '../useUpdateStatus'
 
 export interface UseEditClosedOptions {
@@ -22,8 +23,10 @@ export function useEditClosed(options: UseEditClosedOptions) {
       options.onExitEdit(params)
       return
     }
+    const normalizedValue = normalizeFieldValueForSubmit(row[column.field], column)
+    row[column.field] = normalizedValue
     const updateData = {
-      [column.field]: row[column.field]
+      [column.field]: normalizedValue
     }
 
     setLoading(row.id, column.field)

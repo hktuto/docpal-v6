@@ -34,7 +34,7 @@ export function useVxeGridCellKeyboard(
           (typeof autofocus === 'string' && autofocus) ||
           (targetColumn.editRender?.name === 'VxeSelect'
             ? '.vxe-input--inner'
-            : '.vxe-input--inner, .vxe-textarea--inner, .el-input__inner, .el-textarea__inner')
+            : '.vxe-input--inner, .vxe-textarea--inner, .el-input__inner, .el-textarea__inner, .el-input-number .el-input__inner')
         const target = cell.querySelector(selector) as HTMLInputElement | HTMLTextAreaElement | null
         if (!target) return
 
