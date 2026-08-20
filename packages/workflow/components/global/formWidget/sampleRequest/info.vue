@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Plus, Delete, Switch } from '@element-plus/icons-vue'
+import { v7 as uuidv7 } from 'uuid'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -10,7 +12,7 @@ const isSeries = ref<boolean>(false)
 const loading = ref(false)
 
 type dataType = {
-  id?: string
+  line_id?: string
   line_number: number
   vendor: string
   part_number: string
@@ -25,9 +27,10 @@ type dataType = {
   cust_selected_parts: 'Introduced by Sales' | 'Selected by Customer'
   competitor_name: string
   competitor_pn: string
-  competitor_unit_price: string
+  competitor_unit_price: number
   remarks: string
   actual_received_qty: number
+  status: number
 }
 
 const formModel = reactive<{ list: dataType[] }>({
@@ -46,6 +49,7 @@ const rules = {
 
 function handleAdd(index?: number) {
   const newValue = {
+    line_id: uuidv7(),
     line_number: data.value.length + 1,
     vendor: '',
     part_number: '',
@@ -62,7 +66,8 @@ function handleAdd(index?: number) {
     competitor_pn: '',
     competitor_unit_price: 1,
     remarks: '',
-    actual_received_qty: 0
+    actual_received_qty: 0,
+    status: 1
   } as dataType
 
   if (!!index) {
@@ -128,6 +133,7 @@ async function getSeriesList(series?: string) {
 
 async function init() {
   if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
+    if (formData.sample_info_list.every((x) => typeof x === 'string')) return
     data.value = formData.sample_info_list
   }
 }
