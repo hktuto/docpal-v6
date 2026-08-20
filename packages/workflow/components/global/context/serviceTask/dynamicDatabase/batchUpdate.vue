@@ -43,9 +43,6 @@ const tableFieldList = ref<
 const arrayVariables = computed(() => {
   return getVariablesByDisplayTypes(['array'], true)
 })
-const recoderVariables = computed(() => {
-  return getVariablesByDisplayTypes(['array'])
-})
 const arrayVariableOption = ref<any[]>([])
 const fieldsList = ref<string[]>([])
 const updateFieldsList = computed(() => {
@@ -75,6 +72,7 @@ function getArrayVariables(field_type: string) {
 
 async function init() {
   const data = node.getData()
+  fieldsList.value = []
   tableFieldList.value = []
   recordId.value = ''
   dataList.value = ''
@@ -89,11 +87,10 @@ async function init() {
 
   if (tableId.value !== '') {
     await getTableConfig()
-    getArrayVariablesOption()
-
     const body = data.config.http_request.body
     recordId.value = body.mapping['id'] || ''
     dataList.value = body.data
+    getArrayVariablesOption()
 
     tableFieldList.value = tableFieldList.value.map((item: any) => {
       if (item.id in body.mapping) {
@@ -311,7 +308,7 @@ watch(
     </el-form-item>
 
     <el-form-item label="Add Fields">
-      <el-select v-model="fieldsList" :placeholder="t('common_selectOccupancyContent')" multiple collapse-tags collapse-tags-tooltip filterable>
+      <el-select v-model="fieldsList" :placeholder="t('common_selectOccupancyContent')" clearable multiple collapse-tags collapse-tags-tooltip filterable>
         <el-option v-for="item in tableFieldList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
