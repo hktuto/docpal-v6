@@ -147,6 +147,9 @@ onMounted(async () => {
   try {
     await getPartList('')
     await getSeriesList()
+    if (data.value.length === 0) {
+      handleAdd()
+    }
   } catch (e) {
     console.log(e)
   }

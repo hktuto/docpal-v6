@@ -11,6 +11,7 @@ function isSeries(item: any) {
 
 const data = ref<any[]>([
   {
+    id: '',
     line_number: '',
     vendor: '',
     purpose: '',
