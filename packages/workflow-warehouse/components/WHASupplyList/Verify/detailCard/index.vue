@@ -107,7 +107,7 @@ async function handleSave(value: string, item: any) {
   const payload = item.valueType === 'number' && value !== '' && value != null ? Number(value) : value
   const invoiceData: Record<string, any> = { [SGLA[item.invoiceKey]]: payload }
   if (item.invoiceKey === 'VendorId' && !!payload) {
-    const matched = SupplierList.value.find((opt) => String(opt.label) === String(payload))
+    const matched = SupplierList.value.find((opt) => String(opt.label) === String(payload) || String(opt.shortName) === String(payload))
     invoiceData[SGLA.VendorName] = matched?.label ?? null
   }
   const res = await updateInvoiceData(invoiceData)
@@ -142,17 +142,15 @@ async function getSupplierList() {
   try {
     const params = {
       table: SUPPLIER_LIST_TABLE_NAME,
-      columns: [
-        { name: 'name' },
-        { name: 'code' }
-      ],
+      columns: [{ name: 'name' }, { name: 'short_name' }, { name: 'code' }],
       orderBy: [{ column: 'name', desc: false }]
     }
     const { data } = await postDynamicActions(params)
     SupplierList.value =
       data?.data.map((item: any) => ({
         label: item.name,
-        value: item.code
+        value: item.code,
+        shortName: item.short_name
       })) ?? []
   } catch (error) {
     console.error(error)
