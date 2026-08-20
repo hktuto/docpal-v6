@@ -1,9 +1,8 @@
 ﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { newClientApi, postDynamicActions } from 'api'
 import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
 import { COUNTRY_STATIC_ALIASES } from '../utils/countryAliases'
-import { useWHASupplyListVerifyInject } from './useWHASupplyListVerify'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
@@ -115,12 +114,6 @@ export function createVerificationTableColumns(t: (key: string) => string) {
       ...editableColumn()
     },
     {
-      field: SGLA_ITEMS.SupplierItemRefNo,
-      title: t('workflowWarehouse.SupplierItemRefNo'),
-      minWidth: 140,
-      ...editableColumn()
-    },
-    {
       field: SGLA_ITEMS.DateCode,
       title: t('workflowWarehouse.dateCode'),
       minWidth: 140,
@@ -164,6 +157,7 @@ export type VerificationTableColumn = ReturnType<typeof createVerificationTableC
 
 export interface WHASupplyListVerifyTableContext {
   loading: Ref<boolean>
+  creatingRow: Ref<boolean>
   tableData: Ref<any[]>
   tableConfig: any
   tableEvent: any
@@ -180,6 +174,7 @@ export interface WHASupplyListVerifyTableContext {
   /** 按 Supplier_PN + PoLine 高亮匹配行（红底），可传单条或数组 */
   highlightMatchingRows: (matches: HighlightMatchKey | HighlightMatchKey[]) => void
   clearMatchingRowHighlight: () => void
+  addRow: () => Promise<void>
   saveTableData: () => Promise<void>
 }
 
@@ -190,8 +185,8 @@ function generateParams(masterTableId: string) {
     tableId: SGLA_ITEMS_TABLE_ID,
     columns: [{ name: '*' }],
     orderBy: [
-      { column: SGLA_ITEMS.Carton, desc: false },
-      { column: 'created_at', desc: false }
+      { column: 'created_at', desc: false },
+      // { column: SGLA_ITEMS.Carton, desc: false }
     ],
     conditions: [
       {
@@ -212,6 +207,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const { t } = useI18n()
   const verificationTableColumns = createVerificationTableColumns(t)
   const loading = ref(false)
+  const creatingRow = ref(false)
   const statusFilter = ref<VerificationStatusFilter>('all')
   const searchQuery = ref('')
   const tableData = ref<Record<string, any>[]>([])
@@ -334,6 +330,34 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     return false
   }
 
+  async function deleteRow(row: Record<string, any>) {
+    if (!row?.id) return
+
+    try {
+      await ElMessageBox.confirm(
+        t('contextMenu.confirmDelete'),
+        t('dpTip_warning'),
+        {
+          type: 'warning',
+          confirmButtonText: t('common_delete'),
+          cancelButtonText: t('common_cancel')
+        }
+      )
+      await newClientApi.deleteDynamicDbTableTableidDataDataid(SGLA_ITEMS_TABLE_ID, row.id)
+      tableData.value = tableData.value.filter((item) => item.id !== row.id)
+      const nextHighlightedKeys = new Set(highlightedMatchKeys.value)
+      nextHighlightedKeys.delete(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine]))
+      highlightedMatchKeys.value = nextHighlightedKeys
+      const grid = tableRef.value as any
+      grid?.loadData?.(getFilteredItems(tableData.value))
+      ElMessage.success(t('common_deleteSuccess'))
+    } catch (error) {
+      if (error === 'cancel' || error === 'close') return
+      console.error(error)
+      ElMessage.error(t('common_deleteFail'))
+    }
+  }
+
   const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     id: 'wha-receiving-verification-items',
     height: '100%',
@@ -356,6 +380,15 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
           selectedColumn.value = column.field
         }
       },]
+    ],
+    bodyActions: [
+      [
+        {
+          code: 'delete',
+          name: t('mdTable.deleteRow'),
+          action: ({ row }) => deleteRow(row)
+        }
+      ]
     ],
     editRender: {
       editClosed: () => undefined,
@@ -454,6 +487,60 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     }
   }
 
+  function createEmptyRow(masterId: string) {
+    return {
+      [SGLA_ITEMS.MasterId]: masterId,
+      [SGLA_ITEMS.Carton]: '',
+      [SGLA_ITEMS.Supplier_PN]: '',
+      [SGLA_ITEMS.WCL_PN]: '',
+      [SGLA_ITEMS.Qty]: null,
+      [SGLA_ITEMS.PoLine]: '',
+      [SGLA_ITEMS.SupplierItemRefNo]: '',
+      [SGLA_ITEMS.DateCode]: '',
+      [SGLA_ITEMS.CountryOfOrigin]: '',
+      [SGLA_ITEMS.CountryOfWafer]: '',
+      [SGLA_ITEMS.DrawingNo]: '',
+      [SGLA_ITEMS.Remark]: '',
+      [SGLA_ITEMS.Checked]: false
+    }
+  }
+
+  async function addRow() {
+    const masterId = selectedInvoice.value?.id
+    if (!masterId || creatingRow.value) return
+
+    creatingRow.value = true
+    try {
+      const { data } = await newClientApi.postDynamicDbTableTableidData(SGLA_ITEMS_TABLE_ID, {
+        data: createEmptyRow(masterId)
+      })
+      const insertedRow = normalizeCountryFields([
+        {
+          id: data?.id,
+          ...(data?.data?.data ?? {}),
+          [SGLA_ITEMS.Qty]: data?.data?.data?.[SGLA_ITEMS.Qty] ?? null,
+          [SGLA_ITEMS.Checked]: !!data?.data?.data?.[SGLA_ITEMS.Checked]
+        }
+      ])[0]
+
+      if (!insertedRow?.id) return
+
+      tableData.value.unshift(insertedRow)
+      statusFilter.value = 'all'
+      const grid = tableRef.value as any
+      grid?.loadData?.(getFilteredItems(tableData.value))
+
+      nextTick(() => {
+        grid?.scrollToRow?.(insertedRow)
+        grid?.setEditCell?.(insertedRow, SGLA_ITEMS.Supplier_PN)
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      creatingRow.value = false
+    }
+  }
+
   const debouncedReload = useDebounceFn(() => reload(), 300)
 
   watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => debouncedReload())
@@ -489,6 +576,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
   const context: WHASupplyListVerifyTableContext = {
     loading,
+    creatingRow,
     tableData,
     tableConfig,
     tableEvent,
@@ -504,6 +592,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     applyBatchEdit,
     highlightMatchingRows,
     clearMatchingRowHighlight,
+    addRow,
     saveTableData
   }
 

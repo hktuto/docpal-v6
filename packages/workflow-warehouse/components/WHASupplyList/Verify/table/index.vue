@@ -6,6 +6,9 @@
           v-model="statusFilter"
           v-model:search="searchQuery"
           :counts="statusCounts"
+          :creating-row="creatingRow"
+          :disabled="disabled || !selectedInvoice"
+          @add-row="addRow"
         />
       </template>
     </VxeGrid>
@@ -20,9 +23,11 @@
 <script setup lang="ts">
 
 import { useWHASupplyListVerifyTableInject } from '../../../../composables/useWHASupplyListVerifyTable'
+import { useWHASupplyListVerifyInject } from '../../../../composables/useWHASupplyListVerify'
 
 const {
   loading,
+  creatingRow,
   tableConfig,
   tableEvent,
   tableRef,
@@ -31,8 +36,11 @@ const {
   searchQuery,
   batchEditDialogVisible,
   selectedColumn,
-  applyBatchEdit
+  applyBatchEdit,
+  addRow
 } = useWHASupplyListVerifyTableInject()
+
+const { disabled, selectedInvoice } = useWHASupplyListVerifyInject()
 </script>
 
 <style lang="scss" scoped>

@@ -25,7 +25,6 @@
 
 <script setup lang="ts">
 import { Document } from '@element-plus/icons-vue'
-import { useWHASupplyListVerifyTableInject } from '../../../composables/useWHASupplyListVerifyTable'
 import { SGLA } from '../../../utils/variableMapping'
 
 const { updateInvoiceData, disabled } = useWHASupplyListVerifyInject()
