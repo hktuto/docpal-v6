@@ -60,6 +60,7 @@ function getVariables(field: any) {
 }
 
 async function init() {
+  tableFieldList.value = []
   const data = node.getData()
   databaseId.value = data.metadata.databaseId
   if (databaseId.value !== '') {
