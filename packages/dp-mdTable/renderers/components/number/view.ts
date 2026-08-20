@@ -37,7 +37,7 @@ export const NumberView = ({ options, params }: ViewRenderFunctionParams<number>
   )
 }
 export const NumberEdit = ({ options, params }: ViewRenderFunctionParams<number>) => {
-  const { $table, row, column } = params
+  const { row, column } = params
   const { options: numberOptions } = options?.props
   const currentValue = row[column.field]
   const inputRef = ref<any>(null)
@@ -49,14 +49,6 @@ export const NumberEdit = ({ options, params }: ViewRenderFunctionParams<number>
     },
     class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius',
     type: 'number',
-    onKeydown: (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
-        event.preventDefault()
-        event.stopPropagation()
-        // 结束编辑
-        $table.clearEdit?.()
-      }
-    },
     onVnodeMounted: () => {
       nextTick(() => {
         inputRef.value.focus()

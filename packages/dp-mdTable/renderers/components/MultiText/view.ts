@@ -19,20 +19,7 @@ export const MultiTextView = ({options, params}: ViewRenderFunctionParams<string
 }
 
 export const MultiTextEdit = ({options, params}: ViewRenderFunctionParams<string>) => {
-  const { $table, row, column } = params
-  /**
-   * 处理键盘事件
-   * Shift+Enter: 换行
-   * Enter: 结束编辑
-   */
-  const handleKeydown = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault()
-      event.stopPropagation()
-      // 结束编辑
-      $table.clearEdit?.()
-    }
-  }
+  const { row, column } = params
   const inputRef = ref<any>(null)
 
   return h(ElInput, {
@@ -45,7 +32,6 @@ export const MultiTextEdit = ({options, params}: ViewRenderFunctionParams<string
       maxRows: 8,
     },
     ref: inputRef,
-    onKeydown: handleKeydown,
     onVnodeMounted: () => {
       nextTick(() => {
         inputRef.value.focus()

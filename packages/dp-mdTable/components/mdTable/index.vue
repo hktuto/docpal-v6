@@ -21,7 +21,7 @@
     <div class="table-content">
       <!-- 主表格 -->
       <div class="table-left-panel" style="max-height: 90vh; overflow-y: hidden">
-        <vxe-grid ref="gridRef" v-bind="gridOptions" v-on="gridEvents" class="multi-dimension-grid">
+        <vxe-grid ref="gridRef" v-bind="mergedGridOptions" v-on="gridEvents" class="multi-dimension-grid">
           <!-- 插槽透传 -->
           <template #checkboxIndex="checkboxProps">
             <ToolsCheckboxIndex
@@ -98,6 +98,7 @@ import type { ColumnConfig } from '../../types/column-context'
 import type { SortRule } from '../tools/sort/configPopover.vue'
 import type { FilterRules } from '../tools/filter/ConfigPopover.vue'
 import { createFieldId } from '../../utils/mdTableHelper'
+import { useVxeGridCellKeyboard } from '@packages/base/composables/useVxeGridCellKeyboard'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 
@@ -194,6 +195,18 @@ const {
 } = useMDTable(props)
 const { getAgg } = useCount(props)
 
+const { keyboardConfig, onEditActivated } = useVxeGridCellKeyboard(gridRef)
+const mergedGridOptions = computed(() => {
+  if (!props.canEditTable) return gridOptions.value
+  return {
+    ...gridOptions.value,
+    keyboardConfig: {
+      ...(gridOptions.value as any)?.keyboardConfig,
+      ...keyboardConfig
+    }
+  }
+})
+
 function handleMove(direction: 'up' | 'down') {
   moveCurrentRow(direction)
 }
@@ -219,7 +232,7 @@ const handleRefresh = async () => {
   emit('refresh')
 }
 
-const { gridEvents, relationFormPopoverRef, relationFormTableId, handleRelationFormSubmit } = useGridEvents({
+const { gridEvents: baseGridEvents, relationFormPopoverRef, relationFormTableId, handleRelationFormSubmit } = useGridEvents({
   gridRef,
   columns,
   updateRow,
@@ -248,6 +261,11 @@ const { gridEvents, relationFormPopoverRef, relationFormTableId, handleRelationF
     onRefresh: handleRefresh
   }
 })
+
+const gridEvents = computed(() => ({
+  ...baseGridEvents.value,
+  ...(props.canEditTable ? { editActivated: onEditActivated } : {})
+}))
 
 const handleRefreshSearch = async (rules: FilterRules) => {
   const isDateField = (field: string) => {
