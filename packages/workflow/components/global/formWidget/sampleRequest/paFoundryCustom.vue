@@ -5,7 +5,7 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
-const foundryCustNum = ref('')
+const foundryCustNum = ref([])
 const customerOptions = ref<any[]>([])
 const loading = ref(false)
 const allOptions = ref<any[]>([])

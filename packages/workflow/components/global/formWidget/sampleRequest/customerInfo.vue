@@ -71,9 +71,11 @@ async function getCustomerInfo(customerNumber: string) {
   if (!customerNumber || customerNumber === '') return
   const info = await $api.get(`apis/v1/ms/oracle/customers/${customerNumber}`).then((r: any) => r.data)
 
-  formModel.cust_location = info.customer_location
-  formModel.cust_tel = info.customer_telephone_number
-  formModel.cust_contact = info.customer_contact
+  formModel.cust_location = info.customer_location ?? ''
+  formModel.cust_tel = info.customer_telephone_number ?? ''
+  formModel.cust_contact = info.customer_contact ?? ''
+  formModel.cust_email = info.customer_email ?? ''
+  formModel.cust_website = ''
 }
 
 async function numberChange(value: string) {
