@@ -3,8 +3,8 @@ import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { statusToGroupStatus } from '#imports'
-import { exportSCS103ToExcel } from '~/utils/excelHelper'
-import { exportSCS103ToPDF, type ReportHeader } from '~/utils/pdfHelper'
+import { exportSCS103ToExcel, type ReportHeader } from '~/utils/excelHelper'
+import { exportSCS103ToPDF } from '~/utils/pdfHelper'
 
 // SCS-103 - Daily Summary of the applications from Verified to Completed
 const props = withDefaults(

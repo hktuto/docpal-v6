@@ -8,13 +8,15 @@ type Operator = 'is' | 'isNot' | 'contains' | 'doesNotContain' | 'isEmpty' | 'is
 export type DatabaseMenuRouteParams = {
   detailId: string | null
   pageType: 'setting' | 'detail'
-  detailType: 'folder' | 'master_table' | 'view' | 'dashboard' | 'root' | 'record'
+  detailType: 'folder' | 'master_table' | 'view' | 'dashboard' | 'root' | 'record' | string
   /** For record detail view: the record ID being viewed */
   recordId?: string | null
   /** For record detail view: the table ID the record belongs to */
   tableId?: string | null
   /** For master_table detail view: the item ID of the master table */
   item_id?: string | null
+  parentId?: string | null
+  viewId?: string | null
 }
 
 export type ViewConfig = {
