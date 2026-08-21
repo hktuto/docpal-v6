@@ -13,26 +13,41 @@ export const useTabsManager = () => {
     const allComponents = useTabComponent()
     const allComponentRef = useAllComponentRef()
     const hightLightPanel = useCurrentTargetPanel()
-    function initLayout(newLayout:TabPanel[]) {
-        
-        layout.value = newLayout
-        nextTick(() => {
-            hightLightPanel.value = localStorage.getItem('app-tab-hightLightPanel') || newLayout[0].id
-            allComponents.value = newLayout.reduce((prev:TabItem[], panel:TabPanel) => {
-                return prev.concat(panel.tabs)
-                }, [])
-              // focus on panels  
-              // set initized to all panel selected tab
-              //
-              layout.value.forEach(panel => {
-                if(panel.tabs[panel.showingTabIndex || 0]) {
-                    panel.tabs[panel.showingTabIndex || 0].initized = true
-                }
-              })
-        })
-        // loop thought layout and push all components
 
+    function collectTabs(panels: TabPanel[]) {
+        return panels.reduce((prev: TabItem[], panel: TabPanel) => prev.concat(panel.tabs || []), [])
     }
+
+    function initLayout(newLayout: TabPanel[]) {
+        // layout（Teleport 目标）与 allComponents（TabRouter 源）必须同拍更新，
+        // 否则会出现只有 tab 壳（×）没有标题/内容的空窗期；HMR 时更容易被放大。
+        layout.value = newLayout
+        allComponents.value = collectTabs(newLayout)
+
+        nextTick(() => {
+            hightLightPanel.value =
+                localStorage.getItem('app-tab-hightLightPanel') || newLayout[0]?.id || ''
+            layout.value.forEach((panel) => {
+                const showing = panel.tabs[panel.showingTabIndex || 0]
+                if (showing) showing.initized = true
+            })
+        })
+    }
+
+    // HMR / 异常路径下若 layout 有 tab 但 allComponents 缺失，自动补齐
+    watch(
+        layout,
+        (panels) => {
+            const fromLayout = collectTabs(panels)
+            if (!fromLayout.length) return
+            const existing = new Set(allComponents.value.map((item) => item.id))
+            const missing = fromLayout.filter((tab) => !existing.has(tab.id))
+            if (missing.length) {
+                allComponents.value = [...allComponents.value, ...missing]
+            }
+        },
+        { deep: true }
+    )
 
     return {
         allComponents,
