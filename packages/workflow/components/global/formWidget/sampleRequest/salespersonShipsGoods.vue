@@ -11,6 +11,7 @@ function isSeries(item: any) {
 
 const data = ref<any[]>([
   {
+    id: '',
     line_number: '',
     vendor: '',
     purpose: '',
@@ -46,7 +47,14 @@ function init() {
 }
 
 function getFormData() {
-  return { sample_info_list: data.value }
+  const newTracking_List = data.value.map((item) => ({
+    line_id: item.id,
+    tracking_number: item.tracking_number || '',
+    tracking_date: item.tracking_date,
+    email_alert: item.email_alert
+  }))
+
+  return { sample_info_list: data.value, tracking_List: newTracking_List }
 }
 
 watch(

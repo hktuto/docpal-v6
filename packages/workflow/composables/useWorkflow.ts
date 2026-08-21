@@ -46,6 +46,10 @@ export const useWorkflow = () => {
         component: 'FormWidgetSampleRequestInfo'
       },
       {
+        name: 'sampleRequestPaFoundryCustom',
+        component: 'FormWidgetSampleRequestPaFoundryCustom'
+      },
+      {
         name: 'sampleRequestPaInquireWithSuppliers',
         component: 'FormWidgetSampleRequestPaInquireWithSuppliers'
       },

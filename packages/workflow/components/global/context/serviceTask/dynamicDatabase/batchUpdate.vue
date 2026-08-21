@@ -217,6 +217,7 @@ async function getTableConfig() {
       })
       .then((r: any) => r.data)
 
+    fieldsList.value = []
     tableFieldList.value = data.tableFields
       .map((item: any) => ({
         id: item.field_name,

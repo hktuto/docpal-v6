@@ -16,7 +16,7 @@ const { workflowId, isActivate } = defineProps<{
   isActivate: boolean
 }>()
 const emits = defineEmits(['updateActivate'])
-
+const oldHistory = ref('')
 const debouncedSave = useDebounceFn(save, 300)
 async function save() {
   const workflowJson = x6NodeToWorkflowJson(graphProvider)
@@ -45,14 +45,21 @@ async function save() {
  */
 function setupHistory() {
   graphProvider?.graph.value?.on('history:change', (args: any) => {
-    // console.log('args', args)
-
     const appPlatform = useAppPlatform()
     if (appPlatform.value !== 'admin') return
 
     // 更新頁面樣式時不調用更新接口
     const cmdItem = args.cmds[0]
     if (!!cmdItem && cmdItem.event === 'cell:change:attrs') return
+    // 防止移動node時，頻繁調用'history:change'事件導致後面的Save操作失效
+    const newHistory = JSON.stringify({
+      id: cmdItem.data.id,
+      event: cmdItem.event,
+      next: cmdItem.data.next,
+      prev: cmdItem.data.prev
+    })
+    if (newHistory === oldHistory.value) return
+    oldHistory.value = newHistory
 
     state.value.canUndo = graphProvider?.graph.value?.canUndo() || false
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
