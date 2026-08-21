@@ -149,6 +149,7 @@ async function handleAddUsers(userIds: string[]) {
       roleId: props.roleId,
       userIds
     })
+    emit('update', [])
     reload()
     ElNotification({
       title: t('commons_success'),
