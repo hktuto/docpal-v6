@@ -3,7 +3,7 @@ import { normalizeValue, createValidator, type NormalizeOptions, type Validation
 
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import type {HighlightedParams, ZoneObject, FieldWithValue, SectionWithValues, BatchDetailContext} from '#imports'
+import type {HighlightedParams, ZoneObject, FieldWithValue, SectionWithValues, BatchDetailContext, SectionParams} from '#imports'
 // Extend dayjs with customParseFormat for strict date parsing
 dayjs.extend(customParseFormat)
 
@@ -58,11 +58,6 @@ dayjs.extend(customParseFormat)
  *   ]
  * }
  */
-
- export interface SectionParams {
-   page: number
-   zone: string
- }
 
 export const useBatchDetail = (batchId: string) => {
   // State

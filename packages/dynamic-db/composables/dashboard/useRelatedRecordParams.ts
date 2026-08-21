@@ -1,4 +1,4 @@
-import { convertFilterRuleToCondition, FilterCondition } from '../../utils/PostgreSQLHelper'
+import { convertFilterRuleToCondition, type SqlFilterCondition } from '../../utils/PostgreSQLHelper'
 
 export interface FilterRule {
   id: string
@@ -39,7 +39,7 @@ export interface RelatedRecordQueryParams {
 function buildFilterConditionGroup(rules: FilterRules | undefined): RelatedRecordConditionGroup[] {
   if (!rules?.conditions?.length) return []
 
-  const conditions: FilterCondition[] = rules.conditions.map((rule) =>
+  const conditions: SqlFilterCondition[] = rules.conditions.map((rule) =>
     convertFilterRuleToCondition({ field: rule.field, operator: rule.operator, value: rule.value }, () => false)
   )
 

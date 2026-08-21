@@ -1,4 +1,4 @@
-import type { DatabaseItem } from '../../../utils/databaseType'
+import type { DatabaseItem, DatabaseMenuRouteParams } from '../utils/databaseType'
 import { newClientApi, clientApi } from 'api'
 import { useUserId } from '../../authApp/composables/useAuth'
 import { MenuType } from '@packages/dp-mdTable/types/menu-type'
@@ -6,14 +6,6 @@ import DisplayMetaTable from '../../../pages/admin-document-type/components/docT
 
 export type PermissionLevel = 'Member' | 'Manage'
 export type MenuItemPermissionLevel = 'View' | 'Edit' | 'Manage'
-export type DatabaseMenuRouteParams = {
-  detailId: string,
-  pageType: string,
-  detailType: string,
-  parentId?: string
-  item_id?: string
-  [key:string]:any
-}
 export interface PermissionRow {
   id: string
   targetId: string

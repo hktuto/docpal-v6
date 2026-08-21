@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 import autoTable from 'jspdf-autotable'
+import type { ReportHeader } from './excelHelper'
 
 export async function divToPDF(divId: string, name: string) {
   const contentDiv: HTMLElement | null = document.getElementById(divId)
@@ -55,23 +56,6 @@ export interface PDFTableOptions {
   footerData?: any[]
   fileName: string
   orientation?: 'portrait' | 'landscape'
-}
-
-export interface ReportHeader {
-  reportId: string
-  compiledBy: string
-  project: string
-  inputProject?: string
-  inputFrom?: string
-  inputTo?: string
-  inputIncluded?: string
-  stage?: string
-  title: string
-  subtitle: string
-  dateRange: string
-  remark?: string
-  totalLabel?: string
-  totalValue?: number
 }
 
 /**
