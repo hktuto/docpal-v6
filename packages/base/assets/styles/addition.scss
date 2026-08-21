@@ -100,25 +100,45 @@ html[data-vxe-ui-theme='dark'] {
   }
 
   .vxe-table--context-menu-clild-wrapper {
+    list-style: none;
+    margin: 0;
     padding: var(--app-space-xs);
     border-radius: var(--app-border-radius-s);
     box-shadow: none !important;
     font-size: var(--app-font-size-s) !important;
   }
 
+  .vxe-context-menu--option-wrapper {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
   .vxe-context-menu--link {
-    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    min-height: var(--context-item-height, 26px);
+    padding: 0 var(--app-space-xs) !important;
     color: var(--app-grey-400);
     text-decoration: none;
+    cursor: pointer;
   }
 
   .vxe-context-menu--link-prefix,
   .vxe-context-menu--link-suffix {
     min-width: 0 !important;
+    width: 0 !important;
     padding: 0 !important;
+    overflow: hidden;
+  }
+
+  .vxe-context-menu--link-prefix:empty,
+  .vxe-context-menu--link-suffix:empty {
+    display: none;
   }
 
   li {
+    list-style: none;
     transition: background-color 0.2s ease-in-out;
   }
 
@@ -348,9 +368,12 @@ html[data-vxe-ui-theme='dark'] {
     }
   }
 }
-// 隐藏vxe-table右击事件底边框
+// 隐藏vxe-table右击事件底边框，并去掉默认列表圆点
 .contextMenuContainer .vxe-context-menu--option-wrapper {
   border: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 .cursorPointer {
   cursor: pointer;
