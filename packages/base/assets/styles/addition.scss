@@ -19,6 +19,7 @@ html[data-vxe-ui-theme='dark'] {
 }
 .vxe-toolbar {
   gap: var(--app-space-xs);
+  background: transparent !important;
 }
 .vxe-grid--table-container{
   --vxe-ui-layout-background-color: var(--app-paper) !important;
@@ -410,4 +411,3 @@ html[data-vxe-ui-theme='dark'] {
   border-color: var(--app-border-light) !important;
   color: var(--app-text-regular) !important;
 }
-
