@@ -1,5 +1,6 @@
 @use 'sass:map';
 @use 'sass:list';
+@use 'sass:meta';
 
 // ============================================================
 // 配置区：改主题只动这里
@@ -77,7 +78,10 @@ $gradient: (
 // 生成灰色
 @mixin gen-grey($dark: false) {
   @each $s,$l in $grey {
-    $v: if($dark and $l != 50%, 100% - $l, $l);
+    $v: $l;
+    @if $dark and $l != 50% {
+      $v: 100% - $l;
+    }
     --app-grey-#{$s}: hsl(var(--app-grey-h), var(--app-grey-s), #{$v});
   }
   // 兼容旧写法 --app-grey-050
@@ -86,21 +90,24 @@ $gradient: (
 
 // 生成语义变量（亮/暗共用）
 @mixin gen-semantic($dark: false) {
-  $map: if($dark, (
-    text-primary: 50, text-regular: 100, text-secondary: 300,
-    border: 800, border-light: 900, border-lighter: 950,
-    bg-page: 950, bg-overlay: 900,
-    fill-light: (hsl(var(--app-grey-h), var(--app-grey-s), 2.5%)),
-    fill-lighter: (hsl(var(--app-grey-h), var(--app-grey-s), 1.5%)),
-  ), (
+  $map: (
     text-primary: 100, text-regular: 200, text-secondary: 400,
     border: 800, border-light: 900, border-lighter: 950,
     bg-page: 950, bg-overlay: paper,
     fill-light: 900, fill-lighter: (hsl(var(--app-grey-h), var(--app-grey-s), 97.5%)),
-  ));
+  );
+  @if $dark {
+    $map: (
+      text-primary: 50, text-regular: 100, text-secondary: 300,
+      border: 800, border-light: 900, border-lighter: 950,
+      bg-page: 950, bg-overlay: 900,
+      fill-light: (hsl(var(--app-grey-h), var(--app-grey-s), 2.5%)),
+      fill-lighter: (hsl(var(--app-grey-h), var(--app-grey-s), 1.5%)),
+    );
+  }
   @each $k,$v in $map {
     @if $v == paper { --app-#{$k}: var(--app-paper); }
-    @else if type-of($v) == number { --app-#{$k}: var(--app-grey-#{$v}); }
+    @else if meta.type-of($v) == number { --app-#{$k}: var(--app-grey-#{$v}); }
     @else { --app-#{$k}: #{$v}; }
   }
   // 与 gen-el 对齐的短名（权威），*-color-* 保留为兼容别名
