@@ -21,6 +21,12 @@ function matchSearchValue(value: unknown, query: string): boolean {
 function rowMatchKey(supplierPn: unknown, poLine: unknown) {
   return `${String(supplierPn ?? '').trim()}::${String(poLine ?? '').trim()}`
 }
+
+function toNumberOrNull(value: unknown): number | null {
+  if (value === '' || value == null) return null
+  const n = Number(value)
+  return Number.isFinite(n) ? n : null
+}
 type EditableColumnType = 'text' | 'number' | 'select'
 
 type SelectOption = { label: string; value: string | number }
@@ -381,6 +387,11 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     bodyActions: [
       [
         {
+          code: 'copy',
+          name: t('actions.duplicate'),
+          action: ({ row }) => copyRow(row)
+        },
+        {
           code: 'delete',
           name: t('mdTable.deleteRow'),
           action: ({ row }) => deleteRow(row)
@@ -517,25 +528,43 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     }
   }
 
-  async function addRow() {
-    const masterId = selectedInvoice.value?.id
-    if (!masterId || creatingRow.value) return
+  function createRowPayloadFromSource(masterId: string, source: Record<string, any>) {
+    return {
+      [SGLA_ITEMS.MasterId]: masterId,
+      [SGLA_ITEMS.Carton]: source[SGLA_ITEMS.Carton] ?? '',
+      [SGLA_ITEMS.Supplier_PN]: source[SGLA_ITEMS.Supplier_PN] ?? '',
+      [SGLA_ITEMS.WCL_PN]: source[SGLA_ITEMS.WCL_PN] ?? '',
+      [SGLA_ITEMS.Qty]: toNumberOrNull(source[SGLA_ITEMS.Qty]),
+      [SGLA_ITEMS.PoLine]: source[SGLA_ITEMS.PoLine] ?? '',
+      [SGLA_ITEMS.SupplierItemRefNo]: source[SGLA_ITEMS.SupplierItemRefNo] ?? '',
+      [SGLA_ITEMS.DateCode]: source[SGLA_ITEMS.DateCode] ?? '',
+      [SGLA_ITEMS.CountryOfOrigin]: source[SGLA_ITEMS.CountryOfOrigin] ?? '',
+      [SGLA_ITEMS.CountryOfWafer]: source[SGLA_ITEMS.CountryOfWafer] ?? '',
+      [SGLA_ITEMS.DrawingNo]: source[SGLA_ITEMS.DrawingNo] ?? '',
+      [SGLA_ITEMS.Remark]: source[SGLA_ITEMS.Remark] ?? '',
+      // 新行需重新核验
+      [SGLA_ITEMS.Checked]: false
+    }
+  }
+
+  async function insertRow(payload: Record<string, any>) {
+    if (creatingRow.value) return false
 
     creatingRow.value = true
     try {
       const { data } = await newClientApi.postDynamicDbTableTableidData(SGLA_ITEMS_TABLE_ID, {
-        data: createEmptyRow(masterId)
+        data: payload
       })
       const insertedRow = normalizeCountryFields([
         {
           id: data?.id,
           ...(data?.data?.data ?? {}),
-          [SGLA_ITEMS.Qty]: data?.data?.data?.[SGLA_ITEMS.Qty] ?? null,
+          [SGLA_ITEMS.Qty]: toNumberOrNull(data?.data?.data?.[SGLA_ITEMS.Qty]),
           [SGLA_ITEMS.Checked]: !!data?.data?.data?.[SGLA_ITEMS.Checked]
         }
       ])[0]
 
-      if (!insertedRow?.id) return
+      if (!insertedRow?.id) return false
 
       tableData.value.unshift(insertedRow)
       statusFilter.value = 'all'
@@ -548,11 +577,27 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
         const supplierPnColumn = verificationTableColumns.find((col: any) => col.field === SGLA_ITEMS.Supplier_PN)
         focusEditCell(supplierPnColumn as any, insertedRow)
       })
+      return true
     } catch (error) {
       console.error(error)
+      ElMessage.error(t('common_addFail'))
+      return false
     } finally {
       creatingRow.value = false
     }
+  }
+
+  async function addRow() {
+    const masterId = selectedInvoice.value?.id
+    if (!masterId) return
+    await insertRow(createEmptyRow(masterId))
+  }
+
+  async function copyRow(row: Record<string, any>) {
+    const masterId = selectedInvoice.value?.id
+    if (!masterId || !row) return
+    const ok = await insertRow(createRowPayloadFromSource(masterId, row))
+    if (ok) ElMessage.success(t('common_copySuccess'))
   }
 
   const debouncedReload = useDebounceFn(() => reload(), 300)
@@ -572,7 +617,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
         }
         const fieldColumn = verificationTableColumns.find((column: any) => column.field === field)
         if (fieldColumn?.type === 'number') {
-          data[field] = Number(item[field])
+          data[field] = toNumberOrNull(item[field])
         } else {
           data[field] = item[field] ?? ''
         }
