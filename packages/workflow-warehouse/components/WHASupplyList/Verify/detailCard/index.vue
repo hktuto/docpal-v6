@@ -107,7 +107,7 @@ async function handleSave(value: string, item: any) {
   const payload = item.valueType === 'number' && value !== '' && value != null ? Number(value) : value
   const invoiceData: Record<string, any> = { [SGLA[item.invoiceKey]]: payload }
   if (item.invoiceKey === 'VendorId' && !!payload) {
-    const matched = SupplierList.value.find((opt) => String(opt.label) === String(payload) || String(opt.shortName) === String(payload))
+    const matched = SupplierList.value.find((opt) => String(opt.value) === String(payload))
     invoiceData[SGLA.VendorName] = matched?.label ?? null
   }
   const res = await updateInvoiceData(invoiceData)
@@ -172,12 +172,18 @@ async function getOrgList() {
   } finally {
   }
 }
-function syncSelectField(field: keyof typeof SGLA, options: { label: string; value: string | number }[]) {
+function syncSelectField(field: keyof typeof SGLA, options: { label: string; value: string | number; shortName?: string }[]) {
   const invoice = selectedInvoice.value
   if (!invoice || !options.length) return
   const current = invoice[SGLA[field]]
   if (current == null || current === '') return
-  const matched = options.find((opt) => String(opt.value) === String(current) || String(opt.label) === String(current))
+  const currentStr = String(current)
+  const matched = options.find((opt) => {
+    if (String(opt.value) === currentStr || String(opt.label) === currentStr) return true
+    // VendorId 历史数据可能存的是 short_name
+    if (field === 'VendorId' && opt.shortName != null && String(opt.shortName) === currentStr) return true
+    return false
+  })
   invoice[SGLA[field]] = matched ? matched.value : ''
 }
 
