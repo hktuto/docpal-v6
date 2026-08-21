@@ -49,8 +49,8 @@ const contextMenuOpenHandler = (args:TABLE_CONTEXT_PARAMS)=>{
 
 const contextMenuCloseHandler = () => {
     rowData.value = undefined
+    actions.value = []
     visible.value = false
-
 }
 
 
@@ -68,7 +68,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div ref="contextmenuRef" class="vxe-table--ignore-clear" :class="{contextMenuContainer:true, visible}" :style="{left: position.left + 'px', top: position.top + 'px', ['--context-item-height']: menuItemHeight + 'px'}">
+    <div
+      ref="contextmenuRef"
+      class="vxe-table--ignore-clear contextMenuContainer"
+      :class="{ visible }"
+      :style="{ left: position.left + 'px', top: position.top + 'px', ['--context-item-height']: menuItemHeight + 'px' }"
+    >
         <ContextmenuList v-for="(action, index) in displayActions" :key="index" :items="action" :menuItemHeight="menuItemHeight" :rowData="rowData" />
     </div>
 </template>

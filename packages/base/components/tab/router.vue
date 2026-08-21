@@ -331,9 +331,7 @@ onUnmounted(() => {
     <Teleport v-if="tab.icon" defer :to="`#${isFullscreen ? 'fullscreen-' : ''}tab-header-${tab.parent}-${tab.id} > .icon`">
       <Icon :name="tab.icon" />
     </Teleport>
-    <Teleport v-if="tab.label" defer :to="`#${isFullscreen ? 'fullscreen-' : ''}tab-header-${tab.parent}-${tab.id} > .label`">
-      <div class="label">{{ t(tab.label) }}</div>
-    </Teleport>
+    <!-- label 已在 tab header 直接渲染，避免 TabRouter 未挂载时标题空白 -->
     <template v-if="tab.initized && renderComponent">
       <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
         <component :is="tab.component" :tab="tab" v-bind="tab.props" />

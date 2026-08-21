@@ -211,6 +211,8 @@ const canDelete = computed(() => {
             </div>
             <div class="icon"></div>
             <div class="label">
+              <!-- Teleport 补齐前先显示，避免只有 × 的空 tab -->
+              {{ t(tab.label) }}
             </div>
             <!-- <Icon class="closeIcon" name="lucide:share-2" @click="copyToClipboard(tab)" /> -->
             <!-- <Icon class="closeIcon" name="lucide:fullscreen" @click="openInFocusMode" /> -->
