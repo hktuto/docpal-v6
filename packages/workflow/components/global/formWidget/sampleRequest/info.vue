@@ -96,7 +96,22 @@ function checkPurpose(vendor: string) {
 }
 
 async function getFormData(needValidation = true) {
-  const result = { sample_info_list: formModel.list }
+  const part_number_list: string[] = []
+  const email_part_list: any[] = []
+
+  formModel.list.forEach((item: any) => {
+    part_number_list.push(item.part_number)
+    email_part_list.push({
+      part_number: item.part_number,
+      series: item.series
+    })
+  })
+
+  const result = {
+    sample_info_list: formModel.list,
+    part_number_list: part_number_list.join(','),
+    email_part_list: JSON.stringify(email_part_list)
+  }
   if (!needValidation) return result
   await formRef.value?.validate()
   return result

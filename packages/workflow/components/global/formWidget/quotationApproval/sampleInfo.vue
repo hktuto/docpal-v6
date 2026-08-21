@@ -53,7 +53,6 @@ const formModel = ref<{
 const data = toRef(formModel.value, 'infoList')
 const brandOptions = ref(['TE', 'KOA', 'NCC', 'DIOTEC', 'HANANYE', 'KYOCERA', 'ABLIC', 'SUMITOMO', 'NDK', 'MITSUMI', 'HINODE', 'N/A'])
 const part_numberOptions = ref([])
-const customerPartNumberOptions = ref([])
 const rules = {
   part_number: [{ required: true, message: 'Please select Part number', trigger: 'change' }],
   product_application: [{ required: true, message: 'Please input product application', trigger: 'blur' }],
@@ -340,14 +339,7 @@ defineExpose({ getFormData })
             </el-form-item>
 
             <el-form-item label="客戶零件編號 Customer Part Number" prop="customer_part_number">
-              <el-select v-model="item.customer_part_number" class="full-width-input" clearable>
-                <el-option
-                  v-for="(customerPartNumberItem, customerPartNumberIndex) in customerPartNumberOptions"
-                  :key="customerPartNumberIndex"
-                  :label="customerPartNumberItem.label"
-                  :value="customerPartNumberItem.value"
-                />
-              </el-select>
+              <el-input v-model="item.customer_part_number" clearable />
             </el-form-item>
           </el-col>
 
