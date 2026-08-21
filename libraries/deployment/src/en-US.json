@@ -874,7 +874,9 @@
   },
   "dataFieldUg": {
     "api": "Api",
+    "baseURL": "Base URL",
     "labelKey": "Label field",
+    "method": "Method",
     "valueKey": "Value field"
   },
   "dataVerificationResult": "Data Verification Result",
@@ -3102,6 +3104,7 @@
     "lowerUpper": "Lower and Uppercase",
     "lowerUpperDesc": "Must contain upper and lower case letters [a-z][A-Z]",
     "newPassword": "New Password",
+    "noTokenProvided": "No token provided",
     "oldPassword": "Old Password",
     "oldPasswordTip": "Old password is required",
     "retryPeriod": "Retry Period (Minutes)",
@@ -3112,7 +3115,8 @@
     "saveSuccess": "Password policy saved successfully",
     "special": "Special Characters",
     "specialDesc": "Must contain special characters {char}",
-    "updatePassword": "Update Password"
+    "updatePassword": "Update Password",
+    "updatePasswordSuccess": "Password updated successfully"
   },
   "pending_approval": "Pending Approval",
   "pending_completed": "Completed",

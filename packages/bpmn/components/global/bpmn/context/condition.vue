@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {CONDITION_PROVIDER} from '#imports'
 import type { Node } from '@antv/x6'
-import { adminApi, clientApi } from 'api';
+import { adminApi, clientApi, gatewayApi } from 'api';
 const { node } = defineProps<{
     node:Node
 }>()
@@ -126,10 +126,13 @@ function updateCondition(newVal:any, index:number){
 
 const userGroupOption = ref<any[]>([]);
 async function getUserGroup() {
-    const data = await clientApi.api.postUcenterGroups().then(r => r.data)
-    if(data.data){
-        userGroupOption.value = data.data
-    }
+    const data = await gatewayApi.groups.getGroupsSelect().then(r => r.data)
+    userGroupOption.value = (data || []).map((item: any) => ({
+        id: item.value,
+        name: item.label,
+        value: item.value,
+        label: item.label,
+    }))
 }
 const masterTableOption = ref<any[]>([]);
 async function getMasterTable() {

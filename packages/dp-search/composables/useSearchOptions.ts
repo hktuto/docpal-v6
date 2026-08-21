@@ -1,4 +1,5 @@
 import { newClientApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import { sortListWithI18n, conditionType, languages, getGroupList, getMetadataOptions } from '../utils/formOptions'
 
 export const useSearchOptions = () => {
@@ -10,7 +11,7 @@ export const useSearchOptions = () => {
 
     const [docType, users, collections, tags, groupList, metadata] = await Promise.all([
       newClientApi.getDmsDocpalTypeActive(),
-      newClientApi.postUcenterGetKeycloakAllUsers(),
+      fetchUsersSelectSorted(),
       newClientApi.getDmsCollection(),
       newClientApi.getDmsDocumentTagsList(),
       getGroupList(),
@@ -28,8 +29,7 @@ export const useSearchOptions = () => {
       value: item.id
     }))
     searchOptions.value.collections = sortListWithI18n(collectionData)
-    const userData = users.data?.map((item: any) => ({ label: item.username, value: item.userId }))
-    searchOptions.value.users = sortListWithI18n(userData)
+    searchOptions.value.users = sortListWithI18n(users)
     searchOptions.value.mimeTypes = mimeTypes
     searchOptions.value.sizes = sizes
   }

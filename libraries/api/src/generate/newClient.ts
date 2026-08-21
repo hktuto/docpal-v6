@@ -2013,8 +2013,8 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
-    unique?: boolean;
     primaryKey?: boolean;
+    unique?: boolean;
     required?: boolean;
 }
 
@@ -2991,10 +2991,10 @@ export interface DocumentDTO {
     drivePreviewLink?: string;
     originalPath?: string;
     fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
     fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
+    fileContentDigestAlgorithm?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -3839,6 +3839,79 @@ export interface PackingListLineItemVO {
     Checked?: boolean;
 }
 
+export interface WMSPickingItem {
+    id?: string;
+    pickingOrderId?: string;
+    partNo?: string;
+    /** @format int32 */
+    qty?: number;
+    /** @format int32 */
+    pickedQty?: number;
+    /** @format int32 */
+    allocatedQty?: number;
+    /** @format int64 */
+    lineId?: number;
+    /** @format int32 */
+    lineNumber?: number;
+    /** @format int32 */
+    shipmentNumber?: number;
+    status?: string;
+    additionalData?: Record<string, any>;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    lastUpdatedDate?: string;
+}
+
+export interface WMSPickingOrder {
+    id?: string;
+    orderNo?: string;
+    /** @format date-time */
+    deliveryDate?: string;
+    poNo?: string;
+    shipTo?: string;
+    customerCode?: string;
+    /** @format int32 */
+    orgId?: number;
+    /** @format int32 */
+    prioritySeq?: number;
+    subInventoryCode?: string;
+    commodityInspection?: string;
+    working_by?: string;
+    /** @format date-time */
+    workingAt?: string;
+    issueReason?: string;
+    /** @format int32 */
+    issueQty?: number;
+    /** @format int32 */
+    issuePackSize?: number;
+    issueNote?: string;
+    issueRemark?: string;
+    /** @format date-time */
+    issueReportedAt?: string;
+    issueReportedBy?: string;
+    status?: string;
+    allocation_status?: string;
+    /** @format date-time */
+    shippedAt?: string;
+    shippedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    lastUpdateDate?: string;
+    pickingItems?: WMSPickingItem[];
+}
+
+export interface ResultWMSPickingOrder {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSPickingOrder;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface WMSScheduleDeliveryOrder {
     id?: string;
     batchId?: string;
@@ -3860,8 +3933,6 @@ export interface WMSScheduleDeliveryOrder {
     orderQty?: number;
     /** @format int32 */
     shippedQuantity?: number;
-    statusCode?: string;
-    plannedFlag?: string;
     /** @format int32 */
     inventoryOrgId?: number;
     /** @format int32 */
@@ -3908,23 +3979,10 @@ export interface WMSPickingItem {
     pickingOrderId?: string;
     partNo?: string;
     /** @format int32 */
-    qty?: number;
-    /** @format int32 */
-    pickedQty?: number;
-    /** @format int32 */
-    allocatedQty?: number;
-    /** @format int64 */
-    lineId?: number;
-    /** @format int32 */
-    lineNumber?: number;
-    /** @format int32 */
-    shipmentNumber?: number;
-    status?: string;
-    additionalData?: Record<string, any>;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    lastUpdatedDate?: string;
+    pageIndex?: number;
+    sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
+    sort?: SortObject;
 }
 
 export interface WMSPickingOrder {
@@ -4012,7 +4070,73 @@ export interface ResultListPICompareRespDTO {
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PICompareRespDTO[];
+    data?: WMSInventoryLot;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WMSInventoryLot {
+    id?: string;
+    partNo?: string;
+    wclItemNo?: string;
+    dateCode?: string;
+    lotCode?: string;
+    coo?: string;
+    cow?: string;
+    shelfCode?: string;
+    boxId?: string;
+    /** @format int32 */
+    orgId?: number;
+    subInventoryCode?: string;
+    /** @format int32 */
+    totalQty?: number;
+    /** @format int32 */
+    allocatedQty?: number;
+    /** @format int32 */
+    availableQty?: number;
+}
+
+export interface WMSInventoryLotSource {
+    id?: string;
+    inventoryLotId?: string;
+    receivingInvoiceItemId?: string;
+    /** @format int32 */
+    qty?: number;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    lastUpdatedDate?: string;
+}
+
+export interface ResultWMSInventoryLotSource {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSInventoryLotSource;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOWMSInventoryLotSource {
+    entryList?: WMSInventoryLotSource[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOWMSInventoryLotSource {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWMSInventoryLotSource;
     messageKey?: string;
     locale?: string;
 }
@@ -4569,9 +4693,9 @@ export interface PageNotificationRecord {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
-    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -4706,9 +4830,9 @@ export interface PageUploadBatchDTO {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
-    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -6418,9 +6542,9 @@ export interface PageWatermarkSettingsTemplate {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
-    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -7500,9 +7624,8 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     watermarkTemplateId?: string;
-    conversionId?: string;
-    watermarkedLocalPath?: string;
     watermarkStatus?: string;
+    watermarkedLocalPath?: string;
     watermarkFile?: string;
     previewFile?: string;
     originFilePath?: string;
@@ -9775,10 +9898,10 @@ export interface DocumentResponseDTO {
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
     fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
     fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
+    fileContentDigestAlgorithm?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -10674,10 +10797,10 @@ export interface PlanItemDefinitionDTO {
     /** PlanItem Definition Sub-List */
     subItems?: any[];
     fields?: PlanTableFieldDTO[];
-    upFormProperties?: FormPropertyDTO[];
+    upProcessTaskKey?: string;
     assigneeField?: PlanTableFieldDTO;
     isStartTask?: boolean;
-    upProcessTaskKey?: string;
+    upFormProperties?: FormPropertyDTO[];
 }
 
 export interface ResultCaseTypeResponseDTO {
@@ -12228,9 +12351,9 @@ export interface PageBusinessResultRecord {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
-    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -13338,9 +13461,9 @@ export interface PageSearchHistory {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
-    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -14829,10 +14952,10 @@ export interface CaseDefinitionDTO {
         /** PlanItem Definition Sub-List */
         subItems?: any[];
         fields?: PlanTableFieldDTO[];
-        upFormProperties?: FormPropertyDTO[];
+        upProcessTaskKey?: string;
         assigneeField?: PlanTableFieldDTO;
         isStartTask?: boolean;
-        upProcessTaskKey?: string;
+        upFormProperties?: FormPropertyDTO[];
     }[];
     permissions?: CmmnPlanPermissionDTO[];
 }
@@ -15173,6 +15296,8 @@ export interface MQConsumeGroupStatusDTO {
     pending?: number;
     completed?: number;
     finish?: number;
+    create?: number;
+    pending?: number;
     error?: number;
 }
 
@@ -20175,9 +20300,68 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostWmsPackingOrderCompare
          * @request POST:/api/wms/packing-order/compare
          */
-        postWmsPackingOrderCompare: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListPICompareRespDTO, any>({
-                path: `/api/wms/packing-order/compare`,
+        postWmsInventoryLots: (
+            query: {
+                partNo: string;
+            },
+            data: AddInventoryLotRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultWMSInventoryLot, any>({
+                path: `/api/wms/inventory/lots`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name GetWmsInventoryLotSources
+         * @request GET:/api/wms/inventory-lot-sources
+         */
+        getWmsInventoryLotSources: (
+            query: {
+                receivingInvoiceItemId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name PostWmsInventoryLotSources
+         * @request POST:/api/wms/inventory-lot-sources
+         */
+        postWmsInventoryLotSources: (data: WMSInventoryLotSource, params: RequestParams = {}) =>
+            this.request<ResultWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name PostWmsInventoryLotSourcesPage
+         * @request POST:/api/wms/inventory-lot-sources/page
+         */
+        postWmsInventoryLotSourcesPage: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -26454,23 +26638,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
-         * @name PostDmsFacadeWmsPackingListCompare
-         * @summary Query supplier purchase order data and add it to the Packing-List Record.
-         * @request POST:/api/dms/facade/wms/packing-list/compare
-         */
-        postDmsFacadeWmsPackingListCompare: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListPICompareRespDTO, any>({
-                path: `/api/dms/facade/wms/packing-list/compare`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
          * @name PostDmsFacadeSendWhatsappMessage
          * @request POST:/api/dms/facade/send_whatsapp_message
          */
@@ -32255,6 +32422,54 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultObject, any>({
                 path: `/api/wms/organization/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name GetWmsInventoryLotSourcesId
+         * @request GET:/api/wms/inventory-lot-sources/{id}
+         */
+        getWmsInventoryLotSourcesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name DeleteWmsInventoryLotSourcesId
+         * @request DELETE:/api/wms/inventory-lot-sources/{id}
+         */
+        deleteWmsInventoryLotSourcesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/inventory-lot-sources/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-inventory-lot-source-controller
+         * @name GetWmsInventoryLotSourcesByInventoryLotId
+         * @request GET:/api/wms/inventory-lot-sources/by-inventory-lot-id
+         */
+        getWmsInventoryLotSourcesByInventoryLotId: (
+            query: {
+                inventoryLotId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListWMSInventoryLotSource, any>({
+                path: `/api/wms/inventory-lot-sources/by-inventory-lot-id`,
                 method: "GET",
                 query: query,
                 ...params,

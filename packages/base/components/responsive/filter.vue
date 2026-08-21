@@ -23,19 +23,6 @@ Methods (via ref):
 - handleFilter(): void
   - Clears all filter values
 
-Types:
-interface ResSelectData {
-  label: string        // Display label for the filter
-  key: string         // Unique identifier for the filter
-  options: {          // Available options for select
-    label: string
-    value: any
-  }[]
-  value?: string[]    // Selected values
-  isMultiple?: boolean // Whether multiple selections are allowed
-  belong?: string     // Group this filter belongs to (optional)
-}
-
 Example Usage:
 ```vue
 <script setup>
@@ -141,7 +128,6 @@ Features:
 
 Note: The component requires Element Plus and VueUse for full functionality.
 -->
-
 <template>
   <div ref="responsiveRef" class="responsive-container" v-element-size="onResize">
     <div class="flex-x-start">
@@ -203,6 +189,7 @@ export type ResSelectData = {
   options: option[]
   value?: string[]
   isMultiple?: boolean
+  type?: 'string' | 'boolean'
 }
 type state = {
   list: ResSelectData[]
@@ -312,6 +299,13 @@ function init(list: ResSelectData[], initParams: any = {}) {
     onResize({ width: responsiveRef.value.offsetWidth, height: 0 })
   })
 }
+function resolveFilterValue(item: ResSelectData) {
+  if (item.type === 'boolean') {
+    const toBoolean = (v: unknown) => v === true || v === 'true'
+    return item.isMultiple ? item.value!.map(toBoolean) : toBoolean(item.value![0])
+  }
+  return item.isMultiple ? item.value : item.value!.join(',')
+}
 function handleChange(filedData: { fieldName: string; value: any; [key: string]: any }) {
   if (state.interval) clearInterval(state.interval)
   state.interval = setInterval(() => {
@@ -320,10 +314,10 @@ function handleChange(filedData: { fieldName: string; value: any; [key: string]:
     const formModel = state.list.reduce((prev, item) => {
       if (item.belong) {
         if (!prev[item.belong]) prev[item.belong] = {}
-        prev[item.belong][item.key] = item.isMultiple ? item.value : item.value.join(',')
+        prev[item.belong][item.key] = resolveFilterValue(item)
         state.selected++
       } else if (item.value && item.value.length > 0) {
-        prev[item.key] = item.isMultiple ? item.value : item.value.join(',')
+        prev[item.key] = resolveFilterValue(item)
         state.selected++
       }
       if (state.moreList.find((m) => m.key === item.key)) {

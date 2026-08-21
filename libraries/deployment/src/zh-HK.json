@@ -872,7 +872,9 @@
   },
   "dataFieldUg": {
     "api": "Api",
+    "baseURL": "Base URL",
     "labelKey": "標籤字段",
+    "method": "請求方法",
     "valueKey": "选中值字段"
   },
   "dataVerificationResult": "數據驗證結果",
@@ -3099,6 +3101,7 @@
     "lowerUpper": "大小寫字母",
     "lowerUpperDesc": "必須包含大小寫字母 [a-z][A-Z]",
     "newPassword": "新密碼",
+    "noTokenProvided": "未提供令牌",
     "oldPassword": "舊密碼",
     "oldPasswordTip": "需要舊密碼",
     "retryPeriod": "重試週期（分鐘）",
@@ -3109,7 +3112,8 @@
     "saveSuccess": "密碼策略保存成功",
     "special": "特殊字符",
     "specialDesc": "必須包含特殊字符{char}",
-    "updatePassword": "更新密碼"
+    "updatePassword": "更新密碼",
+    "updatePasswordSuccess": "密碼更新成功"
   },
   "pending_approval": "待批准",
   "pending_completed": "已完成",

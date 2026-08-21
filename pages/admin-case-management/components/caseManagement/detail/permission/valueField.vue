@@ -88,7 +88,7 @@
 </template>
 <script lang="ts" setup>
 import { newAdminApi } from 'api'
-import { getGroupsSelectOption } from '#imports'
+import { getGroupsSelectOption, fetchUsersSelectSorted } from '#imports'
 
 const props = defineProps(['config', 'value'])
 
@@ -179,11 +179,7 @@ async function getMasterTableOptions(masterTableId: string, displayField: string
 
 async function getUserGroupOptions() {
   if (state.userOptions.length > 0) return
-  const userData: any = await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
-  const userList = userData.map((item: any) => ({
-    value: item.userId || item.username,
-    label: item.username || item.userId
-  }))
+  const userList = await fetchUsersSelectSorted()
   const groups = await getGroupsSelectOption()
 
   state.userOptions = [
@@ -200,7 +196,7 @@ async function getUserGroupOptions() {
     {
       label: t('user_users'),
       value: 'user_users',
-      options: userList.map((item: any) => ({
+      options: userList.map((item) => ({
         label: item.label,
         value: 'UserId:' + item.value
       }))

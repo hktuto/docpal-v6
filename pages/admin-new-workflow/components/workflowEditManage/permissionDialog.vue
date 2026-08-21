@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { clientApi, newClientApi } from 'api'
+import { clientApi, gatewayApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 
 interface TargetOption {
   id: string
@@ -120,7 +121,7 @@ async function loadPermissions() {
   try {
     const { data } = await clientApi.instance
       .get(`/v2/acl/resource-permissions/resource/${currentWorkflowId.value}`, {
-        baseURL: '/gateway',
+        baseURL: '/apis',
         params: {
           resourceType: 3
         }
@@ -152,11 +153,11 @@ async function loadTargets() {
 }
 
 async function loadUsers() {
-  const { data } = await newClientApi.postUcenterGetKeycloakAllUsers()
-  users.value = (data || []).map((u: any) => ({
-    id: u.userId,
-    username: u.username,
-    name: u.name || u.email || u.username
+  const data = await fetchUsersSelectSorted()
+  users.value = data.map((u) => ({
+    id: u.value,
+    username: u.label,
+    name: u.label
   }))
 }
 
@@ -172,10 +173,10 @@ async function loadRoles() {
 }
 
 async function loadGroups() {
-  const { data } = await clientApi.admin.postUcenterGroups()
+  const { data } = await gatewayApi.groups.getGroupsSelect()
   groups.value = (data || []).map((g: any) => ({
-    id: g.id,
-    name: g.name
+    id: g.value,
+    name: g.label
   }))
 }
 
@@ -197,7 +198,7 @@ async function handleAddPermission() {
         permissionLevel: 'default'
       },
       {
-        baseURL: '/gateway'
+        baseURL: '/apis'
       }
     )
     ElMessage.success(t('dpMsg_success'))
@@ -224,7 +225,7 @@ async function handleRemovePermission(row: PermissionRow) {
       type: 'warning'
     })
     await clientApi.instance.delete(`/v2/acl/resource-permissions/${row.id}`, {
-      baseURL: '/gateway'
+      baseURL: '/apis'
     })
     ElMessage.success(t('dpMsg_success'))
     await loadPermissions()

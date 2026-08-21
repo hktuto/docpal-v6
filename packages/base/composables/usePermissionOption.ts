@@ -1,4 +1,4 @@
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 
 interface PermissionOption {
   id: string;
@@ -213,24 +213,43 @@ export const convertSelectOptions = (permissions: any) => {
   return permission
 }
 
-// User Select Option
+/** 无缓存：拉取用户下拉并按 label 排序；有 groupId 时取该组已绑定用户 */
+export type FetchUsersSelectQuery = {
+  label?: string
+  value?: string
+  keyword?: string
+}
+
+export const fetchUsersSelectSorted = async (groupId?: string, query?: FetchUsersSelectQuery) => {
+  try {
+    const list = groupId
+      ? await gatewayApi.groups.getGroupsGroupidUsersSelect(groupId, query).then((res) => res.data)
+      : await gatewayApi.users.getUsersSelect(query).then((res) => res.data)
+    if (!list?.length) return []
+    return [...list]
+      .map((item: any) => ({
+        label: item.label || item.userName || '',
+        value: item.value || item.userId || ''
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  } catch (e) {
+    console.log(e)
+    return []
+  }
+}
+
+// User Select Option（带缓存）
 export const getUserSelectOption = async (refresh?: boolean) => {
   const options = useUserPermissionOption()
   if (options.value.length === 0 || refresh) {
-    try {
-      const list: any = await newClientApi.postUcenterUsers().then((res) => res.data)
-      if (list.length === 0) return []
+    const list = await fetchUsersSelectSorted()
+    if (list.length === 0) return []
 
-      options.value = list.map((item: any) => ({
-        id: item.userId,
-        value: item.userId,
-        label: item.username || item.userName || item.name || '',
-        email: item.email
-      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
-    } catch (e) {
-      console.log(e)
-      return []
-    }
+    options.value = list.map((item) => ({
+      id: item.value,
+      value: item.value,
+      label: item.label
+    }))
   }
   return options.value
 }
@@ -265,13 +284,13 @@ export const getGroupsSelectOption = async (refresh?: boolean) => {
   const options = useGroupsPermissionOption()
   if (options.value.length === 0 || refresh) {
     try {
-      let list: any = await newClientApi.postUcenterGroups().then((res) => res.data)
-      if (list.length === 0) return []
+      let list: any = await gatewayApi.groups.getGroupsSelect().then((res) => res.data)
+      if (!list || list.length === 0) return []
 
       options.value = list.map((item: any) => ({
-        id: item.id,
-        value: item.id,
-        label: item.name
+        id: item.value,
+        value: item.value,
+        label: item.label
       })).sort((a: any, b: any) => a.label.localeCompare(b.label))
     } catch (e) {
       console.log(e)

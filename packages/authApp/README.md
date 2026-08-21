@@ -8,7 +8,8 @@
 
 ### Composable
 - useLoginHook  <- 放用戶登入後會執行的數列，可由其他模組插入需要再用戶登入後執行的邏輯
-- usePublicPageState <- 網站內不用登入頁面的數列
+- AUTH_PUBLIC_PATHS / isPublicPath <- 無需登入即可訪問的認證頁路徑與判斷
+- AUTH_IGNORE_REDIRECT_PATHS / shouldIgnoreAuthRedirect <- 跳轉登入時不應作為 redirect 回寫的路徑與判斷
 - useAuthReadyState <- 用來記錄 KeyCloak 是否已經預備好
 - useUserState <-  用戶資料
 - useAuth

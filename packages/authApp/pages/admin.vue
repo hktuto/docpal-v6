@@ -19,10 +19,10 @@ defaultTab.value =  {
 
 watch(logedIn, (boo) => {
   if (boo) {
-    const usserIsAdmin = useIsAdmin()
-    if (!usserIsAdmin.value) {
-      window.location.href = '/'
-    }
+    // const usserIsAdmin = useIsAdmin()
+    // if (!usserIsAdmin.value) {
+    //   window.location.href = '/'
+    // }
   }
 })
 

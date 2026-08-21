@@ -7,7 +7,7 @@
           <Icon id="UserList__ClearSelected" name="ic:baseline-clear" class="normal cursor-pointer" @click="cleanSelectedRows"></Icon>
         </div>
         <div class="flex-x-end">
-          <el-button id="UserList__Delete"  type="danger" @click="handleDeleteSelected()">
+          <el-button id="UserList__Delete" type="danger" @click="handleDelete()">
             {{ $t('common_delete') }}
           </el-button>
           <el-divider direction="vertical" />
@@ -26,9 +26,7 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-button id="UserList__AssignUserGroup" type="primary" @click="handleGroupSelected()">
-            {{ $t('userManage.group') }}
-          </el-button>
+          <el-button id="UserList__AssignUserGroup" type="primary" @click="handleGroupSelected()"> {{ $t('userManage.group') }}aa </el-button>
         </div>
       </header>
       <header v-show="state.selectList.length === 0" class="header-flex">
@@ -44,16 +42,19 @@
           type="primary"
           :disabled="state.activeUsers >= state.licenseUsers"
           @click="handleUserDialogShow()"
-          >{{ $t('user_newUser') }} ({{ state.activeUsers }} / {{ state.licenseUsers }})
+        >
+          {{ $t('user_newUser') }} ({{ state.activeUsers }} / {{ state.licenseUsers }})
         </el-button>
       </header>
     </template>
-    <template #group="{ row, index }">
-      <el-tag class="el-icon--left table-tag" v-for="item in row.groupDTOList">
-        {{ item.name }}
-      </el-tag>
+    <template #group="{ row }">
+      <div class="groups-cell">
+        <el-tag v-for="item in row.groups" :key="item.id || item.name" class="el-icon--left table-tag" v-tooltip="item.name">
+          {{ item.name }}
+        </el-tag>
+      </div>
     </template>
-    <template #status="{ row, index }">
+    <template #status="{ row }">
       <el-switch
         v-model="row.status"
         :inactive-text="t('actions.inactive')"
@@ -67,37 +68,27 @@
     </template>
   </VxeGrid>
 
-  <UserDialog ref="UserDialogRef" @refresh="reload"></UserDialog>
-  <UserAddGroupsDialog ref="UserAddGroupDialogRef" @refresh="reload()"></UserAddGroupsDialog>
+  <UserDialog ref="UserDialogRef" @refresh="handleUserCreated" />
+  <UserAddGroupDialog ref="UserAddGroupDialogRef" @refresh="reload()" />
 </template>
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { userProviderKey } from '~/util/userProvider'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
-const emits = defineEmits(['filter-change', 'refresh'])
-const userProvider = inject(userProviderKey)
+const { fetchUsersPage, batchActiveUsers, batchDeleteUsers, fetchLicenseUserCount, openUserDetail, sendInvitation, unlockUser, fetchGroupList } = useAdminUser()
 
-const props = defineProps(['condition'])
+const filterParams = ref<Record<string, any>>({})
 
 type TableState = {
-  ready: boolean
-  loading: boolean
   activeUsers: number
   licenseUsers: number
-  extraParams: any
-  extraParamsFilter: any
   selectList: any[]
 }
 const state = reactive<TableState>({
-  ready: false,
-  loading: false,
   activeUsers: 10,
   licenseUsers: 50,
-  extraParams: {},
-  extraParamsFilter: {},
   selectList: []
 })
 
@@ -105,36 +96,35 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
   id: 'a-user-table',
   api: async (pageParams: any) => {
     cleanSelectedRows()
-    return await userProvider?.getAllUsersApi(pageParams)
+    return {
+      data: await fetchUsersPage({
+        ...pageParams,
+        ...filterParams.value
+      })
+    }
   },
   columns: [
     { field: 'username', title: 'user_username', fixed: 'left', type: 'checkbox' },
     { field: 'email', title: 'user_email' },
+    { field: 'role.roleName', title: 'user_role' },
     {
-      field: 'role.roleName',
-      title: 'user_role'
-    },
-    {
-      field: 'groupDTOList',
+      field: 'groups',
       title: 'user_groups',
-      slots: {
-        default: 'group'
-      }
+      slots: { default: 'group' },
+      showOverflow: false
     },
-    {
-      field: 'userLevel',
-      title: 'user_level'
-    },
+    { field: 'userLevel', title: 'user_level' },
     {
       field: 'status',
       title: 'user_status',
-      slots: {
-        default: 'status'
-      }
+      slots: { default: 'status' }
     },
     {
       field: 'registered',
-      title: 'user_registered'
+      title: 'user_registered',
+      formatter: ({ row }: any) => {
+        return row.registered ? 'Registered' : 'Pending'
+      }
     }
   ],
   bodyActions: [
@@ -144,17 +134,13 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         name: 'Edit User',
         visible: true,
         disabled: false,
-        action: ({ row }: any) => {
-          userProvider?.openUserDetail(row)
-        }
+        action: ({ row }: any) => openUserDetail(row)
       },
       {
         code: 'sendInvitation',
         name: 'Send Invitation',
         action: ({ row }: any) => {
-          if (row.registered === 'Pending') {
-            userProvider?.sendInvitation(row)
-          }
+          sendInvitation(row)
         }
       },
       {
@@ -162,23 +148,25 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         name: 'Delete User',
         visible: true,
         disabled: false,
-        action: ({ row }: any) => {
-          handleDelete(row)
-        }
+        action: ({ row }: any) => handleDelete([row])
+      },
+      {
+        code: 'unlock_user',
+        name: 'Unlock User',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => handleUnlock(row)
       }
     ]
   ],
   permissionMethod: ({ row, code }) => {
     if (code === 'sendInvitation') {
       return {
-        visible: row.registered === 'Pending',
+        visible: !row.registered,
         disabled: false
       }
     }
-    return {
-      visible: true,
-      disabled: false
-    }
+    return { visible: true, disabled: false }
   },
   optionalConfig: {
     rowConfig: {
@@ -187,63 +175,57 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
       isHover: true
     },
     tooltipConfig: {
-      contentMethod: ({ items, row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, type, cell, $event }: any) => {
+      contentMethod: ({ row, column }: any) => {
         const key = column.property
         if (!key || !row) return ''
         const value = row[key] ?? ''
-        if (key === 'groupDTOList') {
-          if (Array.isArray(value)) {
-            return value.map((item: any) => item.name).join(', ')
-          }
-          return value
+        if (key === 'groups' || key === 'groupDTOList') {
+          return Array.isArray(value) ? value.map((item: any) => item.name).join(', ') : value
         }
-        if (typeof value === 'string') {
-          return value
-        }
-        if (Array.isArray(value)) {
-          return value.join(',')
-        }
+        if (typeof value === 'string') return value
+        if (Array.isArray(value)) return value.join(',')
       }
     }
   },
   selectChangeHander: (selectedRows: any[]) => {
     state.selectList = [...selectedRows]
   },
-  dblClickAction: ({ row, column, event }: any) => {
-    userProvider?.openUserDetail(row)
-  }
+  dblClickAction: ({ row }: any) => openUserDetail(row)
 })
 
-// #endregion
-// #region module:
-
-// #endregion
+const ResponsiveFilterRef = ref()
 const UserDialogRef = ref()
+const UserAddGroupDialogRef = ref()
 
 function handleUserDialogShow() {
   UserDialogRef.value.handleOpen()
 }
 
-async function handleDeleteSelected() {
+async function handleUserCreated() {
+  await refreshLicenseCount()
+  reload()
+}
+
+function handleFilterFormChange(formModel: any) {
+  if (formModel.isDesc === undefined) formModel.isDesc = true
+  filterParams.value = { ...formModel }
+  reload()
+}
+async function handleUnlock(row: any) {
+  if (!row?.userId) return
   try {
-    const action = await ElMessageBox.confirm(t('userTip.confirmWhetherToDeleteItems'), {
-      confirmButtonClass: 'el-button el-button--warning',
-      confirmButtonText: `${t('common_confirmDelete')}`,
-      dangerouslyUseHTMLString: true
-    })
-    if (action !== 'confirm') return
-    const params = {
-      userIds: state.selectList.map((item: any) => item.userId)
+    const res = await unlockUser(row.userId).then((r) => r.data)
+    if (res) {
+      routerProvider?.message.success(t('commons_success'))
     }
-    await userProvider?.BatchDeleteUserApi(params)
-    routerProvider?.message.success(t('userTip.userSelectedDeleteMsg'))
-    reload()
   } catch (error) {
     console.log(error)
   }
 }
-
-async function handleDelete(row: any) {
+async function handleDelete(rows?: any[]) {
+  const targets = rows?.length ? rows : state.selectList
+  const userIds = targets.map((item: any) => item.userId).filter(Boolean)
+  if (!userIds.length) return
   try {
     const action = await ElMessageBox.confirm(t('userTip.confirmWhetherToDeleteItems'), {
       confirmButtonClass: 'el-button el-button--warning',
@@ -251,7 +233,8 @@ async function handleDelete(row: any) {
       dangerouslyUseHTMLString: true
     })
     if (action !== 'confirm') return
-    const res = await userProvider?.BatchDeleteUserApi({ userIds: [row.userId] })
+    const res = await batchDeleteUsers({ userIds })
+    console.log(res)
     if (!!res) {
       routerProvider?.message.success(t('userTip.userSelectedDeleteMsg'))
       reload()
@@ -270,22 +253,23 @@ async function handleSetStatus(status: 'A' | 'D', row: any) {
   }
   try {
     row.loading = true
-    await userProvider?.SetUserStatusApi(row)
-    await getAllUserAndActiveCount()
+    await batchActiveUsers({
+      userIds: [row.userId],
+      status
+    })
+    await refreshLicenseCount()
   } catch (error) {
-    row.status = row.status = 'A' ? 'D' : 'A'
+    row.status = row.status === 'A' ? 'D' : 'A'
   } finally {
     row.loading = false
   }
 }
 
-async function getAllUserAndActiveCount() {
-  const { ActiveCount, licenseUserNum } = await userProvider?.getAllUserAndActiveCountApi()
-  state.activeUsers = ActiveCount || 0
-  state.licenseUsers = licenseUserNum || 0
+async function refreshLicenseCount() {
+  const data = await fetchLicenseUserCount()
+  state.activeUsers = data?.totalActive || 0
+  state.licenseUsers = data?.licenseUserNum || 0
 }
-
-// #region module:select actions
 
 async function handleActiveSelected(status: 'A' | 'D') {
   const noActiveUsersCount = state.selectList.filter((item: any) => item.status === 'D').length
@@ -293,50 +277,27 @@ async function handleActiveSelected(status: 'A' | 'D') {
     routerProvider?.message.warning(t('user_activeUserOverLimit'))
     return
   }
-  const params = {
-    ids: state.selectList.map((item: any) => item.id),
-    userIds: state.selectList.map((item: any) => item.userId),
-    active: status
+  try {
+    await batchActiveUsers({
+      userIds: state.selectList.map((item: any) => item.userId),
+      status
+    })
+    routerProvider?.message.success(status === 'A' ? t('user.activate.successfully.msg') : t('user.inactivate.successfully.msg'))
+    await refreshLicenseCount()
+    reload()
+  } catch (error) {
+    console.log(error)
   }
-  const result = await userProvider?.BatchActiveUserApi(params)
-  if (result.length > 0) {
-    routerProvider?.message.error(
-      t('userTip.operationFailed', {
-        users: result.join(',')
-      })
-    )
-  } else {
-    if (status === 'A') {
-      routerProvider?.message.success(t('user.activate.successfully.msg'))
-    } else {
-      routerProvider?.message.success(t('user.inactivate.successfully.msg'))
-    }
-  }
-  getAllUserAndActiveCount()
-  reload()
 }
-
-const UserAddGroupDialogRef = ref()
 
 function handleGroupSelected() {
-  const params = {
-    ids: state.selectList.map((item: any) => item.id),
-    userIds: state.selectList.map((item: any) => item.userId)
-  }
-  UserAddGroupDialogRef.value.handleOpen([], params)
+  UserAddGroupDialogRef.value.handleOpen(
+    [],
+    state.selectList.map((item: any) => item.userId)
+  )
 }
-
-// #endregion
-// #region module: ResponsiveFilterRef
-const ResponsiveFilterRef = ref()
-
-async function getFilter(conditions: any, initParams: any) {
-  conditions.forEach((condition: any) => {
-    if (condition.options) {
-      condition.options.sort((a: any, b: any) => a.value.localeCompare(b.value))
-    }
-  })
-  conditions.unshift(
+async function initFilter() {
+  const conditions = [
     {
       key: 'orderBy',
       label: 'tableHeader.sortBy',
@@ -353,37 +314,81 @@ async function getFilter(conditions: any, initParams: any) {
     {
       key: 'isDesc',
       label: 'tableHeader.sortOrder',
-      type: 'string',
+      type: 'boolean',
       isMultiple: false,
       options: [
         { label: 'tableHeader.asc', value: false },
         { label: 'tableHeader.desc', value: true }
       ]
+    },
+    {
+      key: 'status',
+      label: 'Active',
+      type: 'string',
+      options: [
+        {
+          value: 'A',
+          label: 'isActive'
+        },
+        {
+          value: 'D',
+          label: 'noActive'
+        }
+      ],
+      isMultiple: false
+    },
+    {
+      key: 'registered',
+      label: 'Registered',
+      type: 'boolean',
+      options: [
+        {
+          value: true,
+          label: 'Registered'
+        },
+        {
+          value: false,
+          label: 'Pending'
+        }
+      ],
+      isMultiple: false
+    },
+    {
+      key: 'userLevel',
+      label: 'User Level',
+      type: 'string',
+      options: [
+        {
+          value: 'Premium',
+          label: 'Premium'
+        },
+        {
+          value: 'Standard',
+          label: 'Standard'
+        },
+        {
+          value: 'Essential',
+          label: 'Essential'
+        }
+      ],
+      isMultiple: false
     }
-  )
-  ResponsiveFilterRef.value.init(conditions, initParams)
+  ]
+  const groups = await fetchGroupList()
+  conditions.push({
+    key: 'groups',
+    label: 'Groups',
+    type: 'string',
+    options: groups,
+    isMultiple: true
+  })
+  ResponsiveFilterRef.value.init(conditions)
 }
-
-function handleFilterFormChange(formModel: any) {
-  if (!formModel.isDesc) formModel.isDesc = true
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-  state.extraParamsFilter = formModel
-  emits('filter-change', state.extraParamsFilter)
-}
-
-function handleClearFilter() {
-  state.extraParamsFilter = {}
-  emits('filter-change', state.extraParamsFilter)
-}
-
-// #endregion
-
 onMounted(() => {
-  getAllUserAndActiveCount()
+  initFilter()
+  refreshLicenseCount()
   state.selectList = []
 })
-
-defineExpose({ reload, getFilter })
 </script>
 
 <style lang="scss" scoped>
@@ -395,8 +400,26 @@ defineExpose({ reload, getFilter })
   width: 250px;
 }
 
+.groups-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .table-tag {
-  margin-bottom: 5px;
+  max-width: 100%;
+  overflow: hidden;
+
+  :deep(.el-tag__content) {
+    display: inline-block;
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
 }
 
 :deep(.headerLeftExpand) {
@@ -412,7 +435,6 @@ defineExpose({ reload, getFilter })
   grid-template-columns: 1fr min-content;
   gap: var(--app-space-xs);
   padding: var(--app-space-xs);
-  // background: var(--el-color-primary-light-9);
 }
 
 .title-select {

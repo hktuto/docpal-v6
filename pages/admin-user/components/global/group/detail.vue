@@ -26,14 +26,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
-import { groupProviderDetailKey } from '~/util/userProvider'
 
-const routerProvider = inject(MenuRouterKey)
-if (!routerProvider) {
-  throw new Error('MenuRouterKey is not provided')
-}
+const { deleteGroup, openGroupList } = useAdminGroup()
 const { id, name, isCanModified } = defineProps<{
   id: string
   name: string
@@ -44,11 +39,12 @@ const state = reactive<any>({
   name: name
 })
 const { t } = useI18n()
+
 async function handleDelete() {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    const res = await newAdminApi.deleteUcenterGroup({ groupId: id })
+    const res = await deleteGroup(id)
     if (!!res) openGroupList()
   } catch (error) {
     console.log(error)
@@ -61,44 +57,10 @@ function handleEdit() {
   GroupEditDialogRef.value.handleOpen()
 }
 
-function openGroupList(openInNewTab: boolean = false) {
-  // TODO: open detail page
-  const newItem: any = {
-    menuKey: routerProvider?.menuSymbol,
-    id: 'admin-group',
-    name: 'admin-group-list',
-    icon: 'mingcute:group-line',
-    label: 'Admin Group',
-    component: 'LazyGroupList',
-    props: {}
-  }
-  routerProvider?.navigateTo({ ...newItem }, openInNewTab)
-}
-
 function handleEditRefresh(group: any) {
-  state.name = group.name
+  state.name = group.name ?? group.groupName
 }
 
-provide(groupProviderDetailKey, {
-  DeleteGroupApi: (params: any) => {
-    return newAdminApi.deleteUcenterGroup(params)
-  },
-  GetMemberListApi: (params: any) => {
-    return newAdminApi.postUcenterMember(params)
-  },
-  BatchGroupRemoveUsersApi: (params: any) => {
-    return newAdminApi.postUcenterGroupBatchRemoveUsers(params)
-  },
-  BatchGroupAddUsersApi: (params: any) => {
-    return newAdminApi.postUcenterGroupBatchAddUsers(params)
-  },
-  PatchGroupApi: (params: any) => {
-    return newAdminApi.patchUcenterGroup(params)
-  },
-  getUserListApi: async () => {
-    return await newAdminApi.postUcenterUsers({}).then((res) => res.data)
-  }
-})
 watch(
   () => name,
   () => {

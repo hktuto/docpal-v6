@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
-
 const loading = ref(false)
 const form = reactive({
   username: '',
@@ -14,56 +12,43 @@ const rules = {
   password: [{ required: true, message: 'Please input Password', trigger: 'blur' }]
 }
 
+const { loginWithPassword } = useAuth()
+const router = useRouter()
+const route = useRoute()
+
+function resolveRedirectPath() {
+  const redirect = route.query.redirect
+  if (typeof redirect === 'string' && redirect && redirect !== '/login') {
+    const query = { ...route.query }
+    delete query.redirect
+    const qs = Object.keys(query)
+      .map((key) => `${key}=${query[key]}`)
+      .join('&')
+    return qs ? `${redirect}?${qs}` : redirect
+  }
+  return '/'
+}
+
 async function submit() {
   try {
     loading.value = true
     errorMessage.value = ''
-    const checkUserLock: any = await newClientApi.getUcenterPasswordHasLockUserid(form.username).then((r) => r.data)
-    if (!!checkUserLock && checkUserLock.lockStatus) {
-      errorMessage.value = `The user is locked, please try again after ${checkUserLock.lockMinutes} minutes.`
+    const result = await loginWithPassword(form.username, form.password)
+    if (!result.ok) {
+      errorMessage.value = result.message
       return
     }
-
-    const data = await newClientApi
-      .postAuthLogin({
-        username: form.username,
-        password: form.password
-      })
-      .then((res) => res.data)
-    localStorage.setItem('access_token', data.access_token)
-    localStorage.setItem('token', data.access_token)
-    localStorage.setItem('refresh_token', data.refresh_token)
-    const token = useToken()
-    token.value = data.access_token
-    // console.log(data)
-    //    const {isRequired2FA} = await userStore.login(form.username, form.password);
     form.username = ''
     form.password = ''
-    verifly()
-    const route = useRoute()
-    let url
-    if (route.query.redirect && route.query.redirect !== '/login') {
-      url = route.query.redirect as string
-      if (route.query) {
-        url += `?${Object.keys(route.query)
-          .map((key) => `${key}=${route.query[key]}`)
-          .join('&')}`
-      }
-    } else {
-      url = '/'
+    if (!result.passwordResetRequired) {
+      await router.push(resolveRedirectPath())
     }
-    window.location.href = url
-  } catch (error) {
-    errorMessage.value = 'Username or password is incorrect'
-    // login失敗添加失敗次數
-    await newClientApi.getUcenterPasswordCheckLockUserUserid(form.username, { skipAddLoginCount: false }).then((r) => r.data)
   } finally {
     loading.value = false
   }
 }
 
 function forgetPassword() {
-  const router = useRouter()
   router.push('/forgetPassword')
 }
 
@@ -77,7 +62,7 @@ async function initLoginPage() {
       if (usernameEl.value) usernameEl.value.focus()
     })
   } catch (error) {
-    console.log("error to fetch language", error)
+    console.log('error to fetch language', error)
     systemError.value = 'Failed to load language'
     throw createError({
       message: 'Failed to load language',
@@ -106,10 +91,8 @@ onMounted(() => {
         <ElFormItem>
           <ElAlert v-if="errorMessage" :title="errorMessage" type="error" />
         </ElFormItem>
-        <ElFormItem>
-          <ElButton class="fullSize" size="large" type="primary" @click="submit" :loading="loading">Submit</ElButton>
-        </ElFormItem>
       </ElForm>
+      <ElButton class="fullSize" size="large" type="primary" @click="submit" :loading="loading">Submit</ElButton>
       <el-button @click="forgetPassword" link>
         {{ $t('login_forgetPassword') }}
       </el-button>

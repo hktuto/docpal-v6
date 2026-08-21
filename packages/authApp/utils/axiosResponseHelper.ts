@@ -1,158 +1,155 @@
-import type { AxiosInstance } from 'axios'
+import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElMessage } from 'element-plus'
-import { useEventBus, EventType, emitBus } from 'eventbus'
+import { EventType, emitBus } from 'eventbus'
 
-/**
- * Case conversion utilities for API responses
- */
-function getBaseUrl(baseURL: string) {
+/** TODO: workflow 僅支持 X-Tenant-ID 的請求方式 */
+const WORKFLOW_PATH = '/oniflow/api/v1/'
+const TOKEN_PATH = '/auth/refresh'
+
+type RetryConfig = AxiosRequestConfig & { _retry?: boolean }
+
+function resolveBaseUrl(baseURL: string) {
   const {
-    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DOCPAL_GATEWAY_PROXY }
+    public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY, DOCPAL_GATEWAY_PROXY, DOCPAL_GATEWAY_PROXY_V1 }
   } = useRuntimeConfig()
-  if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY || '/public-api/report/v1/api'
-  if (baseURL === '/client') baseURL = CLIENT_PROXY || '/api'
-  if (baseURL === '/admin/api') baseURL = ADMIN_PROXY || '/admin/api'
-  if (baseURL === '/apis') baseURL = DOCPAL_GATEWAY_PROXY || '/apis'
-  if (baseURL === '/api') baseURL = PROXY  || '/api'
-  if (baseURL === '/adminApi/api') baseURL = ADMIN_PROXY || '/admin/api'
-  if (baseURL === '/docpalApi') baseURL = PROXY || '/api'
-  if (baseURL === '/public-api/report/v1/api') baseURL = DASHBOARD_PROXY || '/public-api/report/v1/api'
-  if (baseURL === '/open-api/template') baseURL = OPEN_PROXY as string || '/open-api/template'
-  if (baseURL === '/gateway') baseURL = DOCPAL_GATEWAY_PROXY as string || '/apis'
-  return baseURL
+
+  const map: Record<string, string> = {
+    '/dashboard': DASHBOARD_PROXY || '/public-api/report/v1/api',
+    '/client': CLIENT_PROXY || '/api',
+    '/admin/api': ADMIN_PROXY || '/admin/api',
+    '/adminApi/api': ADMIN_PROXY || '/admin/api',
+    '/apis': (DOCPAL_GATEWAY_PROXY as string) || '/apis',
+    '/api': PROXY || '/api',
+    '/docpalApi': PROXY || '/api',
+    '/public-api/report/v1/api': DASHBOARD_PROXY || '/public-api/report/v1/api',
+    '/open-api/template': (OPEN_PROXY as string) || '/open-api/template',
+    '/gateway': (DOCPAL_GATEWAY_PROXY_V1 as string) || '/apis/v1/ucenter'
+  }
+
+  return map[baseURL] || baseURL
 }
 
-// TODO: workflow 僅支持X-tenant-id的請求方式
-const workflowPath = '/oniflow/api/v1/'
+const LOGOUT_PATH = '/auth/logout'
 
-export const requestSuccessHelper = (config: any, axiosInstance: AxiosInstance) => {
-  // const {locale} = useI18n()
-  // console.log(locale)
-  const locale = localStorage.getItem('v_form_locale') || 'en-US'
+let isExpiringSession = false
+
+function expireSession() {
+  if (isExpiringSession) return
+  isExpiringSession = true
+  try {
+    useToken().clearToken()
+    emitBus(EventType.USER_LOGIN__EXPIRE)
+    // 会话过期只清本地态并跳转，不要调 logout API，否则 401 会再次进入这里形成死循环
+    clearAuthSession()
+    const router = useRouter()
+    const route = useRoute()
+    if (!shouldIgnoreAuthRedirect(route.path)) {
+      router.push({
+        path: '/login',
+        query: {
+          ...route.query,
+          redirect: route.path
+        }
+      })
+    } else if (normalizeAuthPath(route.path) !== '/login') {
+      router.push({ path: '/login' })
+    }
+  } finally {
+    queueMicrotask(() => {
+      isExpiringSession = false
+    })
+  }
+}
+
+function refreshAccessToken() {
+  // 与定时器 / 其它调用方共用 useToken 内的单次 refreshPromise
+  return useToken().handleRefreshToken()
+}
+
+export function requestSuccessHelper(config: AxiosRequestConfig, _axiosInstance?: AxiosInstance) {
   const token = localStorage.getItem('access_token')
   if (token) {
+    config.headers = config.headers || {}
     config.headers.Authorization = `Bearer ${token}`
-    config.headers['accept-language'] = locale
+    config.headers['accept-language'] = localStorage.getItem('v_form_locale') || 'en-US'
     // TODO: 等待後端更改登錄接口，從登錄接口獲取該環境變量
-    if (config.url.includes(workflowPath)) {
+    if (config.url?.includes(WORKFLOW_PATH)) {
       config.headers['X-Tenant-ID'] = 'demo'
       config.headers['X-User-ID'] = useUserId().value
     }
   }
-  if (process.env.NODE_ENV !== 'development') {
-    const {
-      public: { DOCPAL_GATEWAY_PROXY }
-    } = useRuntimeConfig()
-    const pathOnly = typeof config.url === 'string' ? config.url.split('?')[0] : ''
-    const hitsDynamicActions = pathOnly === '/gateway' || config.baseURL === '/gateway'
-    if (hitsDynamicActions && DOCPAL_GATEWAY_PROXY) {
-      config.baseURL = DOCPAL_GATEWAY_PROXY as string
-      if (!config.url) {
-        config.url = '/gateway'
-      }
-    } else if (config.baseURL) {
-      config.baseURL = getBaseUrl(config.baseURL)
-    }
+
+  if (process.env.NODE_ENV !== 'development' && config.baseURL) {
+    config.baseURL = resolveBaseUrl(config.baseURL)
+    console.log('config.baseURL', config.baseURL)
   }
+
   return config
 }
-export const requestErrorHelper = (error: any, axiosInstance: AxiosInstance) => {
+
+export function requestErrorHelper(error: AxiosError, _axiosInstance?: AxiosInstance) {
   return Promise.reject(error)
 }
 
-export const responseSuccessHelper = (response: any, axiosInstance: AxiosInstance) => {
+export function responseSuccessHelper(response: AxiosResponse, _axiosInstance?: AxiosInstance) {
   return response
 }
 
-export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstance) => {
-  const originalRequest = error.config
-  console.log('responseErrorHelper', error)
-  if (!error.response) return Promise.reject(error)
-  if (error.response.status === 420) {
-    console.log('token expired, clear token and redirect to login page')
-    // TODO : may need to handle error message
-    emitBus(EventType.USER_LOGIN__EXPIRE)
-    // TODO : remove logout, should use event bus
-    logout()
+export async function responseErrorHelper(error: AxiosError, axiosInstance: AxiosInstance) {
+  const status = error.response?.status
+  if (!status) return Promise.reject(error)
+
+  const originalRequest = error.config as RetryConfig | undefined
+
+  // 强制下线
+  if (status === 420) {
+    expireSession()
     return
   }
 
-  if (error.response.status >= 500 || error.response.status <= 400) {
-    if (error.config.headers.noThrowError) return
-
-    if (error.config.headers.noErrorMessage) return Promise.reject(error)
-
-    const message = error.response.data.message || error.message
-    ElMessage.error(message)
+  if (status === 403) {
+    expireSession()
     return Promise.reject(error)
   }
-  if (error.response.status === 403) {
-    console.log('token expired, clear token and redirect to login page')
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
-    emitBus(EventType.USER_LOGIN__EXPIRE)
-    logout()
-    return Promise.reject(error)
-  }
-  console.log('error', error, this)
-  const refreshToken = localStorage.getItem('refresh_token')
-  if (error.response.status === 401 && !originalRequest._retry && refreshToken) {
-    // If the failing request is the token refresh itself, log out to prevent infinite loop
-    if (originalRequest.url && originalRequest.url.includes('/auth/token')) {
-      console.log('token refresh returned 401, logging out')
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      emitBus(EventType.USER_LOGIN__EXPIRE)
-      logout()
+
+  // 401：刷新 token 后，用「原请求所在 instance」重试，保留各自 baseURL
+  if (status === 401) {
+    const isRefreshCall = originalRequest?.url?.includes(TOKEN_PATH)
+    const isLogoutCall = originalRequest?.url?.includes(LOGOUT_PATH)
+    const alreadyRetried = originalRequest?._retry
+    const hasRefreshToken = !!localStorage.getItem('refresh_token')
+
+    // logout / refresh 自身的 401 不再触发 expireSession，避免死循环
+    if (isLogoutCall || isRefreshCall) {
       return Promise.reject(error)
     }
+
+    if (!originalRequest || !axiosInstance || alreadyRetried || !hasRefreshToken) {
+      expireSession()
+      return Promise.reject(error)
+    }
+
     originalRequest._retry = true
-
     try {
-      // 使用 refresh token 获取新的 access token
-
-      const { data } = await axiosInstance.post(
-        '/auth/token',
-        {},
-        {
-          headers: {
-            Authorization: 'Bearer ' + refreshToken
-          },
-          baseURL: '/api'
-        }
-      )
-      console.log('retry', data)
-      console.log('refresh token response', data)
-      if (!data) {
-        logout()
-        return Promise.reject(new Error('refresh token response is null'))
-      }
-      localStorage.setItem('access_token', data.data.access_token)
-      localStorage.setItem('refresh_token', data.data.refresh_token)
-      const token = useToken()
-      token.value = data.data.access_token
+      const accessToken = await refreshAccessToken()
+      originalRequest.headers = originalRequest.headers || {}
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`
       return axiosInstance(originalRequest)
     } catch (refreshError: any) {
-      console.log('refresh error', refreshError)
-      // 如果 refresh token 也过期了，则清除所有存储的 token，并导航到登录页面
-      if (refreshError.response?.status === 401 || refreshError.response?.status === 403 || refreshError.response?.status === 500) {
-        console.log('token expired, clear token and redirect to login page')
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
-        // notify other via event bus
-        emitBus(EventType.USER_LOGIN__EXPIRE)
-        // TODO : remove logout, should use event bus
-        logout()
+      const refreshStatus = refreshError.response?.status
+      if (refreshStatus === 401 || refreshStatus === 403 || refreshStatus === 500 || !refreshError.response) {
+        expireSession()
       }
-
       return Promise.reject(refreshError)
     }
-  } else {
-    // 如果没有 refresh token，则直接退出登录
-    if (error.response.status === 401 || error.response.status === 403) {
-      logout()
-    }
-    return Promise.reject(error)
+  }
+
+  // 其它 4xx/5xx：按 header 决定是否弹错 / 吞错
+  const headers = error.config?.headers as Record<string, unknown> | undefined
+  if (headers?.noThrowError) return
+  if (!headers?.noErrorMessage) {
+    const message = (error.response?.data as any)?.message || error.message
+    if (message) ElMessage.error(message)
   }
 
   return Promise.reject(error)

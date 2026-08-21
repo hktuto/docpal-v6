@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 
 const platform = useAppPlatform()
 const router = useRouter()
@@ -33,11 +33,14 @@ async function init() {
       }))
 
     if (state.list.length > 0) {
-      const data = await newClientApi.getDmsUserGetapplication().then((res: any) => res.data)
+      const userState = useUserState()
+      const data = userState.value
+        ? userState.value
+        : await gatewayApi.users.getUsersApplication().then((res: any) => res.data)
 
-      state.form.id = data.id
+      state.form.id = (data as any).id
       state.list.forEach((item: any) => {
-        state.form[item.key] = data[item.key]
+        state.form[item.key] = (data as any)[item.key]
       })
     }
 
@@ -129,7 +132,7 @@ async function save() {
         newUserInfo[item.key] = state.form[item.key]
       }
     })
-    await newClientApi.patchUcenterUser(newUserInfo).then(r => r.data)
+    await gatewayApi.users.putUsersUpdate(newUserInfo).then(r => r.data)
 
     await newClientApi.putDmsUserSetting(userPreference.value as any).then(r => r.data)
 

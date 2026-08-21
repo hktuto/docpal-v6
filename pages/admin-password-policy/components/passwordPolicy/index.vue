@@ -118,7 +118,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { newAdminApi } from 'api'
+import { newAdminApi, gatewayApi } from 'api'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
@@ -145,7 +145,7 @@ const form = ref({
 async function init() {
   try {
     loading.value = true
-    const data = await newAdminApi.getUcenterPasswordConfig().then(r => r.data)
+    const data = await gatewayApi.password.getPasswordPolicy().then(r => r.data)
     if (!!data) {
       const policyData = data
       // 更新表单数据

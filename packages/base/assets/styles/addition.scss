@@ -7,6 +7,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 // vxe addition style
+// vxe 在 :root / [data-vxe-ui-theme] 写入默认蓝(#409eff)，且样式常晚于业务 scss 加载，需覆盖
+:root,
+html[data-vxe-ui-theme='light'],
+html[data-vxe-ui-theme='dark'] {
+  --vxe-ui-font-primary-color: var(--app-primary-color) !important;
+  --vxe-ui-font-primary-lighten-color: var(--app-primary-3) !important;
+  --vxe-ui-font-primary-darken-color: var(--app-primary-4) !important;
+  --vxe-ui-font-primary-tinge-color: var(--app-primary-alpha-10) !important;
+  --vxe-ui-font-primary-disabled-color: var(--app-primary-alpha-50) !important;
+}
 .vxe-toolbar {
   gap: var(--app-space-xs);
 }

@@ -9,13 +9,11 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { groupProviderDetailKey } from '~/util/userProvider'
 import formJson from './editDialog.vform.json'
-import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const groupProviderDetail = inject(groupProviderDetailKey)
+const { updateGroup, fetchGroupsPage } = useAdminGroup()
 const props = defineProps<{
   group: any
 }>()
@@ -37,22 +35,18 @@ async function handleSubmit() {
       state.visible = false
       return
     }
-    const groupList: any = await newAdminApi.postUcenterGroups().then((r) => r.data)
-    // check group name exist
-    if (groupList.some((g: any) => g.name === data.groupName)) {
-      ElMessage.error(t('user_userGroupsIsExistsMsg'))
-      return
-    }
+    data.id = props.group.id
     data.groupId = props.group.id
-    const res = await groupProviderDetail?.PatchGroupApi(data)
+    const res = await updateGroup(data)
     ElMessage.success(t('tip_updateMsg', { modelName: t('user_UserGroup'), name: null }))
     state.visible = false
-    FormRendererRef.value.vFormRenderRef.resetForm()
-    emits('refresh', res.data)
+    emits('refresh', data)
   } catch (error) {
     console.log(error)
+  } finally {
+    FormRendererRef.value.vFormRenderRef.resetForm()
+    state.loading = false
   }
-  state.loading = false
 }
 
 function handleOpen() {

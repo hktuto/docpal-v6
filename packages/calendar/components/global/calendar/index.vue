@@ -1,14 +1,10 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import type { CalendarEventExternal } from '@schedule-x/calendar'
 
 const { t } = useI18n()
 const { setting: calendarSetting, categoriesOption, locationsOption } = useCalendarStore()
-import {
-  type CalendarOptions,
-  type DocPalEventType,
-  convertSiteEventToCalendarEvent
-} from '../../../utils/calendarHelper'
+import { type CalendarOptions, type DocPalEventType, convertSiteEventToCalendarEvent } from '../../../utils/calendarHelper'
 import CalendarViewer from './viewer.vue'
 import CalendarDetailDialog from './detailDialog.vue'
 
@@ -48,23 +44,9 @@ const userFiterOptions = ref<any>([])
 
 async function getFilterOptions() {
   try {
-    let user: any = []
-    if (props.options.userFilter) {
-      const res = await newClientApi.getPermissionUserGroupGroupidUsers(props.options.userFilter).then((res) => res.data)
-      user = res.users
-    } else {
-      user =  await newClientApi.postUcenterUsers({}).then((res) => res.data)
-      if (!user) throw new Error('no user')
-    }
-
-    userFiterOptions.value = user
-      .map((item) => {
-        return {
-          label: item.username,
-          value: item.userId
-        }
-      })
-      .sort((a, b) => a.label.localeCompare(b.label))
+    const userList = await fetchUsersSelectSorted(props.options.userFilter)
+    if (!userList.length) throw new Error('no user')
+    userFiterOptions.value = userList
     userFiterOptions.value.unshift({
       label: 'Current User',
       value: 'currentUser'
@@ -237,8 +219,7 @@ defineExpose({
       </ElForm>
     </div>
     <CalendarViewer ref="viewerRef" :options="options" :filter="filter" v-on="calendarEvents" />
-    <CalendarDetailDialog ref="detailDialogRef" width="80%" :options="options"
-                          :addtionalCheckBeforeEventUpdate="addtionalCheckBeforeEventUpdate" />
+    <CalendarDetailDialog ref="detailDialogRef" width="80%" :options="options" :addtionalCheckBeforeEventUpdate="addtionalCheckBeforeEventUpdate" />
   </div>
 </template>
 
