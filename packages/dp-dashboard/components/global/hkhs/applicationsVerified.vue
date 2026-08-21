@@ -2,8 +2,8 @@
 import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
-import { exportReportToExcel } from '~/utils/excelHelper'
-import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
+import { exportReportToExcel, type ReportHeader } from '~/utils/excelHelper'
+import { exportReportToPDF } from '~/utils/pdfHelper'
 
 // SCS-102 - List of the Applications Verified
 const emits = defineEmits(['delete', 'refreshSetting'])

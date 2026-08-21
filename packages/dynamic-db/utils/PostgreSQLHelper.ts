@@ -17,12 +17,12 @@ export interface AndCondition {
   value: QueryCondition[]
 }
 
-export type FilterCondition = QueryCondition | AndCondition
+export type SqlFilterCondition = QueryCondition | AndCondition
 
 export function convertFilterRuleToCondition(
   rule: FilterRuleInput,
   isDateField: (field: string) => boolean
-): FilterCondition {
+): SqlFilterCondition {
   if (isDateField(rule.field)) {
     const dateValue = rule.value as string | number
     let value: string | number | Array<string | number> = rule.value
