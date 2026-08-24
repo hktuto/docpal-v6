@@ -204,28 +204,27 @@ async function getFormData(needValidation = true) {
   return result
 }
 
+async function getPartList(part_number?: string) {
+  const data = await $api
+    .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=10`)
+    .then((r: any) => r.data.items)
+  if (data.length === 0) return
+
+  part_numberOptions.value = data.map((item: any) => ({
+    id: item.inventory_item_id,
+    label: item.wcl_item_no,
+    value: item.wcl_item_no,
+    brand: item.brand,
+    moq: item.moq,
+    uom: item.uom
+  }))
+}
+
 async function handleChangeBrand() {
   if (!formModel.value.brand || formModel.value.brand === '') return
 
   handleSampleInfoAdd()
-
-  const conditions = [
-    {
-      type: 'EQ',
-      column: 'f_7997_ec41c8ff',
-      value: formModel.value.brand
-    }
-  ]
-  const list = await getDbData('12ba8480-6936-11f1-922e-adee4ecc74b2', conditions)
-  part_numberOptions.value =
-    list.map((item: any) => ({
-      id: item.inventory_item_id,
-      label: item.segment1,
-      value: item.segment1,
-      brand: item.attribute8,
-      mpq: item.fixed_lot_multiplier,
-      uom: item.primary_uom_code
-    })) || []
+  await getPartList('')
 }
 
 function handlePartNumberChange(item: any) {
@@ -306,21 +305,17 @@ defineExpose({ getFormData })
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="型號 Part Number" :prop="`infoList.${index}.part_number`" required>
-              <el-select
+              <el-select-v2
                 v-model="item.part_number"
-                class="full-width-input"
-                clearable
                 filterable
-                :allow-create="formModel.brand === 'KOA'"
+                remote
+                :remote-method="getPartList"
+                remote-show-suffix
+                clearable
+                :options="part_numberOptions"
+                placeholder="Please enter a keyword"
                 @change="handlePartNumberChange(item)"
-              >
-                <el-option
-                  v-for="(part_numberItem, part_numberIndex) in part_numberOptions"
-                  :key="part_numberIndex"
-                  :label="part_numberItem.label"
-                  :value="part_numberItem.value"
-                />
-              </el-select>
+              />
             </el-form-item>
             <el-form-item label="單機用量 Quantity Machine" prop="quantity_machine">
               <el-input-number v-model="item.quantity_machine" controls-position="right" :min="0" :step="1" step-strictly />

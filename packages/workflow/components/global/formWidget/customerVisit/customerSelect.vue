@@ -67,6 +67,7 @@ async function numberChange(value: string) {
   if (!value || value === '') {
     searchData.value.customerName = ''
     searchData.value.customerEnglishName = ''
+    customerDetail.value.customer_location = ''
   } else if (!!value) {
     searchData.value.customerName = value
     searchData.value.customerEnglishName = value
@@ -79,7 +80,7 @@ async function numberChange(value: string) {
     } else {
       customerDetail.value.customer_location = ''
     }
-  } else if (value === '') {
+  } else {
     customerDetail.value.customer_location = ''
   }
 }
@@ -180,7 +181,7 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="6">
         <el-form-item label="客戶地址">
-          <el-input v-model="customerDetail.customer_location" />
+          <el-input v-model="customerDetail.customer_location" clearable/>
         </el-form-item>
       </el-col>
     </el-row>
