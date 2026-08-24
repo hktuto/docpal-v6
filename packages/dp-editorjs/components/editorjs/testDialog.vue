@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 import { newAdminApi } from 'api'
 import { useEditor } from '~/composables/useEditorjs'
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 const { t } = useI18n()
 const props = defineProps<{
@@ -11,9 +14,9 @@ const props = defineProps<{
 const { variables } = useEditor()
 
 const testForm = ref({
-  tos: [],
-  ccs: [],
-  bcc: [],
+  tos: [] as string[],
+  ccs: [] as string[],
+  bcc: [] as string[],
   templateId: props.data.id,
   variables: variables.value.reduce((acc: any, cur: any) => {
     if (!cur.includes(',')) {
@@ -34,6 +37,23 @@ const testForm = ref({
   }, {})
 })
 
+function handleEmailsChange(field: 'tos' | 'ccs' | 'bcc', emails: string[]) {
+  const valid: string[] = []
+  const invalid: string[] = []
+  emails.forEach((email) => {
+    const trimmed = email.trim()
+    if (!trimmed) return
+    if (EMAIL_REGEX.test(trimmed)) {
+      if (!valid.includes(trimmed)) valid.push(trimmed)
+    } else {
+      invalid.push(trimmed)
+    }
+  })
+  if (invalid.length) {
+    ElMessage.error(`${t('user_pleaseInputTheCorrectEmail')} 【${invalid.join(', ')}】`)
+  }
+  testForm.value[field] = valid
+}
 
 async function send() {
   const body = testForm.value
@@ -76,19 +96,34 @@ defineExpose({
     <div class="form">
       <ElForm :data="testForm" label-position="top">
         <ElFormItem :label="t('easyForm_addFormAction_to')">
-          <ElSelect v-model="testForm.tos" multiple filterable allow-create
-                    :placeholder="t('common_selectOccupancyContent')">
-          </ElSelect>
+          <el-input-tag
+            v-model="testForm.tos"
+            clearable
+            delimiter=","
+            :placeholder="t('tip_enterAfterInput')"
+            :aria-label="t('tip_enterAfterInput')"
+            @change="(emails) => handleEmailsChange('tos', emails)"
+          />
         </ElFormItem>
         <ElFormItem :label="t('easyForm_addFormAction_cc')">
-          <ElSelect v-model="testForm.ccs" multiple filterable allow-create
-                    :placeholder="t('common_selectOccupancyContent')">
-          </ElSelect>
+          <el-input-tag
+            v-model="testForm.ccs"
+            clearable
+            delimiter=","
+            :placeholder="t('tip_enterAfterInput')"
+            :aria-label="t('tip_enterAfterInput')"
+            @change="(emails) => handleEmailsChange('ccs', emails)"
+          />
         </ElFormItem>
         <ElFormItem :label="t('easyForm_addFormAction_bcc')">
-          <ElSelect v-model="testForm.bcc" multiple filterable allow-create
-                    :placeholder="t('common_selectOccupancyContent')">
-          </ElSelect>
+          <el-input-tag
+            v-model="testForm.bcc"
+            clearable
+            delimiter=","
+            :placeholder="t('tip_enterAfterInput')"
+            :aria-label="t('tip_enterAfterInput')"
+            @change="(emails) => handleEmailsChange('bcc', emails)"
+          />
         </ElFormItem>
         <template v-for="(value,key) in testForm.variables" :key="key">
           <ElFormItem v-if="typeof value === 'string'" :label="key" :key="key">
