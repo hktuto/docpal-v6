@@ -511,41 +511,32 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   }
 
   function createEmptyRow(masterId: string) {
-    return {
+    const row: Record<string, any> = {
       [SGLA_ITEMS.MasterId]: masterId,
-      [SGLA_ITEMS.Carton]: '',
-      [SGLA_ITEMS.Supplier_PN]: '',
-      [SGLA_ITEMS.WCL_PN]: '',
-      [SGLA_ITEMS.Qty]: null,
-      [SGLA_ITEMS.PoLine]: '',
-      [SGLA_ITEMS.SupplierItemRefNo]: '',
-      [SGLA_ITEMS.DateCode]: '',
-      [SGLA_ITEMS.CountryOfOrigin]: '',
-      [SGLA_ITEMS.CountryOfWafer]: '',
-      [SGLA_ITEMS.DrawingNo]: '',
-      [SGLA_ITEMS.Remark]: '',
       [SGLA_ITEMS.Checked]: false
     }
+    verificationTableColumns.forEach((col: any) => {
+      if (!col.field) return
+      row[col.field] = col.type === 'number' ? null : ''
+    })
+    return row
   }
 
   function createRowPayloadFromSource(masterId: string, source: Record<string, any>) {
-    return {
+    const row: Record<string, any> = {
       [SGLA_ITEMS.MasterId]: masterId,
-      [SGLA_ITEMS.Carton]: source[SGLA_ITEMS.Carton] ?? '',
-      [SGLA_ITEMS.Supplier_PN]: source[SGLA_ITEMS.Supplier_PN] ?? '',
-      [SGLA_ITEMS.WCL_PN]: source[SGLA_ITEMS.WCL_PN] ?? '',
-      [SGLA_ITEMS.Qty]: toNumberOrNull(source[SGLA_ITEMS.Qty]),
-      [SGLA_ITEMS.PoLine]: source[SGLA_ITEMS.PoLine] ?? '',
-      [SGLA_ITEMS.SupplierItemRefNo]: source[SGLA_ITEMS.SupplierItemRefNo] ?? '',
-      [SGLA_ITEMS.DateCode]: source[SGLA_ITEMS.DateCode] ?? '',
-      [SGLA_ITEMS.CountryOfOrigin]: source[SGLA_ITEMS.CountryOfOrigin] ?? '',
-      [SGLA_ITEMS.CountryOfWafer]: source[SGLA_ITEMS.CountryOfWafer] ?? '',
-      [SGLA_ITEMS.DrawingNo]: source[SGLA_ITEMS.DrawingNo] ?? '',
-      [SGLA_ITEMS.Remark]: source[SGLA_ITEMS.Remark] ?? '',
       // 新行需重新核验
       [SGLA_ITEMS.Checked]: false
     }
+    verificationTableColumns.forEach((col: any) => {
+      if (!col.field) return
+      row[col.field] = col.type === 'number' ? toNumberOrNull(source[col.field]) : (source[col.field] ?? '')
+    })
+    return row
   }
+
+  /** insertRow 切 filter 时跳过一次 watch reload，避免冲掉滚到首行 */
+  let skipNextFilterReload = false
 
   async function insertRow(payload: Record<string, any>) {
     if (creatingRow.value) return false
@@ -567,16 +558,19 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       if (!insertedRow?.id) return false
 
       tableData.value.unshift(insertedRow)
-      statusFilter.value = 'all'
+      if (statusFilter.value !== 'all') {
+        skipNextFilterReload = true
+        statusFilter.value = 'all'
+      }
       const grid = tableRef.value as any
-      grid?.loadData?.(getFilteredItems(tableData.value))
+      await grid?.loadData?.(getFilteredItems(tableData.value))
 
-      nextTick(() => {
-        grid?.scrollToRow?.(insertedRow)
-        grid?.setEditCell?.(insertedRow, SGLA_ITEMS.Supplier_PN)
-        const supplierPnColumn = verificationTableColumns.find((col: any) => col.field === SGLA_ITEMS.Supplier_PN)
-        focusEditCell(supplierPnColumn as any, insertedRow)
-      })
+      await nextTick()
+      // 新行在顶部；虚拟滚动下 scrollToRow 不稳定，直接滚到第一行
+      grid?.scrollTo?.(0, 0)
+      grid?.setEditCell?.(insertedRow, SGLA_ITEMS.Supplier_PN)
+      const supplierPnColumn = verificationTableColumns.find((col: any) => col.field === SGLA_ITEMS.Supplier_PN)
+      focusEditCell(supplierPnColumn as any, insertedRow)
       return true
     } catch (error) {
       console.error(error)
@@ -602,7 +596,13 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
   const debouncedReload = useDebounceFn(() => reload(), 300)
 
-  watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => debouncedReload())
+  watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => {
+    if (skipNextFilterReload) {
+      skipNextFilterReload = false
+      return
+    }
+    debouncedReload()
+  })
 
   function getFormData() {
     // checkbox 列用 checkField 绑定，列上没有 field，需显式带上 Checked
