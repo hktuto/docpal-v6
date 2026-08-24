@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { newAdminApi } from 'api'
-import { getUserSelectOption } from '@packages/base/composables/usePermissionOption'
+import { gatewayApi, newAdminApi } from 'api'
 
 const emits = defineEmits(['update'])
 const { getVariablesByDisplayTypes } = useVariablesProvide()
@@ -100,14 +99,14 @@ function updateData() {
 async function getEmailRecipient() {
   const stringAndArrayVariables = getVariablesByDisplayTypes(['text'], true)
 
-  const userList = await getUserSelectOption()
+  const userList = await gatewayApi.users.getUsersSelect({ value: 'email' }).then((res) => res.data)
   const map = userList.map((item: any) => ({
-    id: item.email,
+    id: item.value,
     name: item.label
   }))
 
   emailRecipient.value = [
-    { label: 'User', options: Array.from(new Map(map.map((x: any) => [x.id, x])).values()) },
+    { label: 'User', options: map },
     { label: 'Variables', options: stringAndArrayVariables }
   ]
 }
