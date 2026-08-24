@@ -92,7 +92,7 @@ const displayTypeList = ref([
     component: 'ContextVariableDataTypeObject'
   }
 ])
-const exitRules = ref([])
+const exitRules = ref<any[]>([])
 const FormRef = ref()
 const newFieldRules = reactive({
   id: [
@@ -153,7 +153,7 @@ function newNameChanged(rule: any, value: any, callback: any) {
 
 function open(row: any) {
   opened.value = true
-  formData.value = row
+  formData.value = deepCopy(row)
   isEdit.value = row.id !== ''
   exitRules.value = isEdit.value ? properties.filter((item: any) => item.id !== row?.id) : properties
   typeChanged(formData.value.display_type)

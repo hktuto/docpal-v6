@@ -72,9 +72,10 @@ function handleAddItem(item: any) {
   updateProperties()
 }
 
-function handleUpdateItem(item: any) {
-  delete item._X_ROW_KEY
-  properties.value[properties.value.findIndex((item: any) => item.id === item.id)] = item
+function handleUpdateItem(newItem: any) {
+  delete newItem._X_ROW_KEY
+  const findIndex = properties.value.findIndex((item: any) => item.id === newItem.id)
+  properties.value[findIndex] = newItem
   updateProperties()
 }
 
