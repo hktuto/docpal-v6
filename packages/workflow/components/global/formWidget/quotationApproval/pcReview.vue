@@ -200,6 +200,8 @@ async function getDbData(tableId: string, conditions?: any[]) {
     })
     .then((res) => res.data)
   const filedMapping: any = {}
+  if (!filedData.tableFields) return
+
   filedData.tableFields.forEach((item: any) => {
     filedMapping[item.field_name as string] = item.field_name_alias
   })

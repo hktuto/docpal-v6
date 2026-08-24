@@ -51,7 +51,7 @@ const formModel = ref<{
   infoList: []
 })
 const data = toRef(formModel.value, 'infoList')
-const brandOptions = ref(['TE', 'KOA', 'NCC', 'DIOTEC', 'HANANYE', 'KYOCERA', 'ABLIC', 'SUMITOMO', 'NDK', 'MITSUMI', 'HINODE', 'N/A'])
+const brandOptions = ref<string[]>([])
 const part_numberOptions = ref([])
 const rules = {
   part_number: [{ required: true, message: 'Please select Part number', trigger: 'change' }],
@@ -192,7 +192,9 @@ function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
   data.value[index].target_price_list.splice(targetPriceIndex, 1)
 }
 
-function init() {}
+async function init() {
+  brandOptions.value = await $api.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
+}
 
 async function getFormData(needValidation = true) {
   const result = {
@@ -206,7 +208,7 @@ async function getFormData(needValidation = true) {
 
 async function getPartList(part_number?: string) {
   const data = await $api
-    .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=10`)
+    .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100`)
     .then((r: any) => r.data.items)
   if (data.length === 0) return
 
@@ -285,7 +287,7 @@ defineExpose({ getFormData })
       <el-col :span="8">
         <el-form-item label="品牌 Brand" prop="brand" required>
           <el-select v-model="formModel.brand" class="full-width-input" clearable filterable :disabled="data.length > 0" @change="handleChangeBrand">
-            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item" :value="item" />
+            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.lable" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-col>
