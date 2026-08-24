@@ -41,10 +41,10 @@ function checkJsonFormat() {
 }
 
 function handleRequestBodySubmit() {
-  // Because of the interpolation syntax, json syntax checks throw error, so no detection is done when submitting
-  if (checkJsonFormat()) {
-    return
-  }
+  // Because of the interpolation syntax, JSON syntax checks throw error, so no detection is done when submitting
+  // if (checkJsonFormat()) {
+  //   return
+  // }
   emits('submit', JSON.parse(codeMirror.data))
   bodyVisible.value = false
 }
