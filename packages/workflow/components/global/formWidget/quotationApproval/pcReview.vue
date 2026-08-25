@@ -237,7 +237,7 @@ const historyPriceRef = ref()
 function openDialog(index: number, item: any) {
   item.index = index
   item.currency = formData.currency
-  item.org_id = 1
+  item.org_id = formData.org_id
   historyPriceRef.value.open(item)
 }
 
@@ -342,34 +342,34 @@ async function getFormData(needValidation = true) {
     return newItem
   })
 
-  const conditions = [
-    {
-      type: 'EQ',
-      column: 'f_8961_e9cf64a9',
-      value: formModel.value.brand
-    }
-  ]
-  const rateData = await getDbData('b5a2a170-712c-11f1-ab82-b167ae310fd8', conditions)
-  const roleMap: Record<string, string> = {
-    'CRM Price Controller': 'PC',
-    'CRM Product Manager': 'PM',
-    'CRM General Manager': 'GM'
-  }
-
-  const margin_rate_list = rateData.reduce((acc: any, curr: any) => {
-    const key = roleMap[curr.role as string]
-    if (key) {
-      const { role, brand, ...rates } = curr
-      acc[key] = rates
-    }
-    return acc
-  }, {})
+  // const conditions = [
+  //   {
+  //     type: 'EQ',
+  //     column: 'f_8961_e9cf64a9',
+  //     value: formModel.value.brand
+  //   }
+  // ]
+  // const rateData = await getDbData('b5a2a170-712c-11f1-ab82-b167ae310fd8', conditions)
+  // const roleMap: Record<string, string> = {
+  //   'CRM Price Controller': 'PC',
+  //   'CRM Product Manager': 'PM',
+  //   'CRM General Manager': 'GM'
+  // }
+  //
+  // const margin_rate_list = rateData.reduce((acc: any, curr: any) => {
+  //   const key = roleMap[curr.role as string]
+  //   if (key) {
+  //     const { role, brand, ...rates } = curr
+  //     acc[key] = rates
+  //   }
+  //   return acc
+  // }, {})
 
   const result = {
     sample_info_list: formModel.value.infoList,
     set_sample_list: newSetSampleList,
-    target_price_list: newTargetPriceList,
-    margin_rate_list: margin_rate_list
+    target_price_list: newTargetPriceList
+    // margin_rate_list: margin_rate_list
   }
   if (!needValidation) return result
   await formRef.value?.validate()

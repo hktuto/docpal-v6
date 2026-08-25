@@ -30,7 +30,10 @@ const rules = {
   customerEnglishName: [{ required: true, message: '請選擇客戶英文名', trigger: 'change' }],
   customer_contact: [{ required: true, message: '請輸入客戶聯絡人', trigger: 'blur' }],
   telephone_number: [{ required: true, message: '請輸入客戶聯絡方式', trigger: 'blur' }],
-  customer_email: [{ required: true, message: '請輸入客戶郵箱', trigger: 'blur' }],
+  customer_email: [
+    { required: true, message: '請輸入客戶郵箱', trigger: 'blur' },
+    { type: 'email', message: '請輸入正確的郵箱格式', trigger: 'blur' }
+  ],
   customer_background: [{ required: true, message: '請選擇客戶背景', trigger: 'change' }]
 }
 
@@ -204,7 +207,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶編號 Customer Number" prop="customer_number" required>
+        <el-form-item label="客戶編號 Customer Number" prop="customer_number">
           <el-select-v2
             v-model="formModel.customer_number"
             filterable
@@ -221,7 +224,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶名稱 Customer Name" prop="customerName" required>
+        <el-form-item label="客戶名稱 Customer Name" prop="customerName">
           <el-select-v2
             v-model="formModel.customerName"
             :reserve-keyword="false"
@@ -239,7 +242,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶英文名 Customer Eng Name" prop="customerEnglishName" required>
+        <el-form-item label="客戶英文名 Customer Eng Name" prop="customerEnglishName">
           <el-select-v2
             v-model="formModel.customerEnglishName"
             :reserve-keyword="false"
@@ -257,17 +260,17 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶聯絡人 Customer Contact" prop="customer_contact" required>
+        <el-form-item label="客戶聯絡人 Customer Contact" prop="customer_contact">
           <el-input v-model="formModel.customer_contact" />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶聯絡方式 Telephone Number" prop="telephone_number" required>
+        <el-form-item label="客戶聯絡方式 Telephone Number" prop="telephone_number">
           <el-input v-model="formModel.telephone_number" />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶郵箱 Customer Email" prop="customer_email" required>
+        <el-form-item label="客戶郵箱 Customer Email" prop="customer_email">
           <el-input v-model="formModel.customer_email" />
         </el-form-item>
       </el-col>
@@ -277,7 +280,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶背景 Customer Background" prop="customer_background" required>
+        <el-form-item label="客戶背景 Customer Background" prop="customer_background">
           <el-select v-model="formModel.customer_background" placeholder="One of the options must be selected.">
             <el-option value="OEM">OEM</el-option>
             <el-option value="ODM">ODM</el-option>
