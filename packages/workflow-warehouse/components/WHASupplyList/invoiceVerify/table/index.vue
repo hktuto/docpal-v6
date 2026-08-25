@@ -12,11 +12,6 @@
         />
       </template>
     </VxeGrid>
-    <WHBatchEditDialog
-      :selected-column="selectedColumn"
-      v-model:batch-edit-dialog-visible="batchEditDialogVisible"
-      :apply-batch-edit="applyBatchEdit"
-    />
   </div>
 </template>
 
@@ -33,9 +28,6 @@ const {
   statusFilter,
   statusCounts,
   searchQuery,
-  batchEditDialogVisible,
-  selectedColumn,
-  applyBatchEdit,
   addRow
 } = useInvoiceVerifyTableInject()
 

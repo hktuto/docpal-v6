@@ -256,9 +256,9 @@ export interface VerificationTableContext {
   searchQuery: Ref<string>
   columns: VerificationTableColumn[]
   reload: () => void
-  batchEditDialogVisible: Ref<boolean>
-  selectedColumn: Ref<string | undefined>
-  applyBatchEdit: (val: string) => void
+  batchEditDialogVisible?: Ref<boolean>
+  selectedColumn?: Ref<string | undefined>
+  applyBatchEdit?: (val: string) => void
   /** 按 Supplier_PN + PoLine 高亮匹配行（红底），可传单条或数组 */
   highlightMatchingRows: (matches: HighlightMatchKey | HighlightMatchKey[]) => void
   clearMatchingRowHighlight: () => void
@@ -269,18 +269,30 @@ export interface VerificationTableContext {
 export type CreateVerificationTableOptionsParams = {
   t: (key: string) => string
   columns: VerificationTableColumn[] | InvoiceVerificationTableColumn[]
-  onBatchEdit: (columnField: string | undefined) => void
   onCopy: (row: Record<string, any>) => void
   onDelete: (row: Record<string, any>) => void
   getRowClassName: (row: Record<string, any>) => string
+  onBatchEdit?: (columnField: string | undefined) => void
   onEditClosed?: (params: { row: Record<string, any> }) => void
   /** supply-list verify uses checkbox; invoice verify uses status text */
   checkboxField?: string
+  /** default true; invoice verify disables header batch edit */
+  enableHeaderActions?: boolean
 }
 
 /** useVxeTable 共用配置（height / actions / edit / optionalConfig） */
 export function createVerificationTableOptions(params: CreateVerificationTableOptionsParams) {
-  const { t, columns, onBatchEdit, onCopy, onDelete, getRowClassName, onEditClosed, checkboxField } = params
+  const {
+    t,
+    columns,
+    onBatchEdit,
+    onCopy,
+    onDelete,
+    getRowClassName,
+    onEditClosed,
+    checkboxField,
+    enableHeaderActions = true
+  } = params
 
   return {
     height: '100%',
@@ -289,17 +301,21 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
     saveColumnOrder: false,
     columns: columns as any,
     virtualScroll: true,
-    headerActions: [
-      [
-        {
-          code: 'batchEdit',
-          name: 'BatchEdit',
-          action: (params: any) => {
-            onBatchEdit(params.column?.field)
-          }
+    ...(enableHeaderActions && onBatchEdit
+      ? {
+          headerActions: [
+            [
+              {
+                code: 'batchEdit',
+                name: t('button.batchEdit'),
+                action: (actionParams: any) => {
+                  onBatchEdit(actionParams.column?.field)
+                }
+              }
+            ]
+          ]
         }
-      ]
-    ],
+      : {}),
     bodyActions: [
       [
         {
@@ -314,9 +330,9 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
         }
       ]
     ],
-    permissionMethod: ({ row, code }: any) => {
+    permissionMethod: ({ row, code, column }: any) => {
       if (code === 'batchEdit') {
-        return { visible: true, disabled: false }
+        return { visible: Boolean(column?.editRender), disabled: false }
       }
       return {
         visible: !!row,

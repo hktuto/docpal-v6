@@ -3,7 +3,6 @@ import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { newClientApi } from 'api'
 import {
-  applyBatchValueToColumn,
   createInvoiceVerificationTableColumns,
   createVerificationTableOptions,
   filterTableItems,
@@ -98,18 +97,12 @@ export function useInvoiceVerifyTableProvider(
     }
   }
 
-  const selectedColumn = ref<string | undefined>(undefined)
-  const batchEditDialogVisible = ref(false)
-
   const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     id: 'wha-invoice-verification-items',
     ...createVerificationTableOptions({
       t,
       columns: verificationTableColumns,
-      onBatchEdit: (field) => {
-        batchEditDialogVisible.value = true
-        selectedColumn.value = field
-      },
+      enableHeaderActions: false,
       onCopy: (row) => copyRow(row),
       onDelete: (row) => deleteRow(row),
       getRowClassName: (row) => (highlightedMatchKeys.value.has(itemMatchKey(row)) ? 'wha-verify-row-highlight' : ''),
@@ -127,12 +120,6 @@ export function useInvoiceVerifyTableProvider(
   })
   Object.assign(tableConfig.keyboardConfig ?? {}, keyboardConfig)
   tableEvent.editActivated = onEditActivated
-
-  function applyBatchEdit(val: string) {
-    applyBatchValueToColumn(tableRef.value, selectedColumn.value, val)
-    tableData.value.forEach((row) => markRowDirty(row))
-    batchEditDialogVisible.value = false
-  }
 
   const statusCounts = computed(() => getGitLineStatusCounts(tableData.value))
 
@@ -301,9 +288,6 @@ export function useInvoiceVerifyTableProvider(
     searchQuery,
     columns: verificationTableColumns as any,
     reload,
-    batchEditDialogVisible,
-    selectedColumn,
-    applyBatchEdit,
     highlightMatchingRows,
     clearMatchingRowHighlight,
     addRow,
