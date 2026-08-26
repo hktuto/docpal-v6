@@ -333,6 +333,7 @@ export interface DtoUpdateUserRequest {
 
 export interface DtoUserPageRequest {
     email?: string;
+    groups?: string[];
     isDesc?: boolean;
     orderBy?: string;
     /** @min 0 */
