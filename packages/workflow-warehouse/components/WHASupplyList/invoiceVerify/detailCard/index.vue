@@ -82,7 +82,7 @@ const list = ref([
   },
   {
     label: t('workflowWarehouse.fileName'),
-    value: computed(() => selectedInvoice.value?.fileName ?? selectedInvoice.value?.file_name ?? '—'),
+    value: computed(() => selectedInvoice.value?.file?.file_name || selectedInvoice.value?.file?.name || selectedInvoice.value?.fileName || '—'),
     type: 'text'
   },
   {

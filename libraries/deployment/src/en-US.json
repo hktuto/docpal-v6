@@ -4904,6 +4904,9 @@
     "pleaseMatchAllLines": "⌈{name}⌋ Please match all lines first",
     "pleaseGetGroupId": "⌈{name}⌋ Please get GroupID first",
     "matchingHasIssues": "Matching finished with unmatched lines",
-    "matchingAllMatched": "All lines matched"
+    "matchingAllMatched": "All lines matched",
+    "matched": "Matched",
+    "unmatched": "Unmatched",
+    "matchedProgress": "Matched {ok} of {all} lines."
   }
 }

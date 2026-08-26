@@ -4901,6 +4901,9 @@
     "pleaseMatchAllLines": "⌈{name}⌋ 請先完成全部行匹配",
     "pleaseGetGroupId": "⌈{name}⌋ 請先獲取 GroupID",
     "matchingHasIssues": "匹配完成，仍有未匹配行",
-    "matchingAllMatched": "全部行已匹配"
+    "matchingAllMatched": "全部行已匹配",
+    "matched": "已匹配",
+    "unmatched": "未匹配",
+    "matchedProgress": "已匹配 {ok} / {all} 行。"
   }
 }

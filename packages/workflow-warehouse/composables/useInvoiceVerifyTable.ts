@@ -21,8 +21,6 @@ import {
 } from '../utils/gitInvoice'
 import type { InvoiceVerifyContext } from './useInvoiceVerify'
 
-export type { HighlightMatchKey, VerificationStatusFilter, VerificationTableContext }
-
 export const InvoiceVerifyTableKey: InjectionKey<VerificationTableContext> = Symbol('InvoiceVerifyTable')
 
 export function useInvoiceVerifyTableProvider(
@@ -106,7 +104,8 @@ export function useInvoiceVerifyTableProvider(
       onCopy: (row) => copyRow(row),
       onDelete: (row) => deleteRow(row),
       getRowClassName: (row) => (highlightedMatchKeys.value.has(itemMatchKey(row)) ? 'wha-verify-row-highlight' : ''),
-      onEditClosed: ({ row }) => markRowDirty(row)
+      onEditClosed: ({ row }) => markRowDirty(row),
+      beforeEditMethod: ({ row }) => !isGitLineMatched(row)
     }),
     api: async () => {
       const data = await fetchTableData()

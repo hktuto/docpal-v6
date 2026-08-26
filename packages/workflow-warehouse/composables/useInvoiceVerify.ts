@@ -1,7 +1,7 @@
 import { inject, provide, ref, toRef, type InjectionKey, type Ref } from 'vue'
 import { newClientApi } from 'api'
 import type { WHASupplyListVerifyProps } from './useWHASupplyListVerify'
-import { ensureGitInvoiceCamelHeader, type GitInvoice, type GitInvoiceLineItem } from '../utils/gitInvoice'
+import { type GitInvoice, type GitInvoiceLineItem } from '../utils/gitInvoice'
 
 export type InvoiceVerifyProps = WHASupplyListVerifyProps
 
@@ -17,20 +17,32 @@ export interface InvoiceVerifyContext {
   refreshSelectedInvoice: () => Promise<void>
   runMatching: () => Promise<GitInvoice | null>
   fetchGroupId: (items: GitInvoiceLineItem[]) => Promise<string | null>
-  docId: Ref<string>
 }
 
 export const InvoiceVerifyKey: InjectionKey<InvoiceVerifyContext> = Symbol('InvoiceVerify')
 
-function resolveDocId(fileName: string, fileList: Record<string, any>[] = []): string {
-  if (fileName == null || fileName === '') return ''
-  const key = String(fileName).replace(/\.[^.]+$/, '')
-  const matched = fileList.find((file) => {
-    const name = String(file?.name ?? file?.file_name ?? '')
-    const nameWithoutExt = name.replace(/\.[^.]+$/, '')
-    return name === fileName || name === key || nameWithoutExt === key
-  })
-  return matched?.id ? String(matched.id) : ''
+function getFileDisplayName(file: Record<string, any> | null | undefined) {
+  if (!file) return ''
+  return String(file.file_name || file.name || '')
+}
+
+/**
+ * Match invoice.fileName to file_list_info item.name
+ * e.g. fileName "1787635402340pdf.pdf" ↔ name "1787635402340pdf"
+ */
+function resolveInvoiceFile(invoice: GitInvoice | null | undefined, fileList: Record<string, any>[] = []) {
+  if (!invoice || !fileList.length) return null
+  const fileName = String(invoice.fileName ?? invoice.file_name ?? '')
+  if (!fileName) return null
+
+  const key = fileName.replace(/\.[^.]+$/, '')
+  return (
+    fileList.find((file) => {
+      const name = String(file?.name ?? '')
+      if (!name) return false
+      return name === fileName || name === key || `${name}.${file?.extension || ''}`.replace(/\.$/, '') === fileName
+    }) ?? null
+  )
 }
 
 export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
@@ -39,30 +51,27 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
   const disabled = toRef(props, 'disabled')
   const invoiceList = ref<GitInvoice[]>([])
   const selectedInvoice = ref<GitInvoice | null>(null)
-  const docId = ref<string>('')
-
-  function syncDocId(invoice: GitInvoice | null) {
-    const fileName = invoice?.fileName || invoice?.file_name || ''
-    const nextDocId = resolveDocId(fileName, formData.value?.file_list_info)
-    if (nextDocId && docId.value !== nextDocId) {
-      docId.value = nextDocId
-    }
-  }
 
   async function selectInvoice(item: GitInvoice) {
-    ensureGitInvoiceCamelHeader(item)
     selectedInvoice.value = item
-    syncDocId(item)
     try {
       const res = await newClientApi.getWmsGitInvoiceId(item.id)
       if (res?.data?.id) {
-        ensureGitInvoiceCamelHeader(res.data as GitInvoice)
         selectedInvoice.value = res.data as GitInvoice
-        syncDocId(selectedInvoice.value)
       }
     } catch (error) {
       console.error(error)
     }
+
+    const invoice = selectedInvoice.value
+    if (!invoice) return
+    const file = resolveInvoiceFile(invoice, formData.value?.file_list_info)
+    invoice.file = file
+    if (file?.id != null) {
+      invoice.fileId = String(file.id)
+    }
+    const displayName = getFileDisplayName(file)
+    if (displayName) invoice.fileName = displayName
   }
 
   async function updateInvoiceData(patch: Record<string, any>, items?: GitInvoiceLineItem[]) {
@@ -75,8 +84,7 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
     const res = await newClientApi.postWmsGitInvoiceUpdate(payload)
     if (res?.data?.id) {
       const prevItems = selectedInvoice.value.items
-      ensureGitInvoiceCamelHeader(res.data as GitInvoice)
-      selectedInvoice.value = res.data as GitInvoice
+      Object.assign(selectedInvoice.value, res.data)
       if (!res.data.items?.length && prevItems?.length) {
         selectedInvoice.value.items = prevItems
       }
@@ -89,9 +97,7 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
     if (!id) return
     const res = await newClientApi.getWmsGitInvoiceId(id)
     if (res?.data?.id) {
-      ensureGitInvoiceCamelHeader(res.data as GitInvoice)
-      selectedInvoice.value = res.data as GitInvoice
-      syncDocId(selectedInvoice.value)
+      Object.assign(selectedInvoice.value!, res.data)
     }
   }
 
@@ -100,7 +106,9 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
     if (!id) return null
     const res = await newClientApi.postWmsGitInvoiceMatching({ id })
     const invoice = res?.data as GitInvoice | undefined
-    if (invoice?.id) selectedInvoice.value = invoice
+    if (invoice?.id && selectedInvoice.value) {
+      Object.assign(selectedInvoice.value, invoice)
+    }
     return invoice ?? null
   }
 
@@ -136,7 +144,6 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
   }
 
   const context: InvoiceVerifyContext = {
-    docId,
     formData,
     taskDetail,
     invoiceList,

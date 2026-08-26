@@ -49,11 +49,14 @@ export type GitInvoiceLineItem = {
 export type GitInvoice = {
   id: string
   items?: GitInvoiceLineItem[]
+  /** Matched file from formData.file_list_info (UI only, not from API) */
+  file?: Record<string, any> | null
   [key: string]: any
 }
 
 export function isGitLineMatched(row: Record<string, any> | null | undefined) {
-  return row?.status === GIT_LINE_MATCHED_STATUS
+  const status = String(row?.status ?? '').toLowerCase()
+  return status === 'matched' || status === 'matched.'
 }
 
 export function getGitLineStatusCounts(list: Record<string, any>[]) {
@@ -61,43 +64,6 @@ export function getGitLineStatusCounts(list: Record<string, any>[]) {
     all: list.length,
     ok: list.filter((row) => isGitLineMatched(row)).length,
     unVerified: list.filter((row) => !isGitLineMatched(row)).length
-  }
-}
-
-const GIT_INVOICE_HEADER_FIELDS: Array<[camel: string, snake: string]> = [
-  ['gitInvoiceFileId', 'git_invoice_file_id'],
-  ['batchNo', 'batch_no'],
-  ['groupId', 'group_id'],
-  ['gitDate', 'git_date'],
-  ['invoiceNum', 'invoice_num'],
-  ['vendorId', 'vendor_id'],
-  ['vendorName', 'vendor_name'],
-  ['currency', 'currency'],
-  ['org', 'org'],
-  ['orgId', 'org_id'],
-  ['brand', 'brand'],
-  ['office', 'office'],
-  ['paymentType', 'payment_type'],
-  ['additionalCost', 'additional_cost'],
-  ['invoiceDate', 'invoice_date'],
-  ['fileId', 'file_id'],
-  ['fileName', 'file_name'],
-  ['totalQty', 'total_qty'],
-  ['totalAmount', 'total_amount'],
-  ['calcTotalAmount', 'calc_total_amt'],
-  ['calcTotalAmountFromLine', 'cal_total_amount_from_line'],
-  ['gitStatus', 'git_status'],
-  ['lineSuccess', 'line_success'],
-  ['checkEmpty', 'check_empty']
-]
-
-/** Copy snake_case header fields to camelCase for UI binding */
-export function ensureGitInvoiceCamelHeader(invoice: GitInvoice | null | undefined) {
-  if (!invoice) return
-  for (const [camel, snake] of GIT_INVOICE_HEADER_FIELDS) {
-    if (invoice[camel] == null && invoice[snake] != null) {
-      invoice[camel] = invoice[snake]
-    }
   }
 }
 

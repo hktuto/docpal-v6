@@ -27,9 +27,6 @@ import {
   type VerificationTableContext
 } from '../utils/tableHelper'
 
-export type { HighlightMatchKey, VerificationStatusFilter, VerificationTableColumn, VerificationTableContext }
-export { createVerificationTableColumns, createVerificationTableOptions }
-
 export const WHASupplyListVerifyTableKey: InjectionKey<VerificationTableContext> = Symbol('WHASupplyListVerifyTable')
 
 export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<string, any> | null>) {

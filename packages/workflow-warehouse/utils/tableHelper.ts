@@ -274,6 +274,7 @@ export type CreateVerificationTableOptionsParams = {
   getRowClassName: (row: Record<string, any>) => string
   onBatchEdit?: (columnField: string | undefined) => void
   onEditClosed?: (params: { row: Record<string, any> }) => void
+  beforeEditMethod?: (params: { row: Record<string, any>; column?: any }) => boolean
   /** supply-list verify uses checkbox; invoice verify uses status text */
   checkboxField?: string
   /** default true; invoice verify disables header batch edit */
@@ -290,6 +291,7 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
     onDelete,
     getRowClassName,
     onEditClosed,
+    beforeEditMethod,
     checkboxField,
     enableHeaderActions = true
   } = params
@@ -346,7 +348,8 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
         mode: 'cell' as const,
         showIcon: false,
         showStatus: false,
-        autoFocus: true
+        autoFocus: true,
+        ...(beforeEditMethod ? { beforeEditMethod } : {})
       }
     },
     optionalConfig: {

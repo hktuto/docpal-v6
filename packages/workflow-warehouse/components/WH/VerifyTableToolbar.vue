@@ -42,12 +42,18 @@
 import { Search } from '@element-plus/icons-vue'
 import type { VerificationStatusFilter } from '../../utils/tableHelper'
 
-defineProps<{
+export type StatusTab = {
+  label: string
+  value: VerificationStatusFilter
+}
+
+const props = defineProps<{
   modelValue: VerificationStatusFilter
   search: string
   counts: Record<VerificationStatusFilter, number>
   disabled?: boolean
   creatingRow?: boolean
+  tabs?: StatusTab[]
 }>()
 
 const emit = defineEmits<{
@@ -58,11 +64,14 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const tabs = computed(() => [
-  { label: t('All'), value: 'all' as VerificationStatusFilter },
-  { label: t('workflowWarehouse.unverified'), value: 'unVerified' as VerificationStatusFilter },
-  { label: t('workflowWarehouse.ok'), value: 'ok' as VerificationStatusFilter }
-])
+const tabs = computed(
+  () =>
+    props.tabs ?? [
+      { label: t('All'), value: 'all' as VerificationStatusFilter },
+      { label: t('workflowWarehouse.unverified'), value: 'unVerified' as VerificationStatusFilter },
+      { label: t('workflowWarehouse.ok'), value: 'ok' as VerificationStatusFilter }
+    ]
+)
 </script>
 
 <style lang="scss" scoped>

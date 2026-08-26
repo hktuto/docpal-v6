@@ -1,15 +1,17 @@
 <template>
   <div class="verification">
-    <h3 class="title">{{ $t('workflowWarehouse.invoiceVerifyTitle') }}</h3>
-    <small class="description">{{ $t('workflowWarehouse.invoiceVerifyDescription') }}</small>
-    <el-splitter class="container mg-top">
+    <div class="header">
+      <h3 class="title">{{ $t('workflowWarehouse.invoiceVerifyTitle') }}</h3>
+      <small class="description">{{ $t('workflowWarehouse.invoiceVerifyDescription') }}</small>
+    </div>
+    <el-splitter class="container">
       <el-splitter-panel class="mg-right" size="7%" :collapsible="false" :min="50">
         <WHASupplyListInvoiceVerifyList />
       </el-splitter-panel>
       <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200">
-        <WorkflowPreview :doc-id="docId">
+        <WorkflowPreview :doc-id="previewFileId">
           <template #title>
-            <el-tabs v-model="docId" class="preview-file-tabs">
+            <el-tabs v-model="previewFileId" class="preview-file-tabs">
               <el-tab-pane v-for="file in fileList" :key="file.id" :label="file.file_name || file.name" :name="file.id" />
             </el-tabs>
           </template>
@@ -37,8 +39,19 @@ const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const { t } = useI18n()
 const isCollapsible = ref(true)
 const invoiceCtx = useInvoiceVerifyProvider(props)
-const { selectedInvoice, invoiceList, docId, updateInvoiceData, runMatching, fetchGroupId, refreshSelectedInvoice } = invoiceCtx
+const { selectedInvoice, invoiceList, updateInvoiceData, runMatching, fetchGroupId, refreshSelectedInvoice } = invoiceCtx
 const fileList = computed(() => props.formData?.file_list_info || [])
+
+const previewFileId = computed({
+  get: () => selectedInvoice.value?.file?.id ?? '',
+  set: (id: string) => {
+    if (!selectedInvoice.value || !id) return
+    const file = fileList.value.find((item: any) => String(item.id) === String(id))
+    if (!file) return
+    selectedInvoice.value.file = file
+    selectedInvoice.value.fileName = file.file_name || file.name || selectedInvoice.value.fileName
+  }
+})
 
 const detailCardRef = ref<InstanceType<typeof WHASupplyListInvoiceVerifyDetailCard>>()
 useInvoiceVerifyTableProvider(selectedInvoice, {
@@ -77,13 +90,23 @@ defineExpose({ getFormData })
 .verification {
   display: flex;
   flex-direction: column;
-  height: 99%;
+  height: 100%;
+  overflow: auto;
+}
+
+.header {
+  flex-shrink: 0;
+  margin-bottom: var(--app-space-s);
 }
 
 .container {
-  flex: 1;
-  min-height: 500px;
+  position: sticky;
+  top: 0;
+  flex: 0 0 auto;
+  height: 100%;
+  min-height: 100%;
 }
+
 :deep(.el-splitter-bar__dragger-horizontal) {
   opacity: 0.1;
 }
@@ -96,10 +119,6 @@ defineExpose({ getFormData })
 :deep(.preview-panel) {
   min-width: 0;
   overflow: hidden;
-}
-:deep(.side-panel) {
-  min-width: 0;
-  overflow: visible !important;
 }
 .mg-top {
   margin-top: var(--app-space-s);

@@ -5,6 +5,7 @@
     :loading="loading"
     :disabled="disabled || !selectedInvoice"
     :show-bar="false"
+    :subtitle="$t('workflowWarehouse.matchedProgress', { ok: statusCounts.ok, all: statusCounts.all })"
     :action-text="$t('workflowWarehouse.approveAndPush')"
     @approve="handleApprove"
   />

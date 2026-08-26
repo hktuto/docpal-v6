@@ -6,6 +6,7 @@
           v-model="statusFilter"
           v-model:search="searchQuery"
           :counts="statusCounts"
+          :tabs="statusTabs"
           :creating-row="creatingRow"
           :disabled="disabled || !selectedInvoice"
           @add-row="addRow"
@@ -18,7 +19,9 @@
 <script setup lang="ts">
 import { useInvoiceVerifyTableInject } from '../../../../composables/useInvoiceVerifyTable'
 import { useInvoiceVerifyInject } from '../../../../composables/useInvoiceVerify'
+import type { VerificationStatusFilter } from '../../../../utils/tableHelper'
 
+const { t } = useI18n()
 const {
   loading,
   creatingRow,
@@ -32,6 +35,12 @@ const {
 } = useInvoiceVerifyTableInject()
 
 const { disabled, selectedInvoice } = useInvoiceVerifyInject()
+
+const statusTabs = computed(() => [
+  { label: t('All'), value: 'all' as VerificationStatusFilter },
+  { label: t('workflowWarehouse.unmatched'), value: 'unVerified' as VerificationStatusFilter },
+  { label: t('workflowWarehouse.matched'), value: 'ok' as VerificationStatusFilter }
+])
 </script>
 
 <style lang="scss" scoped>
