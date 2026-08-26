@@ -100,11 +100,8 @@ defineExpose({ getFormData })
 }
 
 .container {
-  position: sticky;
-  top: 0;
-  flex: 0 0 auto;
-  height: 100%;
-  min-height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 :deep(.el-splitter-bar__dragger-horizontal) {
