@@ -4,6 +4,9 @@ import { v7 as uuidv7 } from 'uuid'
 import { ElMessage } from 'element-plus'
 import type { UploadFile, UploadInstance } from 'element-plus'
 import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+
+dayjs.extend(customParseFormat)
 
 const { disabled, formData } = defineProps<{
   disabled: boolean
@@ -14,7 +17,7 @@ const { disabled, formData } = defineProps<{
 type LineItem = {
   id: string
   pi_invoice: string
-  old_plan_date: string
+  old_plan_date: number | string
   new_plan_date: number | string
   brand_code: string
   remark: string
@@ -23,24 +26,37 @@ type LineItem = {
 const lineFormRef = ref()
 const csvUploadRef = ref<UploadInstance>()
 const formModel = reactive({
-  customer: '',
+  customer_number: '',
   customer_name: '',
+  customer_english_name: '',
   org: '',
   list: [] as LineItem[]
 })
 const CSV_COLUMNS = ['index', 'pi_invoice', 'old_plan_date', 'new_plan_date', 'brand_code', 'remark'] as const
 
-export type CsvLineItem = {
+type CsvLineItem = {
   pi_invoice: string
-  old_plan_date: string
+  old_plan_date: number | string
   new_plan_date: number | string
   brand_code: string
   remark: string
 }
 
 const lineRules = {
-  pi_invoice: [{ required: true, message: 'Please input PI Invoice', trigger: 'blur' }],
-  new_plan_date: [{ required: true, message: 'Please select New Plan Date', trigger: 'change' }]
+  pi_invoice: [
+    { required: true, message: '請輸入PI發票', trigger: 'blur' },
+    {
+      validator: async (_rule: any, value: string, callback: any) => {
+        if (await checkingPiNumber(value)) {
+          callback(new Error('Customer Number 与 PI Invoice 不一致'))
+          return
+        }
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ],
+  new_plan_date: [{ required: true, message: '請選擇新計劃日期', trigger: 'change' }]
 }
 
 function createEmptyLine(): LineItem {
@@ -122,7 +138,7 @@ function parsePlanDate(value: string): number | string {
   const trimmed = value.trim()
   if (/^\d{13}$/.test(trimmed)) return Number(trimmed)
   if (/^\d{10}$/.test(trimmed)) return Number(trimmed) * 1000
-  const parsed = dayjs(trimmed.replace(/[./]/g, '-'))
+  const parsed = dayjs(trimmed, ['YYYY-MMM-DD', 'YYYY-MM-DD', 'YYYY/MM/DD'], 'en', true)
   return parsed.isValid() ? parsed.valueOf() : ''
 }
 
@@ -146,7 +162,7 @@ function csvTextToLineItems(text: string): CsvLineItem[] {
     })
     return {
       pi_invoice: record.pi_invoice ?? '',
-      old_plan_date: record.old_plan_date ?? '',
+      old_plan_date: parsePlanDate(record.old_plan_date ?? ''),
       new_plan_date: parsePlanDate(record.new_plan_date ?? ''),
       brand_code: record.brand_code ?? '',
       remark: record.remark ?? ''
@@ -154,10 +170,62 @@ function csvTextToLineItems(text: string): CsvLineItem[] {
   })
 }
 
+const customerNumberOptions = ref<{ label: string; value: string }[]>([])
+const customerNameOptions = ref<{ label: string; value: string }[]>([])
+const customerEnglishNameOptions = ref<{ label: string; value: string }[]>([])
+
+async function searchName(query?: string) {
+  const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+
+  if (data.length === 0) return
+
+  const numberOptions: any[] = []
+  const nameOptions: any[] = []
+  const englishNameOptions: any[] = []
+
+  data.forEach((item: any) => {
+    numberOptions.push({
+      label: item.account_number,
+      value: item.account_number
+    })
+    nameOptions.push({
+      label: item.customer_name,
+      value: item.account_number
+    })
+    englishNameOptions.push({
+      label: item.customer_eng_name,
+      value: item.account_number
+    })
+  })
+
+  customerNumberOptions.value = numberOptions
+  customerNameOptions.value = nameOptions
+  customerEnglishNameOptions.value = englishNameOptions
+}
+
+async function numberChange(value: string) {
+  if (!value || value === '') {
+    formModel.customer_name = ''
+    formModel.customer_english_name = ''
+    formModel.org = ''
+    return
+  }
+
+  formModel.customer_number = value
+  formModel.customer_name = value
+  formModel.customer_english_name = value
+}
+
+async function checkingPiNumber(value: string) {
+  const { data } = $api.get(`/api/pi-invoices?customer_number=${formModel.customer_number}&pi_invoice_number=${value}`)
+  return data.code === 500
+}
+
 async function getFormData(needValidation = true) {
   const result = {
-    customer: formModel.customer,
+    customer_number: formModel.customer_number,
     customer_name: formModel.customer_name,
+    customer_english_name: formModel.customer_english_name,
     org: formModel.org,
     line_list: formModel.list.map(({ id: _id, ...item }) => item)
   }
@@ -181,34 +249,79 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form label-position="top" class="all-input-style">
+  <el-form label-position="top">
     <el-row>
       <el-col :span="6">
-        <el-form-item label="客戶編號 Customer Number">
-          <el-input v-model="formModel.customer" style="width: 90%" />
+        <el-form-item label="客戶編號 Customer Number" prop="customer_number">
+          <el-select-v2
+            v-model="formModel.customer_number"
+            filterable
+            remote
+            :remote-method="searchName"
+            remote-show-suffix
+            clearable
+            :options="customerNumberOptions"
+            placeholder="One of the options must be selected."
+            @change="numberChange"
+            style="width: 90%"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="6">
         <el-form-item label="客戶名稱 Customer Name">
-          <el-input v-model="formModel.customer_name" disabled style="width: 90%" />
+          <el-select-v2
+            v-model="formModel.customer_name"
+            :reserve-keyword="false"
+            filterable
+            remote
+            :remote-method="searchName"
+            remote-show-suffix
+            clearable
+            :options="customerNameOptions"
+            placeholder="One of the options must be selected."
+            @change="numberChange"
+            style="width: 90%"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="ORG">
-          <el-input v-model="formModel.org" style="width: 90%" />
+        <el-form-item label="客戶英文名 Customer Eng Name" prop="customerEnglishName">
+          <el-select-v2
+            v-model="formModel.customer_english_name"
+            :reserve-keyword="false"
+            filterable
+            remote
+            :remote-method="searchName"
+            remote-show-suffix
+            clearable
+            :options="customerEnglishNameOptions"
+            placeholder="One of the options must be selected."
+            @change="numberChange"
+            style="width: 90%"
+          />
         </el-form-item>
       </el-col>
-      <el-col :span="6"> </el-col>
+      <el-col :span="6">
+        <el-form-item label="ORG"> <el-input v-model="formModel.org" disabled style="width: 90%" /> </el-form-item
+      ></el-col>
     </el-row>
   </el-form>
 
-  <el-upload ref="csvUploadRef" accept=".csv" :auto-upload="false" :show-file-list="false" :disabled="disabled" :on-change="handleImportCSV">
+  <el-upload
+    v-if="!!formModel.customer_number && formModel.customer_number !== ''"
+    ref="csvUploadRef"
+    accept=".csv"
+    :auto-upload="false"
+    :show-file-list="false"
+    :disabled="disabled"
+    :on-change="handleImportCSV"
+  >
     <el-button type="primary" :disabled="disabled">Import CSV</el-button>
   </el-upload>
 
-  <el-divider content-position="left">計劃明細 Line Items</el-divider>
+  <el-divider v-if="!!formModel.customer_number && formModel.customer_number !== ''" content-position="left">計劃明細 Line Items</el-divider>
 
-  <div style="max-height: 40vh; overflow: auto">
+  <div v-if="!!formModel.customer_number && formModel.customer_number !== ''" style="max-height: 40vh; overflow: auto">
     <el-form ref="lineFormRef" label-position="top" class="line-form all-input-style" :model="formModel" :disabled="disabled">
       <el-button v-if="formModel.list.length === 0 && !disabled" type="primary" @click="handleAdd">Add</el-button>
       <draggable v-model="formModel.list" item-key="id" handle=".drag-handle" :animation="200" ghost-class="line-row-ghost" :disabled="disabled">
@@ -219,7 +332,7 @@ defineExpose({ getFormData })
               <el-input v-model="element.pi_invoice" />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--date" label="舊計劃日期 Old Plan Date">
-              <el-date-picker v-model="element.old_plan_date" disabled format="YYYY/MM/DD" value-format="x" />
+              <el-date-picker v-model="element.old_plan_date" disabled format="YYYY-MMM-DD" value-format="x" />
             </el-form-item>
             <el-form-item
               class="line-row__field line-row__field--date"
@@ -227,7 +340,7 @@ defineExpose({ getFormData })
               :prop="`list.${index}.new_plan_date`"
               :rules="lineRules.new_plan_date"
             >
-              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY/MM/DD" value-format="x" />
+              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="x" />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--brand" label="品牌 Brand">
               <el-input v-model="element.brand_code" disabled />
