@@ -17,8 +17,8 @@ const { disabled, formData } = defineProps<{
 type LineItem = {
   id: string
   pi_invoice: string
-  old_plan_date: number | string
-  new_plan_date: number | string
+  old_plan_date: string
+  new_plan_date: string
   brand_code: string
   remark: string
 }
@@ -32,12 +32,12 @@ const formModel = reactive({
   org: '',
   list: [] as LineItem[]
 })
-const CSV_COLUMNS = ['index', 'pi_invoice', 'old_plan_date', 'new_plan_date', 'brand_code', 'remark'] as const
+const CSV_COLUMNS = ['pi_invoice', 'new_plan_date', 'remark'] as const
 
 type CsvLineItem = {
   pi_invoice: string
-  old_plan_date: number | string
-  new_plan_date: number | string
+  old_plan_date: string
+  new_plan_date: string
   brand_code: string
   remark: string
 }
@@ -46,10 +46,22 @@ const lineRules = {
   pi_invoice: [
     { required: true, message: '請輸入PI發票', trigger: 'blur' },
     {
-      validator: async (_rule: any, value: string, callback: any) => {
-        if (await checkingPiNumber(value)) {
+      validator: async (rule: any, value: string, callback: any) => {
+        const index = Number(String(rule.field).match(/^list\.(\d+)\.pi_invoice$/)?.[1])
+        const item = formModel.list[index]
+        const data = await checkingPiNumber(value)
+        const detail = data?.data
+        if (!detail) {
+          if (item?.pi_invoice === value) {
+            item.old_plan_date = ''
+            item.brand_code = ''
+          }
           callback(new Error('Customer Number 与 PI Invoice 不一致'))
           return
+        }
+        if (item?.pi_invoice === value) {
+          item.old_plan_date = parsePlanDate(String(detail.old_plan_date ?? ''))
+          item.brand_code = detail.brand ?? detail.brand_code ?? ''
         }
         callback()
       },
@@ -94,7 +106,7 @@ async function handleImportCSV(uploadFile: UploadFile) {
     ElMessage.error('Please select a CSV file')
     return
   }
-  const list = csvTextToLineItems(await file.text())
+  const list = await csvTextToLineItems(await file.text())
   if (!list.length) {
     ElMessage.error('No valid data found in CSV')
     return
@@ -104,7 +116,14 @@ async function handleImportCSV(uploadFile: UploadFile) {
 }
 
 function normalizeHeader(name: string) {
-  return name.trim().toLowerCase().replace(/#/g, '').replace(/\s+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\s*\([^)]*\)\s*/g, '')
+    .replace(/#/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '')
 }
 
 function parseCsvLine(line: string): string[] {
@@ -133,16 +152,13 @@ function parseCsvLine(line: string): string[] {
   return result
 }
 
-function parsePlanDate(value: string): number | string {
+function parsePlanDate(value: string): string {
   if (!value) return ''
-  const trimmed = value.trim()
-  if (/^\d{13}$/.test(trimmed)) return Number(trimmed)
-  if (/^\d{10}$/.test(trimmed)) return Number(trimmed) * 1000
-  const parsed = dayjs(trimmed, ['YYYY-MMM-DD', 'YYYY-MM-DD', 'YYYY/MM/DD'], 'en', true)
-  return parsed.isValid() ? parsed.valueOf() : ''
+  const parsed = dayjs(value.trim(), ['YYYYMMDD', 'YYYY-MMM-DD', 'YYYY-MM-DD', 'YYYY/MM/DD'], 'en', true)
+  return parsed.isValid() ? parsed.format('YYYY-MM-DD') : ''
 }
 
-function csvTextToLineItems(text: string): CsvLineItem[] {
+async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
   const rows = text
     .replace(/^\uFEFF/, '')
     .split(/\r\n|\n|\r/)
@@ -155,19 +171,42 @@ function csvTextToLineItems(text: string): CsvLineItem[] {
   const columns = hasHeader ? header : [...CSV_COLUMNS]
   const dataRows = hasHeader ? rows.slice(1) : rows
 
-  return dataRows.map((row) => {
+  const set = new Set()
+
+  const csvData: CsvLineItem[] = dataRows.map((row) => {
     const record: Record<string, string> = {}
     columns.forEach((col, i) => {
       record[col] = row[i] ?? ''
     })
+    set.add(record.pi_invoice)
+
     return {
       pi_invoice: record.pi_invoice ?? '',
-      old_plan_date: parsePlanDate(record.old_plan_date ?? ''),
+      old_plan_date: '',
       new_plan_date: parsePlanDate(record.new_plan_date ?? ''),
-      brand_code: record.brand_code ?? '',
+      brand_code: '',
       remark: record.remark ?? ''
     }
   })
+  // Cell Api Get Data
+  // const data = await $api.post(`/api/pi-invoices`, { list: [...set] }).then((r: any) => r.data)
+  // fillCsvData(data, csvData)
+  return csvData
+}
+
+function fillCsvData(data: any[], csvData: any[]) {
+  const indexByInvoice = new Map(data.map((row) => [row.pi_invoice_number, { old_plan_date: row.old_plan_date, brand: row.brand }]))
+
+  csvData.forEach((item: any) => {
+    const key = item.pi_invoice
+    const match = indexByInvoice.get(key)
+    if (match) {
+      item.old_plan_date = match.old_plan_date ?? ''
+      item.brand_code = match.brand ?? ''
+    }
+  })
+
+  return csvData
 }
 
 const customerNumberOptions = ref<{ label: string; value: string }[]>([])
@@ -203,7 +242,7 @@ async function searchName(query?: string) {
   customerEnglishNameOptions.value = englishNameOptions
 }
 
-async function numberChange(value: string) {
+function numberChange(value: string) {
   if (!value || value === '') {
     formModel.customer_name = ''
     formModel.customer_english_name = ''
@@ -217,17 +256,42 @@ async function numberChange(value: string) {
 }
 
 async function checkingPiNumber(value: string) {
-  const { data } = $api.get(`/api/pi-invoices?customer_number=${formModel.customer_number}&pi_invoice_number=${value}`)
-  return data.code === 500
+  const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
+  return $api.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data)
 }
 
+async function setCustomerNumber(item: any) {
+  if (item.pi_invoice === '' || formModel.customer_number !== '') return
+  const data = await checkingPiNumber(item.pi_invoice)
+  if (!!data) {
+    formModel.customer_number = data.data.customer_number
+    formModel.customer_name = data.data.customer_number
+    formModel.customer_english_name = data.data.customer_number
+  }
+}
+
+watch(
+  () => formModel.list,
+  (value) => {
+    if (value.length > 0) {
+      setCustomerNumber(value[0])
+    }
+  },
+  { immediate: true, deep: true }
+)
+
 async function getFormData(needValidation = true) {
+  let lineList = formModel.list.map((item: any) => ({
+    pi_invoice_number: item.pi_invoice,
+    new_plan_date: item.new_plan_date
+  }))
+
   const result = {
     customer_number: formModel.customer_number,
     customer_name: formModel.customer_name,
     customer_english_name: formModel.customer_english_name,
     org: formModel.org,
-    line_list: formModel.list.map(({ id: _id, ...item }) => item)
+    line_list: lineList
   }
   if (!needValidation) return result
   await lineFormRef.value?.validate()
@@ -307,21 +371,13 @@ defineExpose({ getFormData })
     </el-row>
   </el-form>
 
-  <el-upload
-    v-if="!!formModel.customer_number && formModel.customer_number !== ''"
-    ref="csvUploadRef"
-    accept=".csv"
-    :auto-upload="false"
-    :show-file-list="false"
-    :disabled="disabled"
-    :on-change="handleImportCSV"
-  >
+  <el-upload ref="csvUploadRef" accept=".csv" :auto-upload="false" :show-file-list="false" :disabled="disabled" :on-change="handleImportCSV">
     <el-button type="primary" :disabled="disabled">Import CSV</el-button>
   </el-upload>
 
-  <el-divider v-if="!!formModel.customer_number && formModel.customer_number !== ''" content-position="left">計劃明細 Line Items</el-divider>
+  <el-divider content-position="left">計劃明細 Line Items</el-divider>
 
-  <div v-if="!!formModel.customer_number && formModel.customer_number !== ''" style="max-height: 40vh; overflow: auto">
+  <div style="max-height: 40vh; overflow: auto">
     <el-form ref="lineFormRef" label-position="top" class="line-form all-input-style" :model="formModel" :disabled="disabled">
       <el-button v-if="formModel.list.length === 0 && !disabled" type="primary" @click="handleAdd">Add</el-button>
       <draggable v-model="formModel.list" item-key="id" handle=".drag-handle" :animation="200" ghost-class="line-row-ghost" :disabled="disabled">
@@ -329,10 +385,10 @@ defineExpose({ getFormData })
           <div class="line-row">
             <span class="line-row__index">#{{ index + 1 }}</span>
             <el-form-item class="line-row__field line-row__field--pi" label="PI編號 PI Number" :prop="`list.${index}.pi_invoice`" :rules="lineRules.pi_invoice">
-              <el-input v-model="element.pi_invoice" />
+              <el-input v-model="element.pi_invoice" clearable />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--date" label="舊計劃日期 Old Plan Date">
-              <el-date-picker v-model="element.old_plan_date" disabled format="YYYY-MMM-DD" value-format="x" />
+              <el-date-picker v-model="element.old_plan_date" disabled format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
             </el-form-item>
             <el-form-item
               class="line-row__field line-row__field--date"
@@ -340,7 +396,7 @@ defineExpose({ getFormData })
               :prop="`list.${index}.new_plan_date`"
               :rules="lineRules.new_plan_date"
             >
-              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="x" />
+              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--brand" label="品牌 Brand">
               <el-input v-model="element.brand_code" disabled />
