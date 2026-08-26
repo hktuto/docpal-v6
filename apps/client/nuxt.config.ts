@@ -78,6 +78,7 @@ export default defineNuxtConfig({
     // "../../demo/inline-ocr"
     // workflow packages
     '../../packages/workflow-warehouse',
+    '../../packages/weltronic-dashboard',
   ],
   features: {
     inlineStyles: true

@@ -5,13 +5,13 @@ export default defineNuxtPlugin((nuxtApp) => {
   dashboardWidgetSetting.value.weltronic = {
     type: DASHBOARD_TYPE.weltonic,
     label: 'Weltronic',
-    minW: 4,
-    minH: 4,
+    minW: 6,
+    minH: 6,
     maxW: 12,
     maxH: 6,
-    w: 3,
-    h: 3,
-    component: 'LazyPersonalBrowse',
+    w: 6,
+    h: 6,
+    component: 'LazyDashboardWeltronicShipCopy',
     setting: {
       home: {},
       hideSetting: []
