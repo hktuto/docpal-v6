@@ -81,6 +81,11 @@ const statusTabs = computed(() => [
     gap: unset;
   }
 
+  :deep(.vxe-body--row.wha-invoice-row-matched),
+  :deep(.vxe-body--row.wha-invoice-row-matched .vxe-body--column) {
+    background-color: var(--el-color-success-light-9) !important;
+  }
+
   :deep(.vxe-body--row.wha-verify-row-highlight),
   :deep(.vxe-body--row.wha-verify-row-highlight .vxe-body--column) {
     background-color: var(--el-color-danger-light-7) !important;

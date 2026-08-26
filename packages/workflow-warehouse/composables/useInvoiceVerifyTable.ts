@@ -103,7 +103,12 @@ export function useInvoiceVerifyTableProvider(
       enableHeaderActions: false,
       onCopy: (row) => copyRow(row),
       onDelete: (row) => deleteRow(row),
-      getRowClassName: (row) => (highlightedMatchKeys.value.has(itemMatchKey(row)) ? 'wha-verify-row-highlight' : ''),
+      getRowClassName: (row) => {
+        const classes: string[] = []
+        if (isGitLineMatched(row)) classes.push('wha-invoice-row-matched')
+        if (highlightedMatchKeys.value.has(itemMatchKey(row))) classes.push('wha-verify-row-highlight')
+        return classes.join(' ')
+      },
       onEditClosed: ({ row }) => markRowDirty(row),
       beforeEditMethod: ({ row }) => !isGitLineMatched(row)
     }),
