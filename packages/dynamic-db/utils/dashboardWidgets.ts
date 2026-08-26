@@ -1,5 +1,4 @@
-import type { DashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
-import { dashboardWidgetSetting as dpDashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
+import type { DashboardWidgetSetting } from '#imports'
 
 export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = {
   DemoInventory: {
@@ -515,6 +514,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
  * Includes dynamic-db widgets (database, record) plus eligible dp-dashboard widgets.
  */
 export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSetting[]> {
+  const dpDashboardWidgetSetting = useDashboardWidgetSetting()
   const result: Record<string, DashboardWidgetSetting[]> = {
     database: [],
     // record: []
@@ -531,8 +531,8 @@ export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSett
     result[type].push(widget)
   })
 
-  Object.keys(dpDashboardWidgetSetting).forEach((key) => {
-    const widget = dpDashboardWidgetSetting[key]
+  Object.keys(dpDashboardWidgetSetting.value).forEach((key) => {
+    const widget = dpDashboardWidgetSetting.value[key]
     const type = widget.type || 'default'
     // Skip case and common widgets since these features are not used in DB dashboards
     if (type === 'case' || type === 'caseCount' || type === 'default') return
