@@ -9,6 +9,176 @@
  * ---------------------------------------------------------------
  */
 
+/** Document Type */
+export interface DocPalTypeDTO {
+    /** Document Type Name */
+    name?: string;
+    /** Is Folder Type */
+    isFolder?: boolean;
+    /** Document Type keywords */
+    keywords?: KeywordDTO[];
+}
+
+/** Keyword */
+export interface KeywordDTO {
+    /** Keyword Name */
+    name?: string;
+    /** Keyword Type */
+    type?: string;
+    /** Keyword Value */
+    value?: any;
+    /** Schema That Belong To Keyword */
+    schema?: string;
+    /** Keyword Is Multiple Value */
+    isMultiValue?: boolean;
+    /** Keyword Default Value */
+    defaultValue?: any;
+    /** Value Scope Of This Keyword */
+    valueScope?: KeywordValueScope;
+}
+
+export interface KeywordValueScope {
+    scope?: string;
+    scopeName?: string;
+}
+
+export interface ResultListDocPalTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocPalTypeDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListMapStringObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, any>[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ContactAttribute {
+    value?: string;
+    name?: string;
+    dataType?: string;
+    required?: boolean;
+    validationRule?: string;
+}
+
+export interface ContactGroupRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    id?: string;
+    name?: string;
+    status?: string;
+    description?: string;
+    permissions?: Record<string, Permission>;
+    attributes?: ContactAttribute[];
+    operator?: string;
+    verifyReadPermission?: boolean;
+    descSort?: SortObject;
+    desc?: boolean;
+    /** @format int32 */
+    pageIndex?: number;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+export interface Permission {
+    users?: string[];
+    roles?: string[];
+    groups?: string[];
+}
+
+export interface SortObject {
+    unsorted?: boolean;
+    sorted?: boolean;
+    empty?: boolean;
+}
+
+export interface BasicField {
+    dataType?: string;
+    value?: string;
+    name?: string;
+}
+
+export interface ContactGroupResponseDTO {
+    id?: string;
+    name?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    createdByName?: string;
+    modifiedByName?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    permissions?: Record<string, BasicField[]>;
+    attributes?: ContactAttribute[];
+    hasPermissions?: string[];
+}
+
+export interface ResultListContactGroupResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ContactGroupResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ActiveUserRequestDTO {
+    /** Id */
+    id?: string;
+    kcUserId?: string;
+    /** User Id */
+    userId?: string;
+    /** User Name */
+    username?: string;
+    /** User First Name */
+    firstName?: string;
+    /** User Last Name */
+    lastName?: string;
+    /** User Email Address */
+    email?: string;
+    /** User Status */
+    status?: string;
+    /** Group Id List */
+    groups?: GroupDTO[];
+    /** User Properties */
+    properties?: Record<string, any>;
+}
+
+/** Group data transfer object */
+export interface GroupDTO {
+    /** Group ID */
+    groupId?: string;
+    /** Group name */
+    groupName?: string;
+}
+
 /** Additional role data transfer object */
 export interface AdditionRoleDTO {
     /** Role ID */
@@ -44,14 +214,6 @@ export interface ConfigurationRuleDTO {
     rules?: RuleDTO[];
 }
 
-/** Group data transfer object */
-export interface GroupDTO {
-    /** Group ID */
-    groupId?: string;
-    /** Group name */
-    groupName?: string;
-}
-
 /** Member data transfer object */
 export interface MemberDTO {
     /**
@@ -68,13 +230,13 @@ export interface MemberDTO {
     operator?: number;
 }
 
-export interface ResultSetUserDTO {
+export interface ResultUserDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    /** @uniqueItems true */
-    data?: UserDTO[];
+    /** User */
+    data?: UserDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -174,210 +336,172 @@ export interface UserDetailDTO {
     additionRoleList?: AdditionRoleDTO[];
 }
 
-/** Document File */
-export interface FileDTO {
+/** Update quotation form */
+export interface QuotationFormUpdateRequestDTO {
+    action: "UPDATE_LINES_PRICING" | "REVIEW_SUBMIT" | "REVIEW_REJECT" | "CONFIRM_WITH_FINAL_PRICE" | "SALES_CANCEL";
+    /** Required for REVIEW_SUBMIT / REVIEW_REJECT */
+    review_role?: "PC" | "PM" | "GM" | "TM";
+    /** Quotation header for submit */
+    header: QuotationHeaderRequestDTO;
+    /** @minItems 1 */
+    lines: QuotationLineRequestDTO[];
+}
+
+/** Quotation header for submit */
+export interface QuotationHeaderRequestDTO {
+    /** Must be empty for create-only submit; if present → 400 */
+    quotation_number?: string;
     /**
-     * File Size
+     * Organization id (required); office is derived server-side
+     * @format int64
+     * @example 2
+     */
+    org_id: number;
+    reason?: string;
+    /** @format date-time */
+    quotation_date?: string;
+    /** @format date-time */
+    validity_date?: string;
+    cust_name?: string;
+    cust_num?: string;
+    cust_group?: string;
+    cust_location?: string;
+    cust_contact?: string;
+    cust_tel?: string;
+    cust_background?: string;
+    end_user?: string;
+    sales_name?: string;
+    market_segment?: string;
+    payment_terms?: string;
+    shipment_terms?: string;
+    remarks?: string;
+    currency?: string;
+    branch_office?: string;
+    pdf_header?: string;
+    cust_email?: string;
+    cust_eng_name?: string;
+    cust_website?: string;
+    /** @format int64 */
+    new_customer?: number;
+    /** @format int64 */
+    over_due?: number;
+    pc_list?: string;
+    pm_list?: string;
+    gm?: string;
+    tm?: string;
+    /** Optional; ignored for numbering — server maps office from org_id */
+    office?: string;
+    /**
+     * Optimistic lock; required on PUT
+     * @format date-time
+     */
+    update_time?: string;
+}
+
+/** Quotation line for submit */
+export interface QuotationLineRequestDTO {
+    /**
+     * Existing line id; omit to create
      * @format int64
      */
-    size?: number;
+    line_id?: number;
     /**
-     * File Content
-     * @format byte
+     * Existing review id
+     * @format int64
      */
-    content?: string;
-    /** Filename */
-    name?: string;
-    /** File Mime-type */
-    mimeType?: string;
-    /** Workflow content ID */
-    contentId?: string;
-    /** File Status use for OCR result */
-    status?: string;
+    review_id?: number;
+    /** Line review cost fields */
+    review?: QuotationReviewRequestDTO;
+    /** @format int64 */
+    line_number?: number;
+    brand?: string;
+    part_number?: string;
+    series?: string;
+    /** @format int64 */
+    mpq?: number;
+    /** @format int64 */
+    monthly_quantity?: number;
+    uom?: string;
+    /** @format int64 */
+    quantity_per_machine?: number;
+    product_application?: string;
+    /** @format double */
+    target_unit_price?: number;
+    competitor_name?: string;
+    /** @format double */
+    standard_selling_price?: number;
+    cust_part_number?: string;
+    industry?: string;
+    /** @format int64 */
+    lead_time_days?: number;
+    /** @format int64 */
+    reference?: number;
+    price_type?: string;
+    line_status?: string;
+    /** @format double */
+    old_sales_price?: number;
+    /** @format double */
+    increase?: number;
+    /** @format int64 */
+    purchase_qty?: number;
+    packaging?: string;
+    /** Tier pricing (MOQ / target_price / ...) */
+    pricing_list?: QuotationPricingRequestDTO[];
 }
 
-export interface ResultFileDTO {
-    result?: boolean;
+/** Line pricing tier */
+export interface QuotationPricingRequestDTO {
     /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Document File */
-    data?: FileDTO;
-    messageKey?: string;
-    locale?: string;
+    tier_number?: number;
+    /** @format int64 */
+    moq?: number;
+    /** @format double */
+    price?: number;
+    /** @format double */
+    unit_cost?: number;
+    /** @format double */
+    customer_final_price?: number;
+    /** @format double */
+    target_price?: number;
 }
 
-/** Document Type */
-export interface DocPalTypeDTO {
-    /** Document Type Name */
-    name?: string;
-    /** Is Folder Type */
-    isFolder?: boolean;
-    /** Document Type keywords */
-    keywords?: KeywordDTO[];
-}
-
-/** Keyword */
-export interface KeywordDTO {
-    /** Keyword Name */
-    name?: string;
-    /** Keyword Type */
-    type?: string;
-    /** Keyword Value */
-    value?: any;
-    /** Schema That Belong To Keyword */
-    schema?: string;
-    /** Keyword Is Multiple Value */
-    isMultiValue?: boolean;
-    /** Keyword Default Value */
-    defaultValue?: any;
-    /** Value Scope Of This Keyword */
-    valueScope?: KeywordValueScope;
-}
-
-export interface KeywordValueScope {
-    scope?: string;
-    scopeName?: string;
-}
-
-export interface ResultListDocPalTypeDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocPalTypeDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListMapStringObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, any>[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ContactAttribute {
-    value?: string;
-    name?: string;
-    dataType?: string;
-    required?: boolean;
-    validationRule?: string;
-}
-
-export interface ContactGroupRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
+/** Line review cost fields */
+export interface QuotationReviewRequestDTO {
+    cost_currency?: string;
+    /** @format double */
+    exchang_rate?: number;
+    cost_from_cust?: string;
+    /** @format int64 */
+    lead_time_days?: number;
+    remarks?: string;
     /**
-     * Page Number
-     * @format int32
+     * Line review status; GET only, ignored on PUT
+     * @format int64
      */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    id?: string;
-    name?: string;
-    status?: string;
-    description?: string;
-    permissions?: Record<string, Permission>;
-    attributes?: ContactAttribute[];
-    operator?: string;
-    verifyReadPermission?: boolean;
-    descSort?: SortObject;
-    desc?: boolean;
+    status?: number;
+    /** Last review role name; GET only, ignored on PUT */
+    propose_person?: string;
+    /** Last reviewer user; GET only, ignored on PUT */
+    propose_name?: string;
+}
+
+/** Batch update PI invoice plan dates result */
+export interface PiInvoicePlanDateUpdateResponseDTO {
     /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
+    updated_count?: number;
+    pi_invoice_numbers?: string[];
 }
 
-export interface Permission {
-    users?: string[];
-    roles?: string[];
-    groups?: string[];
+/** One PI invoice plan date change */
+export interface PiInvoicePlanDateLineDTO {
+    pi_invoice_number?: string;
+    /** @format date */
+    new_plan_date?: string;
 }
 
-export interface SortObject {
-    sorted?: boolean;
-    unsorted?: boolean;
-    empty?: boolean;
-}
-
-export interface BasicField {
-    dataType?: string;
-    value?: string;
-    name?: string;
-}
-
-export interface ContactGroupResponseDTO {
-    id?: string;
-    name?: string;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    createdByName?: string;
-    modifiedByName?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    permissions?: Record<string, BasicField[]>;
-    attributes?: ContactAttribute[];
-    hasPermissions?: string[];
-}
-
-export interface ResultListContactGroupResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ContactGroupResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ActiveUserRequestDTO {
-    /** Id */
-    id?: string;
-    kcUserId?: string;
-    /** User Id */
-    userId?: string;
-    /** User Name */
-    username?: string;
-    /** User First Name */
-    firstName?: string;
-    /** User Last Name */
-    lastName?: string;
-    /** User Email Address */
-    email?: string;
-    /** User Status */
-    status?: string;
-    /** Group Id List */
-    groups?: GroupDTO[];
-    /** User Properties */
-    properties?: Record<string, any>;
-}
-
-export interface ResultUserDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** User */
-    data?: UserDTO;
-    messageKey?: string;
-    locale?: string;
+/** Batch update PI invoice plan dates */
+export interface PiInvoicePlanDateUpdateRequestDTO {
+    lines?: PiInvoicePlanDateLineDTO[];
 }
 
 export interface ResultBoolean {
@@ -657,8 +781,8 @@ export interface TableDataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Master Table ID */
     master_table_id?: string;
@@ -1015,8 +1139,8 @@ export interface CaseTypeRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Case schema definition (JSON) */
     case_schema?: Record<string, any>;
@@ -1168,8 +1292,8 @@ export interface PersonalDashboardRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1505,8 +1629,8 @@ export interface MTRecordRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1727,8 +1851,8 @@ export interface CompanyChopRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1957,152 +2081,6 @@ export interface ResultEventCalendarSetting {
     locale?: string;
 }
 
-/** Case Table ResponseDTO */
-export interface CaseTableResponseDTO {
-    id?: string;
-    caseTypeId?: string;
-    label?: string;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    fields?: MTColumnInfo[];
-}
-
-export interface CaseType {
-    id?: string;
-    name?: string;
-    uniqueName?: string;
-    caseIdPrefix?: string;
-    /** @format int32 */
-    caseIdDigit?: number;
-    /** @format int32 */
-    startNumber?: number;
-    enable?: boolean;
-    publishStatus?: string;
-    /** Case Table ResponseDTO */
-    primaryForm?: CaseTableResponseDTO;
-    productionVersion?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    caseDefinitionKey?: string;
-    caseDefinitionId?: string;
-    latestVersion?: string;
-    latestVersionId?: string;
-    productionVersionId?: string;
-    tableName?: string;
-    /** Case Table ResponseDTO */
-    upPrimaryForm?: CaseTableResponseDTO;
-}
-
-export interface MTColumnInfo {
-    columnName?: string;
-    dataType?: string;
-    /** @format int32 */
-    length?: number;
-    relationTable?: string;
-    relationField?: string;
-    displayField?: string;
-    nullRelation?: boolean;
-    /** @format int32 */
-    sort?: number;
-    primaryKey?: boolean;
-    unique?: boolean;
-    required?: boolean;
-}
-
-export interface ResultCaseType {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseType;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case model dashboard (RequestDTO) */
-export interface CmmnDashboardRequestDTO {
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    id?: string;
-    label?: string;
-    caseTypeId?: string;
-    /** Case definition version Id */
-    cmmnVersionId?: string;
-    /** @deprecated */
-    userGroup?: string;
-    permissions?: Record<string, string[]>;
-    versionNumber?: string;
-    styleJson?: string;
-    /** Is need to detail */
-    detail?: boolean;
-    businessKey?: string;
-    status?: string;
-    /** Where Condition */
-    where?: Record<string, any>;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-/** Case model dashboard (RequestDTO) */
-export interface CmmnDashboardResponseDTO {
-    id?: string;
-    caseTypeId?: string;
-    deploymentId?: string;
-    cmmnVersionId?: string;
-    label?: string;
-    /** @deprecated */
-    userGroup?: string;
-    status?: string;
-    styleJson?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    createdByName?: string;
-    modifiedByName?: string;
-    permissions?: BasicField[];
-}
-
-export interface ResultCmmnDashboardResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case model dashboard (RequestDTO) */
-    data?: CmmnDashboardResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface WhatsAppSettingDTO {
     accessToken?: string;
     phoneNum?: string;
@@ -2272,8 +2250,8 @@ export interface DocumentTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2386,8 +2364,8 @@ export interface RetentionPolicyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2485,8 +2463,8 @@ export interface HoldPolicyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2619,7 +2597,7 @@ export interface MetaDataDefinitionRequestDTO {
         | TextValidation
         | UserRoleUserGroupValidation
         | UserValidation
-        | WorkflowValidation;
+        | WFlowValidation;
     maskRule?: MetadataMaskRuleDTO;
     langs?: {
         empty?: boolean;
@@ -2653,8 +2631,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    isMultiple?: boolean;
     validationRuleName?: string;
+    isMultiple?: boolean;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -2680,1020 +2658,7 @@ export type UserRoleUserGroupValidation = MetadataValidation & {
 
 export type UserValidation = MetadataValidation;
 
-export type WorkflowValidation = MetadataValidation;
-
-/** Workflow (Request) */
-export interface WorkflowRequestDTO {
-    /** Version ID */
-    versionId?: string;
-    /** Deployment ID */
-    deploymentId?: string;
-    /** Process Key */
-    processKey?: string;
-    /** Message Name */
-    messageName?: string;
-    /** Process Business Key */
-    businessKey?: string;
-    /** Fuzzy query process Business Key */
-    businessKeyLike?: string;
-    /** Process Definition Id */
-    processDefinitionId?: string;
-    /** Process Instance Name */
-    processDefinitionName?: string;
-    /** Process Instance Id */
-    processInstanceId?: string;
-    /** creator */
-    creator?: string;
-    /** User ID */
-    userId?: string;
-    /** Task Name */
-    taskName?: string;
-    /** Task ID */
-    taskId?: string;
-    /** Task Delete Reason */
-    deleteReason?: string;
-    /**
-     * Task Due Date
-     * @format date-time
-     */
-    dueDate?: string;
-    /** process Category */
-    processCategory?: string;
-    /** process Category List */
-    categories?: string[];
-    /** Groups */
-    groups?: string[];
-    /** Form Properties */
-    properties?: Record<string, string>;
-    /** Variables */
-    variables?: Record<string, any>;
-    /** Display Columns For Show Extract Variables, frontend haven't used it yet */
-    displayColumns?: string[];
-    /** Form Attachments */
-    attachments?: Record<string, string>;
-    /** Activity ID */
-    activityId?: string;
-    /**
-     * Page num
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** processKeys */
-    processKeys?: string[];
-    /** createdDate */
-    createdDate?: string[];
-    /** Task Due Date */
-    dueDates?: string[];
-    involvedUser?: string;
-    assignedUser?: string;
-    candidateUser?: string;
-    candidateOrAssigned?: string;
-    interrelatedUserId?: string;
-    orderList?: string[];
-    /**
-     * Page Index
-     * @deprecated
-     * @format int32
-     */
-    pageIndex?: number;
-}
-
-/** Process Instance */
-export interface InstanceDTO {
-    /** Execution Id */
-    id?: string;
-    /** Activity Id */
-    activityId?: string;
-    /** Business Key */
-    businessKey?: string;
-    /** Calllback Id */
-    callbackId?: string;
-    /** Callback Type */
-    callbackType?: string;
-    /** Deployment Id */
-    deploymentId?: string;
-    /** Description */
-    description?: string;
-    /** Localized Description */
-    localizedDescription?: string;
-    /** Localized Name */
-    localizedName?: string;
-    /** Name */
-    name?: string;
-    /** Parent Id */
-    parentId?: string;
-    /** Process Definition Id */
-    processDefinitionId?: string;
-    /** Process Definition Key */
-    processDefinitionKey?: string;
-    /** Process Definition Name */
-    processDefinitionName?: string;
-    /**
-     * Process Definition Version
-     * @format int32
-     */
-    processDefinitionVersion?: number;
-    /** Process Instance Id */
-    processInstanceId?: string;
-    /** Process Variables */
-    processVariables?: Record<string, any>;
-    /** Propagated Stage Instance Id */
-    propagatedStageInstanceId?: string;
-    /** Reference Id */
-    referenceId?: string;
-    /** Reference Type */
-    referenceType?: string;
-    /** Root Process Instance Id */
-    rootProcessInstanceId?: string;
-    /** Super Execution Id */
-    superExecutionId?: string;
-    /**
-     * Start Time
-     * @format date-time
-     */
-    startTime?: string;
-    /** Start User Id */
-    startUserId?: string;
-    /** Tenant Id */
-    tenantId?: string;
-    /** Is Ended */
-    isEnded?: boolean;
-    /** Is Suspended */
-    isSuspended?: boolean;
-}
-
-export interface PaginationDTOTaskDTO {
-    entryList?: TaskDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOTaskDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Task */
-export interface TaskDTO {
-    /** Task ID */
-    id?: string;
-    /** Task Name */
-    name?: string;
-    /** Task Description */
-    description?: string;
-    /** Task Definition ID */
-    taskDefinitionId?: string;
-    /** Process Definition Version ID */
-    processDefinitionVersionId?: string;
-    /** Task Definition Key */
-    taskDefinitionKey?: string;
-    /** Task Assignee */
-    assignee?: string;
-    /** Task Form Key */
-    formKey?: string;
-    /** Task Instance ID */
-    instanceId?: string;
-    /** Task Parent ID */
-    parentId?: string;
-    /**
-     * Task Creation Date
-     * @format date-time
-     */
-    createDate?: string;
-    /**
-     * Task Due Date
-     * @format date-time
-     */
-    dueDate?: string;
-    /**
-     * Task Claim Date
-     * @format date-time
-     */
-    claimDate?: string;
-    /** Task Instance */
-    taskInstance?: InstanceDTO;
-    businessKey?: string;
-    processDefinitionName?: string;
-    startUserId?: string;
-    createDateStr?: string;
-    dueDateStr?: string;
-    variables?: Record<string, any>;
-}
-
-export interface ResultTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Task */
-    data?: TaskDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: TaskDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultMapStringString {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, string>;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Document */
-export interface DocumentDTO {
-    /** Document ID */
-    id?: string;
-    /** Document Name */
-    name?: string;
-    /** Document Description */
-    description?: string;
-    /** Document Path */
-    path?: string;
-    /** Document Type */
-    type?: string;
-    /** Document Version */
-    version?: string;
-    /**
-     * Document Status
-     * @format int32
-     */
-    status?: number;
-    statusName?: string;
-    /** Document Creator */
-    createdBy?: string;
-    /** Document Modifier */
-    modifiedBy?: string;
-    /**
-     * Document Created Date
-     * @format date-time
-     */
-    createdDate?: string;
-    /**
-     * Document Modification Date
-     * @format date-time
-     */
-    modifiedDate?: string;
-    /** Is Document Folder */
-    isFolder?: boolean;
-    /** Is Document Checked Out */
-    isCheckedOut?: boolean;
-    /** Document Properties */
-    properties?: Record<string, any>;
-    /** Document File Content */
-    fileContent?: FileContentDTO;
-    /** parentRef */
-    parentRef?: string;
-    /** logicalPath */
-    logicalPath?: string;
-    auditComment?: string;
-    auditName?: string;
-    /** Permission Name */
-    permissionName?: string[];
-    /** Contributors */
-    contributors?: string[];
-    /** File Suffix */
-    fileSuffix?: string;
-    /** OCR State */
-    ocrState?: string;
-    /** ID of Document Folder Cabinet */
-    dfcId?: string;
-    permissionIds?: number[];
-    comeFrom?: string;
-    drivePreviewLink?: string;
-    originalPath?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentExtension?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentDigestAlgorithm?: string;
-    /** @format int64 */
-    fileContentLength?: number;
-    fileContentMimeType?: string;
-    fileContentName?: string;
-}
-
-export interface FileContentDTO {
-    digestAlgorithm?: string;
-    digest?: string;
-    data?: string;
-    name?: string;
-    mime_type?: string;
-    /** @format int64 */
-    length?: number;
-    minio_file_version?: string;
-}
-
-export interface ResultListDocumentDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultDocumentDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Document */
-    data?: DocumentDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Form Property */
-export interface FormPropertyDTO {
-    /** Property Key */
-    id?: string;
-    /** Property Name */
-    name?: string;
-    /** Property Type */
-    type?: string;
-    /** Property Value */
-    value?: string;
-    /** Is Property Readable */
-    readable?: boolean;
-    /** Is Property Required */
-    required?: boolean;
-    /** Is Property Writable */
-    writable?: boolean;
-    /** Enum Options */
-    options?: Record<string, string>;
-    /**
-     * time
-     * @format date-time
-     */
-    time?: string;
-}
-
-export interface ResultListFormPropertyDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: FormPropertyDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Form Property */
-export interface FormPropertiesDTO {
-    /** Property Key */
-    id?: string;
-    /** Property Name */
-    name?: string;
-    /** Property Type */
-    type?: string;
-    /** Property Value */
-    value?: string;
-    /** Is Property Readable */
-    readable?: boolean;
-    /** Is Property Required */
-    required?: boolean;
-    /** Is Property Writable */
-    writable?: boolean;
-    /** Property expression */
-    expression?: string;
-    /** Property variable */
-    variable?: string;
-    /** Property defaultExpression */
-    defaultExpression?: string;
-    /** Enum Options */
-    options?: Record<string, string>;
-}
-
-export interface ProcessDefinitionDTO {
-    /** Production Version Number */
-    versionNumber?: string;
-    /** Process Version ID */
-    versionId?: string;
-    /** Production Draft ID */
-    draftId?: string;
-    id?: string;
-    category?: string;
-    name?: string;
-    key?: string;
-    description?: string;
-    /** @format int32 */
-    version?: number;
-    resourceName?: string;
-    deploymentId?: string;
-    diagramResourceName?: string;
-    hasStartFormKey?: boolean;
-    hasGraphicalNotation?: boolean;
-    getTenantId?: string;
-    getDerivedFrom?: string;
-    getDerivedFromRoot?: string;
-    /** @format int32 */
-    getDerivedVersion?: number;
-    getEngineVersion?: string;
-    userTasks?: UserTaskDTO[];
-    permissions?: Record<string, string>[];
-    fcDataMapping?: Record<string, string>[];
-    suspended?: boolean;
-}
-
-export interface ResultProcessDefinitionDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface UserTaskDTO {
-    id?: string;
-    name?: string;
-    flowElementType?: string;
-    formProperties?: FormPropertiesDTO[];
-}
-
-export interface ResultInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Process Instance */
-    data?: InstanceDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Process Definition, Can use ProcessDefinitionDTO to replace */
-export interface ProcessDTO {
-    /** Process ID */
-    id?: string;
-    /** Process Key */
-    key?: string;
-    /** Process Name */
-    name?: string;
-    /** Process Category */
-    category?: string;
-    /** Process Resource Name */
-    resourceName?: string;
-    /** Process Diagram Resource Name */
-    diagramName?: string;
-    /**
-     * Process Version
-     * @format int32
-     */
-    version?: number;
-    /** Production Version Number */
-    versionNumber?: string;
-    /** Process Version ID */
-    versionId?: string;
-    /** Production Draft ID */
-    draftId?: string;
-}
-
-export interface ResultListProcessDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: InstanceDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ConditionValidationReq {
-    processDefinitionKey?: string;
-    processInstanceId?: string;
-    validationData?: Record<string, any>;
-    conditionRules?: Record<string, string>[][];
-}
-
-/** Workflow History (Request) */
-export interface WorkflowHistoryRequestDTO {
-    /** Process Keys */
-    processKeys?: string[];
-    /** Process Definition ID */
-    processDefinitionId?: string;
-    /** Process Instance ID */
-    processInstanceId?: string;
-    /** Business Key */
-    businessKey?: string;
-    /** Execution ID */
-    executionId?: string;
-    /** User ID */
-    userId?: string;
-    /** Creator */
-    creator?: string;
-    /** Is Completed */
-    completed?: boolean;
-    /** Created Date */
-    createdDate?: string[];
-    /** End Date */
-    endDate?: string[];
-    /**
-     * Page Index
-     * @format int32
-     */
-    pageIndex?: number;
-    /**
-     * Page num
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    orderList?: string[];
-}
-
-export interface PaginationDTOInstanceDTO {
-    entryList?: InstanceDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOInstanceDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface QueryWorkflowJobRequest {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    state?: string;
-    businessKey?: string;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-export interface PaginationDTOWorkflowRetryManagerDTO {
-    entryList?: WorkflowRetryManagerDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOWorkflowRetryManagerDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWorkflowRetryManagerDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WorkflowRetryManagerDTO {
-    /** @format int64 */
-    id?: number;
-    /** @format int32 */
-    tryCount?: number;
-    creator?: string;
-    groupId?: string;
-    messageName?: string;
-    businessKey?: string;
-    startTime?: string;
-    state?: string;
-}
-
-export interface ResultList {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: any[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface HistoricProcessInstanceEntityImpl {
-    endActivityId?: string;
-    businessKey?: string;
-    businessStatus?: string;
-    startUserId?: string;
-    startActivityId?: string;
-    superProcessInstanceId?: string;
-    tenantId?: string;
-    name?: string;
-    localizedName?: string;
-    description?: string;
-    localizedDescription?: string;
-    processDefinitionKey?: string;
-    processDefinitionName?: string;
-    /** @format int32 */
-    processDefinitionVersion?: number;
-    deploymentId?: string;
-    callbackId?: string;
-    callbackType?: string;
-    referenceId?: string;
-    referenceType?: string;
-    propagatedStageInstand?: string;
-    queryVariables?: Record<string, any>[];
-    id?: string;
-    processInstanceId?: string;
-    processDefinitionId?: string;
-    processDefinitionVersionId?: string;
-    /** @format date-time */
-    startTime?: string;
-    /** @format int32 */
-    revision?: number;
-    originalPersistentState?: any;
-    /** @format date-time */
-    endTime?: string;
-    /** @format date-time */
-    completeDate?: string;
-    /** @format int64 */
-    durationInMillis?: number;
-    deleteReason?: string;
-    propagatedStageInstanceId?: any;
-    processVariables?: Record<string, any>;
-    persistentState?: Record<string, any>;
-    updated?: boolean;
-    deleted?: boolean;
-    idPrefix?: string;
-    inserted?: boolean;
-    /** @format int32 */
-    revisionNext?: number;
-    durationInMillisStr?: string;
-    startTimeStr?: string;
-    endTimeStr?: string;
-    taskDefinitionKey?: string;
-}
-
-export interface PaginationDTOHistoricProcessInstanceEntityImpl {
-    entryList?: HistoricProcessInstanceEntityImpl[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOHistoricProcessInstanceEntityImpl {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOHistoricProcessInstanceEntityImpl;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListFileDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: FileDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface BizPermissionDTO {
-    id?: string;
-    permissionId?: string;
-    permissionName?: string;
-    licensee?: string;
-}
-
-/** Process Definition ResponseDTO */
-export interface ProcessDefinitionResponseDTO {
-    /** Process Definition ID */
-    id?: string;
-    /** Process Definition Draft ID */
-    draftId?: string;
-    /** Process Definition Name */
-    name?: string;
-    /** Process Definition Key */
-    key?: string;
-    /** Process Definition Status */
-    status?: string;
-    /** Publish Status of process definition */
-    publishStatus?: string;
-    "Latest Version"?: string;
-    "Latest Version Id"?: string;
-    "Production Version"?: string;
-    /** Process Definition Target Name Space */
-    nameSpace?: string;
-    /** Process Definition ID */
-    processDefinitionId?: string;
-    /** Process Definition is draft */
-    isDraft?: boolean;
-    /** Folder Cabinet Setting ID */
-    folderCabinetSettingId?: string;
-    permissions?: BizPermissionDTO[];
-    /** @format int32 */
-    deployVersion?: number;
-}
-
-export interface ResultProcessDefinitionResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Process Definition ResponseDTO */
-    data?: ProcessDefinitionResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Process Definition Version RequestDTO */
-export interface ProcessVersionRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    id?: string;
-    draftId?: string;
-    versionNumber?: string;
-    jsonValue?: string;
-    /**
-     * Process Definition BPMN20.xml File
-     * @format binary
-     */
-    file?: File;
-    name?: string;
-    publishStatus?: string;
-    operator?: string;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-export interface PaginationDTOProcessDefinitionVersion {
-    entryList?: ProcessDefinitionVersion[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ProcessDefinitionVersion {
-    id?: string;
-    draftId?: string;
-    versionNumber?: string;
-    productionVersion?: string;
-    source?: string;
-    publishStatus?: string;
-    isProduction?: string;
-    processDefinitionId?: string;
-    processDefinitionKey?: string;
-    /** @format byte */
-    bytes?: string;
-    jsonValue?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultPaginationDTOProcessDefinitionVersion {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOProcessDefinitionVersion;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultProcessDefinitionVersion {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionVersion;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ProcessDefinitionDraft {
-    id?: string;
-    key?: string;
-    name?: string;
-    status?: string;
-    publishStatus?: string;
-    latestVersion?: string;
-    productionVersion?: string;
-    /** @format byte */
-    bytes?: string;
-    jsonValue?: string;
-    startFormProperties?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    folderCabinetSettingId?: string;
-    latestVersionId?: string;
-    productionVersionId?: string;
-}
-
-/** Workflow Process Definition RequestDTO */
-export interface ProcessDefinitionRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** Process Definition ID */
-    id?: string;
-    /** Process Definition Key */
-    key?: string;
-    /** Process Definition Name */
-    name?: string;
-    /** DeploymentId of Process Definition */
-    deploymentId?: string;
-    /** Process Definition Status */
-    status?: string;
-    /** publish Status */
-    publishStatus?: string;
-    /** Process categories */
-    categories?: string[];
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-export interface PaginationDTOProcessDefinitionDraft {
-    entryList?: ProcessDefinitionDraft[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOProcessDefinitionDraft {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOProcessDefinitionDraft;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WorkflowDraftRequestDTO {
-    /** Process Definition Draft ID */
-    draftId?: string;
-    /** Whether draft */
-    isDraft?: boolean;
-    /** Process Definition Draft Key */
-    key?: string;
-    /** Process Definition Draft Name */
-    name?: string;
-    /** Process Definition Draft Status */
-    status?: string;
-    /** Publish Status of process definition */
-    publishStatus?: string;
-    /** Process Definition Name Space */
-    nameSpace?: string;
-    /** Process Definition Json */
-    jsonValue?: string;
-    /**
-     * Process Definition BPMN20.xml File
-     * @format binary
-     */
-    file?: File;
-    /** Email Template List */
-    templateIds?: string[];
-    /** Folder Cabinet Setting ID */
-    folderCabinetSettingId?: string;
-    /**  Permissions [Start Or View] */
-    permissions?: Record<string, string>[];
-    /** Process Definition Version Id */
-    versionId?: string;
-    /** Process Definition Version Number */
-    versionNumber?: string;
-    /** Process Definition Operator */
-    operator?: string;
-}
+export type WFlowValidation = MetadataValidation;
 
 export interface WOPIFileDTO {
     BaseFileName?: string;
@@ -3794,23 +2759,51 @@ export interface ResultListPOInvoiceVO {
     locale?: string;
 }
 
+export interface PIPartNoMapping {
+    invoice_num?: string;
+    po_no?: string;
+    vendor_item_no?: string;
+    wcl_item_no?: string;
+    /** @format int32 */
+    line_qty?: number;
+    /** @format int32 */
+    vendor_id?: number;
+    /** @format int32 */
+    org_id?: number;
+    vendor_name?: string;
+}
+
+export interface ResultListPIPartNoMapping {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PIPartNoMapping[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface PackingDataRequestDTO {
     schema?: string;
     batchNo?: string;
+    invoiceNum?: string;
+    invoiceNumbers?: string[];
+    purchaseInvoiceVOs?: POInvoiceVO[];
     headerVOs?: PackingListHeaderVO[];
     poInvoiceVOS?: POInvoiceVO[];
     lineItems?: PackingListLineItemVO[];
-    invoice_numbers?: string[];
-    purchase_invoice?: POInvoiceVO[];
 }
 
 export interface PackingListHeaderVO {
+    lineItems?: PackingListLineItemVO[];
     id?: string;
     /** @format int32 */
     org_id?: number;
     file_name?: string;
     batch_id?: string;
     vendor_name?: string;
+    /** @format int32 */
+    vendor_id?: number;
     wcl_company_name?: string;
     invoice_num?: string;
     total_qty?: number;
@@ -3837,6 +2830,70 @@ export interface PackingListLineItemVO {
     drawing_no?: string;
     supplier_item_ref_no?: string;
     Checked?: boolean;
+}
+
+export interface WMSScheduleDeliveryOrder {
+    id?: string;
+    batchId?: string;
+    status?: string;
+    piInvoiceNum?: string;
+    orderNumber?: string;
+    /** @format int64 */
+    lineId?: number;
+    /** @format int32 */
+    lineNumber?: number;
+    /** @format int32 */
+    shipmentNumber?: number;
+    /** @format int32 */
+    inventoryItemId?: number;
+    itemNo?: string;
+    vendorItemNo?: string;
+    itemDesc?: string;
+    /** @format int32 */
+    orderQty?: number;
+    /** @format int32 */
+    shippedQuantity?: number;
+    statusCode?: string;
+    plannedFlag?: string;
+    /** @format int32 */
+    inventoryOrgId?: number;
+    /** @format int32 */
+    orgId?: number;
+    subinventory?: string;
+    custPoNumber?: string;
+    customerId?: number;
+    /** @format date-time */
+    lastUpdateDate?: string;
+    /** @format date-time */
+    scheduleShipDate?: string;
+    /** @format date-time */
+    orderHeaderLastUpdate?: string;
+    /** @format date-time */
+    orderLineLastUpdate?: string;
+    /** @format date-time */
+    wshDeliveryDetailsLastUpdate?: string;
+    /** @format date-time */
+    wshDeliveryAssignmentsLastUpdate?: string;
+    /** @format date-time */
+    wshNewDeliveriesLastUpdate?: string;
+    /** @format date-time */
+    wshDeliveryLegsLastUpdate?: string;
+    /** @format int32 */
+    organizationId?: number;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    updatedDate?: string;
+}
+
+export interface ResultListWMSPickingOrder {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSPickingOrder[];
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface WMSPickingItem {
@@ -3902,132 +2959,72 @@ export interface WMSPickingOrder {
     pickingItems?: WMSPickingItem[];
 }
 
-export interface ResultWMSPickingOrder {
+export interface ResultListWMSScheduleDeliveryOrder {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: WMSPickingOrder;
+    data?: WMSScheduleDeliveryOrder[];
     messageKey?: string;
     locale?: string;
-}
-
-export interface WMSScheduleDeliveryOrder {
-    id?: string;
-    batchId?: string;
-    status?: string;
-    piInvoiceNum?: string;
-    orderNumber?: string;
-    /** @format int64 */
-    lineId?: number;
-    /** @format int32 */
-    lineNumber?: number;
-    /** @format int32 */
-    shipmentNumber?: number;
-    /** @format int32 */
-    inventoryItemId?: number;
-    itemNo?: string;
-    vendorItemNo?: string;
-    itemDesc?: string;
-    /** @format int32 */
-    orderQty?: number;
-    /** @format int32 */
-    shippedQuantity?: number;
-    /** @format int32 */
-    inventoryOrgId?: number;
-    /** @format int32 */
-    orgId?: number;
-    subinventory?: string;
-    custPoNumber?: string;
-    customerId?: number;
-    /** @format date-time */
-    lastUpdateDate?: string;
-    /** @format date-time */
-    scheduleShipDate?: string;
-    /** @format date-time */
-    orderHeaderLastUpdate?: string;
-    /** @format date-time */
-    orderLineLastUpdate?: string;
-    /** @format date-time */
-    wshDeliveryDetailsLastUpdate?: string;
-    /** @format date-time */
-    wshDeliveryAssignmentsLastUpdate?: string;
-    /** @format date-time */
-    wshNewDeliveriesLastUpdate?: string;
-    /** @format date-time */
-    wshDeliveryLegsLastUpdate?: string;
-    /** @format int32 */
-    organizationId?: number;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    updatedDate?: string;
-}
-
-export interface ResultListWMSPickingOrder {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSPickingOrder[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WMSPickingItem {
-    id?: string;
-    pickingOrderId?: string;
-    partNo?: string;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-export interface WMSPickingOrder {
-    id?: string;
-    orderNo?: string;
-    /** @format date-time */
-    deliveryDate?: string;
-    poNo?: string;
-    shipTo?: string;
-    customerCode?: string;
-    /** @format int32 */
-    orgId?: number;
-    /** @format int32 */
-    prioritySeq?: number;
-    subInventoryCode?: string;
-    commodityInspection?: string;
-    working_by?: string;
-    /** @format date-time */
-    workingAt?: string;
-    issueReason?: string;
-    /** @format int32 */
-    issueQty?: number;
-    /** @format int32 */
-    issuePackSize?: number;
-    issueNote?: string;
-    issueRemark?: string;
-    /** @format date-time */
-    issueReportedAt?: string;
-    issueReportedBy?: string;
-    status?: string;
-    allocation_status?: string;
-    /** @format date-time */
-    shippedAt?: string;
-    shippedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    lastUpdateDate?: string;
-    pickingItems?: WMSPickingItem[];
 }
 
 export interface WMSPickingOrderReq {
     batchNo?: string;
     orderNo?: string;
     lineIds?: number[];
+    /** @format date-time */
+    lastUpdateDate?: string;
+}
+
+export interface ResultListWMSScheduleTransactionNote {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSScheduleTransactionNote[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WMSScheduleTransactionNote {
+    id?: string;
+    batchId?: string;
+    status?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    updatedDate?: string;
+    /** @format int64 */
+    tnHeaderId?: number;
+    tnNumber?: string;
+    /** @format date-time */
+    tnPlannedDate?: string;
+    /** @format int32 */
+    orgId?: number;
+    fromSubinventory?: string;
+    toSubinventory?: string;
+    commodityInspection?: string;
+    /** @format date-time */
+    creationDate?: string;
+    createdBy?: string;
+    /** @format date-time */
+    lastUpdateDate?: string;
+    lastUpdatedBy?: string;
+    /** @format int64 */
+    tnLineId?: number;
+    /** @format int32 */
+    tnLineNum?: number;
+    poNumber?: string;
+    /** @format int32 */
+    lineNumber?: number;
+    /** @format int32 */
+    shipmentNumber?: number;
+    itemNo?: string;
+    /** @format int32 */
+    transferQuantity?: number;
+    itemOrigin?: string;
+    lineStatus?: string;
 }
 
 export interface WMSPart {
@@ -4070,73 +3067,108 @@ export interface ResultListPICompareRespDTO {
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: WMSInventoryLot;
+    data?: PICompareRespDTO[];
     messageKey?: string;
     locale?: string;
 }
 
-export interface WMSInventoryLot {
+export interface OracleConfig {
     id?: string;
-    partNo?: string;
-    wclItemNo?: string;
-    dateCode?: string;
-    lotCode?: string;
-    coo?: string;
-    cow?: string;
-    shelfCode?: string;
-    boxId?: string;
-    /** @format int32 */
-    orgId?: number;
-    subInventoryCode?: string;
-    /** @format int32 */
-    totalQty?: number;
-    /** @format int32 */
-    allocatedQty?: number;
-    /** @format int32 */
-    availableQty?: number;
+    configType?: string;
+    configName?: string;
+    configDesc?: string;
+    configJson?: Record<string, any>;
+    /** @format date-time */
+    updatedDate?: string;
 }
 
-export interface WMSInventoryLotSource {
-    id?: string;
-    inventoryLotId?: string;
-    receivingInvoiceItemId?: string;
+export interface ResultOracleConfig {
+    result?: boolean;
     /** @format int32 */
-    qty?: number;
+    code?: number;
+    message?: string;
+    data?: OracleConfig;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface GITInvoiceLineItemDTO {
+    id?: string;
+    po_no?: string;
+    /** @format int32 */
+    po_line?: number;
+    /** @format int32 */
+    shipment_num?: number;
+    vendor_item_no?: string;
+    wcl_item_no?: string;
+    inv_item_id?: string;
+    /** @format int32 */
+    line_qty?: number;
+    unit_price?: number;
+    line_amount?: number;
+    status?: string;
+    apply_changes?: string;
+    koaName?: string;
+    invoice_line_num?: string;
+}
+
+export interface ResultGITInvoiceLineItemDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GITInvoiceLineItemDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface GITInvoice {
+    id?: string;
+    gitInvoiceFileId?: string;
+    batchNo?: string;
+    groupId?: string;
+    gitDate?: string;
+    invoiceNum?: string;
+    /** @format int32 */
+    vendorId?: number;
+    vendorName?: string;
+    currency?: string;
+    org?: string;
+    /** @format int32 */
+    orgId?: number;
+    brand?: string;
+    office?: string;
+    paymentType?: string;
+    additionalCost?: string;
+    invoiceDate?: string;
+    fileId?: string;
+    fileName?: string;
+    /** @format int32 */
+    totalQty?: number;
+    totalAmount?: number;
+    calcTotalAmount?: number;
+    calcTotalAmountFromLine?: number;
+    gitStatus?: string;
+    /** @format int32 */
+    lineSuccess?: number;
+    checkEmpty?: boolean;
+    items?: GITInvoiceLineItemDTO[];
     /** @format date-time */
     createdDate?: string;
     /** @format date-time */
-    lastUpdatedDate?: string;
+    modifiedDate?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    kwempty?: boolean;
+    submitted?: boolean;
 }
 
-export interface ResultWMSInventoryLotSource {
+export interface ResultGITInvoice {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: WMSInventoryLotSource;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOWMSInventoryLotSource {
-    entryList?: WMSInventoryLotSource[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOWMSInventoryLotSource {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWMSInventoryLotSource;
+    data?: GITInvoice;
     messageKey?: string;
     locale?: string;
 }
@@ -4261,6 +3293,17 @@ export interface UserBatchActiveDTO {
     userIds?: string[];
     /** active A/D */
     active?: string;
+}
+
+/** Submit quotation form (create + enter approval) */
+export interface QuotationFormSubmitRequestDTO {
+    /** Quotation header */
+    header: QuotationHeaderRequestDTO;
+    /**
+     * Quotation lines (at least one)
+     * @minItems 1
+     */
+    lines: QuotationLineRequestDTO[];
 }
 
 /** Define access control permission */
@@ -4693,9 +3736,9 @@ export interface PageNotificationRecord {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
-    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -4708,12 +3751,12 @@ export interface PageNotificationRecord {
 }
 
 export interface PageableObject {
+    unpaged?: boolean;
     paged?: boolean;
     /** @format int32 */
     pageNumber?: number;
     /** @format int32 */
     pageSize?: number;
-    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -4755,8 +3798,8 @@ export interface QueryNotificationRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4820,8 +3863,8 @@ export interface QueryFileOverviewRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4830,9 +3873,9 @@ export interface PageUploadBatchDTO {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
-    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -5064,8 +4107,8 @@ export interface ExternalProfileRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
@@ -5133,8 +4176,8 @@ export interface ExternalStorageRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
@@ -5186,8 +4229,8 @@ export interface ExternalStorageImportJobRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5327,8 +4370,8 @@ export interface ListLockRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Filter by lock owner */
     lock_owner?: string;
@@ -5491,8 +4534,8 @@ export interface ListTriggerSettingsRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Filter by event type: record_created, record_updated, record_deleted, field_changed */
     event_type?: string;
@@ -5611,8 +4654,8 @@ export interface TableRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** URL name (unique per entity_id) */
     url_name?: string;
@@ -5794,6 +4837,16 @@ export interface RelationEstablishRequestDTO {
     is_array?: boolean;
 }
 
+export interface ResultMapStringString {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, string>;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Auto Relation Detect Request DTO */
 export interface AutoRelationDetectRequestDTO {
     /**
@@ -5831,193 +4884,6 @@ export interface ResultPaginationDTOCaseTypeDTO {
     locale?: string;
 }
 
-/** Dashboard Workflow Request DTO */
-export interface DashboardWorkflowRequestDTO {
-    /** Workflow ID */
-    workflowId?: string;
-    /** User ID */
-    userId?: string;
-    /** Date range */
-    dateRange?: Record<string, string>;
-    /**
-     * Time group
-     * @uniqueItems true
-     */
-    timeGroup?: number[];
-    /**
-     * Greater than or equal date
-     * @format date-time
-     */
-    gteDate?: string;
-    /**
-     * Less than or equal date
-     * @format date-time
-     */
-    lteDate?: string;
-    /**
-     * Page number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page size
-     * @format int32
-     */
-    pageSize?: number;
-}
-
-export interface ResultMapStringInteger {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, number>;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListProcessDefinitionDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WorkflowDateFilterDTO {
-    filterType?: string;
-    startDate?: string;
-    endDate?: string;
-}
-
-export interface WorkflowJobRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    startCreator?: string;
-    workflowStatus?: string;
-    overallStatus?: string;
-    approver?: string;
-    dateFilter?: WorkflowDateFilterDTO;
-    variables?: JSONObject;
-    workflowNames?: string[];
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-export interface PaginationDTOWorkflowJobOutlineDTO {
-    entryList?: WorkflowJobOutlineDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOWorkflowJobOutlineDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWorkflowJobOutlineDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WorkflowJobDetailDTO {
-    startDate?: string;
-    endDate?: string;
-    instanceId?: string;
-    workflowState?: string;
-    workflowName?: string;
-    approver?: string;
-    terminator?: string;
-    inputData?: JSONObject;
-    variables?: JSONObject;
-}
-
-export interface WorkflowJobOutlineDTO {
-    startDate?: string;
-    endDate?: string;
-    state?: string;
-    creator?: string;
-    details?: WorkflowJobDetailDTO[];
-}
-
-export interface QueryWorkflowVariablesRequestDTO {
-    processDefinitionName?: string;
-}
-
-export interface ResultListWorkflowVariableDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WorkflowVariableDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WorkflowVariableDTO {
-    name?: string;
-    type?: string;
-}
-
-/** Dashboard Workflow Response DTO */
-export interface DashboardWorkflowResponseDTO {
-    /** Key (e.g., month) */
-    key?: string;
-    /**
-     * Count
-     * @format int32
-     */
-    count?: number;
-}
-
-export interface ResultLinkedListDashboardWorkflowResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DashboardWorkflowResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultMapStringDouble {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, number>;
-    messageKey?: string;
-    locale?: string;
-}
-
 /** User Dashboard RequestDTO */
 export interface UserDashboardRequestDTO {
     /** Fuzzy Search Parameter */
@@ -6048,8 +4914,8 @@ export interface UserDashboardRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6121,8 +4987,8 @@ export interface PluginRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6233,8 +5099,8 @@ export interface OcrTransactionLogRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6349,121 +5215,107 @@ export interface DateRangeRequestDTO {
     groupBy?: string;
 }
 
-export interface AdhocApprovalDTO {
-    /** @format int64 */
-    id?: number;
-    documentId?: string;
-    documentPath?: string;
-    documentStartVersion?: string;
-    documentApprovalVersion?: string;
-    /** @format int32 */
-    documentStatus?: number;
-    taskId?: string;
-    taskName?: string;
-    businessKey?: string;
-    processInstanceId?: string;
-    /** @format int32 */
-    processInstanceStatus?: number;
-    user_creator_id?: string;
-    /** @format date-time */
-    startTime?: string;
-    approvedBy?: string;
-    user_approver_id?: string;
-    /** @format date-time */
-    approvedDate?: string;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    orderBy?: string;
-    isDesc?: boolean;
-    isComplete?: boolean;
-    participant?: string;
+/** Document */
+export interface DocumentDTO {
+    /** Document ID */
+    id?: string;
+    /** Document Name */
+    name?: string;
+    /** Document Description */
+    description?: string;
+    /** Document Path */
+    path?: string;
+    /** Document Type */
+    type?: string;
+    /** Document Version */
+    version?: string;
     /**
-     * Page Index
-     * @deprecated
+     * Document Status
      * @format int32
      */
-    pageIndex?: number;
-}
-
-export interface AdhocRecord {
-    id?: string;
-    documentId?: string;
-    docPath?: string;
-    docVersion?: string;
-    applyInfo?: string;
-    applyUserId?: string;
-    applyUserName?: string;
-    approvers?: string;
-    approveType?: string;
-    approveStatus?: string;
-    approvalItem?: string;
-    approvedBy?: string;
-    /** @format date-time */
-    approvedDate?: string;
-    /** @format date-time */
-    rejectedDate?: string;
-    /** @format date-time */
-    cancelTime?: string;
-    /** @format date-time */
+    status?: number;
+    statusName?: string;
+    /** Document Creator */
+    createdBy?: string;
+    /** Document Modifier */
+    modifiedBy?: string;
+    /**
+     * Document Created Date
+     * @format date-time
+     */
     createdDate?: string;
-    /** @format date-time */
+    /**
+     * Document Modification Date
+     * @format date-time
+     */
     modifiedDate?: string;
+    /** Is Document Folder */
+    isFolder?: boolean;
+    /** Is Document Checked Out */
+    isCheckedOut?: boolean;
+    /** Document Properties */
+    properties?: Record<string, any>;
+    /** Document File Content */
+    fileContent?: FileContentDTO;
+    /** parentRef */
+    parentRef?: string;
+    /** logicalPath */
+    logicalPath?: string;
+    auditComment?: string;
+    auditName?: string;
+    /** Permission Name */
+    permissionName?: string[];
+    /** Contributors */
+    contributors?: string[];
+    /** File Suffix */
+    fileSuffix?: string;
+    /** OCR State */
+    ocrState?: string;
+    /** ID of Document Folder Cabinet */
+    dfcId?: string;
+    permissionIds?: number[];
+    comeFrom?: string;
+    drivePreviewLink?: string;
+    originalPath?: string;
+    fileContentExtension?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
+    /** @format int64 */
+    fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
 }
 
-export interface PaginationDTOAdhocRecord {
-    entryList?: AdhocRecord[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
+export interface FileContentDTO {
+    digestAlgorithm?: string;
+    digest?: string;
+    data?: string;
+    name?: string;
+    mime_type?: string;
+    /** @format int64 */
+    length?: number;
+    minio_file_version?: string;
 }
 
-export interface ResultPaginationDTOAdhocRecord {
+export interface ResultListDocumentDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PaginationDTOAdhocRecord;
+    data?: DocumentDTO[];
     messageKey?: string;
     locale?: string;
 }
 
-/** Comment */
-export interface CommentDTO {
-    /** Comment ID */
-    id?: string;
-    /** Comment Parent ID */
-    parentId?: string;
-    /** Comment Text */
-    text?: string;
-    /** Comment Author */
-    author?: string;
-    /**
-     * Comment Creation Date
-     * @format date-time
-     */
-    creationDate?: string;
-    /**
-     * Comment Modification Date
-     * @format date-time
-     */
-    modificationDate?: string;
-}
-
-export interface ResultCommentDTO {
+export interface ResultDocumentDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    /** Comment */
-    data?: CommentDTO;
+    /** Document */
+    data?: DocumentDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -6542,9 +5394,9 @@ export interface PageWatermarkSettingsTemplate {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
-    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -6743,8 +5595,8 @@ export interface IdTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7338,8 +6190,8 @@ export interface EmailTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7419,8 +6271,8 @@ export interface EmailLayoutRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7548,8 +6400,8 @@ export interface SmartFolderRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7623,12 +6475,13 @@ export interface EasyShareDocumentDetails {
     readOnly?: boolean;
     watermarkData?: WatermarkData;
     createdBy?: string;
-    watermarkTemplateId?: string;
-    watermarkStatus?: string;
+    originFilePath?: string;
     watermarkedLocalPath?: string;
+    watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
-    originFilePath?: string;
+    conversionId?: string;
+    watermarkTemplateId?: string;
 }
 
 /** EasyShare (Request) */
@@ -7708,16 +6561,6 @@ export interface SystemSetting {
     systemId?: string;
     systemIdType?: string;
     jsonValue?: string;
-}
-
-export interface OracleConfig {
-    id?: string;
-    configType?: string;
-    configName?: string;
-    configDesc?: string;
-    configJson?: Record<string, any>;
-    /** @format date-time */
-    updatedDate?: string;
 }
 
 export interface FeatureSaveRequestDTO {
@@ -7881,8 +6724,8 @@ export interface BasePageRequest {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8012,8 +6855,8 @@ export interface RetentionPolicyDocumentRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8125,8 +6968,8 @@ export interface HoldDocumentRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8242,9 +7085,25 @@ export interface MasterTableRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
+}
+
+export interface MTColumnInfo {
+    columnName?: string;
+    dataType?: string;
+    /** @format int32 */
+    length?: number;
+    relationTable?: string;
+    relationField?: string;
+    displayField?: string;
+    nullRelation?: boolean;
+    /** @format int32 */
+    sort?: number;
+    unique?: boolean;
+    required?: boolean;
+    primaryKey?: boolean;
 }
 
 /** Master Table ResponseDTO */
@@ -8262,9 +7121,9 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
-    create?: boolean;
     edit?: boolean;
     read?: boolean;
+    create?: boolean;
     enable?: boolean;
 }
 
@@ -8359,8 +7218,8 @@ export interface MTAuditLogRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8432,9 +7291,9 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
-    create?: boolean;
     edit?: boolean;
     read?: boolean;
+    create?: boolean;
     enable?: boolean;
 }
 
@@ -8652,24 +7511,6 @@ export interface ResultListFormPropertiesRelation {
     locale?: string;
 }
 
-export interface WorkflowInstanceDTO {
-    processDefinitionKey?: string;
-    creator?: string;
-    messageName?: string;
-    businessKey?: string;
-    instanceId?: string;
-    startTime?: string;
-    state?: string;
-    inputData?: JSONObject;
-    variables?: JSONObject;
-    dateFormatVariables?: string[];
-}
-
-export interface WorkflowInstanceRequest {
-    currWorkflowInstance?: WorkflowInstanceDTO;
-    nextWorkflowInstance?: WorkflowInstanceDTO;
-}
-
 export interface PackingToReceiving {
     status?: string;
     sql?: string;
@@ -8700,6 +7541,50 @@ export interface ResultListReceivingOrder {
     code?: number;
     message?: string;
     data?: ReceivingOrder[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PackingExcelSaveRequestDTO {
+    batchNo?: string;
+    fileName?: string;
+    sheetName?: string[];
+    templateKey?: string;
+    userId?: string;
+    sheets?: Record<string, SheetBlock[]>;
+}
+
+export interface SheetBlock {
+    header?: Record<string, any>;
+    items?: Record<string, any>[];
+}
+
+export interface GitMatchInvoiceRequestDTO {
+    ocrRequestNo?: string;
+    ocrDataId?: string;
+    batchNo?: string;
+    /** @format int32 */
+    ocrSize?: number;
+    ocrData?: Record<string, any>[];
+    fileInfo?: Record<string, any>[];
+}
+
+export interface GITInvMatchingDTO {
+    id?: string;
+    batchNo?: string;
+    data?: GITInvoice[];
+    gitStatus?: string;
+    /** @format int32 */
+    lineSuccess?: number;
+    scriptResult?: boolean;
+}
+
+export interface ResultGITInvMatchingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GITInvMatchingDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -9024,8 +7909,8 @@ export interface ContactRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9061,6 +7946,16 @@ export interface ResultImportResponseDTO {
     locale?: string;
 }
 
+export interface ResultMapStringInteger {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, number>;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface PaginationDTOContactGroupResponseDTO {
     entryList?: ContactGroupResponseDTO[];
     /** @format int32 */
@@ -9080,96 +7975,6 @@ export interface ResultPaginationDTOContactGroupResponseDTO {
     code?: number;
     message?: string;
     data?: PaginationDTOContactGroupResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case Instance (Request) */
-export interface CaseInstanceRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    caseTypeId?: string;
-    /** Case Definition ID */
-    caseDefinitionId?: string;
-    /** Case Definition Key */
-    caseDefinitionKey?: string;
-    /** Case ID or alias business key */
-    businessKey?: string;
-    /** Case Instance ID */
-    caseInstanceId?: string;
-    /** Is Active */
-    isActive?: boolean;
-    /** Request Parameters */
-    parameters?: Record<string, any>;
-    /** Operation User Id */
-    operator?: string;
-    /** State */
-    state?: string;
-    /** Execution ID */
-    executionId?: string;
-    /** PlanItem Instance Id list */
-    planItemInstanceIds?: string[];
-    /** PlanItem Definition Type list */
-    planItemDefinitionTypes?: string[];
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-/** Case Instance (Request) */
-export interface CaseInstanceDTO {
-    id?: string;
-    parentId?: string;
-    businessKey?: string;
-    businessStatus?: string;
-    name?: string;
-    caseDefinitionId?: string;
-    caseDefinitionKey?: string;
-    caseDefinitionName?: string;
-    /** @format int32 */
-    caseDefinitionVersion?: number;
-    caseDefinitionDeploymentId?: string;
-    state?: string;
-    /** @format date-time */
-    startTime?: string;
-    startUserId?: string;
-    /** @format date-time */
-    lastReactivationTime?: string;
-    lastReactivationUserId?: string;
-    callbackId?: string;
-    callbackType?: string;
-    referenceId?: string;
-    referenceType?: string;
-    completable?: boolean;
-    tenantId?: string;
-    variables?: Record<string, any>;
-}
-
-export interface ResultCaseInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case Instance (Request) */
-    data?: CaseInstanceDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -9302,8 +8107,8 @@ export interface FormDesignRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9419,8 +8224,8 @@ export interface EasyFormResultRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9500,8 +8305,8 @@ export interface EasyFormEmailQueryRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9643,8 +8448,8 @@ export interface TrashRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9897,11 +8702,11 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
-    fileContentMinioFileVersion?: string;
     fileContentExtension?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentDigestAlgorithm?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -9939,6 +8744,39 @@ export interface CommentRequestDTO {
      * @format int64
      */
     currentPageIndex?: number;
+}
+
+/** Comment */
+export interface CommentDTO {
+    /** Comment ID */
+    id?: string;
+    /** Comment Parent ID */
+    parentId?: string;
+    /** Comment Text */
+    text?: string;
+    /** Comment Author */
+    author?: string;
+    /**
+     * Comment Creation Date
+     * @format date-time
+     */
+    creationDate?: string;
+    /**
+     * Comment Modification Date
+     * @format date-time
+     */
+    modificationDate?: string;
+}
+
+export interface ResultCommentDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Comment */
+    data?: CommentDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface ResultListCommentDTO {
@@ -10155,8 +8993,8 @@ export interface CompanyRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10360,8 +9198,8 @@ export interface FolderCabinetRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10581,8 +9419,8 @@ export interface DocFolderCabinetRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10711,738 +9549,12 @@ export interface ResultFolderCabinet {
     locale?: string;
 }
 
-export interface FilingDocumentPreviewReq {
-    taskId?: string;
-    folderCabinetIds?: string[];
-    variables?: Record<string, any>;
-    operator?: string;
-    folderCabinetDataMapping?: Record<string, FCDataMappingDTO[]>;
-}
-
-export interface CaseTypeInfo {
-    caseTypeId?: string;
-    label?: string;
-    metadata?: string;
-    dataType?: string;
-    options?: string;
-    require?: boolean;
-    status?: string;
-}
-
-export interface CaseTypeResponseDTO {
-    id?: string;
-    name?: string;
-    caseIdPrefix?: string;
-    /** @format int32 */
-    caseIdDigit?: number;
-    /** @format int32 */
-    startNumber?: number;
-    latestVersion?: string;
-    latestVersionId?: string;
-    productionVersion?: string;
-    productionVersionId?: string;
-    enable?: boolean;
-    publishStatus?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    caseDefinitionKey?: string;
-    caseDefinitionId?: string;
-    /** Case Model PlanItem Information DTO */
-    startTask?: PlanItemDefinitionDTO;
-    caseVersions?: CmmnVersion[];
-    informations?: CaseTypeInfo[];
-}
-
-export interface CmmnVersion {
-    id?: string;
-    deploymentId?: string;
-    caseTypeId?: string;
-    versionNumber?: string;
-    caseDefinitionId?: string;
-    caseDefinitionKey?: string;
-    productionVersion?: string;
-    publishStatus?: string;
-    /** @format byte */
-    bytes?: string;
-    styleJson?: string;
-    /** Case Table ResponseDTO */
-    primaryForm?: CaseTableResponseDTO;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    production?: boolean;
-}
-
-/** Case Model PlanItem Information DTO */
-export interface PlanItemDefinitionDTO {
-    /** PlanItem Definition Id */
-    key?: string;
-    /** PlanItem Definition Name */
-    name?: string;
-    /** PlanItem Definition Type */
-    type?: string;
-    /** PlanItem Definition ParentId */
-    parent?: string;
-    /** PlanItem Definition criterion */
-    criterion?: Record<string, string>;
-    /** PlanItem Definition Rules or Behavior */
-    rules?: Record<string, any>;
-    /** PlanItem Definition Sub-List */
-    subItems?: any[];
-    fields?: PlanTableFieldDTO[];
-    upProcessTaskKey?: string;
-    assigneeField?: PlanTableFieldDTO;
-    isStartTask?: boolean;
-    upFormProperties?: FormPropertyDTO[];
-}
-
-export interface ResultCaseTypeResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseTypeResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CaseModelDraft {
-    id?: string;
-    caseTypeId?: string;
-    caseDefinitionKey?: string;
-    caseDefinitionId?: string;
-    /** @format byte */
-    bytes?: string;
-    styleJson?: string;
-    serialNo?: string;
-    createdBy?: string;
-    /** @format date-time */
-    createdDate?: string;
+export interface AbbyyOcrRequest {
+    fileNames?: string[];
     fileName?: string;
-}
-
-export interface ResultCaseModelDraft {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseModelDraft;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CopyCaseTypeRequest {
-    caseIdPrefix?: string;
-    /** @format int32 */
-    caseIdDigit?: number;
-    /** @format int32 */
-    startNumber?: number;
-    /** ID */
-    id?: string;
-    /** Name */
-    name?: string;
-    /** Case Version Id */
-    versionId?: string;
-}
-
-export interface ResultCmmnVersion {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnVersion;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CmmnVersionRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** ID of case type */
-    caseTypeId?: string;
-    /** Version Number */
-    versionNumber?: string;
-    /** The style json */
-    styleJson?: string;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-export interface PaginationDTOCmmnVersion {
-    entryList?: CmmnVersion[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOCmmnVersion {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOCmmnVersion;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case Table RequestDTO */
-export interface CaseTableRequestDTO {
-    /** Fuzzy Search */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** Case Table ID */
-    id?: string;
-    /** Case Table label */
-    label?: string;
-    /** Case Type ID */
-    caseTypeId?: string;
-    /** Start Case Model Version */
-    startCmmnVersion?: CmmnVersion;
-    /** Case Table Name */
-    tableName?: string;
-    /** Case Table Status is Active or Disable (A or D) */
-    status?: string;
-    /** All Table Fields */
-    fields?: MTFieldInfo[];
-    /** Create by list */
-    createdBys?: string[];
-    /** New Data List */
-    data?: Record<string, any>[];
-    /** Where Condition */
-    where?: Record<string, any>;
-    /** Where Condition (Not Equal) */
-    notEquals?: Record<string, any>;
-    /** Where Condition (Equal) */
-    equals?: Record<string, any>;
-    /** Where And Condition */
-    andConditions?: WhereCondition[];
-    c?: Record<string, any>;
-    /** User */
-    operator?: UserDTO;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-export interface WhereCondition {
-    columnName?: string;
-    operator?: "EQ" | "NEQ" | "LIKE" | "IN" | "NOT_IN" | "NOT_EXIST" | "RANGE" | "GT" | "LT" | "GTE" | "LTE";
-    value?: any;
-    arrays?: any[];
-    start?: any;
-    end?: any;
-}
-
-export interface PaginationDTOCaseType {
-    entryList?: CaseType[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOCaseType {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOCaseType;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListCaseTypeResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseTypeResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CaseTable {
-    id?: string;
-    caseTypeId?: string;
-    label?: string;
-    tableName?: string;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultCaseTable {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseTable;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultCaseTableResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case Table ResponseDTO */
-    data?: CaseTableResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CmmnTriggerEventReqDTO {
-    caseInstanceId?: string;
-    planItemDefinitionId?: string;
-    planItemInstanceId?: string;
-    state?: string;
-}
-
-/** Case Instance TaskDTO (Request) */
-export interface CaseInstanceTaskDTO {
-    caseInstanceId?: string;
-    taskId?: string;
-    assignee?: string;
-    variables?: Record<string, any>;
-}
-
-/** Task */
-export interface CmmnTaskDTO {
-    /** Task ID */
-    id?: string;
-    /** Task Name */
-    name?: string;
-    /** Task Description */
-    description?: string;
-    /** Task Definition ID */
-    taskDefinitionId?: string;
-    /** Process Definition Version ID */
-    processDefinitionVersionId?: string;
-    /** Task Definition Key */
-    taskDefinitionKey?: string;
-    /** Task Assignee */
-    assignee?: string;
-    /** Task Form Key */
-    formKey?: string;
-    /** Task Instance ID */
-    instanceId?: string;
-    /** Task Parent ID */
-    parentId?: string;
-    /**
-     * Task Creation Date
-     * @format date-time
-     */
-    createDate?: string;
-    /**
-     * Task Due Date
-     * @format date-time
-     */
-    dueDate?: string;
-    /**
-     * Task Claim Date
-     * @format date-time
-     */
-    claimDate?: string;
-    /** Task Instance */
-    taskInstance?: InstanceDTO;
-    businessKey?: string;
-    processDefinitionName?: string;
-    startUserId?: string;
-    createDateStr?: string;
-    dueDateStr?: string;
-    variables?: Record<string, any>;
-    state?: string;
-    /** @format date-time */
-    endTime?: string;
-    /** @format int64 */
-    durationInMillis?: number;
-    caseDefinitionId?: string;
-    caseInstanceId?: string;
-    assignees?: string[];
-    candidateGroups?: string[];
-}
-
-export interface ResultListCmmnTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnTaskDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case Import Failure Row Preview */
-export interface CaseImportReponseFailRow {
-    /**
-     * Row index in Excel (1-based including header)
-     * @format int32
-     */
-    rowIndex?: number;
-    /** Original row values mapped by header name */
-    rowValues?: Record<string, any>;
-    /** Error message when starting case instance */
-    errorMessage?: string;
-}
-
-/** Case Import Response */
-export interface CaseImportResponse {
-    /** Import Batch Id */
-    importBatchId?: string;
-    /**
-     * Total rows parsed from Excel (excluding header)
-     * @format int32
-     */
-    totalRecords?: number;
-    /**
-     * Number of successfully started case instances
-     * @format int32
-     */
-    successCount?: number;
-    /**
-     * Number of failed rows while starting cases
-     * @format int32
-     */
-    failureCount?: number;
-    /** Status of import: COMPLETED / PARTIAL / FAILED */
-    status?: string;
-    /** Message or summary of the import result */
-    message?: string;
-    /** Failure Excel file name */
-    failureFileName?: string;
-    /** Failure Excel file content encoded in Base64. Null if no failures */
-    failureFileContentBase64?: string;
-    /** A few failed rows (truncated) with error messages for preview */
-    previewFailureRows?: CaseImportReponseFailRow[];
-}
-
-export interface ResultCaseImportResponse {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case Import Response */
-    data?: CaseImportResponse;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** PlanItem Instance (Request) */
-export interface PlanItemInstanceRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** PlanItem Instance ID */
-    id?: string;
-    /** PlanItem Definition Type list */
-    types?: string[];
-    /** Case ID or alias business key */
-    businessKey?: string;
-    /** Case Instance ID */
-    caseInstanceId?: string;
-    /** Is Active */
-    isActive?: boolean;
-    /** Assignee User Id Or operator */
-    assignee?: string;
-    /** State */
-    state?: string;
-    /** Execution ID */
-    executionId?: string;
-    /** Reference ID */
-    referenceId?: string;
-    /** Request Variables */
-    variables?: Record<string, any>;
-    /** Workflow Instance Request Variables */
-    workflowVariables?: Record<string, any>;
-    /** Execute Action */
-    action?: string;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-/** Case Model Plan Form DTO */
-export interface CmmnPlanFormDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    casetable?: string;
-    fields?: PlanTableFieldDTO[];
-}
-
-/** PlanItemInstanceDTO */
-export interface PlanItemInstanceDTO {
-    caseDefinitionId?: string;
-    caseInstanceId?: string;
-    derivedCaseDefinitionId?: string;
-    formKey?: string;
-    id?: string;
-    name?: string;
-    planItemDefinitionId?: string;
-    planItemDefinitionType?: string;
-    referenceId?: string;
-    referenceType?: string;
-    stageInstanceId?: string;
-    startUserId?: string;
-    state?: string;
-    /** @format date-time */
-    completedTime?: string;
-    /** @format date-time */
-    createTime?: string;
-    /** @format date-time */
-    endedTime?: string;
-    /** @format date-time */
-    exitTime?: string;
-    active?: boolean;
-    businessKey?: string;
-    operator?: string;
-    variables?: Record<string, any>;
-    /** Workflow Instance Request Variables */
-    workflowVariables?: Record<string, any>;
-    /** Workflow PlanItem Instance */
-    subItems?: PlanItemInstanceDTO[];
-    /** Workflow PlanItem Form */
-    planForm?: CmmnPlanFormDTO;
-    processInstanceId?: string;
-    humanTaskId?: string;
-}
-
-export interface ResultListPlanItemInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PlanItemInstanceDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Define audit template */
-export interface AuditTemplateDTO {
-    /** @format int64 */
-    id?: number;
-    label?: string;
-    eventId?: string;
-    nuxeoEventId?: string;
-    documentId?: string;
-    comment?: string;
-    docPath?: string;
-    docType?: string;
-    eventType?: string;
-    eventCategory?: string;
-    /** @format date-time */
-    eventDate?: string;
-    envetDateStr?: string;
-    principalName?: string;
-    extended?: Record<string, any>;
-}
-
-export interface PaginationDTOAuditTemplateDTO {
-    entryList?: AuditTemplateDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOAuditTemplateDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOAuditTemplateDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CmmnDashboard {
-    id?: string;
-    caseTypeId?: string;
-    deploymentId?: string;
-    cmmnVersionId?: string;
-    label?: string;
-    /** @deprecated */
-    userGroup?: string;
-    permissions?: string[];
-    status?: string;
-    styleJson?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultCmmnDashboard {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnDashboard;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOCmmnDashboardResponseDTO {
-    entryList?: CmmnDashboardResponseDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOCmmnDashboardResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOCmmnDashboardResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case Process RequestDTO */
-export interface CmmnProcessRequestDTO {
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    caseInstanceId?: string;
-    businessKey?: string;
-    caseDefinitionId?: string;
-    processDefinitionKeys?: string[];
-    assignee?: string;
-    candidateOrAssigned?: string;
-    category?: string;
-    workflow?: string;
-    descSort?: SortObject;
-    desc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
-    orderByValue?: string;
-    sort?: SortObject;
-}
-
-export interface PaginationDTOCmmnTaskDTO {
-    entryList?: CmmnTaskDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOCmmnTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOCmmnTaskDTO;
-    messageKey?: string;
-    locale?: string;
+    outRequestNo?: string;
+    module?: string;
+    documentIds?: string;
 }
 
 export interface CapturePromptTemplateSettingRequestDTO {
@@ -11713,8 +9825,8 @@ export interface CaptureProjFormSettingRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11803,8 +9915,8 @@ export interface CaptureProjRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12009,8 +10121,8 @@ export interface CaptureQueryBatchListRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12351,9 +10463,9 @@ export interface PageBusinessResultRecord {
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
-    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -12424,100 +10536,6 @@ export interface ResultPaginationDTOWhatsAppLogDTO {
     locale?: string;
 }
 
-export interface DocumentTypeMetadataMapping {
-    /** @format int64 */
-    id?: number;
-    name?: string;
-    metaDataMapper?: string;
-    /** @format int32 */
-    version?: number;
-    createUserId?: string;
-    createUserName?: string;
-    /** @format date-time */
-    createTime?: string;
-    updateUserId?: string;
-    updateUserName?: string;
-    /** @format date-time */
-    updateTime?: string;
-}
-
-export interface DocPalDocumentType {
-    /** @format int64 */
-    id?: number;
-    name?: string;
-    metaDataMapper?: Record<string, string>;
-}
-
-export interface DocPalDocumentTypeMapping {
-    documentType?: DocPalDocumentType[];
-}
-
-export interface ResultListDocumentTypeMetadataMapping {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeMetadataMapping[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface DocumentTypeProfileSettingRequest {
-    /** @format int64 */
-    id?: number;
-    documentType?: string;
-    profileID?: string;
-    profileName?: string;
-    rootPath?: string;
-    folder?: Folder;
-    /** @format int32 */
-    version?: number;
-    createUserId?: string;
-    createUserName?: string;
-    /** @format date-time */
-    createTime?: string;
-    updateUserId?: string;
-    updateUserName?: string;
-    /** @format date-time */
-    updateTime?: string;
-}
-
-export interface Folder {
-    name?: string;
-    title?: string;
-    folder?: any;
-}
-
-export interface DocumentTypeProfileSetting {
-    /** @format int64 */
-    id?: number;
-    documentType?: string;
-    profileID?: string;
-    profileName?: string;
-    rootPath?: string;
-    folder?: string;
-    /** @format int32 */
-    version?: number;
-    createUserId?: string;
-    createUserName?: string;
-    /** @format date-time */
-    createTime?: string;
-    updateUserId?: string;
-    updateUserName?: string;
-    /** @format date-time */
-    updateTime?: string;
-}
-
-export interface ResultDocumentTypeProfileSetting {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeProfileSetting;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultWatermarkSettingsDTO {
     result?: boolean;
     /** @format int32 */
@@ -12568,8 +10586,8 @@ export interface MessageTemplateRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12898,8 +10916,8 @@ export interface QueryMetadataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -12921,7 +10939,7 @@ export interface MetadataResponseVO {
         | TextValidation
         | UserRoleUserGroupValidation
         | UserValidation
-        | WorkflowValidation;
+        | WFlowValidation;
     maskRule?: MetadataMaskRuleDTO;
 }
 
@@ -12975,8 +10993,8 @@ export interface MetadataRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -13104,8 +11122,8 @@ export interface DocPalTypeRequestDTO {
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -13168,72 +11186,6 @@ export interface MoveMetadataRequestDTO {
     metadataId?: string;
     /** @format int32 */
     moveIndex?: number;
-}
-
-/** Case Instance Process Instance Information */
-export interface CmmnProcessInstanceDTO {
-    /** process Instance ID */
-    processInstanceId?: string;
-    /** Business Key */
-    businessKey?: string;
-    /** Task ID */
-    taskId?: string;
-    /** is complete state */
-    complete?: boolean;
-    /** process Instance state */
-    state?: string;
-    /** Assigned user of current task */
-    assignedUser?: string;
-    /** Error Message */
-    errorMsg?: string;
-    /** Process Instance */
-    instance?: InstanceDTO;
-    tasks?: TaskDTO[];
-    /** process Instance ID */
-    caseInstanceId?: string;
-    /**
-     * Start Time
-     * @format date-time
-     */
-    startTime?: string;
-    /**
-     * End Time
-     * @format date-time
-     */
-    endTime?: string;
-    /** Start UserId */
-    startUserId?: string;
-    /** Process Definition Id */
-    processDefinitionId?: string;
-    /** Process Definition Key */
-    processDefinitionKey?: string;
-    /** Process Definition Name */
-    processDefinitionName?: string;
-    /** Process Definition Deployment Id */
-    deploymentId?: string;
-}
-
-export interface PaginationDTOCmmnProcessInstanceDTO {
-    entryList?: CmmnProcessInstanceDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOCmmnProcessInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOCmmnProcessInstanceDTO;
-    messageKey?: string;
-    locale?: string;
 }
 
 export interface UpdatePasswordDTO {
@@ -13369,55 +11321,6 @@ export interface StatusRequest {
     reason?: string;
 }
 
-export interface ResultListUserTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: UserTaskDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** BPMN Dynamic Form Information DTO */
-export interface BpmnDynamicFormDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    properties?: FormPropertyDTO[];
-}
-
-export interface ResultListBpmnDynamicFormDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: BpmnDynamicFormDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultBpmnDynamicFormDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** BPMN Dynamic Form Information DTO */
-    data?: BpmnDynamicFormDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListProcessDefinitionDraft {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionDraft[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultListPackingListLineItemVO {
     result?: boolean;
     /** @format int32 */
@@ -13456,14 +11359,59 @@ export interface ResultListPackingListBatchVO {
     locale?: string;
 }
 
+export interface GITInvoiceDTO {
+    items?: GITInvoiceLineItemDTO[];
+    kwempty?: boolean;
+    submitted?: boolean;
+    id?: string;
+    git_invoice_file_id?: string;
+    batch_no?: string;
+    group_id?: string;
+    git_date?: string;
+    invoice_num?: string;
+    /** @format int32 */
+    vendor_id?: number;
+    vendor_name?: string;
+    currency?: string;
+    org?: string;
+    /** @format int32 */
+    org_id?: number;
+    brand?: string;
+    office?: string;
+    payment_type?: string;
+    additional_cost?: string;
+    invoice_date?: string;
+    file_id?: string;
+    file_name?: string;
+    /** @format int32 */
+    total_qty?: number;
+    total_amount?: number;
+    calc_total_amt?: number;
+    cal_total_amount_from_line?: number;
+    git_status?: string;
+    /** @format int32 */
+    line_success?: number;
+    check_empty?: boolean;
+}
+
+export interface ResultListGITInvoiceDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GITInvoiceDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface PageSearchHistory {
     /** @format int32 */
     totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
-    pageable?: PageableObject;
     first?: boolean;
     last?: boolean;
     /** @format int32 */
@@ -13543,6 +11491,27 @@ export interface ResultPasswordConfigDTO {
     data?: PasswordConfigDTO;
     messageKey?: string;
     locale?: string;
+}
+
+/** Get quotation form */
+export interface QuotationFormGetResponseDTO {
+    /** Header status label */
+    status?: string;
+    /** Quotation header for submit */
+    header?: QuotationHeaderRequestDTO;
+    lines?: QuotationLineRequestDTO[];
+}
+
+/** Query PI invoice detail */
+export interface PiInvoiceQueryResponseDTO {
+    pi_invoice_number?: string;
+    customer_number?: string;
+    customer_name?: string;
+    /** @format date */
+    old_plan_date?: string;
+    brand?: string;
+    /** @format int64 */
+    org_id?: number;
 }
 
 export interface ResultListAclUserRelationshipWithUserGroup {
@@ -14013,25 +11982,6 @@ export interface ResultAzureOcrSettingDTO {
     code?: number;
     message?: string;
     data?: AzureOcrSettingDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface AdhocRecordResp {
-    histories?: AdhocRecord[];
-    pendingRecord?: AdhocRecord;
-    id?: string;
-    approvedDate?: string;
-    documentApprovalVersion?: string;
-    approvedBy?: string;
-}
-
-export interface ResultAdhocRecordResp {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: AdhocRecordResp;
     messageKey?: string;
     locale?: string;
 }
@@ -14516,6 +12466,31 @@ export interface ResultListFormDesignResponseDTO {
     locale?: string;
 }
 
+/** Form Property */
+export interface FormPropertyDTO {
+    /** Property Key */
+    id?: string;
+    /** Property Name */
+    name?: string;
+    /** Property Type */
+    type?: string;
+    /** Property Value */
+    value?: string;
+    /** Is Property Readable */
+    readable?: boolean;
+    /** Is Property Required */
+    required?: boolean;
+    /** Is Property Writable */
+    writable?: boolean;
+    /** Enum Options */
+    options?: Record<string, string>;
+    /**
+     * time
+     * @format date-time
+     */
+    time?: string;
+}
+
 /** Process Definition ResponseDTO */
 export interface PDResponseDTO {
     key?: string;
@@ -14565,7 +12540,7 @@ export interface MetadataValidDTO {
         | TextValidation
         | UserRoleUserGroupValidation
         | UserValidation
-        | WorkflowValidation;
+        | WFlowValidation;
 }
 
 export interface ResultListMetadataValidDTO {
@@ -14698,361 +12673,6 @@ export interface ResultListDocumentACLEntryDTO {
     code?: number;
     message?: string;
     data?: DocumentACLEntryDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListCaseType {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseType[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListCmmnVersion {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnVersion[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListPlanItemDefinitionDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PlanItemDefinitionDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultCmmnPlanFormDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case Model Plan Form DTO */
-    data?: CmmnPlanFormDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListPlanTableFieldDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PlanTableFieldDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListCaseTable {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseTable[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CmmnInstance {
-    id?: string;
-    procInstId?: string;
-    caseId?: string;
-    caseTypeId?: string;
-    deploymentId?: string;
-    cmmnVersionId?: string;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultListCmmnInstance {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnInstance[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case Model Data Permission DTO */
-export interface CmmnDataFilterPermission {
-    /** Bind Business Id */
-    bindId?: string;
-    /** Bind Business Type */
-    bindType?: string;
-    /**
-     * User Group Id
-     * @deprecated
-     */
-    userGroupId?: string;
-    /** metadata */
-    metadata?: string;
-    /** Condition Type */
-    conditionType?: string;
-    /** Field Value */
-    fieldValue?: string;
-    /** Field Mapping Id */
-    fieldMappingId?: string;
-}
-
-/** Case Model Deployment DTO */
-export interface CmmnDeploymentDTO {
-    id?: string;
-    name?: string;
-    category?: string;
-    key?: string;
-    caseDefinitionId?: string;
-    parentDeploymentId?: string;
-    /** @format date-time */
-    deploymentTime?: string;
-    newState?: boolean;
-    derivedFrom?: string;
-    derivedFromRoot?: string;
-    engineVersion?: string;
-    inserted?: boolean;
-    idPrefix?: string;
-    updated?: boolean;
-    deleted?: boolean;
-    primaryForm?: string;
-    caseTables?: CmmnPlanFormDTO[];
-    permissions?: CmmnPlanPermissionDTO[];
-}
-
-/** Case Model Plan Permission DTO */
-export interface CmmnPlanPermissionDTO {
-    ref?: string;
-    referenceTable?: string;
-    name?: string;
-    group?: string;
-    role?: string;
-    dataPermissions?: PlanTableFieldDTO[];
-    filterPermissions?: CmmnDataFilterPermission[];
-}
-
-export interface ResultCmmnDeploymentDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case Model Deployment DTO */
-    data?: CmmnDeploymentDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListCmmnPlanFormDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnPlanFormDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListUserEventInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: UserEventInstanceDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case User Event InstanceDTO */
-export interface UserEventInstanceDTO {
-    id?: string;
-    name?: string;
-    elementId?: string;
-    caseInstanceId?: string;
-    caseDefinitionId?: string;
-    planItemDefinitionId?: string;
-    stageInstanceId?: string;
-    state?: string;
-}
-
-export interface CaseFormFieldData {
-    id?: string;
-    name?: string;
-    type?: string;
-    value?: any;
-    masterTable?: string;
-    documentType?: string;
-    displayField?: string;
-    vocabulary?: string;
-    require?: string;
-    readOnly?: string;
-}
-
-/** Case Model Form Data DTO */
-export interface CaseInstanceFormDataDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    casetable?: string;
-    fields?: PlanTableFieldDTO[];
-    rows?: CaseFormFieldData[];
-}
-
-export interface ResultCaseInstanceFormDataDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case Model Form Data DTO */
-    data?: CaseInstanceFormDataDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case Model Information DTO */
-export interface CaseDefinitionDTO {
-    id?: string;
-    category?: string;
-    name?: string;
-    key?: string;
-    description?: string;
-    /** @format int32 */
-    version?: number;
-    resourceName?: string;
-    deploymentId?: string;
-    diagramResourceName?: string;
-    tenantId?: string;
-    primaryForm?: string;
-    planForms?: CmmnPlanFormDTO[];
-    planItems?: {
-        /** PlanItem Definition Id */
-        key?: string;
-        /** PlanItem Definition Name */
-        name?: string;
-        /** PlanItem Definition Type */
-        type?: string;
-        /** PlanItem Definition ParentId */
-        parent?: string;
-        /** PlanItem Definition criterion */
-        criterion?: Record<string, string>;
-        /** PlanItem Definition Rules or Behavior */
-        rules?: Record<string, any>;
-        /** PlanItem Definition Sub-List */
-        subItems?: any[];
-        fields?: PlanTableFieldDTO[];
-        upProcessTaskKey?: string;
-        assigneeField?: PlanTableFieldDTO;
-        isStartTask?: boolean;
-        upFormProperties?: FormPropertyDTO[];
-    }[];
-    permissions?: CmmnPlanPermissionDTO[];
-}
-
-export interface ResultListCaseDefinitionDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseDefinitionDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListCaseInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseInstanceDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultCmmnInstance {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnInstance;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CmmnDashboardDTO {
-    id?: string;
-    caseTypeId?: string;
-    deploymentId?: string;
-    cmmnVersionId?: string;
-    label?: string;
-    /** @deprecated */
-    userGroup?: string;
-    permissions?: BasicField[];
-    status?: string;
-    styleJson?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    caseDefinitionKey?: string;
-}
-
-export interface ResultListCmmnDashboardDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnDashboardDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** case instance activity item */
-export interface CmmnActivityItem {
-    id?: string;
-    name?: string;
-    planItemDefinitionId?: string;
-    planItemDefinitionType?: string;
-    state?: string;
-    /** @format date-time */
-    completedTime?: string;
-    /** @format date-time */
-    createTime?: string;
-    /** @format date-time */
-    endedTime?: string;
-    /** @format date-time */
-    occurredTime?: string;
-}
-
-export interface ResultListCmmnActivityItem {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnActivityItem[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListCmmnDashboard {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CmmnDashboard[];
     messageKey?: string;
     locale?: string;
 }
@@ -15232,38 +12852,6 @@ export interface ResultAiChatInitInfoVO {
     locale?: string;
 }
 
-/** Process Instance Information */
-export interface ProcessInstanceDTO {
-    /** process Instance ID */
-    processInstanceId?: string;
-    /** Business Key */
-    businessKey?: string;
-    /** Task ID */
-    taskId?: string;
-    /** is complete state */
-    complete?: boolean;
-    /** process Instance state */
-    state?: string;
-    /** Assigned user of current task */
-    assignedUser?: string;
-    /** Error Message */
-    errorMsg?: string;
-    /** Process Instance */
-    instance?: InstanceDTO;
-    tasks?: TaskDTO[];
-}
-
-export interface ResultProcessInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Process Instance Information */
-    data?: ProcessInstanceDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultListBusinessResultRecord {
     result?: boolean;
     /** @format int32 */
@@ -15296,8 +12884,6 @@ export interface MQConsumeGroupStatusDTO {
     pending?: number;
     completed?: number;
     finish?: number;
-    create?: number;
-    pending?: number;
     error?: number;
 }
 
@@ -15370,36 +12956,6 @@ export interface ResultAzureSettingDTO {
     code?: number;
     message?: string;
     data?: AzureSettingDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListLong {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: number[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListDocumentTypeProfileSetting {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeProfileSetting[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultMapStringListMapStringString {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, Record<string, string>[]>;
     messageKey?: string;
     locale?: string;
 }
@@ -15577,34 +13133,6 @@ export interface Link {
     templated?: boolean;
 }
 
-/** Delete Workflow (Request) */
-export interface DeleteWorkflowReq {
-    /** Process Business Key */
-    businessKey?: string;
-    /** Process Instance Id */
-    processInstanceId?: string;
-    /** Start User Id */
-    startUserId?: string;
-    /** Assigned User ID */
-    assignee?: string;
-    /** Relation User ID */
-    relationUserId?: string;
-    /** Task ID */
-    taskId?: string;
-    /** Task Delete Reason */
-    deleteReason?: string;
-}
-
-export interface ResultListHistoricProcessInstanceEntityImpl {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: HistoricProcessInstanceEntityImpl[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** Batch delete request */
 export interface BatchDeleteRequestDTO {
     /**
@@ -15777,262 +13305,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Workflow Task
-         * @name GetWorkflowTaskCandidates
-         * @summary Retrieve task candidates
-         * @request GET:/api/workflow/task/candidates
-         */
-        getWorkflowTaskCandidates: (
-            query: {
-                taskId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/api/workflow/task/candidates`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskCandidates
-         * @summary Retrieve task candidates
-         * @request POST:/api/workflow/task/candidates
-         */
-        postWorkflowTaskCandidates: (
-            query: {
-                taskId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/api/workflow/task/candidates`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetWorkflowTaskCandidatesbytaskdefinitionkey
-         * @summary Retrieve task candidates by process task definition
-         * @request GET:/api/workflow/task/candidatesByTaskDefinitionKey
-         */
-        getWorkflowTaskCandidatesbytaskdefinitionkey: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/api/workflow/task/candidatesByTaskDefinitionKey`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskCandidatesbytaskdefinitionkey
-         * @summary Retrieve task candidates by process task definition
-         * @request POST:/api/workflow/task/candidatesByTaskDefinitionKey
-         */
-        postWorkflowTaskCandidatesbytaskdefinitionkey: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/api/workflow/task/candidatesByTaskDefinitionKey`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetWorkflowTaskAttachment
-         * @summary Download task attachment
-         * @request GET:/api/workflow/task/attachment
-         */
-        getWorkflowTaskAttachment: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/workflow/task/attachment`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PutWorkflowTaskAttachment
-         * @request PUT:/api/workflow/task/attachment
-         */
-        putWorkflowTaskAttachment: (
-            data: {
-                attachmentId: string;
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultFileDTO, any>({
-                path: `/api/workflow/task/attachment`,
-                method: "PUT",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskAttachment
-         * @summary Download task attachment
-         * @request POST:/api/workflow/task/attachment
-         */
-        postWorkflowTaskAttachment: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/workflow/task/attachment`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name DeleteWorkflowTaskAttachment
-         * @summary Delete an attachment
-         * @request DELETE:/api/workflow/task/attachment
-         */
-        deleteWorkflowTaskAttachment: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/workflow/task/attachment`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetWorkflowTaskAttachmentPreview
-         * @summary Download task attachment preview
-         * @request GET:/api/workflow/task/attachment/preview
-         */
-        getWorkflowTaskAttachmentPreview: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/workflow/task/attachment/preview`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskAttachmentPreview
-         * @summary Download task attachment preview
-         * @request POST:/api/workflow/task/attachment/preview
-         */
-        postWorkflowTaskAttachmentPreview: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/workflow/task/attachment/preview`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetWorkflowTaskAttachmentInfo
-         * @summary Get the information about the uploaded file
-         * @request GET:/api/workflow/task/attachment/info
-         */
-        getWorkflowTaskAttachmentInfo: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultFileDTO, any>({
-                path: `/api/workflow/task/attachment/info`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskAttachmentInfo
-         * @summary Get the information about the uploaded file
-         * @request POST:/api/workflow/task/attachment/info
-         */
-        postWorkflowTaskAttachmentInfo: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultFileDTO, any>({
-                path: `/api/workflow/task/attachment/info`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Configuration
          * @name GetDsbConfigTypes
          * @summary Get all document types
@@ -16121,262 +13393,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Workflow Task
-         * @name GetDocpalWorkflowTaskCandidates
-         * @summary Retrieve task candidates
-         * @request GET:/api/docpal/workflow/task/candidates
-         */
-        getDocpalWorkflowTaskCandidates: (
-            query: {
-                taskId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/api/docpal/workflow/task/candidates`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskCandidates
-         * @summary Retrieve task candidates
-         * @request POST:/api/docpal/workflow/task/candidates
-         */
-        postDocpalWorkflowTaskCandidates: (
-            query: {
-                taskId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/api/docpal/workflow/task/candidates`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetDocpalWorkflowTaskCandidatesbytaskdefinitionkey
-         * @summary Retrieve task candidates by process task definition
-         * @request GET:/api/docpal/workflow/task/candidatesByTaskDefinitionKey
-         */
-        getDocpalWorkflowTaskCandidatesbytaskdefinitionkey: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/api/docpal/workflow/task/candidatesByTaskDefinitionKey`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskCandidatesbytaskdefinitionkey
-         * @summary Retrieve task candidates by process task definition
-         * @request POST:/api/docpal/workflow/task/candidatesByTaskDefinitionKey
-         */
-        postDocpalWorkflowTaskCandidatesbytaskdefinitionkey: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/api/docpal/workflow/task/candidatesByTaskDefinitionKey`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetDocpalWorkflowTaskAttachment
-         * @summary Download task attachment
-         * @request GET:/api/docpal/workflow/task/attachment
-         */
-        getDocpalWorkflowTaskAttachment: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/task/attachment`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PutDocpalWorkflowTaskAttachment
-         * @request PUT:/api/docpal/workflow/task/attachment
-         */
-        putDocpalWorkflowTaskAttachment: (
-            data: {
-                attachmentId: string;
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultFileDTO, any>({
-                path: `/api/docpal/workflow/task/attachment`,
-                method: "PUT",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskAttachment
-         * @summary Download task attachment
-         * @request POST:/api/docpal/workflow/task/attachment
-         */
-        postDocpalWorkflowTaskAttachment: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/task/attachment`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name DeleteDocpalWorkflowTaskAttachment
-         * @summary Delete an attachment
-         * @request DELETE:/api/docpal/workflow/task/attachment
-         */
-        deleteDocpalWorkflowTaskAttachment: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/task/attachment`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetDocpalWorkflowTaskAttachmentPreview
-         * @summary Download task attachment preview
-         * @request GET:/api/docpal/workflow/task/attachment/preview
-         */
-        getDocpalWorkflowTaskAttachmentPreview: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/task/attachment/preview`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskAttachmentPreview
-         * @summary Download task attachment preview
-         * @request POST:/api/docpal/workflow/task/attachment/preview
-         */
-        postDocpalWorkflowTaskAttachmentPreview: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/task/attachment/preview`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetDocpalWorkflowTaskAttachmentInfo
-         * @summary Get the information about the uploaded file
-         * @request GET:/api/docpal/workflow/task/attachment/info
-         */
-        getDocpalWorkflowTaskAttachmentInfo: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultFileDTO, any>({
-                path: `/api/docpal/workflow/task/attachment/info`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskAttachmentInfo
-         * @summary Get the information about the uploaded file
-         * @request POST:/api/docpal/workflow/task/attachment/info
-         */
-        postDocpalWorkflowTaskAttachmentInfo: (
-            query: {
-                attachmentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultFileDTO, any>({
-                path: `/api/docpal/workflow/task/attachment/info`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
          * @name PutUcenterStatus
          * @summary Update User State
@@ -16388,6 +13404,62 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags QuotationFormController
+         * @name GetQuotationFormQuotationnumber
+         * @summary Get quotation form by quotation number
+         * @request GET:/api/quotation/form/{quotationNumber}
+         */
+        getQuotationFormQuotationnumber: (quotationNumber: string, params: RequestParams = {}) =>
+            this.request<QuotationFormGetResponseDTO, any>({
+                path: `/api/quotation/form/${quotationNumber}`,
+                method: "GET",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags QuotationFormController
+         * @name PutQuotationFormQuotationnumber
+         * @summary Update quotation by business action
+         * @request PUT:/api/quotation/form/{quotationNumber}
+         */
+        putQuotationFormQuotationnumber: (
+            quotationNumber: string,
+            data: QuotationFormUpdateRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/quotation/form/${quotationNumber}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PiInvoiceController
+         * @name PutPiInvoicesPlanDates
+         * @summary Batch update PI invoice plan dates
+         * @request PUT:/api/pi-invoices/plan-dates
+         */
+        putPiInvoicesPlanDates: (data: PiInvoicePlanDateUpdateRequestDTO, params: RequestParams = {}) =>
+            this.request<PiInvoicePlanDateUpdateResponseDTO, any>({
+                path: `/api/pi-invoices/plan-dates`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
                 ...params,
             }),
 
@@ -18572,130 +15644,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CaseTypeController
-         * @name GetCaseTypes
-         * @summary Retrieve all case types
-         * @request GET:/api/case/types
-         */
-        getCaseTypes: (
-            query?: {
-                name?: string;
-                deployed?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCaseType, any>({
-                path: `/api/case/types`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PutCaseTypes
-         * @summary Update case type
-         * @request PUT:/api/case/types
-         */
-        putCaseTypes: (data: CaseType, params: RequestParams = {}) =>
-            this.request<ResultCaseType, any>({
-                path: `/api/case/types`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypes
-         * @summary Create a new case type
-         * @request POST:/api/case/types
-         */
-        postCaseTypes: (data: CaseType, params: RequestParams = {}) =>
-            this.request<ResultCaseType, any>({
-                path: `/api/case/types`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PutCaseTypesEnable
-         * @summary Enable or Disable case type
-         * @request PUT:/api/case/types/enable
-         */
-        putCaseTypesEnable: (data: CaseType, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/types/enable`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PutCaseDashboard
-         * @summary Update case dashboard
-         * @request PUT:/api/case/dashboard
-         */
-        putCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboardResponseDTO, any>({
-                path: `/api/case/dashboard`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PostCaseDashboard
-         * @summary Create a new case dashboard
-         * @request POST:/api/case/dashboard
-         */
-        postCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboardResponseDTO, any>({
-                path: `/api/case/dashboard`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PutCaseDashboardStatus
-         * @summary Update status of case dashboard
-         * @request PUT:/api/case/dashboard/status
-         */
-        putCaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/dashboard/status`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags CaptureProjController
          * @name PutCaptureProj
          * @summary Update Capture Proj
@@ -18775,1224 +15723,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskUser
-         * @summary Retrieve tasks for the candidate users
-         * @request POST:/api/workflow/task/user
-         */
-        postWorkflowTaskUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOTaskDTO, any>({
-                path: `/api/workflow/task/user`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskUnclaim
-         * @summary Unclaim a task
-         * @request POST:/api/workflow/task/unclaim
-         */
-        postWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/workflow/task/unclaim`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskUnassigned
-         * @summary Retrieve unassigned task list
-         * @request POST:/api/workflow/task/unassigned
-         */
-        postWorkflowTaskUnassigned: (params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/api/workflow/task/unassigned`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskPropertiesSave
-         * @summary Save task form properties
-         * @request POST:/api/workflow/task/properties/save
-         */
-        postWorkflowTaskPropertiesSave: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/workflow/task/properties/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskPersonal
-         * @summary Retrieve tasks for a user
-         * @request POST:/api/workflow/task/personal
-         */
-        postWorkflowTaskPersonal: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOTaskDTO, any>({
-                path: `/api/workflow/task/personal`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskMove
-         * @request POST:/api/workflow/task/move
-         */
-        postWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/task/move`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetWorkflowTaskList
-         * @request GET:/api/workflow/task/list
-         */
-        getWorkflowTaskList: (
-            query?: {
-                processInstanceId?: string;
-                userId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/api/workflow/task/list`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskList
-         * @summary Retrieve tasks for a process instance
-         * @request POST:/api/workflow/task/list
-         */
-        postWorkflowTaskList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/api/workflow/task/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetWorkflowTaskInfo
-         * @request GET:/api/workflow/task/info
-         */
-        getWorkflowTaskInfo: (
-            query?: {
-                processInstanceId?: string;
-                taskId?: string;
-                userId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/workflow/task/info`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskInfo
-         * @summary Retrieve a task
-         * @request POST:/api/workflow/task/info
-         */
-        postWorkflowTaskInfo: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/workflow/task/info`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskGroup
-         * @summary Retrieve tasks for the candidate group
-         * @request POST:/api/workflow/task/group
-         */
-        postWorkflowTaskGroup: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/api/workflow/task/group`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskFormSubmit
-         * @summary Submit a task form
-         * @request POST:/api/workflow/task/form/submit
-         */
-        postWorkflowTaskFormSubmit: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/task/form/submit`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskExport
-         * @request POST:/api/workflow/task/export
-         */
-        postWorkflowTaskExport: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/workflow/task/export`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskExportHeaders
-         * @request POST:/api/workflow/task/export-headers
-         */
-        postWorkflowTaskExportHeaders: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/workflow/task/export-headers`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskDuedate
-         * @summary Set task due date
-         * @request POST:/api/workflow/task/dueDate
-         */
-        postWorkflowTaskDuedate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/workflow/task/dueDate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Delegate task to another user
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskDelegate
-         * @request POST:/api/workflow/task/delegate
-         */
-        postWorkflowTaskDelegate: (
-            query: {
-                taskId: string;
-                userId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/task/delegate`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskDataSubmit
-         * @request POST:/api/workflow/task/data/submit
-         */
-        postWorkflowTaskDataSubmit: (
-            data: {
-                workflow: string;
-                files: File[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultVoid, any>({
-                path: `/api/workflow/task/data/submit`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskDataSave
-         * @request POST:/api/workflow/task/data/save
-         */
-        postWorkflowTaskDataSave: (
-            data: {
-                workflow: string;
-                files: File[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<Result, any>({
-                path: `/api/workflow/task/data/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskComplete
-         * @summary Complete a task
-         * @request POST:/api/workflow/task/complete
-         */
-        postWorkflowTaskComplete: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/workflow/task/complete`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskClaim
-         * @summary Claim a task
-         * @request POST:/api/workflow/task/claim
-         */
-        postWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/workflow/task/claim`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostWorkflowTaskAssign
-         * @summary Assign task to a user
-         * @request POST:/api/workflow/task/assign
-         */
-        postWorkflowTaskAssign: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/workflow/task/assign`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceUploadFiles
-         * @summary Upload multiple files in the document repository
-         * @request POST:/api/workflow/instance/upload/files
-         */
-        postWorkflowInstanceUploadFiles: (
-            data: {
-                document: string;
-                files?: File[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentDTO, any>({
-                path: `/api/workflow/instance/upload/files`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceUploadFile
-         * @summary Upload single file in the document repository
-         * @request POST:/api/workflow/instance/upload/file
-         */
-        postWorkflowInstanceUploadFile: (
-            data: {
-                document: string;
-                /** @format binary */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultDocumentDTO, any>({
-                path: `/api/workflow/instance/upload/file`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProperties
-         * @summary Retrieve task form properties
-         * @request POST:/api/workflow/instance/properties
-         */
-        postWorkflowInstanceProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/workflow/instance/properties`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcess
-         * @summary Retrieve process definition
-         * @request POST:/api/workflow/instance/process
-         */
-        postWorkflowInstanceProcess: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionDTO, any>({
-                path: `/api/workflow/instance/process`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name DeleteWorkflowInstanceProcess
-         * @request DELETE:/api/workflow/instance/process
-         */
-        deleteWorkflowInstanceProcess: (
-            query?: {
-                processInstanceId?: string;
-                /** @format date-time */
-                createdDate?: string;
-                /** @format date-time */
-                endedDate?: string;
-                completed?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListInstanceDTO, any>({
-                path: `/api/workflow/instance/process`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessStart
-         * @summary Start a new process instance
-         * @request POST:/api/workflow/instance/process/start
-         */
-        postWorkflowInstanceProcessStart: (
-            data: WorkflowRequestDTO,
-            query?: {
-                async?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/workflow/instance/process/start`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessModel
-         * @summary Retrieve process model (BPMN) XML
-         * @request POST:/api/workflow/instance/process/model
-         */
-        postWorkflowInstanceProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/workflow/instance/process/model`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessMessage
-         * @request POST:/api/workflow/instance/process/message
-         */
-        postWorkflowInstanceProcessMessage: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInstanceDTO, any>({
-                path: `/api/workflow/instance/process/message`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessList
-         * @summary Retrieve process definition
-         * @request POST:/api/workflow/instance/process/list
-         */
-        postWorkflowInstanceProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
-                path: `/api/workflow/instance/process/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessInstance
-         * @request POST:/api/workflow/instance/process/instance
-         */
-        postWorkflowInstanceProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListInstanceDTO, any>({
-                path: `/api/workflow/instance/process/instance`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name DeleteWorkflowInstanceProcessInstance
-         * @request DELETE:/api/workflow/instance/process/instance
-         */
-        deleteWorkflowInstanceProcessInstance: (
-            query: {
-                processInstanceId: string;
-                userId: string;
-                deleteReason?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListHistoricProcessInstanceEntityImpl, any>({
-                path: `/api/workflow/instance/process/instance`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessConditionValidate
-         * @request POST:/api/workflow/instance/process/condition/validate
-         */
-        postWorkflowInstanceProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/instance/process/condition/validate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessCombineList
-         * @request POST:/api/workflow/instance/process/combine/list
-         */
-        postWorkflowInstanceProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
-                path: `/api/workflow/instance/process/combine/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessBulkUploadFiles
-         * @request POST:/api/workflow/instance/process/bulk-upload/files
-         */
-        postWorkflowInstanceProcessBulkUploadFiles: (
-            query: {
-                processInstanceId: string;
-            },
-            data: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<Result, any>({
-                path: `/api/workflow/instance/process/bulk-upload/files`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceProcessActive
-         * @request POST:/api/workflow/instance/process/active
-         */
-        postWorkflowInstanceProcessActive: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOInstanceDTO, any>({
-                path: `/api/workflow/instance/process/active`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceJobsIdFail
-         * @request POST:/api/workflow/instance/jobs/{id}/fail
-         */
-        postWorkflowInstanceJobsIdFail: (id: number, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/workflow/instance/jobs/${id}/fail`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceJobsPage
-         * @request POST:/api/workflow/instance/jobs/page
-         */
-        postWorkflowInstanceJobsPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWorkflowRetryManagerDTO, any>({
-                path: `/api/workflow/instance/jobs/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name PostWorkflowInstanceHistoryVariable
-         * @summary Retrieve task variable history
-         * @request POST:/api/workflow/instance/history/variable
-         */
-        postWorkflowInstanceHistoryVariable: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultList, any>({
-                path: `/api/workflow/instance/history/variable`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name PostWorkflowInstanceHistoryTask
-         * @summary Retrieve task history
-         * @request POST:/api/workflow/instance/history/task
-         */
-        postWorkflowInstanceHistoryTask: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/workflow/instance/history/task`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name PostWorkflowInstanceHistoryTaskLogs
-         * @summary Retrieve task log history
-         * @request POST:/api/workflow/instance/history/task/logs
-         */
-        postWorkflowInstanceHistoryTaskLogs: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultList, any>({
-                path: `/api/workflow/instance/history/task/logs`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name PostWorkflowInstanceHistoryTaskPage
-         * @request POST:/api/workflow/instance/history/task/page
-         */
-        postWorkflowInstanceHistoryTaskPage: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOHistoricProcessInstanceEntityImpl, any>({
-                path: `/api/workflow/instance/history/task/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name PostWorkflowInstanceHistoryProcessWithoutVariables
-         * @request POST:/api/workflow/instance/history/process_without_variables
-         */
-        postWorkflowInstanceHistoryProcessWithoutVariables: (
-            data: WorkflowHistoryRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOHistoricProcessInstanceEntityImpl, any>({
-                path: `/api/workflow/instance/history/process_without_variables`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name PostWorkflowInstanceHistoryProcess
-         * @summary Get workflow process history
-         * @request POST:/api/workflow/instance/history/process
-         */
-        postWorkflowInstanceHistoryProcess: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOHistoricProcessInstanceEntityImpl, any>({
-                path: `/api/workflow/instance/history/process`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name PostWorkflowInstanceHistoryExportProcess
-         * @request POST:/api/workflow/instance/history/export-process
-         */
-        postWorkflowInstanceHistoryExportProcess: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/workflow/instance/history/export-process`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name PostWorkflowInstanceHistoryActivity
-         * @summary Retrieve workflow activity history
-         * @request POST:/api/workflow/instance/history/activity
-         */
-        postWorkflowInstanceHistoryActivity: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/workflow/instance/history/activity`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostWorkflowInstanceFilesUpload
-         * @summary Upload multiple file to flowable table
-         * @request POST:/api/workflow/instance/files/upload
-         */
-        postWorkflowInstanceFilesUpload: (
-            data: {
-                /** @format binary */
-                files?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFileDTO, any>({
-                path: `/api/workflow/instance/files/upload`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionVersionVersionidDeploy
-         * @summary Promote to Production - Deploy the current version to production for used it
-         * @request POST:/api/workflow/definition/version/{versionId}/deploy
-         */
-        postWorkflowDefinitionVersionVersionidDeploy: (
-            versionId: string,
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                jsonValue?: stringJson;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/workflow/definition/version/${versionId}/deploy`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionVersionReplaceDraft
-         * @summary Save to Draft
-         * @request POST:/api/workflow/definition/version/replace/draft
-         */
-        postWorkflowDefinitionVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/definition/version/replace/draft`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionVersionPage
-         * @summary Pagination search of process definition version
-         * @request POST:/api/workflow/definition/version/page
-         */
-        postWorkflowDefinitionVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOProcessDefinitionVersion, any>({
-                path: `/api/workflow/definition/version/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionVersionNew
-         * @summary Save New Version of process definition
-         * @request POST:/api/workflow/definition/version/new
-         */
-        postWorkflowDefinitionVersionNew: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/api/workflow/definition/version/new`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionValidate
-         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
-         * @request POST:/api/workflow/definition/validate
-         */
-        postWorkflowDefinitionValidate: (
-            query: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/workflow/definition/validate`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionUpload
-         * @summary Create new workflow (process definition)
-         * @request POST:/api/workflow/definition/upload
-         */
-        postWorkflowDefinitionUpload: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                name?: string;
-                /** @format string */
-                key?: string;
-                /** @format boolean */
-                isDraft?: boolean;
-                /**
-                 * @format string
-                 * @default "V1"
-                 */
-                versionId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/workflow/definition/upload`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionSave
-         * @summary Save workflow of someone version
-         * @request POST:/api/workflow/definition/save
-         */
-        postWorkflowDefinitionSave: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                name?: string;
-                /** @format string */
-                key?: string;
-                /** @format boolean */
-                isDraft?: boolean;
-                /** @format string */
-                versionId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/workflow/definition/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionParse
-         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
-         * @request POST:/api/workflow/definition/parse
-         */
-        postWorkflowDefinitionParse: (
-            query: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/definition/parse`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionDraftDraftidJson
-         * @summary Get json of process definition
-         * @request GET:/api/workflow/definition/draft/{draftId}/json
-         */
-        getWorkflowDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/workflow/definition/draft/${draftId}/json`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionDraftDraftidJson
-         * @summary Update json of process definition, please use string json
-         * @request POST:/api/workflow/definition/draft/{draftId}/json
-         */
-        postWorkflowDefinitionDraftDraftidJson: (
-            draftId: string,
-            data: ProcessDefinitionDraft,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/workflow/definition/draft/${draftId}/json`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionDraftDraftidImport
-         * @summary Import zip file for create new process definition
-         * @request POST:/api/workflow/definition/draft/{draftId}/import
-         */
-        postWorkflowDefinitionDraftDraftidImport: (
-            draftId: string,
-            data: {
-                /** @format string */
-                draftId?: string;
-                /** @format binary */
-                file?: File;
-                versionNumber?: string;
-            },
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/workflow/definition/draft/${draftId}/import`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionDraftDraftidExport
-         * @summary Export process definition
-         * @request POST:/api/workflow/definition/draft/{draftId}/export
-         */
-        postWorkflowDefinitionDraftDraftidExport: (
-            draftId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/workflow/definition/draft/${draftId}/export`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionDraftPage
-         * @summary Pagination search of process definition model
-         * @request POST:/api/workflow/definition/draft/page
-         */
-        postWorkflowDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOProcessDefinitionDraft, any>({
-                path: `/api/workflow/definition/draft/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionCopyCopiedkey
-         * @summary Copy workflow (process definition)
-         * @request POST:/api/workflow/definition/copy/{copiedKey}
-         */
-        postWorkflowDefinitionCopyCopiedkey: (
-            copiedKey: string,
-            data: WorkflowDraftRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/workflow/definition/copy/${copiedKey}`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionCopyFromFlowable
-         * @summary Data Patch API
-         * @request POST:/api/workflow/definition/copy/from/flowable
-         */
-        postWorkflowDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/workflow/definition/copy/from/flowable`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostWorkflowDefinitionActiveDraftid
-         * @request POST:/api/workflow/definition/active/{draftId}
-         */
-        postWorkflowDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/definition/active/${draftId}`,
-                method: "POST",
                 ...params,
             }),
 
@@ -20125,6 +15855,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags supplier-controller
+         * @name PostWmsSuppliersBatch
+         * @request POST:/api/wms/suppliers/batch
+         */
+        postWmsSuppliersBatch: (data: Supplier[], params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/suppliers/batch`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags ReceivingOrderController
          * @name PostWmsReceiveOrderSupplierInvoice
          * @request POST:/api/wms/receive/order/supplier/invoice
@@ -20132,6 +15878,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postWmsReceiveOrderSupplierInvoice: (data: OracleDataRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListPOInvoiceVO, any>({
                 path: `/api/wms/receive/order/supplier/invoice`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ReceivingOrderController
+         * @name PostWmsReceiveOrderSupplementInvoice
+         * @request POST:/api/wms/receive/order/supplement/invoice
+         */
+        postWmsReceiveOrderSupplementInvoice: (data: OracleDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListPIPartNoMapping, any>({
+                path: `/api/wms/receive/order/supplement/invoice`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20229,6 +15991,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags wms-picking-order-controller
+         * @name PostWmsPickingOrdersDeliveryOrder
+         * @request POST:/api/wms/picking-orders/delivery-order
+         */
+        postWmsPickingOrdersDeliveryOrder: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultListWMSScheduleDeliveryOrder, any>({
+                path: `/api/wms/picking-orders/delivery-order`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
          * @name GetWmsPickingOrdersCancelled
          * @summary Query cancelled Picking Order Data
          * @request GET:/api/wms/picking-orders/cancelled
@@ -20251,6 +16029,38 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postWmsPickingOrdersCancelled: (data: WMSPickingOrderReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/api/wms/picking-orders/cancelled`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name PostWmsPickingOrdersAsyncData
+         * @request POST:/api/wms/picking-orders/async-data
+         */
+        postWmsPickingOrdersAsyncData: (data: WMSPickingOrderReq, params: RequestParams = {}) =>
+            this.request<ResultListWMSPickingOrder, any>({
+                path: `/api/wms/picking-orders/async-data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-picking-order-controller
+         * @name PostWmsPickingOrdersApprovedTransferNote
+         * @request POST:/api/wms/picking-orders/approved-transfer-note
+         */
+        postWmsPickingOrdersApprovedTransferNote: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultListWMSScheduleTransactionNote, any>({
+                path: `/api/wms/picking-orders/approved-transfer-note`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20297,55 +16107,28 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags wms-packing-order-controller
+         * @name PostWmsPackingOrderPartnoMapping
+         * @request POST:/api/wms/packing-order/partNo-mapping
+         */
+        postWmsPackingOrderPartnoMapping: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultListPIPartNoMapping, any>({
+                path: `/api/wms/packing-order/partNo-mapping`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-packing-order-controller
          * @name PostWmsPackingOrderCompare
          * @request POST:/api/wms/packing-order/compare
          */
-        postWmsInventoryLots: (
-            query: {
-                partNo: string;
-            },
-            data: AddInventoryLotRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultWMSInventoryLot, any>({
-                path: `/api/wms/inventory/lots`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name GetWmsInventoryLotSources
-         * @request GET:/api/wms/inventory-lot-sources
-         */
-        getWmsInventoryLotSources: (
-            query: {
-                receivingInvoiceItemId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name PostWmsInventoryLotSources
-         * @request POST:/api/wms/inventory-lot-sources
-         */
-        postWmsInventoryLotSources: (data: WMSInventoryLotSource, params: RequestParams = {}) =>
-            this.request<ResultWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources`,
+        postWmsPackingOrderCompare: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListPICompareRespDTO, any>({
+                path: `/api/wms/packing-order/compare`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20355,16 +16138,94 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags wms-inventory-lot-source-controller
-         * @name PostWmsInventoryLotSourcesPage
-         * @request POST:/api/wms/inventory-lot-sources/page
+         * @tags wms-organization-controller
+         * @name PostWmsOrganizationOrg
+         * @request POST:/api/wms/organization/org
          */
-        postWmsInventoryLotSourcesPage: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources/page`,
+        postWmsOrganizationOrg: (data: OracleConfig, params: RequestParams = {}) =>
+            this.request<ResultOracleConfig, any>({
+                path: `/api/wms/organization/org`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGitMatchDataController
+         * @name PostWmsGitInvoiceIdItemAdd
+         * @request POST:/api/wms/git-invoice/{id}/item/add
+         */
+        postWmsGitInvoiceIdItemAdd: (id: string, data: GITInvoiceLineItemDTO, params: RequestParams = {}) =>
+            this.request<ResultGITInvoiceLineItemDTO, any>({
+                path: `/api/wms/git-invoice/${id}/item/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGitMatchDataController
+         * @name PostWmsGitInvoiceUpdate
+         * @request POST:/api/wms/git-invoice/update
+         */
+        postWmsGitInvoiceUpdate: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultGITInvoice, any>({
+                path: `/api/wms/git-invoice/update`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGitMatchDataController
+         * @name PostWmsGitInvoiceMatching
+         * @request POST:/api/wms/git-invoice/matching
+         */
+        postWmsGitInvoiceMatching: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultGITInvoice, any>({
+                path: `/api/wms/git-invoice/matching`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGitMatchDataController
+         * @name PostWmsGitInvoiceGroupId
+         * @request POST:/api/wms/git-invoice/group-id
+         */
+        postWmsGitInvoiceGroupId: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultString, any>({
+                path: `/api/wms/git-invoice/group-id`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGitMatchDataController
+         * @name PostWmsGitInvoiceDatapatch
+         * @request POST:/api/wms/git-invoice/dataPatch
+         */
+        postWmsGitInvoiceDatapatch: (params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/wms/git-invoice/dataPatch`,
+                method: "POST",
                 ...params,
             }),
 
@@ -20788,6 +16649,24 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags QuotationFormController
+         * @name PostQuotationFormSubmit
+         * @summary Submit a new quotation form (create + enter approval)
+         * @request POST:/api/quotation/form/submit
+         */
+        postQuotationFormSubmit: (data: QuotationFormSubmitRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/quotation/form/submit`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
                 ...params,
             }),
 
@@ -22282,170 +18161,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Dashboard
-         * @name PostDsbWorkflowSpendTime
-         * @summary Workflow spend time
-         * @request POST:/api/dsb/workflow/spend-time
-         */
-        postDsbWorkflowSpendTime: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringInteger, any>({
-                path: `/api/dsb/workflow/spend-time`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name PostDsbWorkflowProcessList
-         * @request POST:/api/dsb/workflow/process/list
-         */
-        postDsbWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/dsb/workflow/process/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name PostDsbWorkflowProcessCombineList
-         * @request POST:/api/dsb/workflow/process/combine/list
-         */
-        postDsbWorkflowProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/dsb/workflow/process/combine/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name PostDsbWorkflowJobList
-         * @request POST:/api/dsb/workflow/job/list
-         */
-        postDsbWorkflowJobList: (data: WorkflowJobRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWorkflowJobOutlineDTO, any>({
-                path: `/api/dsb/workflow/job/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name PostDsbWorkflowJobListDeprecate
-         * @request POST:/api/dsb/workflow/job/list/
-         */
-        postDsbWorkflowJobListDeprecate: (data: WorkflowJobRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWorkflowJobOutlineDTO, any>({
-                path: `/api/dsb/workflow/job/list/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name PostDsbWorkflowJobFilterDataDeprecate
-         * @request POST:/api/dsb/workflow/job/filter-data/
-         */
-        postDsbWorkflowJobFilterDataDeprecate: (data: QueryWorkflowVariablesRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListWorkflowVariableDTO, any>({
-                path: `/api/dsb/workflow/job/filter-data/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name PostDsbWorkflowJobFilterData
-         * @request POST:/api/dsb/workflow/job/filter-data
-         */
-        postDsbWorkflowJobFilterData: (data: QueryWorkflowVariablesRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListWorkflowVariableDTO, any>({
-                path: `/api/dsb/workflow/job/filter-data`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Dashboard
-         * @name PostDsbWorkflowActiveList
-         * @summary Workflow active list
-         * @request POST:/api/dsb/workflow/active-list
-         */
-        postDsbWorkflowActiveList: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/dsb/workflow/active-list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Dashboard
-         * @name PostDsbWorkflowActivateTaskTrend
-         * @summary Workflow activate task trend
-         * @request POST:/api/dsb/workflow/activate-task-trend
-         */
-        postDsbWorkflowActivateTaskTrend: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultLinkedListDashboardWorkflowResponseDTO, any>({
-                path: `/api/dsb/workflow/activate-task-trend`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Dashboard
-         * @name PostDsbWorkflowActivateTaskSpendTime
-         * @summary Workflow activate task spend time
-         * @request POST:/api/dsb/workflow/activate-task-spend-time
-         */
-        postDsbWorkflowActivateTaskSpendTime: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringDouble, any>({
-                path: `/api/dsb/workflow/activate-task-spend-time`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags UserDashboardController
          * @name PostDsbUserDashboardsPage
          * @summary Pagination search
@@ -22573,23 +18288,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDsbOcrDailyScanTypeInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListOcrProcessedDetailDTO, any>({
                 path: `/api/dsb/ocr/daily-scan-type-info`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Dashboard
-         * @name PostDsbNewWorkflowCountTrend
-         * @summary New workflow count trend
-         * @request POST:/api/dsb/new-workflow/count-trend
-         */
-        postDsbNewWorkflowCountTrend: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultLinkedListDashboardWorkflowResponseDTO, any>({
-                path: `/api/dsb/new-workflow/count-trend`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22803,93 +18501,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Workflow Version Controller
-         * @name PostDocpalWorkflowVersionVersionidDeploy
-         * @summary Promote to Production - Deploy the current version to production for used it
-         * @request POST:/api/docpal/workflow/version/{versionId}/deploy
-         */
-        postDocpalWorkflowVersionVersionidDeploy: (
-            versionId: string,
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                jsonValue?: stringJson;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/docpal/workflow/version/${versionId}/deploy`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name PostDocpalWorkflowVersionReplaceDraft
-         * @summary Save to Draft
-         * @request POST:/api/docpal/workflow/version/replace/draft
-         */
-        postDocpalWorkflowVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/version/replace/draft`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name PostDocpalWorkflowVersionPage
-         * @summary Pagination search of process definition version
-         * @request POST:/api/docpal/workflow/version/page
-         */
-        postDocpalWorkflowVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOProcessDefinitionVersion, any>({
-                path: `/api/docpal/workflow/version/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name PostDocpalWorkflowVersionNew
-         * @summary Save New Version of process definition
-         * @request POST:/api/docpal/workflow/version/new
-         */
-        postDocpalWorkflowVersionNew: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/api/docpal/workflow/version/new`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags WorkflowFileController
          * @name PostDocpalWorkflowUploadFiles
          * @summary Upload multiple files in the document repository
@@ -22931,1326 +18542,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetDocpalWorkflowTasks
-         * @request GET:/api/docpal/workflow/tasks
-         */
-        getDocpalWorkflowTasks: (
-            query?: {
-                processInstanceId?: string;
-                userId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/api/docpal/workflow/tasks`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTasks
-         * @summary Retrieve tasks for a process instance
-         * @request POST:/api/docpal/workflow/tasks
-         */
-        postDocpalWorkflowTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/api/docpal/workflow/tasks`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTasksUser
-         * @summary Retrieve tasks for the candidate users
-         * @request POST:/api/docpal/workflow/tasks/user
-         */
-        postDocpalWorkflowTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOTaskDTO, any>({
-                path: `/api/docpal/workflow/tasks/user`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTasksUnassigned
-         * @summary Retrieve unassigned tasks
-         * @request POST:/api/docpal/workflow/tasks/unassigned
-         */
-        postDocpalWorkflowTasksUnassigned: (params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/api/docpal/workflow/tasks/unassigned`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTasksPersonal
-         * @summary Retrieve tasks for a user
-         * @request POST:/api/docpal/workflow/tasks/personal
-         */
-        postDocpalWorkflowTasksPersonal: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOTaskDTO, any>({
-                path: `/api/docpal/workflow/tasks/personal`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTasksGroup
-         * @summary Retrieve tasks for the candidate group
-         * @request POST:/api/docpal/workflow/tasks/group
-         */
-        postDocpalWorkflowTasksGroup: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/api/docpal/workflow/tasks/group`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTasksExport
-         * @request POST:/api/docpal/workflow/tasks/export
-         */
-        postDocpalWorkflowTasksExport: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/docpal/workflow/tasks/export`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTasksExportHeaders
-         * @request POST:/api/docpal/workflow/tasks/export-headers
-         */
-        postDocpalWorkflowTasksExportHeaders: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/docpal/workflow/tasks/export-headers`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetDocpalWorkflowTask
-         * @request GET:/api/docpal/workflow/task
-         */
-        getDocpalWorkflowTask: (
-            query?: {
-                processInstanceId?: string;
-                taskId?: string;
-                userId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/docpal/workflow/task`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTask
-         * @summary Retrieve a task
-         * @request POST:/api/docpal/workflow/task
-         */
-        postDocpalWorkflowTask: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/docpal/workflow/task`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name DeleteDocpalWorkflowTask
-         * @summary Delete a task
-         * @request DELETE:/api/docpal/workflow/task
-         */
-        deleteDocpalWorkflowTask: (
-            query: {
-                taskId: string;
-                deleteReason?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/docpal/workflow/task`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskUnclaim
-         * @summary Unclaim a task
-         * @request POST:/api/docpal/workflow/task/unclaim
-         */
-        postDocpalWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/docpal/workflow/task/unclaim`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskMove
-         * @request POST:/api/docpal/workflow/task/move
-         */
-        postDocpalWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/task/move`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskDuedate
-         * @summary Set task due date
-         * @request POST:/api/docpal/workflow/task/dueDate
-         */
-        postDocpalWorkflowTaskDuedate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/docpal/workflow/task/dueDate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Delegate task to another user
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskDelegate
-         * @request POST:/api/docpal/workflow/task/delegate
-         */
-        postDocpalWorkflowTaskDelegate: (
-            query: {
-                taskId: string;
-                userId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/task/delegate`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskComplete
-         * @summary Complete a task
-         * @request POST:/api/docpal/workflow/task/complete
-         */
-        postDocpalWorkflowTaskComplete: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/docpal/workflow/task/complete`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskClaim
-         * @summary Claim a task
-         * @request POST:/api/docpal/workflow/task/claim
-         */
-        postDocpalWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/docpal/workflow/task/claim`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowTaskAssign
-         * @summary Assign task to a user
-         * @request POST:/api/docpal/workflow/task/assign
-         */
-        postDocpalWorkflowTaskAssign: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/docpal/workflow/task/assign`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowSubmitadhocapproval
-         * @request POST:/api/docpal/workflow/submitAdhocApproval
-         */
-        postDocpalWorkflowSubmitadhocapproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/submitAdhocApproval`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowAdhocApply
-         * @request POST:/api/docpal/workflow/adhoc/apply
-         */
-        postDocpalWorkflowAdhocApply: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/adhoc/apply`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowQueryadhocapprovalpage
-         * @request POST:/api/docpal/workflow/queryAdhocApprovalPage
-         */
-        postDocpalWorkflowQueryadhocapprovalpage: (data: AdhocApprovalDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAdhocRecord, any>({
-                path: `/api/docpal/workflow/queryAdhocApprovalPage`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowAdhocPage
-         * @request POST:/api/docpal/workflow/adhoc/page
-         */
-        postDocpalWorkflowAdhocPage: (data: AdhocApprovalDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAdhocRecord, any>({
-                path: `/api/docpal/workflow/adhoc/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProperties
-         * @summary Retrieve task form properties
-         * @request POST:/api/docpal/workflow/properties
-         */
-        postDocpalWorkflowProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/docpal/workflow/properties`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowPropertiesSave
-         * @summary Save task form properties
-         * @request POST:/api/docpal/workflow/properties/save
-         */
-        postDocpalWorkflowPropertiesSave: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/docpal/workflow/properties/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcess
-         * @summary Retrieve process definition
-         * @request POST:/api/docpal/workflow/process
-         */
-        postDocpalWorkflowProcess: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionDTO, any>({
-                path: `/api/docpal/workflow/process`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name DeleteDocpalWorkflowProcess
-         * @request DELETE:/api/docpal/workflow/process
-         */
-        deleteDocpalWorkflowProcess: (
-            query?: {
-                processInstanceId?: string;
-                /** @format date-time */
-                createdDate?: string;
-                /** @format date-time */
-                endedDate?: string;
-                completed?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListInstanceDTO, any>({
-                path: `/api/docpal/workflow/process`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessStart
-         * @summary Start a new process instance
-         * @request POST:/api/docpal/workflow/process/start
-         */
-        postDocpalWorkflowProcessStart: (
-            data: WorkflowRequestDTO,
-            query?: {
-                async?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/docpal/workflow/process/start`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessModel
-         * @summary Retrieve process model (BPMN) XML
-         * @request POST:/api/docpal/workflow/process/model
-         */
-        postDocpalWorkflowProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/process/model`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessMessage
-         * @request POST:/api/docpal/workflow/process/message
-         */
-        postDocpalWorkflowProcessMessage: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInstanceDTO, any>({
-                path: `/api/docpal/workflow/process/message`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessList
-         * @summary Retrieve process definition
-         * @request POST:/api/docpal/workflow/process/list
-         */
-        postDocpalWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
-                path: `/api/docpal/workflow/process/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessInstance
-         * @request POST:/api/docpal/workflow/process/instance
-         */
-        postDocpalWorkflowProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListInstanceDTO, any>({
-                path: `/api/docpal/workflow/process/instance`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name DeleteDocpalWorkflowProcessInstance
-         * @request DELETE:/api/docpal/workflow/process/instance
-         */
-        deleteDocpalWorkflowProcessInstance: (
-            query: {
-                processInstanceId: string;
-                userId: string;
-                deleteReason?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListHistoricProcessInstanceEntityImpl, any>({
-                path: `/api/docpal/workflow/process/instance`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionValidate
-         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
-         * @request POST:/api/docpal/workflow/process/definition/validate
-         */
-        postDocpalWorkflowProcessDefinitionValidate: (
-            query: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/docpal/workflow/process/definition/validate`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionUpload
-         * @summary Create new workflow (process definition)
-         * @request POST:/api/docpal/workflow/process/definition/upload
-         */
-        postDocpalWorkflowProcessDefinitionUpload: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                name?: string;
-                /** @format string */
-                key?: string;
-                /** @format boolean */
-                isDraft?: boolean;
-                /**
-                 * @format string
-                 * @default "V1"
-                 */
-                versionId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/docpal/workflow/process/definition/upload`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionSave
-         * @summary Save workflow of someone version
-         * @request POST:/api/docpal/workflow/process/definition/save
-         */
-        postDocpalWorkflowProcessDefinitionSave: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                name?: string;
-                /** @format string */
-                key?: string;
-                /** @format boolean */
-                isDraft?: boolean;
-                /** @format string */
-                versionId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/docpal/workflow/process/definition/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionParse
-         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
-         * @request POST:/api/docpal/workflow/process/definition/parse
-         */
-        postDocpalWorkflowProcessDefinitionParse: (
-            query: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/process/definition/parse`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDraftDraftidJson
-         * @summary Get json of process definition
-         * @request GET:/api/docpal/workflow/process/definition/draft/{draftId}/json
-         */
-        getDocpalWorkflowProcessDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/docpal/workflow/process/definition/draft/${draftId}/json`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidJson
-         * @summary Update json of process definition, please use string json
-         * @request POST:/api/docpal/workflow/process/definition/draft/{draftId}/json
-         */
-        postDocpalWorkflowProcessDefinitionDraftDraftidJson: (
-            draftId: string,
-            data: ProcessDefinitionDraft,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/docpal/workflow/process/definition/draft/${draftId}/json`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidImport
-         * @summary Import zip file for create new process definition
-         * @request POST:/api/docpal/workflow/process/definition/draft/{draftId}/import
-         */
-        postDocpalWorkflowProcessDefinitionDraftDraftidImport: (
-            draftId: string,
-            data: {
-                /** @format string */
-                draftId?: string;
-                /** @format binary */
-                file?: File;
-                versionNumber?: string;
-            },
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/docpal/workflow/process/definition/draft/${draftId}/import`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidExport
-         * @summary Export process definition
-         * @request POST:/api/docpal/workflow/process/definition/draft/{draftId}/export
-         */
-        postDocpalWorkflowProcessDefinitionDraftDraftidExport: (
-            draftId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/process/definition/draft/${draftId}/export`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionDraftPage
-         * @summary Pagination search of process definition model
-         * @request POST:/api/docpal/workflow/process/definition/draft/page
-         */
-        postDocpalWorkflowProcessDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOProcessDefinitionDraft, any>({
-                path: `/api/docpal/workflow/process/definition/draft/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionCopyCopiedkey
-         * @summary Copy workflow (process definition)
-         * @request POST:/api/docpal/workflow/process/definition/copy/{copiedKey}
-         */
-        postDocpalWorkflowProcessDefinitionCopyCopiedkey: (
-            copiedKey: string,
-            data: WorkflowDraftRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/docpal/workflow/process/definition/copy/${copiedKey}`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionCopyFromFlowable
-         * @summary Data Patch API
-         * @request POST:/api/docpal/workflow/process/definition/copy/from/flowable
-         */
-        postDocpalWorkflowProcessDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/docpal/workflow/process/definition/copy/from/flowable`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionActiveDraftid
-         * @request POST:/api/docpal/workflow/process/definition/active/{draftId}
-         */
-        postDocpalWorkflowProcessDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/process/definition/active/${draftId}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessConditionValidate
-         * @request POST:/api/docpal/workflow/process/condition/validate
-         */
-        postDocpalWorkflowProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/process/condition/validate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessCombineList
-         * @request POST:/api/docpal/workflow/process/combine/list
-         */
-        postDocpalWorkflowProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
-                path: `/api/docpal/workflow/process/combine/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessBulkUploadFiles
-         * @request POST:/api/docpal/workflow/process/bulk-upload/files
-         */
-        postDocpalWorkflowProcessBulkUploadFiles: (
-            query: {
-                processInstanceId: string;
-            },
-            data: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<Result, any>({
-                path: `/api/docpal/workflow/process/bulk-upload/files`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowProcessActive
-         * @request POST:/api/docpal/workflow/process/active
-         */
-        postDocpalWorkflowProcessActive: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOInstanceDTO, any>({
-                path: `/api/docpal/workflow/process/active`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowJobsIdFail
-         * @request POST:/api/docpal/workflow/jobs/{id}/fail
-         */
-        postDocpalWorkflowJobsIdFail: (id: number, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/docpal/workflow/jobs/${id}/fail`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowJobsPage
-         * @request POST:/api/docpal/workflow/jobs/page
-         */
-        postDocpalWorkflowJobsPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWorkflowRetryManagerDTO, any>({
-                path: `/api/docpal/workflow/jobs/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name PostDocpalWorkflowHistoryVariable
-         * @summary Retrieve task variable history
-         * @request POST:/api/docpal/workflow/history/variable
-         */
-        postDocpalWorkflowHistoryVariable: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultList, any>({
-                path: `/api/docpal/workflow/history/variable`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name PostDocpalWorkflowHistoryTask
-         * @summary Retrieve task history
-         * @request POST:/api/docpal/workflow/history/task
-         */
-        postDocpalWorkflowHistoryTask: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/workflow/history/task`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name PostDocpalWorkflowHistoryTaskLogs
-         * @summary Retrieve task log history
-         * @request POST:/api/docpal/workflow/history/task/logs
-         */
-        postDocpalWorkflowHistoryTaskLogs: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultList, any>({
-                path: `/api/docpal/workflow/history/task/logs`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name PostDocpalWorkflowHistoryTaskPage
-         * @request POST:/api/docpal/workflow/history/task/page
-         */
-        postDocpalWorkflowHistoryTaskPage: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOHistoricProcessInstanceEntityImpl, any>({
-                path: `/api/docpal/workflow/history/task/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name PostDocpalWorkflowHistoryProcessWithoutVariables
-         * @request POST:/api/docpal/workflow/history/process_without_variables
-         */
-        postDocpalWorkflowHistoryProcessWithoutVariables: (
-            data: WorkflowHistoryRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOHistoricProcessInstanceEntityImpl, any>({
-                path: `/api/docpal/workflow/history/process_without_variables`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name PostDocpalWorkflowHistoryProcess
-         * @summary Get workflow process history
-         * @request POST:/api/docpal/workflow/history/process
-         */
-        postDocpalWorkflowHistoryProcess: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOHistoricProcessInstanceEntityImpl, any>({
-                path: `/api/docpal/workflow/history/process`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name PostDocpalWorkflowHistoryExportProcess
-         * @request POST:/api/docpal/workflow/history/export-process
-         */
-        postDocpalWorkflowHistoryExportProcess: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/docpal/workflow/history/export-process`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name PostDocpalWorkflowHistoryActivity
-         * @summary Retrieve workflow activity history
-         * @request POST:/api/docpal/workflow/history/activity
-         */
-        postDocpalWorkflowHistoryActivity: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/workflow/history/activity`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowFormSubmit
-         * @summary Submit a task form
-         * @request POST:/api/docpal/workflow/form/submit
-         */
-        postDocpalWorkflowFormSubmit: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/form/submit`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowDataSubmit
-         * @request POST:/api/docpal/workflow/data/submit
-         */
-        postDocpalWorkflowDataSubmit: (
-            data: {
-                workflow: string;
-                files: File[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultVoid, any>({
-                path: `/api/docpal/workflow/data/submit`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name PostDocpalWorkflowDataSave
-         * @request POST:/api/docpal/workflow/data/save
-         */
-        postDocpalWorkflowDataSave: (
-            data: {
-                workflow: string;
-                files: File[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<Result, any>({
-                path: `/api/docpal/workflow/data/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name GetDocpalWorkflowCommentTask
-         * @summary Get task comments
-         * @request GET:/api/docpal/workflow/comment/task
-         */
-        getDocpalWorkflowCommentTask: (
-            query: {
-                taskId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCommentDTO, any>({
-                path: `/api/docpal/workflow/comment/task`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name PostDocpalWorkflowCommentTask
-         * @summary Add task comment
-         * @request POST:/api/docpal/workflow/comment/task
-         */
-        postDocpalWorkflowCommentTask: (
-            query: {
-                taskId: string;
-                userId: string;
-                text: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/comment/task`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name PostDocpalWorkflowCommentTaskDeprecate
-         * @summary Add task comment
-         * @request POST:/api/docpal/workflow/comment/task/
-         */
-        postDocpalWorkflowCommentTaskDeprecate: (
-            query: {
-                taskId: string;
-                userId: string;
-                text: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/comment/task/`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name GetDocpalWorkflowCommentProcess
-         * @summary Get process comments
-         * @request GET:/api/docpal/workflow/comment/process
-         */
-        getDocpalWorkflowCommentProcess: (
-            query: {
-                processInstanceId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCommentDTO, any>({
-                path: `/api/docpal/workflow/comment/process`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name PostDocpalWorkflowCommentProcess
-         * @summary Add process comment
-         * @request POST:/api/docpal/workflow/comment/process
-         */
-        postDocpalWorkflowCommentProcess: (
-            query: {
-                processInstanceId: string;
-                userId: string;
-                text: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/comment/process`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name PostDocpalWorkflowCommentProcessDeprecate
-         * @summary Add process comment
-         * @request POST:/api/docpal/workflow/comment/process/
-         */
-        postDocpalWorkflowCommentProcessDeprecate: (
-            query: {
-                processInstanceId: string;
-                userId: string;
-                text: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/comment/process/`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name PostDocpalWorkflowAdhocApproval
-         * @request POST:/api/docpal/workflow/adhoc/approval
-         */
-        postDocpalWorkflowAdhocApproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/adhoc/approval`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name PostDocpalWorkflowAddcommentbytaskid
-         * @summary Add process instance By taskId
-         * @request POST:/api/docpal/workflow/addCommentByTaskId
-         */
-        postDocpalWorkflowAddcommentbytaskid: (
-            query: {
-                taskId: string;
-                userId: string;
-                text: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/addCommentByTaskId`,
-                method: "POST",
-                query: query,
                 ...params,
             }),
 
@@ -26520,86 +20811,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
-         * @name PostDmsFacadeWorkflowJobsVariables
-         * @request POST:/api/dms/facade/workflow/jobs/variables
-         */
-        postDmsFacadeWorkflowJobsVariables: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/dms/facade/workflow/jobs/variables`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
-         * @name PostDmsFacadeWorkflowJobsState
-         * @request POST:/api/dms/facade/workflow/jobs/state
-         */
-        postDmsFacadeWorkflowJobsState: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/dms/facade/workflow/jobs/state`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
-         * @name PostDmsFacadeWorkflowJobsStateSubmit
-         * @request POST:/api/dms/facade/workflow/jobs/state/submit
-         */
-        postDmsFacadeWorkflowJobsStateSubmit: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/api/dms/facade/workflow/jobs/state/submit`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
-         * @name PostDmsFacadeWorkflowJobsStart
-         * @request POST:/api/dms/facade/workflow/jobs/start
-         */
-        postDmsFacadeWorkflowJobsStart: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/dms/facade/workflow/jobs/start`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
-         * @name PostDmsFacadeWorkflowJobsNext
-         * @request POST:/api/dms/facade/workflow/jobs/next
-         */
-        postDmsFacadeWorkflowJobsNext: (data: WorkflowInstanceRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/dms/facade/workflow/jobs/next`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
          * @name PostDmsFacadeWmsPackingListBatchnoReceivingOrders
          * @summary Synchronize the Packing-List records to the receiving order records.
          * @request POST:/api/dms/facade/wms/packing-list/{batchNo}/receiving-orders
@@ -26628,6 +20839,139 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsFacadeWmsPackingListSupplement: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/api/dms/facade/wms/packing-list/supplement`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsPackingListExcelData
+         * @summary Save OCR/Excel packing-list data (batch + headers + line items).
+         * @request POST:/api/dms/facade/wms/packing-list/excel-data
+         */
+        postDmsFacadeWmsPackingListExcelData: (data: PackingExcelSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, any>({
+                path: `/api/dms/facade/wms/packing-list/excel-data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsPackingListCompare
+         * @summary Query supplier purchase order data and add it to the Packing-List Record.
+         * @request POST:/api/dms/facade/wms/packing-list/compare
+         */
+        postDmsFacadeWmsPackingListCompare: (data: PackingDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListPICompareRespDTO, any>({
+                path: `/api/dms/facade/wms/packing-list/compare`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceUnitPrice
+         * @summary WCL PO – GIT Modify Unit Price.cs
+         * @request POST:/api/dms/facade/wms/git-invoice/unit-price
+         */
+        postDmsFacadeWmsGitInvoiceUnitPrice: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/facade/wms/git-invoice/unit-price`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceStoreDocument
+         * @request POST:/api/dms/facade/wms/git-invoice/store-document
+         */
+        postDmsFacadeWmsGitInvoiceStoreDocument: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/facade/wms/git-invoice/store-document`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceMatching
+         * @request POST:/api/dms/facade/wms/git-invoice/matching
+         */
+        postDmsFacadeWmsGitInvoiceMatching: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/facade/wms/git-invoice/matching`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceKeywordEmpty
+         * @summary Check if the keywords are empty, and if they are, let the user decide whether to stop the process.
+         * @request POST:/api/dms/facade/wms/git-invoice/keyword/empty
+         */
+        postDmsFacadeWmsGitInvoiceKeywordEmpty: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/facade/wms/git-invoice/keyword/empty`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceGroupId
+         * @request POST:/api/dms/facade/wms/git-invoice/group-id
+         */
+        postDmsFacadeWmsGitInvoiceGroupId: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListString, any>({
+                path: `/api/dms/facade/wms/git-invoice/group-id`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceCreate
+         * @summary Create new GIT MATCH INVOICE record.
+         * @request POST:/api/dms/facade/wms/git-invoice/create
+         */
+        postDmsFacadeWmsGitInvoiceCreate: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGITInvMatchingDTO, any>({
+                path: `/api/dms/facade/wms/git-invoice/create`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -26690,6 +21034,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/api/dms/facade/policy/documents/approval`,
                 method: "POST",
                 query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeOrg
+         * @request POST:/api/dms/facade/org
+         */
+        postDmsFacadeOrg: (data: OracleConfig, params: RequestParams = {}) =>
+            this.request<ResultOracleConfig, any>({
+                path: `/api/dms/facade/org`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -27303,40 +21663,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsFacadeContactgroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOContactGroupResponseDTO, any>({
                 path: `/api/dms/facade/contactGroup/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
-         * @name PostDmsFacadeCaseinstanceStart
-         * @summary Start a case model definition to get a case instance
-         * @request POST:/api/dms/facade/caseInstance/start
-         */
-        postDmsFacadeCaseinstanceStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceDTO, any>({
-                path: `/api/dms/facade/caseInstance/start`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
-         * @name PostDmsFacadeCaseinstanceSavetabledata
-         * @summary Start a case model definition to get a case instance
-         * @request POST:/api/dms/facade/caseInstance/saveTableData
-         */
-        postDmsFacadeCaseinstanceSavetabledata: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultString, any>({
-                path: `/api/dms/facade/caseInstance/saveTableData`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -29293,29 +23619,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController
-         * @name PostDmsCabinetGenerateDocument
-         * @request POST:/api/dms/cabinet/generate/document
-         */
-        postDmsCabinetGenerateDocument: (
-            query: {
-                processDefinitionKey: string;
-            },
-            data: FilingDocumentPreviewReq,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultDocumentDTO, any>({
-                path: `/api/dms/cabinet/generate/document`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CabinetController
          * @name PostDmsCabinetExport
          * @request POST:/api/dms/cabinet/export
          */
@@ -29400,13 +23703,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request POST:/api/dms/abbyy/ocr/start
          */
         postDmsAbbyyOcrStart: (
+            query: {
+                request: AbbyyOcrRequest;
+            },
             data: {
                 /** @format binary */
                 file: File;
-            },
-            query?: {
-                outRequestNo?: string;
-                module?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -29422,28 +23724,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags AbbyyController
-         * @name PostDmsAbbyyOcrStartMultiple
-         * @request POST:/api/dms/abbyy/ocr/start/multiple
-         */
-        postDmsAbbyyOcrStartMultiple: (
-            query: {
-                files: File[];
-                outRequestNo?: string;
-                module?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultAbbyyOcrResp, any>({
-                path: `/api/dms/abbyy/ocr/start/multiple`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags wopi-host-controller
          * @name PostClearupexpireddocument
          * @request POST:/api/clearUpExpiredDocument
@@ -29452,830 +23732,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultObject, any>({
                 path: `/api/clearUpExpiredDocument`,
                 method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesIdPublish
-         * @summary Publish CMMN file to workflow application
-         * @request POST:/api/case/types/{id}/publish
-         * @deprecated
-         */
-        postCaseTypesIdPublish: (
-            id: string,
-            data: {
-                /**
-                 * CMMN XML file
-                 * @format binary
-                 */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseTypeResponseDTO, any>({
-                path: `/api/case/types/${id}/publish`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesIdDraftSave
-         * @summary Save draft cmmn xml
-         * @request POST:/api/case/types/{id}/draft/save
-         */
-        postCaseTypesIdDraftSave: (
-            id: string,
-            data: {
-                /**
-                 * this is a .xml file
-                 * @format binary
-                 */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseModelDraft, any>({
-                path: `/api/case/types/${id}/draft/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesIdDownloadDraft
-         * @summary Download draft cmmn xml (case model definition)
-         * @request POST:/api/case/types/{id}/download/draft
-         */
-        postCaseTypesIdDownloadDraft: (id: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/case/types/${id}/download/draft`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesIdDraftDownload
-         * @summary Download draft cmmn xml (case model definition)
-         * @request POST:/api/case/types/{id}/draft/download
-         */
-        postCaseTypesIdDraftDownload: (id: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/case/types/${id}/draft/download`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesIdCopy
-         * @summary New Case for new case type
-         * @request POST:/api/case/types/{id}/copy
-         */
-        postCaseTypesIdCopy: (id: string, data: CopyCaseTypeRequest, params: RequestParams = {}) =>
-            this.request<ResultCaseTypeResponseDTO, any>({
-                path: `/api/case/types/${id}/copy`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesCasetypeidRecordsPage
-         * @summary Pagination Search data of deployed case type
-         * @request POST:/api/case/types/{caseTypeId}/records/page
-         */
-        postCaseTypesCasetypeidRecordsPage: (
-            caseTypeId: string,
-            data: CmmnDashboardRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/types/${caseTypeId}/records/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesVersionVersionidRefresh
-         * @request POST:/api/case/types/version/{versionId}/refresh
-         */
-        postCaseTypesVersionVersionidRefresh: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/types/version/${versionId}/refresh`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesVersionVersionidNew
-         * @summary Create a new version of case type
-         * @request POST:/api/case/types/version/{versionId}/new
-         */
-        postCaseTypesVersionVersionidNew: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnVersion, any>({
-                path: `/api/case/types/version/${versionId}/new`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesVersionVersionidActive
-         * @summary Deploy a version case type
-         * @request POST:/api/case/types/version/{versionId}/active
-         */
-        postCaseTypesVersionVersionidActive: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/types/version/${versionId}/active`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesVersionPage
-         * @summary Paging query case-model version
-         * @request POST:/api/case/types/version/page
-         */
-        postCaseTypesVersionPage: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCmmnVersion, any>({
-                path: `/api/case/types/version/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesTablePage
-         * @summary Paging query of a case table
-         * @request POST:/api/case/types/table/page
-         */
-        postCaseTypesTablePage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/types/table/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesStylejsonSave
-         * @summary Save style json of cmmn xml
-         * @request POST:/api/case/types/styleJson/save
-         */
-        postCaseTypesStylejsonSave: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCmmnVersion, any>({
-                path: `/api/case/types/styleJson/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesRefresh
-         * @request POST:/api/case/types/refresh
-         */
-        postCaseTypesRefresh: (
-            query: {
-                id: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/types/refresh`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesRecordsList
-         * @summary Get all case instance data of deployed case type without permission
-         * @request POST:/api/case/types/records/list
-         */
-        postCaseTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListLinkedHashMapStringObject, any>({
-                path: `/api/case/types/records/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesPage
-         * @summary Pagination search
-         * @request POST:/api/case/types/page
-         */
-        postCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCaseType, any>({
-                path: `/api/case/types/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PostCaseTypesList
-         * @summary Retrieve case list through the list of case id
-         * @request POST:/api/case/types/list
-         */
-        postCaseTypesList: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListCaseTypeResponseDTO, any>({
-                path: `/api/case/types/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name GetCaseTables
-         * @summary Retrieve all case tables
-         * @request GET:/api/case/tables
-         */
-        getCaseTables: (params: RequestParams = {}) =>
-            this.request<ResultListCaseTable, any>({
-                path: `/api/case/tables`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name PostCaseTables
-         * @summary Create (Case Table)
-         * @request POST:/api/case/tables
-         */
-        postCaseTables: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseTable, any>({
-                path: `/api/case/tables`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name PostCaseTablesIdField
-         * @summary Add single field to Case Table
-         * @request POST:/api/case/tables/{id}/field
-         */
-        postCaseTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
-            this.request<ResultCaseTableResponseDTO, any>({
-                path: `/api/case/tables/${id}/field`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name DeleteCaseTablesIdField
-         * @summary Delete field when not data (Case Table)
-         * @request DELETE:/api/case/tables/{id}/field
-         */
-        deleteCaseTablesIdField: (
-            id: string,
-            query: {
-                columnName: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/tables/${id}/field`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name PostCaseTablesRecord
-         * @summary Insert data into a Case Table
-         * @request POST:/api/case/tables/record
-         */
-        postCaseTablesRecord: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/tables/record`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name PostCaseTablesRecordPage
-         * @summary Pagination Search (Case Table Record)
-         * @request POST:/api/case/tables/record/page
-         */
-        postCaseTablesRecordPage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/tables/record/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseInstanceCaseinstanceidVariables
-         * @request GET:/api/case/instance/{caseInstanceId}/variables
-         */
-        getCaseInstanceCaseinstanceidVariables: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<Record<string, any>, any>({
-                path: `/api/case/instance/${caseInstanceId}/variables`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name PostCaseInstanceCaseinstanceidVariables
-         * @request POST:/api/case/instance/{caseInstanceId}/variables
-         */
-        postCaseInstanceCaseinstanceidVariables: (
-            caseInstanceId: string,
-            data: Record<string, any>,
-            params: RequestParams = {},
-        ) =>
-            this.request<Record<string, any>, any>({
-                path: `/api/case/instance/${caseInstanceId}/variables`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceTypesRecordsList
-         * @summary Get all case instance data of deployed case type without permission
-         * @request POST:/api/case/instance/types/records/list
-         */
-        postCaseInstanceTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListLinkedHashMapStringObject, any>({
-                path: `/api/case/instance/types/records/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceTriggerEvent
-         * @summary Trigger event for completed
-         * @request POST:/api/case/instance/trigger/event
-         */
-        postCaseInstanceTriggerEvent: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/trigger/event`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceTasks
-         * @summary Retrieve all tasks of this case instance
-         * @request POST:/api/case/instance/tasks
-         */
-        postCaseInstanceTasks: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, any>({
-                path: `/api/case/instance/tasks`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceTasksComplete
-         * @summary Complete task
-         * @request POST:/api/case/instance/tasks/complete
-         */
-        postCaseInstanceTasksComplete: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/tasks/complete`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceSubmitStart
-         * @request POST:/api/case/instance/submit-start
-         */
-        postCaseInstanceSubmitStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceDTO, any>({
-                path: `/api/case/instance/submit-start`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceStart
-         * @summary Start a case model definition to get a case instance
-         * @request POST:/api/case/instance/start
-         */
-        postCaseInstanceStart: (
-            data: CaseInstanceRequestDTO,
-            query?: {
-                useWorkflow?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseInstanceDTO, any>({
-                path: `/api/case/instance/start`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceStartImport
-         * @summary Import an Excel file to start case instances
-         * @request POST:/api/case/instance/start/import
-         */
-        postCaseInstanceStartImport: (
-            query: {
-                /** @format binary */
-                file: File;
-                caseTypeId?: string;
-                versionNumber?: string;
-                cmmnVersionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseImportResponse, any>({
-                path: `/api/case/instance/start/import`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceProcessStart
-         * @summary Starting a sub-process of case instance
-         * @request POST:/api/case/instance/process/start
-         */
-        postCaseInstanceProcessStart: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/process/start`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstancePlanitems
-         * @summary Retrieve all or activated planItem instances of this case instance
-         * @request POST:/api/case/instance/planItems
-         */
-        postCaseInstancePlanitems: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/instance/planItems`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name PostCaseInstancePlanitemsPlanitemidEnable
-         * @summary Enable plan item instance
-         * @request POST:/api/case/instance/planItems/{planItemId}/enable
-         */
-        postCaseInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/planItems/${planItemId}/enable`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name PostCaseInstancePlanitemsComplete
-         * @summary Submit form data for complete plan item instance
-         * @request POST:/api/case/instance/planItems/complete
-         */
-        postCaseInstancePlanitemsComplete: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/planItems/complete`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstancePlanitemsActive
-         * @summary Active a planItem instance
-         * @request POST:/api/case/instance/planItems/active
-         */
-        postCaseInstancePlanitemsActive: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/planItems/active`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceInstancePlanitems
-         * @summary Retrieve all or activated planItem instances of this case instance
-         * @request POST:/api/case/instance/instance/planItems
-         */
-        postCaseInstanceInstancePlanitems: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/instance/instance/planItems`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceInstancePlanitemsPlanitemidEnable
-         * @summary Enable plan item instance
-         * @request POST:/api/case/instance/instance/planItems/{planItemId}/enable
-         */
-        postCaseInstanceInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/instance/planItems/${planItemId}/enable`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceInstancePlanitemsComplete
-         * @summary Complete PlanItem instance
-         * @request POST:/api/case/instance/instance/planItems/complete
-         */
-        postCaseInstanceInstancePlanitemsComplete: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/instance/planItems/complete`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PostCaseInstanceAuditlog
-         * @summary Obtain Audit Log of a case instance
-         * @request POST:/api/case/instance/auditLog
-         */
-        postCaseInstanceAuditlog: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAuditTemplateDTO, any>({
-                path: `/api/case/instance/auditLog`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PostCaseDashboardSaveStyle
-         * @summary Save dashboard Json
-         * @request POST:/api/case/dashboard/save/style
-         */
-        postCaseDashboardSaveStyle: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboard, any>({
-                path: `/api/case/dashboard/save/style`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PostCaseDashboardPage
-         * @summary Pagination search (Case Dashboard)
-         * @request POST:/api/case/dashboard/page
-         */
-        postCaseDashboardPage: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCmmnDashboardResponseDTO, any>({
-                path: `/api/case/dashboard/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PostCaseDashboardInstanceCaseidProcessInstanceTasks
-         * @summary Query sub-process tasks of this case instance
-         * @request POST:/api/case/dashboard/instance/{caseId}/process/instance/tasks
-         */
-        postCaseDashboardInstanceCaseidProcessInstanceTasks: (
-            caseId: string,
-            data: CmmnProcessRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOTaskDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/process/instance/tasks`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PostCaseDashboardInstanceCaseidProcessInstancePage
-         * @summary Paging search process instance of this case instance
-         * @request POST:/api/case/dashboard/instance/{caseId}/process/instance/page
-         */
-        postCaseDashboardInstanceCaseidProcessInstancePage: (
-            caseId: string,
-            data: CmmnProcessRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOCmmnTaskDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/process/instance/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PostCaseDashboardInstanceActionPreRequisite
-         * @summary Get Pre-requisite of planItem instance,
-         * @request POST:/api/case/dashboard/instance/action/pre-requisite
-         */
-        postCaseDashboardInstanceActionPreRequisite: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/case/dashboard/instance/action/pre-requisite`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name PostCaseDashboardCasetypeCasetypeidRecordsPage
-         * @summary Paging Query instance data for deployed case types for the currently logged in user
-         * @request POST:/api/case/dashboard/caseType/{caseTypeId}/records/page
-         */
-        postCaseDashboardCasetypeCasetypeidRecordsPage: (
-            caseTypeId: string,
-            data: CmmnDashboardRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/dashboard/caseType/${caseTypeId}/records/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -31283,92 +24739,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Workflow Comment
-         * @name DeleteDocpalWorkflowCommentDeprecate
-         * @summary Delete comment
-         * @request DELETE:/api/docpal/workflow/comment/
-         */
-        deleteDocpalWorkflowCommentDeprecate: (
-            query: {
-                commentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/comment/`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name PatchDocpalWorkflowCommentDeprecate
-         * @summary Update comment
-         * @request PATCH:/api/docpal/workflow/comment/
-         */
-        patchDocpalWorkflowCommentDeprecate: (
-            query: {
-                commentId: string;
-                text: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/comment/`,
-                method: "PATCH",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name DeleteDocpalWorkflowComment
-         * @summary Delete comment
-         * @request DELETE:/api/docpal/workflow/comment
-         */
-        deleteDocpalWorkflowComment: (
-            query: {
-                commentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/comment`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name PatchDocpalWorkflowComment
-         * @summary Update comment
-         * @request PATCH:/api/docpal/workflow/comment
-         */
-        patchDocpalWorkflowComment: (
-            query: {
-                commentId: string;
-                text: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCommentDTO, any>({
-                path: `/api/docpal/workflow/comment`,
-                method: "PATCH",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Watermark Template
          * @name PatchDocpalWatermarkTemplatesDeprecate
          * @summary Modify watermark template and watermark setting list
@@ -31752,583 +25122,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CaseTypeController
-         * @name PatchCaseTypesVersionVersionidSave
-         * @summary Edit XML file [cmmn.xml] of version
-         * @request PATCH:/api/case/types/version/{versionId}/save
-         */
-        patchCaseTypesVersionVersionidSave: (
-            versionId: string,
-            data: {
-                /** @format binary */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCmmnVersion, any>({
-                path: `/api/case/types/version/${versionId}/save`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name PatchCaseTypesVersionVersionidSaveall
-         * @summary [Test API] Save XML file for all version of case definition
-         * @request PATCH:/api/case/types/version/{versionId}/saveAll
-         * @deprecated
-         */
-        patchCaseTypesVersionVersionidSaveall: (
-            versionId: string,
-            data: {
-                /** @format binary */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultVoid, any>({
-                path: `/api/case/types/version/${versionId}/saveAll`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name PatchCaseTablesFields
-         * @summary The Case Table has been augmented with the addition of multiple columns.
-         * @request PATCH:/api/case/tables/fields
-         */
-        patchCaseTablesFields: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseTableResponseDTO, any>({
-                path: `/api/case/tables/fields`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name PatchCaseInstanceCaseidCaseidUpdateinformation
-         * @summary Update case information
-         * @request PATCH:/api/case/instance/caseId/{caseId}/updateInformation
-         */
-        patchCaseInstanceCaseidCaseidUpdateinformation: (
-            caseId: string,
-            data: Record<string, any>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/caseId/${caseId}/updateInformation`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetWorkflowTaskProcessGetprocessbyprocdefid
-         * @request GET:/api/workflow/task/process/getProcessByProcDefId
-         */
-        getWorkflowTaskProcessGetprocessbyprocdefid: (
-            query: {
-                processByProcDefId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListUserTaskDTO, any>({
-                path: `/api/workflow/task/process/getProcessByProcDefId`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceVariablesInstanceid
-         * @request GET:/api/workflow/instance/variables/{instanceId}
-         */
-        getWorkflowInstanceVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/workflow/instance/variables/${instanceId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceStartProperties
-         * @summary Retrieve form properties of start-task
-         * @request GET:/api/workflow/instance/start/properties
-         */
-        getWorkflowInstanceStartProperties: (
-            query?: {
-                processKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/workflow/instance/start/properties`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceStartFormProperties
-         * @request GET:/api/workflow/instance/start-form/properties
-         */
-        getWorkflowInstanceStartFormProperties: (
-            query: {
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/workflow/instance/start-form/properties`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceProcessDefinitions
-         * @request GET:/api/workflow/instance/process/definitions
-         */
-        getWorkflowInstanceProcessDefinitions: (
-            query?: {
-                processKey?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/workflow/instance/process/definitions`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance History
-         * @name GetWorkflowInstanceHistoryExportHeaders
-         * @request GET:/api/workflow/instance/history/export-headers
-         */
-        getWorkflowInstanceHistoryExportHeaders: (params: RequestParams = {}) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/workflow/instance/history/export-headers`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/api/workflow/instance/forms
-         */
-        getWorkflowInstanceForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/api/workflow/instance/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/api/workflow/instance/forms/{elementKey}
-         */
-        getWorkflowInstanceFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/workflow/instance/forms/${elementKey}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetWorkflowInstanceFormProperties
-         * @summary Retrieve form properties of task instance
-         * @request GET:/api/workflow/instance/form/properties
-         */
-        getWorkflowInstanceFormProperties: (
-            query: {
-                taskId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/workflow/instance/form/properties`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionProcessdefinitionkey
-         * @summary Get deployed process definition through process definition key
-         * @request GET:/api/workflow/definition/{processDefinitionKey}
-         */
-        getWorkflowDefinitionProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionDTO, any>({
-                path: `/api/workflow/definition/${processDefinitionKey}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionProcessdefinitionkeyHistory
-         * @summary Find historical process definitions through process definition key
-         * @request GET:/api/workflow/definition/{processDefinitionKey}/history
-         */
-        getWorkflowDefinitionProcessdefinitionkeyHistory: (processDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/workflow/definition/${processDefinitionKey}/history`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionVersion
-         * @summary Get Version Data
-         * @request GET:/api/workflow/definition/version
-         */
-        getWorkflowDefinitionVersion: (
-            query: {
-                draftId: string;
-                versionNumber: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/api/workflow/definition/version`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionVersionVersionid
-         * @summary Get Version Data
-         * @request GET:/api/workflow/definition/version/{versionId}
-         */
-        getWorkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/api/workflow/definition/version/${versionId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteWorkflowDefinitionVersionVersionid
-         * @request DELETE:/api/workflow/definition/version/{versionId}
-         */
-        deleteWorkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/definition/version/${versionId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionVersionVersionidBpmnxml
-         * @summary Download BPMN20.xml through version id of a workflow
-         * @request GET:/api/workflow/definition/version/{versionId}/bpmnXml
-         */
-        getWorkflowDefinitionVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/workflow/definition/version/${versionId}/bpmnXml`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionVersionKeyProcessdefinitionkey
-         * @summary Get Latest Version Data by process definition key
-         * @request GET:/api/workflow/definition/version/key/{processDefinitionKey}
-         */
-        getWorkflowDefinitionVersionKeyProcessdefinitionkey: (
-            processDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/api/workflow/definition/version/key/${processDefinitionKey}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionVersionJson
-         * @summary Download Json through version number and draft id
-         * @request GET:/api/workflow/definition/version/json
-         */
-        getWorkflowDefinitionVersionJson: (
-            query?: {
-                draftId?: string;
-                versionNumber?: string;
-                versionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, any>({
-                path: `/api/workflow/definition/version/json`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionVersionBpmnxml
-         * @summary Download BPMN20.xml through version number and draft id
-         * @request GET:/api/workflow/definition/version/bpmnXml
-         */
-        getWorkflowDefinitionVersionBpmnxml: (
-            query: {
-                draftId: string;
-                versionNumber?: string;
-                versionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/workflow/definition/version/bpmnXml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/api/workflow/definition/forms
-         */
-        getWorkflowDefinitionForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/api/workflow/definition/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/api/workflow/definition/forms/{elementKey}
-         */
-        getWorkflowDefinitionFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/workflow/definition/forms/${elementKey}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionFormsStart
-         * @summary Get start-form properties associated with the process definition
-         * @request GET:/api/workflow/definition/forms/start
-         */
-        getWorkflowDefinitionFormsStart: (
-            query: {
-                /** Workflow Process Definition RequestDTO */
-                requestDTO: ProcessDefinitionRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBpmnDynamicFormDTO, any>({
-                path: `/api/workflow/definition/forms/start`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionDraftDraftid
-         * @summary Get draft through process definition key
-         * @request GET:/api/workflow/definition/draft/{draftId}
-         */
-        getWorkflowDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/workflow/definition/draft/${draftId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteWorkflowDefinitionDraftDraftid
-         * @summary Delete process definition through process definition draft id
-         * @request DELETE:/api/workflow/definition/draft/{draftId}
-         */
-        deleteWorkflowDefinitionDraftDraftid: (
-            draftId: string,
-            query?: {
-                enforce?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/definition/draft/${draftId}`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionDraftDraftidDownloadXml
-         * @summary Get draft BPMN2.0 XML file through draft id
-         * @request GET:/api/workflow/definition/draft/{draftId}/download/xml
-         */
-        getWorkflowDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/workflow/definition/draft/${draftId}/download/xml`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionDraftAll
-         * @request GET:/api/workflow/definition/draft/all
-         */
-        getWorkflowDefinitionDraftAll: (params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDraft, any>({
-                path: `/api/workflow/definition/draft/all`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetWorkflowDefinitionDownloadXml
-         * @summary Download BPMN2.0 XML file through process definition ID
-         * @request GET:/api/workflow/definition/download/xml
-         */
-        getWorkflowDefinitionDownloadXml: (
-            query: {
-                processDefinitionId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/workflow/definition/download/xml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags ReceivingOrderController
          * @name GetWmsReceiveOrderPackingSupplementOrigin
          * @request GET:/api/wms/receive/order/packing/supplement/origin
@@ -32409,6 +25202,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags wms-packing-order-controller
+         * @name GetWmsPackingOrderSupplementData
+         * @request GET:/api/wms/packing-order/supplement-data
+         */
+        getWmsPackingOrderSupplementData: (
+            query: {
+                invoiceNumber: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPIPartNoMapping, any>({
+                path: `/api/wms/packing-order/supplement-data`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags wms-organization-controller
          * @name GetWmsOrganizationList
          * @request GET:/api/wms/organization/list
@@ -32430,13 +25243,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags wms-inventory-lot-source-controller
-         * @name GetWmsInventoryLotSourcesId
-         * @request GET:/api/wms/inventory-lot-sources/{id}
+         * @tags WMSGitMatchDataController
+         * @name GetWmsGitInvoiceId
+         * @request GET:/api/wms/git-invoice/{id}
          */
-        getWmsInventoryLotSourcesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources/${id}`,
+        getWmsGitInvoiceId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultGITInvoice, any>({
+                path: `/api/wms/git-invoice/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32444,34 +25257,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags wms-inventory-lot-source-controller
-         * @name DeleteWmsInventoryLotSourcesId
-         * @request DELETE:/api/wms/inventory-lot-sources/{id}
+         * @tags WMSGitMatchDataController
+         * @name GetWmsGitInvoiceBatchNoBatchno
+         * @request GET:/api/wms/git-invoice/batch-no/{batchNo}
          */
-        deleteWmsInventoryLotSourcesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/wms/inventory-lot-sources/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-inventory-lot-source-controller
-         * @name GetWmsInventoryLotSourcesByInventoryLotId
-         * @request GET:/api/wms/inventory-lot-sources/by-inventory-lot-id
-         */
-        getWmsInventoryLotSourcesByInventoryLotId: (
-            query: {
-                inventoryLotId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListWMSInventoryLotSource, any>({
-                path: `/api/wms/inventory-lot-sources/by-inventory-lot-id`,
+        getWmsGitInvoiceBatchNoBatchno: (batchNo: string, params: RequestParams = {}) =>
+            this.request<ResultListGITInvoiceDTO, any>({
+                path: `/api/wms/git-invoice/batch-no/${batchNo}`,
                 method: "GET",
-                query: query,
                 ...params,
             }),
 
@@ -32734,6 +25527,29 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<Result, any>({
                 path: `/api/postgrest/${table}`,
+                method: "GET",
+                query: query,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PiInvoiceController
+         * @name GetPiInvoices
+         * @summary Query PI invoice by PI invoice number
+         * @request GET:/api/pi-invoices
+         */
+        getPiInvoices: (
+            query: {
+                pi_invoice_number: string;
+                customer_number?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<PiInvoiceQueryResponseDTO, any>({
+                path: `/api/pi-invoices`,
                 method: "GET",
                 query: query,
                 format: "json",
@@ -33817,62 +26633,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WorkflowDashboard
-         * @name GetDsbWorkflowJobStartCreatorListDeprecate
-         * @request GET:/api/dsb/workflow/job/start-creator-list/
-         */
-        getDsbWorkflowJobStartCreatorListDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListString, any>({
-                path: `/api/dsb/workflow/job/start-creator-list/`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name GetDsbWorkflowJobStartCreatorList
-         * @request GET:/api/dsb/workflow/job/start-creator-list
-         */
-        getDsbWorkflowJobStartCreatorList: (params: RequestParams = {}) =>
-            this.request<ResultListString, any>({
-                path: `/api/dsb/workflow/job/start-creator-list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name GetDsbWorkflowJobApproverList
-         * @request GET:/api/dsb/workflow/job/approver-list
-         */
-        getDsbWorkflowJobApproverList: (params: RequestParams = {}) =>
-            this.request<ResultListString, any>({
-                path: `/api/dsb/workflow/job/approver-list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
-         * @name GetDsbWorkflowJobApproverListDeprecate
-         * @request GET:/api/dsb/workflow/job/approver-list/
-         */
-        getDsbWorkflowJobApproverListDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListString, any>({
-                path: `/api/dsb/workflow/job/approver-list/`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags UserDashboardController
          * @name GetDsbUserDashboardsId
          * @summary Obtain a dashboard detail
@@ -33993,520 +26753,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Workflow Version Controller
-         * @name GetDocpalWorkflowVersion
-         * @summary Get Version Data
-         * @request GET:/api/docpal/workflow/version
-         */
-        getDocpalWorkflowVersion: (
-            query: {
-                draftId: string;
-                versionNumber: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/api/docpal/workflow/version`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name GetDocpalWorkflowVersionVersionid
-         * @summary Get Version Data
-         * @request GET:/api/docpal/workflow/version/{versionId}
-         */
-        getDocpalWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/api/docpal/workflow/version/${versionId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name DeleteDocpalWorkflowVersionVersionid
-         * @request DELETE:/api/docpal/workflow/version/{versionId}
-         */
-        deleteDocpalWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/version/${versionId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name GetDocpalWorkflowVersionVersionidBpmnxml
-         * @summary Download BPMN20.xml through version id of a workflow
-         * @request GET:/api/docpal/workflow/version/{versionId}/bpmnXml
-         */
-        getDocpalWorkflowVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/version/${versionId}/bpmnXml`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name GetDocpalWorkflowVersionKeyProcessdefinitionkey
-         * @summary Get Latest Version Data by process definition key
-         * @request GET:/api/docpal/workflow/version/key/{processDefinitionKey}
-         */
-        getDocpalWorkflowVersionKeyProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/api/docpal/workflow/version/key/${processDefinitionKey}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name GetDocpalWorkflowVersionJson
-         * @summary Download Json through version number and draft id
-         * @request GET:/api/docpal/workflow/version/json
-         */
-        getDocpalWorkflowVersionJson: (
-            query: {
-                draftId: string;
-                versionNumber: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, any>({
-                path: `/api/docpal/workflow/version/json`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name GetDocpalWorkflowVersionBpmnxml
-         * @summary Download BPMN20.xml through version number and draft id
-         * @request GET:/api/docpal/workflow/version/bpmnXml
-         */
-        getDocpalWorkflowVersionBpmnxml: (
-            query: {
-                draftId: string;
-                versionNumber?: string;
-                versionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/version/bpmnXml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowVariablesInstanceid
-         * @request GET:/api/docpal/workflow/variables/{instanceId}
-         */
-        getDocpalWorkflowVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/api/docpal/workflow/variables/${instanceId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowStartProperties
-         * @summary Retrieve form properties of start-task
-         * @request GET:/api/docpal/workflow/start/properties
-         */
-        getDocpalWorkflowStartProperties: (
-            query?: {
-                processKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/docpal/workflow/start/properties`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowStartFormProperties
-         * @request GET:/api/docpal/workflow/start-form/properties
-         */
-        getDocpalWorkflowStartFormProperties: (
-            query: {
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/docpal/workflow/start-form/properties`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Task
-         * @name GetDocpalWorkflowProcessGetprocessbyprocdefid
-         * @request GET:/api/docpal/workflow/process/getProcessByProcDefId
-         */
-        getDocpalWorkflowProcessGetprocessbyprocdefid: (
-            query: {
-                processByProcDefId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListUserTaskDTO, any>({
-                path: `/api/docpal/workflow/process/getProcessByProcDefId`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowProcessDefinitions
-         * @request GET:/api/docpal/workflow/process/definitions
-         */
-        getDocpalWorkflowProcessDefinitions: (
-            query?: {
-                processKey?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/docpal/workflow/process/definitions`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionProcessdefinitionkey
-         * @summary Get deployed process definition through process definition key
-         * @request GET:/api/docpal/workflow/process/definition/{processDefinitionKey}
-         */
-        getDocpalWorkflowProcessDefinitionProcessdefinitionkey: (
-            processDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionDTO, any>({
-                path: `/api/docpal/workflow/process/definition/${processDefinitionKey}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionProcessdefinitionkeyHistory
-         * @summary Find historical process definitions through process definition key
-         * @request GET:/api/docpal/workflow/process/definition/{processDefinitionKey}/history
-         */
-        getDocpalWorkflowProcessDefinitionProcessdefinitionkeyHistory: (
-            processDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/docpal/workflow/process/definition/${processDefinitionKey}/history`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/api/docpal/workflow/process/definition/forms
-         */
-        getDocpalWorkflowProcessDefinitionForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/api/docpal/workflow/process/definition/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/api/docpal/workflow/process/definition/forms/{elementKey}
-         */
-        getDocpalWorkflowProcessDefinitionFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/docpal/workflow/process/definition/forms/${elementKey}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionFormsStart
-         * @summary Get start-form properties associated with the process definition
-         * @request GET:/api/docpal/workflow/process/definition/forms/start
-         */
-        getDocpalWorkflowProcessDefinitionFormsStart: (
-            query: {
-                /** Workflow Process Definition RequestDTO */
-                requestDTO: ProcessDefinitionRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBpmnDynamicFormDTO, any>({
-                path: `/api/docpal/workflow/process/definition/forms/start`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDraftDraftid
-         * @summary Get draft through process definition key
-         * @request GET:/api/docpal/workflow/process/definition/draft/{draftId}
-         */
-        getDocpalWorkflowProcessDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/api/docpal/workflow/process/definition/draft/${draftId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteDocpalWorkflowProcessDefinitionDraftDraftid
-         * @summary Delete process definition through process definition draft id
-         * @request DELETE:/api/docpal/workflow/process/definition/draft/{draftId}
-         */
-        deleteDocpalWorkflowProcessDefinitionDraftDraftid: (
-            draftId: string,
-            query?: {
-                enforce?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/process/definition/draft/${draftId}`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDraftDraftidDownloadXml
-         * @summary Get draft BPMN2.0 XML file through draft id
-         * @request GET:/api/docpal/workflow/process/definition/draft/{draftId}/download/xml
-         */
-        getDocpalWorkflowProcessDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/process/definition/draft/${draftId}/download/xml`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDraftAll
-         * @request GET:/api/docpal/workflow/process/definition/draft/all
-         */
-        getDocpalWorkflowProcessDefinitionDraftAll: (params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDraft, any>({
-                path: `/api/docpal/workflow/process/definition/draft/all`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDownloadXml
-         * @summary Download BPMN2.0 XML file through process definition ID
-         * @request GET:/api/docpal/workflow/process/definition/download/xml
-         */
-        getDocpalWorkflowProcessDefinitionDownloadXml: (
-            query: {
-                processDefinitionId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/docpal/workflow/process/definition/download/xml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow History
-         * @name GetDocpalWorkflowHistoryExportHeaders
-         * @request GET:/api/docpal/workflow/history/export-headers
-         */
-        getDocpalWorkflowHistoryExportHeaders: (params: RequestParams = {}) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/docpal/workflow/history/export-headers`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Comment
-         * @name GetDocpalWorkflowGetcommentbyprocessinstanceid
-         * @summary get CommentBy ProcessInstanceId
-         * @request GET:/api/docpal/workflow/getCommentByProcessInstanceId
-         */
-        getDocpalWorkflowGetcommentbyprocessinstanceid: (
-            query: {
-                taskId: string;
-                processInstanceId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCommentDTO, any>({
-                path: `/api/docpal/workflow/getCommentByProcessInstanceId`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/api/docpal/workflow/forms
-         */
-        getDocpalWorkflowForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/api/docpal/workflow/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/api/docpal/workflow/forms/{elementKey}
-         */
-        getDocpalWorkflowFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/docpal/workflow/forms/${elementKey}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowFormProperties
-         * @summary Retrieve form properties of task instance
-         * @request GET:/api/docpal/workflow/form/properties
-         */
-        getDocpalWorkflowFormProperties: (
-            query: {
-                taskId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/docpal/workflow/form/properties`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags WorkflowFileController
          * @name GetDocpalWorkflowFilesDownload
          * @request GET:/api/docpal/workflow/files/download
@@ -34519,48 +26765,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<string, any>({
                 path: `/api/docpal/workflow/files/download`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowAdhocList
-         * @summary Check whether the current version of the document has Adhoc audit records
-         * @request GET:/api/docpal/workflow/adhoc/list
-         */
-        getDocpalWorkflowAdhocList: (
-            query: {
-                documentId: string;
-                userId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultAdhocRecordResp, any>({
-                path: `/api/docpal/workflow/adhoc/list`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name GetDocpalWorkflowAdhocCanstart
-         * @request GET:/api/docpal/workflow/adhoc/canStart
-         */
-        getDocpalWorkflowAdhocCanstart: (
-            query: {
-                documentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/docpal/workflow/adhoc/canStart`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -35451,6 +27655,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getDmsSettingOracleConfigurationConfigtype: (configType: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/api/dms/setting/oracle/configuration/${configType}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SettingController
+         * @name GetDmsSettingOracleConfigurationList
+         * @request GET:/api/dms/setting/oracle/configuration/list
+         */
+        getDmsSettingOracleConfigurationList: (params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/setting/oracle/configuration/list`,
                 method: "GET",
                 ...params,
             }),
@@ -36394,6 +28612,26 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Facade API
+         * @name GetDmsFacadeAbbyyOcrResultData
+         * @request GET:/api/dms/facade/abbyy-ocr/result-data
+         */
+        getDmsFacadeAbbyyOcrResultData: (
+            query: {
+                outRequestNo: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, any>({
+                path: `/api/dms/facade/abbyy-ocr/result-data`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags EasyFormController
          * @name GetDmsEasyFormIdDetail
          * @summary Retrieve form design
@@ -37048,21 +29286,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController
-         * @name GetDmsCabinetIdUseWorkflow
-         * @summary Query workflow list of use this folder cabinet
-         * @request GET:/api/dms/cabinet/{id}/use/workflow
-         */
-        getDmsCabinetIdUseWorkflow: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, any>({
-                path: `/api/dms/cabinet/${id}/use/workflow`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CabinetController
          * @name GetDmsCabinetIdTree
          * @summary Get template details for tree structure
          * @request GET:/api/dms/cabinet/{id}/tree
@@ -37374,1382 +29597,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CaseTypeController
-         * @name GetCaseTypesIdVersions
-         * @summary Create a new version case type
-         * @request GET:/api/case/types/{id}/versions
-         */
-        getCaseTypesIdVersions: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnVersion, any>({
-                path: `/api/case/types/${id}/versions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesIdStylejson
-         * @summary Query style json of cmmn xml
-         * @request GET:/api/case/types/{id}/styleJson
-         */
-        getCaseTypesIdStylejson: (
-            id: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, any>({
-                path: `/api/case/types/${id}/styleJson`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesIdStarttask
-         * @summary Retrieve start humanTask of a case model definition
-         * @request GET:/api/case/types/{id}/startTask
-         */
-        getCaseTypesIdStarttask: (
-            id: string,
-            query?: {
-                startMatchSign?: string;
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemDefinitionDTO, any>({
-                path: `/api/case/types/${id}/startTask`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesIdPrimaryform
-         * @summary Get information form of case type
-         * @request GET:/api/case/types/{id}/primaryForm
-         */
-        getCaseTypesIdPrimaryform: (
-            id: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/api/case/types/${id}/primaryForm`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesIdExport
-         * @summary Export case type data, including CaseType, CaseModelDraft, CmmnVersion and CMMN XML file
-         * @request GET:/api/case/types/{id}/export
-         */
-        getCaseTypesIdExport: (
-            id: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/case/types/${id}/export`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesIdDownloadXml
-         * @summary Download cmmn.xml of version (case model definition)
-         * @request GET:/api/case/types/{id}/download/xml
-         */
-        getCaseTypesIdDownloadXml: (
-            id: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/case/types/${id}/download/xml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesIdDownloadDeployVersion
-         * @summary Download latest version cmmn xml (case model definition)
-         * @request GET:/api/case/types/{id}/download/deploy/version
-         */
-        getCaseTypesIdDownloadDeployVersion: (id: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/api/case/types/${id}/download/deploy/version`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesIdCaseinfo
-         * @summary Get form fields of deployed version based on this case type
-         * @request GET:/api/case/types/{id}/caseInfo
-         */
-        getCaseTypesIdCaseinfo: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanTableFieldDTO, any>({
-                path: `/api/case/types/${id}/caseInfo`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesCasetypeid
-         * @summary Retrieve case type detail
-         * @request GET:/api/case/types/{caseTypeId}
-         */
-        getCaseTypesCasetypeid: (
-            caseTypeId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseTypeResponseDTO, any>({
-                path: `/api/case/types/${caseTypeId}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesCasetypeidTables
-         * @summary Retrieve the list of case tables that belong to the specified case type
-         * @request GET:/api/case/types/{caseTypeId}/tables
-         */
-        getCaseTypesCasetypeidTables: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCaseTable, any>({
-                path: `/api/case/types/${caseTypeId}/tables`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesCasetypeidRecordsPageConditions
-         * @summary Obtain all conditions that Pagination Search data of deployed case type
-         * @request GET:/api/case/types/{caseTypeId}/records/page/conditions
-         */
-        getCaseTypesCasetypeidRecordsPageConditions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, any>({
-                path: `/api/case/types/${caseTypeId}/records/page/conditions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesCasetypeidPermissions
-         * @request GET:/api/case/types/{caseTypeId}/permissions
-         */
-        getCaseTypesCasetypeidPermissions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/types/${caseTypeId}/permissions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesCasetypeidPermissionsUserid
-         * @request GET:/api/case/types/{caseTypeId}/permissions/{userId}
-         */
-        getCaseTypesCasetypeidPermissionsUserid: (caseTypeId: string, userId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/case/types/${caseTypeId}/permissions/${userId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesCasetypeidInstances
-         * @summary Retrieve all case instances of this case type
-         * @request GET:/api/case/types/{caseTypeId}/instances
-         */
-        getCaseTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnInstance, any>({
-                path: `/api/case/types/${caseTypeId}/instances`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesCasetypeidDeployVersion
-         * @summary Query cmmn version information of the last successfully deployed version
-         * @request GET:/api/case/types/{caseTypeId}/deploy/version
-         */
-        getCaseTypesCasetypeidDeployVersion: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseModelDraft, any>({
-                path: `/api/case/types/${caseTypeId}/deploy/version`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesCasedefinitionkeyDeployment
-         * @request GET:/api/case/types/{caseDefinitionKey}/deployment
-         */
-        getCaseTypesCasedefinitionkeyDeployment: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnDeploymentDTO, any>({
-                path: `/api/case/types/${caseDefinitionKey}/deployment`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesVersionVersionid
-         * @summary Retrieve detail of case model version
-         * @request GET:/api/case/types/version/{versionId}
-         */
-        getCaseTypesVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnVersion, any>({
-                path: `/api/case/types/version/${versionId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesVersionVersionidStarttask
-         * @summary Retrieve startup task for the case definition of the specified version
-         * @request GET:/api/case/types/version/{versionId}/startTask
-         */
-        getCaseTypesVersionVersionidStarttask: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemDefinitionDTO, any>({
-                path: `/api/case/types/version/${versionId}/startTask`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesVersionCmmnversionidPermissionsUserid
-         * @request GET:/api/case/types/version/{cmmnVersionId}/permissions/{userId}
-         */
-        getCaseTypesVersionCmmnversionidPermissionsUserid: (
-            cmmnVersionId: string,
-            userId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringString, any>({
-                path: `/api/case/types/version/${cmmnVersionId}/permissions/${userId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesPermissionsRules
-         * @summary Retrieve case type permission rules
-         * @request GET:/api/case/types/permissions/rules
-         */
-        getCaseTypesPermissionsRules: (params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/types/permissions/rules`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesMy
-         * @summary Find out what cases the logged-in user can see.
-         * @request GET:/api/case/types/my
-         */
-        getCaseTypesMy: (params: RequestParams = {}) =>
-            this.request<ResultListCaseType, any>({
-                path: `/api/case/types/my`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesDeploymentidDeploymentid
-         * @summary Retrieve case type detail
-         * @request GET:/api/case/types/deploymentId/{deploymentId}
-         */
-        getCaseTypesDeploymentidDeploymentid: (deploymentId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseTypeResponseDTO, any>({
-                path: `/api/case/types/deploymentId/${deploymentId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name GetCaseTypesDatatypeMapping
-         * @summary Obtain support column mapping
-         * @request GET:/api/case/types/dataType/mapping
-         */
-        getCaseTypesDatatypeMapping: (params: RequestParams = {}) =>
-            this.request<ResultListMTFieldTypeMapping, any>({
-                path: `/api/case/types/dataType/mapping`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name GetCaseTablesId
-         * @summary Retrieve detail of case table and include associated data structures
-         * @request GET:/api/case/tables/{id}
-         */
-        getCaseTablesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCaseTableResponseDTO, any>({
-                path: `/api/case/tables/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name DeleteCaseTablesId
-         * @request DELETE:/api/case/tables/{id}
-         */
-        deleteCaseTablesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/tables/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name GetCaseTablesCasetypeCasetypeid
-         * @summary Retrieve a list of case tables that belong to the specified case type
-         * @request GET:/api/case/tables/caseType/{caseTypeId}
-         */
-        getCaseTablesCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCaseTable, any>({
-                path: `/api/case/tables/caseType/${caseTypeId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController
-         * @name GetCaseTablesCasequery
-         * @request GET:/api/case/tables/caseQuery
-         */
-        getCaseTablesCasequery: (
-            query: {
-                tableName: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/tables/caseQuery`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceCasetypeidStarttask
-         * @summary Retrieve start humanTask of production version of case definition
-         * @request GET:/api/case/instance/{caseTypeId}/startTask
-         */
-        getCaseInstanceCasetypeidStarttask: (
-            caseTypeId: string,
-            query?: {
-                startMatchSign?: string;
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemDefinitionDTO, any>({
-                path: `/api/case/instance/${caseTypeId}/startTask`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceCasetypeidStarttaskDownloadExceltemplate
-         * @summary Download an Excel template file of a case type. Excel is used to import data to start case instances.
-         * @request GET:/api/case/instance/{caseTypeId}/startTask/download/excelTemplate
-         */
-        getCaseInstanceCasetypeidStarttaskDownloadExceltemplate: (
-            caseTypeId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/case/instance/${caseTypeId}/startTask/download/excelTemplate`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceCaseinstanceidMilestoneStatus
-         * @summary Obtain Milestone Status of a case instance
-         * @request GET:/api/case/instance/{caseInstanceId}/milestone/status
-         */
-        getCaseInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/instance/${caseInstanceId}/milestone/status`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseInstanceCaseinstanceidForms
-         * @summary Retrieve all forms through a case instance
-         * @request GET:/api/case/instance/{caseInstanceId}/forms
-         */
-        getCaseInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnPlanFormDTO, any>({
-                path: `/api/case/instance/${caseInstanceId}/forms`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseInstanceCaseinstanceidEvents
-         * @summary Retrieve all events from a case instance
-         * @request GET:/api/case/instance/{caseInstanceId}/events
-         */
-        getCaseInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListUserEventInstanceDTO, any>({
-                path: `/api/case/instance/${caseInstanceId}/events`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceTypesCasetypeidInstances
-         * @summary Retrieve all case instances of this case type
-         * @request GET:/api/case/instance/types/{caseTypeId}/instances
-         */
-        getCaseInstanceTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnInstance, any>({
-                path: `/api/case/instance/types/${caseTypeId}/instances`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceTasksTaskidForm
-         * @summary Retrieve form information of task
-         * @request GET:/api/case/instance/tasks/{taskId}/form
-         */
-        getCaseInstanceTasksTaskidForm: (taskId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, any>({
-                path: `/api/case/instance/tasks/${taskId}/form`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceSupportSubcase
-         * @summary Filter case definition to select as sub-case
-         * @request GET:/api/case/instance/support/subCase
-         */
-        getCaseInstanceSupportSubcase: (params: RequestParams = {}) =>
-            this.request<ResultListCaseDefinitionDTO, any>({
-                path: `/api/case/instance/support/subCase`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceSupportSubcaseFields
-         * @summary Extract input field list of sub-case definition
-         * @request GET:/api/case/instance/support/subCase/fields
-         */
-        getCaseInstanceSupportSubcaseFields: (
-            query: {
-                caseDefinitionId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanTableFieldDTO, any>({
-                path: `/api/case/instance/support/subCase/fields`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceStartImportExportFailed
-         * @summary Export a batch of failed import records to an Excel file
-         * @request GET:/api/case/instance/start/import/export-failed
-         */
-        getCaseInstanceStartImportExportFailed: (
-            query: {
-                importBatchId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/api/case/instance/start/import/export-failed`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseInstanceProcessDefinitions
-         * @summary Retrieve process definition of this case instance through case definition key
-         * @request GET:/api/case/instance/process/definitions
-         */
-        getCaseInstanceProcessDefinitions: (
-            query: {
-                businessKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/case/instance/process/definitions`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseInstancePlanitemsPlanitemidForm
-         * @summary Retrieve form information of plan item instance
-         * @request GET:/api/case/instance/planItems/{planItemId}/form
-         */
-        getCaseInstancePlanitemsPlanitemidForm: (
-            planItemId: string,
-            query?: {
-                caseDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/api/case/instance/planItems/${planItemId}/form`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseInstanceList
-         * @summary Retrieve all case instances of this case type
-         * @request GET:/api/case/instance/list
-         */
-        getCaseInstanceList: (
-            query: {
-                /** Case model dashboard (RequestDTO) */
-                request: CmmnDashboardRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCmmnInstance, any>({
-                path: `/api/case/instance/list`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceInstanceCaseinstanceidForms
-         * @request GET:/api/case/instance/instance/{caseInstanceId}/forms
-         */
-        getCaseInstanceInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnPlanFormDTO, any>({
-                path: `/api/case/instance/instance/${caseInstanceId}/forms`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceInstanceCaseinstanceidEvents
-         * @request GET:/api/case/instance/instance/{caseInstanceId}/events
-         */
-        getCaseInstanceInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListUserEventInstanceDTO, any>({
-                path: `/api/case/instance/instance/${caseInstanceId}/events`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceInstanceProcessDefinitions
-         * @summary Retrieve process definition of this case instance through case definition key
-         * @request GET:/api/case/instance/instance/process/definitions
-         */
-        getCaseInstanceInstanceProcessDefinitions: (
-            query: {
-                businessKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/case/instance/instance/process/definitions`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceInstancePlanitemsPlanitemidForm
-         * @summary Retrieve form information of plan item instance
-         * @request GET:/api/case/instance/instance/planItems/{planItemId}/form
-         */
-        getCaseInstanceInstancePlanitemsPlanitemidForm: (
-            planItemId: string,
-            query?: {
-                caseDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/api/case/instance/instance/planItems/${planItemId}/form`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceGenerateCaseid
-         * @request GET:/api/case/instance/generate/caseId
-         */
-        getCaseInstanceGenerateCaseid: (
-            query: {
-                id: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, any>({
-                path: `/api/case/instance/generate/caseId`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceDefinitions
-         * @summary Retrieve all case model definitions
-         * @request GET:/api/case/instance/definitions
-         */
-        getCaseInstanceDefinitions: (params: RequestParams = {}) =>
-            this.request<ResultListCaseDefinitionDTO, any>({
-                path: `/api/case/instance/definitions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceDefinitionsCasedefinitionkeyInstances
-         * @summary Retrieve case instances of this case model
-         * @request GET:/api/case/instance/definitions/{caseDefinitionKey}/instances
-         */
-        getCaseInstanceDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListCaseInstanceDTO, any>({
-                path: `/api/case/instance/definitions/${caseDefinitionKey}/instances`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceDefinitionCasedefinitionkeyProcessDefinitions
-         * @summary Retrieve process definition of this case instance through case definition key
-         * @request GET:/api/case/instance/definition/{caseDefinitionKey}/process/definitions
-         */
-        getCaseInstanceDefinitionCasedefinitionkeyProcessDefinitions: (
-            caseDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/case/instance/definition/${caseDefinitionKey}/process/definitions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name GetCaseInstanceCaseidCaseid
-         * @summary Retrieve form information of task
-         * @request GET:/api/case/instance/caseId/{caseId}
-         */
-        getCaseInstanceCaseidCaseid: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnInstance, any>({
-                path: `/api/case/instance/caseId/${caseId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/api/case/forms
-         */
-        getCaseForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/api/case/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/api/case/forms/{elementKey}
-         */
-        getCaseFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/api/case/forms/${elementKey}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseDefinitions
-         * @summary Retrieve all case model definitions
-         * @request GET:/api/case/definitions
-         */
-        getCaseDefinitions: (params: RequestParams = {}) =>
-            this.request<ResultListCaseDefinitionDTO, any>({
-                path: `/api/case/definitions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseDefinitionsCasedefinitionkeyInstances
-         * @summary Retrieve all running case instances of this case model
-         * @request GET:/api/case/definitions/{caseDefinitionKey}/instances
-         */
-        getCaseDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListCaseInstanceDTO, any>({
-                path: `/api/case/definitions/${caseDefinitionKey}/instances`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseModeController
-         * @name GetCaseDefinitionCasedefinitionkeyProcessDefinitions
-         * @summary Retrieve process definition of this case instance through case definition key
-         * @request GET:/api/case/definition/{caseDefinitionKey}/process/definitions
-         */
-        getCaseDefinitionCasedefinitionkeyProcessDefinitions: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/api/case/definition/${caseDefinitionKey}/process/definitions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardId
-         * @summary Retrieve case dashboard detail
-         * @request GET:/api/case/dashboard/{id}
-         */
-        getCaseDashboardId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboardResponseDTO, any>({
-                path: `/api/case/dashboard/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name DeleteCaseDashboardId
-         * @summary Delete the case dashboard it must not have been used yet
-         * @request DELETE:/api/case/dashboard/{id}
-         */
-        deleteCaseDashboardId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/dashboard/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardVersionVersionidStages
-         * @summary Get stages of the current version that it is case definition
-         * @request GET:/api/case/dashboard/version/{versionId}/stages
-         */
-        getCaseDashboardVersionVersionidStages: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/version/${versionId}/stages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardVersionVersionidPrimaryform
-         * @summary Get primary form of the current version that it is case definition
-         * @request GET:/api/case/dashboard/version/{versionId}/primaryForm
-         */
-        getCaseDashboardVersionVersionidPrimaryform: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/api/case/dashboard/version/${versionId}/primaryForm`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardVersionVersionidPrimaryformData
-         * @summary Retrieve information and information data of this case version
-         * @request GET:/api/case/dashboard/version/{versionId}/primaryForm/data
-         */
-        getCaseDashboardVersionVersionidPrimaryformData: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, any>({
-                path: `/api/case/dashboard/version/${versionId}/primaryForm/data`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardVersionVersionidActivity
-         * @summary Get all activity of the current version that it is case definition
-         * @request GET:/api/case/dashboard/version/{versionId}/activity
-         */
-        getCaseDashboardVersionVersionidActivity: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/version/${versionId}/activity`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardVersionVersionidActions
-         * @request GET:/api/case/dashboard/version/{versionId}/actions
-         */
-        getCaseDashboardVersionVersionidActions: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/version/${versionId}/actions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardVersionCmmnversionidPermission
-         * @summary Show all dashboard views that belong to the current user of this case type. (Case Dashboard)
-         * @request GET:/api/case/dashboard/version/{cmmnVersionId}/permission
-         */
-        getCaseDashboardVersionCmmnversionidPermission: (cmmnVersionId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnDashboardDTO, any>({
-                path: `/api/case/dashboard/version/${cmmnVersionId}/permission`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseinstanceidMilestoneStatus
-         * @summary Obtain Milestone Status of a case instance
-         * @request GET:/api/case/dashboard/instance/{caseInstanceId}/milestone/status
-         */
-        getCaseDashboardInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/api/case/dashboard/instance/${caseInstanceId}/milestone/status`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidTasks
-         * @summary Retrieve all tasks of this case instance
-         * @request GET:/api/case/dashboard/instance/{caseId}/tasks
-         */
-        getCaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/tasks`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidStages
-         * @summary Retrieve stages of current case instance
-         * @request GET:/api/case/dashboard/instance/{caseId}/stages
-         */
-        getCaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/stages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidProcessInstancePageConditions
-         * @summary Obtain process instance conditions that has been used
-         * @request GET:/api/case/dashboard/instance/{caseId}/process/instance/page/conditions
-         */
-        getCaseDashboardInstanceCaseidProcessInstancePageConditions: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/process/instance/page/conditions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidPrimaryformData
-         * @summary Retrieve information and information data of this case instance
-         * @request GET:/api/case/dashboard/instance/{caseId}/primaryForm/data
-         */
-        getCaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/primaryForm/data`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidPlanitems
-         * @summary Retrieve planItems
-         * @request GET:/api/case/dashboard/instance/{caseId}/planItems
-         */
-        getCaseDashboardInstanceCaseidPlanitems: (
-            caseId: string,
-            query: {
-                type: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/planItems`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidPersonalTasks
-         * @summary Retrieve personal tasks of this case instance
-         * @request GET:/api/case/dashboard/instance/{caseId}/personal/tasks
-         */
-        getCaseDashboardInstanceCaseidPersonalTasks: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/personal/tasks`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidEvents
-         * @summary Retrieve all events of this case instance
-         * @request GET:/api/case/dashboard/instance/{caseId}/events
-         */
-        getCaseDashboardInstanceCaseidEvents: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/events`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidActivity
-         * @summary Retrieve activities of this case instance
-         * @request GET:/api/case/dashboard/instance/{caseId}/activity
-         */
-        getCaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnActivityItem, any>({
-                path: `/api/case/dashboard/instance/${caseId}/activity`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceCaseidActions
-         * @summary Retrieve activities of this case instance
-         * @request GET:/api/case/dashboard/instance/{caseId}/actions
-         */
-        getCaseDashboardInstanceCaseidActions: (
-            caseId: string,
-            query?: {
-                userId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/instance/${caseId}/actions`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardInstanceStagePlanitems
-         * @summary Retrieve all planItem instance of this case instance
-         * @request GET:/api/case/dashboard/instance/stage/planItems
-         */
-        getCaseDashboardInstanceStagePlanitems: (
-            query: {
-                /** Case Instance Id */
-                caseInstanceId: any;
-                /** Stage Plan Item Definition Id */
-                stageDefinitionId: any;
-                /** PlanItemInstanceDTO */
-                planItemInstanceDTO: PlanItemInstanceDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/instance/stage/planItems`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardCasetypeCasetypeid
-         * @summary Retrieve all Case View Dashboard
-         * @request GET:/api/case/dashboard/caseType/{caseTypeId}
-         */
-        getCaseDashboardCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnDashboard, any>({
-                path: `/api/case/dashboard/caseType/${caseTypeId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber
-         * @summary Retrieve case dashboard detail of version number
-         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/versionNumber/{versionNumber}
-         */
-        getCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber: (
-            caseTypeId: string,
-            versionNumber: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCmmnDashboard, any>({
-                path: `/api/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardCasetypeCasetypeidStages
-         * @summary Retrieve stages of current case instance
-         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/stages
-         */
-        getCaseDashboardCasetypeCasetypeidStages: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/caseType/${caseTypeId}/stages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardCasetypeCasetypeidRecordsPageConditions
-         * @summary Obtain all conditions that paging search data of deployed case type
-         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/records/page/conditions
-         */
-        getCaseDashboardCasetypeCasetypeidRecordsPageConditions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, any>({
-                path: `/api/case/dashboard/caseType/${caseTypeId}/records/page/conditions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardCasetypeCasetypeidPrimaryform
-         * @summary Get information form of case type
-         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/primaryForm
-         */
-        getCaseDashboardCasetypeCasetypeidPrimaryform: (
-            caseTypeId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/api/case/dashboard/caseType/${caseTypeId}/primaryForm`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardCasetypeCasetypeidActivity
-         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/activity
-         */
-        getCaseDashboardCasetypeCasetypeidActivity: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/caseType/${caseTypeId}/activity`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardCasetypeCasetypeidActions
-         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/actions
-         */
-        getCaseDashboardCasetypeCasetypeidActions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/api/case/dashboard/caseType/${caseTypeId}/actions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags cmmn-dashboard-controller
-         * @name GetCaseDashboardCaseinstanceCaseinstanceid
-         * @summary Show all dashboard views that belong to the current user of this case type. (Case Dashboard)
-         * @request GET:/api/case/dashboard/caseInstance/{caseInstanceId}
-         */
-        getCaseDashboardCaseinstanceCaseinstanceid: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnDashboardDTO, any>({
-                path: `/api/case/dashboard/caseInstance/${caseInstanceId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags CapturePromptTemplateSettingController
          * @name GetCapturePrompttemplatesettingId
          * @summary Query Prompt Template Setting info by Id
@@ -38960,82 +29807,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Workflow Task
-         * @name DeleteWorkflowTask
-         * @summary Delete a task
-         * @request DELETE:/api/workflow/task
+         * @tags WMSGitMatchDataController
+         * @name DeleteWmsGitInvoiceIdItemItemid
+         * @request DELETE:/api/wms/git-invoice/{id}/item/{itemId}
          */
-        deleteWorkflowTask: (
-            query: {
-                taskId: string;
-                deleteReason?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/api/workflow/task`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name DeleteWorkflowInstanceProcessUser
-         * @summary Delete process instance by user id
-         * @request DELETE:/api/workflow/instance/process/user
-         */
-        deleteWorkflowInstanceProcessUser: (data: DeleteWorkflowReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/instance/process/user`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteWorkflowDefinitionVersionDraftidDraftid
-         * @request DELETE:/api/workflow/definition/version/draftId/{draftId}
-         */
-        deleteWorkflowDefinitionVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/definition/version/draftId/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteWorkflowDefinitionSuspendDraftid
-         * @summary Suspend a process definition
-         * @request DELETE:/api/workflow/definition/suspend/{draftId}
-         */
-        deleteWorkflowDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/definition/suspend/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteWorkflowDefinitionRemoveDraftid
-         * @summary Remove process definition from workflow list
-         * @request DELETE:/api/workflow/definition/remove/{draftId}
-         */
-        deleteWorkflowDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/workflow/definition/remove/${draftId}`,
+        deleteWmsGitInvoiceIdItemItemid: (id: string, itemId: string, params: RequestParams = {}) =>
+            this.request<ResultGITInvoiceLineItemDTO, any>({
+                path: `/api/wms/git-invoice/${id}/item/${itemId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -39178,67 +29956,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultBoolean, any>({
                 path: `/api/dynamic-db/permissions/database/${databaseId}/revoke/${permissionId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Version Controller
-         * @name DeleteDocpalWorkflowVersionDraftidDraftid
-         * @request DELETE:/api/docpal/workflow/version/draftId/{draftId}
-         */
-        deleteDocpalWorkflowVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/version/draftId/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Instance
-         * @name DeleteDocpalWorkflowProcessUser
-         * @summary Delete process instance by user id
-         * @request DELETE:/api/docpal/workflow/process/user
-         */
-        deleteDocpalWorkflowProcessUser: (data: DeleteWorkflowReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/process/user`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteDocpalWorkflowProcessDefinitionSuspendDraftid
-         * @summary Suspend a process definition
-         * @request DELETE:/api/docpal/workflow/process/definition/suspend/{draftId}
-         */
-        deleteDocpalWorkflowProcessDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/process/definition/suspend/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteDocpalWorkflowProcessDefinitionRemoveDraftid
-         * @summary Remove process definition from workflow list
-         * @request DELETE:/api/docpal/workflow/process/definition/remove/{draftId}
-         */
-        deleteDocpalWorkflowProcessDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/docpal/workflow/process/definition/remove/${draftId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -39592,71 +30309,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CaseTypeController
-         * @name DeleteCaseTypesId
-         * @summary Delete the case type it must not have been used yet
-         * @request DELETE:/api/case/types/{id}
-         */
-        deleteCaseTypesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/types/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name DeleteCaseTypesCasetypeidInstanceCaseid
-         * @summary Delete case instance of this case type
-         * @request DELETE:/api/case/types/{caseTypeId}/instance/{caseId}
-         */
-        deleteCaseTypesCasetypeidInstanceCaseid: (caseTypeId: string, caseId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/types/${caseTypeId}/instance/${caseId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name DeleteCaseInstanceInstance
-         * @request DELETE:/api/case/instance/instance
-         */
-        deleteCaseInstanceInstance: (
-            query?: {
-                caseId?: string;
-                caseInstanceId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/instance`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController
-         * @name DeleteCaseInstanceInstanceCaseid
-         * @request DELETE:/api/case/instance/instance/{caseId}
-         */
-        deleteCaseInstanceInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/case/instance/instance/${caseId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags CaptureFileController
          * @name DeleteCaptureFileTempFileFromBatch
          * @summary Remove File From Temp Batch By FileName
@@ -39832,138 +30484,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
     };
     admin = {
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name GetWorkflowInstanceTaskCandidates
-         * @summary Retrieve task candidates by process task definition
-         * @request GET:/admin/api/workflow/instance/task/candidates
-         */
-        getWorkflowInstanceTaskCandidates: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/admin/api/workflow/instance/task/candidates`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceTaskCandidates
-         * @summary Retrieve task candidates by process task definition
-         * @request POST:/admin/api/workflow/instance/task/candidates
-         */
-        postWorkflowInstanceTaskCandidates: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/admin/api/workflow/instance/task/candidates`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name GetDocpalWorkflowTaskCandidatesbytaskdefinitionkey
-         * @summary Retrieve task candidates by process task definition
-         * @request GET:/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey
-         */
-        getDocpalWorkflowTaskCandidatesbytaskdefinitionkey: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowTaskCandidatesbytaskdefinitionkey
-         * @summary Retrieve task candidates by process task definition
-         * @request POST:/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey
-         */
-        postDocpalWorkflowTaskCandidatesbytaskdefinitionkey: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name GetDocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
-         * @summary Retrieve task candidates by process task definition
-         * @request GET:/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey/
-         */
-        getDocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
-         * @summary Retrieve task candidates by process task definition
-         * @request POST:/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey/
-         */
-        postDocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
-            query: {
-                taskDefinitionKey: string;
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultSetUserDTO, any>({
-                path: `/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
         /**
          * No description
          *
@@ -41822,765 +32342,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CalendarController(Admin Page)
-         * @name PutDmsCalendars
-         * @summary Update Event Task
-         * @request PUT:/admin/api/dms/calendars
-         */
-        putDmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, any>({
-                path: `/admin/api/dms/calendars`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name PostDmsCalendars
-         * @summary Create a new event task
-         * @request POST:/admin/api/dms/calendars
-         */
-        postDmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, any>({
-                path: `/admin/api/dms/calendars`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController(Admin Page)
-         * @name GetDmsCalendarsEventSettingId
-         * @summary Get Event Calendar Setting by ID
-         * @request GET:/admin/api/dms/calendars/event/setting/{id}
-         */
-        getDmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultEventCalendarSetting, any>({
-                path: `/admin/api/dms/calendars/event/setting/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController(Admin Page)
-         * @name PutDmsCalendarsEventSettingId
-         * @summary Update Event Calendar Setting
-         * @request PUT:/admin/api/dms/calendars/event/setting/{id}
-         */
-        putDmsCalendarsEventSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
-            this.request<ResultEventCalendarSetting, any>({
-                path: `/admin/api/dms/calendars/event/setting/${id}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController(Admin Page)
-         * @name DeleteDmsCalendarsEventSettingId
-         * @summary Remove Event Calendar Setting
-         * @request DELETE:/admin/api/dms/calendars/event/setting/{id}
-         */
-        deleteDmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/dms/calendars/event/setting/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypes
-         * @summary Retrieve all case types
-         * @request GET:/admin/api/case/types
-         */
-        getCaseTypes: (
-            query?: {
-                name?: string;
-                deployed?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCaseType, any>({
-                path: `/admin/api/case/types`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PutCaseTypes
-         * @summary Update case type
-         * @request PUT:/admin/api/case/types
-         */
-        putCaseTypes: (data: CaseType, params: RequestParams = {}) =>
-            this.request<ResultCaseType, any>({
-                path: `/admin/api/case/types`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypes
-         * @summary Create a new case type
-         * @request POST:/admin/api/case/types
-         */
-        postCaseTypes: (data: CaseType, params: RequestParams = {}) =>
-            this.request<ResultCaseType, any>({
-                path: `/admin/api/case/types`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PutCaseTypesEnable
-         * @summary Enable or Disable case type
-         * @request PUT:/admin/api/case/types/enable
-         */
-        putCaseTypesEnable: (data: CaseType, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/types/enable`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name PutCaseDashboard
-         * @summary Update case dashboard
-         * @request PUT:/admin/api/case/dashboard
-         */
-        putCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboardResponseDTO, any>({
-                path: `/admin/api/case/dashboard`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name PostCaseDashboard
-         * @summary Create a new case dashboard
-         * @request POST:/admin/api/case/dashboard
-         */
-        postCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboardResponseDTO, any>({
-                path: `/admin/api/case/dashboard`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name PutCaseDashboardStatus
-         * @summary Update status of case dashboard
-         * @request PUT:/admin/api/case/dashboard/status
-         */
-        putCaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/dashboard/status`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstance
-         * @request POST:/admin/api/workflow/instance
-         */
-        postWorkflowInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListInstanceDTO, any>({
-                path: `/admin/api/workflow/instance`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name DeleteWorkflowInstance
-         * @summary Delete process instance by user id
-         * @request DELETE:/admin/api/workflow/instance
-         */
-        deleteWorkflowInstance: (data: DeleteWorkflowReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/instance`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceTasks
-         * @request POST:/admin/api/workflow/instance/tasks
-         */
-        postWorkflowInstanceTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/admin/api/workflow/instance/tasks`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceTasksUser
-         * @request POST:/admin/api/workflow/instance/tasks/user
-         */
-        postWorkflowInstanceTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOTaskDTO, any>({
-                path: `/admin/api/workflow/instance/tasks/user`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceTaskUnclaim
-         * @request POST:/admin/api/workflow/instance/task/unclaim
-         */
-        postWorkflowInstanceTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/admin/api/workflow/instance/task/unclaim`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceTaskMove
-         * @request POST:/admin/api/workflow/instance/task/move
-         */
-        postWorkflowInstanceTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/instance/task/move`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceTaskClaim
-         * @request POST:/admin/api/workflow/instance/task/claim
-         */
-        postWorkflowInstanceTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/admin/api/workflow/instance/task/claim`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceConditionValidate
-         * @request POST:/admin/api/workflow/instance/condition/validate
-         */
-        postWorkflowInstanceConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/instance/condition/validate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceProcessConditionValidate
-         * @request POST:/admin/api/workflow/instance/process/condition/validate
-         */
-        postWorkflowInstanceProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/instance/process/condition/validate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceJobsIdRetry
-         * @request POST:/admin/api/workflow/instance/jobs/{id}/retry
-         */
-        postWorkflowInstanceJobsIdRetry: (id: number, params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/workflow/instance/jobs/${id}/retry`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name PostWorkflowInstanceJobsPage
-         * @request POST:/admin/api/workflow/instance/jobs/page
-         */
-        postWorkflowInstanceJobsPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWorkflowRetryManagerDTO, any>({
-                path: `/admin/api/workflow/instance/jobs/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionVersionVersionidDeploy
-         * @summary Promote to Production - Deploy the current version to production for used it
-         * @request POST:/admin/api/workflow/definition/version/{versionId}/deploy
-         */
-        postWorkflowDefinitionVersionVersionidDeploy: (
-            versionId: string,
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                jsonValue?: stringJson;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/workflow/definition/version/${versionId}/deploy`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionVersionReplaceDraft
-         * @summary Save to Draft
-         * @request POST:/admin/api/workflow/definition/version/replace/draft
-         */
-        postWorkflowDefinitionVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/definition/version/replace/draft`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionVersionPage
-         * @summary Pagination search of process definition version
-         * @request POST:/admin/api/workflow/definition/version/page
-         */
-        postWorkflowDefinitionVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOProcessDefinitionVersion, any>({
-                path: `/admin/api/workflow/definition/version/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionVersionNew
-         * @summary Save New Version of process definition
-         * @request POST:/admin/api/workflow/definition/version/new
-         */
-        postWorkflowDefinitionVersionNew: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/admin/api/workflow/definition/version/new`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionValidate
-         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
-         * @request POST:/admin/api/workflow/definition/validate
-         */
-        postWorkflowDefinitionValidate: (
-            query: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/workflow/definition/validate`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionUpload
-         * @summary Create new workflow (process definition)
-         * @request POST:/admin/api/workflow/definition/upload
-         */
-        postWorkflowDefinitionUpload: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                name?: string;
-                /** @format string */
-                key?: string;
-                /** @format boolean */
-                isDraft?: boolean;
-                /**
-                 * @format string
-                 * @default "V1"
-                 */
-                versionId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/workflow/definition/upload`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionSave
-         * @summary Save workflow of someone version
-         * @request POST:/admin/api/workflow/definition/save
-         */
-        postWorkflowDefinitionSave: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                name?: string;
-                /** @format string */
-                key?: string;
-                /** @format boolean */
-                isDraft?: boolean;
-                /** @format string */
-                versionId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/workflow/definition/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionParse
-         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
-         * @request POST:/admin/api/workflow/definition/parse
-         */
-        postWorkflowDefinitionParse: (
-            query: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/definition/parse`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionModel
-         * @summary Retrieve process model (BPMN) XML by ID or Key
-         * @request POST:/admin/api/workflow/definition/model
-         */
-        postWorkflowDefinitionModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/workflow/definition/model`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionList
-         * @summary Retrieve process definition
-         * @request POST:/admin/api/workflow/definition/list
-         */
-        postWorkflowDefinitionList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
-                path: `/admin/api/workflow/definition/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionDraftDraftidJson
-         * @summary Get json of process definition
-         * @request GET:/admin/api/workflow/definition/draft/{draftId}/json
-         */
-        getWorkflowDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/workflow/definition/draft/${draftId}/json`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionDraftDraftidJson
-         * @summary Update json of process definition, please use string json
-         * @request POST:/admin/api/workflow/definition/draft/{draftId}/json
-         */
-        postWorkflowDefinitionDraftDraftidJson: (
-            draftId: string,
-            data: ProcessDefinitionDraft,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/workflow/definition/draft/${draftId}/json`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionDraftDraftidImport
-         * @summary Import zip file for create new process definition
-         * @request POST:/admin/api/workflow/definition/draft/{draftId}/import
-         */
-        postWorkflowDefinitionDraftDraftidImport: (
-            draftId: string,
-            data: {
-                /** @format string */
-                draftId?: string;
-                /** @format binary */
-                file?: File;
-                versionNumber?: string;
-            },
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/workflow/definition/draft/${draftId}/import`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionDraftDraftidExport
-         * @summary Export process definition
-         * @request POST:/admin/api/workflow/definition/draft/{draftId}/export
-         */
-        postWorkflowDefinitionDraftDraftidExport: (
-            draftId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/admin/api/workflow/definition/draft/${draftId}/export`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionDraftPage
-         * @summary Pagination search of process definition model
-         * @request POST:/admin/api/workflow/definition/draft/page
-         */
-        postWorkflowDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOProcessDefinitionDraft, any>({
-                path: `/admin/api/workflow/definition/draft/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionCopyCopiedkey
-         * @summary Copy workflow (process definition)
-         * @request POST:/admin/api/workflow/definition/copy/{copiedKey}
-         */
-        postWorkflowDefinitionCopyCopiedkey: (
-            copiedKey: string,
-            data: WorkflowDraftRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/workflow/definition/copy/${copiedKey}`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name PostWorkflowDefinitionActiveDraftid
-         * @request POST:/admin/api/workflow/definition/active/{draftId}
-         */
-        postWorkflowDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/definition/active/${draftId}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags UcenterController
          * @name GetUcenterUsers
          * @request GET:/admin/api/ucenter/users
@@ -43420,645 +33181,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDsbAzureOcrTransactionLogs: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOOcrTransactionLogDTO, any>({
                 path: `/admin/api/dsb/azure/ocr/transaction/logs`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name PostDocpalWorkflowVersionVersionidDeploy
-         * @summary Promote to Production - Deploy the current version to production for used it
-         * @request POST:/admin/api/docpal/workflow/version/{versionId}/deploy
-         */
-        postDocpalWorkflowVersionVersionidDeploy: (
-            versionId: string,
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                jsonValue?: stringJson;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/docpal/workflow/version/${versionId}/deploy`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name PostDocpalWorkflowVersionReplaceDraft
-         * @summary Save to Draft
-         * @request POST:/admin/api/docpal/workflow/version/replace/draft
-         */
-        postDocpalWorkflowVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/version/replace/draft`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name PostDocpalWorkflowVersionPage
-         * @summary Pagination search of process definition version
-         * @request POST:/admin/api/docpal/workflow/version/page
-         */
-        postDocpalWorkflowVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOProcessDefinitionVersion, any>({
-                path: `/admin/api/docpal/workflow/version/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name PostDocpalWorkflowVersionNew
-         * @summary Save New Version of process definition
-         * @request POST:/admin/api/docpal/workflow/version/new
-         */
-        postDocpalWorkflowVersionNew: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/admin/api/docpal/workflow/version/new`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name PostDocpalWorkflowUpdatemetadatamapping
-         * @request POST:/admin/api/docpal/workflow/updateMetadataMapping
-         */
-        postDocpalWorkflowUpdatemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/updateMetadataMapping`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowTasks
-         * @request POST:/admin/api/docpal/workflow/tasks
-         */
-        postDocpalWorkflowTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, any>({
-                path: `/admin/api/docpal/workflow/tasks`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowTasksUser
-         * @request POST:/admin/api/docpal/workflow/tasks/user
-         */
-        postDocpalWorkflowTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOTaskDTO, any>({
-                path: `/admin/api/docpal/workflow/tasks/user`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowTaskUnclaim
-         * @request POST:/admin/api/docpal/workflow/task/unclaim
-         */
-        postDocpalWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/admin/api/docpal/workflow/task/unclaim`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowTaskMove
-         * @request POST:/admin/api/docpal/workflow/task/move
-         */
-        postDocpalWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/task/move`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowTaskClaim
-         * @request POST:/admin/api/docpal/workflow/task/claim
-         */
-        postDocpalWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, any>({
-                path: `/admin/api/docpal/workflow/task/claim`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name PostDocpalWorkflowSavemetadatamapping
-         * @request POST:/admin/api/docpal/workflow/saveMetadataMapping
-         */
-        postDocpalWorkflowSavemetadatamapping: (data: DocPalDocumentTypeMapping, params: RequestParams = {}) =>
-            this.request<ResultListDocumentTypeMetadataMapping, any>({
-                path: `/admin/api/docpal/workflow/saveMetadataMapping`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name PostDocpalWorkflowSavedocumenttypeprofile
-         * @request POST:/admin/api/docpal/workflow/saveDocumentTypeProfile
-         */
-        postDocpalWorkflowSavedocumenttypeprofile: (
-            data: DocumentTypeProfileSettingRequest,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultDocumentTypeProfileSetting, any>({
-                path: `/admin/api/docpal/workflow/saveDocumentTypeProfile`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowRetryFailWorkflow
-         * @request POST:/admin/api/docpal/workflow/retry_fail_workflow
-         */
-        postDocpalWorkflowRetryFailWorkflow: (data: WorkflowRetryManagerDTO, params: RequestParams = {}) =>
-            this.request<Result, any>({
-                path: `/admin/api/docpal/workflow/retry_fail_workflow`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowQueryWorkflowRetryPage
-         * @request POST:/admin/api/docpal/workflow/query_workflow_retry_page
-         */
-        postDocpalWorkflowQueryWorkflowRetryPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWorkflowRetryManagerDTO, any>({
-                path: `/admin/api/docpal/workflow/query_workflow_retry_page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowProperties
-         * @request POST:/admin/api/docpal/workflow/properties
-         */
-        postDocpalWorkflowProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/admin/api/docpal/workflow/properties`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowProcessModel
-         * @summary Retrieve process model (BPMN) XML
-         * @request POST:/admin/api/docpal/workflow/process/model
-         */
-        postDocpalWorkflowProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/docpal/workflow/process/model`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowProcessList
-         * @summary Retrieve process definition
-         * @request POST:/admin/api/docpal/workflow/process/list
-         */
-        postDocpalWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
-                path: `/admin/api/docpal/workflow/process/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowProcessInstance
-         * @request POST:/admin/api/docpal/workflow/process/instance
-         */
-        postDocpalWorkflowProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListInstanceDTO, any>({
-                path: `/admin/api/docpal/workflow/process/instance`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionValidate
-         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
-         * @request POST:/admin/api/docpal/workflow/process/definition/validate
-         */
-        postDocpalWorkflowProcessDefinitionValidate: (
-            query: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/docpal/workflow/process/definition/validate`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionUpload
-         * @summary Create new workflow (process definition)
-         * @request POST:/admin/api/docpal/workflow/process/definition/upload
-         */
-        postDocpalWorkflowProcessDefinitionUpload: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                name?: string;
-                /** @format string */
-                key?: string;
-                /** @format boolean */
-                isDraft?: boolean;
-                /**
-                 * @format string
-                 * @default "V1"
-                 */
-                versionId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/upload`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionSave
-         * @summary Save workflow of someone version
-         * @request POST:/admin/api/docpal/workflow/process/definition/save
-         */
-        postDocpalWorkflowProcessDefinitionSave: (
-            data: {
-                /** @format binary */
-                file?: File;
-                /** @format string */
-                draftId?: string;
-                /** @format string */
-                name?: string;
-                /** @format string */
-                key?: string;
-                /** @format boolean */
-                isDraft?: boolean;
-                /** @format string */
-                versionId?: string;
-                /** @format string */
-                jsonValue?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionParse
-         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
-         * @request POST:/admin/api/docpal/workflow/process/definition/parse
-         */
-        postDocpalWorkflowProcessDefinitionParse: (
-            query: {
-                /** @format binary */
-                file: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/process/definition/parse`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDraftDraftidJson
-         * @summary Get json of process definition
-         * @request GET:/admin/api/docpal/workflow/process/definition/draft/{draftId}/json
-         */
-        getDocpalWorkflowProcessDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}/json`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidJson
-         * @summary Update json of process definition, please use string json
-         * @request POST:/admin/api/docpal/workflow/process/definition/draft/{draftId}/json
-         */
-        postDocpalWorkflowProcessDefinitionDraftDraftidJson: (
-            draftId: string,
-            data: ProcessDefinitionDraft,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}/json`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidImport
-         * @summary Import zip file for create new process definition
-         * @request POST:/admin/api/docpal/workflow/process/definition/draft/{draftId}/import
-         */
-        postDocpalWorkflowProcessDefinitionDraftDraftidImport: (
-            draftId: string,
-            data: {
-                /** @format string */
-                draftId?: string;
-                /** @format binary */
-                file?: File;
-                versionNumber?: string;
-            },
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}/import`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidExport
-         * @summary Export process definition
-         * @request POST:/admin/api/docpal/workflow/process/definition/draft/{draftId}/export
-         */
-        postDocpalWorkflowProcessDefinitionDraftDraftidExport: (
-            draftId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}/export`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionDraftPage
-         * @summary Pagination search of process definition model
-         * @request POST:/admin/api/docpal/workflow/process/definition/draft/page
-         */
-        postDocpalWorkflowProcessDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOProcessDefinitionDraft, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionCopyCopiedkey
-         * @summary Copy workflow (process definition)
-         * @request POST:/admin/api/docpal/workflow/process/definition/copy/{copiedKey}
-         */
-        postDocpalWorkflowProcessDefinitionCopyCopiedkey: (
-            copiedKey: string,
-            data: WorkflowDraftRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/copy/${copiedKey}`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionCopyFromFlowable
-         * @summary Data Patch API
-         * @request POST:/admin/api/docpal/workflow/process/definition/copy/from/flowable
-         */
-        postDocpalWorkflowProcessDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/docpal/workflow/process/definition/copy/from/flowable`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name PostDocpalWorkflowProcessDefinitionActiveDraftid
-         * @request POST:/admin/api/docpal/workflow/process/definition/active/{draftId}
-         */
-        postDocpalWorkflowProcessDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/process/definition/active/${draftId}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name PostDocpalWorkflowProcessConditionValidate
-         * @request POST:/admin/api/docpal/workflow/process/condition/validate
-         */
-        postDocpalWorkflowProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/process/condition/validate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name PostDocpalWorkflowDeletemetadatamapping
-         * @request POST:/admin/api/docpal/workflow/deleteMetadataMapping
-         */
-        postDocpalWorkflowDeletemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/deleteMetadataMapping`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name PostDocpalWorkflowChecknameortitle
-         * @request POST:/admin/api/docpal/workflow/checkNameOrTitle
-         */
-        postDocpalWorkflowChecknameortitle: (data: Record<string, string>, params: RequestParams = {}) =>
-            this.request<ResultString, any>({
-                path: `/admin/api/docpal/workflow/checkNameOrTitle`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -44980,20 +34102,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminSettingController
-         * @name PostDmsSettingInitworkflowdefinition
-         * @request POST:/admin/api/dms/setting/initWorkflowDefinition
-         */
-        postDmsSettingInitworkflowdefinition: (params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/dms/setting/initWorkflowDefinition`,
-                method: "POST",
                 ...params,
             }),
 
@@ -46777,135 +35885,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CalendarController(Admin Page)
-         * @name GetDmsCalendarsWidgetSetting
-         * @summary Obtain calendar widget settings
-         * @request GET:/admin/api/dms/calendars/widget/setting
-         */
-        getDmsCalendarsWidgetSetting: (params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/admin/api/dms/calendars/widget/setting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name PostDmsCalendarsWidgetSetting
-         * @summary Save calendar settings
-         * @request POST:/admin/api/dms/calendars/widget/setting
-         */
-        postDmsCalendarsWidgetSetting: (data: Record<string, any>, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/admin/api/dms/calendars/widget/setting`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name PostDmsCalendarsValidate
-         * @request POST:/admin/api/dms/calendars/validate
-         */
-        postDmsCalendarsValidate: (params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/dms/calendars/validate`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name GetDmsCalendarsSetting
-         * @summary Obtain calendar settings
-         * @request GET:/admin/api/dms/calendars/setting
-         */
-        getDmsCalendarsSetting: (params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/admin/api/dms/calendars/setting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name PostDmsCalendarsSetting
-         * @summary Save calendar settings
-         * @request POST:/admin/api/dms/calendars/setting
-         */
-        postDmsCalendarsSetting: (data: Record<string, any>, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/admin/api/dms/calendars/setting`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name PostDmsCalendarsList
-         * @summary Query list
-         * @request POST:/admin/api/dms/calendars/list
-         */
-        postDmsCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultListCalendarTaskRespDTO, any>({
-                path: `/admin/api/dms/calendars/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController(Admin Page)
-         * @name PostDmsCalendarsEventSetting
-         * @summary Create Event Calendar Setting
-         * @request POST:/admin/api/dms/calendars/event/setting
-         */
-        postDmsCalendarsEventSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
-            this.request<ResultEventCalendarSetting, any>({
-                path: `/admin/api/dms/calendars/event/setting`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController(Admin Page)
-         * @name PostDmsCalendarsEventSettingPage
-         * @summary Paging query Event Calendar Settings
-         * @request POST:/admin/api/dms/calendars/event/setting/page
-         */
-        postDmsCalendarsEventSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOEventCalendarSetting, any>({
-                path: `/admin/api/dms/calendars/event/setting/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags CabinetController(Admin Page)
          * @name PostDmsCabinetVerificationComplete
          * @summary verification complete of folder cabinet
@@ -47138,29 +36117,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostDmsCabinetGenerateDocument
-         * @request POST:/admin/api/dms/cabinet/generate/document
-         */
-        postDmsCabinetGenerateDocument: (
-            query: {
-                processDefinitionKey: string;
-            },
-            data: FilingDocumentPreviewReq,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultDocumentDTO, any>({
-                path: `/admin/api/dms/cabinet/generate/document`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CabinetController(Admin Page)
          * @name PostDmsCabinetExport
          * @request POST:/admin/api/dms/cabinet/export
          */
@@ -47208,569 +36164,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesIdPublish
-         * @summary Publish CMMN file to workflow application
-         * @request POST:/admin/api/case/types/{id}/publish
-         * @deprecated
-         */
-        postCaseTypesIdPublish: (
-            id: string,
-            data: {
-                /**
-                 * CMMN XML file
-                 * @format binary
-                 */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseTypeResponseDTO, any>({
-                path: `/admin/api/case/types/${id}/publish`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesIdDraftSave
-         * @summary Save draft cmmn xml
-         * @request POST:/admin/api/case/types/{id}/draft/save
-         */
-        postCaseTypesIdDraftSave: (
-            id: string,
-            data: {
-                /**
-                 * this is a .xml file
-                 * @format binary
-                 */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseModelDraft, any>({
-                path: `/admin/api/case/types/${id}/draft/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesIdDraftDownload
-         * @summary Download draft cmmn xml (case model definition)
-         * @request POST:/admin/api/case/types/{id}/draft/download
-         */
-        postCaseTypesIdDraftDownload: (id: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/case/types/${id}/draft/download`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesIdDownloadDraft
-         * @summary Download draft cmmn xml (case model definition)
-         * @request POST:/admin/api/case/types/{id}/download/draft
-         */
-        postCaseTypesIdDownloadDraft: (id: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/case/types/${id}/download/draft`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesIdCopy
-         * @summary New Case for new case type
-         * @request POST:/admin/api/case/types/{id}/copy
-         */
-        postCaseTypesIdCopy: (id: string, data: CopyCaseTypeRequest, params: RequestParams = {}) =>
-            this.request<ResultCaseTypeResponseDTO, any>({
-                path: `/admin/api/case/types/${id}/copy`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesVersionVersionidRefresh
-         * @request POST:/admin/api/case/types/version/{versionId}/refresh
-         */
-        postCaseTypesVersionVersionidRefresh: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/case/types/version/${versionId}/refresh`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesVersionVersionidNew
-         * @summary Create a new version of case type
-         * @request POST:/admin/api/case/types/version/{versionId}/new
-         */
-        postCaseTypesVersionVersionidNew: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnVersion, any>({
-                path: `/admin/api/case/types/version/${versionId}/new`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesVersionVersionidActive
-         * @summary Deploy a version case type
-         * @request POST:/admin/api/case/types/version/{versionId}/active
-         */
-        postCaseTypesVersionVersionidActive: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/types/version/${versionId}/active`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesVersionPage
-         * @summary Paging query case-model version
-         * @request POST:/admin/api/case/types/version/page
-         */
-        postCaseTypesVersionPage: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCmmnVersion, any>({
-                path: `/admin/api/case/types/version/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesStylejsonSave
-         * @summary Save style json of cmmn xml
-         * @request POST:/admin/api/case/types/styleJson/save
-         */
-        postCaseTypesStylejsonSave: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCmmnVersion, any>({
-                path: `/admin/api/case/types/styleJson/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesRefresh
-         * @request POST:/admin/api/case/types/refresh
-         */
-        postCaseTypesRefresh: (
-            query: {
-                id: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/case/types/refresh`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name PostCaseTypesRecordsList
-         * @summary Get all case instance data of deployed case type without permission
-         * @request POST:/admin/api/case/types/records/list
-         */
-        postCaseTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListLinkedHashMapStringObject, any>({
-                path: `/admin/api/case/types/records/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesPage
-         * @summary Pagination search (Case Type)
-         * @request POST:/admin/api/case/types/page
-         */
-        postCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCaseType, any>({
-                path: `/admin/api/case/types/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PostCaseTypesList
-         * @summary Retrieve case list through the list of case id
-         * @request POST:/admin/api/case/types/list
-         */
-        postCaseTypesList: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListCaseTypeResponseDTO, any>({
-                path: `/admin/api/case/types/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name PostCaseTriggerEvent
-         * @summary Trigger event for completed
-         * @request POST:/admin/api/case/trigger/event
-         */
-        postCaseTriggerEvent: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/trigger/event`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name GetCaseTables
-         * @summary Retrieve all case tables
-         * @request GET:/admin/api/case/tables
-         */
-        getCaseTables: (params: RequestParams = {}) =>
-            this.request<ResultListCaseTable, any>({
-                path: `/admin/api/case/tables`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name PostCaseTables
-         * @summary Create (Case Table)
-         * @request POST:/admin/api/case/tables
-         */
-        postCaseTables: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseTable, any>({
-                path: `/admin/api/case/tables`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name PostCaseTablesIdField
-         * @summary Add single field to Case Table
-         * @request POST:/admin/api/case/tables/{id}/field
-         */
-        postCaseTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
-            this.request<ResultCaseTableResponseDTO, any>({
-                path: `/admin/api/case/tables/${id}/field`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name DeleteCaseTablesIdField
-         * @summary Delete field when not data (Case Table)
-         * @request DELETE:/admin/api/case/tables/{id}/field
-         */
-        deleteCaseTablesIdField: (
-            id: string,
-            query: {
-                columnName: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/tables/${id}/field`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name PostCaseTablesRecord
-         * @summary Insert data into a Case Table
-         * @request POST:/admin/api/case/tables/record
-         */
-        postCaseTablesRecord: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/tables/record`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name PostCaseTablesRecordPage
-         * @summary Pagination Search (Case Table Record)
-         * @request POST:/admin/api/case/tables/record/page
-         */
-        postCaseTablesRecordPage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/case/tables/record/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name PostCaseInstanceTasks
-         * @summary Retrieve all tasks of this case instance
-         * @request POST:/admin/api/case/instance/tasks
-         */
-        postCaseInstanceTasks: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, any>({
-                path: `/admin/api/case/instance/tasks`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name PostCaseInstanceTasksComplete
-         * @summary Complete task
-         * @request POST:/admin/api/case/instance/tasks/complete
-         */
-        postCaseInstanceTasksComplete: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/instance/tasks/complete`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name PostCaseInstanceStart
-         * @summary Start a case model definition to get a case instance
-         * @request POST:/admin/api/case/instance/start
-         */
-        postCaseInstanceStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceDTO, any>({
-                path: `/admin/api/case/instance/start`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name PostCaseInstancePlanitems
-         * @summary Retrieve all or activated planItem instances of this case instance
-         * @request POST:/admin/api/case/instance/planItems
-         */
-        postCaseInstancePlanitems: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/instance/planItems`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name PostCaseInstancePlanitemsPlanitemidEnable
-         * @summary Enable plan item instance
-         * @request POST:/admin/api/case/instance/planItems/{planItemId}/enable
-         */
-        postCaseInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/instance/planItems/${planItemId}/enable`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name PostCaseInstancePlanitemsComplete
-         * @summary Complete PlanItem instance
-         * @request POST:/admin/api/case/instance/planItems/complete
-         */
-        postCaseInstancePlanitemsComplete: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/instance/planItems/complete`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name PostCaseDashboardSaveStyle
-         * @summary Save dashboard Json
-         * @request POST:/admin/api/case/dashboard/save/style
-         */
-        postCaseDashboardSaveStyle: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboard, any>({
-                path: `/admin/api/case/dashboard/save/style`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name PostCaseDashboardPage
-         * @summary Pagination search (Case Dashboard)
-         * @request POST:/admin/api/case/dashboard/page
-         */
-        postCaseDashboardPage: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCmmnDashboardResponseDTO, any>({
-                path: `/admin/api/case/dashboard/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name PostCaseDashboardInstanceCaseidProcessInstanceTasks
-         * @summary Query sub-process tasks of this case instance
-         * @request POST:/admin/api/case/dashboard/instance/{caseId}/process/instance/tasks
-         */
-        postCaseDashboardInstanceCaseidProcessInstanceTasks: (
-            caseId: string,
-            data: CmmnProcessRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOTaskDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/process/instance/tasks`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name PostCaseDashboardInstanceCaseidProcessInstancePage
-         * @summary Pagination Search process instance of this case instance
-         * @request POST:/admin/api/case/dashboard/instance/{caseId}/process/instance/page
-         */
-        postCaseDashboardInstanceCaseidProcessInstancePage: (
-            caseId: string,
-            data: CmmnDashboardRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOCmmnProcessInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/process/instance/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name PostCaseDashboardDatapatchRolepermission
-         * @request POST:/admin/api/case/dashboard/dataPatch/rolePermission
-         */
-        postCaseDashboardDatapatchRolepermission: (params: RequestParams = {}) =>
-            this.request<void, any>({
-                path: `/admin/api/case/dashboard/dataPatch/rolePermission`,
-                method: "POST",
                 ...params,
             }),
 
@@ -48246,38 +36639,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CalendarController(Admin Page)
-         * @name PatchDmsCalendarsIdStatusStatus
-         * @summary Modify status by id
-         * @request PATCH:/admin/api/dms/calendars/{id}/status/{status}
-         */
-        patchDmsCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/dms/calendars/${id}/status/${status}`,
-                method: "PATCH",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController(Admin Page)
-         * @name PatchDmsCalendarsEventSettingIdStatus
-         * @summary Update Event Calendar Setting Status
-         * @request PATCH:/admin/api/dms/calendars/event/setting/{id}/status
-         */
-        patchDmsCalendarsEventSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/dms/calendars/event/setting/${id}/status`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags CabinetController(Admin Page)
          * @name PatchDmsCabinet
          * @summary Update Document Folder Cabinet
@@ -48289,499 +36650,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PatchCaseTypesVersionVersionidSave
-         * @summary Edit XML file [cmmn.xml] of version
-         * @request PATCH:/admin/api/case/types/version/{versionId}/save
-         */
-        patchCaseTypesVersionVersionidSave: (
-            versionId: string,
-            data: {
-                /** @format binary */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCmmnVersion, any>({
-                path: `/admin/api/case/types/version/${versionId}/save`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name PatchCaseTypesVersionVersionidSaveall
-         * @summary [Test API] Save XML file for all version of case definition
-         * @request PATCH:/admin/api/case/types/version/{versionId}/saveAll
-         * @deprecated
-         */
-        patchCaseTypesVersionVersionidSaveall: (
-            versionId: string,
-            data: {
-                /** @format binary */
-                file?: File;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/case/types/version/${versionId}/saveAll`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name PatchCaseTablesFields
-         * @summary The Case Table has been augmented with the addition of multiple columns.
-         * @request PATCH:/admin/api/case/tables/fields
-         */
-        patchCaseTablesFields: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseTableResponseDTO, any>({
-                path: `/admin/api/case/tables/fields`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name GetWorkflowInstanceProcessinstanceid
-         * @request GET:/admin/api/workflow/instance/{processInstanceId}
-         */
-        getWorkflowInstanceProcessinstanceid: (processInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessInstanceDTO, any>({
-                path: `/admin/api/workflow/instance/${processInstanceId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name GetWorkflowInstanceVariablesInstanceid
-         * @request GET:/admin/api/workflow/instance/variables/{instanceId}
-         */
-        getWorkflowInstanceVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/admin/api/workflow/instance/variables/${instanceId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name GetWorkflowInstanceForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/admin/api/workflow/instance/forms
-         */
-        getWorkflowInstanceForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/admin/api/workflow/instance/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name GetWorkflowInstanceFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/admin/api/workflow/instance/forms/{elementKey}
-         */
-        getWorkflowInstanceFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/admin/api/workflow/instance/forms/${elementKey}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionProcessdefinitionkey
-         * @summary Get deployed process definition through process definition key
-         * @request GET:/admin/api/workflow/definition/{processDefinitionKey}
-         */
-        getWorkflowDefinitionProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionDTO, any>({
-                path: `/admin/api/workflow/definition/${processDefinitionKey}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionProcessdefinitionkeyHistory
-         * @summary Find historical process definitions through process definition key
-         * @request GET:/admin/api/workflow/definition/{processDefinitionKey}/history
-         */
-        getWorkflowDefinitionProcessdefinitionkeyHistory: (processDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/admin/api/workflow/definition/${processDefinitionKey}/history`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionVersion
-         * @summary Get Version Data
-         * @request GET:/admin/api/workflow/definition/version
-         */
-        getWorkflowDefinitionVersion: (
-            query: {
-                draftId: string;
-                versionNumber: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/admin/api/workflow/definition/version`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionVersionVersionid
-         * @summary Get Version Data
-         * @request GET:/admin/api/workflow/definition/version/{versionId}
-         */
-        getWorkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/admin/api/workflow/definition/version/${versionId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name DeleteWorkflowDefinitionVersionVersionid
-         * @request DELETE:/admin/api/workflow/definition/version/{versionId}
-         */
-        deleteWorkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/definition/version/${versionId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionVersionVersionidBpmnxml
-         * @summary Download BPMN20.xml through version id of a workflow
-         * @request GET:/admin/api/workflow/definition/version/{versionId}/bpmnXml
-         */
-        getWorkflowDefinitionVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/workflow/definition/version/${versionId}/bpmnXml`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionVersionKeyProcessdefinitionkey
-         * @summary Get Latest Version Data by process definition key
-         * @request GET:/admin/api/workflow/definition/version/key/{processDefinitionKey}
-         */
-        getWorkflowDefinitionVersionKeyProcessdefinitionkey: (
-            processDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/admin/api/workflow/definition/version/key/${processDefinitionKey}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionVersionJson
-         * @summary Download Json through version number and draft id
-         * @request GET:/admin/api/workflow/definition/version/json
-         */
-        getWorkflowDefinitionVersionJson: (
-            query?: {
-                draftId?: string;
-                versionNumber?: string;
-                versionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, any>({
-                path: `/admin/api/workflow/definition/version/json`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionVersionBpmnxml
-         * @summary Download BPMN20.xml through version number and draft id
-         * @request GET:/admin/api/workflow/definition/version/bpmnXml
-         */
-        getWorkflowDefinitionVersionBpmnxml: (
-            query: {
-                draftId: string;
-                versionNumber?: string;
-                versionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/admin/api/workflow/definition/version/bpmnXml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionStartFormProperties
-         * @request GET:/admin/api/workflow/definition/start-form/properties
-         */
-        getWorkflowDefinitionStartFormProperties: (
-            query: {
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/admin/api/workflow/definition/start-form/properties`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionListUserTasks
-         * @request GET:/admin/api/workflow/definition/list/user-tasks
-         */
-        getWorkflowDefinitionListUserTasks: (
-            query?: {
-                processKey?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/admin/api/workflow/definition/list/user-tasks`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/admin/api/workflow/definition/forms
-         */
-        getWorkflowDefinitionForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/admin/api/workflow/definition/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/admin/api/workflow/definition/forms/{elementKey}
-         */
-        getWorkflowDefinitionFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/admin/api/workflow/definition/forms/${elementKey}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionFormsStart
-         * @summary Get start-form properties associated with the process definition
-         * @request GET:/admin/api/workflow/definition/forms/start
-         */
-        getWorkflowDefinitionFormsStart: (
-            query: {
-                /** Workflow Process Definition RequestDTO */
-                requestDTO: ProcessDefinitionRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBpmnDynamicFormDTO, any>({
-                path: `/admin/api/workflow/definition/forms/start`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionDraftDraftid
-         * @summary Get draft through process definition key
-         * @request GET:/admin/api/workflow/definition/draft/{draftId}
-         */
-        getWorkflowDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/workflow/definition/draft/${draftId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name DeleteWorkflowDefinitionDraftDraftid
-         * @summary Delete process definition through process definition draft id
-         * @request DELETE:/admin/api/workflow/definition/draft/{draftId}
-         */
-        deleteWorkflowDefinitionDraftDraftid: (
-            draftId: string,
-            query?: {
-                enforce?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/definition/draft/${draftId}`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionDraftDraftidDownloadXml
-         * @summary Get draft BPMN2.0 XML file through draft id
-         * @request GET:/admin/api/workflow/definition/draft/{draftId}/download/xml
-         */
-        getWorkflowDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/workflow/definition/draft/${draftId}/download/xml`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionDraftAll
-         * @request GET:/admin/api/workflow/definition/draft/all
-         */
-        getWorkflowDefinitionDraftAll: (params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDraft, any>({
-                path: `/admin/api/workflow/definition/draft/all`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name GetWorkflowDefinitionDownloadXml
-         * @summary Download BPMN2.0 XML file through process definition ID
-         * @request GET:/admin/api/workflow/definition/download/xml
-         */
-        getWorkflowDefinitionDownloadXml: (
-            query: {
-                processDefinitionId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/admin/api/workflow/definition/download/xml`,
-                method: "GET",
-                query: query,
                 ...params,
             }),
 
@@ -49435,524 +37303,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/dsb/azure/ocr/conditions`,
                 method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetDocpalWorkflowVersion
-         * @summary Get Version Data
-         * @request GET:/admin/api/docpal/workflow/version
-         */
-        getDocpalWorkflowVersion: (
-            query: {
-                draftId: string;
-                versionNumber: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/admin/api/docpal/workflow/version`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetDocpalWorkflowVersionVersionid
-         * @summary Get Version Data
-         * @request GET:/admin/api/docpal/workflow/version/{versionId}
-         */
-        getDocpalWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/admin/api/docpal/workflow/version/${versionId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name DeleteDocpalWorkflowVersionVersionid
-         * @request DELETE:/admin/api/docpal/workflow/version/{versionId}
-         */
-        deleteDocpalWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/version/${versionId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetDocpalWorkflowVersionVersionidBpmnxml
-         * @summary Download BPMN20.xml through version id of a workflow
-         * @request GET:/admin/api/docpal/workflow/version/{versionId}/bpmnXml
-         */
-        getDocpalWorkflowVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/docpal/workflow/version/${versionId}/bpmnXml`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetDocpalWorkflowVersionKeyProcessdefinitionkey
-         * @summary Get Latest Version Data by process definition key
-         * @request GET:/admin/api/docpal/workflow/version/key/{processDefinitionKey}
-         */
-        getDocpalWorkflowVersionKeyProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionVersion, any>({
-                path: `/admin/api/docpal/workflow/version/key/${processDefinitionKey}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetDocpalWorkflowVersionJson
-         * @summary Download Json through version number and draft id
-         * @request GET:/admin/api/docpal/workflow/version/json
-         */
-        getDocpalWorkflowVersionJson: (
-            query?: {
-                draftId?: string;
-                versionNumber?: string;
-                versionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, any>({
-                path: `/admin/api/docpal/workflow/version/json`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetDocpalWorkflowVersionBpmnxml
-         * @summary Download BPMN20.xml through version number and draft id
-         * @request GET:/admin/api/docpal/workflow/version/bpmnXml
-         */
-        getDocpalWorkflowVersionBpmnxml: (
-            query: {
-                draftId: string;
-                versionNumber?: string;
-                versionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/admin/api/docpal/workflow/version/bpmnXml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name GetDocpalWorkflowVariablesInstanceid
-         * @request GET:/admin/api/docpal/workflow/variables/{instanceId}
-         */
-        getDocpalWorkflowVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, any>({
-                path: `/admin/api/docpal/workflow/variables/${instanceId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name GetDocpalWorkflowStartFormProperties
-         * @request GET:/admin/api/docpal/workflow/start-form/properties
-         */
-        getDocpalWorkflowStartFormProperties: (
-            query: {
-                processKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/admin/api/docpal/workflow/start-form/properties`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name GetDocpalWorkflowQuerydocumenttypeprofileid
-         * @request GET:/admin/api/docpal/workflow/querydocumentTypeProFileId
-         */
-        getDocpalWorkflowQuerydocumenttypeprofileid: (
-            query: {
-                documentType: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListLong, any>({
-                path: `/admin/api/docpal/workflow/querydocumentTypeProFileId`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name GetDocpalWorkflowQuerymetadatamapping
-         * @request GET:/admin/api/docpal/workflow/queryMetadataMapping
-         */
-        getDocpalWorkflowQuerymetadatamapping: (
-            query: {
-                request: DocumentTypeMetadataMapping;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentTypeMetadataMapping, any>({
-                path: `/admin/api/docpal/workflow/queryMetadataMapping`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name GetDocpalWorkflowQuerymetadatamappingnames
-         * @request GET:/admin/api/docpal/workflow/queryMetadataMappingNames
-         */
-        getDocpalWorkflowQuerymetadatamappingnames: (params: RequestParams = {}) =>
-            this.request<ResultListString, any>({
-                path: `/admin/api/docpal/workflow/queryMetadataMappingNames`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name GetDocpalWorkflowQuerydocumenttypeprofile
-         * @request GET:/admin/api/docpal/workflow/queryDocumentTypeProfile
-         */
-        getDocpalWorkflowQuerydocumenttypeprofile: (
-            query: {
-                request: DocumentTypeProfileSetting;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentTypeProfileSetting, any>({
-                path: `/admin/api/docpal/workflow/queryDocumentTypeProfile`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name GetDocpalWorkflowQuerydocumenttypeprofilesettings
-         * @request GET:/admin/api/docpal/workflow/queryDocumentTypeProFileSettings
-         */
-        getDocpalWorkflowQuerydocumenttypeprofilesettings: (params: RequestParams = {}) =>
-            this.request<ResultMapStringListMapStringString, any>({
-                path: `/admin/api/docpal/workflow/queryDocumentTypeProFileSettings`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name GetDocpalWorkflowProcessInstanceProcessinstanceid
-         * @request GET:/admin/api/docpal/workflow/process/instance/{processInstanceId}
-         */
-        getDocpalWorkflowProcessInstanceProcessinstanceid: (processInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessInstanceDTO, any>({
-                path: `/admin/api/docpal/workflow/process/instance/${processInstanceId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name GetDocpalWorkflowProcessGetprocessdefinitionlist
-         * @request GET:/admin/api/docpal/workflow/process/getProcessDefinitionList
-         */
-        getDocpalWorkflowProcessGetprocessdefinitionlist: (
-            query?: {
-                processKey?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/admin/api/docpal/workflow/process/getProcessDefinitionList`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionProcessdefinitionkey
-         * @summary Get deployed process definition through process definition key
-         * @request GET:/admin/api/docpal/workflow/process/definition/{processDefinitionKey}
-         */
-        getDocpalWorkflowProcessDefinitionProcessdefinitionkey: (
-            processDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultProcessDefinitionDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/${processDefinitionKey}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionProcessdefinitionkeyHistory
-         * @summary Find historical process definitions through process definition key
-         * @request GET:/admin/api/docpal/workflow/process/definition/{processDefinitionKey}/history
-         */
-        getDocpalWorkflowProcessDefinitionProcessdefinitionkeyHistory: (
-            processDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/${processDefinitionKey}/history`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/admin/api/docpal/workflow/process/definition/forms
-         */
-        getDocpalWorkflowProcessDefinitionForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/admin/api/docpal/workflow/process/definition/forms/{elementKey}
-         */
-        getDocpalWorkflowProcessDefinitionFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/forms/${elementKey}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionFormsStart
-         * @summary Get start-form properties associated with the process definition
-         * @request GET:/admin/api/docpal/workflow/process/definition/forms/start
-         */
-        getDocpalWorkflowProcessDefinitionFormsStart: (
-            query: {
-                /** Workflow Process Definition RequestDTO */
-                requestDTO: ProcessDefinitionRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBpmnDynamicFormDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/forms/start`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDraftDraftid
-         * @summary Get draft through process definition key
-         * @request GET:/admin/api/docpal/workflow/process/definition/draft/{draftId}
-         */
-        getDocpalWorkflowProcessDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionResponseDTO, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteDocpalWorkflowProcessDefinitionDraftDraftid
-         * @summary Delete process definition through process definition draft id
-         * @request DELETE:/admin/api/docpal/workflow/process/definition/draft/{draftId}
-         */
-        deleteDocpalWorkflowProcessDefinitionDraftDraftid: (
-            draftId: string,
-            query?: {
-                enforce?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDraftDraftidDownloadXml
-         * @summary Get draft BPMN2.0 XML file through draft id
-         * @request GET:/admin/api/docpal/workflow/process/definition/draft/{draftId}/download/xml
-         */
-        getDocpalWorkflowProcessDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}/download/xml`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDraftAll
-         * @request GET:/admin/api/docpal/workflow/process/definition/draft/all
-         */
-        getDocpalWorkflowProcessDefinitionDraftAll: (params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDraft, any>({
-                path: `/admin/api/docpal/workflow/process/definition/draft/all`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name GetDocpalWorkflowProcessDefinitionDownloadXml
-         * @summary Download BPMN2.0 XML file through process definition ID
-         * @request GET:/admin/api/docpal/workflow/process/definition/download/xml
-         */
-        getDocpalWorkflowProcessDefinitionDownloadXml: (
-            query: {
-                processDefinitionId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/admin/api/docpal/workflow/process/definition/download/xml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name GetDocpalWorkflowForms
-         * @summary Get the list of form properties associated with the process definition
-         * @request GET:/admin/api/docpal/workflow/forms
-         */
-        getDocpalWorkflowForms: (
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListBpmnDynamicFormDTO, any>({
-                path: `/admin/api/docpal/workflow/forms`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name GetDocpalWorkflowFormsElementkey
-         * @summary Get form properties of single element associated with the process definition
-         * @request GET:/admin/api/docpal/workflow/forms/{elementKey}
-         */
-        getDocpalWorkflowFormsElementkey: (
-            elementKey: string,
-            query?: {
-                processDefinitionKey?: string;
-                processDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormPropertyDTO, any>({
-                path: `/admin/api/docpal/workflow/forms/${elementKey}`,
-                method: "GET",
-                query: query,
                 ...params,
             }),
 
@@ -51493,101 +38843,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CalendarController(Admin Page)
-         * @name GetDmsCalendarsId
-         * @request GET:/admin/api/dms/calendars/{id}
-         */
-        getDmsCalendarsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, any>({
-                path: `/admin/api/dms/calendars/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name DeleteDmsCalendarsId
-         * @summary Delete the Task  it must not have been used yet
-         * @request DELETE:/admin/api/dms/calendars/{id}
-         */
-        deleteDmsCalendarsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/dms/calendars/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name GetDmsCalendarsSettingTables
-         * @summary Obtain calendar tables
-         * @request GET:/admin/api/dms/calendars/setting/tables
-         */
-        getDmsCalendarsSettingTables: (params: RequestParams = {}) =>
-            this.request<ResultMapStringString, any>({
-                path: `/admin/api/dms/calendars/setting/tables`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController(Admin Page)
-         * @name GetDmsCalendarsEventSettings
-         * @summary Get All Event Calendar Settings
-         * @request GET:/admin/api/dms/calendars/event/settings
-         */
-        getDmsCalendarsEventSettings: (
-            query: {
-                /** Event Calendar Setting */
-                eventCalendarSetting: EventCalendarSetting;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListEventCalendarSetting, any>({
-                path: `/admin/api/dms/calendars/event/settings`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController(Admin Page)
-         * @name GetDmsCalendarsEventSettingsIdUsers
-         * @summary Retrieve user list by calendar id
-         * @request GET:/admin/api/dms/calendars/event/settings/{id}/users
-         */
-        getDmsCalendarsEventSettingsIdUsers: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, any>({
-                path: `/admin/api/dms/calendars/event/settings/${id}/users`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CalendarController(Admin Page)
-         * @name GetDmsCalendarsActive
-         * @request GET:/admin/api/dms/calendars/active
-         */
-        getDmsCalendarsActive: (params: RequestParams = {}) =>
-            this.request<ResultListCalendarTaskRespDTO, any>({
-                path: `/admin/api/dms/calendars/active`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags CabinetController(Admin Page)
          * @name GetDmsCabinetTemplateidPageConditions
          * @summary Obtain conditions of pagination search
@@ -51627,21 +38882,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/${id}`,
                 method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CabinetController(Admin Page)
-         * @name GetDmsCabinetIdUseWorkflow
-         * @summary Query workflow list of use this folder cabinet
-         * @request GET:/admin/api/dms/cabinet/{id}/use/workflow
-         */
-        getDmsCabinetIdUseWorkflow: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, any>({
-                path: `/admin/api/dms/cabinet/${id}/use/workflow`,
-                method: "GET",
                 ...params,
             }),
 
@@ -51920,955 +39160,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesIdVersions
-         * @summary Create a new version case type
-         * @request GET:/admin/api/case/types/{id}/versions
-         */
-        getCaseTypesIdVersions: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnVersion, any>({
-                path: `/admin/api/case/types/${id}/versions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesIdStylejson
-         * @summary Query style json of cmmn xml
-         * @request GET:/admin/api/case/types/{id}/styleJson
-         */
-        getCaseTypesIdStylejson: (
-            id: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, any>({
-                path: `/admin/api/case/types/${id}/styleJson`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesIdStarttask
-         * @summary Retrieve startup task for the case definition of the latest version
-         * @request GET:/admin/api/case/types/{id}/startTask
-         */
-        getCaseTypesIdStarttask: (
-            id: string,
-            query?: {
-                startMatchSign?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemDefinitionDTO, any>({
-                path: `/admin/api/case/types/${id}/startTask`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesIdExport
-         * @summary 导出Case数据，包含CaseType、CaseModelDraft、CmmnVersion和cmmn.xml文件
-         * @request GET:/admin/api/case/types/{id}/export
-         */
-        getCaseTypesIdExport: (
-            id: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/admin/api/case/types/${id}/export`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesIdDownloadXml
-         * @summary Download cmmn.xml of version (case model definition)
-         * @request GET:/admin/api/case/types/{id}/download/xml
-         */
-        getCaseTypesIdDownloadXml: (
-            id: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, any>({
-                path: `/admin/api/case/types/${id}/download/xml`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesIdDownloadDeployVersion
-         * @summary Download latest version cmmn xml (case model definition)
-         * @request GET:/admin/api/case/types/{id}/download/deploy/version
-         */
-        getCaseTypesIdDownloadDeployVersion: (id: string, params: RequestParams = {}) =>
-            this.request<string, any>({
-                path: `/admin/api/case/types/${id}/download/deploy/version`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesIdCaseinfo
-         * @summary Get form fields of deployed version based on this case type
-         * @request GET:/admin/api/case/types/{id}/caseInfo
-         */
-        getCaseTypesIdCaseinfo: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanTableFieldDTO, any>({
-                path: `/admin/api/case/types/${id}/caseInfo`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesCasetypeid
-         * @summary Retrieve case type detail
-         * @request GET:/admin/api/case/types/{caseTypeId}
-         */
-        getCaseTypesCasetypeid: (
-            caseTypeId: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseTypeResponseDTO, any>({
-                path: `/admin/api/case/types/${caseTypeId}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesCasetypeidPermissions
-         * @request GET:/admin/api/case/types/{caseTypeId}/permissions
-         */
-        getCaseTypesCasetypeidPermissions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/case/types/${caseTypeId}/permissions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesCasetypeidPermissionsUserid
-         * @request GET:/admin/api/case/types/{caseTypeId}/permissions/{userId}
-         */
-        getCaseTypesCasetypeidPermissionsUserid: (caseTypeId: string, userId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringString, any>({
-                path: `/admin/api/case/types/${caseTypeId}/permissions/${userId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseTypesCasetypeidInstances
-         * @summary Retrieve all case instances of this case type
-         * @request GET:/admin/api/case/types/{caseTypeId}/instances
-         */
-        getCaseTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnInstance, any>({
-                path: `/admin/api/case/types/${caseTypeId}/instances`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesCasedefinitionkeyDeployment
-         * @request GET:/admin/api/case/types/{caseDefinitionKey}/deployment
-         */
-        getCaseTypesCasedefinitionkeyDeployment: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnDeploymentDTO, any>({
-                path: `/admin/api/case/types/${caseDefinitionKey}/deployment`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesVersionVersionid
-         * @summary Retrieve detail of case model version
-         * @request GET:/admin/api/case/types/version/{versionId}
-         */
-        getCaseTypesVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnVersion, any>({
-                path: `/admin/api/case/types/version/${versionId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesVersionVersionidStarttask
-         * @summary Retrieve startup task for the case definition of the specified version
-         * @request GET:/admin/api/case/types/version/{versionId}/startTask
-         */
-        getCaseTypesVersionVersionidStarttask: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemDefinitionDTO, any>({
-                path: `/admin/api/case/types/version/${versionId}/startTask`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesPermissionsRules
-         * @summary Retrieve case type permission rules
-         * @request GET:/admin/api/case/types/permissions/rules
-         */
-        getCaseTypesPermissionsRules: (params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/case/types/permissions/rules`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name GetCaseTypesDatatypeMapping
-         * @summary Obtain support column mapping
-         * @request GET:/admin/api/case/types/dataType/mapping
-         */
-        getCaseTypesDatatypeMapping: (params: RequestParams = {}) =>
-            this.request<ResultListMTFieldTypeMapping, any>({
-                path: `/admin/api/case/types/dataType/mapping`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name GetCaseTablesId
-         * @summary Retrieve detail of case table and include associated data structures
-         * @request GET:/admin/api/case/tables/{id}
-         */
-        getCaseTablesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCaseTableResponseDTO, any>({
-                path: `/admin/api/case/tables/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name DeleteCaseTablesId
-         * @request DELETE:/admin/api/case/tables/{id}
-         */
-        deleteCaseTablesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/tables/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name GetCaseTablesNameExist
-         * @request GET:/admin/api/case/tables/name/exist
-         */
-        getCaseTablesNameExist: (
-            query: {
-                tablename: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/tables/name/exist`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name GetCaseTablesCasetypeCasetypeid
-         * @summary Retrieve a list of case tables that belong to the specified case type
-         * @request GET:/admin/api/case/tables/caseType/{caseTypeId}
-         */
-        getCaseTablesCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCaseTable, any>({
-                path: `/admin/api/case/tables/caseType/${caseTypeId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTableController(Admin Page)
-         * @name GetCaseTablesCasequery
-         * @request GET:/admin/api/case/tables/caseQuery
-         */
-        getCaseTablesCasequery: (
-            query: {
-                tableName: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/case/tables/caseQuery`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseSupportSubcase
-         * @summary Filter case definition to select as sub-case
-         * @request GET:/admin/api/case/support/subCase
-         */
-        getCaseSupportSubcase: (params: RequestParams = {}) =>
-            this.request<ResultListCaseDefinitionDTO, any>({
-                path: `/admin/api/case/support/subCase`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseSupportSubcaseFields
-         * @summary Extract input field list of sub-case definition
-         * @request GET:/admin/api/case/support/subCase/fields
-         */
-        getCaseSupportSubcaseFields: (
-            query: {
-                caseDefinitionId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanTableFieldDTO, any>({
-                path: `/admin/api/case/support/subCase/fields`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseInstanceCaseinstanceidForms
-         * @request GET:/admin/api/case/instance/{caseInstanceId}/forms
-         */
-        getCaseInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnPlanFormDTO, any>({
-                path: `/admin/api/case/instance/${caseInstanceId}/forms`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseInstanceCaseinstanceidEvents
-         * @request GET:/admin/api/case/instance/{caseInstanceId}/events
-         */
-        getCaseInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListUserEventInstanceDTO, any>({
-                path: `/admin/api/case/instance/${caseInstanceId}/events`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseInstanceTasksTaskidForm
-         * @summary Retrieve form information of task
-         * @request GET:/admin/api/case/instance/tasks/{taskId}/form
-         */
-        getCaseInstanceTasksTaskidForm: (taskId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, any>({
-                path: `/admin/api/case/instance/tasks/${taskId}/form`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseInstanceProcessDefinitions
-         * @summary Retrieve process definition of this case instance through case definition key
-         * @request GET:/admin/api/case/instance/process/definitions
-         */
-        getCaseInstanceProcessDefinitions: (
-            query: {
-                businessKey: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/admin/api/case/instance/process/definitions`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseInstancePlanitemsPlanitemidForm
-         * @summary Retrieve form information of plan item instance
-         * @request GET:/admin/api/case/instance/planItems/{planItemId}/form
-         */
-        getCaseInstancePlanitemsPlanitemidForm: (
-            planItemId: string,
-            query?: {
-                caseDefinitionId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/admin/api/case/instance/planItems/${planItemId}/form`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseDefinitions
-         * @summary Retrieve all case model definitions
-         * @request GET:/admin/api/case/definitions
-         */
-        getCaseDefinitions: (params: RequestParams = {}) =>
-            this.request<ResultListCaseDefinitionDTO, any>({
-                path: `/admin/api/case/definitions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseDefinitionsCasedefinitionkeyInstances
-         * @summary Retrieve case instances of this case model
-         * @request GET:/admin/api/case/definitions/{caseDefinitionKey}/instances
-         */
-        getCaseDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListCaseInstanceDTO, any>({
-                path: `/admin/api/case/definitions/${caseDefinitionKey}/instances`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name GetCaseDefinitionCasedefinitionkeyProcessDefinitions
-         * @summary Retrieve process definition of this case instance through case definition key
-         * @request GET:/admin/api/case/definition/{caseDefinitionKey}/process/definitions
-         */
-        getCaseDefinitionCasedefinitionkeyProcessDefinitions: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDTO, any>({
-                path: `/admin/api/case/definition/${caseDefinitionKey}/process/definitions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardId
-         * @summary Retrieve case dashboard detail
-         * @request GET:/admin/api/case/dashboard/{id}
-         */
-        getCaseDashboardId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboardResponseDTO, any>({
-                path: `/admin/api/case/dashboard/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name DeleteCaseDashboardId
-         * @summary Delete the case dashboard it must not have been used yet
-         * @request DELETE:/admin/api/case/dashboard/{id}
-         */
-        deleteCaseDashboardId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/dashboard/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardVersionVersionidStages
-         * @summary Get stages of the current version that it is case definition
-         * @request GET:/admin/api/case/dashboard/version/{versionId}/stages
-         */
-        getCaseDashboardVersionVersionidStages: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/version/${versionId}/stages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardVersionVersionidPrimaryform
-         * @summary Get primary form of the current version that it is case definition
-         * @request GET:/admin/api/case/dashboard/version/{versionId}/primaryForm
-         */
-        getCaseDashboardVersionVersionidPrimaryform: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/admin/api/case/dashboard/version/${versionId}/primaryForm`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardVersionVersionidPrimaryformData
-         * @summary Retrieve information and information data of this case version
-         * @request GET:/admin/api/case/dashboard/version/{versionId}/primaryForm/data
-         */
-        getCaseDashboardVersionVersionidPrimaryformData: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, any>({
-                path: `/admin/api/case/dashboard/version/${versionId}/primaryForm/data`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardVersionVersionidActivity
-         * @summary Get all activity of the current version that it is case definition
-         * @request GET:/admin/api/case/dashboard/version/{versionId}/activity
-         */
-        getCaseDashboardVersionVersionidActivity: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/version/${versionId}/activity`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardVersionVersionidActions
-         * @request GET:/admin/api/case/dashboard/version/{versionId}/actions
-         */
-        getCaseDashboardVersionVersionidActions: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/version/${versionId}/actions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseinstanceidMilestoneStatus
-         * @summary Obtain Milestone Status of a case instance
-         * @request GET:/admin/api/case/dashboard/instance/{caseInstanceId}/milestone/status
-         */
-        getCaseDashboardInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, any>({
-                path: `/admin/api/case/dashboard/instance/${caseInstanceId}/milestone/status`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseidTasks
-         * @summary Retrieve all tasks of this case instance
-         * @request GET:/admin/api/case/dashboard/instance/{caseId}/tasks
-         */
-        getCaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/tasks`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseidStages
-         * @summary Retrieve stages of current case instance
-         * @request GET:/admin/api/case/dashboard/instance/{caseId}/stages
-         */
-        getCaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/stages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseidPrimaryformData
-         * @summary Retrieve primary form data (Case Dashboard) structure
-         * @request GET:/admin/api/case/dashboard/instance/{caseId}/primaryForm/data
-         */
-        getCaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/primaryForm/data`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseidPlanitems
-         * @summary Retrieve planItems
-         * @request GET:/admin/api/case/dashboard/instance/{caseId}/planItems
-         */
-        getCaseDashboardInstanceCaseidPlanitems: (
-            caseId: string,
-            query: {
-                type: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/planItems`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseidPersonalTasks
-         * @summary Retrieve personal tasks of this case instance
-         * @request GET:/admin/api/case/dashboard/instance/{caseId}/personal/tasks
-         */
-        getCaseDashboardInstanceCaseidPersonalTasks: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/personal/tasks`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseidEvents
-         * @summary Retrieve all events of this case instance
-         * @request GET:/admin/api/case/dashboard/instance/{caseId}/events
-         */
-        getCaseDashboardInstanceCaseidEvents: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/events`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseidActivity
-         * @summary Retrieve activities of this case instance
-         * @request GET:/admin/api/case/dashboard/instance/{caseId}/activity
-         */
-        getCaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnActivityItem, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/activity`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceCaseidActions
-         * @summary Retrieve activities of this case instance
-         * @request GET:/admin/api/case/dashboard/instance/{caseId}/actions
-         */
-        getCaseDashboardInstanceCaseidActions: (
-            caseId: string,
-            query: {
-                userId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/instance/${caseId}/actions`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardInstanceStagePlanitems
-         * @summary Retrieve all planItem instance of this case instance
-         * @request GET:/admin/api/case/dashboard/instance/stage/planItems
-         */
-        getCaseDashboardInstanceStagePlanitems: (
-            query: {
-                /** Case Instance Id */
-                caseInstanceId: any;
-                /** Stage Plan Item Definition Id */
-                stageDefinitionId: any;
-                /** PlanItemInstanceDTO */
-                planItemInstanceDTO: PlanItemInstanceDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/instance/stage/planItems`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardCasetypeCasetypeid
-         * @summary Retrieve all Case View Dashboard
-         * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}
-         */
-        getCaseDashboardCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnDashboard, any>({
-                path: `/admin/api/case/dashboard/caseType/${caseTypeId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber
-         * @summary Retrieve case dashboard detail
-         * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/versionNumber/{versionNumber}
-         */
-        getCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber: (
-            caseTypeId: string,
-            versionNumber: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListCmmnDashboard, any>({
-                path: `/admin/api/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardCasetypeCasetypeidStages
-         * @summary Retrieve stages of current case instance
-         * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/stages
-         */
-        getCaseDashboardCasetypeCasetypeidStages: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/caseType/${caseTypeId}/stages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardCasetypeCasetypeidPrimaryform
-         * @summary Retrieve primary form (Case Dashboard)
-         * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/primaryForm
-         */
-        getCaseDashboardCasetypeCasetypeidPrimaryform: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnPlanFormDTO, any>({
-                path: `/admin/api/case/dashboard/caseType/${caseTypeId}/primaryForm`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardCasetypeCasetypeidActivity
-         * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/activity
-         */
-        getCaseDashboardCasetypeCasetypeidActivity: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/caseType/${caseTypeId}/activity`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CmmnDashboardController(Admin Page)
-         * @name GetCaseDashboardCasetypeCasetypeidActions
-         * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/actions
-         */
-        getCaseDashboardCasetypeCasetypeidActions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, any>({
-                path: `/admin/api/case/dashboard/caseType/${caseTypeId}/actions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminProcessInstanceController
-         * @name DeleteWorkflowInstanceWithoutValidation
-         * @request DELETE:/admin/api/workflow/instance/without/validation
-         */
-        deleteWorkflowInstanceWithoutValidation: (
-            query?: {
-                processInstanceId?: string;
-                /** @format date-time */
-                createdDate?: string;
-                /** @format date-time */
-                endedDate?: string;
-                completed?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListInstanceDTO, any>({
-                path: `/admin/api/workflow/instance/without/validation`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name DeleteWorkflowDefinitionSuspendDraftid
-         * @summary Suspend a process definition
-         * @request DELETE:/admin/api/workflow/definition/suspend/{draftId}
-         */
-        deleteWorkflowDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/definition/suspend/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDefinitionController
-         * @name DeleteWorkflowDefinitionRemoveDraftid
-         * @summary Remove process definition from workflow list
-         * @request DELETE:/admin/api/workflow/definition/remove/{draftId}
-         */
-        deleteWorkflowDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/workflow/definition/remove/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags AdminDynamicDBTableController
          * @name DeleteDynamicDbTableTableidDataBatch
          * @summary Batch Delete Data Records
@@ -52884,113 +39175,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowVersionController(Admin Page)
-         * @name DeleteDocpalWorkflowVersionDraftidDraftid
-         * @request DELETE:/admin/api/docpal/workflow/version/draftId/{draftId}
-         */
-        deleteDocpalWorkflowVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/version/draftId/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name DeleteDocpalWorkflowProcess
-         * @request DELETE:/admin/api/docpal/workflow/process
-         */
-        deleteDocpalWorkflowProcess: (
-            query?: {
-                processInstanceId?: string;
-                /** @format date-time */
-                createdDate?: string;
-                /** @format date-time */
-                endedDate?: string;
-                completed?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListInstanceDTO, any>({
-                path: `/admin/api/docpal/workflow/process`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowInstanceController
-         * @name DeleteDocpalWorkflowProcessUser
-         * @summary Delete process instance by user id
-         * @request DELETE:/admin/api/docpal/workflow/process/user
-         */
-        deleteDocpalWorkflowProcessUser: (data: DeleteWorkflowReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/process/user`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteDocpalWorkflowProcessDefinitionSuspendDraftid
-         * @summary Suspend a process definition
-         * @request DELETE:/admin/api/docpal/workflow/process/definition/suspend/{draftId}
-         */
-        deleteDocpalWorkflowProcessDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/process/definition/suspend/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow Process Definition Controller
-         * @name DeleteDocpalWorkflowProcessDefinitionRemoveDraftid
-         * @summary Remove process definition from workflow list
-         * @request DELETE:/admin/api/docpal/workflow/process/definition/remove/{draftId}
-         */
-        deleteDocpalWorkflowProcessDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/process/definition/remove/${draftId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminWorkflowConfigController
-         * @name DeleteDocpalWorkflowDeletedocumenttypeprofile
-         * @request DELETE:/admin/api/docpal/workflow/deleteDocumentTypeProfile
-         */
-        deleteDocpalWorkflowDeletedocumenttypeprofile: (
-            query: {
-                /** @format int64 */
-                profileID: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/docpal/workflow/deleteDocumentTypeProfile`,
-                method: "DELETE",
-                query: query,
                 ...params,
             }),
 
@@ -53185,56 +39369,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         deleteDmsCabinetAll: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/all`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController(Admin Page)
-         * @name DeleteCaseTypesId
-         * @summary Delete the case type it must not have been used yet
-         * @request DELETE:/admin/api/case/types/{id}
-         */
-        deleteCaseTypesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/types/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name DeleteCaseInstance
-         * @request DELETE:/admin/api/case/instance
-         */
-        deleteCaseInstance: (
-            query?: {
-                caseId?: string;
-                caseInstanceId?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/instance`,
-                method: "DELETE",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseInstanceController(Admin Page)
-         * @name DeleteCaseInstanceCaseid
-         * @request DELETE:/admin/api/case/instance/{caseId}
-         */
-        deleteCaseInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/admin/api/case/instance/${caseId}`,
                 method: "DELETE",
                 ...params,
             }),
