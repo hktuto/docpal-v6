@@ -33,15 +33,16 @@
 </template>
 
 <script setup lang="ts">
-import { newClientApi } from 'api'
+import { newClientApi, postDynamicActions } from 'api'
 import { ElMessageBox } from 'element-plus'
-import { DELIVERY_DATE_FORMAT } from '../../../../utils/variableMapping'
+import { DELIVERY_DATE_FORMAT, SUPPLIER_LIST_TABLE_NAME } from '../../../../utils/variableMapping'
 import { useInvoiceVerifyInject } from '../../../../composables/useInvoiceVerify'
 import { useInvoiceVerifyTableInject } from '../../../../composables/useInvoiceVerifyTable'
 
 const { t } = useI18n()
 const { selectedInvoice, updateInvoiceData, disabled } = useInvoiceVerifyInject()
 const { tableData, statusCounts } = useInvoiceVerifyTableInject()
+const SupplierList = ref<Array<{ label: string; value: string | number; shortName?: string }>>([])
 const OrgList = ref<Array<{ label: string; value: string | number; code?: string }>>([])
 
 const list = ref([
@@ -53,10 +54,11 @@ const list = ref([
   },
   {
     label: t('workflowWarehouse.supplier'),
-    field: 'vendorName',
-    type: 'text',
+    field: 'vendorId',
+    type: 'select',
     status: 'pass',
-    required: true
+    required: true,
+    options: SupplierList
   },
   {
     label: t('workflowWarehouse.org'),
@@ -82,7 +84,13 @@ const list = ref([
   },
   {
     label: t('workflowWarehouse.fileName'),
-    value: computed(() => selectedInvoice.value?.file?.file_name || selectedInvoice.value?.file?.name || selectedInvoice.value?.fileName || '—'),
+    value: computed(
+      () =>
+        selectedInvoice.value?.file?.file_name ||
+        selectedInvoice.value?.file?.name ||
+        selectedInvoice.value?.fileName ||
+        '—'
+    ),
     type: 'text'
   },
   {
@@ -107,6 +115,20 @@ async function handleSave(value: string, item: any) {
   if (!value) value = null as any
   const payloadValue = item.valueType === 'number' && value !== '' && value != null ? Number(value) : value
   const invoiceData: Record<string, any> = { [item.field]: payloadValue }
+  if (item.field === 'vendorId' && !!payloadValue) {
+    const matched = SupplierList.value.find(
+      (opt) =>
+        String(opt.value) === String(payloadValue) ||
+        String(opt.label) === String(payloadValue) ||
+        String(opt.shortName) === String(payloadValue)
+    )
+    invoiceData.vendorId = matched ? String(matched.value) : String(payloadValue)
+    invoiceData.vendorName = matched?.label ?? null
+    if (selectedInvoice.value && matched) {
+      selectedInvoice.value.vendorId = String(matched.value)
+      selectedInvoice.value.vendorName = matched.label
+    }
+  }
   if (item.field === 'orgId' && payloadValue != null) {
     const matched = OrgList.value.find((opt) => String(opt.value) === String(payloadValue))
     invoiceData.org = matched?.code ?? matched?.label ?? selectedInvoice.value?.org
@@ -136,6 +158,27 @@ async function validate() {
   }
 }
 
+async function getSupplierList() {
+  try {
+    const params = {
+      table: SUPPLIER_LIST_TABLE_NAME,
+      columns: [{ name: 'name' }, { name: 'short_name' }, { name: 'code' }],
+      orderBy: [{ column: 'name', desc: false }]
+    }
+    const { data } = await postDynamicActions(params)
+    SupplierList.value =
+      data?.data
+        .map((item: any) => ({
+          label: item.name,
+          value: String(item.code ?? ''),
+          shortName: item.short_name
+        }))
+        .filter((item: any) => item.value) ?? []
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 async function getOrgList() {
   try {
     const { data } = await newClientApi.getWmsOrganizationList()
@@ -148,6 +191,33 @@ async function getOrgList() {
       .filter((item: any) => item.value)
   } catch (error) {
     console.error(error)
+  }
+}
+
+function syncVendorField() {
+  const invoice = selectedInvoice.value
+  if (!invoice || !SupplierList.value.length) return
+
+  const byId = invoice.vendorId ?? invoice.vendor_id
+  const byName = invoice.vendorName ?? invoice.vendor_name
+
+  let matched =
+    byId != null && byId !== ''
+      ? SupplierList.value.find((opt) => String(opt.value) === String(byId))
+      : undefined
+
+  if (!matched && byName != null && byName !== '') {
+    matched = SupplierList.value.find(
+      (opt) =>
+        String(opt.label) === String(byName) ||
+        String(opt.shortName) === String(byName) ||
+        String(opt.value) === String(byName)
+    )
+  }
+
+  if (matched) {
+    invoice.vendorId = String(matched.value)
+    invoice.vendorName = matched.label
   }
 }
 
@@ -174,9 +244,19 @@ function syncOrgField() {
   }
 }
 
-watch([() => selectedInvoice.value?.id, OrgList], () => syncOrgField(), { immediate: true })
+watch(
+  [() => selectedInvoice.value?.id, SupplierList, OrgList],
+  () => {
+    syncVendorField()
+    syncOrgField()
+  },
+  { immediate: true }
+)
 
-onMounted(() => getOrgList())
+onMounted(async () => {
+  await getSupplierList()
+  await getOrgList()
+})
 
 defineExpose({ validate })
 </script>

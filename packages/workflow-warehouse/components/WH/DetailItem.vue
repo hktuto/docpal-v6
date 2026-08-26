@@ -161,7 +161,13 @@ function toDateDraft(val: string | number | null | undefined) {
 
 async function handleStartEdit() {
   if (props.disabled) return
-  draft.value = props.type === 'date' ? toDateDraft(props.value) : props.value == null ? '' : props.value
+  if (props.type === 'date') {
+    draft.value = toDateDraft(props.value)
+  } else if (props.type === 'select') {
+    draft.value = props.value == null || props.value === '' ? '' : String(props.value)
+  } else {
+    draft.value = props.value == null ? '' : props.value
+  }
   isEditing.value = true
   await nextTick()
   if (props.type === 'date') {
