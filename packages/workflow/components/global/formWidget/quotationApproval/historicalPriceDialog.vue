@@ -20,27 +20,26 @@ const routerProvider = inject(MenuRouterKey)
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-user-table',
   api: async (pageParams: any) => {
-    console.log(12222)
     return handleSearch(pageParams)
   },
   columns: [
-    { field: 'poNumber', title: '編號 Number', fixed: 'left', type: 'checkbox', width: 200 },
+    { field: 'po_number', title: '編號 Number', fixed: 'left', type: 'checkbox', width: 200 },
     { field: 'type', title: '類型 Type', width: 130 },
     { field: 'item', title: '項 Item', width: 300 },
     { field: 'moq', title: '起訂量 MOQ' },
     { field: 'quantity', title: '數量 Quantity', width: 200 },
     { field: 'cost', title: '成本 Cost' },
     { field: 'currency', title: '貨幣 Currency' },
-    { field: 'poCustomer', title: '客戶 Customer', width: 400 },
+    { field: 'po_customer', title: '客戶 Customer', width: 400 },
     {
-      field: 'creationDate',
+      field: 'creation_date',
       title: '生效日期 Effective Date',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       },
       width: 200
     },
-    { field: 'noteToVendor', title: '供應商注意事項 Note to Vendor', width: 300 }
+    { field: 'note_to_vendor', title: '供應商注意事項 Note to Vendor', width: 300 }
   ],
   selectChangeHander: (selectedRows: any[]) => {
     selectList.value = [...selectedRows]
@@ -64,6 +63,7 @@ function open(item: any) {
     series: item.series ?? ''
   }
   index.value = item.index
+  reload()
 }
 
 async function handleSearch(pageParams: any) {
@@ -86,26 +86,13 @@ async function handleSearch(pageParams: any) {
     if (!!searchData.value.type) {
       body.type = searchData.value.type
     }
-    console.log(123, body)
 
-    const data = await $api.post('/apis/v1/ms/oracle/quotation/cost-history', body).then((r: any) => r.data)
-    console.log(123, data)
-    // const data = [
-    //   {
-    //     currency: 'EUR',
-    //     poCustomer: 'Cust for Quotation',
-    //     item: 'ICHAUS/IC-HG30 QFN28-5X5',
-    //     poNumber: '112000104',
-    //     cost: 3.92,
-    //     quantity: 73,
-    //     creationDate: '2024-10-25',
-    //     noteToVendor: 'E/F/XIAO TIAN LI',
-    //     type: 'QUOTATION',
-    //     rowId: 1,
-    //     moq: 73
-    //   }
-    // ]
-    tableRef.value?.loadData(data)
+    const response = await $api.post('/apis/v1/ms/oracle/quotation/cost-history', body).then((r: any) => r.data)
+    const data = {
+      entryList: response.items ?? [],
+      totalSize: response.total ?? response.count ?? 0
+    }
+    return { data }
   } catch (e) {
     console.log(e)
   }
