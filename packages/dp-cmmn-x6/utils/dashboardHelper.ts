@@ -1,4 +1,4 @@
-import type { DashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
+import type { DashboardWidgetSetting } from '@packages/dp-dashboard/composables/useDasboard'
 
 import { CaseStatisticsWidgetSetting } from './dashboardCaseStatistics'
 import type { CaseStatisticsWidget as CaseStatisticsWidgetType } from './dashboardCaseStatistics'
@@ -218,4 +218,3 @@ export const getCmmnNormalizeSetting = (setting: CmmnDashboardWidget) => {
     maxH: item.maxH
   }
 }
-

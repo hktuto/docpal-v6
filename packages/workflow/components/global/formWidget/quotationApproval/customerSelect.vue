@@ -22,7 +22,6 @@ const defaultFormModel = () => ({
   customerEnglishName: ''
 })
 const formModel = reactive(defaultFormModel())
-const isNewCustomer = computed(() => formModel.check_customer === 'New Customer')
 
 const rules = {
   customer_number: [{ required: true, message: '請選擇客戶編號', trigger: 'change' }],
@@ -212,7 +211,6 @@ defineExpose({ getFormData })
             v-model="formModel.customer_number"
             filterable
             remote
-            :allow-create="isNewCustomer"
             :remote-method="searchName"
             remote-show-suffix
             clearable
@@ -230,7 +228,6 @@ defineExpose({ getFormData })
             :reserve-keyword="false"
             filterable
             remote
-            :allow-create="isNewCustomer"
             :remote-method="searchName"
             remote-show-suffix
             clearable
@@ -248,7 +245,6 @@ defineExpose({ getFormData })
             :reserve-keyword="false"
             filterable
             remote
-            :allow-create="isNewCustomer"
             :remote-method="searchName"
             remote-show-suffix
             clearable
@@ -294,7 +290,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="終端用戶 End User">
+        <el-form-item label="終端用戶 End User" prop="end_user" :required="formModel.customer_background === 'OEM'">
           <el-input v-model="formModel.end_user" />
         </el-form-item>
       </el-col>

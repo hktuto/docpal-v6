@@ -111,8 +111,8 @@ export interface Permission {
 }
 
 export interface SortObject {
-    sorted?: boolean;
     unsorted?: boolean;
+    sorted?: boolean;
     empty?: boolean;
 }
 
@@ -145,37 +145,6 @@ export interface ResultListContactGroupResponseDTO {
     code?: number;
     message?: string;
     data?: ContactGroupResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface GITInvoiceLineItemDTO {
-    id?: string;
-    kwempty?: boolean;
-    po_no?: string;
-    /** @format int32 */
-    po_line?: number;
-    /** @format int32 */
-    shipment_num?: number;
-    vendor_item_no?: string;
-    wcl_item_no?: string;
-    inv_item_id?: string;
-    /** @format int32 */
-    line_qty?: number;
-    unit_price?: number;
-    line_amount?: number;
-    status?: string;
-    apply_changes?: string;
-    koaName?: string;
-    invoice_line_num?: string;
-}
-
-export interface ResultGITInvoiceLineItemDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: GITInvoiceLineItemDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -3123,6 +3092,36 @@ export interface ResultOracleConfig {
     locale?: string;
 }
 
+export interface GITInvoiceLineItemDTO {
+    id?: string;
+    po_no?: string;
+    /** @format int32 */
+    po_line?: number;
+    /** @format int32 */
+    shipment_num?: number;
+    vendor_item_no?: string;
+    wcl_item_no?: string;
+    inv_item_id?: string;
+    /** @format int32 */
+    line_qty?: number;
+    unit_price?: number;
+    line_amount?: number;
+    status?: string;
+    apply_changes?: string;
+    koaName?: string;
+    invoice_line_num?: string;
+}
+
+export interface ResultGITInvoiceLineItemDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GITInvoiceLineItemDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface GITInvoice {
     id?: string;
     gitInvoiceFileId?: string;
@@ -3740,14 +3739,14 @@ export interface PageNotificationRecord {
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: NotificationRecord[];
     /** @format int32 */
     number?: number;
     sort?: SortObject;
-    first?: boolean;
-    last?: boolean;
     empty?: boolean;
 }
 
@@ -3877,14 +3876,14 @@ export interface PageUploadBatchDTO {
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: UploadBatchDTO[];
     /** @format int32 */
     number?: number;
     sort?: SortObject;
-    first?: boolean;
-    last?: boolean;
     empty?: boolean;
 }
 
@@ -5278,9 +5277,9 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
+    fileContentExtension?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
-    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
     /** @format int64 */
@@ -5398,14 +5397,14 @@ export interface PageWatermarkSettingsTemplate {
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: WatermarkSettingsTemplate[];
     /** @format int32 */
     number?: number;
     sort?: SortObject;
-    first?: boolean;
-    last?: boolean;
     empty?: boolean;
 }
 
@@ -6476,13 +6475,13 @@ export interface EasyShareDocumentDetails {
     readOnly?: boolean;
     watermarkData?: WatermarkData;
     createdBy?: string;
-    conversionId?: string;
-    watermarkTemplateId?: string;
     originFilePath?: string;
     watermarkedLocalPath?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
+    conversionId?: string;
+    watermarkTemplateId?: string;
 }
 
 /** EasyShare (Request) */
@@ -7102,9 +7101,9 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
-    primaryKey?: boolean;
     unique?: boolean;
     required?: boolean;
+    primaryKey?: boolean;
 }
 
 /** Master Table ResponseDTO */
@@ -7122,10 +7121,10 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
-    enable?: boolean;
     edit?: boolean;
-    create?: boolean;
     read?: boolean;
+    create?: boolean;
+    enable?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -7292,10 +7291,10 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
-    enable?: boolean;
     edit?: boolean;
-    create?: boolean;
     read?: boolean;
+    create?: boolean;
+    enable?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -7807,8 +7806,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 /** Document (Request) */
@@ -8401,8 +8400,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 /** Versioning (Request) */
@@ -8703,9 +8702,9 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
+    fileContentExtension?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
-    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
     /** @format int64 */
@@ -9192,9 +9191,9 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
+    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
-    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
@@ -9475,8 +9474,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -10467,14 +10466,14 @@ export interface PageBusinessResultRecord {
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: BusinessResultRecord[];
     /** @format int32 */
     number?: number;
     sort?: SortObject;
-    first?: boolean;
-    last?: boolean;
     empty?: boolean;
 }
 
@@ -11360,12 +11359,47 @@ export interface ResultListPackingListBatchVO {
     locale?: string;
 }
 
-export interface ResultListGITInvoice {
+export interface GITInvoiceDTO {
+    items?: GITInvoiceLineItemDTO[];
+    kwempty?: boolean;
+    submitted?: boolean;
+    id?: string;
+    git_invoice_file_id?: string;
+    batch_no?: string;
+    group_id?: string;
+    git_date?: string;
+    invoice_num?: string;
+    /** @format int32 */
+    vendor_id?: number;
+    vendor_name?: string;
+    currency?: string;
+    org?: string;
+    /** @format int32 */
+    org_id?: number;
+    brand?: string;
+    office?: string;
+    payment_type?: string;
+    additional_cost?: string;
+    invoice_date?: string;
+    file_id?: string;
+    file_name?: string;
+    /** @format int32 */
+    total_qty?: number;
+    total_amount?: number;
+    calc_total_amt?: number;
+    cal_total_amount_from_line?: number;
+    git_status?: string;
+    /** @format int32 */
+    line_success?: number;
+    check_empty?: boolean;
+}
+
+export interface ResultListGITInvoiceDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: GITInvoice[];
+    data?: GITInvoiceDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -11378,14 +11412,14 @@ export interface PageSearchHistory {
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: SearchHistory[];
     /** @format int32 */
     number?: number;
     sort?: SortObject;
-    first?: boolean;
-    last?: boolean;
     empty?: boolean;
 }
 
@@ -12846,11 +12880,11 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
-    error?: number;
     create?: number;
     pending?: number;
     completed?: number;
     finish?: number;
+    error?: number;
 }
 
 export interface ResultListMQConsumeGroupStatusDTO {
@@ -13353,41 +13387,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/api/dsb/config/types/`,
                 method: "POST",
                 query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WMSGitMatchDataController
-         * @name PutWmsGitInvoiceIdItemItemid
-         * @request PUT:/api/wms/git-invoice/{id}/item/{itemId}
-         */
-        putWmsGitInvoiceIdItemItemid: (
-            id: string,
-            itemId: string,
-            data: GITInvoiceLineItemDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultGITInvoiceLineItemDTO, any>({
-                path: `/api/wms/git-invoice/${id}/item/${itemId}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WMSGitMatchDataController
-         * @name DeleteWmsGitInvoiceIdItemItemid
-         * @request DELETE:/api/wms/git-invoice/{id}/item/{itemId}
-         */
-        deleteWmsGitInvoiceIdItemItemid: (id: string, itemId: string, params: RequestParams = {}) =>
-            this.request<ResultGITInvoiceLineItemDTO, any>({
-                path: `/api/wms/git-invoice/${id}/item/${itemId}`,
-                method: "DELETE",
                 ...params,
             }),
 
@@ -16213,6 +16212,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGitMatchDataController
+         * @name PostWmsGitInvoiceDatapatch
+         * @request POST:/api/wms/git-invoice/dataPatch
+         */
+        postWmsGitInvoiceDatapatch: (params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/wms/git-invoice/dataPatch`,
+                method: "POST",
                 ...params,
             }),
 
@@ -25249,7 +25262,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/api/wms/git-invoice/batch-no/{batchNo}
          */
         getWmsGitInvoiceBatchNoBatchno: (batchNo: string, params: RequestParams = {}) =>
-            this.request<ResultListGITInvoice, any>({
+            this.request<ResultListGITInvoiceDTO, any>({
                 path: `/api/wms/git-invoice/batch-no/${batchNo}`,
                 method: "GET",
                 ...params,
@@ -28444,20 +28457,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
-         * @name GetDmsFacadeWmsGitInvoiceBatchNoBatchno
-         * @request GET:/api/dms/facade/wms/git-invoice/batch-no/{batchNo}
-         */
-        getDmsFacadeWmsGitInvoiceBatchNoBatchno: (batchNo: string, params: RequestParams = {}) =>
-            this.request<ResultListGITInvoice, any>({
-                path: `/api/dms/facade/wms/git-invoice/batch-no/${batchNo}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Facade API
          * @name GetDmsFacadeIdTemplateUiConfig
          * @summary Generated ID using id-template
          * @request GET:/api/dms/facade/id-template/ui-config
@@ -29802,6 +29801,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultAiChatInitInfoVO, any>({
                 path: `/api/ai/ask_ai/ai_chat/queryAiChatInitInfo`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGitMatchDataController
+         * @name DeleteWmsGitInvoiceIdItemItemid
+         * @request DELETE:/api/wms/git-invoice/{id}/item/{itemId}
+         */
+        deleteWmsGitInvoiceIdItemItemid: (id: string, itemId: string, params: RequestParams = {}) =>
+            this.request<ResultGITInvoiceLineItemDTO, any>({
+                path: `/api/wms/git-invoice/${id}/item/${itemId}`,
+                method: "DELETE",
                 ...params,
             }),
 

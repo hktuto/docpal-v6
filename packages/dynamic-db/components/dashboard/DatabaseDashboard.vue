@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { getDbDashboardWidgetByType } from '~/utils/dashboardWidgets'
+import { getDbDashboardWidgetByType } from '#imports'
 import type { DatabaseDashboardLayoutItem } from '../../composables/dashboard/useDatabaseDashboard'
 import { useDatabaseDashboard } from '../../composables/dashboard/useDatabaseDashboard'
 const props = defineProps<{

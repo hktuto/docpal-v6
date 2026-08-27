@@ -47,14 +47,15 @@ import { Plus, Edit } from '@element-plus/icons-vue'
 
 import { clientApi } from 'api'
 
-import { dashboardWidgetSetting, getWidgetSetting, getDashboardWidgetByType } from '../utils/dashboardWidgetHelper'
+import { useDashboardWidgetSetting, getWidgetSetting, getDashboardWidgetByType } from '../composables/useDashborad'
 
 import { onMounted, onUnmounted } from 'vue'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const { currentHome, loading, getHomeList } = useHomePage()
-let dashboardWidgetByType = getDashboardWidgetByType(dashboardWidgetSetting)
+const dashboardWidgetSetting = useDashboardWidgetSetting()
+let dashboardWidgetByType = getDashboardWidgetByType(dashboardWidgetSetting.value)
 const state = reactive<any>({
   editMode: false,
   loading: false,
@@ -99,7 +100,7 @@ function handleFinish() {
 async function handleSave() {
   try {
     loading.value = true
-    await clientApi.api.putPersonalLandingSave({
+    await clientApi.api.putDocpalPersonalLandingSave({
       styleJson: JSON.stringify(currentHome.value.layout)
     })
   } catch (error) {

@@ -505,7 +505,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     }
   }
   async function responsiveScrollHandler({ scrollTop, direction }: VxeGridDefines.ScrollEventParams) {
-    if (params.virtualScroll || !params.api) {
+    if (!params.api) {
       return
     }
     // 不是 virtualScroll 或者 api 或者 大于 mobile 的时候不处理 scroll
@@ -516,7 +516,9 @@ export const useVxeTable = (params: UseVxeTableParams) => {
   }
 
   async function lazyLoad() {
-    console.log('lazyLoad')
+    if(tableConfig.loading) {
+      return
+    }
     if (tablePageParams.value.total && tablePageParams.value.total === tableConfig.data.length) {
       console.log('no more data')
       return
@@ -558,6 +560,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     }
     tableConfig.data = []
     tablePageParams.value.pageNum = 0
+    tablePageParams.value.currentPage = 1
     tablePageParams.value.total = undefined
     tablePageParams.value.pageSize = params.pageSize || 20
     lazyLoad()
@@ -640,7 +643,8 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     tableData,
     cleanSelectedRows,
     reload,
-    query
+    query,
+    setupLazyLoad
   }
 }
 async function visibleMethodHelper(row: any, options: any, params: any) {

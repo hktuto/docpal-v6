@@ -1,7 +1,6 @@
-import type { DashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
-import { dashboardWidgetSetting as dpDashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
 
-export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = {
+
+export const dbDashboardWidgetSetting: Record<string, any> = {
   DemoInventory: {
     label: '总库存报表',
     type: 'database' as any,
@@ -514,8 +513,9 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
  * Returns the full dashboard widget palette grouped by type.
  * Includes dynamic-db widgets (database, record) plus eligible dp-dashboard widgets.
  */
-export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSetting[]> {
-  const result: Record<string, DashboardWidgetSetting[]> = {
+export function getDbDashboardWidgetByType(): Record<string, any[]> {
+  const dpDashboardWidgetSetting = useDashboardWidgetSetting()
+  const result: Record<string, any[]> = {
     database: [],
     // record: []
   }
@@ -531,8 +531,8 @@ export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSett
     result[type].push(widget)
   })
 
-  Object.keys(dpDashboardWidgetSetting).forEach((key) => {
-    const widget = dpDashboardWidgetSetting[key]
+  Object.keys(dpDashboardWidgetSetting.value).forEach((key) => {
+    const widget = dpDashboardWidgetSetting.value[key]
     const type = widget.type || 'default'
     // Skip case and common widgets since these features are not used in DB dashboards
     if (type === 'case' || type === 'caseCount' || type === 'default') return
@@ -545,8 +545,8 @@ export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSett
   return result
 }
 
-export function getRecordDashboardWidgetByType(): Record<string, DashboardWidgetSetting[]> {
-  const result: Record<string, DashboardWidgetSetting[]> = {
+export function getRecordDashboardWidgetByType(): Record<string, any[]> {
+  const result: Record<string, any[]> = {
     record: []
   }
 

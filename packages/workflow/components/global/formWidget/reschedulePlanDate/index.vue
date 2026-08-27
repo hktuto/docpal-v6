@@ -4,6 +4,9 @@ import { v7 as uuidv7 } from 'uuid'
 import { ElMessage } from 'element-plus'
 import type { UploadFile, UploadInstance } from 'element-plus'
 import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+
+dayjs.extend(customParseFormat)
 
 const { disabled, formData } = defineProps<{
   disabled: boolean
@@ -15,7 +18,7 @@ type LineItem = {
   id: string
   pi_invoice: string
   old_plan_date: string
-  new_plan_date: number | string
+  new_plan_date: string
   brand_code: string
   remark: string
 }
@@ -23,24 +26,50 @@ type LineItem = {
 const lineFormRef = ref()
 const csvUploadRef = ref<UploadInstance>()
 const formModel = reactive({
-  customer: '',
+  customer_number: '',
   customer_name: '',
+  customerName: '',
+  customer_english_name: '',
+  customerEnglishName: '',
   org: '',
   list: [] as LineItem[]
 })
-const CSV_COLUMNS = ['index', 'pi_invoice', 'old_plan_date', 'new_plan_date', 'brand_code', 'remark'] as const
+const CSV_COLUMNS = ['pi_invoice', 'new_plan_date', 'remark'] as const
 
-export type CsvLineItem = {
+type CsvLineItem = {
   pi_invoice: string
   old_plan_date: string
-  new_plan_date: number | string
+  new_plan_date: string
   brand_code: string
   remark: string
 }
 
 const lineRules = {
-  pi_invoice: [{ required: true, message: 'Please input PI Invoice', trigger: 'blur' }],
-  new_plan_date: [{ required: true, message: 'Please select New Plan Date', trigger: 'change' }]
+  pi_invoice: [
+    { required: true, message: '請輸入PI發票', trigger: 'blur' },
+    {
+      validator: async (rule: any, value: string, callback: any) => {
+        const index = Number(String(rule.field).match(/^list\.(\d+)\.pi_invoice$/)?.[1])
+        const item = formModel.list[index]
+        const data = await checkingPiNumber(value)
+        if (!data) {
+          if (item?.pi_invoice === value) {
+            item.old_plan_date = ''
+            item.brand_code = ''
+          }
+          callback(new Error('Customer Number 与 PI Invoice 不一致'))
+          return
+        }
+        if (item?.pi_invoice === value) {
+          item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
+          item.brand_code = data.brand ?? ''
+        }
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ],
+  new_plan_date: [{ required: true, message: '請選擇新計劃日期', trigger: 'change' }]
 }
 
 function createEmptyLine(): LineItem {
@@ -78,7 +107,7 @@ async function handleImportCSV(uploadFile: UploadFile) {
     ElMessage.error('Please select a CSV file')
     return
   }
-  const list = csvTextToLineItems(await file.text())
+  const list = await csvTextToLineItems(await file.text())
   if (!list.length) {
     ElMessage.error('No valid data found in CSV')
     return
@@ -88,7 +117,14 @@ async function handleImportCSV(uploadFile: UploadFile) {
 }
 
 function normalizeHeader(name: string) {
-  return name.trim().toLowerCase().replace(/#/g, '').replace(/\s+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\s*\([^)]*\)\s*/g, '')
+    .replace(/#/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '')
 }
 
 function parseCsvLine(line: string): string[] {
@@ -117,16 +153,13 @@ function parseCsvLine(line: string): string[] {
   return result
 }
 
-function parsePlanDate(value: string): number | string {
+function parsePlanDate(value: string): string {
   if (!value) return ''
-  const trimmed = value.trim()
-  if (/^\d{13}$/.test(trimmed)) return Number(trimmed)
-  if (/^\d{10}$/.test(trimmed)) return Number(trimmed) * 1000
-  const parsed = dayjs(trimmed.replace(/[./]/g, '-'))
-  return parsed.isValid() ? parsed.valueOf() : ''
+  const parsed = dayjs(value.trim(), ['YYYYMMDD', 'YYYY-MMM-DD', 'YYYY-MM-DD', 'YYYY/MM/DD'], 'en', true)
+  return parsed.isValid() ? parsed.format('YYYY-MM-DD') : ''
 }
 
-function csvTextToLineItems(text: string): CsvLineItem[] {
+async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
   const rows = text
     .replace(/^\uFEFF/, '')
     .split(/\r\n|\n|\r/)
@@ -139,27 +172,134 @@ function csvTextToLineItems(text: string): CsvLineItem[] {
   const columns = hasHeader ? header : [...CSV_COLUMNS]
   const dataRows = hasHeader ? rows.slice(1) : rows
 
-  return dataRows.map((row) => {
+  const set = new Set()
+
+  const csvData: CsvLineItem[] = dataRows.map((row) => {
     const record: Record<string, string> = {}
     columns.forEach((col, i) => {
       record[col] = row[i] ?? ''
     })
+    set.add(record.pi_invoice)
+
     return {
       pi_invoice: record.pi_invoice ?? '',
-      old_plan_date: record.old_plan_date ?? '',
+      old_plan_date: '',
       new_plan_date: parsePlanDate(record.new_plan_date ?? ''),
-      brand_code: record.brand_code ?? '',
+      brand_code: '',
       remark: record.remark ?? ''
     }
   })
+  // Cell Api Get Data
+  // const data = await $api.post(`/api/pi-invoices`, { list: [...set] }).then((r: any) => r.data)
+  // fillCsvData(data, csvData)
+  return csvData
 }
 
+function fillCsvData(data: any[], csvData: any[]) {
+  const indexByInvoice = new Map(data.map((row) => [row.pi_invoice_number, { old_plan_date: row.old_plan_date, brand: row.brand }]))
+
+  csvData.forEach((item: any) => {
+    const key = item.pi_invoice
+    const match = indexByInvoice.get(key)
+    if (match) {
+      item.old_plan_date = match.old_plan_date ?? ''
+      item.brand_code = match.brand ?? ''
+    }
+  })
+
+  return csvData
+}
+
+const customerNumberOptions = ref<{ label: string; value: string }[]>([])
+const customerNameOptions = ref<{ label: string; value: string }[]>([])
+const customerEnglishNameOptions = ref<{ label: string; value: string }[]>([])
+
+async function searchName(query?: string) {
+  const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+
+  if (data.length === 0) return
+
+  const numberOptions: any[] = []
+  const nameOptions: any[] = []
+  const englishNameOptions: any[] = []
+
+  data.forEach((item: any) => {
+    numberOptions.push({
+      label: item.account_number,
+      value: item.account_number
+    })
+    nameOptions.push({
+      label: item.customer_name,
+      value: item.account_number
+    })
+    englishNameOptions.push({
+      label: item.customer_eng_name,
+      value: item.account_number
+    })
+  })
+
+  customerNumberOptions.value = numberOptions
+  customerNameOptions.value = nameOptions
+  customerEnglishNameOptions.value = englishNameOptions
+}
+
+function numberChange(value: string) {
+  if (!value || value === '') {
+    formModel.customer_name = ''
+    formModel.customer_english_name = ''
+    formModel.org = ''
+    return
+  }
+
+  formModel.customer_number = value
+  formModel.customer_name = value
+  formModel.customer_english_name = value
+
+  formModel.customerName = customerNameOptions.value.find((item: any) => item.value === value).label
+}
+
+async function checkingPiNumber(value: string) {
+  const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
+  return $api.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data.data)
+}
+
+async function setCustomerNumber(item: any) {
+  if (item.pi_invoice === '' || formModel.customer_number !== '') return
+  const data = await checkingPiNumber(item.pi_invoice)
+  if (!!data) {
+    formModel.customer_number = data.customer_number
+    formModel.customer_name = data.customer_number
+    formModel.customer_english_name = data.customer_number
+    formModel.org = data.org_id
+    await searchName(data.customer_number)
+  }
+}
+
+watch(
+  () => formModel.list,
+  (value) => {
+    if (value.length > 0) {
+      setCustomerNumber(value[0])
+    }
+  },
+  { immediate: true, deep: true }
+)
+
 async function getFormData(needValidation = true) {
+  let lineList = formModel.list.map((item: any) => ({
+    pi_invoice_number: item.pi_invoice,
+    new_plan_date: item.new_plan_date
+  }))
+
   const result = {
-    customer: formModel.customer,
+    customer_number: formModel.customer_number,
     customer_name: formModel.customer_name,
+    customerName: formModel.customerName,
+    customer_english_name: formModel.customer_english_name,
+    customerEnglishName: formModel.customerEnglishName,
     org: formModel.org,
-    line_list: formModel.list.map(({ id: _id, ...item }) => item)
+    line_list: lineList,
+    email_list: formModel.list.map(({ id: _id, ...item }) => item)
   }
   if (!needValidation) return result
   await lineFormRef.value?.validate()
@@ -181,24 +321,61 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form label-position="top" class="all-input-style">
+  <el-form label-position="top">
     <el-row>
       <el-col :span="6">
-        <el-form-item label="客戶編號 Customer Number">
-          <el-input v-model="formModel.customer" style="width: 90%" />
+        <el-form-item label="客戶編號 Customer Number" prop="customer_number">
+          <el-select-v2
+            v-model="formModel.customer_number"
+            filterable
+            remote
+            :remote-method="searchName"
+            remote-show-suffix
+            clearable
+            :options="customerNumberOptions"
+            placeholder="One of the options must be selected."
+            @change="numberChange"
+            style="width: 90%"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="6">
         <el-form-item label="客戶名稱 Customer Name">
-          <el-input v-model="formModel.customer_name" disabled style="width: 90%" />
+          <el-select-v2
+            v-model="formModel.customer_name"
+            :reserve-keyword="false"
+            filterable
+            remote
+            :remote-method="searchName"
+            remote-show-suffix
+            clearable
+            :options="customerNameOptions"
+            placeholder="One of the options must be selected."
+            @change="numberChange"
+            style="width: 90%"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="ORG">
-          <el-input v-model="formModel.org" style="width: 90%" />
+        <el-form-item label="客戶英文名 Customer Eng Name" prop="customerEnglishName">
+          <el-select-v2
+            v-model="formModel.customer_english_name"
+            :reserve-keyword="false"
+            filterable
+            remote
+            :remote-method="searchName"
+            remote-show-suffix
+            clearable
+            :options="customerEnglishNameOptions"
+            placeholder="One of the options must be selected."
+            @change="numberChange"
+            style="width: 90%"
+          />
         </el-form-item>
       </el-col>
-      <el-col :span="6"> </el-col>
+      <el-col :span="6">
+        <el-form-item label="ORG"> <el-input v-model="formModel.org" disabled style="width: 90%" /> </el-form-item
+      ></el-col>
     </el-row>
   </el-form>
 
@@ -216,10 +393,10 @@ defineExpose({ getFormData })
           <div class="line-row">
             <span class="line-row__index">#{{ index + 1 }}</span>
             <el-form-item class="line-row__field line-row__field--pi" label="PI編號 PI Number" :prop="`list.${index}.pi_invoice`" :rules="lineRules.pi_invoice">
-              <el-input v-model="element.pi_invoice" />
+              <el-input v-model="element.pi_invoice" clearable />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--date" label="舊計劃日期 Old Plan Date">
-              <el-date-picker v-model="element.old_plan_date" disabled format="YYYY/MM/DD" value-format="x" />
+              <el-date-picker v-model="element.old_plan_date" disabled format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
             </el-form-item>
             <el-form-item
               class="line-row__field line-row__field--date"
@@ -227,7 +404,7 @@ defineExpose({ getFormData })
               :prop="`list.${index}.new_plan_date`"
               :rules="lineRules.new_plan_date"
             >
-              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY/MM/DD" value-format="x" />
+              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--brand" label="品牌 Brand">
               <el-input v-model="element.brand_code" disabled />
