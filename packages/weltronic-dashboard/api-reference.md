@@ -89,7 +89,7 @@ gateway 转发说明：
     { "orgId": "2", "invoiceNo": "HK1703-1978" }
   ],
   "ckStatus": "Y",
-  "operatorId": "joshua",
+  "operatorId": "joshua",                                            
   "operatorName": "Joshua",
   "fileName": "shipping-copy-batch",
   "switches": {
@@ -124,17 +124,29 @@ gateway 转发说明：
 |------|------|--------|------|
 | `pageNum` | 否 | `1` | 页码，从 `1` 开始 |
 | `pageSize` | 否 | `50` | 每页条数，范围 `1-500` |
+| `orderBy` | 否 | `old_plan_date desc` | 兼容旧写法，支持单个排序表达式 |
+| `orderByAsc` | 否 | - | 升序排序字段，支持逗号分隔，如 `new_plan_date,updated_date` |
+| `orderByDesc` | 否 | - | 降序排序字段，支持逗号分隔，如 `new_plan_date,updated_date` |
+| `orgId` | 否 | - | 按 `org_id` 精确过滤 |
+| `invoiceNo` | 否 | - | 按 `pi_num` 精确过滤 |
+| `customerId` | 否 | - | 按 `customer_id` 精确过滤 |
+| `invoiceDateStart` | 否 | - | `invoice_date` 起始日期，格式 `YYYY-MM-DD` |
+| `invoiceDateEnd` | 否 | - | `invoice_date` 截止日期，格式 `YYYY-MM-DD` |
 
 ```json
 {
   "items": [
     {
-      "org_id": "2",
+      "customer_name": "KOA ELECTRONICS (H.K.) LTD.",
+      "customer_id": "1001",
       "pi_num": "HK2608-0503",
+      "org_id": "2",
+      "invoice_date": "2026-08-18",
       "version_no": 3,
       "old_plan_date": "2026-08-20",
       "new_plan_date": "2026-08-25",
-      "updated_date": "2026-08-19T17:20:05"
+      "updated_date": "2026-08-19T17:20:05",
+      "download_count": 4
     }
   ],
   "count": 1,
