@@ -114,6 +114,10 @@ async function handleImportCSV(uploadFile: UploadFile) {
   }
   formModel.list = list.map((item) => ({ ...createEmptyLine(), ...item }))
   ElMessage.success(`Imported ${list.length} row(s)`)
+  if (formModel.list.length > 0) {
+    await setCustomerNumber(formModel.list[0])
+    await lineFormRef.value?.validate()
+  }
 }
 
 function normalizeHeader(name: string) {
@@ -182,6 +186,7 @@ async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
     set.add(record.pi_invoice)
 
     return {
+      id: uuidv7(),
       pi_invoice: record.pi_invoice ?? '',
       old_plan_date: '',
       new_plan_date: parsePlanDate(record.new_plan_date ?? ''),
@@ -271,19 +276,11 @@ async function setCustomerNumber(item: any) {
     formModel.customer_name = data.customer_number
     formModel.customer_english_name = data.customer_number
     formModel.org = data.org_id
+    formModel.customerName = data.customer_name
+    formModel.customerEnglishName = data.customer_name
     await searchName(data.customer_number)
   }
 }
-
-watch(
-  () => formModel.list,
-  (value) => {
-    if (value.length > 0) {
-      setCustomerNumber(value[0])
-    }
-  },
-  { immediate: true, deep: true }
-)
 
 async function getFormData(needValidation = true) {
   let lineList = formModel.list.map((item: any) => ({
@@ -374,8 +371,10 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="ORG"> <el-input v-model="formModel.org" disabled style="width: 90%" /> </el-form-item
-      ></el-col>
+        <el-form-item label="ORG">
+          <el-input v-model="formModel.org" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
     </el-row>
   </el-form>
 

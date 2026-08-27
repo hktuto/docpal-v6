@@ -171,23 +171,14 @@ async function getExchangeRateList() {
   exchangeRateList.value = await getDbData('aca40000-75dc-11f1-850d-35881bc838c2')
 }
 
-async function getSeriesList() {
-  const list = await getDbData('c13ccf90-7101-11f1-a5ba-a73b7858cef3')
-  const seen = new Set<any>()
+async function getSeriesList(seriesNumber?: string) {
+  const q = !!seriesNumber && seriesNumber !== '' ? `q=${seriesNumber}&` : ''
+  const data = await $api.get(`/apis/v1/ms/oracle/series?${q}pageNum=1&pageSize=50`).then((r: any) => r.data.items)
 
-  seriesList.value = list.reduce((acc: any[], item: any) => {
-    const value = item.mfg_part_num
-    if (seen.has(value)) return acc
-    seen.add(value)
-
-    acc.push({
-      id: item.id,
-      label: item.mfg_part_num,
-      value: value,
-      brand: ''
-    })
-    return acc
-  }, [])
+  seriesList.value = data.map((item: any) => ({
+    label: item.displayName,
+    value: item.value
+  }))
 }
 
 async function getDbData(tableId: string, conditions?: any[]) {
@@ -406,9 +397,16 @@ defineExpose({ getFormData })
               <el-input v-model="item.part_number" disabled />
             </el-form-item>
             <el-form-item label="系列 Series" v-if="formModel.brand === 'KOA'">
-              <el-select v-model="item.series" class="full-width-input" clearable filterable :value-on-clear="''">
-                <el-option v-for="part in seriesList" :key="part.id" :label="part.label" :value="part.value" />
-              </el-select>
+              <el-select-v2
+                v-model="item.series"
+                filterable
+                remote
+                :remote-method="getSeriesList"
+                remote-show-suffix
+                clearable
+                :options="seriesList"
+                placeholder="Please enter a keyword"
+              />
             </el-form-item>
           </el-col>
 
