@@ -28,7 +28,9 @@ const csvUploadRef = ref<UploadInstance>()
 const formModel = reactive({
   customer_number: '',
   customer_name: '',
+  customerName: '',
   customer_english_name: '',
+  customerEnglishName: '',
   org: '',
   list: [] as LineItem[]
 })
@@ -50,8 +52,7 @@ const lineRules = {
         const index = Number(String(rule.field).match(/^list\.(\d+)\.pi_invoice$/)?.[1])
         const item = formModel.list[index]
         const data = await checkingPiNumber(value)
-        const detail = data?.data
-        if (!detail) {
+        if (!data) {
           if (item?.pi_invoice === value) {
             item.old_plan_date = ''
             item.brand_code = ''
@@ -60,8 +61,8 @@ const lineRules = {
           return
         }
         if (item?.pi_invoice === value) {
-          item.old_plan_date = parsePlanDate(String(detail.old_plan_date ?? ''))
-          item.brand_code = detail.brand ?? detail.brand_code ?? ''
+          item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
+          item.brand_code = data.brand ?? ''
         }
         callback()
       },
@@ -253,20 +254,24 @@ function numberChange(value: string) {
   formModel.customer_number = value
   formModel.customer_name = value
   formModel.customer_english_name = value
+
+  formModel.customerName = customerNameOptions.value.find((item: any) => item.value === value).label
 }
 
 async function checkingPiNumber(value: string) {
   const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
-  return $api.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data)
+  return $api.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data.data)
 }
 
 async function setCustomerNumber(item: any) {
   if (item.pi_invoice === '' || formModel.customer_number !== '') return
   const data = await checkingPiNumber(item.pi_invoice)
   if (!!data) {
-    formModel.customer_number = data.data.customer_number
-    formModel.customer_name = data.data.customer_number
-    formModel.customer_english_name = data.data.customer_number
+    formModel.customer_number = data.customer_number
+    formModel.customer_name = data.customer_number
+    formModel.customer_english_name = data.customer_number
+    formModel.org = data.org_id
+    await searchName(data.customer_number)
   }
 }
 
@@ -289,9 +294,12 @@ async function getFormData(needValidation = true) {
   const result = {
     customer_number: formModel.customer_number,
     customer_name: formModel.customer_name,
+    customerName: formModel.customerName,
     customer_english_name: formModel.customer_english_name,
+    customerEnglishName: formModel.customerEnglishName,
     org: formModel.org,
-    line_list: lineList
+    line_list: lineList,
+    email_list: formModel.list.map(({ id: _id, ...item }) => item)
   }
   if (!needValidation) return result
   await lineFormRef.value?.validate()
