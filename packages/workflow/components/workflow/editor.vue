@@ -252,6 +252,8 @@ function graphReady() {
     new History({
       enabled: !readonly.value,
       beforeAddCommand: (event: any, args: any) => {
+        if (args.options?.ignoreHistory) return false
+
         const ignoreKeys = ['tools', 'ports']
         if (ignoreKeys.includes(args.key)) return false
       }

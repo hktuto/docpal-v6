@@ -287,27 +287,29 @@ function addFlowForChildNodes(x6Nodes: any[], edges: any[]) {
       const meta = node.getData()?.metadata || {}
       const flows = flowMap[nodeId] || { incoming: [], outgoing: [], rawEdges: [] }
 
-      let finalOutgoing = flows.outgoing
+      let finalOutgoing: string[] = flows.outgoing
 
       // 處理 conditionTask 的特殊排序邏輯
-      if (meta.type === CellType.conditionTask && flows.rawEdges.length > 0) {
-        finalOutgoing = flows.rawEdges
-          .sort((a: any, b: any) => {
-            const aSuccess = a.metadata?.conditionStatus === 'success' ? 1 : 0
-            const bSuccess = b.metadata?.conditionStatus === 'success' ? 1 : 0
-            return bSuccess - aSuccess // success 排在前面
-          })
-          .map((edge: any) => edge.target_node_id)
+      if (meta.type === CellType.conditionTask) {
+        if (flows.rawEdges.length > 0) {
+          const successEdge: any = flows.rawEdges.find((e: any) => e.metadata?.conditionStatus === 'success')
+          const failureEdge: any = flows.rawEdges.find((e: any) => e.metadata?.conditionStatus === 'failure')
+
+          finalOutgoing = [successEdge?.target_node_id ?? '', failureEdge?.target_node_id ?? '']
+        }
       }
 
-      node.updateData({
-        flow: {
-          incoming: flows.incoming,
-          outgoing: finalOutgoing,
-          join_type: joinType(nodeData.type),
-          split_type: 'XOR'
-        }
-      })
+      node.updateData(
+        {
+          flow: {
+            incoming: flows.incoming,
+            outgoing: finalOutgoing,
+            join_type: joinType(nodeData.type),
+            split_type: 'XOR'
+          }
+        },
+        { ignoreHistory: true }
+      )
 
       return node
     })
