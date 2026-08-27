@@ -112,10 +112,34 @@ const { tableConfig, tableEvent, tableRef, reload, setupLazyLoad } = useVxeTable
       baseURL:'/apis'
     })
     return {
-      result: res.data.items,
+      result: (res.data.items || []).map((item: any) => ({
+        ...item,
+        _rowKey: `${item.org_id}_${item.pi_num}`,
+        hasChild: item.version_no > 1
+      })),
       page: {
         total: res.data.total,
         currentPage: res.data.pageNum
+      }
+    }
+  },
+  optionalConfig: {
+    treeConfig: {
+      transform: false,
+      rowField: '_rowKey',
+      childrenField: 'children',
+      lazy: true,
+      showLine: true,
+      hasChildField: 'hasChild',
+      loadMethod: async ({ row }: any) => {
+        const res = await clientApi.instance.get(`/v1/ms/oracle/shipping-copy/history?orgId=${row.org_id}&invoiceNo=${encodeURIComponent(row.pi_num)}`, {
+          baseURL: '/apis'
+        })
+        return (res.data.items || []).map((item: any) => ({
+          ...item,
+          _rowKey: `${item.org_id}_${item.pi_num}_${item.version_no}`,
+          hasChild: false
+        }))
       }
     }
   },
