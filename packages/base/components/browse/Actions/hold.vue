@@ -92,7 +92,6 @@ const state = reactive<any>({
   loading: false
 })
 const emits = defineEmits(['success'])
-const { t } = useI18n()
 const svgContent = computed(() => {
   switch (hold.value.status) {
     case 'A':
