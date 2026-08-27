@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import { ElMessageBox } from 'element-plus'
-import type { DashboardWidgetSetting, DashboardWidget } from '#imports'
-import { dashboardWidgetSetting, getNormalizeSetting, getWidgetSetting, getDashboardWidgetByType } from '#imports'
+
+import { getNormalizeSetting, getWidgetSetting, getDashboardWidgetByType } from '#imports'
+const dashboardWidgetSetting = useDashboardWidgetSetting()
 import { newAdminApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { id } = defineProps<{
@@ -13,12 +14,12 @@ const state = reactive({
   info: {
     name: ''
   } as any,
-  layout: [] as DashboardWidgetSetting[],
+  layout: [] as any[],
   loading: false,
   saveLoading: false,
   dates: [dayjs().startOf('year').format('YYYY-MM-DDT00:00:00'), dayjs(new Date()).format('YYYY-MM-DDT23:59:59')]
 })
-let dashboardWidgetByType = getDashboardWidgetByType(dashboardWidgetSetting)
+let dashboardWidgetByType = getDashboardWidgetByType(dashboardWidgetSetting.value)
 function handleRefresh(layoutSetting: any) {
   const index = state.layout.findIndex((item) => item.i === layoutSetting.i)
   state.layout[index] = deepCopy(layoutSetting)

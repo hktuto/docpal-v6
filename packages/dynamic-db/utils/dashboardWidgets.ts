@@ -1,6 +1,6 @@
-import type { DashboardWidgetSetting } from '#imports'
 
-export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = {
+
+export const dbDashboardWidgetSetting: Record<string, any> = {
   DemoInventory: {
     label: '总库存报表',
     type: 'database' as any,
@@ -513,9 +513,9 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
  * Returns the full dashboard widget palette grouped by type.
  * Includes dynamic-db widgets (database, record) plus eligible dp-dashboard widgets.
  */
-export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSetting[]> {
+export function getDbDashboardWidgetByType(): Record<string, any[]> {
   const dpDashboardWidgetSetting = useDashboardWidgetSetting()
-  const result: Record<string, DashboardWidgetSetting[]> = {
+  const result: Record<string, any[]> = {
     database: [],
     // record: []
   }
@@ -545,8 +545,8 @@ export function getDbDashboardWidgetByType(): Record<string, DashboardWidgetSett
   return result
 }
 
-export function getRecordDashboardWidgetByType(): Record<string, DashboardWidgetSetting[]> {
-  const result: Record<string, DashboardWidgetSetting[]> = {
+export function getRecordDashboardWidgetByType(): Record<string, any[]> {
+  const result: Record<string, any[]> = {
     record: []
   }
 

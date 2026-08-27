@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import type { DashboardWidget, DashboardWidgetSetting } from '#imports'
-import { dashboardWidgetSetting, getNormalizeSetting, getWidgetSetting } from '#imports'
+import type { DashboardWidget } from '#imports'
+import { getNormalizeSetting, getWidgetSetting } from '#imports'
+const dashboardWidgetSetting = useDashboardWidgetSetting()
+
 import { newClientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
@@ -13,7 +15,7 @@ const state = reactive({
   info: {
     name: ''
   } as any,
-  layout: [] as DashboardWidgetSetting[],
+  layout: [] as any[],
   loading: false,
   saveLoading: false,
   dates: [
