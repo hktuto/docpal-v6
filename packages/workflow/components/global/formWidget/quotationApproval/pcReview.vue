@@ -265,7 +265,7 @@ function handleHistoryPriceSubmit(data: any) {
 
     // 情況 1: 新列表有項目，更新或新增
     if (newItem) {
-      const exchange_rate = handelCostCurrency({ cost_currency: newItem.currency })
+      // const exchange_rate = handelCostCurrency({ cost_currency: newItem.currency })
 
       const baseItem = oldItem
         ? { ...oldItem, data_source: newItem.poCustomer }
@@ -281,9 +281,11 @@ function handleHistoryPriceSubmit(data: any) {
         ...baseItem,
         moq: newItem.moq,
         unit_cost: newItem.cost,
-        unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchange_rate)).toFixed(6)),
+        // unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchange_rate)).toFixed(6)),
+        unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
         cost_currency: newItem.currency,
-        exchange_rate: Number(new Decimal(exchange_rate))
+        // exchange_rate: Number(new Decimal(exchange_rate))
+        exchange_rate: newItem.exchangeRate
       }
 
       calculateProfit(updatedItem as TargetPriceItem)

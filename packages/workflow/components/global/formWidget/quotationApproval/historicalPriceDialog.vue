@@ -121,7 +121,8 @@ function handleSubmit() {
       quantity: item.quantity,
       cost: item.cost,
       currency: item.currency,
-      poCustomer: item.poCustomer
+      poCustomer: item.poCustomer,
+      exchangeRate: item.exchange_rate,
     }))
   emits('submit', { index: index.value, list })
   showDialog.value = false
