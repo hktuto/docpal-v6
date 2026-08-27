@@ -290,7 +290,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="終端用戶 End User">
+        <el-form-item label="終端用戶 End User" prop="end_user" :required="formModel.customer_background === 'OEM'">
           <el-input v-model="formModel.end_user" />
         </el-form-item>
       </el-col>
