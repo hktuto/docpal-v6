@@ -6,7 +6,7 @@
     </div>
     <el-splitter class="container">
       <el-splitter-panel class="mg-right" size="7%" :collapsible="false" :min="50">
-        <WHASupplyListInvoiceVerifyList />
+        <WHInvoiceSupplyListMenu />
       </el-splitter-panel>
       <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200">
         <WorkflowPreview :doc-id="previewFileId">
@@ -18,13 +18,13 @@
         </WorkflowPreview>
       </el-splitter-panel>
       <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200">
-        <WHASupplyListInvoiceVerifyTable />
+        <WHInvoiceSupplyListTable />
       </el-splitter-panel>
       <el-splitter-panel class="mg-left side-panel" size="14%" :collapsible="isCollapsible" :min="180">
-        <WHASupplyListInvoiceVerifyDetailCard ref="detailCardRef" />
-        <WHASupplyListInvoiceVerifyDetectedCard class="mg-top" />
-        <WHASupplyListInvoiceVerifyGitStatusCard class="mg-top" />
-        <WHASupplyListInvoiceVerifyProgressCard class="mg-top" />
+        <WHInvoiceSupplyListDetailCard ref="detailCardRef" />
+        <WHInvoiceSupplyListDetectedCard class="mg-top" />
+        <WHInvoiceSupplyListGitStatusCard class="mg-top" />
+        <WHInvoiceSupplyListProgressCard class="mg-top" />
       </el-splitter-panel>
     </el-splitter>
   </div>
@@ -53,7 +53,7 @@ const previewFileId = computed({
   }
 })
 
-const detailCardRef = ref<InstanceType<typeof WHASupplyListInvoiceVerifyDetailCard>>()
+const detailCardRef = ref<InstanceType<typeof WHInvoiceSupplyListDetailCard>>()
 useInvoiceVerifyTableProvider(selectedInvoice, {
   updateInvoiceData,
   runMatching,

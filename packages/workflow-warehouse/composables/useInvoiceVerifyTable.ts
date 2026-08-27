@@ -30,6 +30,7 @@ export function useInvoiceVerifyTableProvider(
   const { t } = useI18n()
   const verificationTableColumns = createInvoiceVerificationTableColumns(t)
   const loading = ref(false)
+  const matchingLoading = ref(false)
   const creatingRow = ref(false)
   const statusFilter = ref<VerificationStatusFilter>('all')
   const searchQuery = ref('')
@@ -71,7 +72,7 @@ export function useInvoiceVerifyTableProvider(
 
   async function deleteRow(row: Record<string, any>) {
     const invoiceId = selectedInvoice.value?.id
-    if (!invoiceId || !row?.id) return
+    if (!invoiceId || !row?.id || matchingLoading.value) return
 
     try {
       await ElMessageBox.confirm(t('contextMenu.confirmDelete'), t('dpTip_warning'), {
@@ -101,8 +102,14 @@ export function useInvoiceVerifyTableProvider(
       t,
       columns: verificationTableColumns,
       enableHeaderActions: false,
-      onCopy: (row) => copyRow(row),
-      onDelete: (row) => deleteRow(row),
+      onCopy: (row) => {
+        if (matchingLoading.value) return
+        copyRow(row)
+      },
+      onDelete: (row) => {
+        if (matchingLoading.value) return
+        deleteRow(row)
+      },
       getRowClassName: (row) => {
         const classes: string[] = []
         if (isGitLineMatched(row)) classes.push('wha-invoice-row-matched')
@@ -110,7 +117,7 @@ export function useInvoiceVerifyTableProvider(
         return classes.join(' ')
       },
       onEditClosed: ({ row }) => markRowDirty(row),
-      beforeEditMethod: ({ row }) => !isGitLineMatched(row)
+      beforeEditMethod: ({ row }) => !matchingLoading.value && !isGitLineMatched(row)
     }),
     api: async () => {
       const data = await fetchTableData()
@@ -196,12 +203,12 @@ export function useInvoiceVerifyTableProvider(
   }
 
   async function addRow() {
-    if (!selectedInvoice.value?.id) return
+    if (!selectedInvoice.value?.id || matchingLoading.value) return
     await insertRow(createEmptyGitInvoiceLine())
   }
 
   async function copyRow(row: Record<string, any>) {
-    if (!selectedInvoice.value?.id || !row) return
+    if (!selectedInvoice.value?.id || !row || matchingLoading.value) return
     const { id: _id, status: _status, ...rest } = row
     const ok = await insertRow({
       ...createEmptyGitInvoiceLine(),
@@ -262,14 +269,22 @@ export function useInvoiceVerifyTableProvider(
   }
 
   async function runMatchingAndReload() {
-    await saveTableData()
-    const invoice = await invoiceCtx.runMatching()
-    if (invoice?.items) {
-      tableData.value = [...invoice.items]
-      await nextTick()
-      tableRef.value?.loadData?.(getFilteredItems(tableData.value))
+    if (matchingLoading.value) return null
+    matchingLoading.value = true
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+    try {
+      ;(tableRef.value as any)?.clearEdit?.()
+      await saveTableData()
+      const invoice = await invoiceCtx.runMatching()
+      if (invoice?.items) {
+        tableData.value = [...invoice.items]
+        await nextTick()
+        tableRef.value?.loadData?.(getFilteredItems(tableData.value))
+      }
+      return invoice
+    } finally {
+      matchingLoading.value = false
     }
-    return invoice
   }
 
   async function fetchGroupId() {
@@ -278,10 +293,12 @@ export function useInvoiceVerifyTableProvider(
   }
 
   const context: VerificationTableContext & {
+    matchingLoading: Ref<boolean>
     runMatchingAndReload: () => Promise<GitInvoice | null>
     fetchGroupId: () => Promise<string | null>
   } = {
     loading,
+    matchingLoading,
     creatingRow,
     tableData,
     tableConfig,
@@ -308,6 +325,7 @@ export function useInvoiceVerifyTableProvider(
 export function useInvoiceVerifyTableInject() {
   const context = inject(InvoiceVerifyTableKey) as
     | (VerificationTableContext & {
+        matchingLoading: Ref<boolean>
         runMatchingAndReload: () => Promise<GitInvoice | null>
         fetchGroupId: () => Promise<string | null>
       })

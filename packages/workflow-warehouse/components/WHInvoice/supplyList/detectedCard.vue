@@ -4,11 +4,15 @@ import { useInvoiceVerifyInject } from '../../../composables/useInvoiceVerify'
 import { useInvoiceVerifyTableInject } from '../../../composables/useInvoiceVerifyTable'
 import { isGitLineMatched } from '../../../utils/gitInvoice'
 
-const detecting = ref(false)
 const unmatchedList = ref<any[]>([])
 const { t } = useI18n()
 const { selectedInvoice } = useInvoiceVerifyInject()
-const { runMatchingAndReload, highlightMatchingRows, clearMatchingRowHighlight } = useInvoiceVerifyTableInject()
+const {
+  matchingLoading,
+  runMatchingAndReload,
+  highlightMatchingRows,
+  clearMatchingRowHighlight
+} = useInvoiceVerifyTableInject()
 
 function syncUnmatchedFromInvoice() {
   const items = selectedInvoice.value?.items ?? []
@@ -34,8 +38,7 @@ function syncUnmatchedFromInvoice() {
 }
 
 async function handleDetect() {
-  if (detecting.value || !selectedInvoice.value?.id) return
-  detecting.value = true
+  if (matchingLoading.value || !selectedInvoice.value?.id) return
   try {
     await runMatchingAndReload()
     syncUnmatchedFromInvoice()
@@ -47,8 +50,6 @@ async function handleDetect() {
   } catch (error) {
     console.error(error)
     ElMessage.error(String((error as any)?.message || error))
-  } finally {
-    detecting.value = false
   }
 }
 
@@ -66,7 +67,7 @@ defineExpose({ handleDetect })
 <template>
   <WHDetectedCard
     :issues="unmatchedList"
-    :detecting="detecting"
+    :detecting="matchingLoading"
     :action-text="$t('workflowWarehouse.gitMatching')"
     @detect="handleDetect"
   >

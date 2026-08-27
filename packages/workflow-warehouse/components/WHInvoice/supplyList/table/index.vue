@@ -1,5 +1,5 @@
 <template>
-  <div class="verification-table" v-loading="loading">
+  <div class="verification-table" v-loading="loading || matchingLoading">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <WHVerifyTableToolbar
@@ -8,7 +8,7 @@
           :counts="statusCounts"
           :tabs="statusTabs"
           :creating-row="creatingRow"
-          :disabled="disabled || !selectedInvoice"
+          :disabled="disabled || !selectedInvoice || matchingLoading"
           @add-row="addRow"
         />
       </template>
@@ -24,6 +24,7 @@ import type { VerificationStatusFilter } from '../../../../utils/tableHelper'
 const { t } = useI18n()
 const {
   loading,
+  matchingLoading,
   creatingRow,
   tableConfig,
   tableEvent,
