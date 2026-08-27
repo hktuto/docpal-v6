@@ -15,6 +15,7 @@ async function downloadBatch(docs: any[]) {
   const documents = docs.map(doc => ({
     orgId: doc.org_id,
     invoiceNo: doc.pi_num,
+    versionNo: doc.version_no
   }))
   const fileName = dayjs().format('YYYY-MM-DD')
   const userId = useUserId()
@@ -164,13 +165,13 @@ const { tableConfig, tableEvent, tableRef, reload, setupLazyLoad } = useVxeTable
       field: "old_plan_date",
       title: "Invoice Date",
       formatter: ({ cellValue }: any) => {
-        return formatDate(cellValue, 'YYYY-MM-DD')
+        return formatDate(cellValue, 'YYYY-MMM-DD')
       }
     }, {
       field: "new_plan_date",
       title: "Plan Date",
       formatter: ({ cellValue }: any) => {
-        return formatDate(cellValue, 'YYYY-MM-DD')
+        return formatDate(cellValue, 'YYYY-MMM-DD')
       }
     }, {
       field: "download_count",
