@@ -15,6 +15,13 @@ const selectedRowsList = ref<any[]>([])
 const formModel = reactive({
   selectedRowsListLength: 0
 })
+const search = reactive({
+  gitDate: '',
+  brand: '',
+  partNumber: '',
+  poNumber: ''
+})
+
 const rules = {
   selectedRowsListLength: [
     {
@@ -39,6 +46,28 @@ watch(
   },
   { immediate: true }
 )
+
+const brandOptions = ref<any[]>([])
+const partNumberOptions = ref<any[]>([])
+async function getBrandOptions() {
+  brandOptions.value = await $api.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
+}
+
+async function getPartList(query?: string) {
+  const brandQuery = search.brand ? `&brand=${search.brand}` : ''
+  const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?q=${query || ''}${brandQuery}&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
+  if (!data?.length) return
+
+  partNumberOptions.value = data.map((item: any) => ({
+    label: item.wcl_item_no,
+    value: item.wcl_item_no
+  }))
+}
+
+function handleBrandChange() {
+  search.partNumber = ''
+  partNumberOptions.value = []
+}
 
 function getColumns() {
   const checkboxCol = { type: 'checkbox', width: 60, align: 'center', fixed: 'left' }
@@ -265,6 +294,12 @@ async function getFormData(needValidation = true) {
   return result
 }
 
+onMounted(() => {
+  if (!formData.is_approval) {
+    getBrandOptions()
+  }
+})
+
 watch(
   () => formData.data_list,
   (value) => {
@@ -287,14 +322,58 @@ defineExpose({ getFormData })
 </script>
 
 <template>
+  <div v-if="!formData.is_approval">
+    <el-divider content-position="left">搜索 Search</el-divider>
+    <el-row>
+      <el-col :span="6">
+        <el-form-item label="GIT 日期 GIT Date">
+          <el-date-picker v-model="search.gitDate" type="date" placeholder="Select date" style="width: 90%" />
+        </el-form-item>
+        <el-button type="primary">Inquiry GIT Data</el-button>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item label="品牌 Brand" prop="brand">
+          <el-select v-model="search.brand" filterable clearable placeholder="Select an option" @change="handleBrandChange" style="width: 90%">
+            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.lable || item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-button type="primary">Inquiry Data</el-button>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item label="零件編號 Part Number" prop="part_number">
+          <el-select-v2
+            v-model="search.partNumber"
+            filterable
+            remote
+            :remote-method="getPartList"
+            remote-show-suffix
+            clearable
+            :options="partNumberOptions"
+            placeholder="Select an option"
+            style="width: 90%"
+          />
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item label="PO編號 PO Number">
+          <el-input v-model="search.poNumber" />
+        </el-form-item>
+      </el-col>
+    </el-row>
+  </div>
+
+  <el-divider content-position="left">Line</el-divider>
   <div style="height: 79vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <el-form ref="formRef" :model="formModel" :rules="rules" label-position="left" inline>
+        <el-form v-if="!formData.is_approval" ref="formRef" :model="formModel" :rules="rules" label-position="left" inline>
           <el-form-item label="已選中數量 Selected Quantity" prop="selectedRowsListLength">
             <el-input v-model="formModel.selectedRowsListLength" disabled />
           </el-form-item>
         </el-form>
+        <el-form-item v-else>
+          <el-input v-model="formModel.selectedRowsListLength" disabled />
+        </el-form-item>
       </template>
     </VxeGrid>
   </div>

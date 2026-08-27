@@ -207,24 +207,29 @@ async function getFormData(needValidation = true) {
 }
 
 async function getPartList(part_number?: string) {
-  const data = await $api
-    .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100`)
-    .then((r: any) => r.data.items)
-  if (data.length === 0) return
+  try {
+    const data = await $api
+      .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100`)
+      .then((r: any) => r.data.items)
+    if (data.length === 0) return
 
-  part_numberOptions.value = data.map((item: any) => ({
-    id: item.inventory_item_id,
-    label: item.wcl_item_no,
-    value: item.wcl_item_no,
-    brand: item.brand,
-    moq: item.moq,
-    uom: item.uom
-  }))
+    part_numberOptions.value = data.map((item: any) => ({
+      id: item.inventory_item_id,
+      label: item.wcl_item_no,
+      value: item.wcl_item_no,
+      brand: item.brand,
+      moq: item.moq,
+      uom: item.uom
+    }))
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function handleChangeBrand() {
   if (!formModel.value.brand || formModel.value.brand === '') return
 
+  part_numberOptions.value = []
   handleSampleInfoAdd()
   await getPartList('')
 }

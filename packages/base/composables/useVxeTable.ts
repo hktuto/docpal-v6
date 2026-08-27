@@ -59,7 +59,7 @@ export interface UseVxeTableParams<R = any> {
   }
 }
 
-export type PermissionMethodParams = { row: any; code?: string; rowIndex?: number; additionalData?: any }
+export type PermissionMethodParams = { row: any; code?: string; rowIndex?: number; column?: any; additionalData?: any }
 
 interface Config extends VxeGridProps {
   proxyConfig: VxeGridPropTypes.ProxyConfig
@@ -206,7 +206,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
                 // if all children are disabled , set item.disabled = true
 
                 item.children.forEach((child) => {
-                  const permission = permissionMethod({ row, rowIndex, code: child.code, additionalData })
+                  const permission = permissionMethod({ row, rowIndex, code: child.code, column, additionalData })
                   if(!permission){
                     child.visible = true
                     child.disabled = false
@@ -220,8 +220,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
                 item.visible = allVisible
                 item.disabled = allDisabled
               } else {
-                const permission = permissionMethod({ row, rowIndex, code: item.code, additionalData })
-                console.log("permission", permission)
+                const permission = permissionMethod({ row, rowIndex, code: item.code, column, additionalData })
                 if (!permission) {
                   item.visible = true
                   item.disabled = false
@@ -407,6 +406,13 @@ export const useVxeTable = (params: UseVxeTableParams) => {
   // Step 4: handle footer actions
   if (params.footerActions && params.footerActions.length > 0) {
     tableConfig.menuConfig.footer.options = params.footerActions
+  }
+  if (
+    (params.headerActions && params.headerActions.length > 0) ||
+    (actions && actions.length > 0) ||
+    (params.footerActions && params.footerActions.length > 0)
+  ) {
+    tableConfig.menuConfig.enabled = true
   }
 
   // #endregion

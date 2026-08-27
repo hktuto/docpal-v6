@@ -5,6 +5,7 @@ const { t } = useI18n()
 const emits = defineEmits(['submit'])
 const showDialog = ref<boolean>(false)
 const searchData = ref<any>({
+  org_id: 0,
   brand: '',
   currency: '',
   part_number: '',
@@ -19,7 +20,8 @@ const routerProvider = inject(MenuRouterKey)
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-user-table',
   api: async (pageParams: any) => {
-    return handleSearch()
+    console.log(12222)
+    return handleSearch(pageParams)
   },
   columns: [
     { field: 'poNumber', title: '編號 Number', fixed: 'left', type: 'checkbox', width: 200 },
@@ -55,152 +57,58 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
 function open(item: any) {
   showDialog.value = true
   searchData.value = {
+    org_id: item.org_id,
     brand: item.brand,
+    currency: item.currency,
     part_number: item.part_number || '',
-    series: item.series || '',
-    series: item.series || ''
+    series: item.series ?? ''
   }
   index.value = item.index
 }
 
-async function handleSearch() {
-  // tableData.value = [{}]
-  // cell API Get data
-
-  // test Data
-  const data = [
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 3.92,
-      quantity: 73,
-      creationDate: '2024-10-25',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 1,
-      moq: 73
-    },
-    {
-      currency: 'JPY',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 6,
-      quantity: 1,
-      creationDate: '2023-04-10',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 2,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 2.97,
-      quantity: 250000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 3,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 4.09,
-      quantity: 10000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 4,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 3.12,
-      quantity: 100000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 5,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 3.83,
-      quantity: 20000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 6,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 3.39,
-      quantity: 50000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 7,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: '合肥美亚光电技术股份有限公司',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '339080480',
-      cost: 3.92,
-      quantity: 73,
-      creationDate: '2026-04-02',
-      noteToVendor: null,
-      type: 'PO',
-      rowId: 8,
-      moq: null
-    },
-    {
-      currency: 'EUR',
-      poCustomer: '梅卡曼德（雄安）机器人科技股份有限公司',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '349021829',
-      cost: 3.92,
-      quantity: 1460,
-      creationDate: '2026-04-01',
-      noteToVendor: null,
-      type: 'PO',
-      rowId: 9,
-      moq: null
-    },
-    {
-      currency: 'EUR',
-      poCustomer: '合肥瑞识智能科技有限公司',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '339080258',
-      cost: 3.92,
-      quantity: 73,
-      creationDate: '2026-03-25',
-      noteToVendor: null,
-      type: 'PO',
-      rowId: 10,
-      moq: null
+async function handleSearch(pageParams: any) {
+  try {
+    const body: any = {
+      currency: searchData.value.currency,
+      part_number: searchData.value.part_number,
+      org_id: searchData.value.org_id,
+      brand: searchData.value.brand,
+      page: pageParams.pageNum + 1,
+      size: pageParams.pageSize
     }
-  ]
-  tableRef.value?.loadData(data)
+    if (searchData.value.series !== '') {
+      body.series = searchData.value.series
+    }
+    if (!!searchData.value.date_range && searchData.value.date_range.length > 1) {
+      body.start_date = searchData.value.date_range[0]
+      body.end_date = searchData.value.date_range[1]
+    }
+    if (!!searchData.value.type) {
+      body.type = searchData.value.type
+    }
+    console.log(123, body)
+
+    const data = await $api.post('/apis/v1/ms/oracle/quotation/cost-history', body).then((r: any) => r.data)
+    console.log(123, data)
+    // const data = [
+    //   {
+    //     currency: 'EUR',
+    //     poCustomer: 'Cust for Quotation',
+    //     item: 'ICHAUS/IC-HG30 QFN28-5X5',
+    //     poNumber: '112000104',
+    //     cost: 3.92,
+    //     quantity: 73,
+    //     creationDate: '2024-10-25',
+    //     noteToVendor: 'E/F/XIAO TIAN LI',
+    //     type: 'QUOTATION',
+    //     rowId: 1,
+    //     moq: 73
+    //   }
+    // ]
+    tableRef.value?.loadData(data)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 function handleSubmit() {
@@ -257,7 +165,7 @@ defineExpose({ open })
               </el-select>
             </el-form-item>
             <el-form-item class="historical-price-filter-form__action">
-              <el-button type="primary" @click="handleSearch">{{ $t('Search') }}</el-button>
+              <el-button type="primary" @click="reload">{{ $t('Search') }}</el-button>
             </el-form-item>
           </el-form>
         </template>

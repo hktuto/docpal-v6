@@ -3,7 +3,7 @@
     <template v-if="selectedInvoice">
       <div class="detail-card-body">
         <template v-for="item in list" :key="item.label">
-          <WHASupplyListVerifyDetailCardItem
+          <WHDetailItem
             v-if="item.invoiceKey"
             v-model:value="selectedInvoice[SGLA[item.invoiceKey]]"
             :label="item.label"
@@ -19,7 +19,7 @@
             @button="(v) => handleBotton(v, item)"
           />
           <template v-else>
-            <WHASupplyListVerifyDetailCardItem :label="item.label" :text-value="unref(item.value)" :type="item.type" :disabled="item.disabled" />
+            <WHDetailItem :label="item.label" :text-value="unref(item.value)" :type="item.type" :disabled="item.disabled" />
           </template>
         </template>
       </div>
