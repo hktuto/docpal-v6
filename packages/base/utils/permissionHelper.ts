@@ -40,7 +40,7 @@ export const AllowTo = ({ feature, permission }: AllowToArgs) => {
   console.log('check permission', PermissionArray.indexOf(userPermission) >= PermissionArray.indexOf(feature))
   return PermissionArray.indexOf(userPermission) >= PermissionArray.indexOf(feature)
 }
-type rbacPermission =
+export type rbacPermission =
   | 'viewFolder'
   | 'viewMetadata'
   | 'print'

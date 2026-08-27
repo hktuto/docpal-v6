@@ -82,6 +82,7 @@ const status = ref('D')
 const props = defineProps<{
   doc?: any
 }>()
+const { t } = useI18n()
 const hold = computed(() => {
   return props.doc?.holdDocument ? props.doc.holdDocument : {}
 })
@@ -95,13 +96,13 @@ const { t } = useI18n()
 const svgContent = computed(() => {
   switch (hold.value.status) {
     case 'A':
-      return $i18n.t('hp.removeHold')
+      return t('hp.removeHold')
     case 'P':
-      return $i18n.t('hp.pendingAddApproval')
+      return t('hp.pendingAddApproval')
     case 'L':
-      return $i18n.t('hp.pendingRemoveApproval')
+      return t('hp.pendingRemoveApproval')
     default:
-      return $i18n.t('hp.addHold')
+      return t('hp.addHold')
   }
 })
 const userId: string = useUserId().value

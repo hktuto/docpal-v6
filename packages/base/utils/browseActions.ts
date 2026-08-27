@@ -14,7 +14,8 @@ import BrowseActionsDeleteSelected from '../components/browse/Actions/deleteSele
 import BrowseActionsInfo from '../components/browse/Actions/info.vue'
 import BrowseActionsWatermarkBtn from '../components/browse/Actions/WatermarkBtn.vue'
 // import BrowseActionsAi from "../components/browse/Actions/ai/index.vue";
-import type { AllPermission, rbacPermission } from './permissionHelper'
+import type { rbacPermission } from './permissionHelper'
+import { AllowTo, RbacAllowTo } from './permissionHelper'
 import { allowFeature } from './browseHelper'
 export type BrowseActionItem = {
   name: string
@@ -114,7 +115,7 @@ export const actions: BrowseActionItem[] = [
     groupBy: 'other',
     additionalCheck: (docDetail: any) => {
       const watermarkAcceptFormat = ['jpg', 'pdf', 'png', 'mp4']
-      
+
       if (docDetail.fileContentExtension && watermarkAcceptFormat.includes(docDetail.fileContentExtension.toLowerCase())) {
         return true
       }
@@ -187,6 +188,15 @@ export const ActionsFilter = (
     })
     .filter((item) => {
       return item[booleanKey]
+    })
+    .filter((item) => {
+      if (!docDetail.hold) {
+        docDetail.hold = {}
+      }
+      if (!docDetail.retention) {
+        docDetail.retention = {}
+      }
+      return AllowTo({ feature: item.permission as Permission, permission: docDetail })
     })
     .filter((item) => {
       // console.log(RbacAllowTo(item.permission, docDetail), docDetail);
