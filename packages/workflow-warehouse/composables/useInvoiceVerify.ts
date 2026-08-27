@@ -2,6 +2,7 @@ import { inject, provide, ref, toRef, type InjectionKey, type Ref } from 'vue'
 import { newClientApi } from 'api'
 import type { WHASupplyListVerifyProps } from './useWHASupplyListVerify'
 import { type GitInvoice, type GitInvoiceLineItem } from '../utils/gitInvoice'
+import { getFileDisplayName, resolveInvoiceFile } from '../utils/workflowHelper'
 
 export type InvoiceVerifyProps = WHASupplyListVerifyProps
 
@@ -20,30 +21,6 @@ export interface InvoiceVerifyContext {
 }
 
 export const InvoiceVerifyKey: InjectionKey<InvoiceVerifyContext> = Symbol('InvoiceVerify')
-
-function getFileDisplayName(file: Record<string, any> | null | undefined) {
-  if (!file) return ''
-  return String(file.file_name || file.name || '')
-}
-
-/**
- * Match invoice.fileName to file_list_info item.name
- * e.g. fileName "1787635402340pdf.pdf" ↔ name "1787635402340pdf"
- */
-function resolveInvoiceFile(invoice: GitInvoice | null | undefined, fileList: Record<string, any>[] = []) {
-  if (!invoice || !fileList.length) return null
-  const fileName = String(invoice.fileName ?? invoice.file_name ?? '')
-  if (!fileName) return null
-
-  const key = fileName.replace(/\.[^.]+$/, '')
-  return (
-    fileList.find((file) => {
-      const name = String(file?.name ?? '')
-      if (!name) return false
-      return name === fileName || name === key || `${name}.${file?.extension || ''}`.replace(/\.$/, '') === fileName
-    }) ?? null
-  )
-}
 
 export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
   const formData = toRef(props, 'formData')
@@ -65,7 +42,7 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
 
     const invoice = selectedInvoice.value
     if (!invoice) return
-    const file = resolveInvoiceFile(invoice, formData.value?.file_list_info)
+    const file = resolveInvoiceFile(invoice.fileName ?? invoice.file_name, formData.value?.file_list_info)
     invoice.file = file
     if (file?.id != null) {
       invoice.fileId = String(file.id)

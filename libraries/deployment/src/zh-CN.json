@@ -4832,6 +4832,16 @@
     "matchingAllMatched": "全部行已匹配",
     "matched": "已匹配",
     "unmatched": "未匹配",
-    "matchedProgress": "已匹配 {ok} / {all} 行。"
+    "matchedProgress": "已匹配 {ok} / {all} 行。",
+    "shipVerifyTitle": "核验",
+    "piInvoice": "PI 发票号",
+    "shipConfirmDate": "出货确认日期",
+    "customerNo": "客户编号",
+    "piAmount": "PI 金额",
+    "selfDelivery": "自送",
+    "pleaseEnterShipConfirmDate": "⌈{name}⌋ 请输入出货确认日期",
+    "pleaseEnterCustomerNo": "⌈{name}⌋ 请输入客户编号",
+    "pleaseEnterPiAmount": "⌈{name}⌋ 请输入 PI 金额",
+    "pleaseEnterSelfDelivery": "⌈{name}⌋ 请选择是否自送"
   }
 }

@@ -17,6 +17,7 @@
       <slot :issues="issues" />
     </div>
     <el-button
+      v-if="!hideAction"
       style="width: 100%"
       type="primary"
       :loading="detecting"
@@ -41,6 +42,7 @@ withDefaults(
     subtitle?: string
     emptyText?: string
     actionText?: string
+    hideAction?: boolean
   }>(),
   {
     issues: () => [],
@@ -48,7 +50,8 @@ withDefaults(
     title: '',
     subtitle: '',
     emptyText: '',
-    actionText: ''
+    actionText: '',
+    hideAction: false
   }
 )
 

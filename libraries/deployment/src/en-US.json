@@ -4907,6 +4907,16 @@
     "matchingAllMatched": "All lines matched",
     "matched": "Matched",
     "unmatched": "Unmatched",
-    "matchedProgress": "Matched {ok} of {all} lines."
+    "matchedProgress": "Matched {ok} of {all} lines.",
+    "shipVerifyTitle": "Verification",
+    "piInvoice": "PI Invoice #",
+    "shipConfirmDate": "Ship Confirm Date",
+    "customerNo": "Customer #",
+    "piAmount": "PI Amount",
+    "selfDelivery": "Self Delivery",
+    "pleaseEnterShipConfirmDate": "⌈{name}⌋ Please enter the ship confirm date",
+    "pleaseEnterCustomerNo": "⌈{name}⌋ Please enter the customer number",
+    "pleaseEnterPiAmount": "⌈{name}⌋ Please enter the PI amount",
+    "pleaseEnterSelfDelivery": "⌈{name}⌋ Please select self delivery"
   }
 }

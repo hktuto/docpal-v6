@@ -4904,6 +4904,16 @@
     "matchingAllMatched": "全部行已匹配",
     "matched": "已匹配",
     "unmatched": "未匹配",
-    "matchedProgress": "已匹配 {ok} / {all} 行。"
+    "matchedProgress": "已匹配 {ok} / {all} 行。",
+    "shipVerifyTitle": "核驗",
+    "piInvoice": "PI 發票號",
+    "shipConfirmDate": "出貨確認日期",
+    "customerNo": "客戶編號",
+    "piAmount": "PI 金額",
+    "selfDelivery": "自送",
+    "pleaseEnterShipConfirmDate": "⌈{name}⌋ 請輸入出貨確認日期",
+    "pleaseEnterCustomerNo": "⌈{name}⌋ 請輸入客戶編號",
+    "pleaseEnterPiAmount": "⌈{name}⌋ 請輸入 PI 金額",
+    "pleaseEnterSelfDelivery": "⌈{name}⌋ 請選擇是否自送"
   }
 }
