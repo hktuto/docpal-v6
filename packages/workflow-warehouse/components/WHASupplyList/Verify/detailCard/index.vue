@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { newClientApi, postDynamicActions } from 'api'
 import { SGLA, SGLA_ITEMS, SUPPLIER_LIST_TABLE_NAME, DELIVERY_DATE_FORMAT } from '../../../../utils/variableMapping'
+import { syncSelectField } from '../../../../utils/workflowHelper'
 import { ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import isoWeek from 'dayjs/plugin/isoWeek'
@@ -172,20 +173,13 @@ async function getOrgList() {
   } finally {
   }
 }
-function syncSelectField(field: keyof typeof SGLA, options: { label: string; value: string | number }[]) {
-  const invoice = selectedInvoice.value
-  if (!invoice || !options.length) return
-  const current = invoice[SGLA[field]]
-  if (current == null || current === '') return
-  const matched = options.find((opt) => String(opt.value) === String(current) || String(opt.label) === String(current))
-  invoice[SGLA[field]] = matched ? matched.value : ''
-}
-
 watch(
   [() => selectedInvoice.value?.id, SupplierList, OrgList],
   () => {
-    syncSelectField('VendorId', SupplierList.value)
-    syncSelectField('Org', OrgList.value)
+    const invoice = selectedInvoice.value
+    if (!invoice) return
+    invoice[SGLA.VendorId] = syncSelectField(invoice[SGLA.VendorId], SupplierList.value)
+    invoice[SGLA.Org] = syncSelectField(invoice[SGLA.Org], OrgList.value)
   },
   { immediate: true }
 )

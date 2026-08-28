@@ -19,3 +19,22 @@ export function getFileDisplayName(file: Record<string, any> | null | undefined)
   if (!file) return ''
   return String(file.file_name || file.name || '')
 }
+
+function normalizeMatchText(value: unknown) {
+  return String(value ?? '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase()
+}
+
+export function syncSelectField(value: unknown, optionsList: Record<string, any>[] = []) {
+  if (value == null || value === '' || !optionsList.length) return ''
+  const normalizedValue = normalizeMatchText(value)
+  if (!normalizedValue) return ''
+  const matched = optionsList.find((item) =>
+    Object.values(item).some((field) => {
+      if (field == null || typeof field === 'object') return false
+      return normalizeMatchText(field) === normalizedValue
+    })
+  )
+  return matched ? matched.value : ''
+}

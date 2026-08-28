@@ -36,6 +36,7 @@
 import { newClientApi, postDynamicActions } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { DELIVERY_DATE_FORMAT, SUPPLIER_LIST_TABLE_NAME } from '../../../../utils/variableMapping'
+import { syncSelectField } from '../../../../utils/workflowHelper'
 import { useInvoiceVerifyInject } from '../../../../composables/useInvoiceVerify'
 import { useInvoiceVerifyTableInject } from '../../../../composables/useInvoiceVerifyTable'
 
@@ -194,61 +195,17 @@ async function getOrgList() {
   }
 }
 
-function syncVendorField() {
-  const invoice = selectedInvoice.value
-  if (!invoice || !SupplierList.value.length) return
-
-  const byId = invoice.vendorId ?? invoice.vendor_id
-  const byName = invoice.vendorName ?? invoice.vendor_name
-
-  let matched =
-    byId != null && byId !== ''
-      ? SupplierList.value.find((opt) => String(opt.value) === String(byId))
-      : undefined
-
-  if (!matched && byName != null && byName !== '') {
-    matched = SupplierList.value.find(
-      (opt) =>
-        String(opt.label) === String(byName) ||
-        String(opt.shortName) === String(byName) ||
-        String(opt.value) === String(byName)
-    )
-  }
-
-  if (matched) {
-    invoice.vendorId = String(matched.value)
-    invoice.vendorName = matched.label
-  }
-}
-
-function syncOrgField() {
-  const invoice = selectedInvoice.value
-  if (!invoice || !OrgList.value.length) return
-  const orgId = invoice.orgId ?? invoice.org_id
-  if (orgId != null && orgId !== '') {
-    const matched = OrgList.value.find((opt) => String(opt.value) === String(orgId))
-    if (matched) {
-      invoice.orgId = matched.value as number
-      invoice.org = matched.code ?? String(matched.label)
-    }
-    return
-  }
-  const orgCode = invoice.org
-  if (!orgCode) return
-  const matched = OrgList.value.find(
-    (opt) => String(opt.code) === String(orgCode) || String(opt.label) === String(orgCode) || String(opt.value) === String(orgCode)
-  )
-  if (matched) {
-    invoice.orgId = matched.value as number
-    invoice.org = matched.code ?? String(orgCode)
-  }
-}
-
 watch(
   [() => selectedInvoice.value?.id, SupplierList, OrgList],
   () => {
-    syncVendorField()
-    syncOrgField()
+    const invoice = selectedInvoice.value
+    if (!invoice) return
+    invoice.vendorId =
+      syncSelectField(invoice.vendorId ?? invoice.vendor_id, SupplierList.value) ||
+      syncSelectField(invoice.vendorName ?? invoice.vendor_name, SupplierList.value)
+    invoice.orgId =
+      syncSelectField(invoice.orgId ?? invoice.org_id, OrgList.value) ||
+      syncSelectField(invoice.org, OrgList.value)
   },
   { immediate: true }
 )
