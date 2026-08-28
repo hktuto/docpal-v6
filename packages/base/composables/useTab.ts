@@ -308,20 +308,34 @@ export function addTabToPanel(panelId:string, newTab: TabItem ) {
     }
 }
 
-export function panelRouteUpdate(panelId:string, lastTabId:string, newTabItem:TabItem) {
+export function panelRouteUpdate(panelId: string, lastTabId: string, newTabItem: TabItem) {
     const layout = useTabLayout()
     const allComponents = useTabComponent()
-    const panelIndex = layout.value.findIndex(panel => panel.id === panelId)
-    if(panelIndex !== -1) {
-        const index = layout.value[panelIndex].tabs.findIndex( tab => tab.id === lastTabId);
-        if(index === -1) throw new Error('Tab not found when router change')
-        layout.value[panelIndex].tabs[index] = deepCopy(newTabItem)
-        const indexInAllComponent = allComponents.value.findIndex(item => item.id === newTabItem.id)
-        if(indexInAllComponent !== -1) {
+    const location = findTabLocation(layout.value, lastTabId, panelId)
+    if (!location) return false
 
-            allComponents.value[indexInAllComponent] = newTabItem
-        }
+    const { panelIndex, tabIndex } = location
+    newTabItem.parent = layout.value[panelIndex].id
+    layout.value[panelIndex].tabs[tabIndex] = deepCopy(newTabItem)
+    const indexInAllComponent = allComponents.value.findIndex((item) => item.id === newTabItem.id)
+    if (indexInAllComponent !== -1) {
+        allComponents.value[indexInAllComponent] = newTabItem
     }
+    return true
+}
+
+function findTabLocation(panels: TabPanel[], tabId: string, preferredPanelId?: string) {
+    const preferredIndex = preferredPanelId ? panels.findIndex((panel) => panel.id === preferredPanelId) : -1
+    if (preferredIndex !== -1) {
+        const tabIndex = panels[preferredIndex].tabs.findIndex((tab) => tab.id === tabId)
+        if (tabIndex !== -1) return { panelIndex: preferredIndex, tabIndex }
+    }
+    for (let panelIndex = 0; panelIndex < panels.length; panelIndex++) {
+        if (panelIndex === preferredIndex) continue
+        const tabIndex = panels[panelIndex].tabs.findIndex((tab) => tab.id === tabId)
+        if (tabIndex !== -1) return { panelIndex, tabIndex }
+    }
+    return null
 }
 
 export function addTabInCurrentPanel(newTab: TabItem ) {
