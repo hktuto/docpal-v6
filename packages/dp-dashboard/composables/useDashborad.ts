@@ -1,6 +1,7 @@
 import { getCurrentInstance } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import '../assets/dashboard.scss'
+
 export type DashboardWidget =
   | 'DocTypeCoCount'
   | 'DocTypeCount'
@@ -60,7 +61,7 @@ export type DashboardWidgetSetting = {
   layout?: DashboardWidgetSetting
   label: string
   feature?: string
-  type?: DASHBOARD_TYPE
+  type?: DASHBOARD_TYPE | string
 }
 
 export const useDashboardWidgetSetting = () => useState<{ [key in string]: DashboardWidgetSetting }>('dashboardWidgetSetting', () => ({

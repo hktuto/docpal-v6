@@ -1,6 +1,6 @@
 
 
-export const dbDashboardWidgetSetting: Record<string, any> = {
+export const useDbDashboardWidgetSetting = () => useState<any>('dbDashboardWidgetSetting', () => ({
   DemoInventory: {
     label: '总库存报表',
     type: 'database' as any,
@@ -507,21 +507,22 @@ export const dbDashboardWidgetSetting: Record<string, any> = {
       sortRules: []
     }
   }
-}
+}))
+
+
 
 /**
  * Returns the full dashboard widget palette grouped by type.
  * Includes dynamic-db widgets (database, record) plus eligible dp-dashboard widgets.
  */
 export function getDbDashboardWidgetByType(): Record<string, any[]> {
-  const dpDashboardWidgetSetting = useDashboardWidgetSetting()
+  const dpDashboardWidgetSetting = useDbDashboardWidgetSetting()
   const result: Record<string, any[]> = {
     database: [],
     // record: []
   }
-
-  Object.keys(dbDashboardWidgetSetting).forEach((key) => {
-    const widget = dbDashboardWidgetSetting[key]
+  Object.keys(dpDashboardWidgetSetting.value).forEach((key) => {
+    const widget = dpDashboardWidgetSetting.value[key]
     const type = widget.type || 'database'
     // Record widgets are only for the per-record dashboard, not the database dashboard
     if (type === 'record') return
@@ -530,7 +531,6 @@ export function getDbDashboardWidgetByType(): Record<string, any[]> {
     }
     result[type].push(widget)
   })
-
   Object.keys(dpDashboardWidgetSetting.value).forEach((key) => {
     const widget = dpDashboardWidgetSetting.value[key]
     const type = widget.type || 'default'
@@ -546,12 +546,13 @@ export function getDbDashboardWidgetByType(): Record<string, any[]> {
 }
 
 export function getRecordDashboardWidgetByType(): Record<string, any[]> {
+  const dpDashboardWidgetSetting = useDbDashboardWidgetSetting()
   const result: Record<string, any[]> = {
     record: []
   }
 
-  Object.keys(dbDashboardWidgetSetting).forEach((key) => {
-    const widget = dbDashboardWidgetSetting[key]
+  Object.keys(dpDashboardWidgetSetting.value).forEach((key) => {
+    const widget = dpDashboardWidgetSetting.value[key]
     if (widget.type === 'record') {
       result.record.push(widget)
     }
