@@ -171,7 +171,7 @@ defineExpose({ getFormData })
             <div class="targetPrice-item-card">
               <el-row class="targetPrice-item-card__table-header">
                 <el-col :span="1">檔位 Tier</el-col>
-                <el-col :span="2">幣種 Currency</el-col>
+                <!--                <el-col :span="2">幣種 Currency</el-col>-->
                 <el-col :span="3">匯率 Exchange Rate</el-col>
                 <el-col :span="3">起订量 MOQ</el-col>
                 <el-col :span="3">目標價 Target Price</el-col>
@@ -196,7 +196,11 @@ defineExpose({ getFormData })
                       <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
                     </el-col>
                     <el-col :span="4">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.unit_cost" disabled />
+                      <el-input-number style="width: 90%" v-model="targetPriceItem.unit_cost" disabled>
+                        <template #suffix>
+                          <span>{{ targetPriceItem.cost_currency }}</span>
+                        </template>
+                      </el-input-number>
                     </el-col>
                     <el-col :span="4">
                       <el-form-item class="target-price-form-item">
@@ -207,7 +211,11 @@ defineExpose({ getFormData })
                           :min="0.000001"
                           :step="0.000001"
                           @change="handleUnitPriceNoTaxChange(targetPriceItem)"
-                        />
+                        >
+                          <template #suffix>
+                            <span>{{ targetPriceItem.cost_currency }}</span>
+                          </template>
+                        </el-input-number>
                       </el-form-item>
                     </el-col>
                     <el-col :span="3">

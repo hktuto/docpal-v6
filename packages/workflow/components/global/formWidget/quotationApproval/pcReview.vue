@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { clientApi, newClientApi } from 'api'
 import { Delete } from '@element-plus/icons-vue'
+import { MenuRouterKey } from '@packages/base/utils/menuType'
+import { v7 as uuidv7 } from 'uuid'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -9,7 +11,10 @@ const { disabled, formData, options } = defineProps<{
 }>()
 
 const formRef = ref()
-
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 type SampleInfoItem = {
   id?: string
   sample_id: string
@@ -26,6 +31,8 @@ type SampleInfoItem = {
   customer_part_number: string
   old_sales_price_noTax?: number
   remarks: string
+  price_type: string
+  lead_time: number
   target_price_list: TargetPriceItem[]
 }
 
@@ -61,7 +68,7 @@ const costCurrencyOptions = ref([
   { label: 'HKD', value: 'HKD' },
   { label: 'USD', value: 'USD' }
 ])
-const exchangeRateList = ref<any[]>([])
+const exchangeRateList = ref<{ from_currency: string; to_currency: string; conversion_rate: number }[]>([])
 const rules = {
   cost_currency: [{ required: true, message: 'Please select Cost Currency', trigger: 'change' }],
   price_type: [{ required: true, message: 'Please select Price Type', trigger: 'change' }]
@@ -168,17 +175,25 @@ function handleUnitCostChange(itemIndex: number, tierIndex: number, item: Target
 }
 
 async function getExchangeRateList() {
-  exchangeRateList.value = await getDbData('aca40000-75dc-11f1-850d-35881bc838c2')
+  try {
+    exchangeRateList.value = await $api.get('/apis/v1/ms/oracle/conversion-rate?limit=500').then((r: any) => r.data.items)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function getSeriesList(seriesNumber?: string) {
-  const q = !!seriesNumber && seriesNumber !== '' ? `q=${seriesNumber}&` : ''
-  const data = await $api.get(`/apis/v1/ms/oracle/series?${q}pageNum=1&pageSize=50`).then((r: any) => r.data.items)
+  try {
+    const q = !!seriesNumber && seriesNumber !== '' ? `q=${seriesNumber}&` : ''
+    const data = await $api.get(`/apis/v1/ms/oracle/series?${q}pageNum=1&pageSize=50`).then((r: any) => r.data.items)
 
-  seriesList.value = data.map((item: any) => ({
-    label: item.displayName,
-    value: item.value
-  }))
+    seriesList.value = data.map((item: any) => ({
+      label: item.displayName,
+      value: item.value
+    }))
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function getDbData(tableId: string, conditions?: any[]) {
@@ -237,8 +252,8 @@ function handelCostCurrency(item: any) {
   const currency = formData.currency
   if (!cost_currency || !currency) return
 
-  const find = exchangeRateList.value.find((item: any) => item.base_currency === cost_currency && item.target_currency === currency)
-  item.exchange_rate = find.exchange_rate as number
+  const find: any = exchangeRateList.value.find((item: any) => item.from_currency === cost_currency && item.to_currency === currency)
+  item.exchange_rate = find.conversion_rate as number
   return item.exchange_rate
 }
 
@@ -247,48 +262,42 @@ function handleHistoryPriceSubmit(data: any) {
   const list = data.list || []
   const oldList = item.target_price_list || []
 
-  // 取得兩者中的最大長度，確保所有項目都被遍歷到
-  const maxLength = Math.max(list.length, oldList.length)
-
-  item.target_price_list = Array.from({ length: maxLength }, (_, index) => {
-    const newItem = list[index]
-    const oldItem = oldList[index]
-
-    // 情況 1: 新列表有項目，更新或新增
-    if (newItem) {
-      // const exchange_rate = handelCostCurrency({ cost_currency: newItem.currency })
-
-      const baseItem = oldItem
-        ? { ...oldItem, data_source: newItem.poCustomer }
-        : {
-            sample_id: item.sample_id,
-            tier_number: index + 1,
-            target_price: undefined,
-            profit: 0,
-            status: 'A'
-          }
-
-      const updatedItem = {
-        ...baseItem,
-        moq: newItem.moq,
-        unit_cost: newItem.cost,
-        // unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchange_rate)).toFixed(6)),
+  const newList = list.map((newItem: any, index: number) => {
+    let priceItem: TargetPriceItem
+    if (!!oldList[index]) {
+      priceItem = {
+        ...oldList[index],
+        unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
         unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
-        cost_currency: newItem.currency,
-        // exchange_rate: Number(new Decimal(exchange_rate))
-        exchange_rate: newItem.exchangeRate
+        exchange_rate: newItem.exchangeRate,
+        data_source: newItem.type,
+        profit: 1
       }
-
-      calculateProfit(updatedItem as TargetPriceItem)
-      return updatedItem
+    } else {
+      priceItem = {
+        id: uuidv7(),
+        sample_id: item.sample_id,
+        tier_number: index,
+        moq: 0,
+        target_price: 0,
+        data_source: newItem.type,
+        unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
+        unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
+        cost_currency: formData.currency,
+        exchange_rate: newItem.exchangeRate,
+        profit: 1,
+        status: 'A'
+      }
     }
-
-    // 情況 2: 新列表沒有項目，將舊項目標記為刪除 (若存在)
-    return {
-      ...oldItem,
-      status: 'D'
-    }
+    calculateProfit(priceItem)
+    return priceItem
   })
+
+  if (item.target_price_list.length > newList.length) {
+    item.target_price_list.splice(0, newList.length, ...newList)
+  } else {
+    item.target_price_list = newList
+  }
 }
 
 function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
@@ -310,19 +319,58 @@ function calculateProfit(item: TargetPriceItem) {
     return
   }
 
-  const totalCost = unitCost.times(exchange_rate).times(markup_rate)
+  const totalCost = unitCost.times(markup_rate)
+  // const totalCost = unitCost.times(exchange_rate).times(markup_rate)
   item.profit = Number(unitPriceNoTax.minus(totalCost).dividedBy(totalCost).times(100).toFixed(6))
 }
 
-function checkMinUnitPriceNoTax(item) {
-  if (!item || !item?.unit_cost || !item?.exchange_rate) return 0.000001
-  return Number(new Decimal(item?.unit_cost).times(new Decimal(item?.exchange_rate)).toFixed(6))
-}
-
 async function init() {
+  if (!formData.quotation_number || formData.quotation_number === '') {
+    routerProvider?.message.error('未找到報價編號')
+    return
+  }
+
+  const data = await newClientApi.getQuotationFormQuotationnumber(formData.quotation_number).then((r: any) => r.data)
+  if (!data.lines || data.lines.length === 0) {
+    routerProvider?.message.error('未找到對應的零件信息!')
+    return
+  }
+  const infoList = data.lines.map((item: any) => {
+    const target_price_list = item.pricing_list.map((priceItem: any) => ({
+      cost_currency: formData.currency,
+      moq: priceItem.moq,
+      sample_id: uuidv7(),
+      status: 'A',
+      target_price: priceItem.target_price,
+      tier_number: priceItem.tier_number,
+      unit_cost: '0.000001'
+    }))
+
+    return {
+      brand: item.brand,
+      competitor_name: item.competitor_name,
+      customer_part_number: item.cust_part_number,
+      monthly_quantity: item.monthly_quantity,
+      mpq: item.moq,
+      old_sales_price_noTax: item.old_sales_price,
+      part_number: item.part_number,
+      product_application: item.product_application,
+      quantity_machine: 0,
+      quotation_number: formData.quotation_number,
+      remarks: '',
+      sample_id: item.line_id,
+      series: '',
+      status: 'A',
+      lead_time: '',
+      price_type: 'STD',
+      target_price_list: target_price_list,
+      uom: item.uom
+    }
+  })
+
   formModel.value = {
     brand: formData.brand,
-    infoList: formData.sample_info_list
+    infoList: infoList
   }
 }
 
@@ -359,11 +407,12 @@ watch(
 )
 
 watch(
-  () => formData.sample_info_list,
+  () => formData.quotation_number,
   (value) => {
-    if (!!value && value.length > 0) {
-      init()
+    if (!value) {
+      return
     }
+    init()
   },
   { immediate: true, deep: true }
 )
@@ -440,12 +489,12 @@ defineExpose({ getFormData })
               <el-divider />
               <el-row class="targetPrice-item-card__table-header">
                 <el-col :span="1">檔位 Tier</el-col>
-                <el-col :span="2">幣種 Currency</el-col>
+                <!--                <el-col :span="2">幣種 Currency</el-col>-->
                 <el-col :span="3">匯率 Exchange Rate</el-col>
-                <el-col :span="2">起订量 MOQ</el-col>
+                <el-col :span="3">起订量 MOQ</el-col>
                 <el-col :span="3">目標價 Target Price</el-col>
                 <el-col :span="3">數據源 Data Source</el-col>
-                <el-col :span="3">單位成本 Unit Cost</el-col>
+                <el-col :span="4">單位成本 Unit Cost</el-col>
                 <el-col :span="4">單價(未稅) Unit Price(No Tax)</el-col>
                 <el-col :span="3">毛利率(%) Profit(%)</el-col>
                 <!--                <el-col :span="2">操作 Actions</el-col>-->
@@ -454,13 +503,13 @@ defineExpose({ getFormData })
                 <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
                   <!--                  <template v-if="targetPriceItem.status !== 'D'">-->
                   <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
-                  <el-col :span="2">
-                    <el-input v-model="targetPriceItem.cost_currency" style="width: 90%" disabled />
-                  </el-col>
+                  <!--                  <el-col :span="2">-->
+                  <!--                    <el-input v-model="targetPriceItem.cost_currency" style="width: 90%" disabled />-->
+                  <!--                  </el-col>-->
                   <el-col :span="3">
                     <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
                   </el-col>
-                  <el-col :span="2">
+                  <el-col :span="3">
                     <el-form-item
                       :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
                       :rules="getMoqRules(index, targetPriceIndex)"
@@ -478,12 +527,16 @@ defineExpose({ getFormData })
                     </el-form-item>
                   </el-col>
                   <el-col :span="3">
-                    <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
+                    <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled>
+                      <template #suffix>
+                        <span>{{ targetPriceItem.cost_currency }}</span>
+                      </template>
+                    </el-input-number>
                   </el-col>
                   <el-col :span="3">
                     <el-input v-model="targetPriceItem.data_source" disabled style="width: 90%" />
                   </el-col>
-                  <el-col :span="3">
+                  <el-col :span="4">
                     <el-form-item
                       :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_cost`"
                       :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_cost', 'Unit cost must be lower than the previous tier')"
@@ -497,7 +550,11 @@ defineExpose({ getFormData })
                         :step="0.000001"
                         step-strictly
                         @change="handleUnitCostChange(index, targetPriceIndex, targetPriceItem)"
-                      />
+                      >
+                        <template #suffix>
+                          <span>{{ targetPriceItem.cost_currency }}</span>
+                        </template>
+                      </el-input-number>
                     </el-form-item>
                   </el-col>
                   <el-col :span="4">
@@ -510,11 +567,15 @@ defineExpose({ getFormData })
                         style="width: 90%"
                         v-model="targetPriceItem.unit_price_no_tax"
                         controls-position="right"
-                        :min="checkMinUnitPriceNoTax(targetPriceItem)"
+                        :min="targetPriceItem.unit_cost"
                         :step="0.000001"
                         step-strictly
                         @change="handleUnitPriceNoTaxChange(index, targetPriceIndex, targetPriceItem)"
-                      />
+                      >
+                        <template #suffix>
+                          <span>{{ targetPriceItem.cost_currency }}</span>
+                        </template>
+                      </el-input-number>
                     </el-form-item>
                   </el-col>
                   <el-col :span="3">

@@ -153,6 +153,7 @@ function handleSampleInfoAdd(index?: number) {
         sample_id: uuid,
         tier_number: 1,
         moq: 1000,
+        cost_currency: formData.currency,
         target_price: 1,
         unit_cost: 0,
         status: 'A'
@@ -279,9 +280,29 @@ async function getDbData(tableId: string, conditions?: any[]) {
   })
 }
 
+function handleChangeCurrency(currency) {
+  if (formModel.value.infoList.length > 0) {
+    formModel.value.infoList.forEach((item: any) => {
+      item.target_price_list.forEach((priceItem: any) => {
+        priceItem.cost_currency = currency
+      })
+    })
+  }
+}
+
 onMounted(() => {
   init()
 })
+
+watch(
+  () => formData.currency,
+  (value, oldValue) => {
+    if (value === oldValue) return
+
+    handleChangeCurrency(value)
+  },
+  { immediate: true, deep: true }
+)
 
 defineExpose({ getFormData })
 </script>
@@ -413,7 +434,11 @@ defineExpose({ getFormData })
                           :step="0.000001"
                           step-strictly
                           @change="handleTargetPriceChange(index, targetPriceIndex)"
-                        />
+                        >
+                          <template #suffix>
+                            <span>{{ targetPriceItem.cost_currency }}</span>
+                          </template>
+                        </el-input-number>
                       </el-form-item>
                     </el-col>
                     <el-col :span="2">

@@ -189,11 +189,19 @@ defineExpose({ getFormData })
                       <el-input-number style="width: 90%" v-model="targetPriceItem.moq" disabled />
                     </el-col>
                     <el-col :span="4">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
+                      <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled>
+                        <template #suffix>
+                          <span>{{ targetPriceItem.cost_currency }}</span>
+                        </template>
+                      </el-input-number>
                     </el-col>
                     <el-col :span="5">
                       <el-form-item class="target-price-form-item">
-                        <el-input-number style="width: 90%" v-model="targetPriceItem.unit_price_no_tax" disabled />
+                        <el-input-number style="width: 90%" v-model="targetPriceItem.unit_price_no_tax" disabled>
+                          <template #suffix>
+                            <span>{{ targetPriceItem.cost_currency }}</span>
+                          </template>
+                        </el-input-number>
                       </el-form-item>
                     </el-col>
                     <el-col :span="5">
@@ -203,7 +211,11 @@ defineExpose({ getFormData })
                         controls-position="right"
                         :min="targetPriceItem.unit_price_no_tax"
                         :step="0.000001"
-                      />
+                      >
+                        <template #suffix>
+                          <span>{{ targetPriceItem.cost_currency }}</span>
+                        </template>
+                      </el-input-number>
                     </el-col>
                   </template>
                 </el-row>
