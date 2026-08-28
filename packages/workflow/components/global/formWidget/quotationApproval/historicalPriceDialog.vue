@@ -123,6 +123,7 @@ function handleSubmit() {
       currency: item.currency,
       poCustomer: item.poCustomer,
       exchangeRate: item.exchange_rate,
+      type: item.type
     }))
   emits('submit', { index: index.value, list })
   showDialog.value = false
