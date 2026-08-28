@@ -9,13 +9,7 @@
         <WHInvoiceSupplyListMenu />
       </el-splitter-panel>
       <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200">
-        <WorkflowPreview :doc-id="previewFileId">
-          <template #title>
-            <el-tabs v-model="previewFileId" class="preview-file-tabs">
-              <el-tab-pane v-for="file in fileList" :key="file.id" :label="file.file_name || file.name" :name="file.id" />
-            </el-tabs>
-          </template>
-        </WorkflowPreview>
+        <WorkflowPreviewTitle :doc-id="selectedInvoice?.file?.id" :file-list="fileList" />
       </el-splitter-panel>
       <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200">
         <WHInvoiceSupplyListTable />
@@ -41,17 +35,6 @@ const isCollapsible = ref(true)
 const invoiceCtx = useInvoiceVerifyProvider(props)
 const { selectedInvoice, invoiceList, updateInvoiceData, runMatching, fetchGroupId, refreshSelectedInvoice } = invoiceCtx
 const fileList = computed(() => props.formData?.file_list_info || [])
-
-const previewFileId = computed({
-  get: () => selectedInvoice.value?.file?.id ?? '',
-  set: (id: string) => {
-    if (!selectedInvoice.value || !id) return
-    const file = fileList.value.find((item: any) => String(item.id) === String(id))
-    if (!file) return
-    selectedInvoice.value.file = file
-    selectedInvoice.value.fileName = file.file_name || file.name || selectedInvoice.value.fileName
-  }
-})
 
 const detailCardRef = ref<InstanceType<typeof WHInvoiceSupplyListDetailCard>>()
 useInvoiceVerifyTableProvider(selectedInvoice, {
@@ -123,26 +106,5 @@ defineExpose({ getFormData })
 .title {
   margin: var(--app-space-xs) 0;
   padding: 0;
-}
-.preview-file-tabs {
-  width: 100%;
-  :deep(.el-tabs__header) {
-    margin: 0;
-  }
-
-  :deep(.el-tabs__nav-wrap) {
-    width: 100%;
-  }
-
-  :deep(.el-tabs__item) {
-    max-width: 180px;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-    vertical-align: bottom;
-    line-height: 40px;
-  }
 }
 </style>

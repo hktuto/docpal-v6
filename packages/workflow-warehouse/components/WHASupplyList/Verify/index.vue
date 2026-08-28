@@ -7,13 +7,7 @@
         <WHASupplyListVerifyList />
       </el-splitter-panel>
       <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200" >
-        <WorkflowPreview :doc-id="docId">
-          <template #title>
-            <el-tabs v-model="docId" class="preview-file-tabs">
-              <el-tab-pane v-for="file in fileList" :key="file.id" :label="file.file_name || file.name" :name="file.id" />
-            </el-tabs>
-          </template>
-        </WorkflowPreview>
+        <WorkflowPreviewTitle :doc-id="selectedInvoice?.file?.id" :file-list="fileList" />
       </el-splitter-panel>
       <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200" >
         <WHASupplyListVerifyTable />
@@ -33,7 +27,7 @@ import { SGLA } from '../../../utils/variableMapping'
 const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const { t } = useI18n()
 const isCollapsible = ref(true)
-const { selectedInvoice, invoiceList, docId } = useWHASupplyListVerifyProvider(props)
+const { selectedInvoice, invoiceList } = useWHASupplyListVerifyProvider(props)
 const fileList = computed(() => props.formData?.file_list_info || [])
 
 const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
@@ -94,27 +88,5 @@ defineExpose({ getFormData })
 .title {
   margin: var(--app-space-xs) 0;
   padding: 0;
-}
-.preview-file-tabs {
-  width: 100%;
-  // --el-tabs-header-height: 1.6rem;
-  :deep(.el-tabs__header) {
-    margin: 0;
-  }
-
-  :deep(.el-tabs__nav-wrap) {
-    width: 100%;
-  }
-
-  :deep(.el-tabs__item) {
-    max-width: 180px;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-    vertical-align: bottom;
-    line-height: 40px;
-  }
 }
 </style>

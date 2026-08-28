@@ -1,6 +1,7 @@
 ﻿import { inject, provide, ref, toRef, type InjectionKey, type Ref } from 'vue'
 import { newClientApi } from 'api'
 import { SGLA, SGLA_TABLE_ID } from '../utils/variableMapping'
+import { resolveWorkflowFile } from '../utils/workflowHelper'
 
 export interface WHASupplyListVerifyProps {
   formData: Record<string, any>
@@ -17,17 +18,9 @@ export interface WHASupplyListVerifyContext {
   selectInvoice: (item: Record<string, any>) => void
   /** 更新当前选中发票字段 */
   updateInvoiceData: (invoiceData: Record<string, any>) => Promise<any>
-  docId: Ref<string>
 }
 
 export const WHASupplyListVerifyKey: InjectionKey<WHASupplyListVerifyContext> = Symbol('WHASupplyListVerify')
-
-function resolveDocId(previewFileName: string, fileList: Record<string, any>[] = []): string {
-  if (previewFileName == null || previewFileName === '') return ''
-  const key = previewFileName.replace(/\.[^.]+$/, '')
-  const matched = fileList.find((file) => String(file?.name ?? '') === key)
-  return matched?.id ? String(matched.id) : ''
-}
 
 export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) {
   const formData = toRef(props, 'formData')
@@ -35,14 +28,10 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
   const disabled = toRef(props, 'disabled')
   const invoiceList = ref<Record<string, any>[]>([])
   const selectedInvoice = ref<Record<string, any> | null>(null)
-  const docId = ref<string>('')
 
   function selectInvoice(item: Record<string, any>) {
     selectedInvoice.value = item
-    const nextDocId = resolveDocId(item?.[SGLA.Preview_File_Name], formData.value?.file_list_info)
-    if (nextDocId && docId.value !== nextDocId) {
-      docId.value = nextDocId
-    }
+    item.file = resolveWorkflowFile(item?.[SGLA.Preview_File_Name], formData.value?.file_list_info)
   }
 
   async function updateInvoiceData(invoiceData: Record<string, any>) {
@@ -57,7 +46,6 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
   }
 
   const context: WHASupplyListVerifyContext = {
-    docId,
     formData,
     taskDetail,
     invoiceList,

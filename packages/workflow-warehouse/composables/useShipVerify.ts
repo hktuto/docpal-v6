@@ -1,5 +1,5 @@
 import { inject, provide, ref, toRef, type InjectionKey, type Ref } from 'vue'
-import { getFileDisplayName, resolveInvoiceFile } from '../utils/workflowHelper'
+import { getFileDisplayName, resolveWorkflowFile } from '../utils/workflowHelper'
 
 export type ShipInvoice = {
   id: string
@@ -81,7 +81,7 @@ function loadInvoices(formData: Record<string, any>): ShipInvoice[] {
   if (Array.isArray(existing) && existing.length) {
     return existing.map((item: Record<string, any>) => {
       const invoice = toShipInvoice(item, formData)
-      invoice.file = resolveInvoiceFile(invoice.fileName, fileList)
+      invoice.file = resolveWorkflowFile(invoice.fileName, fileList)
       if (invoice.file?.id != null) invoice.fileId = String(invoice.file.id)
       if (!invoice.fileName) invoice.fileName = getFileDisplayName(invoice.file)
       return invoice
@@ -104,7 +104,7 @@ export function useShipVerifyProvider(props: ShipVerifyProps) {
   const selectedInvoice = ref<ShipInvoice | null>(null)
 
   function selectInvoice(item: ShipInvoice) {
-    const file = resolveInvoiceFile(item.fileName, formData.value?.file_list_info)
+    const file = resolveWorkflowFile(item.fileName, formData.value?.file_list_info)
     item.file = file
     if (file?.id != null) item.fileId = String(file.id)
     const displayName = getFileDisplayName(file)

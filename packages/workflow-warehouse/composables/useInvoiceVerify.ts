@@ -2,7 +2,7 @@ import { inject, provide, ref, toRef, type InjectionKey, type Ref } from 'vue'
 import { newClientApi } from 'api'
 import type { WHASupplyListVerifyProps } from './useWHASupplyListVerify'
 import { type GitInvoice, type GitInvoiceLineItem } from '../utils/gitInvoice'
-import { getFileDisplayName, resolveInvoiceFile } from '../utils/workflowHelper'
+import { getFileDisplayName, resolveWorkflowFile } from '../utils/workflowHelper'
 
 export type InvoiceVerifyProps = WHASupplyListVerifyProps
 
@@ -42,7 +42,7 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
 
     const invoice = selectedInvoice.value
     if (!invoice) return
-    const file = resolveInvoiceFile(invoice.fileName ?? invoice.file_name, formData.value?.file_list_info)
+    const file = resolveWorkflowFile(invoice.fileName ?? invoice.file_name, formData.value?.file_list_info)
     invoice.file = file
     if (file?.id != null) {
       invoice.fileId = String(file.id)

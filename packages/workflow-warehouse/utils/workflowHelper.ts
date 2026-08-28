@@ -2,7 +2,7 @@
  * Match OCR file name to file_list_info item.name
  * e.g. ocrFileName "1787635402340pdf.pdf" ↔ name "1787635402340pdf"
  */
-export function resolveInvoiceFile(ocrFileName: string | null | undefined, fileList: Record<string, any>[] = []) {
+export function resolveWorkflowFile(ocrFileName: string | null | undefined, fileList: Record<string, any>[] = []) {
   if (!ocrFileName || !fileList.length) return null
   const fileName = String(ocrFileName)
   const key = fileName.replace(/\.[^.]+$/, '')
