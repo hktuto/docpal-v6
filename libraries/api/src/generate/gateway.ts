@@ -75,6 +75,7 @@ export interface DtoApplicationUserDTO {
     lastName?: string;
     lockedUntil?: string;
     mustResetPassword?: boolean;
+    org?: DtoUserOrganizationDTO[];
     password?: string;
     phone?: string;
     properties?: any;
@@ -331,6 +332,14 @@ export interface DtoUpdateUserRequest {
     userName?: string;
 }
 
+export interface DtoUserOrganizationDTO {
+    operatingId?: string;
+    operatingName?: string;
+    organizationCode?: string;
+    organizationId?: string;
+    organizationName?: string;
+}
+
 export interface DtoUserPageRequest {
     email?: string;
     groups?: string[];
@@ -361,6 +370,14 @@ export interface DtoUserProfileRequest {
     lastName?: string;
     phone?: string;
     profile?: Record<string, any>;
+}
+
+export interface DtoUserSelectOptionDTO {
+    firstName?: string;
+    label?: string;
+    lastName?: string;
+    org?: DtoUserOrganizationDTO[];
+    value?: string;
 }
 
 export interface DtoUserStatsResponse {
@@ -408,6 +425,7 @@ export interface HandlerCurrentProfileResponse {
     lastName?: string;
     lockedUntil?: string;
     mustResetPassword?: boolean;
+    org?: DtoUserOrganizationDTO[];
     password?: string;
     phone?: string;
     properties?: any;
@@ -2198,7 +2216,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         getUsersBizBizid: (bizId: string, params: RequestParams = {}) =>
             this.request<
                 ResponseResponse & {
-                    data?: ModelUser;
+                    data?: DtoApplicationUserDTO;
                 },
                 ResponseResponse
             >({
@@ -2435,7 +2453,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description Get list of users for dropdown selection. Optional label/value query params can specify user table field names; defaults to label=user_name and value=user_id.
+         * @description Get list of users for dropdown selection. Supports fuzzy search by user fields, name fields, and related organization fields, and each option includes the user's firstName, lastName, and related org list. Optional label/value query params can specify user table field names; defaults to label=user_name and value=user_id.
          *
          * @tags user
          * @name GetUsersSelect
@@ -2444,7 +2462,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
          */
         getUsersSelect: (
             query?: {
-                /** Search keyword */
+                /** Search keyword. Matches user_name,user_id,email,first_name,last_name,organization_code,organization_name,operating_name */
                 keyword?: string;
                 /** Page number, starts from 0. Default: 0 */
                 pageNum?: number;
@@ -2461,7 +2479,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
         ) =>
             this.request<
                 ResponseResponse & {
-                    data?: DtoSelectOptionDTO[];
+                    data?: DtoUserSelectOptionDTO[];
                 },
                 ResponseResponse
             >({

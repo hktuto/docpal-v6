@@ -219,7 +219,7 @@ defineExpose({ getFormData })
       <el-col :span="6">
         <el-form-item label="品牌 Brand" prop="brand">
           <el-select v-model="searchFormModel.brand" filterable clearable placeholder="Select an option" @change="handleBrandChange">
-            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.lable || item.label" :value="item.value" />
+            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-col>

@@ -1,5 +1,4 @@
 import { createError, useState } from '#imports'
-import { FormWidgetProformaInvoiceInfo } from '#components'
 
 type FormRenderSlotsType = {
   name: string
