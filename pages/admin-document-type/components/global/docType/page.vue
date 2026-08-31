@@ -3,7 +3,7 @@
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="actionsButtonsContainer">
-          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="documentType_filter" />
+          <ResponsiveFilter ref="ResponsiveFilterRef" :initValue="extraParams" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="documentType_filter" />
           <div class="btns">
             <el-button id="DocumentType__CreateNewDocumentType" type="primary" @click="handleCreate">
               {{ $t('docType.new') }}
@@ -34,7 +34,10 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
-let extraParams: any = {}
+let extraParams: any = {
+  orderBy: 'name',
+  isDesc: false
+}
 const state = reactive<any>({})
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'docTypeManage',
@@ -197,7 +200,6 @@ async function getFilter() {
       label: 'tableHeader.sortBy',
       type: 'select',
       isMultiple: false,
-      value: ['name'],
       options: [
         { label: 'docType.category', value: 'category' },
         { label: 'role.creator', value: 'createdBy' },
@@ -211,18 +213,12 @@ async function getFilter() {
       label: 'tableHeader.sortOrder',
       type: 'select',
       isMultiple: false,
-      value: [false],
       options: [
         { label: 'tableHeader.asc', value: false },
         { label: 'tableHeader.desc', value: true }
       ]
     }
   ])
-  nextTick(() => {
-    extraParams.orderBy = 'name'
-    extraParams.isDesc = false
-    reload()
-  })
 }
 
 async function handleExport() {

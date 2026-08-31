@@ -243,7 +243,6 @@ async function initFilter() {
       label: t('tableHeader_status'),
       key: 'status',
       isMultiple: false,
-      value: [1],
       options: [
         {
           label: t('actions.active'),
@@ -270,7 +269,6 @@ async function initFilter() {
       label: t('tableHeader.sortBy'),
       key: 'sort_by',
       isMultiple: false,
-      value: ['updateTime'],
       options: [
         {
           label: t('tableHeader_name'),
@@ -294,7 +292,6 @@ async function initFilter() {
       label: t('tableHeader.sortOrder'),
       key: 'sort_type',
       isMultiple: false,
-      value: ['DESC'],
       options: [
         {
           label: t('tableHeader.asc'),
@@ -337,7 +334,7 @@ function handleAddRole() {
     <vxe-grid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="tableActions">
-          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="q" />
+          <ResponsiveFilter ref="ResponsiveFilterRef" :initValue="searchQuery" @form-change="handleFilterFormChange" inputKey="q" />
           <ElButton id="Role__Table__Add" type="primary" @click="handleAddRole">{{ t('common_add') }}</ElButton>
         </div>
       </template>

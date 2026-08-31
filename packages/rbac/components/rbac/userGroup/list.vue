@@ -6,6 +6,7 @@
 
           <ResponsiveFilter
             ref="filterRef"
+            :initValue="searchQuery"
             inputKey="q"
             @form-change="handleFilterFormChange"
           />
@@ -231,7 +232,6 @@ onMounted(() => {
       label: t('tableHeader_status'),
       key: 'status',
       isMultiple: false,
-      value: [1],
       options: [
         { label: t('actions.active'), value: 1 },
         { label: t('actions.inactive'), value: 3 }
@@ -241,7 +241,6 @@ onMounted(() => {
       label: t('tableHeader.sortBy'),
       key: 'sort_by',
       isMultiple: false,
-      value: ['updateTime'],
       options: [
         {
           label: t('tableHeader_name'),
@@ -261,7 +260,6 @@ onMounted(() => {
       label: t('tableHeader.sortOrder'),
       key: 'sort_type',
       isMultiple: false,
-      value: ['DESC'],
       options: [
         {
           label: t('tableHeader.asc'),

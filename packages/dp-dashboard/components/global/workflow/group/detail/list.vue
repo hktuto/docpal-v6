@@ -1,7 +1,6 @@
 <template>
   <div class="table-main">
-    <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange"
-      />
+    <ResponsiveFilter ref="ResponsiveFilterRef" :initValue="filterInitValue" @form-change="handleFilterFormChange" />
     <div class="main" v-loading="state.loading">
     <!-- {{setting}} -->
     <!-- {{state.data}} -->
@@ -64,6 +63,9 @@ const state = reactive<any>({
   },
   extraParams2: {}
 })
+const filterInitValue = {
+  filterType: state.extraParams.dateFilter.filterType
+}
 async function getData(params: any = {}) {
   try {
     state.loading = true
@@ -169,8 +171,7 @@ function getClass(config, row) {
           options: statusList
         },
         { key: 'filterType', label: t('dashboard.dateRangeFilter'), type: "String", isMultiple: false,
-          options: filterTypeList,
-          value: ['Start Workflow within']
+          options: filterTypeList
         }
       ]
       ResponsiveFilterRef.value.init(data)

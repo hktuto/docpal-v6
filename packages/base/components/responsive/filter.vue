@@ -7,6 +7,7 @@ It supports multiple filter types including text input and select dropdowns.
 Props:
 - inputKey: string (optional) - Key for the text input filter
 - inputPlaceHolder: string (optional, default: 'tip.filterByName') - Placeholder text for the input field
+- initValue: object (optional) - Initial filter values applied in init(); does not emit form-change
 
 Events:
 - form-change: Emitted when any filter value changes
@@ -22,19 +23,6 @@ Methods (via ref):
   - Sets a specific filter value
 - handleFilter(): void
   - Clears all filter values
-
-Types:
-interface ResSelectData {
-  label: string        // Display label for the filter
-  key: string         // Unique identifier for the filter
-  options: {          // Available options for select
-    label: string
-    value: any
-  }[]
-  value?: string[]    // Selected values
-  isMultiple?: boolean // Whether multiple selections are allowed
-  belong?: string     // Group this filter belongs to (optional)
-}
 
 Example Usage:
 ```vue
@@ -141,7 +129,6 @@ Features:
 
 Note: The component requires Element Plus and VueUse for full functionality.
 -->
-
 <template>
   <div ref="responsiveRef" class="responsive-container" v-element-size="onResize">
     <div class="flex-x-start">
@@ -187,9 +174,11 @@ const props = withDefaults(
   defineProps<{
     inputKey?: string
     inputPlaceHolder?: string
+    initValue?: Record<string, any>
   }>(),
   {
-    inputPlaceHolder: 'tip.filterByName'
+    inputPlaceHolder: 'tip.filterByName',
+    initValue: () => ({})
   }
 )
 const emits = defineEmits(['form-change', 'clear-filter'])
@@ -203,6 +192,7 @@ export type ResSelectData = {
   options: option[]
   value?: string[]
   isMultiple?: boolean
+  type?: 'string' | 'boolean'
 }
 type state = {
   list: ResSelectData[]
@@ -297,22 +287,43 @@ function setValue(key: string, value: string) {
     }
   })
 }
+function toItemValue(raw: any): any[] {
+  if (raw === undefined || raw === null) return []
+  return Array.isArray(raw) ? raw : [raw]
+}
+
+let silentChange = false
 function init(list: ResSelectData[], initParams: any = {}) {
+  const defaults = { ...props.initValue, ...initParams }
+  silentChange = Object.keys(defaults).length > 0
   state.list = list.reduce((prev, item) => {
     if (item.isMultiple !== false) item.isMultiple = true
     if (!item.value) item.value = []
     if (!item.options) item.options = []
     item.options = item.options.filter((o) => !!o.label && (!!o.value || o.value === false))
-    if (!!initParams[item.key]) item.value = typeof initParams[item.key] === 'string' ? initParams[item.key].join(',') : initParams[item.key]
+    if (item.key in defaults) item.value = toItemValue(defaults[item.key])
     prev.push(item)
     return prev
   }, [])
+  if (props.inputKey && props.inputKey in defaults) {
+    state.inputValue = defaults[props.inputKey] ?? ''
+  }
+  state.selected = state.list.filter((item) => item.value && item.value.length > 0).length
   nextTick(() => {
+    silentChange = false
     if (!responsiveRef.value && !responsiveRef.value.offsetWidth) return
     onResize({ width: responsiveRef.value.offsetWidth, height: 0 })
   })
 }
+function resolveFilterValue(item: ResSelectData) {
+  if (item.type === 'boolean') {
+    const toBoolean = (v: unknown) => v === true || v === 'true'
+    return item.isMultiple ? item.value!.map(toBoolean) : toBoolean(item.value![0])
+  }
+  return item.isMultiple ? item.value : item.value!.join(',')
+}
 function handleChange(filedData: { fieldName: string; value: any; [key: string]: any }) {
+  const shouldEmit = !silentChange
   if (state.interval) clearInterval(state.interval)
   state.interval = setInterval(() => {
     state.moreSelected = 0
@@ -320,10 +331,10 @@ function handleChange(filedData: { fieldName: string; value: any; [key: string]:
     const formModel = state.list.reduce((prev, item) => {
       if (item.belong) {
         if (!prev[item.belong]) prev[item.belong] = {}
-        prev[item.belong][item.key] = item.isMultiple ? item.value : item.value.join(',')
+        prev[item.belong][item.key] = resolveFilterValue(item)
         state.selected++
       } else if (item.value && item.value.length > 0) {
-        prev[item.key] = item.isMultiple ? item.value : item.value.join(',')
+        prev[item.key] = resolveFilterValue(item)
         state.selected++
       }
       if (state.moreList.find((m) => m.key === item.key)) {
@@ -333,7 +344,7 @@ function handleChange(filedData: { fieldName: string; value: any; [key: string]:
     }, {})
     if (props.inputKey) formModel[props.inputKey] = state.inputValue
 
-    emits('form-change', deepCopy(formModel), filedData)
+    if (shouldEmit) emits('form-change', deepCopy(formModel), filedData)
     clearInterval(state.interval)
     if (!responsiveRef.value) return
     onResize({ width: responsiveRef.value.offsetWidth, height: 0 })
