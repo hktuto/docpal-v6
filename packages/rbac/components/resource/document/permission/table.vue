@@ -360,7 +360,7 @@ watch(document, async () => {
 
 :deep(.vxe-buttons--wrapper) {
   display: grid;
-  grid-template-columns: 1fr min-content;
+  grid-template-columns: max-content 1fr min-content;
 
   .el-input {
     width: 200px;
