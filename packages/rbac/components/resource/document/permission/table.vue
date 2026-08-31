@@ -16,7 +16,10 @@ let tableData: any[] = []
 const ResponsiveFilterRef = ref()
 const targetOptions = ref<any>([])
 let isFilter = ref(false)
-let extraParams: any = {}
+let extraParams: any = {
+  orderBy: 'targetName',
+  isDesc: 'asc'
+}
 const isInherit = ref(false)
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'rbac-resource-document-permission-table',
@@ -215,7 +218,6 @@ const filterSetting = [
     label: 'tableHeader.sortBy',
     type: 'string',
     isMultiple: false,
-    value: ['targetName'],
     options: [
       { label: 'rbac.permission.targetName', value: 'targetName' },
       { label: 'rbac.permission.permissionLevel', value: 'permissionLevel' },
@@ -227,7 +229,6 @@ const filterSetting = [
     label: 'tableHeader.sortOrder',
     type: 'string',
     isMultiple: false,
-    value: ['asc'],
     options: [
       { label: 'tableHeader.asc', value: 'asc' },
       { label: 'tableHeader.desc', value: 'desc' }
@@ -310,7 +311,7 @@ watch(document, async () => {
 <template>
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons>
-      <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="q" />
+      <ResponsiveFilter ref="ResponsiveFilterRef" :initValue="extraParams" @form-change="handleFilterFormChange" inputKey="q" />
       <div class="actions">
         <el-button type="primary" @click="handleAdd">{{ $t('rbac.permission.addPermission') }}</el-button>
         <el-button type="primary" @click="handleAddSet">{{ $t('rbac.permission.addUserSet') }}</el-button>
