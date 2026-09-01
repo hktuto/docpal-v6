@@ -98,12 +98,7 @@ export interface WorkflowJson {
   metadata: MetadataDetails
 }
 
-export const x6NodeToWorkflowJson = function (graphProvider: any) {
-  const graph: Graph = graphProvider.graph.value
-  if (!graph) {
-    throw new Error('graph is undefined')
-  }
-  const oldJson: WorkflowJson = graphProvider.workflowJson.value
+export const x6NodeToWorkflowJson = function (graph: Graph, oldJson: WorkflowJson) {
   const workflowJson = JSON.parse(JSON.stringify(oldJson))
 
   const x6Nodes = graph.getNodes()

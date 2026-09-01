@@ -313,14 +313,6 @@ function pasteForm(node: Node) {
   graph.value?.stopBatch('paste-update-from-data')
 }
 
-function updateActivate() {
-  emits('updateActivate')
-}
-
-function updateWorkflowJson(newWorkflowJson: any) {
-  workflowJson.value = newWorkflowJson
-}
-
 function handelReplayViewer() {
   isReady.value = false
   showSidebar.value = false
@@ -380,6 +372,7 @@ function dim(cellIds: string[]) {
     }
   })
 }
+
 function highlightCell(cellIds: string[], allNodes: string[]) {
   dim(allNodes)
   if (cellIds && cellIds.length > 0) {
@@ -432,11 +425,15 @@ function highlightCell(cellIds: string[], allNodes: string[]) {
   }
 }
 
+function handelSave() {
+
+
+}
+
 provide(WORKFLOW_EDITOR_PROVIDER, {
   workflowId,
   workflowKey,
   workflowJson,
-  updateWorkflowJson,
   graph,
   copyKey,
   readonly,
@@ -462,7 +459,7 @@ defineExpose({ init, workflowJson, handelReplayViewer, highlightCell, graph, dim
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
         <div v-if="!readonly" class="group">
-          <ToolbarHistory :workflowId="workflowId" :isActivate="isActivate" @update-activate="updateActivate" />
+          <ToolbarHistory />
           <ToolbarInfo @click="openInfo" />
         </div>
         <div v-if="!readonly" class="group">

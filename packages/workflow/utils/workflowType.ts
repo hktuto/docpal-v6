@@ -17,7 +17,6 @@ export interface WorkflowEditorProvider {
   workflowKey: Ref<string | ''>
   graph: Ref<Graph | undefined>
   workflowJson: Ref<any | {}>
-  updateWorkflowJson: (newWorkflowJson: any) => void
   openSidebar: (component: string, node: Node | Edge | Cell) => void
   closeSidebar: () => void
   pasteForm: (node: Node) => void

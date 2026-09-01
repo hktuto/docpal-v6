@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import { x6NodeToWorkflowJson } from '#imports'
-import { clientApi } from 'api'
-import { useDebounceFn } from '@vueuse/core'
-
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw new Error('graph provider not found')
@@ -11,38 +7,8 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey not found')
 }
-const { workflowId, isActivate } = defineProps<{
-  workflowId: string
-  isActivate: boolean
-}>()
-const emits = defineEmits(['updateActivate'])
 const oldHistory = ref('')
-const debouncedSave = useDebounceFn(save, 300)
-async function save() {
-  const workflowJson = x6NodeToWorkflowJson(graphProvider)
 
-  if (!workflowId || workflowId === '') {
-    throw new Error('Workflow ID is null')
-  }
-  // 修改時，檢查是否已激活
-  if (isActivate) {
-    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}/deactivate`).then((r: any) => r.data)
-    emits('updateActivate')
-  }
-
-  // update workflow Json Data
-  try {
-    clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r: any) => r.data)
-  } catch (e) {
-    routerProvider?.message.error(e)
-    console.log(e)
-  }
-  graphProvider?.updateWorkflowJson(workflowJson)
-}
-
-/**
- * TODO: 在刪除或者連綫時，因爲x6NodeToWorkflowJson方法會調整Task的flow内的數據。導致每次更新都會調用兩次'history:change'事件
- */
 function setupHistory() {
   graphProvider?.graph.value?.on('history:change', (args: any) => {
     const appPlatform = useAppPlatform()
@@ -51,7 +17,7 @@ function setupHistory() {
     // 更新頁面樣式時不調用更新接口
     const cmdItem = args.cmds[0]
     if (!!cmdItem && cmdItem.event === 'cell:change:attrs') return
-    // 防止移動node時，頻繁調用'history:change'事件導致後面的Save操作失效
+    // 連綫Node時防止頻繁調用'history:change'
     const newHistory = JSON.stringify({
       id: cmdItem.data.id,
       event: cmdItem.event,
@@ -63,11 +29,6 @@ function setupHistory() {
 
     state.value.canUndo = graphProvider?.graph.value?.canUndo() || false
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
-
-    // check if workflow is empty
-    if (!graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length === 0) return
-
-    debouncedSave()
   })
 }
 
