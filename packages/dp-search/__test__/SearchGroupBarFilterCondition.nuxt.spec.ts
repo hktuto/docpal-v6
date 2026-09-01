@@ -232,4 +232,20 @@ describe('[dp-search]SearchGroupBarFilterCondition', () => {
     expect(result[0].value.key).toBe('testKey')
     expect(result[0].value.value).toBe('testValue')
   })
+
+  it('should collapse to view mode when keyword value is empty', async () => {
+    wrapper.vm.formRef = {
+      'match-1': {
+        getFormData: vi.fn().mockResolvedValue({
+          queryType: 'keyword'
+        })
+      }
+    }
+
+    await wrapper.vm.handleUp()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.mode).toBe('view')
+    expect(wrapper.find('.search-group-bar-filter').exists()).toBe(true)
+  })
 })

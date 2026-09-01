@@ -27,16 +27,13 @@
       </div>
     </div>
     <div v-show="mode === 'view'">
-      <template v-for="(item, index) in viewData" :key="item.id">
-        <el-tag class="el-tag--ellipsis" closable
-                v-if="(item.queryType !== 'metadata' && item.value) ||
-          (item.value.key && item.value.value)"
-                @close="handleDelete(item)">
+      <template v-for="(item, index) in viewData" :key="item.id || index">
+        <el-tag v-if="hasViewTag(item)" class="el-tag--ellipsis" closable @close="handleDelete(item)">
           <template v-if="item.queryType !== 'metadata'">
             {{ item.queryType }}: {{ item.value }}
           </template>
           <template v-else>
-            {{ item.value.key }}: {{ item.value.value }}
+            {{ item.value?.key }}: {{ item.value?.value }}
           </template>
         </el-tag>
       </template>
@@ -51,7 +48,13 @@ const props = defineProps(['qItem', 'id'])
 const emits = defineEmits(['delete', 'deleteChild', 'add', 'command', 'update', 'formChange'])
 const formRef = ref({})
 const mode = ref('edit')
-const viewData = ref({})
+const viewData = ref<any[]>([])
+
+function hasViewTag(item: any) {
+  if (!item?.value) return false
+  if (item.queryType === 'metadata') return !!(item.value.key && item.value.value)
+  return true
+}
 
 function handleAddFilter() {
   emits('add')
