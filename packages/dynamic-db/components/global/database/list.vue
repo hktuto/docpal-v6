@@ -116,9 +116,9 @@ onMounted(() => {
 <template>
   <div class="pageContainer">
     <div class="pageHeader">
-      <h1 class="title">Databases</h1>
+      <h1 class="title">Total Database : {{databases.length}}</h1>
       <div class="actions">
-        <ElButton type="primary" @click="handleCreateWorkspace">Create Databases ({{ databases.length }})</ElButton>
+        <ElButton type="primary" @click="handleCreateWorkspace">Create Databases</ElButton>
       </div>
     </div>
     <div class="workspaceList">
