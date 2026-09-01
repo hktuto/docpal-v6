@@ -18,9 +18,9 @@
           </div>
         </template>
         <el-divider />
-        <el-button v-show="item.finishCount === item.docList.length" type="info" size="small" @click="exportCsv(item.docList)">{{
-          $t('title.ExportCsvFile')
-        }}</el-button>
+        <el-button v-show="item.finishCount === item.docList.length" type="info" size="small" @click="exportCsv(item.docList)">
+          {{ $t('title.ExportCsvFile') }}
+        </el-button>
         <div class="listContainer">
           <div v-for="uploadItem in item.docList" :key="uploadItem.id" class="uploadItem">
             <div class="nameContainer" @click="itemClickHandler(uploadItem)">
@@ -67,11 +67,12 @@ function fileSizeFilter(bytes) {
   return bytes.toFixed(2) + unit
 }
 function exportCsv(arr) {
+  console.log('arr', arr)
   const exportArr = arr.map((item) => ({
     name: item.name,
     status: item.status,
     size: fileSizeFilter(item.file?.size || ''),
-    path: item.path,
+    path: item.fileAbsolutePath || item.path,
     isFolder: item.isFolder ? 'yes' : 'no'
   }))
   jsonToXlsx(exportArr)
