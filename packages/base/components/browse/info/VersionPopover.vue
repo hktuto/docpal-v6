@@ -3,20 +3,17 @@
     <!-- <div v-if="doc.version || doc.version == '0'" class="noVersionContainer">
       {{ doc.version }}
     </div> -->
-    <el-popover ref="PopoverRef" :disabled="!RbacAllowTo('write', doc)" width="300px" trigger="click" placement="bottom" popper-class="popover__version">
+    <el-popover ref="PopoverRef" :disabled="!RbacAllowTo('write', doc)" :width="420" trigger="click" placement="bottom" popper-class="popover__version">
       <div style="overflow: auto">
         <el-table ref="TableRef" :data="tableData" height="250px" rowKey="version">
           <el-table-column prop="version" :label="$t('file_versionNumber')"> </el-table-column>
           <el-table-column prop="time" :label="$t('table_lastModified')"> </el-table-column>
-          <el-table-column :label="$t('tableHeader_actions')" align="center" width="70">
+          <el-table-column :label="$t('tableHeader_actions')" align="center" width="100">
             <template #default="scope">
               <img v-if="scope.row.version !== doc.version" class="cursorPointer" :src="'/icons/version.svg'" round @click="toVersionComparison(scope.row)" />
             </template>
           </el-table-column>
         </el-table>
-      </div>
-      <div style="text-align: right">
-        <CreateVersionButtom :doc="doc" />
       </div>
       <template #reference>
         <div id="popover__reference" :class="['cursorPointer', { active: popoverShow }]" >
