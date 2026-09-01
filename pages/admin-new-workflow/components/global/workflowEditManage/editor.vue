@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
-import { x6NodeToWorkflowJson } from '@packages/workflow/utils/jsonConversion'
-import { Graph } from '@antv/x6'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -21,7 +19,8 @@ const workflowReadonly = ref(false)
 const workflowId = ref()
 const workflowEditorRef = ref()
 const permissionDialogRef = ref()
-const loading = ref(false)
+const loading = ref<boolean>(false)
+const isNew = ref<boolean>(false)
 
 async function getWorkflowData() {
   try {
@@ -49,35 +48,8 @@ async function getWorkflowData() {
   }
 }
 
-async function handleSave() {
-  const graph: Graph = workflowEditorRef.value.graph
-  if (!graph) {
-    throw new Error('graph is undefined')
-  }
-
-  // check if workflow is empty
-  if (!graph.getNodes() && graph.getNodes().length === 0) return
-
-  if (!workflowId.value || workflowId.value === '') {
-    throw new Error('Workflow ID is null')
-  }
-
-  // 修改時，檢查是否已激活
-  if (isActivate.value) {
-    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/deactivate`).then((r: any) => r.data)
-    isActivate.value = false
-  }
-
-  // update workflow Json Data
-  try {
-    const workflowJson = x6NodeToWorkflowJson(graph, workflowEditorRef.value.workflowJson)
-    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}`, workflowJson).then((r: any) => r.data)
-
-    workflowEditorRef.value.workflowJson = workflowJson
-  } catch (e) {
-    routerProvider?.message.error(e)
-    console.log(e)
-  }
+function handleSave() {
+  workflowEditorRef.value?.saveWorkflowJSON()
 }
 
 async function handleStatus() {
@@ -129,6 +101,15 @@ function openPermissionDialog() {
   })
 }
 
+watch(
+  () => workflowEditorRef?.value?.isNew,
+  (value, old) => {
+    if (value === old) return
+    isNew.value = value
+  },
+  { deep: true }
+)
+
 onMounted(async () => {
   await getWorkflowData()
 })
@@ -138,7 +119,7 @@ onMounted(async () => {
   <div v-if="openWorkflowEdit" v-loading="loading" class="pageContainer">
     <WorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :showSidebar="true" :is-activate="isActivate">
       <template #actions>
-        <el-button type="primary" @click="handleSave">{{ $t('common_save') }}</el-button>
+        <el-button v-if="isNew" type="primary" @click="handleSave">{{ $t('common_save') }}</el-button>
         <el-button v-if="!isActivate" id="Workflow__Edit__ActivateOrInactivate" type="primary" @click="handleStatus">
           {{ $t('actions.activate') }}
         </el-button>

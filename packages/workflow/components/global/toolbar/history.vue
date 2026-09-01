@@ -29,6 +29,8 @@ function setupHistory() {
 
     state.value.canUndo = graphProvider?.graph.value?.canUndo() || false
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
+
+    graphProvider?.updateStatus()
   })
 }
 
