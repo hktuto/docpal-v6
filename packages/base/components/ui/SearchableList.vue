@@ -34,6 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   selected: [item: T]
   filtered: [filteredItems: T[]]
+  sortChange: [{ sortBy: keyof T | undefined; sortOrder: 'asc' | 'desc' }]
 }>()
 
 // Refs
@@ -281,6 +282,7 @@ async function computeFilteredList() {
 
   // Sort the results
   filteredList.value = sortItems(result)
+  emit('filtered', filteredList.value)
   const endTime = performance.now()
   const duration = (endTime - startTime).toFixed(2)
 
@@ -352,18 +354,25 @@ const sortableFields = computed(() => {
 // Toggle sort order or change sort field
 function handleSortChange(field: keyof T) {
   if (sortBy.value === field) {
-    // Toggle order
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
   } else {
-    // Change field
     sortBy.value = field
     sortOrder.value = 'asc'
   }
   sortPopover.value?.close()
+  computeFilteredList()
+  emit('sortChange', { sortBy: sortBy.value, sortOrder: sortOrder.value })
 }
 
-// Open sort popover
+function handleToggleSortOrder() {
+  sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  computeFilteredList()
+  emit('sortChange', { sortBy: sortBy.value, sortOrder: sortOrder.value })
+}
+
+// Open sort field picker
 function handleSortClick(event: MouseEvent) {
+  event.stopPropagation()
   sortPopover.value?.open(event.currentTarget)
 }
 
@@ -438,7 +447,7 @@ async function resetFilters() {
 
 // Watch for changes in data, keyword, filters, and sorting
 watch(
-  [() => props.data, keyword, tempFilterOptions, sortBy, sortOrder],
+  [() => props.data, keyword, tempFilterOptions],
   () => {
     const hasFilters = keyword.value || Object.keys(tempFilterOptions.value).length > 0
     if (!hasFilters) {
@@ -449,6 +458,10 @@ watch(
   },
   { deep: true }
 )
+
+watch([sortBy, sortOrder], () => {
+  computeFilteredList()
+})
 
 // Initial computation
 onMounted(async () => {
@@ -490,8 +503,8 @@ function handleGlobalKeydown(event: KeyboardEvent) {
 
       <!-- Sort Controls -->
       <div v-if="sortableFields.length > 0" class="sort-controls">
-        <div class="sort-trigger" @click="handleSortClick">
-          <span class="sort-field-name">
+        <div class="sort-trigger" @click="handleToggleSortOrder">
+          <span class="sort-field-name" @click="handleSortClick">
             {{ sortBy ? props.customLabels[sortBy as keyof typeof props.customLabels] || formatLabel(String(sortBy)) : 'Sort' }}
           </span>
           <Icon :name="sortOrder === 'asc' ? 'mdi:sort-ascending' : 'mdi:sort-descending'" class="sort-icon" />
@@ -510,20 +523,6 @@ function handleGlobalKeydown(event: KeyboardEvent) {
                 @click="handleSortChange(field)"
               >
                 {{ props.customLabels[field] || formatLabel(String(field)) }}
-              </div>
-            </div>
-          </div>
-
-          <div class="sort-section">
-            <div class="section-label">Order</div>
-            <div class="sort-order-toggle">
-              <div :class="['order-option', { active: sortOrder === 'asc' }]" @click="sortOrder = 'asc'">
-                <Icon name="mdi:sort-ascending" />
-                <span>Ascending</span>
-              </div>
-              <div :class="['order-option', { active: sortOrder === 'desc' }]" @click="sortOrder = 'desc'">
-                <Icon name="mdi:sort-descending" />
-                <span>Descending</span>
               </div>
             </div>
           </div>
@@ -597,7 +596,14 @@ function handleGlobalKeydown(event: KeyboardEvent) {
       </template>
     </template>
     <div :class="['list-content', ...(props.containerClass?.split(',') || [])]">
-      <slot :items="filteredList" :is-filtering="isFilterStage" :keyword="keyword" :filters="isFilterStage ? tempFilterOptions : filterOptions" />
+      <slot
+        :items="filteredList"
+        :sort-by="sortBy"
+        :sort-order="sortOrder"
+        :is-filtering="isFilterStage"
+        :keyword="keyword"
+        :filters="isFilterStage ? tempFilterOptions : filterOptions"
+      />
     </div>
   </div>
 </template>
@@ -633,8 +639,8 @@ function handleGlobalKeydown(event: KeyboardEvent) {
 }
 
 .search-input {
-  flex: 1 0 auto;
-  width: auto;
+  flex: 0 0 200px;
+  width: 200px;
 }
 
 .sort-controls {
@@ -707,41 +713,6 @@ function handleGlobalKeydown(event: KeyboardEvent) {
     background-color: var(--app-primary-color);
     color: var(--app-paper);
     font-weight: 500;
-  }
-}
-
-.sort-order-toggle {
-  display: flex;
-  gap: var(--app-space-xs);
-}
-
-.order-option {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--app-space-xs);
-  padding: var(--app-space-s);
-  border: 1px solid var(--app-grey-700);
-  border-radius: var(--app-border-radius-s);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: var(--app-font-size-s);
-
-  &:hover {
-    background-color: var(--app-grey-800);
-    border-color: var(--app-primary-alpha-50);
-  }
-
-  &.active {
-    background-color: var(--app-primary-alpha-10);
-    border-color: var(--app-primary);
-    color: var(--app-primary);
-    font-weight: 500;
-  }
-
-  .icon {
-    font-size: var(--app-font-size-m);
   }
 }
 
