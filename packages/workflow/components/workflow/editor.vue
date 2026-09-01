@@ -476,7 +476,6 @@ async function saveWorkflowJSON() {
 
 function updateStatus() {
   isNew.value = true
-  console.log(123)
 }
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
