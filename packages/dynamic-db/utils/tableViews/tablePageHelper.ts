@@ -62,6 +62,10 @@ function updateColumnOrder(table: string, columnId: string, targetFieldId: strin
   updateViewColumnOrder(columns, columnId, targetFieldId, dragPos)
   updatePreference()
 }
+function hasSortPreference(sortInfo: any) {
+  return Array.isArray(sortInfo) && sortInfo.some((rule: any) => !!rule?.field)
+}
+
 function updateToolsConfig(table: string, type: 'sortInfo' | 'filterInfo' | 'groupInfo', updateData: any) {
   const preference = useUserPreference()
   const tableSettings = (preference.value.tableSettings ??= {})
@@ -69,13 +73,19 @@ function updateToolsConfig(table: string, type: 'sortInfo' | 'filterInfo' | 'gro
   tableConfig[type] = updateData
   updatePreference()
 }
-export const generateColumnConfig = (tableName: string, columnSettings: any[]) => {
+type PreferenceSetting = {
+  defaultSortRules?: any[]
+}
+
+export const generateColumnConfig = (tableName: string, columnSettings: any[], preferenceSetting: PreferenceSetting = {}) => {
   let table = tableName
   const tableRef = ref<any>(null)
   const columns = ref<any[]>([])
   const tableFields = ref<any[]>([])
   const columnFilterRules = ref<any>()
-  const columnSortRules = ref<any[]>([])
+  const tableSettings = useUserPreference().value.tableSettings?.[table]
+  const defaultSortRules = preferenceSetting.defaultSortRules || []
+  const columnSortRules = ref<any[]>(hasSortPreference(tableSettings?.sortInfo) ? tableSettings.sortInfo : [...defaultSortRules])
   const columnGroupRules = ref<any[]>([])
   function getPageParams(getGroup: boolean = false, getOrderBy: boolean = true) {
     return buildPageParams(
@@ -88,14 +98,11 @@ export const generateColumnConfig = (tableName: string, columnSettings: any[]) =
       { group: getGroup, orderBy: getOrderBy }
     )
   }
-  const preference = useUserPreference()
-  const tableSettings = preference.value.tableSettings?.[table]
   if (tableSettings) {
     columnFilterRules.value = tableSettings.filterInfo ?? {
       conditions: [] as any[],
       conjunction: 'AND'
     }
-    columnSortRules.value = tableSettings.sortInfo ?? [{ field: 'created_date', order: 'desc' }]
   }
   columns.value = getViews(table, columnSettings) as any[]
   tableFields.value = columnSettings
