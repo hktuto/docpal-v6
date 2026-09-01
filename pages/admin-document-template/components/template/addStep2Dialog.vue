@@ -51,7 +51,7 @@ async function handleOpen(setting) {
 
 async function goOffice(docId:any){
     if(!docId) docId = state.setting.documentId
-    const token = await newClientApi.getGetofficetokenId(docId).then(r => r.data)
+    const token = await newClientApi.getGetofficetokenId(docId, { fileType: 'COUCHDB' }).then(r => r.data)
     const baseUrl = officeUrl(docId, token)
     state.visible = false
     // const baseUrl = `https://office.app4.wclsolution.com/browser/85ac843/cool.html?WOPISrc=https://app4.wclsolution.com/api/wopi/files/${props.doc.id}?access_token=${token}`

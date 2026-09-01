@@ -88,7 +88,7 @@ function officeUrl(docId: string, token: string) {
 }
 
 async function handleEdit(row: any) {
-  const token = await newClientApi.getGetofficetokenId(row.documentId, { fileType: 'NUXEO' }).then(r => r.data)
+  const token = await newClientApi.getGetofficetokenId(row.documentId, { fileType: 'COUCHDB' }).then(r => r.data)
   const baseUrl = officeUrl(row.documentId, token)
   window.open(baseUrl, '_blank')
 }
