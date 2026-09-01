@@ -259,7 +259,7 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" :title="t('workflow_editorPermission')" width="600px" :close-on-click-modal="false" @close="close">
+  <el-dialog v-model="dialogVisible" :title="t('caseManagement.editPermission')" width="600px" :close-on-click-modal="false" @close="close">
     <div v-loading="loading" class="permission-dialog-content">
       <!-- Add Permission Section -->
       <el-form label-position="top">

@@ -120,7 +120,7 @@ onMounted(async () => {
         <!--          {{ $t('Open The Release Version') }}-->
         <!--        </el-button>-->
         <el-button id="Workflow__Edit__Permission" type="primary" @click="openPermissionDialog">
-          {{ $t('workflow_editorPermission') }}
+          {{ $t('caseManagement.editorPermission') }}
         </el-button>
       </template>
     </WorkflowEditor>
