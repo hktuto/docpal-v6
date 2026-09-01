@@ -11,7 +11,7 @@
             unselectable="on"
             @dragstart="handleDragStart($event, c)"
             @dragend="handleDragEnd"
-            @dblclick="emits('add', c)"
+            @dblclick.stop="handleAddWidget(c)"
           >
             <SvgIcon v-if="c.icon" class="el-icon--left" :src="`/icons/dashboard/${c.icon}.svg`" style="--icon-size: 12px" />
             {{ $t(`dashboard.${c.label}`) }}
@@ -20,7 +20,13 @@
       </el-collapse>
     </el-splitter-panel>
     <el-splitter-panel @update:size="handleResize">
-      <div ref="wrapper" style="position: relative; height: 100%; overflow: auto" @drop="handleDrop" @dragover="handleDragOver">
+      <div
+        ref="wrapper"
+        style="position: relative; height: 100%; overflow: auto"
+        @drop="handleDrop"
+        @dragover="handleDragOver"
+        @dblclick.stop="handleCanvasDblclick"
+      >
         <div v-if="layout.length === 0 && editMode" class="dashboard-null-placeholder">
           {{ $t('dashboard.dragToHere') }}
         </div>
@@ -135,6 +141,7 @@ import { GridItem, GridLayout } from 'grid-layout-plus'
 import type { DashboardWidgetSetting } from '~/composables/useDashborad'
 import { useDebounceFn } from '@vueuse/core'
 import { useDashboardDrag } from '~/utils/dashboardDragHelper'
+import { findFirstFitPosition, applyPackedPositions } from '~/utils/dashboardLayoutHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -166,6 +173,22 @@ const layout = defineModel<DashboardWidgetSetting>('layout')
 const emits = defineEmits(['refreshSetting', 'delete', 'update:layout', 'save', 'add'])
 
 const sheetRefs = ref<any>({})
+
+function handleAddWidget(widget: DashboardWidgetSetting) {
+  const items = (layout.value as DashboardWidgetSetting[] | undefined) || []
+  const pos = findFirstFitPosition(items, widget.w, widget.h, props.colNum)
+  emits('add', { ...widget, ...pos })
+}
+
+function handleCanvasDblclick(event: MouseEvent) {
+  if (!props.editMode) return
+  const target = event.target as HTMLElement
+  if (target.closest('.dashboard-item, .dashboard-placeholder')) return
+  const items = (layout.value as DashboardWidgetSetting[] | undefined) || []
+  if (!items.length) return
+  applyPackedPositions(items, props.colNum)
+  emits('save')
+}
 
 function handleDelete(row: any) {
   emits('delete', row.i)

@@ -66,10 +66,8 @@ const state = reactive<any>({
 function handleAdd(data: any) {
   if (!currentHome.value.layout) currentHome.value.layout = []
   currentHome.value.layout.push({
-    x: (currentHome.value.layout.length * 2) % 4,
-    y: currentHome.value.layout.length + 4, // puts it at the bottom
-    i: new Date().valueOf().toString(),
-    ...data
+    ...data,
+    i: new Date().valueOf().toString()
   })
 }
 
