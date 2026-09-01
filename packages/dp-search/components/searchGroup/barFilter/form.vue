@@ -252,7 +252,7 @@ async function handleMetaChange(value: string) {
 }
 
 async function handleMetaEcho(q: any) {
-  if (q.value.key) {
+  if (q.value?.key) {
     handleMetaChange(q.value.key)
   }
 }
@@ -318,7 +318,7 @@ watch(
     if (newValue.queryType === 'metadata' && (!oldValue || newValue.queryType !== oldValue?.queryType)) {
       handleMetaEcho(newValue)
       setTimeout(() => {
-        if (metaForm.value) metaForm.value.setValue(newValue.metadataValue || newValue.value.value)
+        if (metaForm.value) metaForm.value.setValue(newValue.metadataValue || newValue.value?.value)
       }, 100)
     } else if (newValue.queryType === 'path') {
       handlePath(newValue.value)
