@@ -82,7 +82,9 @@ const columnSettings = [
     hidden: true
   }
 ]
-const { config, tableRef, reload } = generateColumnConfig(TABLE_NAME, columnSettings)
+const { config, tableRef, reload } = generateColumnConfig(TABLE_NAME, columnSettings, {
+  defaultSortRules: [{ id: 'sort-modified_date', field: 'modified_date', order: 'desc' }]
+})
 provide('viewTools', config)
 
 const eventList = [
