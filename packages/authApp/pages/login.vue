@@ -16,6 +16,7 @@ const rules = {
 
 async function submit() {
   try {
+    if (!form.username || !form.password) return
     loading.value = true
     errorMessage.value = ''
     const checkUserLock: any = await newClientApi.getUcenterPasswordHasLockUserid(form.username).then((r) => r.data)
@@ -87,8 +88,20 @@ async function initLoginPage() {
   }
 }
 
+function handleEnterKey(event: KeyboardEvent) {
+  if (event.key !== 'Enter') return
+  if (loading.value) return
+  event.preventDefault()
+  submit()
+}
+
 onMounted(() => {
   initLoginPage()
+  window.addEventListener('keydown', handleEnterKey)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleEnterKey)
 })
 </script>
 
@@ -101,7 +114,7 @@ onMounted(() => {
           <ElInput ref="usernameEl" v-model="form.username" type="text" />
         </ElFormItem>
         <ElFormItem label="Password" :rules="rules.password">
-          <ElInput v-model="form.password" type="password" @keyup.enter.native="submit" show-password />
+          <ElInput v-model="form.password" type="password" show-password />
         </ElFormItem>
         <ElFormItem>
           <ElAlert v-if="errorMessage" :title="errorMessage" type="error" />
