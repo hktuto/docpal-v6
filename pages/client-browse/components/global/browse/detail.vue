@@ -176,7 +176,6 @@ useEventListener(window, 'resize', calMinWidth)
                           :doc="docDetail"
                           :ref="(el) => (itemRefs[item.name] = el)"
                           :isPdf="isPdf"
-                          test="ssssss"
                           @success="handleRefresh"
                           @delete="itemDeleted"
                           @openAiDrawer="handleOpenAiDrawer"
