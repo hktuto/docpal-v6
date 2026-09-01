@@ -17,6 +17,12 @@
         </el-tag>
       </template>
     </draggable>
+    <div class="list-arrow">
+      <el-icon :size="20" aria-hidden="true">
+        <SwitchIcon v-if="layout === 'lr'" />
+        <Sort v-else />
+      </el-icon>
+    </div>
     <draggable class="list-drop" :list="dropList" group="people" :itemKey="itemKey" handle=".canDrag" @change="() => emit('change', { dropList, dragList })">
       <template #item="{ element, index }">
         <span class="list-drop-item">
@@ -36,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Rank } from '@element-plus/icons-vue'
+import { Rank, Sort, Switch as SwitchIcon } from '@element-plus/icons-vue'
 const props = withDefaults(
   defineProps<{
     dropList: any
@@ -93,6 +99,14 @@ onMounted(() => {})
 </script>
 <style lang="scss" scoped>
 .drag-select--tb {
+  .list-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: var(--app-space-xs) 0;
+    color: var(--el-text-color-secondary);
+  }
   .list-drag {
     &-item {
       margin-right: 3px;
@@ -126,9 +140,17 @@ onMounted(() => {})
   display: grid;
   height: 100%;
   overflow: hidden;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr auto 1fr;
   grid-template-rows: 1fr min-content;
   grid-column-gap: var(--app-space-xs);
+  .list-arrow {
+    grid-area: 1 / 2 / 2 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--el-text-color-secondary);
+  }
   .list-drop {
     border: 1px solid #ddd;
     padding: var(--app-space-xs);
@@ -147,21 +169,28 @@ onMounted(() => {})
       padding-left: 0;
       text-align: center;
     }
+    .list-drop-item {
+      display: block;
+      margin-bottom: var(--app-space-xs);
+    }
   }
   .list-drag {
     border: 1px solid #ddd;
     padding: var(--app-space-xs);
     overflow: auto;
-    grid-area: 1 / 2 / 2 / 3;
+    grid-area: 1 / 3 / 2 / 4;
     .el-tag {
       display: block;
       width: fit-content;
       text-align: center;
       line-height: 22px;
     }
+    .list-drag-item {
+      margin-bottom: var(--app-space-xs);
+    }
   }
   .tip {
-    grid-area: 2 / 1 / 3 / 3;
+    grid-area: 2 / 1 / 3 / 4;
   }
 }
 .list-drag-item,
