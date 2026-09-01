@@ -13,6 +13,7 @@ const permissionDialogRef = ref()
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'admin-new-workflow-edit-manage',
   saveColumnOrder: false,
+  customeToolBar: true,
   api: async (pageParams: any) => {
     const params = {
       page_size: pageParams.pageSize,
@@ -24,7 +25,13 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     // { field: 'key', title: 'Workflow Key', fixed: 'left' },
     { field: 'name', title: 'workflow_workflowName' },
     { field: 'draft_content.description', title: 'Description' },
-    { field: 'status', title: 'Status' },
+    {
+      field: 'status',
+      title: 'Status',
+      formatter({ cellValue }: any) {
+        return cellValue === 'A' ? t('actions.activated') : t('actions.inactive')
+      }
+    },
     {
       field: 'created_at',
       title: 'Create Date',
@@ -218,7 +225,7 @@ function handlePermission(row: any) {
 <template>
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
+      <template #toolbarTools>
         <el-button type="primary" id="Workflow__CreateWorkflow" @click="openCreateDialog">Create Workflow</el-button>
       </template>
       <template #status="{ row }">
@@ -229,7 +236,7 @@ function handlePermission(row: any) {
   </div>
   <workflowEditManageDialog ref="workflowManageDialogRef" @refresh="reload" />
   <workflowEditManageDuplicate ref="workflowManageDuplicateRef" />
-  <WorkflowEditManagePermissionDialog ref="permissionDialogRef"  />
+  <WorkflowEditManagePermissionDialog ref="permissionDialogRef" />
 </template>
 
 <style lang="scss" scoped></style>
