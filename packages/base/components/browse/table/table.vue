@@ -473,8 +473,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     }
     Object.keys(permissionCodes).forEach((key) => {
       const code = permissionCodes[key]
-      console.log(123,code)
-      if (row.comeFrom === 'google_drive') {
+      if (row?.comeFrom === 'google_drive') {
         result[key] = {
           visible: false,
           disabled: false

@@ -16,35 +16,21 @@ onClickOutside(contextmenuRef, () => {
 })
 
 const contextMenuOpenHandler = (args:TABLE_CONTEXT_PARAMS)=>{
-  console.log('contextMenuOpenHandler', args)
+    const x = args.event?.clientX ?? 0
+    const y = args.event?.clientY ?? 0
     actions.value = args.options
-    visible.value = true
     rowData.value = args.row
-    // container may not be ready to calculate the width
+    position.value = { x, y, left: x, top: y }
+    visible.value = true
     nextTick(() => {
-
-    
-        const {clientX,layerX, layerY,clientY} = args.event
-        const x = clientX
-        const y = clientY
-        
         const el = contextmenuRef.value
-        const maxWidth = el?.getBoundingClientRect().width || 0;
-        const left = x + maxWidth > window.innerWidth ? x - maxWidth : x
-        // calculate the total height of actions
-        const totoalActionHeight = getRootActionMaxHeight(actions.value, menuItemHeight)
-        // check if the top position is out of the screen
-        const top = y + totoalActionHeight > window.innerHeight ? y - totoalActionHeight : y
-
-        position.value = {
-            x,
-            y,
-            left,
-            top
-        }
+        const rect = el?.getBoundingClientRect()
+        const width = rect?.width || 0
+        const height = rect?.height || getRootActionMaxHeight(actions.value, menuItemHeight)
+        const left = x + width > window.innerWidth ? x - width : x
+        const top = y + height > window.innerHeight ? y - height : y
+        position.value = { x, y, left, top }
     })
-    
-    
 }
 
 const contextMenuCloseHandler = () => {

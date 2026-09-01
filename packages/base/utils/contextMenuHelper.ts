@@ -10,8 +10,7 @@ export function getActionMaxWidth(actions:TableMenuActions[]):number{
 
 export function getRootActionMaxHeight(actions:TableMenuActions[][], menuItemHeight:number):number{
     return actions.reduce((total:number, curr:TableMenuActions[]) => {
-        // NOTED : if all actions are disabled, the total height will be 0
-        return total + curr.filter(item => !item.disabled).length * menuItemHeight
+        return total + curr.filter(item => item.visible !== false && !item.disabled).length * menuItemHeight
     },0)
 }
 

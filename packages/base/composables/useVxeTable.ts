@@ -190,14 +190,10 @@ export const useVxeTable = (params: UseVxeTableParams) => {
           options: params.footerActions || []
         },
         className: 'contextMenuContainer',
-        visibleMethod: async ({ options, column, row, rowIndex }: TableMenuValidateMethodParams) => {
+        // vxe-table 不会 await visibleMethod；async 会返回 Promise（恒为真），未过滤项会全部显示
+        visibleMethod: ({ options, column, row, rowIndex }: TableMenuValidateMethodParams) => {
+          if (params.asyncPermission) return false
           let additionalData: any
-          if (params.asyncPermission) {
-            return await visibleMethodHelper(row, options, params)
-          }
-          if (params.additionalPermission) {
-            additionalData = await params.additionalPermission({ column, row, rowIndex })
-          }
           options.forEach((list) => {
             list.forEach((item) => {
               if (item.children) {
@@ -233,7 +229,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
             })
           })
 
-          return options
+          return true
         }
       },
       rowConfig: {
@@ -271,6 +267,64 @@ export const useVxeTable = (params: UseVxeTableParams) => {
       menu.action({ menu, row, column })
     }
   }
+
+  async function openTableContextMenu({ row, column, rowIndex, event }: { row: any; column?: any; rowIndex?: number; event: MouseEvent }) {
+    const clientX = event?.clientX ?? 0
+    const clientY = event?.clientY ?? 0
+    const pointerEvent = { clientX, clientY } as MouseEvent
+    const CONTEXT_MENU_OPEN_BUS = useEventBus(EventType.TABLE_CONTEXT_MENU_OPEN)
+    if (params.asyncPermission) {
+      const asyncPermissionOptions = await visibleMethodHelper(row, actions, params)
+      CONTEXT_MENU_OPEN_BUS.emit({
+        row,
+        column,
+        rowIndex,
+        options: asyncPermissionOptions,
+        event: pointerEvent
+      })
+      return
+    }
+    let additionalData: any
+    if (params.additionalPermission) {
+      additionalData = await params.additionalPermission({ column, row, rowIndex })
+    }
+    const options = actions.map((list) => {
+      return list.map((item) => {
+        if (item.children) {
+          item.children.forEach((child) => {
+            const permission = permissionMethod({ row, rowIndex, code: child.code, additionalData })
+            if (!permission) {
+              child.visible = true
+              child.disabled = false
+            } else {
+              child.visible = permission.visible
+              child.disabled = permission.disabled
+            }
+          })
+          item.visible = item.children.every((child) => child.visible)
+          item.disabled = item.children.every((child) => child.disabled)
+        } else {
+          const permission = permissionMethod({ row, rowIndex, code: item.code, additionalData })
+          if (!permission) {
+            item.visible = true
+            item.disabled = false
+          } else {
+            item.visible = permission.visible
+            item.disabled = permission.disabled
+          }
+        }
+        return item
+      })
+    })
+    CONTEXT_MENU_OPEN_BUS.emit({
+      row,
+      column,
+      rowIndex,
+      options,
+      event: pointerEvent
+    })
+  }
+
   // Step 2: handle body actions
   if (actions && actions.length > 0) {
 
@@ -314,64 +368,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
         if (!columns) {
           throw new Error('columns is required')
         }
-        const CONTEXT_MENU_OPEN_BUS = useEventBus(EventType.TABLE_CONTEXT_MENU_OPEN)
-        let additionalData: any
-        if (params.asyncPermission) {
-          const asyncPermissionOptions = await visibleMethodHelper(row, actions, params)
-          CONTEXT_MENU_OPEN_BUS.emit({
-            row,
-            column,
-            rowIndex,
-            options: asyncPermissionOptions,
-            event: $event
-          })
-          return
-        }
-        if (params.additionalPermission) {
-          additionalData = await params.additionalPermission({ column, row, rowIndex })
-        }
-
-        const options = actions.map((list) => {
-          return list.map((item) => {
-            if (item.children) {
-              // loop all children , and set visible and disabled
-              // if all children are not visible , set iten.visible = false
-              // if all children are disabled , set item.disabled = true
-              item.children.forEach((child) => {
-                const permission = permissionMethod({ row, rowIndex, code: child.code, additionalData })
-                if(!permission){
-                  child.visible = true
-                  child.disabled = false
-                }else{
-                  child.visible = permission.visible
-                  child.disabled = permission.disabled
-                }
-              })
-              const allVisible = item.children.every((child) => child.visible)
-              const allDisabled = item.children.every((child) => child.disabled)
-              item.visible = allVisible
-              item.disabled = allDisabled
-            } else {
-              const permission = permissionMethod({ row, rowIndex, code: item.code, additionalData })
-              if(!permission){
-                item.visible = true
-                item.disabled = false
-              }else{
-                item.visible = permission.visible
-                item.disabled = permission.disabled
-              }
-            }
-            return item
-          })
-        })
-        const evtParams: TABLE_CONTEXT_PARAMS = {
-          row,
-          column,
-          rowIndex,
-          options,
-          event: $event
-        }
-        CONTEXT_MENU_OPEN_BUS.emit(evtParams)
+        await openTableContextMenu({ row, column, rowIndex, event: $event })
       }
       if (optionalEvent?.cellClick && typeof optionalEvent.cellClick === 'function') {
         optionalEvent.cellClick({
@@ -395,6 +392,17 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     tableEvent.scroll = (scrollParams: VxeGridDefines.ScrollEventParams) => {
       const bus = useEventBus(EventType.TABLE_CONTEXT_MENU_CLOSE)
       bus.emit()
+    }
+    if (params.asyncPermission) {
+      const optionalCellMenu = optionalEvent?.cellMenu
+      tableEvent.cellMenu = async (menuParams: any) => {
+        const { row, column, rowIndex, $event } = menuParams
+        $event?.preventDefault?.()
+        await openTableContextMenu({ row, column, rowIndex, event: $event })
+        if (typeof optionalCellMenu === 'function') {
+          optionalCellMenu(menuParams)
+        }
+      }
     }
   }
   // Step 3: handle header actions
@@ -574,10 +582,42 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     tableRef.value?.commitProxy('query', params)
   }
   let observer: any
+  let blankMenuBoundEl: HTMLElement | null = null
+
+  function isBrowseCellTarget(target: EventTarget | null) {
+    if (!(target instanceof Element)) return false
+    return !!target.closest('.vxe-body--column, .vxe-header--column, .vxe-footer--column')
+  }
+
+  async function handleBlankContextmenu(event: MouseEvent) {
+    const target = event.target as Element | null
+    if (!target?.closest('.vxe-table--body-wrapper, .vxe-table--empty-place-wrapper')) return
+    if (isBrowseCellTarget(target)) return
+    event.preventDefault()
+    await openTableContextMenu({ row: undefined, event })
+  }
+
+  function bindBlankContextmenu() {
+    if (!params.asyncPermission) return
+    nextTick(() => {
+      const el = tableRef.value?.$el as HTMLElement | undefined
+      if (!el || blankMenuBoundEl === el) return
+      unbindBlankContextmenu()
+      el.addEventListener('contextmenu', handleBlankContextmenu)
+      blankMenuBoundEl = el
+    })
+  }
+
+  function unbindBlankContextmenu() {
+    blankMenuBoundEl?.removeEventListener('contextmenu', handleBlankContextmenu)
+    blankMenuBoundEl = null
+  }
+
   function tableActivated() {
     if (init.value) {
       reload()
     }
+    bindBlankContextmenu()
     if (params.childChangeHandler) {
       if (observer && observer.disconnect) {
         observer.disconnect()
@@ -598,11 +638,13 @@ export const useVxeTable = (params: UseVxeTableParams) => {
   onMounted(tableActivated)
   onActivated(tableActivated)
   onUnmounted(() => {
+    unbindBlankContextmenu()
     if (observer && observer.disconnect) {
       observer.disconnect()
     }
   })
   onDeactivated(() => {
+    unbindBlankContextmenu()
     if (observer && observer.disconnect) {
       observer.disconnect()
     }
