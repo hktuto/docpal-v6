@@ -41,7 +41,7 @@ const emit = defineEmits(['saved'])
 async function displayIframe() {
   iframeReady.value = false;
   token.value = await newClientApi.getGetofficetokenId(props.docId, {
-    fileType: props.fileType
+    fileType: props.fileType || 'COUCHDB'
   }).then(r => r.data)
   collaboraUrl.value = officeUrl(props.docId)
 

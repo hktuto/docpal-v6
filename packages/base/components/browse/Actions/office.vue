@@ -30,7 +30,7 @@ const state = reactive({
 })
 async function goOffice(){
   const token = await newClientApi.getGetofficetokenId(props.doc.id,{
-    fileType:'NUXEO'
+    fileType:'COUCHDB'
   }).then(r => r.data)
     state.dialogOpened = true
     const baseUrl = officeUrl(props.doc.id, token)
