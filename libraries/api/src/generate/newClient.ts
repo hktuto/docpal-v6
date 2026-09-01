@@ -95,12 +95,12 @@ export interface ContactGroupRequestDTO {
     attributes?: ContactAttribute[];
     operator?: string;
     verifyReadPermission?: boolean;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -111,8 +111,8 @@ export interface Permission {
 }
 
 export interface SortObject {
-    unsorted?: boolean;
     sorted?: boolean;
+    unsorted?: boolean;
     empty?: boolean;
 }
 
@@ -145,6 +145,40 @@ export interface ResultListContactGroupResponseDTO {
     code?: number;
     message?: string;
     data?: ContactGroupResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface GITInvoiceLineItemDTO {
+    id?: string;
+    kwempty?: boolean;
+    po_no?: string;
+    /** @format int32 */
+    po_line?: number;
+    /** @format int32 */
+    shipment_num?: number;
+    vendor_item_no?: string;
+    wcl_item_no?: string;
+    /** @format int64 */
+    inv_item_id?: number;
+    /** @format int32 */
+    line_qty?: number;
+    unit_price?: number;
+    line_amount?: number;
+    status?: string;
+    apply_changes?: string;
+    koaName?: string;
+    invoice_line_num?: string;
+    /** @format int64 */
+    org_id?: number;
+}
+
+export interface ResultGITInvoiceLineItemDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GITInvoiceLineItemDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -358,10 +392,18 @@ export interface QuotationHeaderRequestDTO {
      */
     org_id: number;
     reason?: string;
-    /** @format date-time */
-    quotation_date?: string;
-    /** @format date-time */
-    validity_date?: string;
+    /**
+     * Epoch milliseconds
+     * @format int64
+     * @example 1786516228000
+     */
+    quotation_date?: number;
+    /**
+     * Epoch milliseconds
+     * @format int64
+     * @example 1789194628000
+     */
+    validity_date?: number;
     cust_name?: string;
     cust_num?: string;
     cust_group?: string;
@@ -392,10 +434,11 @@ export interface QuotationHeaderRequestDTO {
     /** Optional; ignored for numbering — server maps office from org_id */
     office?: string;
     /**
-     * Optimistic lock; required on PUT
-     * @format date-time
+     * Last update time as epoch milliseconds; GET response only, ignored on PUT
+     * @format int64
+     * @example 1786611600000
      */
-    update_time?: string;
+    update_time?: number;
 }
 
 /** Quotation line for submit */
@@ -777,12 +820,12 @@ export interface TableDataRequestDTO {
     filters?: Record<string, any>;
     /** Select fields (JSON object) */
     select?: Record<string, any>;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Master Table ID */
     master_table_id?: string;
@@ -1135,12 +1178,12 @@ export interface CaseTypeRequestDTO {
     status?: string;
     /** Metadata (JSON) */
     metadata?: Record<string, any>;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Case schema definition (JSON) */
     case_schema?: Record<string, any>;
@@ -1288,12 +1331,12 @@ export interface PersonalDashboardRequestDTO {
     name?: string;
     groupId?: string;
     styleJson?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -1625,18 +1668,19 @@ export interface MTRecordRequestDTO {
     in?: Record<string, any>;
     /** Relation Record */
     relationRecords?: MTRecordDTO[];
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
 export interface FormPropertiesRelation {
+    id?: string;
     /** @format int64 */
-    id?: number;
+    bizId?: number;
     processKey?: string;
     userTaskId?: string;
     jsonValue?: string;
@@ -1847,12 +1891,12 @@ export interface CompanyChopRequestDTO {
     status?: string;
     /** @format binary */
     file?: File;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2246,12 +2290,12 @@ export interface DocumentTemplateRequestDTO {
     fileTypes?: string[];
     createdBys?: string[];
     variables?: Record<string, any>;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2360,12 +2404,12 @@ export interface RetentionPolicyRequestDTO {
     approvalIds?: string[];
     /** the list of retention policy id */
     ids?: string[];
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2459,12 +2503,12 @@ export interface HoldPolicyRequestDTO {
     isRemoveReasonReq?: boolean;
     /** Remove Approval Id */
     removeApprovalId?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -2676,6 +2720,114 @@ export interface WOPIFileDTO {
     LastModifiedTime?: string;
 }
 
+export interface GITInvoice {
+    id?: string;
+    gitInvoiceFileId?: string;
+    batchNo?: string;
+    groupId?: string;
+    gitDate?: string;
+    invoiceNum?: string;
+    /** @format int32 */
+    vendorId?: number;
+    vendorName?: string;
+    currency?: string;
+    org?: string;
+    /** @format int64 */
+    orgId?: number;
+    brand?: string;
+    office?: string;
+    paymentType?: string;
+    additionalCost?: string;
+    invoiceDate?: string;
+    fileId?: string;
+    fileName?: string;
+    /** @format int32 */
+    totalQty?: number;
+    totalAmount?: number;
+    calcTotalAmount?: number;
+    calcTotalAmountFromLine?: number;
+    gitStatus?: string;
+    /** @format int32 */
+    lineSuccess?: number;
+    checkEmpty?: boolean;
+    items?: GITInvoiceLineItemDTO[];
+    /** @format int64 */
+    rcvImpHeaderId?: number;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    submitted?: boolean;
+    kwempty?: boolean;
+}
+
+export interface RcvImpHeadersWcl {
+    /** @format int64 */
+    rcvImpHeaderId?: number;
+    /** @format date-time */
+    creationDate?: string;
+    /** @format date-time */
+    lastUpdateDate?: string;
+    lastUpdatedBy?: string;
+    createdBy?: string;
+    /** @format int64 */
+    orgId?: number;
+    /** @format int64 */
+    groupId?: number;
+}
+
+export interface GitMatchInvoiceRequestDTO {
+    ocrRequestNo?: string;
+    ocrDataId?: string;
+    batchNo?: string;
+    /** @format int32 */
+    ocrSize?: number;
+    ocrData?: Record<string, any>[];
+    fileInfo?: Record<string, any>[];
+}
+
+export interface GITInvMatchingDTO {
+    id?: string;
+    batchNo?: string;
+    data?: GITInvoice[];
+    gitStatus?: string;
+    /** @format int32 */
+    lineSuccess?: number;
+    scriptResult?: boolean;
+}
+
+export interface ResultGITInvMatchingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GITInvMatchingDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultGITInvoice {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GITInvoice;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListString {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: string[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface Supplier {
     /** @format uuid */
     id?: string;
@@ -2765,11 +2917,11 @@ export interface PIPartNoMapping {
     vendor_item_no?: string;
     wcl_item_no?: string;
     /** @format int32 */
+    org_id?: number;
+    /** @format int32 */
     line_qty?: number;
     /** @format int32 */
     vendor_id?: number;
-    /** @format int32 */
-    org_id?: number;
     vendor_name?: string;
 }
 
@@ -2862,6 +3014,7 @@ export interface WMSScheduleDeliveryOrder {
     subinventory?: string;
     custPoNumber?: string;
     customerId?: number;
+    customerName?: string;
     /** @format date-time */
     lastUpdateDate?: string;
     /** @format date-time */
@@ -2884,79 +3037,6 @@ export interface WMSScheduleDeliveryOrder {
     createdDate?: string;
     /** @format date-time */
     updatedDate?: string;
-}
-
-export interface ResultListWMSPickingOrder {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSPickingOrder[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WMSPickingItem {
-    id?: string;
-    pickingOrderId?: string;
-    partNo?: string;
-    /** @format int32 */
-    qty?: number;
-    /** @format int32 */
-    pickedQty?: number;
-    /** @format int32 */
-    allocatedQty?: number;
-    /** @format int64 */
-    lineId?: number;
-    /** @format int32 */
-    lineNumber?: number;
-    /** @format int32 */
-    shipmentNumber?: number;
-    status?: string;
-    additionalData?: Record<string, any>;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    lastUpdatedDate?: string;
-}
-
-export interface WMSPickingOrder {
-    id?: string;
-    orderNo?: string;
-    /** @format date-time */
-    deliveryDate?: string;
-    poNo?: string;
-    shipTo?: string;
-    customerCode?: string;
-    /** @format int32 */
-    orgId?: number;
-    /** @format int32 */
-    prioritySeq?: number;
-    subInventoryCode?: string;
-    commodityInspection?: string;
-    working_by?: string;
-    /** @format date-time */
-    workingAt?: string;
-    issueReason?: string;
-    /** @format int32 */
-    issueQty?: number;
-    /** @format int32 */
-    issuePackSize?: number;
-    issueNote?: string;
-    issueRemark?: string;
-    /** @format date-time */
-    issueReportedAt?: string;
-    issueReportedBy?: string;
-    status?: string;
-    allocation_status?: string;
-    /** @format date-time */
-    shippedAt?: string;
-    shippedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    lastUpdateDate?: string;
-    pickingItems?: WMSPickingItem[];
 }
 
 export interface ResultListWMSScheduleDeliveryOrder {
@@ -3003,6 +3083,7 @@ export interface WMSScheduleTransactionNote {
     /** @format int32 */
     orgId?: number;
     fromSubinventory?: string;
+    customerName?: string;
     toSubinventory?: string;
     commodityInspection?: string;
     /** @format date-time */
@@ -3088,87 +3169,6 @@ export interface ResultOracleConfig {
     code?: number;
     message?: string;
     data?: OracleConfig;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface GITInvoiceLineItemDTO {
-    id?: string;
-    po_no?: string;
-    /** @format int32 */
-    po_line?: number;
-    /** @format int32 */
-    shipment_num?: number;
-    vendor_item_no?: string;
-    wcl_item_no?: string;
-    inv_item_id?: string;
-    /** @format int32 */
-    line_qty?: number;
-    unit_price?: number;
-    line_amount?: number;
-    status?: string;
-    apply_changes?: string;
-    koaName?: string;
-    invoice_line_num?: string;
-}
-
-export interface ResultGITInvoiceLineItemDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: GITInvoiceLineItemDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface GITInvoice {
-    id?: string;
-    gitInvoiceFileId?: string;
-    batchNo?: string;
-    groupId?: string;
-    gitDate?: string;
-    invoiceNum?: string;
-    /** @format int32 */
-    vendorId?: number;
-    vendorName?: string;
-    currency?: string;
-    org?: string;
-    /** @format int32 */
-    orgId?: number;
-    brand?: string;
-    office?: string;
-    paymentType?: string;
-    additionalCost?: string;
-    invoiceDate?: string;
-    fileId?: string;
-    fileName?: string;
-    /** @format int32 */
-    totalQty?: number;
-    totalAmount?: number;
-    calcTotalAmount?: number;
-    calcTotalAmountFromLine?: number;
-    gitStatus?: string;
-    /** @format int32 */
-    lineSuccess?: number;
-    checkEmpty?: boolean;
-    items?: GITInvoiceLineItemDTO[];
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    kwempty?: boolean;
-    submitted?: boolean;
-}
-
-export interface ResultGITInvoice {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: GITInvoice;
     messageKey?: string;
     locale?: string;
 }
@@ -3306,6 +3306,127 @@ export interface QuotationFormSubmitRequestDTO {
     lines: QuotationLineRequestDTO[];
 }
 
+/** Saved price announcement */
+export interface PriceAnnouncementSaveResponse {
+    /**
+     * Header UUID
+     * @format uuid
+     */
+    id?: string;
+    /**
+     * Human-readable number
+     * @example "PA2600001"
+     */
+    priceAnnouncementNumber?: string;
+    /**
+     * Number of lines saved
+     * @format int32
+     * @example 4
+     */
+    lineCount?: number;
+}
+
+/** Price announcement line */
+export interface PriceAnnouncementLineRequest {
+    /**
+     * Display index
+     * @format int32
+     * @example 1
+     */
+    lineNo: number;
+    /**
+     * End customer or project
+     * @minLength 1
+     * @example "BYD"
+     */
+    endCustomerProject: string;
+    /**
+     * Price group
+     * @minLength 1
+     * @example "BSR5CN J"
+     */
+    priceGroup: string;
+    /**
+     * Supplier part number; use Any for the whole group
+     * @minLength 1
+     * @example "Any"
+     */
+    supplierPartNumber: string;
+    /**
+     * Currency
+     * @minLength 1
+     * @example "USD"
+     */
+    currency: string;
+    /**
+     * Original unit price; must be > 0
+     * @min 0
+     * @example 0.04
+     */
+    originalUnitPrice: number;
+    /**
+     * New unit price
+     * @min 0
+     * @example 0.5
+     */
+    newUnitPrice: number;
+    /**
+     * Adjustment rate already computed by the client
+     * @example 1250
+     */
+    adjustmentRate: number;
+    /**
+     * Approver remark
+     * @example "Markup more 50%"
+     */
+    approverRemark?: string;
+}
+
+/** Save approved price announcement snapshot */
+export interface PriceAnnouncementSaveRequest {
+    /**
+     * Human-readable number generated by IdTemplate
+     * @minLength 1
+     * @example "PA2600001"
+     */
+    priceAnnouncementNumber: string;
+    /**
+     * Brand
+     * @minLength 1
+     * @example "KOA"
+     */
+    brand: string;
+    /**
+     * Effective date yyyy-MM-dd
+     * @format date
+     * @example "2026-09-01"
+     */
+    effectiveDate: string;
+    /**
+     * Price controller username
+     * @minLength 1
+     * @example "pc.user"
+     */
+    submittedBy: string;
+    /**
+     * Product manager username
+     * @minLength 1
+     * @example "Peter Chan"
+     */
+    approvedBy: string;
+    /**
+     * Approval time as epoch milliseconds
+     * @format int64
+     * @example 1756183380000
+     */
+    approvedAt: number;
+    /**
+     * Price lines (at least one)
+     * @minItems 1
+     */
+    lines: PriceAnnouncementLineRequest[];
+}
+
 /** Define access control permission */
 export interface AccessControlPermission {
     id?: string;
@@ -3356,14 +3477,6 @@ export interface ResultListAccessControlPermission {
     code?: number;
     message?: string;
     data?: AccessControlPermission[];
-}
-
-export interface ResultListString {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: string[];
 }
 
 export interface AclEntry {
@@ -3449,9 +3562,10 @@ export interface ResultAclPermissionDTO {
 
 /** Define information of user that access control */
 export interface AclUserInformation {
-    id?: string;
     /** user id */
     userId: string;
+    /** internal user id */
+    internalId?: string;
     /** user name */
     username: string;
     /** user first name */
@@ -3473,7 +3587,12 @@ export interface AclUserInformation {
     /** user level */
     userLevel?: string;
     /** registered status */
-    registered?: string;
+    registeredFlag?: boolean;
+    mustResetPassword?: boolean;
+    /** @format int32 */
+    failedLoginCount?: number;
+    /** @format date-time */
+    lockedUntil?: string;
     properties?: Record<string, any>;
     /**
      * Delete flag
@@ -3494,6 +3613,8 @@ export interface AclUserInformation {
      * @format date-time
      */
     modifiedDate: string;
+    registered?: string;
+    id?: string;
 }
 
 export interface ResultAclUserInformation {
@@ -3512,16 +3633,12 @@ export interface AclUserRelationshipWithUserGroup {
     userId: string;
     /** the id of acl user group */
     groupId: string;
-    /**
-     * Delete flag
-     * @example "NO"
-     */
-    deleteFlag: "YES" | "NO";
 }
 
 /** Define information of user group that access control */
 export interface AclUserGroup {
     id?: string;
+    internalId?: string;
     /**
      * user group name
      * @example "ITSales"
@@ -3532,6 +3649,10 @@ export interface AclUserGroup {
      * @example "IT sale dept"
      */
     groupLabel?: string;
+    /** description */
+    description?: string;
+    /** status */
+    status?: string;
     /** tenant id */
     tenantId?: string;
     /**
@@ -3566,6 +3687,7 @@ export interface ResultAclUserGroup {
 
 export interface AclUserGroupDTO {
     id?: string;
+    internalId?: string;
     /**
      * user group name
      * @example "ITSales"
@@ -3576,6 +3698,10 @@ export interface AclUserGroupDTO {
      * @example "IT sale dept"
      */
     groupLabel?: string;
+    /** description */
+    description?: string;
+    /** status */
+    status?: string;
     /** tenant id */
     tenantId?: string;
     /**
@@ -3794,12 +3920,12 @@ export interface QueryNotificationRequestDTO {
     readStatus?: string;
     type?: string;
     action?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -3859,12 +3985,12 @@ export interface QueryFileOverviewRequestDTO {
     userId?: string;
     fileUploadStatus?: string[];
     fileName?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -4103,12 +4229,12 @@ export interface ExternalProfileRequestDTO {
     name?: string;
     /** Status of the external storage profile (ACTIVE, INACTIVE, etc.) */
     status?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
@@ -4172,12 +4298,12 @@ export interface ExternalStorageRequestDTO {
     status?: string;
     /** Authentication credentials for the storage */
     credentials?: Record<string, any>;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
@@ -4225,12 +4351,12 @@ export interface ExternalStorageImportJobRequestDTO {
     startDate?: string;
     /** End date for filtering */
     endDate?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -4366,12 +4492,12 @@ export interface ListLockRequestDTO {
     orderBy?: string;
     /** The sort ASC or DESC */
     isDesc?: boolean;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Filter by lock owner */
     lock_owner?: string;
@@ -4530,12 +4656,12 @@ export interface ListTriggerSettingsRequestDTO {
     isDesc?: boolean;
     /** Filter by status: A-Active, I-Inactive */
     status?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** Filter by event type: record_created, record_updated, record_deleted, field_changed */
     event_type?: string;
@@ -4650,12 +4776,12 @@ export interface TableRequestDTO {
     fields?: Record<string, any>;
     /** Filters for list query (optional) */
     filters?: Record<string, any>;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
     /** URL name (unique per entity_id) */
     url_name?: string;
@@ -4910,12 +5036,12 @@ export interface UserDashboardRequestDTO {
     status?: string;
     /** The User ID */
     userId?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -4983,12 +5109,12 @@ export interface PluginRequestDTO {
     createdBy?: string;
     /** The record status (A,D,P.R) */
     status?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -5095,12 +5221,12 @@ export interface OcrTransactionLogRequestDTO {
      * @format date-time
      */
     endDate?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -5277,11 +5403,11 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
-    fileContentExtension?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
     fileContentDigest?: string;
     fileContentData?: string;
+    fileContentExtension?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -5591,12 +5717,12 @@ export interface IdTemplateRequestDTO {
     id?: string;
     /** Name */
     name?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6186,12 +6312,12 @@ export interface EmailTemplateRequestDTO {
     /** Email Layout ID List */
     emailLayoutIds?: number[];
     name?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6267,12 +6393,12 @@ export interface EmailLayoutRequestDTO {
     createdBy?: string;
     /** Email Layout Modified By */
     modifiedBy?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6396,12 +6522,12 @@ export interface SmartFolderRequestDTO {
     userGroupIds?: string[];
     /** Permission */
     permission?: Permission;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6476,10 +6602,10 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    watermarkedLocalPath?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
+    watermarkedLocalPath?: string;
     conversionId?: string;
     watermarkTemplateId?: string;
 }
@@ -6720,12 +6846,12 @@ export interface BasePageRequest {
     orderBy?: string;
     /** The sort ASC or DESC */
     isDesc?: boolean;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6851,12 +6977,12 @@ export interface RetentionPolicyDocumentRequestDTO {
     applyBy?: string;
     /** The Retention Policy Document Status List */
     states?: string[];
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -6964,12 +7090,12 @@ export interface HoldDocumentRequestDTO {
     documentName?: string;
     /** Document path */
     documentPath?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -7081,12 +7207,12 @@ export interface MasterTableRequestDTO {
     data?: Record<string, any>[];
     /** Where Condition */
     where?: Record<string, any>;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -7101,9 +7227,9 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
+    primaryKey?: boolean;
     unique?: boolean;
     required?: boolean;
-    primaryKey?: boolean;
 }
 
 /** Master Table ResponseDTO */
@@ -7121,9 +7247,9 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
+    create?: boolean;
     edit?: boolean;
     read?: boolean;
-    create?: boolean;
     enable?: boolean;
 }
 
@@ -7214,12 +7340,12 @@ export interface MTAuditLogRequestDTO {
     creators?: string[];
     /** Master Table Logs Principal Name list */
     eventCategory?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -7291,9 +7417,9 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
+    create?: boolean;
     edit?: boolean;
     read?: boolean;
-    create?: boolean;
     enable?: boolean;
 }
 
@@ -7559,32 +7685,24 @@ export interface SheetBlock {
     items?: Record<string, any>[];
 }
 
-export interface GitMatchInvoiceRequestDTO {
-    ocrRequestNo?: string;
-    ocrDataId?: string;
-    batchNo?: string;
+export interface ItemCandidate {
+    poNo?: string;
     /** @format int32 */
-    ocrSize?: number;
-    ocrData?: Record<string, any>[];
-    fileInfo?: Record<string, any>[];
+    poLine?: number;
+    /** @format int32 */
+    poShipmentLn?: number;
+    /** @format int64 */
+    itemId?: number;
+    itemNo?: string;
+    brand?: string;
 }
 
-export interface GITInvMatchingDTO {
-    id?: string;
-    batchNo?: string;
-    data?: GITInvoice[];
-    gitStatus?: string;
-    /** @format int32 */
-    lineSuccess?: number;
-    scriptResult?: boolean;
-}
-
-export interface ResultGITInvMatchingDTO {
+export interface ResultItemCandidate {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: GITInvMatchingDTO;
+    data?: ItemCandidate;
     messageKey?: string;
     locale?: string;
 }
@@ -7730,6 +7848,24 @@ export interface GeneratedFilingDocRequestDTO {
     creator?: string;
 }
 
+export interface MailSendWithGroupRequest {
+    fromEmail?: string;
+    to?: string;
+    tos?: string[];
+    ccs?: string[];
+    bcc?: string[];
+    subject?: string;
+    text?: string;
+    templateId?: string;
+    variables?: Record<string, any>;
+    files?: File[];
+    userId?: string;
+    accessToken?: string;
+    toGroupNames?: string[];
+    ccGroupNames?: string[];
+    bccGroupNames?: string[];
+}
+
 /** Generate Document (RequestDTO) */
 export interface GenerateDocumentRequestDTO {
     /** Generate document mode */
@@ -7806,8 +7942,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Document (Request) */
@@ -7905,12 +8041,12 @@ export interface ContactRequestDTO {
     status?: string;
     customData?: Record<string, any>;
     operator?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8103,12 +8239,12 @@ export interface FormDesignRequestDTO {
     notEquals?: Record<string, any>;
     /** Where Condition (Equal) */
     equals?: Record<string, any>;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8220,12 +8356,12 @@ export interface EasyFormResultRequestDTO {
     name?: string;
     /** Form Design Form Result List */
     formResult?: EasyFormResult;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8301,12 +8437,12 @@ export interface EasyFormEmailQueryRequestDTO {
     subject?: string;
     easyFormId?: string;
     status?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8400,8 +8536,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Versioning (Request) */
@@ -8444,12 +8580,12 @@ export interface TrashRequestDTO {
     isDesc?: boolean;
     /** Name */
     name?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -8702,11 +8838,11 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
-    fileContentExtension?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
     fileContentDigest?: string;
     fileContentData?: string;
+    fileContentExtension?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -8989,12 +9125,12 @@ export interface CompanyRequestDTO {
     website?: string;
     /** Contact Address */
     address?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9191,15 +9327,15 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
-    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
-    descSort?: SortObject;
+    delayEmail?: FCNotificationConfig;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9415,12 +9551,12 @@ export interface DocFolderCabinetRequestDTO {
     /** Email Reminder */
     emailReminder?: FCReminder;
     jpasortOrderStr?: SortObject;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9474,8 +9610,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -9821,12 +9957,12 @@ export interface CaptureProjFormSettingRequestDTO {
     name?: string;
     /** project Id */
     projectId?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -9911,12 +10047,12 @@ export interface CaptureProjRequestDTO {
     name?: string;
     /** status list */
     statusList?: string[];
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -10117,12 +10253,12 @@ export interface CaptureQueryBatchListRequestDTO {
      * @example 200045
      */
     applicantNum?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -10582,12 +10718,12 @@ export interface MessageTemplateRequestDTO {
     usages?: string;
     createdBy?: string;
     modifiedBy?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -10912,12 +11048,12 @@ export interface QueryMetadataRequestDTO {
     isDesc?: boolean;
     metadataName?: string;
     docpalTypeName?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -10989,12 +11125,12 @@ export interface MetadataRequestDTO {
     group?: string;
     dataType?: string;
     status?: string;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -11118,12 +11254,12 @@ export interface DocPalTypeRequestDTO {
     categories?: string[];
     createBys?: string[];
     metadataFieldMap?: Record<string, any>;
-    descSort?: SortObject;
     desc?: boolean;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
+    descSort?: SortObject;
     sortOrModifiedDate?: SortObject;
+    orderByValue?: string;
     sort?: SortObject;
 }
 
@@ -11359,47 +11495,12 @@ export interface ResultListPackingListBatchVO {
     locale?: string;
 }
 
-export interface GITInvoiceDTO {
-    items?: GITInvoiceLineItemDTO[];
-    kwempty?: boolean;
-    submitted?: boolean;
-    id?: string;
-    git_invoice_file_id?: string;
-    batch_no?: string;
-    group_id?: string;
-    git_date?: string;
-    invoice_num?: string;
-    /** @format int32 */
-    vendor_id?: number;
-    vendor_name?: string;
-    currency?: string;
-    org?: string;
-    /** @format int32 */
-    org_id?: number;
-    brand?: string;
-    office?: string;
-    payment_type?: string;
-    additional_cost?: string;
-    invoice_date?: string;
-    file_id?: string;
-    file_name?: string;
-    /** @format int32 */
-    total_qty?: number;
-    total_amount?: number;
-    calc_total_amt?: number;
-    cal_total_amount_from_line?: number;
-    git_status?: string;
-    /** @format int32 */
-    line_success?: number;
-    check_empty?: boolean;
-}
-
-export interface ResultListGITInvoiceDTO {
+export interface ResultListGITInvoice {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: GITInvoiceDTO[];
+    data?: GITInvoice[];
     messageKey?: string;
     locale?: string;
 }
@@ -13201,7 +13302,7 @@ export class HttpClient<SecurityDataType = unknown> {
     constructor({ securityWorker, secure, format, ...axiosConfig }: ApiConfig<SecurityDataType> = {}) {
         this.instance = axios.create({
             ...axiosConfig,
-            baseURL: axiosConfig.baseURL || "http://sit-v3.wclsolution.com",
+            baseURL: axiosConfig.baseURL || "http://uat.docpal.weltronics.com",
         });
         this.secure = secure;
         this.format = format;
@@ -13296,7 +13397,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title DocPal REST API
  * @version 0.0.1
- * @baseUrl http://sit-v3.wclsolution.com
+ * @baseUrl http://uat.docpal.weltronics.com
  *
  * DocPal REST API Documentation
  */
@@ -13393,6 +13494,41 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags WMSGITInvoiceController
+         * @name PutWmsGitInvoiceIdItemItemid
+         * @request PUT:/api/wms/git-invoice/{id}/item/{itemId}
+         */
+        putWmsGitInvoiceIdItemItemid: (
+            id: string,
+            itemId: string,
+            data: GITInvoiceLineItemDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultGITInvoiceLineItemDTO, any>({
+                path: `/api/wms/git-invoice/${id}/item/${itemId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGITInvoiceController
+         * @name DeleteWmsGitInvoiceIdItemItemid
+         * @request DELETE:/api/wms/git-invoice/{id}/item/{itemId}
+         */
+        deleteWmsGitInvoiceIdItemItemid: (id: string, itemId: string, params: RequestParams = {}) =>
+            this.request<ResultGITInvoiceLineItemDTO, any>({
+                path: `/api/wms/git-invoice/${id}/item/${itemId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Identity
          * @name PutUcenterStatus
          * @summary Update User State
@@ -13438,6 +13574,28 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<void, any>({
                 path: `/api/quotation/form/${quotationNumber}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Same validations as PUT /{quotationNumber}. Does not persist. On failure throws the same messages as update.
+         *
+         * @tags QuotationFormController
+         * @name PutQuotationFormQuotationnumberPrecheck
+         * @summary Precheck update (read-only)
+         * @request PUT:/api/quotation/form/{quotationNumber}/precheck
+         */
+        putQuotationFormQuotationnumberPrecheck: (
+            quotationNumber: string,
+            data: QuotationFormUpdateRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/quotation/form/${quotationNumber}/precheck`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -14969,7 +15127,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetDmsFormPropertiesId
          * @request GET:/api/dms/form-properties/{id}
          */
-        getDmsFormPropertiesId: (id: number, params: RequestParams = {}) =>
+        getDmsFormPropertiesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormPropertiesRelation, any>({
                 path: `/api/dms/form-properties/${id}`,
                 method: "GET",
@@ -14983,7 +15141,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PutDmsFormPropertiesId
          * @request PUT:/api/dms/form-properties/{id}
          */
-        putDmsFormPropertiesId: (id: number, data: FormPropertiesRelation, params: RequestParams = {}) =>
+        putDmsFormPropertiesId: (id: string, data: FormPropertiesRelation, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/api/dms/form-properties/${id}`,
                 method: "PUT",
@@ -15823,6 +15981,185 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags wms-test-controller
+         * @name PostWmsTestWclItemNo
+         * @request POST:/api/wms/test/wcl-item-no
+         */
+        postWmsTestWclItemNo: (data: GITInvoiceLineItemDTO, params: RequestParams = {}) =>
+            this.request<object, any>({
+                path: `/api/wms/test/wcl-item-no`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestWclItemNoNcc
+         * @request POST:/api/wms/test/wcl-item-no/ncc
+         */
+        postWmsTestWclItemNoNcc: (data: GITInvoiceLineItemDTO, params: RequestParams = {}) =>
+            this.request<object, any>({
+                path: `/api/wms/test/wcl-item-no/ncc`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestWclItemNoList
+         * @request POST:/api/wms/test/wcl-item-no/list
+         */
+        postWmsTestWclItemNoList: (data: GITInvoiceLineItemDTO, params: RequestParams = {}) =>
+            this.request<object, any>({
+                path: `/api/wms/test/wcl-item-no/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestRcvData
+         * @request POST:/api/wms/test/rcv-data
+         */
+        postWmsTestRcvData: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<RcvImpHeadersWcl, any>({
+                path: `/api/wms/test/rcv-data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestMatchData
+         * @request POST:/api/wms/test/match-data
+         */
+        postWmsTestMatchData: (data: GITInvoiceLineItemDTO, params: RequestParams = {}) =>
+            this.request<object, any>({
+                path: `/api/wms/test/match-data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestGroupId
+         * @request POST:/api/wms/test/group-id
+         */
+        postWmsTestGroupId: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<object, any>({
+                path: `/api/wms/test/group-id`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestGitInvoiceGitinvoicefileidKwEmpty
+         * @summary Verification 校验阶段 - 空值校验 & 标记人工干预（系统自动）
+         * @request POST:/api/wms/test/git-invoice/{gitInvoiceFileId}/kw-empty
+         */
+        postWmsTestGitInvoiceGitinvoicefileidKwEmpty: (gitInvoiceFileId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/test/git-invoice/${gitInvoiceFileId}/kw-empty`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestGitInvoiceUpload
+         * @summary Create new GIT MATCH INVOICE record.- ABBYY OCR 结果导入到数据表之中
+         * @request POST:/api/wms/test/git-invoice/upload
+         */
+        postWmsTestGitInvoiceUpload: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGITInvMatchingDTO, any>({
+                path: `/api/wms/test/git-invoice/upload`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestGitInvoiceUpdate
+         * @summary WCL PO‑Vendor Invoice GIT 匹配阶段 - 补充数据流程
+         * @request POST:/api/wms/test/git-invoice/update
+         */
+        postWmsTestGitInvoiceUpdate: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultGITInvoice, any>({
+                path: `/api/wms/test/git-invoice/update`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestGitInvoiceMatching
+         * @summary WCL PO‑Vendor Invoice GIT 匹配阶段 - 补充数据流程
+         * @request POST:/api/wms/test/git-invoice/matching
+         */
+        postWmsTestGitInvoiceMatching: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/test/git-invoice/matching`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name PostWmsTestGitInvoiceGroupId
+         * @summary GIT Get GROUP ID 获取 GROUP ID（系统任务，调用 Oracle 服务）
+         * @request POST:/api/wms/test/git-invoice/group-id
+         */
+        postWmsTestGitInvoiceGroupId: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultListString, any>({
+                path: `/api/wms/test/git-invoice/group-id`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags supplier-controller
          * @name PostWmsSuppliers
          * @request POST:/api/wms/suppliers
@@ -15979,7 +16316,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request POST:/api/wms/picking-orders/transfer-to-picking-data
          */
         postWmsPickingOrdersTransferToPickingData: (data: WMSScheduleDeliveryOrder, params: RequestParams = {}) =>
-            this.request<ResultListWMSPickingOrder, any>({
+            this.request<ResultBoolean, any>({
                 path: `/api/wms/picking-orders/transfer-to-picking-data`,
                 method: "POST",
                 body: data,
@@ -16029,22 +16366,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postWmsPickingOrdersCancelled: (data: WMSPickingOrderReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/api/wms/picking-orders/cancelled`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-order-controller
-         * @name PostWmsPickingOrdersAsyncData
-         * @request POST:/api/wms/picking-orders/async-data
-         */
-        postWmsPickingOrdersAsyncData: (data: WMSPickingOrderReq, params: RequestParams = {}) =>
-            this.request<ResultListWMSPickingOrder, any>({
-                path: `/api/wms/picking-orders/async-data`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16154,7 +16475,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WMSGitMatchDataController
+         * @tags WMSGITInvoiceController
          * @name PostWmsGitInvoiceIdItemAdd
          * @request POST:/api/wms/git-invoice/{id}/item/add
          */
@@ -16170,7 +16491,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WMSGitMatchDataController
+         * @tags WMSGITInvoiceController
+         * @name PostWmsGitInvoiceIdEmpty
+         * @summary TEST API
+         * @request POST:/api/wms/git-invoice/{id}/empty
+         */
+        postWmsGitInvoiceIdEmpty: (id: string, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/git-invoice/${id}/empty`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WMSGITInvoiceController
          * @name PostWmsGitInvoiceUpdate
          * @request POST:/api/wms/git-invoice/update
          */
@@ -16186,7 +16522,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WMSGitMatchDataController
+         * @tags WMSGITInvoiceController
          * @name PostWmsGitInvoiceMatching
          * @request POST:/api/wms/git-invoice/matching
          */
@@ -16202,7 +16538,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WMSGitMatchDataController
+         * @tags WMSGITInvoiceController
          * @name PostWmsGitInvoiceGroupId
          * @request POST:/api/wms/git-invoice/group-id
          */
@@ -16212,20 +16548,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WMSGitMatchDataController
-         * @name PostWmsGitInvoiceDatapatch
-         * @request POST:/api/wms/git-invoice/dataPatch
-         */
-        postWmsGitInvoiceDatapatch: (params: RequestParams = {}) =>
-            this.request<void, any>({
-                path: `/api/wms/git-invoice/dataPatch`,
-                method: "POST",
                 ...params,
             }),
 
@@ -16663,6 +16985,42 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postQuotationFormSubmit: (data: QuotationFormSubmitRequestDTO, params: RequestParams = {}) =>
             this.request<void, any>({
                 path: `/api/quotation/form/submit`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Same validations as POST /submit. Does not insert or allocate a quotation number. On failure throws the same messages as submit.
+         *
+         * @tags QuotationFormController
+         * @name PostQuotationFormSubmitPrecheck
+         * @summary Precheck submit (read-only)
+         * @request POST:/api/quotation/form/submit/precheck
+         */
+        postQuotationFormSubmitPrecheck: (data: QuotationFormSubmitRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/quotation/form/submit/precheck`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PriceAnnouncementController
+         * @name PostPriceAnnouncements
+         * @summary Save approved price announcement snapshot
+         * @request POST:/api/price-announcements
+         */
+        postPriceAnnouncements: (data: PriceAnnouncementSaveRequest, params: RequestParams = {}) =>
+            this.request<PriceAnnouncementSaveResponse, any>({
+                path: `/api/price-announcements`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19549,6 +19907,29 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EmailController
+         * @name PostDmsTemplateEmailSendWithAttachments
+         * @summary Send email with multiple attachments
+         * @request POST:/api/dms/template/email/send-with-attachments
+         */
+        postDmsTemplateEmailSendWithAttachments: (
+            data: {
+                mailSendRequest: MailSendRequest;
+                files?: File[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/template/email/send-with-attachments`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
          * @name PostDmsTemplateEmailLayoutPage
          * @summary Pagination search (Email Layout)
          * @request POST:/api/dms/template/email/layout/page
@@ -20798,7 +21179,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostDmsFormPropertiesExport
          * @request POST:/api/dms/form-properties/export
          */
-        postDmsFormPropertiesExport: (data: number[], params: RequestParams = {}) =>
+        postDmsFormPropertiesExport: (data: string[], params: RequestParams = {}) =>
             this.request<ResultListFormPropertiesRelation, any>({
                 path: `/api/dms/form-properties/export`,
                 method: "POST",
@@ -20883,6 +21264,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceWclItemNo
+         * @request POST:/api/dms/facade/wms/git-invoice/wcl-item-no
+         */
+        postDmsFacadeWmsGitInvoiceWclItemNo: (data: GITInvoiceLineItemDTO, params: RequestParams = {}) =>
+            this.request<ResultItemCandidate, any>({
+                path: `/api/dms/facade/wms/git-invoice/wcl-item-no`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
          * @name PostDmsFacadeWmsGitInvoiceUnitPrice
          * @summary WCL PO – GIT Modify Unit Price.cs
          * @request POST:/api/dms/facade/wms/git-invoice/unit-price
@@ -20903,7 +21300,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostDmsFacadeWmsGitInvoiceStoreDocument
          * @request POST:/api/dms/facade/wms/git-invoice/store-document
          */
-        postDmsFacadeWmsGitInvoiceStoreDocument: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
+        postDmsFacadeWmsGitInvoiceStoreDocument: (data: GITInvoice, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/api/dms/facade/wms/git-invoice/store-document`,
                 method: "POST",
@@ -20932,6 +21329,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceMatch
+         * @summary WCL PO‑Vendor Invoice GIT 匹配阶段 - 补充数据流程
+         * @request POST:/api/dms/facade/wms/git-invoice/match
+         */
+        postDmsFacadeWmsGitInvoiceMatch: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/facade/wms/git-invoice/match`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
          * @name PostDmsFacadeWmsGitInvoiceKeywordEmpty
          * @summary Check if the keywords are empty, and if they are, let the user decide whether to stop the process.
          * @request POST:/api/dms/facade/wms/git-invoice/keyword/empty
@@ -20939,6 +21353,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsFacadeWmsGitInvoiceKeywordEmpty: (data: GitMatchInvoiceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/api/dms/facade/wms/git-invoice/keyword/empty`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeWmsGitInvoiceGroupid
+         * @summary GIT Get GROUPID 获取 GROUP ID（系统任务，调用 Oracle 服务）
+         * @request POST:/api/dms/facade/wms/git-invoice/groupID
+         */
+        postDmsFacadeWmsGitInvoiceGroupid: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultListString, any>({
+                path: `/api/dms/facade/wms/git-invoice/groupID`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21291,12 +21722,35 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostDmsFacadeEmailSend
          * @request POST:/api/dms/facade/email/send
          */
-        postDmsFacadeEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
+        postDmsFacadeEmailSend: (data: MailSendWithGroupRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/api/dms/facade/email/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeEmailSendWithAttachments
+         * @summary Send email with multiple attachments
+         * @request POST:/api/dms/facade/email/send-with-attachments
+         */
+        postDmsFacadeEmailSendWithAttachments: (
+            data: {
+                mailSendRequest: MailSendWithGroupRequest;
+                files?: File[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/facade/email/send-with-attachments`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
                 ...params,
             }),
 
@@ -25122,6 +25576,58 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags wms-test-controller
+         * @name GetWmsTestGitInvoiceGroupIdGroupidData
+         * @summary Retrieve GROUP ID from ORACLE SYSTEM
+         * @request GET:/api/wms/test/git-invoice/group-id/{groupId}/data
+         */
+        getWmsTestGitInvoiceGroupIdGroupidData: (groupId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/test/git-invoice/group-id/${groupId}/data`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name GetWmsTestGitInvoiceDocumentStore
+         * @summary Store 存储阶段（系统任务）保存文件到DocPal系统
+         * @request GET:/api/wms/test/git-invoice/document/store
+         */
+        getWmsTestGitInvoiceDocumentStore: (data: GITInvoice, params: RequestParams = {}) =>
+            this.request<ResultObject, any>({
+                path: `/api/wms/test/git-invoice/document/store`,
+                method: "GET",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wms-test-controller
+         * @name GetWmsTestDrawingNo
+         * @request GET:/api/wms/test/drawing-no
+         */
+        getWmsTestDrawingNo: (
+            query: {
+                drawingNo: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<object, any>({
+                path: `/api/wms/test/drawing-no`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags ReceivingOrderController
          * @name GetWmsReceiveOrderPackingSupplementOrigin
          * @request GET:/api/wms/receive/order/packing/supplement/origin
@@ -25243,7 +25749,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WMSGitMatchDataController
+         * @tags WMSGITInvoiceController
          * @name GetWmsGitInvoiceId
          * @request GET:/api/wms/git-invoice/{id}
          */
@@ -25257,12 +25763,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WMSGitMatchDataController
+         * @tags WMSGITInvoiceController
          * @name GetWmsGitInvoiceBatchNoBatchno
          * @request GET:/api/wms/git-invoice/batch-no/{batchNo}
          */
         getWmsGitInvoiceBatchNoBatchno: (batchNo: string, params: RequestParams = {}) =>
-            this.request<ResultListGITInvoiceDTO, any>({
+            this.request<ResultListGITInvoice, any>({
                 path: `/api/wms/git-invoice/batch-no/${batchNo}`,
                 method: "GET",
                 ...params,
@@ -28457,6 +28963,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Facade API
+         * @name GetDmsFacadeWmsGitInvoiceBatchNoBatchno
+         * @request GET:/api/dms/facade/wms/git-invoice/batch-no/{batchNo}
+         */
+        getDmsFacadeWmsGitInvoiceBatchNoBatchno: (batchNo: string, params: RequestParams = {}) =>
+            this.request<ResultListGITInvoice, any>({
+                path: `/api/dms/facade/wms/git-invoice/batch-no/${batchNo}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
          * @name GetDmsFacadeIdTemplateUiConfig
          * @summary Generated ID using id-template
          * @request GET:/api/dms/facade/id-template/ui-config
@@ -29801,20 +30321,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultAiChatInitInfoVO, any>({
                 path: `/api/ai/ask_ai/ai_chat/queryAiChatInitInfo`,
                 method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WMSGitMatchDataController
-         * @name DeleteWmsGitInvoiceIdItemItemid
-         * @request DELETE:/api/wms/git-invoice/{id}/item/{itemId}
-         */
-        deleteWmsGitInvoiceIdItemItemid: (id: string, itemId: string, params: RequestParams = {}) =>
-            this.request<ResultGITInvoiceLineItemDTO, any>({
-                path: `/api/wms/git-invoice/${id}/item/${itemId}`,
-                method: "DELETE",
                 ...params,
             }),
 
@@ -31790,7 +32296,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PutDmsFormPropertiesId
          * @request PUT:/admin/api/dms/form-properties/{id}
          */
-        putDmsFormPropertiesId: (id: number, data: FormPropertiesRelation, params: RequestParams = {}) =>
+        putDmsFormPropertiesId: (id: string, data: FormPropertiesRelation, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/form-properties/${id}`,
                 method: "PUT",
@@ -33893,6 +34399,29 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminEmailController
+         * @name PostDmsTemplateEmailSendWithAttachments
+         * @summary Send email with multiple attachments
+         * @request POST:/admin/api/dms/template/email/send-with-attachments
+         */
+        postDmsTemplateEmailSendWithAttachments: (
+            data: {
+                mailSendRequest: MailSendRequest;
+                files?: File[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dms/template/email/send-with-attachments`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
                 ...params,
             }),
 
