@@ -78,7 +78,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
       },
       {
         code: 'permission',
-        name: 'workflow_editorPermission',
+        name: 'caseManagement.editPermission',
         visible: true,
         disabled: false,
         action: ({ row }: any) => {
