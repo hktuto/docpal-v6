@@ -137,10 +137,17 @@ onMounted(() => {
             <Icon :name="viewMode === 'grid' ? 'lucide:grid-3x2' : 'lucide:table'" />
           </div>
         </template>
-        <template #default="{ items, keyword }">
+        <template #default="{ items, keyword, sortBy, sortOrder }">
           <template v-if="viewMode === 'grid'">
             <div ref="gridContainerRef" style="height: 100%; width: 100%">
-              <VirtGrid ref="virtGridRef" :list="items" :buffer="10" :gridItems="columnCount" :style="`--list-card-width:${columnWidthPerScreen}`">
+              <VirtGrid
+                :key="items.map((item) => item.id).join('|')"
+                ref="virtGridRef"
+                :list="items"
+                :buffer="10"
+                :gridItems="columnCount"
+                :style="`--list-card-width:${columnWidthPerScreen}`"
+              >
                 <template #default="{ itemData, index, rowIndex }">
                   <DatabaseListCard :workspace="itemData" :keyword="keyword" @selected="handleWorkspaceSelected" @delete="handleWorkspaceDelete" />
                 </template>
@@ -148,7 +155,15 @@ onMounted(() => {
             </div>
           </template>
           <template v-if="viewMode === 'table'">
-            <DatabaseListTable ref="tableRef" :items="items" :keyword="keyword" @selected="handleWorkspaceSelected" @delete="handleWorkspaceDelete" />
+            <DatabaseListTable
+              ref="tableRef"
+              :items="items"
+              :keyword="keyword"
+              :sort-by="sortBy"
+              :sort-order="sortOrder"
+              @selected="handleWorkspaceSelected"
+              @delete="handleWorkspaceDelete"
+            />
           </template>
         </template>
       </UiSearchableList>
