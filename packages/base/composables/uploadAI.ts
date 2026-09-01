@@ -69,6 +69,7 @@ export const useUploadAIStore = () => {
               name: __namePaths.pop(),
               parentId: __namePaths.join('/'),
               documentType: 'Folder',
+              fileRelativePath: _path,
               children: [],
               status: 'loading'
             }
@@ -82,6 +83,8 @@ export const useUploadAIStore = () => {
         parentId: item.path,
         documentType: 'File',
         file: item.file,
+        path: item.path,
+        fileRelativePath: item.path + '/' + item.name,
         progress: 0,
         status: 'loading'
       }
@@ -102,11 +105,15 @@ export const useUploadAIStore = () => {
 
   async function handleCreateDocument(doc: any, parentPath: string, uploadRequestItem: uploadRequest) {
     let result
+    const fileRelativePath = doc.fileRelativePath || doc.id
+    const fileAbsolutePath = parentPath + fileRelativePath
+    doc.fileRelativePath = fileRelativePath
+    doc.fileAbsolutePath = fileAbsolutePath
     let _document = {
       fileName: doc.name,
       fileType: doc.documentType,
-      fileAbsolutePath: parentPath + doc.id,
-      fileRelativePath: doc.id,
+      fileAbsolutePath,
+      fileRelativePath,
       uploadId: doc.uploadId,
       userId: userId.value
     }
