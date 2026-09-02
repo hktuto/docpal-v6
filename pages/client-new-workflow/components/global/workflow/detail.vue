@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ElMessageBox } from 'element-plus'
 import { newClientApi, clientApi } from 'api'
 import { routeWorkflowPage, workflowResponseHelper } from '#imports'
 import { generateData, replaceVariables } from 'docpal-document-editor/src/utils'
@@ -417,6 +418,40 @@ function handleBack() {
   routerProvider?.navigateTo(newRoute)
 }
 
+async function handleTerminate() {
+  const processInstanceId = taskDetail.value.process_id
+  if (!processInstanceId) {
+    routerProvider?.message.error('Process instance id not found')
+    return
+  }
+  try {
+    const action = await ElMessageBox.confirm(t('workflow_terminateConfirmMsg'), {
+      confirmButtonClass: 'el-button el-button--warning',
+      dangerouslyUseHTMLString: true,
+      confirmButtonText: t('workflow_terminate')
+    })
+    if (action !== 'confirm') return
+
+    state.loading = true
+    await clientApi.instance
+      .delete(`/oniflow/api/v1/processes/instance/${processInstanceId}/terminated`)
+      .then((r: any) => workflowResponseHelper(r))
+
+    routerProvider?.message.success(t('msg_successfulOperation'))
+    routerProvider?.replace(
+      routeWorkflowPage({
+        workflowType: workflowType
+      })
+    )
+  } catch (error) {
+    console.log(error)
+    if (error === 'cancel') return
+    routerProvider?.message.error(error?.message)
+  } finally {
+    state.loading = false
+  }
+}
+
 onMounted(() => {
   const backLinks = routerProvider?.getHistory()
   if (!backItem && backLinks && backLinks.length > 0) {
@@ -463,6 +498,7 @@ onMounted(() => {
                   <template v-for="(item, index) in additionalButton" :key="index">
                     <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
                   </template>
+
                   <!--   TODO:  Save Draft is not supported.           -->
                   <!-- <el-button
                     v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"
@@ -477,6 +513,16 @@ onMounted(() => {
                       {{ $t('workflow_save') }}
                     </template>
                   </el-button>-->
+
+                  <el-button
+                    id="Workflow__AvailableTask__Detail__Form__Terminate"
+                    type="danger"
+                    :disabled="workflowType === 'completeTask'"
+                    @click="handleTerminate"
+                  >
+                    {{ $t('workflow_terminate') }}
+                  </el-button>
+
                   <el-button
                     v-if="pageButtonSetting && (nodeType !== CellType.signatureTask || signSubmitStage === 'beforeSubmit')"
                     id="Workflow__AvailableTask__Detail__Form__Submit"
