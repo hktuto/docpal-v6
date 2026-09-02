@@ -26,6 +26,14 @@ const tableRef = ref()
 
 const routerProvider = inject(MenuRouterKey)
 
+const searchKeys = ['name', 'description', 'created_at', 'updated_at'] as const
+const searchKeyLabels = {
+  name: 'tableHeader_name',
+  description: 'docType_description',
+  created_at: 'tableHeader_creationDate',
+  updated_at: 'tableHeader_lastModified'
+}
+
 // Provide search handler to SearchableList (returns filtered results)
 provide('onSearchParamsChange', null)
 
@@ -125,7 +133,8 @@ onMounted(() => {
       <UiSearchableList
         v-loading="loading"
         :data="databases"
-        :search-keys="['name', 'description']"
+        :search-keys="[...searchKeys]"
+        :custom-labels="searchKeyLabels"
         :default-sort-by="'name'"
         :default-sort-order="'asc'"
         @selected="handleWorkspaceSelected"
