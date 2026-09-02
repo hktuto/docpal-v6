@@ -61,7 +61,7 @@ const rules = {
     { required: true, message: 'Please select Part number', trigger: 'change' },
     {
       validator: async (_rule, value, callback) => {
-        const b = await checkPartNumberIsFlow(value)
+        const b = await checkPartNumberIsFlow(Number(_rule.field.split('.')[1]) + 1, value)
         if (b) {
           callback(new Error('该型号还有记录在等待审批中'))
           return
@@ -251,7 +251,7 @@ async function handleChangeBrand() {
   await getPartList('')
 }
 
-async function checkPartNumberIsFlow(partNumber: string) {
+async function checkPartNumberIsFlow(lineNumber: number, partNumber: string) {
   try {
     const allFormData = await workflowProvider?.getFormData(false, false)
     if (!allFormData.customer_name || allFormData.customer_name === '') {
@@ -264,7 +264,7 @@ async function checkPartNumberIsFlow(partNumber: string) {
         cust_name: allFormData.customer_name,
         sales_name: formData.salesperson
       },
-      lines: [{ part_number: partNumber }]
+      lines: [{ line_number: lineNumber, part_number: partNumber }]
     }
     await newClientApi.postQuotationFormSubmitPrecheck(q)
     return false
