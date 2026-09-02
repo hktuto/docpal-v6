@@ -4753,6 +4753,12 @@
   "dynamicdb_create_field": "Create Field",
   "dynamicdb_update_trigger_setting": "Update Trigger Setting",
   "dynamicdb_create_trigger_setting": "Create Trigger Setting",
+  "dynamicdb_rename_view": "重命名视图",
+  "dynamicdb_duplicate_view": "复制视图",
+  "dynamicdb_delete_view": "删除视图",
+  "dynamicdb_rename_view_prompt": "请输入视图名称",
+  "dynamicdb_delete_view_confirm": "确定要删除视图「{name}」吗？",
+  "dynamicdb_view_copy_name": "{name} 副本",
   "common_form": "Form",
   "auditLog_title": "Audit Log",
   "workflowWarehouse": {
