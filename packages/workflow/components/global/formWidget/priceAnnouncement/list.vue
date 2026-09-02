@@ -260,7 +260,7 @@ async function getPartNumber(series?: string, partNumber?: string) {
     const s = series ? `series=${series}&` : ''
     const q = partNumber ? `q=${partNumber}&` : ''
 
-    const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50`).then((r: any) => r.data.items)
+    const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50&includeCustomer=false`).then((r: any) => r.data.items)
     if (!data?.length) return
 
     partNumberOptions.value = data.map((item: any) => ({

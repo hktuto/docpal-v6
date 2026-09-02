@@ -123,7 +123,7 @@ async function searchPartList(partNumber?: string) {
 }
 
 async function getPartList(partNumber?: string) {
-  const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?q=${partNumber}&pageNum=1&pageSize=200`).then((r) => r.data.items)
+  const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?q=${partNumber}&pageNum=1&pageSize=200&includeCustomer=false`).then((r) => r.data.items)
 
   partList.value = data.map((item: any) => ({
     id: item.inventory_item_id,

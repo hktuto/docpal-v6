@@ -61,7 +61,7 @@ const rules = {
     { required: true, message: 'Please select Part number', trigger: 'change' },
     {
       validator: async (_rule, value, callback) => {
-        const b = await checkPartNumberIsFlow(value)
+        const b = await checkPartNumberIsFlow(Number(_rule.field.split('.')[1]) + 1, value)
         if (b) {
           callback(new Error('该型号还有记录在等待审批中'))
           return
@@ -226,7 +226,7 @@ async function getFormData(needValidation = true) {
 async function getPartList(part_number?: string) {
   try {
     const data = await $api
-      .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100`)
+      .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100&includeCustomer=false`)
       .then((r: any) => r.data.items)
     if (data.length === 0) return
 
@@ -251,7 +251,7 @@ async function handleChangeBrand() {
   await getPartList('')
 }
 
-async function checkPartNumberIsFlow(partNumber: string) {
+async function checkPartNumberIsFlow(lineNumber: number, partNumber: string) {
   try {
     const allFormData = await workflowProvider?.getFormData(false, false)
     if (!allFormData.customer_name || allFormData.customer_name === '') {
@@ -264,7 +264,7 @@ async function checkPartNumberIsFlow(partNumber: string) {
         cust_name: allFormData.customer_name,
         sales_name: formData.salesperson
       },
-      lines: [{ part_number: partNumber }]
+      lines: [{ line_number: lineNumber, part_number: partNumber }]
     }
     await newClientApi.postQuotationFormSubmitPrecheck(q)
     return false
