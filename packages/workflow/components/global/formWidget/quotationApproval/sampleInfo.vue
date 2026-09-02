@@ -226,7 +226,7 @@ async function getFormData(needValidation = true) {
 async function getPartList(part_number?: string) {
   try {
     const data = await $api
-      .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100`)
+      .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100&includeCustomer=false`)
       .then((r: any) => r.data.items)
     if (data.length === 0) return
 
