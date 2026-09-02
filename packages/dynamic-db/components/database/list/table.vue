@@ -54,10 +54,10 @@ defineExpose({
       <thead>
         <tr>
           <th class="col-icon"></th>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Created Date</th>
-          <th>Updated Date</th>
+          <th>{{ $t('tableHeader_name') }}</th>
+          <th>{{ $t('docType_description') }}</th>
+          <th>{{ $t('tableHeader_creationDate') }}</th>
+          <th>{{ $t('tableHeader_lastModified') }}</th>
           <th class="col-actions"></th>
         </tr>
       </thead>
