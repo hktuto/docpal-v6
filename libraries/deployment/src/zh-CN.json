@@ -4724,6 +4724,8 @@
   "workflow_taskCreateDate": "任务创建日期",
   "workflow_taskInfo": "任务信息",
   "workflow_taskName": "任务名称",
+  "workflow_terminate": "终止",
+  "workflow_terminateConfirmMsg": "确定要终止此流程实例吗？<br>此操作无法撤销。",
   "workflow_timeSinceCreated": "创建日起",
   "workflow_timeSinceSubmission": "认领日起",
   "workflow_workflow": "工作流程",

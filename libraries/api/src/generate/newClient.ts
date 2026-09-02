@@ -2848,6 +2848,7 @@ export interface ResultListSupplier {
 export interface OracleDataRequestDTO {
     invoiceNum?: string;
     vendorItemNo?: string;
+    vendorItemNoList?: string[];
     oracleSQLConfigKey?: string;
     /** @format date-time */
     lastUpdateDate?: string;
@@ -2969,6 +2970,66 @@ export interface PackingListLineItemVO {
     Checked?: boolean;
 }
 
+export interface WMSPickingOrderReq {
+    batchNo?: string;
+    orderNo?: string;
+    lineIds?: number[];
+    /** @format date-time */
+    lastUpdateDate?: string;
+    invoiceNumbers?: string[];
+}
+
+export interface ResultListWMSScheduleTransactionNote {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMSScheduleTransactionNote[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WMSScheduleTransactionNote {
+    id?: string;
+    batchId?: string;
+    status?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    updatedDate?: string;
+    /** @format int64 */
+    tnHeaderId?: number;
+    tnNumber?: string;
+    /** @format date-time */
+    tnPlannedDate?: string;
+    /** @format int32 */
+    orgId?: number;
+    fromSubinventory?: string;
+    customerName?: string;
+    toSubinventory?: string;
+    commodityInspection?: string;
+    /** @format date-time */
+    creationDate?: string;
+    createdBy?: string;
+    /** @format date-time */
+    lastUpdateDate?: string;
+    lastUpdatedBy?: string;
+    /** @format int64 */
+    tnLineId?: number;
+    /** @format int32 */
+    tnLineNum?: number;
+    poNumber?: string;
+    /** @format int32 */
+    lineNumber?: number;
+    /** @format int32 */
+    shipmentNumber?: number;
+    itemNo?: string;
+    /** @format int32 */
+    transferQuantity?: number;
+    itemOrigin?: string;
+    lineStatus?: string;
+}
+
 export interface WMSScheduleDeliveryOrder {
     id?: string;
     batchId?: string;
@@ -3022,75 +3083,6 @@ export interface WMSScheduleDeliveryOrder {
     createdDate?: string;
     /** @format date-time */
     updatedDate?: string;
-}
-
-export interface ResultListWMSScheduleDeliveryOrder {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSScheduleDeliveryOrder[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WMSPickingOrderReq {
-    batchNo?: string;
-    orderNo?: string;
-    lineIds?: number[];
-    /** @format date-time */
-    lastUpdateDate?: string;
-}
-
-export interface ResultListWMSScheduleTransactionNote {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WMSScheduleTransactionNote[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WMSScheduleTransactionNote {
-    id?: string;
-    batchId?: string;
-    status?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    updatedDate?: string;
-    /** @format int64 */
-    tnHeaderId?: number;
-    tnNumber?: string;
-    /** @format date-time */
-    tnPlannedDate?: string;
-    /** @format int32 */
-    orgId?: number;
-    fromSubinventory?: string;
-    customerName?: string;
-    toSubinventory?: string;
-    commodityInspection?: string;
-    /** @format date-time */
-    creationDate?: string;
-    createdBy?: string;
-    /** @format date-time */
-    lastUpdateDate?: string;
-    lastUpdatedBy?: string;
-    /** @format int64 */
-    tnLineId?: number;
-    /** @format int32 */
-    tnLineNum?: number;
-    poNumber?: string;
-    /** @format int32 */
-    lineNumber?: number;
-    /** @format int32 */
-    shipmentNumber?: number;
-    itemNo?: string;
-    /** @format int32 */
-    transferQuantity?: number;
-    itemOrigin?: string;
-    lineStatus?: string;
 }
 
 export interface WMSPart {
@@ -3862,8 +3854,8 @@ export interface PageNotificationRecord {
 }
 
 export interface PageableObject {
-    unpaged?: boolean;
     paged?: boolean;
+    unpaged?: boolean;
     /** @format int32 */
     pageNumber?: number;
     /** @format int32 */
@@ -5390,13 +5382,13 @@ export interface DocumentDTO {
     originalPath?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentExtension?: string;
-    /** @format int64 */
-    fileContentLength?: number;
     fileContentMimeType?: string;
     fileContentName?: string;
+    /** @format int64 */
+    fileContentLength?: number;
 }
 
 export interface FileContentDTO {
@@ -6680,8 +6672,8 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    watermarkStatus?: string;
     watermarkedLocalPath?: string;
+    watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
     watermarkTemplateId?: string;
@@ -6989,8 +6981,8 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    updateChildName?: boolean;
     ocr?: boolean;
+    updateChildName?: boolean;
     folder?: boolean;
     be_index?: boolean;
     create_by?: string;
@@ -7325,9 +7317,9 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
-    read?: boolean;
     create?: boolean;
     edit?: boolean;
+    read?: boolean;
     enable?: boolean;
 }
 
@@ -7495,9 +7487,9 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
-    read?: boolean;
     create?: boolean;
     edit?: boolean;
+    read?: boolean;
     enable?: boolean;
 }
 
@@ -8918,13 +8910,13 @@ export interface DocumentResponseDTO {
     retentionDocument?: RetentionDocument;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentExtension?: string;
-    /** @format int64 */
-    fileContentLength?: number;
     fileContentMimeType?: string;
     fileContentName?: string;
+    /** @format int64 */
+    fileContentLength?: number;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -16344,13 +16336,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags wms-picking-order-controller
-         * @name PostWmsPickingOrdersTransferToPickingData
-         * @summary Transfer to Picking Data
-         * @request POST:/api/wms/picking-orders/transfer-to-picking-data
+         * @name PostWmsPickingOrdersScanData
+         * @summary Scan the delivery order data in the Oracle EBS system and synchronize it to scheduled tables.
+         * @request POST:/api/wms/picking-orders/scan-data
          */
-        postWmsPickingOrdersTransferToPickingData: (data: WMSScheduleDeliveryOrder, params: RequestParams = {}) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/wms/picking-orders/transfer-to-picking-data`,
+        postWmsPickingOrdersScanData: (data: WMSPickingOrderReq, params: RequestParams = {}) =>
+            this.request<ResultListWMSScheduleTransactionNote, any>({
+                path: `/api/wms/picking-orders/scan-data`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16361,12 +16353,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags wms-picking-order-controller
-         * @name PostWmsPickingOrdersDeliveryOrder
-         * @request POST:/api/wms/picking-orders/delivery-order
+         * @name PostWmsPickingOrdersRetrieve
+         * @summary Retrieve Picking Order data from scheduler tables
+         * @request POST:/api/wms/picking-orders/retrieve
          */
-        postWmsPickingOrdersDeliveryOrder: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultListWMSScheduleDeliveryOrder, any>({
-                path: `/api/wms/picking-orders/delivery-order`,
+        postWmsPickingOrdersRetrieve: (data: WMSScheduleDeliveryOrder, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/wms/picking-orders/retrieve`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16399,22 +16392,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postWmsPickingOrdersCancelled: (data: WMSPickingOrderReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/api/wms/picking-orders/cancelled`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wms-picking-order-controller
-         * @name PostWmsPickingOrdersApprovedTransferNote
-         * @request POST:/api/wms/picking-orders/approved-transfer-note
-         */
-        postWmsPickingOrdersApprovedTransferNote: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultListWMSScheduleTransactionNote, any>({
-                path: `/api/wms/picking-orders/approved-transfer-note`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,

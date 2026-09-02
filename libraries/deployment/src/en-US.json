@@ -4776,6 +4776,8 @@
   "workflow_taskCreateDate": "Task Creation Date",
   "workflow_taskInfo": "Task info",
   "workflow_taskName": "Task Name",
+  "workflow_terminate": "Terminate",
+  "workflow_terminateConfirmMsg": "Are you sure you want to terminate this workflow instance?<br>This action cannot be undone.",
   "workflow_timeSinceCreated": "Time Since Created",
   "workflow_timeSinceSubmission": "Time Since Submission",
   "workflow_workflow": "workflow",
