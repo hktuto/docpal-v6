@@ -241,7 +241,11 @@ watch(
             </DatabaseDetailHeader>
 
             <div class="content-area">
-              <component :is="detailComponent" :is-admin="canManageDatabase" />
+              <component
+                :is="detailComponent"
+                :key="`${databaseMenuRouteParams.detailType}-${databaseMenuRouteParams.detailId ?? 'root'}-${databaseMenuRouteParams.pageType}`"
+                :is-admin="canManageDatabase"
+              />
             </div>
           </main>
         </el-splitter-panel>
