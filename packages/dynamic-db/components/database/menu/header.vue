@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { openMenuItemActions: openActions, database, navigateToItem, updateDatabase, databaseMenuRouteParams, currentUserPermission } = useSingleDatabaseContext()
+const { openMenuItemActions: openActions, database, resetMenuRouteToRoot, updateDatabase, databaseMenuRouteParams, currentUserPermission } = useSingleDatabaseContext()
 
 const canManageDatabase = computed(() => currentUserPermission.value === 'Manage')
 const editIconRef = ref<HTMLElement>()
@@ -38,12 +38,12 @@ function goBackList() {
 <template>
   <div class="header">
     <Icon class="backIcon" name="lucide:chevron-left" @click="goBackList" />
-    <div class="iconContainer" @click="navigateToItem()">
+    <div class="iconContainer" @click="resetMenuRouteToRoot">
       <UiIconPicker class="workspaceIcon" iconSize="var(--app-font-size-m)" :modelValue="database.metadata.icon || ''" @update:modelValue="handleIconSelected">
         {{ database?.name.slice(0, 1).toUpperCase() }}
       </UiIconPicker>
     </div>
-    <h3 @click="navigateToItem()">{{ database?.name }}</h3>
+    <h3 @click="resetMenuRouteToRoot">{{ database?.name }}</h3>
     <div class="actions">
       <div v-if="canManageDatabase" class="actionIcon" ref="editIconRef" @click="openDatabaseSetting">
         <Icon name="material-symbols:edit" />

@@ -118,7 +118,7 @@ const {
   updateViewFilterSortGroup,
   viewStyleConfig
 } = useTableViewsInject()
-const { navigateToItem, findItemById, menuState, databaseMenuRouteParams, addItem } = useSingleDatabaseContext()
+const { selectMenuItem, findItemById, menuState, databaseMenuRouteParams, addItem } = useSingleDatabaseContext()
 const { getPageParams, columns } = useDBParams()
 const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.MD_TABLE_ADD_MIRROR)
@@ -357,7 +357,9 @@ const extraColumnConfig = computed(() => {
 
 function navigateToTableMenu(tableId: string) {
   const tableItem = findItemById(menuState.value.items, tableId)
-  navigateToItem(tableItem)
+  if (tableItem) {
+    selectMenuItem(tableItem as TreeItem)
+  }
 }
 async function handleAddMirror() {
   const name = `Mirror of ${currentView?.value?.name}`

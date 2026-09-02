@@ -8,7 +8,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { menuState, startEdit, saveEdit, cancelEdit, menuItemPermissionMap, navigateToItem, openMenuItemActions, databaseMenuRouteParams, getMenuIcon } = useSingleDatabaseContext()
+const { menuState, startEdit, saveEdit, cancelEdit, menuItemPermissionMap, selectMenuItem, openMenuItemActions, databaseMenuRouteParams, getMenuIcon } = useSingleDatabaseContext()
 
 const isHovered = ref(false)
 const isDragOver = ref(false)
@@ -38,7 +38,7 @@ async function handleSaveEdit(newLabel: string) {
   if (success) {
     props.item.name = newLabel
     nextTick(() => {
-      navigateToItem(props.item)
+      selectMenuItem(props.item)
     })
   }
 }

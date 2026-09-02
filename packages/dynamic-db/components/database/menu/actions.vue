@@ -43,7 +43,7 @@ function close() {
 }
 
 function openItem() {
-  menuContext.navigateToItem(menuItem.value)
+  menuContext.selectMenuItem(menuItem.value)
 }
 
 async function handleEdit() {
@@ -123,7 +123,7 @@ async function handleViewCreated(data: { name: string; tableId: string; viewType
 
   // Navigate to the new view
   if (newItem) {
-    menuContext.navigateToItem(newItem)
+    menuContext.selectMenuItem(newItem)
   }
 }
 
