@@ -120,6 +120,7 @@ interface Props {
     currentView?: Ref<any>
     updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
     updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
+    updateViewColumnWidth?: (fieldId: string, width: number) => Promise<void> | void
     saveColumnOrder: (columnId: string, position: number) => void
     columnFilterRules: Ref<any[]>
     columnGroupRules: Ref<any[]>
@@ -142,6 +143,7 @@ const props = withDefaults(defineProps<Props>(), {
     currentView: undefined,
     updatedViewColumnsConfig: () => {},
     updateViewColumnCountMethod: async () => {},
+    updateViewColumnWidth: async () => {},
     saveColumnOrder: () => {},
     columnFilterRules: [],
     columnGroupRules: [],
@@ -241,7 +243,7 @@ const { gridEvents: baseGridEvents, relationFormPopoverRef, relationFormTableId,
   getAgg,
   isGroupingEnabled,
   updateExpandedRows,
-  updateColumn: props.extraColumnConfig.updateColumn,
+  updateViewColumnWidth: props.extraColumnConfig.updateViewColumnWidth ?? (async () => {}),
   saveColumnOrder: props.extraColumnConfig.saveColumnOrder,
   callbacks: {
     onCellClick: (params) => emit('cell-click', params),
@@ -254,9 +256,7 @@ const { gridEvents: baseGridEvents, relationFormPopoverRef, relationFormTableId,
     onRowContextMenu: (params) => {
       emit('row-context-menu', params)
     },
-    onColumnResize:(params:any) => {
-
-    },
+    onColumnResize: (params: any) => {},
     onStartEdit: (params) => emit('start-edit', params),
     onExitEdit: (params) => emit('exit-edit', params),
     onRefresh: handleRefresh

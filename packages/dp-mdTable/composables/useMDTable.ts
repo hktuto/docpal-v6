@@ -15,6 +15,7 @@ export interface mdTable {
   addColumn: (columns: any[], targetFieldId?: string, dragPos?: 'left' | 'right') => Promise<void> | void
   updatedViewColumnsConfig: (updates: Array<{ fieldId: string; hidden: boolean }>) => void
   updateViewColumnCountMethod?: (fieldId: string, countMethod: string) => Promise<void>
+  updateViewColumnWidth?: (fieldId: string, width: number) => Promise<void>
   currentView?: Ref<any>
   tableFields: any[]
   gridRef: Ref<VxeGridInstance | undefined>
@@ -30,7 +31,7 @@ export interface mdTable {
   addColumnPopoverRef: Ref<any>
   currentEditing: Ref<any[]>
 }
-export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
+export const MdTableContextKey: InjectionKey<mdTable> = Symbol.for('MdTableContextKey')
 export function useMDTable(props: any) {
   const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
   const editable = ref(props.editable)
@@ -176,10 +177,12 @@ export function useMDTable(props: any) {
   }
 }
 
-export function useMDTableInject() {
-  const MDTableReJect = inject(MdTableContextKey)
+export function useMDTableInject(): mdTable {
+  const MDTableReJect = inject(MdTableContextKey, null)
   if (!MDTableReJect) {
-    console.error('useMdTableConsumer must be used within a component that calls useMDTableProvider')
+    console.error('useMDTableInject must be used within a component that calls useMDTable')
+    // HMR 时 Symbol 可能短暂不一致；返回空对象避免解构崩溃，完整刷新后恢复
+    return {} as mdTable
   }
   return MDTableReJect
 }

@@ -111,6 +111,7 @@ const {
   addField,
   updatedViewColumnsConfig,
   updateViewColumnCountMethod,
+  updateViewColumnWidth,
   saveColumnOrder,
   columnFilterRules,
   columnSortRules,
@@ -303,6 +304,11 @@ async function handleUpdateViewColumnCountMethod(fieldId: string, countMethod: s
   broadcastColumnConfigUpdated(undefined, fieldId)
 }
 
+async function handleUpdateViewColumnWidth(fieldId: string, width: number) {
+  await updateViewColumnWidth(fieldId, width)
+  broadcastColumnConfigUpdated(undefined, fieldId)
+}
+
 async function handleSaveColumnOrder(columnId: string, targetFieldId: string, dragPos: 'left' | 'right') {
   await saveColumnOrder(columnId, targetFieldId, dragPos)
   broadcastColumnConfigUpdated(undefined, columnId)
@@ -363,6 +369,7 @@ const extraColumnConfig = computed(() => {
     currentView,
     updatedViewColumnsConfig: handleUpdatedViewColumnsConfig,
     updateViewColumnCountMethod: handleUpdateViewColumnCountMethod,
+    updateViewColumnWidth: handleUpdateViewColumnWidth,
     saveColumnOrder: handleSaveColumnOrder,
 
     columnFilterRules,
@@ -440,6 +447,7 @@ provide('viewTools', {
   mirrorList,
   updatedViewColumnsConfig: handleUpdatedViewColumnsConfig,
   updateViewColumnCountMethod: handleUpdateViewColumnCountMethod,
+  updateViewColumnWidth: handleUpdateViewColumnWidth,
   saveColumnOrder: handleSaveColumnOrder,
   refreshColumnConfig,
   updateViewFilterSortGroup,
