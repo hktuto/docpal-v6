@@ -3703,6 +3703,7 @@
   "trash_restored": "還原檔案 / 資料夾",
   "trash_restoredSelectedSuccessMsg": "The selected files and folders have been restored successfully.",
   "trash_restoredSuccessMsg": "所選檔案與資料夾已還原",
+  "uniQueIdGenerator_add_title": "ID 設定",
   "uniQueIdGenerator_creatDateVariable": "新的日期變數",
   "uniQueIdGenerator_creatTextVariable": "新的文字變數",
   "uniQueIdGenerator_date": "日期",
