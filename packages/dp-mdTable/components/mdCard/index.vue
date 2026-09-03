@@ -104,6 +104,7 @@ defineExpose({
   <div class="md-card-view">
     <ToolsBar
       :groupMaxCount="1"
+      :isMirror="isMirror"
       :showMirrorButton="!isMirror"
       :showAutomationButton="!isMirror && canManageTable"
       :showAuditLogButton="!isMirror && canManageTable"
