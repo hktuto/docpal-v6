@@ -120,8 +120,9 @@ const {
 } = useTableViewsInject()
 const { selectMenuItem, findItemById, menuState, databaseMenuRouteParams, addItem } = useSingleDatabaseContext()
 const { getPageParams, columns } = useDBParams()
-const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
+const { getRelationFieldConfig, setSingleRelationConfig, setRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.MD_TABLE_ADD_MIRROR)
+const mdTableRefreshBus = useEventBus<{ table_id?: string }>(EventType.MD_TABLE_NEED_REFRESH)
 
 
 // hocuspocus logic
@@ -257,6 +258,25 @@ async function refreshColumnConfig(viewId?: string) {
   await getViews(viewId || currentView.value?.id, { silent: true })
 }
 
+async function refreshTableRows() {
+  const table = tableRef.value
+  if (!table) return
+  if (typeof table.refreshTableData === 'function') {
+    await table.refreshTableData({ silent: true, keepPage: true })
+  } else if (typeof table.refresh === 'function') {
+    await table.refresh()
+  }
+}
+
+/** Relation establish / schema change: reload fields, relation display config, then row data */
+async function handleTableNeedRefresh(payload?: { table_id?: string }) {
+  if (!payload?.table_id || payload.table_id !== tableId.value) return
+  await getViews(currentView.value?.id, { silent: true })
+  await setRelationConfig(tableFields.value)
+  await nextTick()
+  await refreshTableRows()
+}
+
 async function handleUpdateColumn(fieldName: string, updates: any) {
   if (!fieldName) return
   await updateField(fieldName, updates)
@@ -373,8 +393,10 @@ async function handleAddMirror() {
 const stopAddMirror = addMirrorBus.on(() => {
   handleAddMirror()
 })
+const stopMdTableRefresh = mdTableRefreshBus.on(handleTableNeedRefresh)
 onBeforeUnmount(() => {
   stopAddMirror()
+  stopMdTableRefresh()
 })
 
 const mirrorList = ref<any[]>([])

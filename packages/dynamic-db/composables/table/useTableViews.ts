@@ -1,6 +1,4 @@
 import type { ViewConfig, FilterInfo } from '../../utils/databaseType'
-import { onBeforeUnmount } from 'vue'
-
 import { kanbanStyleDefault, cardStyleDefault, ganttStyleDefault, calendarStyleDefault } from '../../utils/databaseType'
 import {
   parseViewConfigList,
@@ -17,7 +15,6 @@ import {
 } from '../../utils/tableViews'
 
 import { ElMessage } from 'element-plus'
-import { EventType, useEventBus } from 'eventbus'
 import { newClientApi } from 'api'
 import type { ResultCfUserTableConfigResponseDTO } from 'api/src/generate/newClient'
 
@@ -252,7 +249,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (!view) return
     let updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
     updatedColumns = updateViewColumnOrder(updatedColumns, columnId, targetFieldId, dragPos)
-    console.log('updatedColumns', updatedColumns)
     await updateView(view.id, { columns: updatedColumns })
   }
   async function updateViewColumnCountMethod(fieldId: string, countMethod: string) {
@@ -282,16 +278,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     await updateView(view.id, { [fieldName]: value })
   }
-
-  const mdTableRefreshBus = useEventBus<{ table_id?: string }>(EventType.MD_TABLE_NEED_REFRESH)
-  const stopMdTableRefresh = mdTableRefreshBus.on((payload) => {
-    if (!payload?.table_id || payload.table_id !== tableId.value) return
-    getViews(currentView.value?.id)
-  })
-
-  onBeforeUnmount(() => {
-    stopMdTableRefresh()
-  })
 
   provide(TableViewsInjectKey, {
     tableFields,
