@@ -41,13 +41,35 @@ const listVariablesOption = computed(() => {
 const storeVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['file'])
 })
-
+const outputOptions = ref([
+  { label: 'Word', value: 'word' },
+  { label: 'PDF', value: 'pdf' },
+  { label: 'HTML', value: 'html' }
+])
+const outputFileType = ref<string>('word')
 const documentTypeList = ref<any[]>([])
-const allDocumentTemplates = ref<{ id: string; name: string; value: any }[]>([])
+const allDocumentTemplates = ref<
+  {
+    id: string
+    name: string
+    value: any
+    type: string
+    variable: string
+  }[]
+>([])
 const formData = ref<{
   http_request: any
 }>({
-  http_request: {}
+  http_request: {
+    body: {
+      templateId: '',
+      parentPath: '',
+      name: '',
+      type: 'File',
+      creator: '',
+      variables: {}
+    }
+  }
 })
 const storeValue = ref<string>('')
 const variables = ref<any[]>([])
@@ -56,6 +78,8 @@ const parentPathDisplay = ref('')
 
 async function initForm() {
   try {
+    outputFileType.value = 'word'
+    await getDocumentTemplate()
     formData.value.http_request = config.http_request
 
     if (formData.value.http_request.body.templateId === '') {
@@ -92,6 +116,23 @@ async function updateParentPathDisplay(pathId: string) {
 }
 
 function updateData() {
+  if (isWord) {
+    const index = variables.value.findIndex((item: any) => item.id === 'system_output_file_type')
+    if (index != -1) {
+      variables.value[index] = {
+        ...variables.value[index],
+        value: outputFileType.value
+      }
+    } else {
+      variables.value.push({
+        id: 'system_output_file_type',
+        name: 'Output File Type',
+        type: 'text',
+        value: outputFileType.value
+      })
+    }
+  }
+
   formData.value.http_request.body.variables = variables.value.reduce(
     (acc: Record<string, any>, { id, value }: any) => {
       acc[id] = value
@@ -115,31 +156,46 @@ function updateData() {
   })
 }
 
+const isWord = ref<boolean>(false)
 async function getTemplateVariableList() {
   variables.value = []
   const fields: any = formData.value.http_request.body.variables
 
-  const data = await newAdminApi.getDmsTemplateDocumentId(formData.value.http_request.body.templateId).then((r: any) => r.data)
-  if (data.fileType === 'Word') {
-    const variable = JsonSchemaToJsonData(data.templateVariable)
+  const find = allDocumentTemplates.value.find((item: any) => item.id === formData.value.http_request.body.templateId)
+  if (!find) return
+
+  isWord.value = false
+
+  if (find.type === 'Word') {
+    isWord.value = true
+
+    const variable = JsonSchemaToJsonData(find.variable)
     if (!variable) {
       return
     }
+    variable.push({
+      id: 'system_output_file_type',
+      name: 'Output File Type',
+      type: 'text',
+      value: ''
+    })
 
     variables.value = variable.map((item: any) => {
       Object.keys(fields).forEach((key: string) => {
         if (item.id === key) {
           item.value = fields[key]
         }
+        if (item.id === 'system_output_file_type') {
+          outputFileType.value = fields[key]
+        }
       })
       return item
     })
-
     return
   }
 
   // PDF or Excel
-  const templateVariables: any[] = JSON.parse(data.templateVariable as string)
+  const templateVariables: any[] = JSON.parse(find.variable as string)
   variables.value = templateVariables.map((item: string) => {
     return {
       id: item,
@@ -149,16 +205,20 @@ async function getTemplateVariableList() {
   })
 }
 
-async function getConfig() {
+async function getDocumentType() {
   const documentTypeData: any = await newClientApi.getDmsDocpalTypeActive().then((res) => res.data)
   documentTypeList.value = documentTypeData.filter((item: any) => !item.isFolder)
+}
 
+async function getDocumentTemplate() {
   const documentData: any = await newAdminApi.getDmsTemplateDocument().then((r: any) => r.data)
-  allDocumentTemplates.value = documentData.map((item: any): { id: string; name: string; value: any } => {
+  allDocumentTemplates.value = documentData.map((item: any) => {
     return {
       id: item.id,
       name: item.name,
-      value: item
+      value: item,
+      type: item.fileType,
+      variable: item.templateVariable
     }
   })
 }
@@ -181,7 +241,7 @@ function setPath(path: string) {
 }
 
 onMounted(async () => {
-  await getConfig()
+  await getDocumentType()
 })
 
 watch(
@@ -210,6 +270,12 @@ watch(
     <el-form-item :label="t('Document Template')" prop="templateId">
       <el-select v-model="formData.http_request.body.templateId" :placeholder="t('common_selectedIsRequiredMsg')" @change="handleChangeTemplateId">
         <el-option v-for="item in allDocumentTemplates" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+    </el-form-item>
+
+    <el-form-item v-if="isWord" label="Output File Type">
+      <el-select v-model="outputFileType" @change="updateData">
+        <el-option v-for="item in outputOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
     </el-form-item>
 
@@ -254,7 +320,7 @@ watch(
     </div>
 
     <template v-loading="loading" v-for="variable in variables" :key="variable.id">
-      <el-form-item :label="variable.name">
+      <el-form-item v-if="variable.id !== 'system_output_file_type'" :label="variable.name">
         <el-select v-model="variable.value" @change="updateData" clearable filterable>
           <el-option v-if="variable.type !== 'table'" v-for="item in defVariablesOption" :key="item.id" :label="item.name" :value="item.id" />
           <el-option v-else v-for="item in listVariablesOption" :key="item.id" :label="item.name" :value="item.id" />
