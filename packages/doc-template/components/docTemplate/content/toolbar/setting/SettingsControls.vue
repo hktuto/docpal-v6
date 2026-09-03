@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { DocTemplateProveKey, type DocTemplateVariable } from '~/utils/docTemplateHelper'
+import { type DocTemplateVariable } from '~/utils/docTemplateHelper'
 import { useI18n } from 'vue-i18n'
-import { inject, reactive, ref } from 'vue'
-import VariableForm from '../../setting/variable/variableForm.vue'
-import Manager from '../../setting/variable/manager.vue'
-import VariablePicker from '../variable/VariablePicker.vue'
 
 const provider = inject(DocTemplateProveKey)
 if (!provider) throw new Error('DocTemplateProvider not found')
@@ -12,33 +8,26 @@ const { editor, variables } = provider
 const { t } = useI18n()
 
 const state = reactive({
-  addVisible: false,
   mangerVisible: false,
   insertVariableVisible: false
 })
-
-const formMode = ref<'create' | 'edit'>('create')
-const selectedVariable = ref<DocTemplateVariable | null>(null)
-const renderKey = ref(0)
+const variableFormRef = ref()
+const variablePickerRef = ref()
 
 function handleOpenManagerCreate() {
-  formMode.value = 'create'
-  selectedVariable.value = null
-  state.addVisible = true
+  variableFormRef.value.open()
 }
 
-function handleFormSubmit(payload: { mode: 'create' | 'edit'; variable: any }) {
-  if (payload.mode === 'create') {
-    provider?.addVariable?.({ ...payload.variable })
-  } else {
-    provider?.updateVariable?.({ ...payload.variable })
-  }
-  renderKey.value++
-  state.addVisible = false
+function handleFormSubmit(variable: DocTemplateVariable) {
+  provider?.addVariable?.({ ...variable })
 }
 
-function handleFormCancel() {
-  state.addVisible = false
+function handleUpdate(variable: DocTemplateVariable) {
+  provider?.updateVariable?.({ ...variable })
+}
+
+function handleOpenPicker() {
+  variablePickerRef.value.open()
 }
 
 function handlePickerSelect(variable: DocTemplateVariable) {
@@ -83,20 +72,10 @@ function handlePickerSelect(variable: DocTemplateVariable) {
   editor.value.commands.focus(to + 1)
   state.insertVariableVisible = false
 }
-
-function handlePickerClose() {
-  state.insertVariableVisible = false
-}
 </script>
 
 <template>
   <div>
-    <!-- Import -->
-    <LazyDocTemplateContentSettingImport />
-
-    <!-- Export -->
-    <LazyDocTemplateContentSettingExport />
-
     <!-- Variable Manager -->
     <el-dropdown class="ordinary-button" style="margin-left: 4px">
       <el-button>
@@ -110,47 +89,28 @@ function handlePickerClose() {
           <el-dropdown-item @click="state.mangerVisible = true">
             {{ t('docTemplate.variable.editVariable') }}
           </el-dropdown-item>
-          <el-dropdown-item @click="state.insertVariableVisible=true">
+          <el-dropdown-item @click="handleOpenPicker">
             {{ t('docTemplate.variable.insertVariable') }}
           </el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
-
     <!-- Page Setting -->
     <LazyDocTemplateContentSettingPage />
+    <!-- Import -->
+    <LazyDocTemplateContentSettingImport />
+    <!-- Export -->
+    <LazyDocTemplateContentSettingExport />
   </div>
 
   <!-- add visible -->
-  <el-dialog v-model="state.addVisible"
-             :title="formMode === 'create' ? t('docTemplate.utils.variableManager.add') : t('docTemplate.variable.editVariable')"
-             class="big"
-             destroy-on-close
-             append-to-body
-  >
-    <VariableForm
-      v-if="state.addVisible"
-      :mode="formMode"
-      :variable="selectedVariable"
-      :variables="provider.variables"
-      @submit="handleFormSubmit"
-      @cancel="handleFormCancel"
-    />
-  </el-dialog>
-
+  <DocTemplateContentSettingVariableForm ref="variableFormRef" @submit="handleFormSubmit" @update="handleUpdate" />
   <!-- edit visible-->
-  <el-dialog v-model="state.mangerVisible" class="big">
-    <Manager />
+  <el-dialog v-model="state.mangerVisible" class="big" title="Visible">
+    <DocTemplateContentSettingVariableManager />
   </el-dialog>
-
   <!-- insert visible -->
-  <VariablePicker
-
-    :variables="variables"
-    :visible="state.insertVariableVisible"
-    @select="handlePickerSelect"
-    @close="handlePickerClose"
-  />
+  <DocTemplateContentToolbarVariablePicker ref="variablePickerRef" :variables="variables" :visible="state.insertVariableVisible" @select="handlePickerSelect" />
 </template>
 
 <style scoped lang="scss">
@@ -169,4 +129,4 @@ function handlePickerClose() {
     }
   }
 }
-</style> 
+</style>

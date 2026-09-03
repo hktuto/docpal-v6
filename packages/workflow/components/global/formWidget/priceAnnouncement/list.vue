@@ -102,7 +102,7 @@ function getColumns() {
     },
     {
       field: 'supplierPartNumber',
-      title: '供应商零件编号 Supplier Part Number ',
+      title: '供应商零件编号 Supplier Part Number',
       minWidth: 240,
       slots: { default: 'supplierPartNumber' }
     },
