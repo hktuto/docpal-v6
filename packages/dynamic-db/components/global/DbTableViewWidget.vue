@@ -24,6 +24,7 @@
 import { useTableViews } from '../../composables/table/useTableViews'
 import { useRelationConfig } from '../../composables/table/useRelationConfig'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import { EventType, useEventBus } from 'eventbus'
 
 const props = withDefaults(
   defineProps<{
@@ -80,6 +81,18 @@ useDashboardLiveUpdate(tableId, async () => {
   // Silent getViews only syncs column config — row data needs an explicit
   // refetch (aggregate footer counts stay stale: MdTable exposes no getAgg).
   gridRef.value?.refresh?.()
+})
+
+const mdTableRefreshBus = useEventBus<{ table_id?: string }>(EventType.MD_TABLE_NEED_REFRESH)
+const stopMdTableRefresh = mdTableRefreshBus.on(async (payload) => {
+  if (!payload?.table_id || payload.table_id !== tableId.value) return
+  await getViews(currentView.value?.id, { silent: true })
+  await setRelationConfig(tableFields.value)
+  await nextTick()
+  gridRef.value?.refresh?.()
+})
+onBeforeUnmount(() => {
+  stopMdTableRefresh()
 })
 
 function handleDelete() {
