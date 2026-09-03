@@ -32,6 +32,12 @@ const { getVariablesByDisplayTypes } = useVariablesProvide()
 const stringVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['text'], true)
 })
+const defVariablesOption = computed(() => {
+  return getVariablesByDisplayTypes(['text', 'number', 'timestamp', 'date'], true)
+})
+const listVariablesOption = computed(() => {
+  return getVariablesByDisplayTypes(['array', 'object'], true)
+})
 const storeVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['file'])
 })
@@ -250,7 +256,8 @@ watch(
     <template v-loading="loading" v-for="variable in variables" :key="variable.id">
       <el-form-item :label="variable.name">
         <el-select v-model="variable.value" @change="updateData" clearable filterable>
-          <el-option v-for="item in stringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-if="variable.type !== 'table'" v-for="item in defVariablesOption" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-else v-for="item in listVariablesOption" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
     </template>
