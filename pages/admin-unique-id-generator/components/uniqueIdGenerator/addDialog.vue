@@ -19,7 +19,7 @@ function handleOpen() {
 }
 
 const rules = reactive([
-  { required: true, message: t('render.hint.fieldRequired', { name: t('dpTable_name') }), trigger: 'blur' }
+  { required: true, message: t('render.hint.fieldRequired', { name: t('uniQueIdGenerator_name') }), trigger: 'blur' }
 ])
 
 const formRef = ref()
@@ -54,9 +54,9 @@ async function handleSubmit() {
 defineExpose({ handleOpen })
 </script>
 <template>
-  <el-dialog v-model="state.visible" :title="t('uniQueIdGenerator_duplicate')" width="500">
+  <el-dialog v-model="state.visible" :title="t('uniQueIdGenerator_add_title')" width="500">
     <el-form ref="formRef" label-position="top">
-      <el-form-item prop="name" :label="t('dpTable_name')" :rules="rules">
+      <el-form-item prop="name" :label="t('uniQueIdGenerator_name')" :rules="rules">
         <el-input v-model="name" />
       </el-form-item>
     </el-form>
