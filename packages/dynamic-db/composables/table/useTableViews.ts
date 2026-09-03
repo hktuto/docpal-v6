@@ -39,11 +39,12 @@ export interface ViewContext {
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
   updatedViewColumnsConfig: (updates: Array<{ id: string; hidden: boolean }>) => Promise<void>
   updateViewColumnCountMethod: (fieldId: string, countMethod: string) => Promise<void>
+  updateViewColumnWidth: (fieldId: string, width: number) => Promise<void>
   updateViewFilterSortGroup: (fieldName: 'filterInfo' | 'sortInfo' | 'groupInfo' | 'style', value: any) => Promise<void>
   saveColumnOrder: (columnId: string, targetFieldId: string, dragPos: 'left' | 'right') => Promise<void>
 }
 
-export const TableViewsInjectKey: InjectionKey<ViewContext> = Symbol('TableViewsInjectKey')
+export const TableViewsInjectKey: InjectionKey<ViewContext> = Symbol.for('TableViewsInjectKey')
 
 export interface UseTableViewsOptions {
   tableId: Ref<string>
@@ -263,6 +264,18 @@ export function useTableViews(options: UseTableViewsOptions) {
       currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
     }
   }
+  async function updateViewColumnWidth(fieldId: string, width: number) {
+    const view = currentView.value
+    if (!view) return
+    const updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
+    const targetColumn = updatedColumns.find((col: any) => String(col.id) === String(fieldId))
+    if (!targetColumn) return
+    targetColumn.width = width
+    await updateView(view.id, { columns: updatedColumns })
+    if (currentView.value) {
+      currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    }
+  }
   async function updateViewFilterSortGroup(fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo' | 'style', value: any) {
     const view = currentView.value
     if (!view) return
@@ -296,6 +309,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     updateField,
     updatedViewColumnsConfig,
     updateViewColumnCountMethod,
+    updateViewColumnWidth,
     saveColumnOrder,
     updateViewFilterSortGroup,
     viewStyleConfig
@@ -319,6 +333,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     updateField,
     updatedViewColumnsConfig,
     updateViewColumnCountMethod,
+    updateViewColumnWidth,
     saveColumnOrder,
     updateViewFilterSortGroup
   }
