@@ -3665,7 +3665,7 @@
   "uniQueIdGenerator_latestId": "最后的ID",
   "uniQueIdGenerator_name": "名称",
   "uniQueIdGenerator_prefix": "前缀",
-  "uniQueIdGenerator_setting": "设定",
+  "uniQueIdGenerator_setting": "变量设定",
   "uniQueIdGenerator_startingNumber": "起始号码",
   "uniQueIdGenerator_suffix": "后缀",
   "uniQueIdGenerator_variable": "变量",
