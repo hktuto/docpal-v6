@@ -8,7 +8,6 @@ import {
 } from '#components'
 import { mockRouterProvider } from './util'
 import { adminApi } from './mock/api'
-import editVariableTagForm from '~/components/uniqueIdGenerator/editVariableTagForm.vform.json'
 import addDialogForm from '~/components/uniqueIdGenerator/addDialog.vform.json'
 import duplicateDialogForm from '~/components/uniqueIdGenerator/duplicateDialog.vform.json'
 
@@ -80,9 +79,10 @@ describe('[admin-unique-id-generator]UniqueIdGeneratorDetail', () => {
     await wrapper.vm.$nextTick()
     expect(adminApi.api.getIdTemplatesId).toHaveBeenCalled()
     expect(wrapper.vm.state.form).toEqual(data)
-    expect(wrapper.vm.state.example).toEqual(data)
-    expect(wrapper.vm.state.prefix).toEqual(['{var(qwe)}', '{date(yyyy-MM-dd HH:mm)}'])
-    expect(wrapper.vm.state.suffix).toEqual([])
+    expect(wrapper.vm.state.example.prefix).toEqual(data.prefix)
+    expect(wrapper.vm.state.example.suffix).toEqual(data.suffix)
+    expect(wrapper.vm.affixExpressions.prefix).toEqual(['{var(qwe)}', '{date(yyyy-MM-dd HH:mm)}'])
+    expect(wrapper.vm.affixExpressions.suffix).toEqual([])
   })
 
   it('should example Label the component correctly', async () => {
@@ -129,201 +129,111 @@ describe('[admin-unique-id-generator]UniqueIdGeneratorDetail', () => {
     expect(wrapper.vm.state.uniqueId).toBe(data)
   })
 
-  it('should handleDate the component correctly', async () => {
-    const testCase = [
-      { status: true, setting: true },
-      { status: false, setting: true }
-    ]
-
-    for (const { status, setting } of testCase) {
-      await wrapper.vm.handleDate(status, setting)
-      await wrapper.vm.$nextTick()
-      expect(wrapper.vm.state.isAddVariable).toBe(setting)
-      expect(wrapper.vm.itemData.type).toBe('date')
-      expect(wrapper.vm.state.dialogFormVisible).toBe(true)
+  it('should handleOpenTag the component correctly', async () => {
+    wrapper.vm.variableDialogRef = {
+      handleOpen: vi.fn()
     }
-  })
 
-  it('should handleVariable the component correctly', async () => {
-    const testCase = [
-      { status: true, setting: false },
-      { status: false, setting: false }
-    ]
+    await wrapper.vm.handleOpenTag('prefix', 'date')
+    expect(wrapper.vm.variableDialogRef.handleOpen).toHaveBeenCalledWith('prefix', 'date')
 
-    for (const { status, setting } of testCase) {
-      await wrapper.vm.handleVariable(status, setting)
-      await wrapper.vm.$nextTick()
-      expect(wrapper.vm.state.isAddVariable).toBe(setting)
-      expect(wrapper.vm.itemData.type).toBe('variable')
-      expect(wrapper.vm.state.dialogFormVisible).toBe(true)
-    }
+    await wrapper.vm.handleOpenTag('suffix', 'variable')
+    expect(wrapper.vm.variableDialogRef.handleOpen).toHaveBeenCalledWith('suffix', 'variable')
   })
 
   it('should handleAddItemTag date the component correctly', async () => {
-    const formData = {
-      isPrefix: true,
-      isDateType: true,
-      dateFormat: 'yyyy-mm-dd'
-    }
-    wrapper.vm.itemData.type = 'date'
-    wrapper.vm.FormRendererRef = {
-      getFormData: vi.fn().mockResolvedValue(formData),
-      vFormRenderRef: {
-        resetForm: vi.fn()
-      }
-    }
-    await wrapper.vm.handleAddItemTag()
-    await wrapper.vm.$nextTick()
-
-    // expect(wrapper.vm.state.prefix).toEqual([`{date(${formData.dateFormat})}`])
-    const requestExpect = [{
+    const item = {
       expression: '{date(yyyy-mm-dd)}',
       index: 0,
       type: 'date',
       value: 'yyyy-mm-dd'
-    }]
+    }
 
-    // expect(wrapper.vm.state.form.prefix).toEqual(requestExpect)
-    // expect(wrapper.vm.state.example.prefix).toEqual(requestExpect)
-    expect(wrapper.vm.itemData).toEqual({})
-    expect(wrapper.vm.state.dialogFormVisible).toBe(false)
+    await wrapper.vm.handleVariableConfirm({ item, key: 'prefix', isEdit: false })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.state.form.prefix).toEqual([item])
+    expect(wrapper.vm.state.example.prefix).toEqual([item])
+    expect(wrapper.vm.affixExpressions.prefix).toEqual([item.expression])
   })
 
   it('should handleAddItemTag variable the component correctly', async () => {
-    const formData = {
-      isPrefix: true,
-      isDateType: false,
-      variableName: 'qwe',
-      variableValue: '123'
-    }
-    wrapper.vm.itemData.type = 'variable'
-    wrapper.vm.FormRendererRef = {
-      getFormData: vi.fn().mockResolvedValue(formData),
-      vFormRenderRef: {
-        resetForm: vi.fn()
-      }
-    }
-    await wrapper.vm.handleAddItemTag()
-    await wrapper.vm.$nextTick()
-
-    // expect(wrapper.vm.state.prefix).toEqual([`{var(${formData.variableName})}`])
-    const requestExpect = [{
+    const item = {
       expression: '{var(qwe)}',
       index: 0,
       type: 'variable',
       value: '123'
-    }]
+    }
 
-    // expect(wrapper.vm.state.form.prefix).toEqual(requestExpect)
-    // expect(wrapper.vm.state.example.prefix).toEqual(requestExpect)
-    // expect(wrapper.vm.itemData).toEqual({})
-    expect(wrapper.vm.state.dialogFormVisible).toBe(false)
+    await wrapper.vm.handleVariableConfirm({ item, key: 'prefix', isEdit: false })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.state.form.prefix).toEqual([item])
+    expect(wrapper.vm.state.example.prefix).toEqual([item])
+    expect(wrapper.vm.affixExpressions.prefix).toEqual([item.expression])
   })
 
   it('should handleEditVariable the component correctly', async () => {
-    wrapper.vm.state.prefix = ['123', '321']
     wrapper.vm.state.form.prefix = [
       { index: 0, type: 'variable', expression: '{var(qwe)}', value: '123' },
       { index: 1, type: 'string', expression: '-', value: '-' }
     ]
 
-    const testVariableCase = {
-      index: 0,
-      type: 'variable',
-      expression: '{var(qwe)}',
-      value: '321'
-    }
+    const handleOpenEdit = vi.fn()
+    wrapper.vm.variableDialogRef = { handleOpenEdit }
 
-    const formData = {
-      index: 0,
-      type: 'variable',
-      isPrefix: true,
-      variableName: 'ewq',
-      variableValue: '321'
-    }
-
-    wrapper.vm.editFormRendererRef = {
-      getFormData: vi.fn(() => Promise.resolve(formData)),
-      vFormRenderRef: {
-        resetForm: vi.fn(),
-        setFormJson: vi.fn().mockResolvedValue(editVariableTagForm)
-      }
-    }
-
-    wrapper.vm.state.editVisible = true
-    await wrapper.vm.handleEditVariable(true, testVariableCase.value, testVariableCase.index)
+    await wrapper.vm.handleEditVariable('prefix', 0)
     await wrapper.vm.$nextTick()
 
-    const request = {
+    expect(handleOpenEdit).toHaveBeenCalledWith({
       index: 0,
       type: 'variable',
-      isPrefix: true,
-      variableName: 'ewq',
-      variableValue: '321'
-    }
-
-    // expect(wrapper.vm.editFormRendererRef.vFormRenderRef.getFormData).toEqual(request)
-    expect(wrapper.vm.state.editVisible).toBe(true)
+      affixKey: 'prefix',
+      variableName: 'qwe',
+      variableValue: '123'
+    })
   })
 
   it('should handleEditItemTag the component correctly', async () => {
-    wrapper.vm.state.prefix = ['123', '321']
-    const prefix = [
+    wrapper.vm.state.form.prefix = [
       { index: 0, type: 'variable', expression: '{var(qwe)}', value: '123' },
       { index: 1, type: 'string', expression: '-', value: '-' }
     ]
-    wrapper.vm.state.form.prefix = prefix
+    wrapper.vm.state.example.prefix = deepCopy(wrapper.vm.state.form.prefix)
 
-    const formData = {
+    const item = {
       index: 0,
       type: 'variable',
-      isPrefix: true,
       expression: '{var(qwe)}',
       value: '111'
     }
 
-    wrapper.vm.state.editVisible = true
-
-    wrapper.vm.editFormRendererRef = {
-      getFormData: vi.fn(() => Promise.resolve(formData)),
-      vFormRenderRef: {
-        resetForm: vi.fn(),
-        setFormJson: vi.fn().mockResolvedValue(editVariableTagForm)
-      }
-    }
-
-    await wrapper.vm.handleEditItemTag()
+    await wrapper.vm.handleVariableConfirm({ item, key: 'prefix', isEdit: true })
     await wrapper.vm.$nextTick()
-    expect(wrapper.vm.state.editVisible).toBe(false)
+
+    expect(wrapper.vm.state.form.prefix[0]).toEqual(item)
+    expect(wrapper.vm.state.example.prefix[0]).toEqual(item)
+    expect(wrapper.vm.affixExpressions.prefix[0]).toBe('{var(qwe)}')
   })
 
   it('should handleAddItemTag the component correctly', async () => {
-    wrapper.vm.state.prefix = ['123', '321']
-    const prefix = [
+    wrapper.vm.state.form.prefix = [
       { index: 0, type: 'variable', expression: '{var(qwe)}', value: '123' },
       { index: 1, type: 'string', expression: '-', value: '-' }
     ]
-    wrapper.vm.state.form.prefix = prefix
+    wrapper.vm.state.example.prefix = deepCopy(wrapper.vm.state.form.prefix)
 
-    const formData = {
+    const item = {
       index: 0,
       type: 'variable',
-      isPrefix: true,
-      variableName: 'newVar',
-      variableValue: '111'
-    }
-    wrapper.vm.editFormRendererRef = {
-      getFormData: vi.fn().mockResolvedValue(formData),
-      vFormRenderRef: {
-        resetForm: vi.fn(),
-        setFormJson: vi.fn().mockResolvedValue(editVariableTagForm)
-      }
+      expression: '{var(newVar)}',
+      value: '111'
     }
 
-    await wrapper.vm.handleEditItemTag()
+    await wrapper.vm.handleVariableConfirm({ item, key: 'prefix', isEdit: true })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.state.prefix[0]).toBe('{var(newVar)}')
+    expect(wrapper.vm.affixExpressions.prefix[0]).toBe('{var(newVar)}')
     expect(wrapper.vm.state.form.prefix[0]).toEqual({
       expression: '{var(newVar)}',
       value: '111',
@@ -336,11 +246,9 @@ describe('[admin-unique-id-generator]UniqueIdGeneratorDetail', () => {
       type: 'variable',
       index: 0
     })
-    expect(wrapper.vm.state.editVisible).toBe(false)
   })
 
-  it('should handleChangeTag the ', async () => {
-    wrapper.vm.state.prefix = ['{var(ewq)}', '-', '{var(qwe)}']
+  it('should handleAffixTagsChange the ', async () => {
     wrapper.vm.state.form.prefix = [
       { index: 0, type: 'variable', expression: '{var(qwe)}', value: '123' },
       { index: 1, type: 'string', expression: '-', value: '-' },
@@ -353,10 +261,11 @@ describe('[admin-unique-id-generator]UniqueIdGeneratorDetail', () => {
       { index: 2, type: 'variable', expression: '{var(qwe)}', value: '123' }
     ]
 
-    await wrapper.vm.handleChangeTag(true)
-    await wrapper.vm.$nextTick
+    await wrapper.vm.handleAffixTagsChange('prefix', ['{var(ewq)}', '-', '{var(qwe)}'])
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.state.form.prefix).toEqual(newPrefix)
+    expect(wrapper.vm.state.example.prefix).toEqual(newPrefix)
   })
 
   it('should handleSubmit the component correctly', async () => {
