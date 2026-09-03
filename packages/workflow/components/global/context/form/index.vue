@@ -79,7 +79,7 @@ function update() {
     version: (data.version || 0) + 1
   }
   if (!!formKey.value && formKey.value !== '') {
-    newData.config.human_task.form_key = formKey.value.toString()
+    newData.config.human_task.form_key = formKey.value
     newData.config.human_task.form_fields = formField.value
   }
 
@@ -126,9 +126,11 @@ function handleUpdateFormField(field: any) {
 async function getFormJson() {
   formJson.value = {}
   try {
-    const data: any = await newClientApi.getDmsFormPropertiesId(Number(formKey.value)).then((r) => r.data)
-    if (!data) return {}
-    formJson.value = data.jsonValue
+    if (formKey.value !== '') {
+      const data: any = await newClientApi.getDmsFormPropertiesId(formKey.value).then((r) => r.data)
+      if (!data) return {}
+      formJson.value = data.jsonValue
+    }
   } catch (e) {
     console.log(e)
   }
