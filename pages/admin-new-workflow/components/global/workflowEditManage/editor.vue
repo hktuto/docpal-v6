@@ -50,6 +50,7 @@ async function getWorkflowData() {
 
 function handleSave() {
   workflowEditorRef.value?.saveWorkflowJSON()
+  isActivate.value = false
 }
 
 async function handleStatus() {
