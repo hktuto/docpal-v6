@@ -468,6 +468,7 @@ async function saveWorkflowJSON() {
     const newWorkflowJson = x6NodeToWorkflowJson(graph.value, workflowJson.value)
     await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}`, newWorkflowJson).then((r: any) => r.data)
     workflowJson.value = newWorkflowJson
+    isNew.value = false
   } catch (e) {
     routerProvider?.message.error(e)
     console.log(e)
