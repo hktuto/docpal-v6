@@ -4,6 +4,7 @@
     <ToolsBar
       :mode="mode"
       :disabled="(isMirror || !canManageTable) && mode !== 'page'"
+      :isMirror="isMirror"
       :showMirrorButton="!isMirror && canManageTable"
       :showAutomationButton="!isMirror && canManageTable"
       :showAuditLogButton="!isMirror && canManageTable"

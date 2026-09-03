@@ -347,6 +347,7 @@ onBeforeUnmount(() => {
 <div ref="kanbanContainerRef" class="kanbanViewContainer">
     <ToolsBar
       v-if="showToolbar"
+      :isMirror="isMirror"
        :showMirrorButton="!isMirror && canManageTable"
       :showAutomationButton="!isMirror && canManageTable"
       :showAuditLogButton="!isMirror && canManageTable"
