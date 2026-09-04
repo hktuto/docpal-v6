@@ -267,7 +267,7 @@ async function handleChangeWorkflow() {
     }
 
     const startEventNode = data.content?.nodes?.find((item: any) => {
-      if (item.type == 'StartEvent' || item.type.type == 'startevent') return item
+      if (item.type == 'StartEvent') return item
     })
 
     const map: any[] = startEventNode.config?.initialise?.form_fields.map((field: any) => ({

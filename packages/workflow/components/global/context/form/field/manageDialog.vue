@@ -14,8 +14,8 @@ const searchData = ref({
   type: ''
 })
 
-const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
-  id: 'WorkflowVariableManage',
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
+  id: 'WorkflowUserFormVariableManage',
   zoom: false,
   virtualScroll: true,
   api: () => {
@@ -38,7 +38,16 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       }
     ]
   ],
-  permissionMethod: ({ row, code }: { row: any; code?: string }) => {},
+  permissionMethod: ({ row, code }: { row: any; code?: string }) => {
+    if (!row) {
+      return { visible: false, disabled: false }
+    }
+
+    return {
+      visible: false,
+      disabled: true
+    }
+  },
   optionalConfig: {
     rowConfig: {
       keyField: 'id'
@@ -57,7 +66,7 @@ function handleDblclick(row: any) {
 }
 
 function updateFormField(field: any) {
-  emits('updateFormField', field)
+  emits('update', field)
   reload()
 }
 

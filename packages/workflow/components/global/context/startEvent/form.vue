@@ -2,7 +2,7 @@
 import type { Node } from '@antv/x6'
 import { useWorkflowAdditionalContext } from '@packages/workflow/composables/useWorkflow'
 import { newClientApi } from 'api'
-import { type VariableItem } from '#imports'
+import { type VariableSelectItem } from '#imports'
 
 const { getVariablesByDisplayTypes } = useVariablesProvide()
 const { t } = useI18n()
@@ -30,7 +30,7 @@ const variables = computed(() => {
   return {
     labelKey: 'name',
     nameKey: 'id',
-    data: variableList.filter((item: VariableItem) => !item.id.startsWith('__system__')) || []
+    data: variableList.filter((item: VariableSelectItem) => !item.id.startsWith('__system__')) ?? []
   }
 })
 const isEdit = computed(() => {
@@ -53,6 +53,7 @@ function update() {
     version: (nodeData.version || 0) + 1
   }
   newData.config.initialise.form_key = formKey.value.toString()
+  newData.config.initialise.form_fields = getVariablesByDisplayTypes()
 
   node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-start-setting-data')

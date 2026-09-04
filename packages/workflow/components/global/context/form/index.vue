@@ -99,7 +99,7 @@ function updateFormField() {
   // formField.value = variables.value.filter((item: any) => !item.id.startsWith('__system__')).map((n: any) => byId.get(n.id) ?? n)
 
   // TODO: 存在array 與object 類型的值類型，因爲全局修改導致數據格式，user form 沒有同步修改（全部同步，後續需要使用上面的代碼，需要提供一個獨自同步單獨一個字段的數據格式的按鈕）
-  formField.value = variables.value
+  formField.value = variables.value ?? []
 }
 
 async function previewForm() {
@@ -171,7 +171,7 @@ watch(
     </div>
   </el-form>
 
-  <LazyContextFormFieldManageDialog ref="contextFormFieldManageDialogRef" :form-field="formField" @updateFormField="handleUpdateFormField" />
+  <LazyContextFormFieldManageDialog ref="contextFormFieldManageDialogRef" :form-field="formField" @update="handleUpdateFormField" />
   <LazyContextFormDialog ref="formDialogRef" :node="node" :variables="variablesData" :processKey="workflowKey" :formKey="formKey" @submit="handelSubmitForm" />
   <el-dialog v-model="formRenderVisible" class="big" distory-on-close append-to-body draggable>
     <div style="height: 800px">
