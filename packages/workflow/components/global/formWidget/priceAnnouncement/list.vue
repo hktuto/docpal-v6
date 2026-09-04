@@ -398,7 +398,7 @@ function init() {
   formModel.priceAnnouncementNumber = formData.priceAnnouncementNumber
   formModel.brand = formData.brand
   formModel.effectiveDate = formData.effective_date
-  formModel.submittedBy = formData.submitter
+  formModel.submittedBy = formData.submittedBy
   formModel.dateSubmitted = formData.date_submitted
 
   nextTick(() => {
