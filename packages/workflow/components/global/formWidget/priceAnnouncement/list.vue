@@ -426,7 +426,7 @@ onMounted(() => {
 
 async function getFormData(needValidation = true) {
   const list = tableData.value.map((item: tableDataType, index: number) => ({
-    lineNo: index,
+    lineNo: index + 1,
     endCustomerProject: item.endCustomer,
     priceGroup: item.priceGroup,
     supplierPartNumber: item.supplierPartNumber,
