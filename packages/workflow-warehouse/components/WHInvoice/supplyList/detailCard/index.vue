@@ -18,13 +18,7 @@
             :required="item.required"
             @save="(v) => handleSave(v, item)"
           />
-          <WHDetailItem
-            v-else
-            :label="item.label"
-            :text-value="unref(item.value)"
-            :type="item.type"
-            :disabled="true"
-          />
+          <WHDetailItem v-else :label="item.label" :text-value="unref(item.value)" :type="item.type" :disabled="true" />
         </template>
       </div>
     </template>
@@ -85,13 +79,7 @@ const list = ref([
   },
   {
     label: t('workflowWarehouse.fileName'),
-    value: computed(
-      () =>
-        selectedInvoice.value?.file?.file_name ||
-        selectedInvoice.value?.file?.name ||
-        selectedInvoice.value?.fileName ||
-        '—'
-    ),
+    value: computed(() => selectedInvoice.value?.file?.file_name || selectedInvoice.value?.file?.name || selectedInvoice.value?.fileName || '—'),
     type: 'text'
   },
   {
@@ -118,10 +106,7 @@ async function handleSave(value: string, item: any) {
   const invoiceData: Record<string, any> = { [item.field]: payloadValue }
   if (item.field === 'vendorId' && !!payloadValue) {
     const matched = SupplierList.value.find(
-      (opt) =>
-        String(opt.value) === String(payloadValue) ||
-        String(opt.label) === String(payloadValue) ||
-        String(opt.shortName) === String(payloadValue)
+      (opt) => String(opt.value) === String(payloadValue) || String(opt.label) === String(payloadValue) || String(opt.shortName) === String(payloadValue)
     )
     invoiceData.vendorId = matched ? String(matched.value) : String(payloadValue)
     invoiceData.vendorName = matched?.label ?? null
@@ -200,12 +185,8 @@ watch(
   () => {
     const invoice = selectedInvoice.value
     if (!invoice) return
-    invoice.vendorId =
-      syncSelectField(invoice.vendorId ?? invoice.vendor_id, SupplierList.value) ||
-      syncSelectField(invoice.vendorName ?? invoice.vendor_name, SupplierList.value)
-    invoice.orgId =
-      syncSelectField(invoice.orgId ?? invoice.org_id, OrgList.value) ||
-      syncSelectField(invoice.org, OrgList.value)
+    if (invoice.vendorId && SupplierList.value.length) invoice.vendorId = syncSelectField(invoice.vendorId, SupplierList.value)
+    if (invoice.orgId && OrgList.value.length) invoice.orgId = syncSelectField(invoice.orgId, OrgList.value)
   },
   { immediate: true }
 )
