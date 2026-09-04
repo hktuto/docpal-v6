@@ -3,7 +3,6 @@
     :ok="statusCounts.ok"
     :all="statusCounts.all"
     :loading="loading"
-    :disabled="disabled"
     @approve="handleApprove"
   />
 </template>
