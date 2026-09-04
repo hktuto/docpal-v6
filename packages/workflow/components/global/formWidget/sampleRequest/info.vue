@@ -142,7 +142,8 @@ async function searchSeriesList(series?: string) {
 }
 
 async function getSeriesList(series?: string) {
-  const data = await clientApi.instance.get(`apis/v1/ms/oracle/series?q=${series}&pageNum=1&pageSize=200`).then((r) => r.data.items)
+  const s = series ? `q=${series}&` : ''
+  const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${s}pageNum=1&pageSize=200`).then((r) => r.data.items)
   seriesList.value = data.map((item: any) => ({
     label: item.displayName,
     value: item.value
