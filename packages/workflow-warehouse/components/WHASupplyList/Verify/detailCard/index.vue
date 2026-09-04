@@ -178,10 +178,10 @@ watch(
   () => {
     const invoice = selectedInvoice.value
     if (!invoice) return
-    invoice[SGLA.VendorId] = syncSelectField(invoice[SGLA.VendorId], SupplierList.value)
-    invoice[SGLA.Org] = syncSelectField(invoice[SGLA.Org], OrgList.value)
+    if (invoice[SGLA.VendorId] && SupplierList.value.length) invoice[SGLA.VendorId] = syncSelectField(invoice[SGLA.VendorId], SupplierList.value)
+    if (invoice[SGLA.Org] && OrgList.value.length) invoice[SGLA.Org] = syncSelectField(invoice[SGLA.Org], OrgList.value)
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 onMounted(async () => {
