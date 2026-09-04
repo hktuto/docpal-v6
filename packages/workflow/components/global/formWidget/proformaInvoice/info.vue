@@ -205,7 +205,7 @@ defineExpose({ getFormData })
       <el-col :span="6">
         <el-form-item label="辦事處 Office" prop="office" required>
           <el-select v-model="searchFormModel.office" filterable clearable placeholder="One of the options must be selected." @change="getBranchOffices">
-            <el-option v-for="item in officeOptions" :key="item.org_id" :label="item.org_name" :value="item.org_id" />
+            <el-option v-for="item in officeOptions" :key="item.org_id" :label="item.organization_code" :value="item.org_id" />
           </el-select>
         </el-form-item>
       </el-col>

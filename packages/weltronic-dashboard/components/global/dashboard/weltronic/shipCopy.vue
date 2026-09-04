@@ -64,7 +64,7 @@ async function getOrgOptions() {
     baseURL: '/apis'
   })
   orgOptions.value = (res.data.items || []).map((item: any) => ({
-    label: item.org_name,
+    label: item.organization_code,
     value: String(item.org_id)
   }))
 }

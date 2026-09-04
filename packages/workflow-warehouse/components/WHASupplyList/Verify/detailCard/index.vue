@@ -164,7 +164,7 @@ async function getOrgList() {
     const { data } = await newClientApi.getWmsOrganizationList()
     OrgList.value = data
       .map((item: any) => ({
-        label: item.org_name || item.org_id,
+        label: item.organization_code || item.org_id,
         value: item.org_id
       }))
       .filter((item) => item.value)
