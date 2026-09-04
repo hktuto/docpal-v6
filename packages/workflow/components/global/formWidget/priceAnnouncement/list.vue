@@ -19,16 +19,14 @@ type tableDataType = {
   originalUnitPrice: number
   newUnitPrice: number
   adjustmentRate: number
-  approvalRemark?: string
+  approvalRemark: string
 }
 
 const selectList = ref<tableDataType[]>([])
-const paNumber = ref<string>('')
-const brand = ref<string>('ABBYY')
-const effectiveDate = ref()
 const search = ref<string>('')
 const tableData = ref<tableDataType[]>([])
 const isApproval = ref<boolean>(false)
+const isReview = ref<boolean>(false)
 const templateUrl = new URL('./PriceAnnouncement_Upload_Template.xlsx', import.meta.url).href
 const brandOptions = ref<any[]>([])
 const IMPORT_FIELDS = ['endCustomer', 'priceGroup', 'supplierPartNumber', 'currency', 'originalUnitPrice', 'newUnitPrice'] as const
@@ -42,15 +40,24 @@ const currencyOptions = ref([
 const seriesOptions = ref<any[]>([])
 const partNumberOptions = ref<any[]>([])
 const formModel = reactive({
-  selectedRowsListLength: 0
+  priceAnnouncementNumber: '',
+  brand: 'ABBYY',
+  effectiveDate: dayjs(Date.now()).format('YYYY-MM-DD'),
+  submittedBy: '',
+  dateSubmitted: 0,
+  listLength: 0
 })
 const formRef = ref()
+const headerFormRef = ref()
 const rules = {
-  selectedRowsListLength: [
+  brand: [{ required: true, message: '请选择品牌', trigger: 'change' }],
+  effectiveDate: [{ required: true, message: '请选择生效日期', trigger: 'change' }],
+  listLength: [
     {
       validator: (_rule, value, callback) => {
         if (!value || Number(value) < 1) {
           callback(new Error(''))
+          ElMessage.error('请选择需要公告的零件')
           return
         }
         callback()
@@ -61,9 +68,9 @@ const rules = {
 }
 
 watch(
-  selectList,
+  tableData,
   (list) => {
-    formModel.selectedRowsListLength = list.length
+    formModel.listLength = list.length
   },
   { immediate: true }
 )
@@ -95,7 +102,7 @@ function getColumns() {
     },
     {
       field: 'supplierPartNumber',
-      title: '供应商零件编号 Supplier Part Number ',
+      title: '供应商零件编号 Supplier Part Number',
       minWidth: 240,
       slots: { default: 'supplierPartNumber' }
     },
@@ -127,7 +134,9 @@ function getColumns() {
 
   if (!isApproval.value) {
     defList.unshift(checkboxCol)
-  } else {
+  }
+
+  if (isApproval.value || isReview.value) {
     defList.push(approvalRemark)
   }
 
@@ -187,13 +196,20 @@ function handleAddRow() {
     currency: '',
     originalUnitPrice: 0,
     newUnitPrice: 0,
-    adjustmentRate: 0
+    adjustmentRate: 0,
+    approvalRemark: ''
   })
   reload()
 }
 
 function handleDelete(row: tableDataType) {
-  tableData.value = tableData.value.filter((item) => item !== row)
+  tableData.value = tableData.value.filter((item: tableDataType) => item !== row)
+  reload()
+}
+
+function handleDeleteSelected() {
+  tableData.value = tableData.value.filter((item: tableDataType) => !selectList.value.includes(item))
+  selectList.value = []
   reload()
 }
 
@@ -240,11 +256,11 @@ async function getSeries(series?: string) {
 
 async function getPartNumber(series?: string, partNumber?: string) {
   try {
-    const b = brand.value ? `brand=${brand.value}&` : ''
+    const b = formModel.brand ? `brand=${formModel.brand}&` : ''
     const s = series ? `series=${series}&` : ''
     const q = partNumber ? `q=${partNumber}&` : ''
 
-    const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50`).then((r: any) => r.data.items)
+    const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50&includeCustomer=false`).then((r: any) => r.data.items)
     if (!data?.length) return
 
     partNumberOptions.value = data.map((item: any) => ({
@@ -293,6 +309,7 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
   const file = uploadFile.raw
   if (!file) return
 
+  tableConfig.loading = true
   try {
     const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' })
     const sheet = workbook.Sheets[workbook.SheetNames[0]]
@@ -307,10 +324,10 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
 
     const effectiveDateField: any[] = (rows[0] ?? []).slice(0, 2)
     if (effectiveDateField.length < 2) {
-      effectiveDate.value = ''
+      formModel.effectiveDate = ''
       ElMessage.error('无法获取生效日期.')
     } else {
-      effectiveDate.value = parseEffectiveDate(effectiveDateField[1])
+      formModel.effectiveDate = parseEffectiveDate(effectiveDateField[1])
     }
 
     tableData.value = rows
@@ -319,7 +336,7 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
       .map((row: any) => {
         return {
           endCustomer: row[fieldIndexes[0]],
-          priceGroup: brand.value === 'KOA' ? row[fieldIndexes[1]] : '',
+          priceGroup: formModel.brand === 'KOA' ? row[fieldIndexes[1]] : '',
           supplierPartNumber: row[fieldIndexes[2]],
           currency: row[fieldIndexes[3]],
           originalUnitPrice: parseNumber(row[fieldIndexes[4]]),
@@ -328,15 +345,18 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
         }
       }) as tableDataType[]
 
-    tableRef.value?.loadData(tableData.value)
+    reload()
+    selectList.value = []
     ElMessage.success(`${tableData.value.length} rows imported.`)
   } catch {
     ElMessage.error('Unable to read the Excel file.')
+  } finally {
+    tableConfig.loading = false
   }
 }
 
 watch(
-  () => brand.value,
+  () => formModel.brand,
   (newValue, oldValue) => {
     if (newValue === oldValue) return
 
@@ -356,7 +376,30 @@ watch(
   { immediate: true, deep: true }
 )
 
-function init() {}
+function init() {
+  isApproval.value = formData.is_approval
+  isReview.value = formData.is_review
+  tableConfig.columns = getColumns()
+  tableData.value = formData.list.map((item: any) => ({
+    endCustomer: item.endCustomerProject,
+    priceGroup: item.priceGroup,
+    supplierPartNumber: item.supplierPartNumber,
+    currency: item.currency,
+    originalUnitPrice: item.originalUnitPrice,
+    newUnitPrice: item.newUnitPrice,
+    adjustmentRate: item.adjustmentRate,
+    approvalRemark: item.approverRemark
+  }))
+  formModel.priceAnnouncementNumber = formData.priceAnnouncementNumber
+  formModel.brand = formData.brand
+  formModel.effectiveDate = formData.effective_date
+  formModel.submittedBy = formData.submitter
+  formModel.dateSubmitted = formData.date_submitted
+
+  nextTick(() => {
+    reload()
+  })
+}
 
 watch(
   () => formData.list,
@@ -377,7 +420,7 @@ onMounted(() => {
 })
 
 async function getFormData(needValidation = true) {
-  const list = selectList.value.map((item: tableDataType, index: number) => ({
+  const list = tableData.value.map((item: tableDataType, index: number) => ({
     lineNo: index,
     endCustomerProject: item.endCustomer,
     priceGroup: item.priceGroup,
@@ -386,15 +429,21 @@ async function getFormData(needValidation = true) {
     originalUnitPrice: item.originalUnitPrice,
     newUnitPrice: item.newUnitPrice,
     adjustmentRate: item.adjustmentRate,
-    approverRemark: ''
+    approverRemark: item.approvalRemark ?? ''
   }))
 
-  const result = {
-    brand: brand.value,
-    effectiveDate: dayjs(effectiveDate).format('yyyy-mm-dd'),
-    list
-  }
+  const result = !isApproval.value
+    ? {
+        brand: formModel.brand,
+        effective_date: formModel.effectiveDate,
+        list
+      }
+    : {
+        list
+      }
+
   if (!needValidation) return result
+  await Promise.all([headerFormRef.value?.validate(), formRef.value?.validate()])
   return result
 }
 
@@ -402,37 +451,47 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-row>
-    <el-col v-if="isApproval" :span="5">
-      <el-form-item label="PA編號 PA Number">
-        <el-input v-model="paNumber" />
-      </el-form-item>
-    </el-col>
-    <el-col :span="!isApproval ? 6 : 4">
-      <el-form-item label="品牌 Brand" prop="brand">
-        <el-select v-model="brand" filterable placeholder="Select an option" style="width: 90%" @change="handleGetSeries">
-          <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-    </el-col>
-    <el-col :span="!isApproval ? 6 : 5">
-      <el-form-item label="生效日期 Effective Date">
-        <el-date-picker v-model="effectiveDate" type="date" format="YYYY/MMM/DD" value-format="x" style="width: 90%" />
-      </el-form-item>
-    </el-col>
-    <el-col v-if="isApproval" :span="5">
-      <el-form-item label="提交人 Submitter">
-        <el-input v-model="submittedBy" />
-      </el-form-item>
-    </el-col>
-    <el-col v-if="isApproval" :span="5">
-      <el-form-item label="提交日期 Date Submitted">
-        <el-date-picker v-model="date_submitted" type="date" format="YYYY/MMM/DD" value-format="x" style="width: 90%" />
-      </el-form-item>
-    </el-col>
-  </el-row>
+  <el-form ref="headerFormRef" :model="formModel" :rules="rules" label-position="top">
+    <el-row>
+      <el-col v-if="isApproval" :span="5">
+        <el-form-item label="PA編號 PA Number">
+          <el-input v-model="formModel.priceAnnouncementNumber" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="!isApproval ? 6 : 4">
+        <el-form-item label="品牌 Brand" prop="brand" required>
+          <el-select v-model="formModel.brand" filterable placeholder="Select an option" :disabled="isApproval" style="width: 90%" @change="handleGetSeries">
+            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="!isApproval ? 6 : 5">
+        <el-form-item label="生效日期 Effective Date" prop="effectiveDate" required>
+          <el-date-picker
+            v-model="formModel.effectiveDate"
+            type="date"
+            format="YYYY/MMM/DD"
+            value-format="YYYY-MM-DD"
+            style="width: 90%"
+            :disabled="isApproval"
+            :clearable="false"
+          />
+        </el-form-item>
+      </el-col>
+      <el-col v-if="isApproval" :span="5">
+        <el-form-item label="提交人 Submitter">
+          <el-input v-model="formModel.submittedBy" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+      <el-col v-if="isApproval" :span="5">
+        <el-form-item label="提交日期 Date Submitted">
+          <el-date-picker v-model="formModel.dateSubmitted" type="date" format="YYYY/MMM/DD" value-format="x" style="width: 90%" disabled />
+        </el-form-item>
+      </el-col>
+    </el-row>
+  </el-form>
 
-  <div style="height: 60vh">
+  <div style="height: 75vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="toolbar-actions">
@@ -452,10 +511,10 @@ defineExpose({ getFormData })
           </div>
           <el-form v-if="!isApproval" ref="formRef" class="toolbar-actions__form" :model="formModel" :rules="rules" label-position="left" inline>
             <div class="toolbar-actions__right">
-              <el-form-item label="已選中數量 Selected Quantity" prop="selectedRowsListLength">
-                <el-input v-model="formModel.selectedRowsListLength" disabled style="width: 100px; margin-right: 10px" />
+              <el-form-item label="數量 Quantity" prop="listLength">
+                <el-input v-model="formModel.listLength" disabled style="width: 100px; margin-right: 10px" />
                 <el-button v-if="selectList.length === 0" type="primary" :icon="Plus" @click="handleAddRow">Add Row</el-button>
-                <el-button v-else :icon="Delete" type="danger">Delete Selected</el-button>
+                <el-button v-else :icon="Delete" type="danger" @click="handleDeleteSelected">Delete Selected {{ selectList.length }}</el-button>
               </el-form-item>
             </div>
           </el-form>
@@ -469,7 +528,7 @@ defineExpose({ getFormData })
         <el-select-v2
           v-model="row.priceGroup"
           v-else
-          :disabled="brand !== 'KOA'"
+          :disabled="formModel.brand !== 'KOA'"
           filterable
           allow-create
           remote
@@ -482,13 +541,15 @@ defineExpose({ getFormData })
         />
       </template>
       <template #supplierPartNumber="{ row, index }">
+        <el-input v-model="row.supplierPartNumber" v-if="isApproval" disabled />
         <el-select-v2
+          v-else
           v-model="row.supplierPartNumber"
           :disabled="isApproval"
           filterable
           allow-create
           remote
-          :remote-method="(value) => getPartNumber(row.priceGroup, value)"
+          :remote-method="(value: string) => getPartNumber(row.priceGroup, value)"
           remote-show-suffix
           clearable
           :options="partNumberOptions"
@@ -530,7 +591,7 @@ defineExpose({ getFormData })
         </el-input>
       </template>
       <template #approvalRemark="{ row, index }">
-        <el-input :disabled="isApproval" />
+        <el-input v-model="row.approvalRemark" :disabled="!isApproval" />
       </template>
     </VxeGrid>
   </div>

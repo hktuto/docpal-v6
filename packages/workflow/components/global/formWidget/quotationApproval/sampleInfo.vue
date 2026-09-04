@@ -2,12 +2,15 @@
 import { Delete, Plus } from '@element-plus/icons-vue'
 import { clientApi, newClientApi } from 'api'
 import { v7 as uuidv7 } from 'uuid'
+import { ElMessage } from 'element-plus'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
   options: any
 }>()
+const workflowProvider = inject('workflowFormRender')
+
 const eFormData = computed(() => {
   return formData
 })
@@ -51,10 +54,23 @@ const formModel = ref<{
   infoList: []
 })
 const data = toRef(formModel.value, 'infoList')
-const brandOptions = ref<string[]>([])
+const brandOptions = ref<any[]>([])
 const part_numberOptions = ref([])
 const rules = {
-  part_number: [{ required: true, message: 'Please select Part number', trigger: 'change' }],
+  part_number: [
+    { required: true, message: 'Please select Part number', trigger: 'change' },
+    {
+      validator: async (_rule, value, callback) => {
+        const b = await checkPartNumberIsFlow(Number(_rule.field.split('.')[1]) + 1, value)
+        if (b) {
+          callback(new Error('该型号还有记录在等待审批中'))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ],
   product_application: [{ required: true, message: 'Please input product application', trigger: 'blur' }],
   monthly_quantity: [{ required: true, type: 'number', message: 'Please input monthly quantity', trigger: 'change' }],
   old_sales_price_noTax: [{ required: true, message: 'Please input Old Sales Price(NoTax)', trigger: 'blur' }]
@@ -210,7 +226,7 @@ async function getFormData(needValidation = true) {
 async function getPartList(part_number?: string) {
   try {
     const data = await $api
-      .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100`)
+      .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100&includeCustomer=false`)
       .then((r: any) => r.data.items)
     if (data.length === 0) return
 
@@ -235,8 +251,31 @@ async function handleChangeBrand() {
   await getPartList('')
 }
 
+async function checkPartNumberIsFlow(lineNumber: number, partNumber: string) {
+  try {
+    const allFormData = await workflowProvider?.getFormData(false, false)
+    if (!allFormData.customer_name || allFormData.customer_name === '') {
+      ElMessage.error('请选择客戶編號!')
+      return false
+    }
+    const q = {
+      header: {
+        org_id: formData.org_id,
+        cust_name: allFormData.customer_name,
+        sales_name: formData.salesperson
+      },
+      lines: [{ line_number: lineNumber, part_number: partNumber }]
+    }
+    await newClientApi.postQuotationFormSubmitPrecheck(q)
+    return false
+  } catch (e) {
+    console.log(e)
+    return true
+  }
+}
+
 function handlePartNumberChange(item: any) {
-  const find = part_numberOptions.value.find((part_numberItem: any) => part_numberItem.value === item.part_number)
+  const find: any = part_numberOptions.value.find((part_numberItem: any) => part_numberItem.value === item.part_number)
   if (!!find) {
     item.mpq = find.mpq
     item.uom = find.uom
@@ -332,7 +371,7 @@ defineExpose({ getFormData })
 
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="型號 Part Number" :prop="`infoList.${index}.part_number`" required>
+            <el-form-item label="型號 Part Number" :prop="`infoList.${index}.part_number`" :rules="rules.part_number">
               <el-select-v2
                 v-model="item.part_number"
                 filterable

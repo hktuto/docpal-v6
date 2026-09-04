@@ -26,6 +26,14 @@ const tableRef = ref()
 
 const routerProvider = inject(MenuRouterKey)
 
+const searchKeys = ['name', 'description', 'created_at', 'updated_at'] as const
+const searchKeyLabels = {
+  name: 'tableHeader_name',
+  description: 'docType_description',
+  created_at: 'tableHeader_creationDate',
+  updated_at: 'tableHeader_lastModified'
+}
+
 // Provide search handler to SearchableList (returns filtered results)
 provide('onSearchParamsChange', null)
 
@@ -116,16 +124,17 @@ onMounted(() => {
 <template>
   <div class="pageContainer">
     <div class="pageHeader">
-      <h1 class="title">Databases</h1>
+      <h1 class="title">Total Database : {{databases.length}}</h1>
       <div class="actions">
-        <ElButton type="primary" @click="handleCreateWorkspace">Create Databases ({{ databases.length }})</ElButton>
+        <ElButton type="primary" @click="handleCreateWorkspace">Create Databases</ElButton>
       </div>
     </div>
     <div class="workspaceList">
       <UiSearchableList
         v-loading="loading"
         :data="databases"
-        :search-keys="['name', 'description']"
+        :search-keys="[...searchKeys]"
+        :custom-labels="searchKeyLabels"
         :default-sort-by="'name'"
         :default-sort-order="'asc'"
         @selected="handleWorkspaceSelected"
@@ -137,10 +146,17 @@ onMounted(() => {
             <Icon :name="viewMode === 'grid' ? 'lucide:grid-3x2' : 'lucide:table'" />
           </div>
         </template>
-        <template #default="{ items, keyword }">
+        <template #default="{ items, keyword, sortBy, sortOrder }">
           <template v-if="viewMode === 'grid'">
             <div ref="gridContainerRef" style="height: 100%; width: 100%">
-              <VirtGrid ref="virtGridRef" :list="items" :buffer="10" :gridItems="columnCount" :style="`--list-card-width:${columnWidthPerScreen}`">
+              <VirtGrid
+                :key="items.map((item) => item.id).join('|')"
+                ref="virtGridRef"
+                :list="items"
+                :buffer="10"
+                :gridItems="columnCount"
+                :style="`--list-card-width:${columnWidthPerScreen}`"
+              >
                 <template #default="{ itemData, index, rowIndex }">
                   <DatabaseListCard :workspace="itemData" :keyword="keyword" @selected="handleWorkspaceSelected" @delete="handleWorkspaceDelete" />
                 </template>
@@ -148,7 +164,15 @@ onMounted(() => {
             </div>
           </template>
           <template v-if="viewMode === 'table'">
-            <DatabaseListTable ref="tableRef" :items="items" :keyword="keyword" @selected="handleWorkspaceSelected" @delete="handleWorkspaceDelete" />
+            <DatabaseListTable
+              ref="tableRef"
+              :items="items"
+              :keyword="keyword"
+              :sort-by="sortBy"
+              :sort-order="sortOrder"
+              @selected="handleWorkspaceSelected"
+              @delete="handleWorkspaceDelete"
+            />
           </template>
         </template>
       </UiSearchableList>

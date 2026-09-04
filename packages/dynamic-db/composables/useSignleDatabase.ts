@@ -2,6 +2,7 @@ import type { DatabaseItem, DatabaseMenuRouteParams } from '../utils/databaseTyp
 import { newClientApi, clientApi } from 'api'
 import { useUserId } from '../../authApp/composables/useAuth'
 import { MenuType } from '@packages/dp-mdTable/types/menu-type'
+import { MenuRouterKey } from '@packages/base/utils/menuType'
 import DisplayMetaTable from '../../../pages/admin-document-type/components/docType/displayMetaTable.vue'
 
 export type PermissionLevel = 'Member' | 'Manage'
@@ -66,7 +67,8 @@ export interface SingleDatabaseCopntext {
   cancelEdit: () => void
   deleteItem: (id: string) => Promise<void>
   addItem: (parent_id: string | null, type: CaseTreeItemType, viewData?: ViewCreationData) => Promise<TreeItem>
-  navigateToItem: (item?: TreeItem) => void
+  selectMenuItem: (item: TreeItem, pageType?: 'setting' | 'detail') => void
+  resetMenuRouteToRoot: () => void
   goBackFromRecord: () => void
   openSetting: (slug: string, type: CaseTreeItemType) => void
   getMenuFromDb: () => Promise<void>
@@ -389,6 +391,44 @@ export const useSingleDatabase = () => {
     })
   }
 
+  // add router Provider here to sync naviate item to routerProvider
+  const routerProvider = inject(MenuRouterKey)
+
+  function findMenuItemByTableId(items: MenuDTO[], tableId: string): MenuDTO | undefined {
+    for (const item of items) {
+      if ((item.item_type === 'master_table' || item.item_type === 'view') && item.item_id === tableId) {
+        return item
+      }
+      if (item.children) {
+        const found = findMenuItemByTableId(item.children, tableId)
+        if (found) return found
+      }
+    }
+    return undefined
+  }
+
+  function shouldNavigateBackAfterDelete(params: DatabaseMenuRouteParams): boolean {
+    if (params.pageType === 'setting' && params.detailId) {
+      if (!findItemById(menuState.value.items, params.detailId)) {
+        return true
+      }
+    }
+
+    if (params.detailId && params.detailType !== 'root') {
+      if (!findItemById(menuState.value.items, params.detailId)) {
+        return true
+      }
+    }
+
+    if (params.detailType === 'record' && params.tableId) {
+      if (!findMenuItemByTableId(menuState.value.items, params.tableId)) {
+        return true
+      }
+    }
+
+    return false
+  }
+
   function startEdit(id: string) {
     menuState.value.editingItemId = id
   }
@@ -409,9 +449,14 @@ export const useSingleDatabase = () => {
   }
 
   async function deleteItem(id: string) {
+    const routeParamsBeforeDelete = { ...databaseMenuRouteParams.value }
+
     await newClientApi.deleteDynamicDbMenusId(id)
-    // Update local state
     menuState.value.items = removeItemById(menuState.value.items, id)
+
+    if (shouldNavigateBackAfterDelete(routeParamsBeforeDelete)) {
+      routerProvider?.back()
+    }
   }
 
   async function addItem(parent_id: string | null, type: CaseTreeItemType, viewData?: ViewCreationData): Promise<TreeItem> {
@@ -457,18 +502,22 @@ export const useSingleDatabase = () => {
     return data
   }
 
-  // add router Provider here to sync naviate item to routerProvider
-  const routerProvider = inject(MenuRouterKey)
-
-  async function navigateToItem(item?: TreeItem, pageType: 'setting' | 'detail' = 'detail') {
-    databaseMenuRouteParams.value.parentId = item?.parent_id || null
+  function resetMenuRouteToRoot() {
+    databaseMenuRouteParams.value.detailId = null
+    databaseMenuRouteParams.value.detailType = 'root'
+    databaseMenuRouteParams.value.pageType = 'detail'
+    databaseMenuRouteParams.value.parentId = null
     databaseMenuRouteParams.value.viewId = null
     databaseMenuRouteParams.value.tableId = null
-    if (!item) {
-      databaseMenuRouteParams.value.detailId = null
-      databaseMenuRouteParams.value.detailType = 'root'
-      return
-    }
+    databaseMenuRouteParams.value.item_id = null
+    databaseMenuRouteParams.value.recordId = null
+  }
+
+  function selectMenuItem(item: TreeItem, pageType: 'setting' | 'detail' = 'detail') {
+    databaseMenuRouteParams.value.parentId = item.parent_id || null
+    databaseMenuRouteParams.value.viewId = null
+    databaseMenuRouteParams.value.tableId = null
+    databaseMenuRouteParams.value.recordId = null
     ensureMenuItemPermission(item.id)
     switch (item.item_type) {
       case MenuType.folder:
@@ -498,14 +547,6 @@ export const useSingleDatabase = () => {
       default:
         console.warn('Unknown item type:', item.item_type)
     }
-    routerProvider?.updateProps({
-      detailId: databaseMenuRouteParams.value.detailId,
-      detailType: databaseMenuRouteParams.value.detailType,
-      item_id: databaseMenuRouteParams.value.item_id,
-      pageType: databaseMenuRouteParams.value.pageType,
-      viewId: databaseMenuRouteParams.value.viewId,
-      tableId:databaseMenuRouteParams.value.tableId
-    })
   }
 
   /**
@@ -535,14 +576,12 @@ export const useSingleDatabase = () => {
 
       const tableItem = findTableTreeItem(menuState.value.items)
       if (tableItem) {
-        navigateToItem(tableItem)
+        selectMenuItem(tableItem)
         return
       }
     }
 
-    // Fallback to root
-    databaseMenuRouteParams.value.detailType = 'root'
-    databaseMenuRouteParams.value.detailId = null
+    resetMenuRouteToRoot()
   }
 
   function openSetting(slug: string, type: CaseTreeItemType) {
@@ -593,7 +632,8 @@ export const useSingleDatabase = () => {
     cancelEdit,
     deleteItem,
     addItem,
-    navigateToItem,
+    selectMenuItem,
+    resetMenuRouteToRoot,
     goBackFromRecord,
     openSetting,
     getMenuFromDb,

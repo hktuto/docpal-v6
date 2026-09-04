@@ -174,17 +174,13 @@ onMounted(() => {
   width: 200px;
 }
 
-:deep(.vxe-buttons--wrapper) {
+:deep(.vxe-button--item-wrapper) {
+  width: 100%;
   justify-content: space-between;
 
   .responsive-container {
-    width: 70%;
+    flex: 1;
+    min-width: 0;
   }
-}
-
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
 }
 </style>

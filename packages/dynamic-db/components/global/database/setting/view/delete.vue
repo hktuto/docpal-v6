@@ -7,7 +7,7 @@ const props = defineProps<{
 }>()
 
 
-const { deleteItem, navigateToItem } = useSingleDatabaseContext()
+const { deleteItem } = useSingleDatabaseContext()
 
 const loading = ref(false)
 const viewData = ref<CaseViewRecord | null>(null)
@@ -58,7 +58,6 @@ async function handleDelete() {
     await deleteItem(props.menuItem.id)
 
     ElMessage.success('View deleted successfully')
-    navigateToItem() // Navigate to root
   } catch (e) {
     // User cancelled or error
     if (e !== 'cancel') {

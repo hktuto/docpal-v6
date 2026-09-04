@@ -74,7 +74,7 @@ function handleNodeClick(nodeData: any) {
   setTimeout(() => {
     const menuState = menuContext.menuState.value
     if (menuState.editingItemId === nodeData.id) return
-    menuContext.navigateToItem(nodeData)
+    menuContext.selectMenuItem(nodeData)
   }, 100)
 }
 

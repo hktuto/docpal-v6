@@ -13,8 +13,10 @@ import {
   workflowElement,
   type WorkflowJson,
   WorkflowElementType,
-  CellType
+  CellType,
+  x6NodeToWorkflowJson
 } from '#imports'
+import { clientApi } from 'api'
 
 const { setVariables } = useVariables()
 const routerProvider = inject(MenuRouterKey)
@@ -28,6 +30,7 @@ const props = defineProps<{
   isActivate?: boolean
 }>()
 const { workflowData: workflowJsonObject, readonly, showSidebar, isActivate } = toRefs(props)
+const isNew = ref<boolean>(false)
 
 const sidebarRef = ref()
 const nodeRef = ref()
@@ -35,7 +38,25 @@ const edgeRef = ref()
 const graph = ref<Graph>()
 const dnd = ref()
 const containerEl = ref()
-const workflowJson = ref<WorkflowJson>()
+const workflowJson = ref<WorkflowJson>({
+  id: '',
+  key: '',
+  name: '',
+  type: '',
+  version: 1,
+  description: '',
+  nodes: [],
+  edges: [],
+  variables: {},
+  metadata: {
+    created_date: '',
+    version: '',
+    author: '',
+    purpose: '',
+    status: '',
+    tags: []
+  }
+})
 const workflowId = ref<string>('')
 const workflowKey = ref<string>('')
 const version = ref<number>(0)
@@ -305,20 +326,12 @@ function pasteForm(node: Node) {
   const data = node.getData()
   const newData = {
     ...data,
-    config: copyObj.value.config,
-    metadata: copyObj.value.metadata,
+    config: copyObj.value?.config,
+    metadata: copyObj.value?.metadata,
     version: (data.version || 0) + 1
   }
   node.setData(newData, { overwrite: true, deep: true, silent: false })
   graph.value?.stopBatch('paste-update-from-data')
-}
-
-function updateActivate() {
-  emits('updateActivate')
-}
-
-function updateWorkflowJson(newWorkflowJson: any) {
-  workflowJson.value = newWorkflowJson
 }
 
 function handelReplayViewer() {
@@ -380,6 +393,7 @@ function dim(cellIds: string[]) {
     }
   })
 }
+
 function highlightCell(cellIds: string[], allNodes: string[]) {
   dim(allNodes)
   if (cellIds && cellIds.length > 0) {
@@ -432,18 +446,52 @@ function highlightCell(cellIds: string[], allNodes: string[]) {
   }
 }
 
+async function saveWorkflowJSON() {
+  if (!graph.value) {
+    throw new Error('graph is undefined')
+  }
+  // check if workflow is empty
+  if (!graph.value.getNodes() && graph.value.getNodes().length === 0) return
+
+  if (!workflowId.value || workflowId.value === '') {
+    throw new Error('Workflow ID is null')
+  }
+
+  // 修改時，檢查是否已激活
+  if (isActivate.value) {
+    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/deactivate`).then((r: any) => r.data)
+    isActivate.value = false
+  }
+
+  // update workflow Json Data
+  try {
+    const newWorkflowJson = x6NodeToWorkflowJson(graph.value, workflowJson.value)
+    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}`, newWorkflowJson).then((r: any) => r.data)
+    workflowJson.value = newWorkflowJson
+    isNew.value = false
+  } catch (e) {
+    routerProvider?.message.error(e)
+    console.log(e)
+  }
+}
+
+function updateStatus() {
+  isNew.value = true
+}
+
 provide(WORKFLOW_EDITOR_PROVIDER, {
   workflowId,
   workflowKey,
   workflowJson,
-  updateWorkflowJson,
+  saveWorkflowJSON,
   graph,
   copyKey,
   readonly,
   openSidebar,
   closeSidebar,
   pasteForm,
-  copyForm
+  copyForm,
+  updateStatus
 })
 
 watch(
@@ -453,7 +501,7 @@ watch(
   }
 )
 
-defineExpose({ init, workflowJson, handelReplayViewer, highlightCell, graph, dim })
+defineExpose({ init, workflowJson, isNew, saveWorkflowJSON, handelReplayViewer, highlightCell, graph, dim })
 </script>
 
 <template>
@@ -462,7 +510,7 @@ defineExpose({ init, workflowJson, handelReplayViewer, highlightCell, graph, dim
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
         <div v-if="!readonly" class="group">
-          <ToolbarHistory :workflowId="workflowId" :isActivate="isActivate" @update-activate="updateActivate" />
+          <ToolbarHistory />
           <ToolbarInfo @click="openInfo" />
         </div>
         <div v-if="!readonly" class="group">

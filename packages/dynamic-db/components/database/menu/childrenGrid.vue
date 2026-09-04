@@ -7,7 +7,7 @@ interface Props {
 
 defineProps<Props>()
 
-const { navigateToItem, getMenuIcon } = useSingleDatabaseContext()
+const { selectMenuItem, getMenuIcon } = useSingleDatabaseContext()
 
 // Use the parent's handleFolderDrop which handles update flow
 const handleFolderDrop = inject<(folderId: string, file: File) => Promise<void>>('handleFolderDrop')
@@ -78,7 +78,7 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
         'is-folder': child.item_type === 'folder',
         'is-drag-over': dragStates[child.id]
       }"
-      @click="navigateToItem(child)"
+      @click="selectMenuItem(child)"
       @dragover="(event) => handleDragOver(event, child)"
       @dragleave="(event) => handleDragLeave(event, child)"
       @drop="(event) => handleDrop(event, child)"

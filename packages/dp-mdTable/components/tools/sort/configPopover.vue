@@ -60,7 +60,7 @@
 
       <!-- 添加新规则 -->
       <div class="add-rule-section">
-        <el-button v-if="columnSortRules.length === 0" type="primary" :icon="Plus" size="small" text @click="handleAddRule">
+        <el-button v-if="columnSortRules.length < 4" type="primary" :icon="Plus" size="small" text @click="handleAddRule">
           {{ t('mdTable.sort.addCondition') }}
         </el-button>
       </div>

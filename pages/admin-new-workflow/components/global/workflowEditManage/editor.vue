@@ -19,7 +19,8 @@ const workflowReadonly = ref(false)
 const workflowId = ref()
 const workflowEditorRef = ref()
 const permissionDialogRef = ref()
-const loading = ref(false)
+const loading = ref<boolean>(false)
+const isNew = ref<boolean>(false)
 
 async function getWorkflowData() {
   try {
@@ -47,6 +48,11 @@ async function getWorkflowData() {
   }
 }
 
+function handleSave() {
+  workflowEditorRef.value?.saveWorkflowJSON()
+  isActivate.value = false
+}
+
 async function handleStatus() {
   try {
     if (!checkWorkflowRequiredParameter()) {
@@ -56,8 +62,11 @@ async function handleStatus() {
     // TODO 檢查主要綫路上的節點是否有正確配置參數
 
     loading.value = true
+    await handleSave()
     const userId = useUserId()
-    await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value }).then((r: any) => r.data)
+    await clientApi.instance
+      .put(`/oniflow/api/v1/workflow/definitions/instance/${workflowId.value}/activate`, { user_id: userId.value })
+      .then((r: any) => r.data)
     openWorkflowEdit.value = false
     openWorkflowEdit.value = true
     isActivate.value = true
@@ -66,10 +75,6 @@ async function handleStatus() {
     loading.value = false
     console.log(e)
   }
-}
-
-function handleUpdateActivate() {
-  isActivate.value = false
 }
 
 function checkWorkflowRequiredParameter() {
@@ -97,6 +102,15 @@ function openPermissionDialog() {
   })
 }
 
+watch(
+  () => workflowEditorRef?.value?.isNew,
+  (value, old) => {
+    if (value === old) return
+    isNew.value = value
+  },
+  { deep: true }
+)
+
 onMounted(async () => {
   await getWorkflowData()
 })
@@ -104,15 +118,9 @@ onMounted(async () => {
 
 <template>
   <div v-if="openWorkflowEdit" v-loading="loading" class="pageContainer">
-    <WorkflowEditor
-      ref="workflowEditorRef"
-      :workflow-data="workflowData"
-      :readonly="workflowReadonly"
-      :showSidebar="true"
-      :is-activate="isActivate"
-      @updateActivate="handleUpdateActivate"
-    >
+    <WorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" :showSidebar="true" :is-activate="isActivate">
       <template #actions>
+        <el-button v-if="isNew" type="primary" @click="handleSave">{{ $t('common_save') }}</el-button>
         <el-button v-if="!isActivate" id="Workflow__Edit__ActivateOrInactivate" type="primary" @click="handleStatus">
           {{ $t('actions.activate') }}
         </el-button>
@@ -120,7 +128,7 @@ onMounted(async () => {
         <!--          {{ $t('Open The Release Version') }}-->
         <!--        </el-button>-->
         <el-button id="Workflow__Edit__Permission" type="primary" @click="openPermissionDialog">
-          {{ $t('caseManagement.editorPermission') }}
+          {{ $t('caseManagement.editPermission') }}
         </el-button>
       </template>
     </WorkflowEditor>

@@ -111,6 +111,7 @@ const {
   addField,
   updatedViewColumnsConfig,
   updateViewColumnCountMethod,
+  updateViewColumnWidth,
   saveColumnOrder,
   columnFilterRules,
   columnSortRules,
@@ -118,10 +119,11 @@ const {
   updateViewFilterSortGroup,
   viewStyleConfig
 } = useTableViewsInject()
-const { navigateToItem, findItemById, menuState, databaseMenuRouteParams, addItem } = useSingleDatabaseContext()
+const { selectMenuItem, findItemById, menuState, databaseMenuRouteParams, addItem } = useSingleDatabaseContext()
 const { getPageParams, columns } = useDBParams()
-const { getRelationFieldConfig, setSingleRelationConfig } = useRelationConfigInject()
+const { getRelationFieldConfig, setSingleRelationConfig, setRelationConfig } = useRelationConfigInject()
 const addMirrorBus = useEventBus(EventType.MD_TABLE_ADD_MIRROR)
+const mdTableRefreshBus = useEventBus<{ table_id?: string }>(EventType.MD_TABLE_NEED_REFRESH)
 
 
 // hocuspocus logic
@@ -257,6 +259,25 @@ async function refreshColumnConfig(viewId?: string) {
   await getViews(viewId || currentView.value?.id, { silent: true })
 }
 
+async function refreshTableRows() {
+  const table = tableRef.value
+  if (!table) return
+  if (typeof table.refreshTableData === 'function') {
+    await table.refreshTableData({ silent: true, keepPage: true })
+  } else if (typeof table.refresh === 'function') {
+    await table.refresh()
+  }
+}
+
+/** Relation establish / schema change: reload fields, relation display config, then row data */
+async function handleTableNeedRefresh(payload?: { table_id?: string }) {
+  if (!payload?.table_id || payload.table_id !== tableId.value) return
+  await getViews(currentView.value?.id, { silent: true })
+  await setRelationConfig(tableFields.value)
+  await nextTick()
+  await refreshTableRows()
+}
+
 async function handleUpdateColumn(fieldName: string, updates: any) {
   if (!fieldName) return
   await updateField(fieldName, updates)
@@ -280,6 +301,11 @@ async function handleUpdatedViewColumnsConfig(updates: Array<{ id: string; hidde
 
 async function handleUpdateViewColumnCountMethod(fieldId: string, countMethod: string) {
   await updateViewColumnCountMethod(fieldId, countMethod)
+  broadcastColumnConfigUpdated(undefined, fieldId)
+}
+
+async function handleUpdateViewColumnWidth(fieldId: string, width: number) {
+  await updateViewColumnWidth(fieldId, width)
   broadcastColumnConfigUpdated(undefined, fieldId)
 }
 
@@ -343,6 +369,7 @@ const extraColumnConfig = computed(() => {
     currentView,
     updatedViewColumnsConfig: handleUpdatedViewColumnsConfig,
     updateViewColumnCountMethod: handleUpdateViewColumnCountMethod,
+    updateViewColumnWidth: handleUpdateViewColumnWidth,
     saveColumnOrder: handleSaveColumnOrder,
 
     columnFilterRules,
@@ -357,7 +384,9 @@ const extraColumnConfig = computed(() => {
 
 function navigateToTableMenu(tableId: string) {
   const tableItem = findItemById(menuState.value.items, tableId)
-  navigateToItem(tableItem)
+  if (tableItem) {
+    selectMenuItem(tableItem as TreeItem)
+  }
 }
 async function handleAddMirror() {
   const name = `Mirror of ${currentView?.value?.name}`
@@ -371,8 +400,10 @@ async function handleAddMirror() {
 const stopAddMirror = addMirrorBus.on(() => {
   handleAddMirror()
 })
+const stopMdTableRefresh = mdTableRefreshBus.on(handleTableNeedRefresh)
 onBeforeUnmount(() => {
   stopAddMirror()
+  stopMdTableRefresh()
 })
 
 const mirrorList = ref<any[]>([])
@@ -416,6 +447,7 @@ provide('viewTools', {
   mirrorList,
   updatedViewColumnsConfig: handleUpdatedViewColumnsConfig,
   updateViewColumnCountMethod: handleUpdateViewColumnCountMethod,
+  updateViewColumnWidth: handleUpdateViewColumnWidth,
   saveColumnOrder: handleSaveColumnOrder,
   refreshColumnConfig,
   updateViewFilterSortGroup,

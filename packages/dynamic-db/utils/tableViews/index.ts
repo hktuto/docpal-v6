@@ -137,7 +137,7 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
       const field = tableFields.find((f) => f.id === fieldId)
       if (!field) continue
       const fieldDisplay = (field as any).display_structure ?? {}
-      const savedWidth = (col as any).display_structure?.width
+      const savedWidth = col.width ?? (col as any).display_structure?.width
       ordered.push({
         ...field,
         ...col,

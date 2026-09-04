@@ -88,7 +88,7 @@ function officeUrl(docId: string, token: string) {
 }
 
 async function handleEdit(row: any) {
-  const token = await newClientApi.getGetofficetokenId(row.documentId, { fileType: 'NUXEO' }).then(r => r.data)
+  const token = await newClientApi.getGetofficetokenId(row.documentId, { fileType: 'NUXEO' }).then((r) => r.data)
   const baseUrl = officeUrl(row.documentId, token)
   window.open(baseUrl, '_blank')
 }
@@ -189,8 +189,7 @@ provide(DocumentTemplateProviderKey, {
     <DocumentTemplateListTable ref="tableRef" v-bind="props">
       <template #toolbar_buttons>
         <div class="actionsContainer">
-          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name"
-                            inputPlaceHolder="documentTemplate_Filter" />
+          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="documentTemplate_Filter" />
           <div class="button-add">
             <el-button id="DocumentTemplate__CreateNewDocumentTemplate" type="primary" @click="handleAdd">
               {{ $t('documentTemplate_Create') }}

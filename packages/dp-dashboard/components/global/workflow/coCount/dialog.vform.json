@@ -207,7 +207,7 @@
                   },
                   {
                     "value": "WorkflowActiveCount",
-                    "label": "Total Activate Task"
+                    "label": "Total Active Task"
                   }
                 ],
                 "required": false,

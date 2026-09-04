@@ -85,6 +85,7 @@ onMounted(() => {
   <div class="calendarViewContainer">
     <ToolsBar
      v-if="viewStyleConfig?.startField && viewStyleConfig?.endField"
+     :isMirror="isMirror"
      :showMirrorButton="!isMirror && canManageTable"
      :showAutomationButton="!isMirror && canManageTable"
      :showAuditLogButton="!isMirror && canManageTable"

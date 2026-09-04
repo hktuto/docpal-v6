@@ -5,10 +5,12 @@ const { workflowList, WorkflowCandidateList } = defineProps<{
 }>()
 const emits = defineEmits(['refresh', 'delete'])
 
+const DEFAULT_TITLE = 'Create Workflow'
+
 const state = reactive({
   visible: false,
   setting: {
-    title: ''
+    title: DEFAULT_TITLE
   },
   WorkflowCandidateList: []
 })
@@ -44,7 +46,10 @@ async function handleSubmit() {
 
 function handleOpen(setting: any) {
   state.visible = true
-  state.setting = deepCopy(setting)
+  state.setting = deepCopy(setting) || {}
+  if (!state.setting.title) {
+    state.setting.title = DEFAULT_TITLE
+  }
   form.value.workflowList = workflowList
   const idSet = new Set(workflowList.map((item: any) => item.id))
   state.WorkflowCandidateList = WorkflowCandidateList.filter((item: any) => !idSet.has(item.id))
@@ -55,8 +60,12 @@ defineExpose({ handleOpen })
 <template>
   <el-dialog v-model="state.visible" :title="$t('dashboard.setting')" class="scroll-dialog" append-to-body :close-on-click-modal="false">
     <el-form ref="formRef" :model="state.setting" label-position="top">
-      <el-form-item :label="$t('common_title')" prop="title">
-        <el-input v-model="state.setting.title" />
+      <el-form-item
+        :label="$t('common_title')"
+        prop="title"
+        :rules="{ required: true, message: $t('render.hint.fieldRequired', { name: $t('common_title') }), trigger: 'blur' }"
+      >
+        <el-input v-model="state.setting.title" clearable />
       </el-form-item>
     </el-form>
 

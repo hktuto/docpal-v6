@@ -3,7 +3,7 @@ import { newClientApi } from 'api'
 import type { ResultCfUserTableConfigResponseDTO } from 'api/src/generate/newClient'
 
 type RelationConfig = {
-  setRelationConfig: (config: any) => void
+  setRelationConfig: (config: any) => Promise<void>
   getRelationFieldConfig: (tableId: string, fieldId: string) => any
   setSingleRelationConfig: (tableId: string, fields: any[]) => void
 }
@@ -11,15 +11,24 @@ export const RelationConfigKey: InjectionKey<RelationConfig> = Symbol('RelationC
 export function useRelationConfig() {
   const relationConfig = ref<any>({})
   const setRelationConfig = async (tableFields: any) => {
-    relationConfig.value = {}
-    const relationFields = tableFields.filter((field: any) => field.business_type === ColumnFieldType.Relation)
-    relationFields.forEach(async (field: any) => {
-      const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
-        tableId: field.display_structure.relation_table_id,
-        userId: 'master'
+    const relationTableIds = [
+      ...new Set(
+        (tableFields ?? [])
+          .filter((field: any) => field.business_type === ColumnFieldType.Relation && field.display_structure?.relation_table_id)
+          .map((field: any) => field.display_structure.relation_table_id as string)
+      )
+    ]
+    const nextConfig: Record<string, any> = {}
+    await Promise.all(
+      relationTableIds.map(async (relationTableId) => {
+        const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
+          tableId: relationTableId,
+          userId: 'master'
+        })
+        nextConfig[relationTableId] = data?.data?.tableFields
       })
-      relationConfig.value[field.display_structure.relation_table_id] = data?.data?.tableFields
-    })
+    )
+    relationConfig.value = nextConfig
   }
   async function setSingleRelationConfig(tableId: string, fields: any[]) {
     if (!tableId) return

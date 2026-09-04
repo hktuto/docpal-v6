@@ -1,8 +1,11 @@
 <script lang="ts" setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { MenuRouterKey } from '@packages/base/utils/menuType'
+import { useDatabases } from '../../../../../composables/useDatabases'
 
 const { database } = useSingleDatabaseContext()
-const router = useRouter()
+const { deleteDatabase } = useDatabases()
+const routerProvider = inject(MenuRouterKey)
 
 async function handleDeleteWorkspace() {
   if (!database.value) return
@@ -19,11 +22,19 @@ async function handleDeleteWorkspace() {
       }
     )
 
-    // TODO: Implement database deletion
-    ElMessage.success('Workspace deleted successfully')
+    const success = await deleteDatabase(database.value.id)
+    if (!success) {
+      ElMessage.error('Failed to delete database')
+      return
+    }
 
+    ElMessage.success('Database deleted successfully')
+    routerProvider?.back()
   } catch (error) {
-    // User cancelled
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('Failed to delete database:', error)
+      ElMessage.error('Failed to delete database')
+    }
   }
 }
 </script>

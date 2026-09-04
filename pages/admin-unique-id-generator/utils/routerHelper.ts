@@ -1,13 +1,12 @@
-export const routeUniqueIdGeneratorDetail = function(params: any) {
+export const routeUniqueIdGeneratorDetail = function (params: any) {
   return {
     id: 'unique-id-generator-detail',
     name: 'unique-id-generator-detail',
     icon: 'dp-icon:flow-outline',
-    label: 'unique-id-generator-detail',
+    label: params.name,
     component: 'LazyUniqueIdGeneratorDetail',
     props: {
       id: params.id
     }
   } as TabItem
 }
-

@@ -39,16 +39,12 @@ export function useGridEvents(options: UseGridEventsOptions) {
       const { row, column } = params
       options.callbacks.onStartEdit({ row, column })
     },
-    'column-resizable-change': ({ resizeWidth, columnIndex, column }:any) => {
+    'column-resizable-change': ({ resizeWidth, column }: any) => {
       const updateItem = options.columns.value.find((item: any) => item.field_name === column.field)
-      if (!updateItem) return
+      if (!updateItem?.id) return
       updateItem.display_structure ??= {}
-      updateItem.display_structure.width = resizeWidth + 'px'
-      options.updateColumn(updateItem.field_name, {
-        field_name: updateItem.field_name_alias,
-        business_type: updateItem.business_type,
-        display_structure: { ...updateItem.display_structure }
-      })
+      updateItem.display_structure.width = resizeWidth
+      options.updateViewColumnWidth(updateItem.id, resizeWidth)
     },
     columnDragend({ newColumn, oldColumn, dragPos }) {
       const newFullColumn = options.columns.value.find((item: any) => item.field_name === newColumn.field)

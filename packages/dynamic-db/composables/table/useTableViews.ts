@@ -1,6 +1,4 @@
 import type { ViewConfig, FilterInfo } from '../../utils/databaseType'
-import { onBeforeUnmount } from 'vue'
-
 import { kanbanStyleDefault, cardStyleDefault, ganttStyleDefault, calendarStyleDefault } from '../../utils/databaseType'
 import {
   parseViewConfigList,
@@ -17,7 +15,6 @@ import {
 } from '../../utils/tableViews'
 
 import { ElMessage } from 'element-plus'
-import { EventType, useEventBus } from 'eventbus'
 import { newClientApi } from 'api'
 import type { ResultCfUserTableConfigResponseDTO } from 'api/src/generate/newClient'
 
@@ -42,11 +39,12 @@ export interface ViewContext {
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
   updatedViewColumnsConfig: (updates: Array<{ id: string; hidden: boolean }>) => Promise<void>
   updateViewColumnCountMethod: (fieldId: string, countMethod: string) => Promise<void>
+  updateViewColumnWidth: (fieldId: string, width: number) => Promise<void>
   updateViewFilterSortGroup: (fieldName: 'filterInfo' | 'sortInfo' | 'groupInfo' | 'style', value: any) => Promise<void>
   saveColumnOrder: (columnId: string, targetFieldId: string, dragPos: 'left' | 'right') => Promise<void>
 }
 
-export const TableViewsInjectKey: InjectionKey<ViewContext> = Symbol('TableViewsInjectKey')
+export const TableViewsInjectKey: InjectionKey<ViewContext> = Symbol.for('TableViewsInjectKey')
 
 export interface UseTableViewsOptions {
   tableId: Ref<string>
@@ -252,7 +250,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (!view) return
     let updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
     updatedColumns = updateViewColumnOrder(updatedColumns, columnId, targetFieldId, dragPos)
-    console.log('updatedColumns', updatedColumns)
     await updateView(view.id, { columns: updatedColumns })
   }
   async function updateViewColumnCountMethod(fieldId: string, countMethod: string) {
@@ -262,6 +259,18 @@ export function useTableViews(options: UseTableViewsOptions) {
     const targetColumn = updatedColumns.find((col: any) => String(col.id) === String(fieldId))
     if (!targetColumn) return
     targetColumn.countMethod = countMethod
+    await updateView(view.id, { columns: updatedColumns })
+    if (currentView.value) {
+      currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    }
+  }
+  async function updateViewColumnWidth(fieldId: string, width: number) {
+    const view = currentView.value
+    if (!view) return
+    const updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
+    const targetColumn = updatedColumns.find((col: any) => String(col.id) === String(fieldId))
+    if (!targetColumn) return
+    targetColumn.width = width
     await updateView(view.id, { columns: updatedColumns })
     if (currentView.value) {
       currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
@@ -283,16 +292,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     await updateView(view.id, { [fieldName]: value })
   }
 
-  const mdTableRefreshBus = useEventBus<{ table_id?: string }>(EventType.MD_TABLE_NEED_REFRESH)
-  const stopMdTableRefresh = mdTableRefreshBus.on((payload) => {
-    if (!payload?.table_id || payload.table_id !== tableId.value) return
-    getViews(currentView.value?.id)
-  })
-
-  onBeforeUnmount(() => {
-    stopMdTableRefresh()
-  })
-
   provide(TableViewsInjectKey, {
     tableFields,
     currentView,
@@ -310,6 +309,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     updateField,
     updatedViewColumnsConfig,
     updateViewColumnCountMethod,
+    updateViewColumnWidth,
     saveColumnOrder,
     updateViewFilterSortGroup,
     viewStyleConfig
@@ -333,6 +333,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     updateField,
     updatedViewColumnsConfig,
     updateViewColumnCountMethod,
+    updateViewColumnWidth,
     saveColumnOrder,
     updateViewFilterSortGroup
   }

@@ -9,7 +9,7 @@ const emits = defineEmits(['update'])
 const { t } = useI18n()
 const editFormRef = ref()
 const state = reactive<{
-  editForm: any,
+  editForm: any
   visible: boolean
 }>({
   editForm: {},
@@ -52,7 +52,7 @@ defineExpose({ openVariablesDialog })
 
 <template>
   <el-dialog :title="t('docTemplate.variable.editVariables')" v-model="state.visible" class="big">
-    <el-form ref="editFormRef" :model="state.editForm" :rules="rules">
+    <el-form ref="editFormRef" :model="state.editForm" :rules="rules" label-position="top">
       <el-form-item :label="t('dpTable.name')" disabled>
         <el-input v-model="state.editForm.name" />
       </el-form-item>
@@ -65,13 +65,11 @@ defineExpose({ openVariablesDialog })
     </el-form>
 
     <template #footer>
-      <el-button id="Workflow__GenerateTemplate__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
+      <el-button id="Workflow__GenerateTemplate__Submit" type="primary" @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

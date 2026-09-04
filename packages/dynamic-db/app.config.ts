@@ -6,7 +6,7 @@ export default defineAppConfig({
     "dynamic-db": {
       id: "dynamic-db",
       name: "dynamic-db",
-      label: "Dynamic DB",
+      label: "dashboardType.database",
       icon: "icon-park-outline:database-forbid",
       hoverIcon: "icon-park-outline:database-forbid",
       component: "LazyDatabaseList",

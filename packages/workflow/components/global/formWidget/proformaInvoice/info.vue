@@ -115,7 +115,9 @@ async function getBrandOptions() {
 
 async function getPartList(query?: string) {
   const brandQuery = searchFormModel.brand ? `&brand=${searchFormModel.brand}` : ''
-  const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?q=${query || ''}${brandQuery}&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
+  const data = await $api
+    .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${query || ''}${brandQuery}&pageNum=1&pageSize=100&includeCustomer=false`)
+    .then((r: any) => r.data.items)
   if (!data?.length) return
 
   partNumberOptions.value = data.map((item: any) => ({

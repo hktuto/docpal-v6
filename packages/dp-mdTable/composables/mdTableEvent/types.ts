@@ -37,7 +37,7 @@ export interface UseGridEventsOptions {
   getAgg: () => Promise<void>
   isGroupingEnabled: Ref<boolean>
   updateExpandedRows: () => void
-  updateColumn: (fielsName: string, newValue:any) => void
+  updateViewColumnWidth: (fieldId: string, width: number) => void | Promise<void>
   saveColumnOrder: (oldColumnId: string, newColumnId: string, dragPos: 'left' | 'right') => void
   callbacks: GridEventCallbacks
 }

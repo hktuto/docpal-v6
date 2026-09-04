@@ -1,70 +1,64 @@
 import { newClientApi, gatewayApi } from 'api'
 
 interface PermissionOption {
-  id: string;
-  label: string;
-  value: number;
-  type: string;
-  options: any[];
+  id: string
+  label: string
+  value: number
+  type: string
+  options: any[]
 }
 
 export interface BaseOption {
-  value: string,
-  label: string,
+  value: string
+  label: string
   email?: string
 }
 
-export const usePermissionOption = () => useState<PermissionOption[]>('permission', () => ([]))
-export const useUserPermissionOption = () => useState<BaseOption[]>('userPermission', () => ([]))
-export const useRolePermissionOption = () => useState<BaseOption[]>('rolePermission', () => ([]))
-export const useGroupsPermissionOption = () => useState<BaseOption[]>('groupsPermission', () => ([]))
+export const usePermissionOption = () => useState<PermissionOption[]>('permission', () => [])
+export const useUserPermissionOption = () => useState<BaseOption[]>('userPermission', () => [])
+export const useRolePermissionOption = () => useState<BaseOption[]>('rolePermission', () => [])
+export const useGroupsPermissionOption = () => useState<BaseOption[]>('groupsPermission', () => [])
 
-export const getFromServer = async function(loadUserList: boolean = true, loadRoleList: boolean = true, loadGroupList: boolean = true) {
+export const getFromServer = async function (loadUserList: boolean = true, loadRoleList: boolean = true, loadGroupList: boolean = true) {
   const options = usePermissionOption()
   options.value = []
   try {
     if (loadUserList) {
       const user = await getUserSelectOption(false)
       if (user.length > 0) {
-        options.value.push(
-          {
-            id: 'user',
-            label: $t('user_users'),
-            value: 1,
-            type: 'select',
-            options: user
-          }
-        )
+        options.value.push({
+          id: 'user',
+          label: $t('user_users'),
+          value: 1,
+          type: 'select',
+          options: user
+        })
       }
     }
 
     if (loadRoleList) {
       const role = await getRoleSelectOption(false)
       if (role.length > 0) {
-        options.value.push(
-          {
-            id: 'role',
-            label: $t('user_role'),
-            value: 2,
-            type: 'select',
-            options: role
-          }
-        )
+        options.value.push({
+          id: 'role',
+          label: $t('user_role'),
+          value: 2,
+          type: 'select',
+          options: role
+        })
       }
     }
 
     if (loadGroupList) {
       const group = await getGroupsSelectOption(false)
       if (group.length > 0) {
-        options.value.push(
-          {
-            id: 'group',
-            label: $t('user_groups'),
-            value: 3,
-            type: 'select',
-            options: group
-          }
-        )
+        options.value.push({
+          id: 'group',
+          label: $t('user_groups'),
+          value: 3,
+          type: 'select',
+          options: group
+        })
       }
     }
   } catch (e) {
@@ -158,14 +152,8 @@ export const convertPermissionObjectByPermissions = (permissions: string[]) => {
  * { "user": ["joshua"], "group": ['IT'], "role": ['cxv']} To format: [ "user_joshua", "group_IT", "role_cxv" ]
  * @param permissions { 'user': ['joshua'], 'group': ['group_IT'], 'role': ['role_cxv']}
  */
-export const convertPermissionsByPermissionObject = (permissions: {
-  user?: string[],
-  role?: string[],
-  group?: string[]
-}) => {
-  return Object.entries(permissions).flatMap(([key, values]) =>
-    values.map(value => `${key}_${value}`)
-  )
+export const convertPermissionsByPermissionObject = (permissions: { user?: string[]; role?: string[]; group?: string[] }) => {
+  return Object.entries(permissions).flatMap(([key, values]) => values.map((value) => `${key}_${value}`))
 }
 
 /**
@@ -224,7 +212,7 @@ export const fetchUsersSelectSorted = async (groupId?: string, query?: FetchUser
   try {
     const list = groupId
       ? await gatewayApi.groups.getGroupsGroupidUsersSelect(groupId, query).then((res) => res.data)
-      : await gatewayApi.users.getUsersSelect(query).then((res) => res.data)
+      : await gatewayApi.users.getUsersSelect({ ...query, limit: 1000 }).then((res) => res.data)
     if (!list?.length) return []
     return [...list]
       .map((item: any) => ({
@@ -259,18 +247,24 @@ export const getRoleSelectOption = async (refresh?: boolean) => {
   const options = useRolePermissionOption()
   if (options.value.length === 0 || refresh) {
     try {
-      const list: any = await newClientApi.postDocpalAclRoleList([{
-        column: 'status',
-        type: 'EQ',
-        values: '1'
-      }]).then((res: any) => res.data)
+      const list: any = await newClientApi
+        .postDocpalAclRoleList([
+          {
+            column: 'status',
+            type: 'EQ',
+            values: '1'
+          }
+        ])
+        .then((res: any) => res.data)
       if (list.length === 0) return []
 
-      options.value = list.map((item: any) => ({
-        id: item.id,
-        value: item.id,
-        label: item.name
-      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+      options.value = list
+        .map((item: any) => ({
+          id: item.id,
+          value: item.id,
+          label: item.name
+        }))
+        .sort((a: any, b: any) => a.label.localeCompare(b.label))
     } catch (e) {
       console.log(e)
       return []
@@ -287,11 +281,13 @@ export const getGroupsSelectOption = async (refresh?: boolean) => {
       let list: any = await gatewayApi.groups.getGroupsSelect().then((res) => res.data)
       if (!list || list.length === 0) return []
 
-      options.value = list.map((item: any) => ({
-        id: item.value,
-        value: item.value,
-        label: item.label
-      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+      options.value = list
+        .map((item: any) => ({
+          id: item.value,
+          value: item.value,
+          label: item.label
+        }))
+        .sort((a: any, b: any) => a.label.localeCompare(b.label))
     } catch (e) {
       console.log(e)
       return []
