@@ -258,45 +258,49 @@ function handelCostCurrency(item: any) {
 }
 
 function handleHistoryPriceSubmit(data: any) {
-  const item = formModel.value.infoList[data.index]
-  const list = data.list || []
-  const oldList = item.target_price_list || []
+  try {
+    const item = formModel.value.infoList[data.index]
+    const list = data.list || []
+    const oldList = item.target_price_list || []
 
-  const newList = list.map((newItem: any, index: number) => {
-    let priceItem: TargetPriceItem
-    if (!!oldList[index]) {
-      priceItem = {
-        ...oldList[index],
-        unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
-        unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
-        exchange_rate: newItem.exchangeRate,
-        data_source: newItem.type,
-        profit: 1
+    const newList = list.map((newItem: any, index: number) => {
+      let priceItem: TargetPriceItem
+      if (!!oldList[index]) {
+        priceItem = {
+          ...oldList[index],
+          unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
+          unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
+          exchange_rate: newItem.exchangeRate,
+          data_source: newItem.type,
+          profit: 1
+        }
+      } else {
+        priceItem = {
+          id: uuidv7(),
+          sample_id: item.sample_id,
+          tier_number: index,
+          moq: 0,
+          target_price: 0,
+          data_source: newItem.type,
+          unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
+          unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
+          cost_currency: formData.currency,
+          exchange_rate: newItem.exchangeRate,
+          profit: 1,
+          status: 'A'
+        }
       }
+      calculateProfit(priceItem)
+      return priceItem
+    })
+
+    if (item.target_price_list.length > newList.length) {
+      item.target_price_list.splice(0, newList.length, ...newList)
     } else {
-      priceItem = {
-        id: uuidv7(),
-        sample_id: item.sample_id,
-        tier_number: index,
-        moq: 0,
-        target_price: 0,
-        data_source: newItem.type,
-        unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
-        unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
-        cost_currency: formData.currency,
-        exchange_rate: newItem.exchangeRate,
-        profit: 1,
-        status: 'A'
-      }
+      item.target_price_list = newList
     }
-    calculateProfit(priceItem)
-    return priceItem
-  })
-
-  if (item.target_price_list.length > newList.length) {
-    item.target_price_list.splice(0, newList.length, ...newList)
-  } else {
-    item.target_price_list = newList
+  } catch (e) {
+    console.log(e)
   }
 }
 
