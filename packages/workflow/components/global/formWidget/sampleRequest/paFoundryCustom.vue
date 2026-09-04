@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { v7 as uuidv7 } from 'uuid'
+import { clientApi } from 'api'
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -11,7 +12,7 @@ const loading = ref(false)
 const allOptions = ref<any[]>([])
 
 async function searchName(query: string) {
-  const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
   allOptions.value = [...allOptions.value, ...data]
 
   customerOptions.value = data.map((item) => ({

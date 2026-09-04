@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { clientApi } from 'api'
+
 const { formData } = defineProps<{
   disabled: boolean
   formData: any
@@ -24,7 +26,7 @@ const loading = ref(false)
 
 async function searchName(query?: string) {
   if (query !== '') {
-    const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+    const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
 
     const numberOptions: any[] = []
     const nameOptions: any[] = []
@@ -54,7 +56,7 @@ async function searchName(query?: string) {
 
 async function getCustomerInfo(customerNumber: string) {
   if (!customerNumber || customerNumber === '') return
-  const info = await $api.get(`apis/v1/ms/oracle/customers/${customerNumber}`).then((r: any) => r.data)
+  const info = await clientApi.instance.get(`apis/v1/ms/oracle/customers/${customerNumber}`).then((r: any) => r.data)
 
   customerDetail.value.customer_location = info.customer_location
 }
@@ -181,7 +183,7 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="6">
         <el-form-item label="客戶地址">
-          <el-input v-model="customerDetail.customer_location" clearable/>
+          <el-input v-model="customerDetail.customer_location" clearable />
         </el-form-item>
       </el-col>
     </el-row>

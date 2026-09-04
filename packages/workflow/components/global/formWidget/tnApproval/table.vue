@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
+import { clientApi } from 'api'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -50,7 +51,7 @@ watch(
 const brandOptions = ref<any[]>([])
 const partNumberOptions = ref<any[]>([])
 async function getBrandOptions() {
-  brandOptions.value = await $api.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
+  brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
 async function getPartList(query?: string) {

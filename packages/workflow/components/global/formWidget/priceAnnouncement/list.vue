@@ -4,6 +4,7 @@ import { Search, Download, Plus, Delete } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import dayjs from 'dayjs'
+import { clientApi } from 'api'
 
 const { formData } = defineProps<{
   disabled: boolean
@@ -242,7 +243,7 @@ async function handleGetSeries(brandName: string) {
 async function getSeries(series?: string) {
   try {
     const q = !!series && series !== '' ? `q=${series}&` : ''
-    const data = await $api.get(`/apis/v1/ms/oracle/series?${q}brand=KOA&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
+    const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}brand=KOA&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
     if (!data?.length) return
 
     seriesOptions.value = data.map((item: any) => ({
@@ -260,7 +261,9 @@ async function getPartNumber(series?: string, partNumber?: string) {
     const s = series ? `series=${series}&` : ''
     const q = partNumber ? `q=${partNumber}&` : ''
 
-    const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50&includeCustomer=false`).then((r: any) => r.data.items)
+    const data = await clientApi.instance
+      .get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50&includeCustomer=false`)
+      .then((r: any) => r.data.items)
     if (!data?.length) return
 
     partNumberOptions.value = data.map((item: any) => ({
@@ -412,7 +415,7 @@ watch(
 )
 
 async function getBrandOptions() {
-  brandOptions.value = await $api.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
+  brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
 onMounted(() => {

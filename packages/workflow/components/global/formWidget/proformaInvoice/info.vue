@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
+import { clientApi } from 'api'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -78,7 +79,7 @@ function applyCustomer(value: string) {
 }
 
 async function searchCustomer(query?: string) {
-  const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?q=${query || ''}&limit=${5000}`).then((r: any) => r.data?.items)
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query || ''}&limit=${5000}`).then((r: any) => r.data?.items)
   if (!data?.length) return
 
   parties.value = data
@@ -96,7 +97,7 @@ function handleCustomerChange(value: string) {
 }
 
 async function getOffices() {
-  officeOptions.value = await $api.get(`/apis/v1/ms/oracle/order-info/offices`).then((r: any) => r.data.items)
+  officeOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/order-info/offices`).then((r: any) => r.data.items)
 }
 
 async function getBranchOffices(org_id: number) {
@@ -106,16 +107,16 @@ async function getBranchOffices(org_id: number) {
   }
   searchFormModel.branch_office = ''
 
-  branchOfficeOptions.value = await $api.get(`/apis/v1/ms/oracle/order-info/branch-offices?org_id=${org_id}`).then((r: any) => r.data.items)
+  branchOfficeOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/order-info/branch-offices?org_id=${org_id}`).then((r: any) => r.data.items)
 }
 
 async function getBrandOptions() {
-  brandOptions.value = await $api.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
+  brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
 async function getPartList(query?: string) {
   const brandQuery = searchFormModel.brand ? `&brand=${searchFormModel.brand}` : ''
-  const data = await $api
+  const data = await clientApi.instance
     .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${query || ''}${brandQuery}&pageNum=1&pageSize=100&includeCustomer=false`)
     .then((r: any) => r.data.items)
   if (!data?.length) return

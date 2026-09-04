@@ -210,7 +210,7 @@ function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
 }
 
 async function init() {
-  brandOptions.value = await $api.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
+  brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
 async function getFormData(needValidation = true) {

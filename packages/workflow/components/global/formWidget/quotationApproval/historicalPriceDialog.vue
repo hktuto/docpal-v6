@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 const emits = defineEmits(['submit'])
@@ -87,7 +88,7 @@ async function handleSearch(pageParams: any) {
       body.type = searchData.value.type
     }
 
-    const response = await $api.post('/apis/v1/ms/oracle/quotation/cost-history', body).then((r: any) => r.data)
+    const response = await clientApi.instance.post('/apis/v1/ms/oracle/quotation/cost-history', body).then((r: any) => r.data)
     const data = {
       entryList: response.items ?? [],
       totalSize: response.total ?? response.count ?? 0

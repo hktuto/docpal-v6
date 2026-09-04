@@ -176,7 +176,7 @@ function handleUnitCostChange(itemIndex: number, tierIndex: number, item: Target
 
 async function getExchangeRateList() {
   try {
-    exchangeRateList.value = await $api.get('/apis/v1/ms/oracle/conversion-rate?limit=500').then((r: any) => r.data.items)
+    exchangeRateList.value = await clientApi.instance.get('/apis/v1/ms/oracle/conversion-rate?limit=500').then((r: any) => r.data.items)
   } catch (e) {
     console.log(e)
   }
@@ -185,7 +185,7 @@ async function getExchangeRateList() {
 async function getSeriesList(seriesNumber?: string) {
   try {
     const q = !!seriesNumber && seriesNumber !== '' ? `q=${seriesNumber}&` : ''
-    const data = await $api.get(`/apis/v1/ms/oracle/series?${q}pageNum=1&pageSize=50`).then((r: any) => r.data.items)
+    const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}pageNum=1&pageSize=50`).then((r: any) => r.data.items)
 
     seriesList.value = data.map((item: any) => ({
       label: item.displayName,
