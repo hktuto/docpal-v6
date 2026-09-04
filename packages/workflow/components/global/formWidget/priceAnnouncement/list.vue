@@ -305,7 +305,8 @@ function parseEffectiveDate(value: unknown) {
   if (!/^\d{8}$/.test(dateValue)) return ''
 
   const parsedDate = dayjs(`${dateValue.slice(0, 4)}-${dateValue.slice(4, 6)}-${dateValue.slice(6, 8)}`)
-  return parsedDate.isValid() && parsedDate.format('YYYYMMDD') === dateValue ? parsedDate : ''
+  const day = parsedDate.isValid() && parsedDate.format('YYYYMMDD') === dateValue ? parsedDate : dayjs(Date.now())
+  return day.format('YYYY-MM-DD')
 }
 
 async function handleExcelFileChange(uploadFile: UploadFile) {
@@ -371,7 +372,8 @@ watch(
         currency: item.currency,
         originalUnitPrice: item.originalUnitPrice,
         newUnitPrice: item.newUnitPrice,
-        adjustmentRate: formatAdjustmentRate(item.newUnitPrice, item.originalUnitPrice)
+        adjustmentRate: formatAdjustmentRate(item.newUnitPrice, item.originalUnitPrice),
+        approvalRemark: item.approvalRemark ?? ''
       }))
       reload()
     }
