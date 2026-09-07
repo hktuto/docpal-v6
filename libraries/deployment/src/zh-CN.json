@@ -4625,7 +4625,12 @@
   "workPanel_name": "主页名称",
   "workPanel_workPanel": "主页",
   "workflow": {
-    "adHocApproval": "Adhoc 审核"
+    "adHocApproval": "Adhoc 审核",
+    "state": {
+      "completed": "已完成",
+      "failed": "失败",
+      "terminated": "已终止"
+    }
   },
   "workflowEdior": {
     "formField": "表单域"

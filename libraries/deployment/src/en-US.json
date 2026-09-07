@@ -4677,7 +4677,12 @@
   "workPanel_name": "Home Page Name",
   "workPanel_workPanel": "Home Page",
   "workflow": {
-    "adHocApproval": "Adhoc Approval"
+    "adHocApproval": "Adhoc Approval",
+    "state": {
+      "completed": "Completed",
+      "failed": "Failed",
+      "terminated": "Terminated"
+    }
   },
   "workflowEdior": {
     "formField": "Form Field"

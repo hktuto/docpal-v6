@@ -21,7 +21,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       roles: [user.aclUserDetail.roleId],
       definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : '',
       status: ['completed', 'failed', 'terminated'],
-      involved_user_id: user.userId
+      involved_user_id: user.userId,
+      // sort_by: 'updated_at',
+      // sort_type: 'desc'
     }
     const data = await clientApi.instance.post(`/oniflow/api/v1/processes/instance/page`, params).then((r: any) => workflowResponseHelper(r))
     return {
@@ -51,6 +53,13 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       title: 'workflow_duration',
       formatter({ cellValue, row }: any) {
         return dayjs(row.completed_at).diff(row.created_at, 'day') + ' ' + t('common_days')
+      }
+    },
+    {
+      field: 'state',
+      title: 'dpTable_status',
+      formatter({ cellValue, row }: any) {
+        return t('workflow.state.' + cellValue.type)
       }
     }
   ],
