@@ -272,7 +272,7 @@ const {
     if (code === 'docActionPaste') {
       return {
         visible:
-          AllowTo({ feature: 'ReadWrite', permission: additionalData }) &&
+          RbacAllowTo({ feature: 'ReadWrite', permission: additionalData }) &&
           copyDocumentList.value.length > 0,
         disabled: false
       }
@@ -290,11 +290,11 @@ const {
       const ManageCode = ['docActionInternalShare']
       if (ManageCode.includes(code)) {
         return {
-          visible: AllowTo({ feature: 'ManageRecord', permission: additionalData })
+          visible: RbacAllowTo({ feature: 'ManageRecord', permission: additionalData })
         }
       }
       return {
-        visible: AllowTo({ feature: 'ReadWrite', permission: additionalData })
+        visible: RbacAllowTo({ feature: 'ReadWrite', permission: additionalData })
       }
     }
     // get permission
@@ -308,13 +308,13 @@ const {
     if (folderActionsCode.includes(code)) {
       return {
         visible:
-          row.isFolder && AllowTo({ feature: 'ReadWrite', permission: additionalData }),
+          row.isFolder && RbacAllowTo({ feature: 'ReadWrite', permission: additionalData }),
         disabled: false
       }
     } else {
       return {
         visible:
-          !row.isFolder && AllowTo({ feature: 'ReadWrite', permission: additionalData }),
+          !row.isFolder && RbacAllowTo({ feature: 'ReadWrite', permission: additionalData }),
         disabled: false
       }
     }
