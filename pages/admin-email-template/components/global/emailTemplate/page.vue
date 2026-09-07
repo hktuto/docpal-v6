@@ -2,16 +2,15 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <div class="actions">
-          <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange"
-                            inputPlaceHolder="emailContentTemplate_filter" />
-          <el-button id="EmailContentTemplate__EditEmailLayout" type="info" @click="handleEditEmailLayout">
-            {{ $t('button.editEmailLayout') }}
-          </el-button>
-          <el-button id="EmailContentTemplate__CreateNewEmailTemplate" type="primary" @click="handleAdd">
-            {{ $t('emailContentTemplate_create') }}
-          </el-button>
-        </div>
+        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" inputPlaceHolder="emailContentTemplate_filter" />
+      </template>
+      <template #toolbarTools>
+        <el-button id="EmailContentTemplate__EditEmailLayout" type="info" @click="handleEditEmailLayout">
+          {{ $t('button.editEmailLayout') }}
+        </el-button>
+        <el-button id="EmailContentTemplate__CreateNewEmailTemplate" type="primary" @click="handleAdd">
+          {{ $t('emailContentTemplate_create') }}
+        </el-button>
       </template>
       <template #status="{ row }">
         <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
@@ -33,6 +32,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-emailTemplate',
+  customeToolBar: true,
   api: (pageParams: any) => newAdminApi.postDmsTemplateEmailTemplatePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'label', title: 'emailContentTemplate_name', fixed: 'left' },
@@ -160,27 +160,7 @@ onMounted(() => {
 })
 </script>
 <style lang="scss" scoped>
-.actions {
-  width: 100%;
-  display: flex;
-  flex-flow: row nowrap;
-  gap: var(--app-space-xs);
-  align-items: center;
-  justify-content: flex-start;
-  --icon-size: var(--app-font-size-m);
-}
-
 :deep(.el-input) {
   width: 200px;
-}
-
-.responsive-container {
-  overflow: hidden;
-  width: 70%;
-}
-
-:deep(.vxe-buttons--wrapper) {
-  display: flex;
-  justify-content: space-between;
 }
 </style>
