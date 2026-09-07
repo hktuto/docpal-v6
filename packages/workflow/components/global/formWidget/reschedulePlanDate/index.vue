@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import type { UploadFile, UploadInstance } from 'element-plus'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { clientApi } from 'api'
 
 dayjs.extend(customParseFormat)
 
@@ -220,7 +221,7 @@ const customerNameOptions = ref<{ label: string; value: string }[]>([])
 const customerEnglishNameOptions = ref<{ label: string; value: string }[]>([])
 
 async function searchName(query?: string) {
-  const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
 
   if (data.length === 0) return
 
@@ -265,7 +266,7 @@ function numberChange(value: string) {
 
 async function checkingPiNumber(value: string) {
   const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
-  return $api.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data.data)
+  return clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data.data)
 }
 
 async function setCustomerNumber(item: any) {

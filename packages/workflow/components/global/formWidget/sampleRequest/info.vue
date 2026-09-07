@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Plus, Delete, Switch } from '@element-plus/icons-vue'
 import { v7 as uuidv7 } from 'uuid'
+import { clientApi } from 'api'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -123,7 +124,9 @@ async function searchPartList(partNumber?: string) {
 }
 
 async function getPartList(partNumber?: string) {
-  const data = await $api.get(`/apis/v1/ms/oracle/wcl-item-nos?q=${partNumber}&pageNum=1&pageSize=200&includeCustomer=false`).then((r) => r.data.items)
+  const data = await clientApi.instance
+    .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${partNumber}&pageNum=1&pageSize=200&includeCustomer=false`)
+    .then((r) => r.data.items)
 
   partList.value = data.map((item: any) => ({
     id: item.inventory_item_id,
@@ -139,7 +142,8 @@ async function searchSeriesList(series?: string) {
 }
 
 async function getSeriesList(series?: string) {
-  const data = await $api.get(`apis/v1/ms/oracle/series?q=${series}&pageNum=1&pageSize=200`).then((r) => r.data.items)
+  const s = series ? `q=${series}&` : ''
+  const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${s}pageNum=1&pageSize=200`).then((r) => r.data.items)
   seriesList.value = data.map((item: any) => ({
     label: item.displayName,
     value: item.value

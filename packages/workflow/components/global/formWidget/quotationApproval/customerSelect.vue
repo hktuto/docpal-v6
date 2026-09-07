@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { clientApi } from 'api'
+
 const { disabled, formData } = defineProps<{
   disabled: boolean
   formData: any
@@ -49,7 +51,7 @@ function resetFormModel() {
 }
 
 async function searchName(query?: string) {
-  const data: any[] = await $api.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
 
   if (data.length === 0) return
 
@@ -80,7 +82,7 @@ async function searchName(query?: string) {
 
 async function getCustomerInfo(customerNumber: string) {
   if (!customerNumber || customerNumber === '') return
-  const info = await $api.get(`apis/v1/ms/oracle/customers/${customerNumber}`).then((r: any) => r.data)
+  const info = await clientApi.instance.get(`apis/v1/ms/oracle/customers/${customerNumber}`).then((r: any) => r.data)
 
   formModel.customer_location = info.customer_location ?? ''
   formModel.telephone_number = info.customer_telephone_number ?? ''
