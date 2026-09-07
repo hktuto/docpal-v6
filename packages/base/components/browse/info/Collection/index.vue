@@ -6,10 +6,10 @@
     <div class="infoContent">
       <div v-for="(item) in collections" :key="item.id" class="tag">
         <div class="label">{{ item.name }}</div>
-        <SvgIcon v-if="RbacAllowTo('editMetadata', doc)" :src="'/icons/close.svg'"
+        <SvgIcon v-if="!disable" :src="'/icons/close.svg'"
                  class="deleteIcon" @click="handleDelete(item)" />
       </div>
-      <div v-if="doc.status !== 20" class="addTagButton">
+      <div v-if="doc.status !== 20 && !disable" class="addTagButton">
         <SvgIcon :src="'/icons/add.svg'" @click="handleAddCollection" />
       </div>
     </div>
@@ -27,6 +27,7 @@ import { newClientApi } from 'api'
 
 const props = defineProps<{
   doc: any,
+  disable: boolean
 }>()
 const { doc } = toRefs(props)
 const { t } = useI18n()

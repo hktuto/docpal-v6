@@ -6,12 +6,16 @@
     <template #commonActions="{ row }">
       <template v-if="row.status === 'P'">
         <template v-if="row.applyApprovedBy === userId">
-          <el-button id="RetentionList__RetentionPendingList__Approve" class="approval-btn el-icon--left" size="small"
-                     type="primary" @click.stop="handleApprove(true, row)">
+          <el-button
+            id="RetentionList__RetentionPendingList__Approve"
+            class="approval-btn el-icon--left"
+            size="small"
+            type="primary"
+            @click.stop="handleApprove(true, row)"
+          >
             {{ $t('workflow_startAdhocWorkflow_approve') }}
           </el-button>
-          <el-button id="RetentionList__RetentionPendingList__Reject" class="approval-btn " size="small" type="danger"
-                     @click.stop="handleApprove(false, row)">
+          <el-button id="RetentionList__RetentionPendingList__Reject" class="approval-btn" size="small" type="danger" @click.stop="handleApprove(false, row)">
             {{ $t('workflow_startAdhocWorkflow_reject') }}
           </el-button>
         </template>
@@ -32,8 +36,7 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item v-for="item in events[row.policyRetentionId]" :key="item.id"
-                                @click.stop="handleEvent(item, row)">
+              <el-dropdown-item v-for="item in events[row.policyRetentionId]" :key="item.id" @click.stop="handleEvent(item, row)">
                 {{ item.eventLabel }}
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -170,8 +173,7 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(
     createDetailPageParams({
       docName: row.documentName,
-      idOrPath: row.documentId,
-      showHeaderAction: false
+      idOrPath: row.documentId
     }),
     false
   )
@@ -186,10 +188,12 @@ async function handleEvent(event: any, row: any) {
     let msg = t('msg_confirmWhetherToExecuteCommand')
     const action = await ElMessageBox.confirm(`${msg}: ${event.eventLabel}`)
     if (action !== 'confirm') return
-    await newClientApi.postDmsPolicyRetentionDocumentEvent({
-      eventId: event.id,
-      documentId: row.documentId
-    }).then(r => r.data)
+    await newClientApi
+      .postDmsPolicyRetentionDocumentEvent({
+        eventId: event.id,
+        documentId: row.documentId
+      })
+      .then((r) => r.data)
     reload()
   } catch (error) {
     console.log(error)

@@ -25,7 +25,9 @@ const currentTab = ref('info')
 
 const loading = ref(false)
 const detail = ref<any>()
-
+const DISABLE_EDIT_METADATA = computed(() => {
+  return !RbacAllowTo('editMetadata', doc.value)
+})
 function openEditInfo() {
   if (BrowseActionsEditRef.value) {
     BrowseActionsEditRef.value.openDialog()
@@ -87,7 +89,7 @@ watch(
       <div class="headerTopRow">
         <div class="name">
           <div class="namespan" @dblclick="openEditInfo">{{ doc ? doc.name : '' }}</div>
-          <BrowseActionsEdit ref="BrowseActionsEditRef" v-if="RbacAllowTo('write', detail)" :doc="detail" @success="$emit('refresh')" />
+          <BrowseActionsEdit ref="BrowseActionsEditRef" v-if="!DISABLE_EDIT_METADATA" :doc="detail" @success="$emit('refresh')" />
         </div>
 
         <SvgIcon :src="'/icons/close.svg'" @click="$emit('close')" />
@@ -100,7 +102,7 @@ watch(
             <!-- <div v-if="!hidePreview" class="infoPreviewContainer">
                 <BrowseInfoPreview :doc="detail"  />
             </div> -->
-            <BrowseInfoDocInfo :doc="detail" @update="docUpdated" @refresh="$emit('refresh')" />
+            <BrowseInfoDocInfo :doc="detail" :disable="DISABLE_EDIT_METADATA" @update="docUpdated" @refresh="$emit('refresh')" />
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('rightDetail_activities')" name="activities">

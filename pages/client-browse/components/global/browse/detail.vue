@@ -212,8 +212,8 @@ useEventListener(window, 'resize', calMinWidth)
                             :doc="docDetail" :editMode="editMode"
                             fileType="NUXEO" 
                             :readonly="true" 
-                            :editable="AllowTo({feature:'ReadWrite' })"
-                            :options="{loadAnnotations:true  && allowFeature('DOC_ANNOTATION'), print:  allowFeature('DOC_PRINT'), readOnly: !AllowTo({feature:'ReadWrite' }) || !allowFeature('DOC_ANNOTATION')}"
+                            :editable="RbacAllowTo({feature:'ReadWrite' })"
+                            :options="{loadAnnotations:true  && allowFeature('DOC_ANNOTATION'), print:  allowFeature('DOC_PRINT'), readOnly: !RbacAllowTo({feature:'ReadWrite' }) || !allowFeature('DOC_ANNOTATION')}"
                             @saved="() => handleRefresh(false)"
                         /> 
                         <BrowseAiPopover v-if="appStore.licenseFeatures.ASK_AI"  :doc="docDetail"></BrowseAiPopover>

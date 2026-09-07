@@ -25,8 +25,7 @@ const { t } = useI18n()
 const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'c-retention-done',
   api: async (pageParams: any) => {
-    // TODO 缺少新APi
-    return newClientApi.postPolicyRetentionsDocumentPage({
+    return newClientApi.postDmsPolicyRetentionDocumentListQuery({
       ...doneParams,
       ...pageParams,
       ...extraParams
@@ -127,7 +126,6 @@ function handleDblclick(row: any) {
   routerProvider?.navigateTo(createDetailPageParams({
     docName: row.documentName,
     idOrPath: row.documentId,
-    showHeaderAction: false
   }), false)
 }
 

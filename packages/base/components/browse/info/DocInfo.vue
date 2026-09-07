@@ -5,7 +5,7 @@
         <div class="infoTitle">{{ $t('info_type') }}</div>
         <div class="infoContent" v-if="info.type">
           {{ $t(info.type) }}
-          <BrowseActionsChangeDocType v-if="RbacAllowTo('editMetadata', doc)" class="el-icon--right" :doc="doc" @success="$emit('refresh')" />
+          <BrowseActionsChangeDocType v-if="!disable" class="el-icon--right" :doc="doc" @success="$emit('refresh')" />
         </div>
       </div>
       <div v-show="!info.isFolder" class="infoSection">
@@ -47,10 +47,10 @@
 
       <BrowseInfoMeta v-bind="$props" :doc="doc" @update="$emit('update', true)" />
       <BrowseInfoTag :doc="doc" @update="$emit('update', true)" />
-      <BrowseInfoCollection v-if="doc.isCollectionMember" :doc="doc" @update="$emit('update', true)" />
+      <BrowseInfoCollection v-if="doc.isCollectionMember":disable="disable" :doc="doc" @update="$emit('update', true)" />
     </el-card>
     <el-card v-if="!doc.isFolder && allowFeature('WORKFLOW_ADHOC') && doc.status !== 20" shadow="never">
-      <BrowseInfoWorkflowSection :doc="doc"></BrowseInfoWorkflowSection>
+      <BrowseInfoWorkflowSection :disable="disable" :doc="doc"></BrowseInfoWorkflowSection>
     </el-card>
     <!-- <el-divider /> -->
     <el-card shadow="never">
@@ -63,6 +63,7 @@
 import * as mime from 'mime-types'
 const props = defineProps<{
   doc: any
+  disable: boolean
 }>()
 
 const info = computed(() => {
