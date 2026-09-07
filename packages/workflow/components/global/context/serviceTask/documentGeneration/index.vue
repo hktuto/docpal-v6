@@ -41,6 +41,10 @@ const listVariablesOption = computed(() => {
 const storeVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['file'])
 })
+const allVariablesList = computed(() => {
+  return getVariablesByDisplayTypes([], true)
+})
+
 const outputOptions = ref([
   { label: 'Word', value: 'word' },
   { label: 'PDF', value: 'pdf' },
@@ -321,9 +325,13 @@ watch(
 
     <template v-loading="loading" v-for="variable in variables" :key="variable.id">
       <el-form-item v-if="variable.id !== 'system_output_file_type'" :label="variable.name">
-        <el-select v-model="variable.value" @change="updateData" clearable filterable>
+        <el-select v-if="isWord" v-model="variable.value" @change="updateData" clearable filterable>
           <el-option v-if="variable.type !== 'table'" v-for="item in defVariablesOption" :key="item.id" :label="item.name" :value="item.id" />
           <el-option v-else v-for="item in listVariablesOption" :key="item.id" :label="item.name" :value="item.id" />
+        </el-select>
+
+        <el-select v-else v-model="variable.value" @change="updateData" clearable filterable>
+          <el-option v-for="item in allVariablesList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
     </template>
