@@ -446,7 +446,7 @@ async function getFormData(needValidation = true) {
         endCustomer: item.endCustomer,
         priceGroup: item.priceGroup,
         supplierPartNumber: item.supplierPartNumber,
-        approverRemark: item.approvalRemark ?? ''
+        adjustmentRate: item.adjustmentRate ? `${item.adjustmentRate}%` : ''
       })
 
       return acc
