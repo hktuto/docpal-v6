@@ -44,7 +44,7 @@ async function handleSetStatus(isActive: 'A' | 'D') {
   if (!state.setting.id) return
   try {
     state.activeLoading = true
-    const result = await newAdminApi.patchDmsPolicyHoldHoldpolicyidStatusStatus(id, isActive).then((res) => res.data)
+    const result = await newAdminApi.postDmsPolicyRetentionRetentionpolicyidStatusStatus(id, isActive).then((res) => res.data)
     if (!!result) {
       state.setting.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
