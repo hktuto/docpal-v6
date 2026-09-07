@@ -368,7 +368,8 @@ async function init() {
       lead_time: '',
       price_type: 'STD',
       target_price_list: target_price_list,
-      uom: item.uom
+      uom: item.uom,
+      review_id: item.review_id
     }
   })
 
