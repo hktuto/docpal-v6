@@ -20,10 +20,12 @@
 
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
+import dayjs from 'dayjs'
 import * as echarts from 'echarts/core'
 import { BarChart, LineChart, ScatterChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent, MarkLineComponent, DataZoomComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 import { useChartExport } from '../../composables/dashboard/useChartExport'
@@ -77,6 +79,23 @@ async function loadFieldLabels(tableId: string) {
 
 function fieldLabel(fieldName: string): string {
   return fieldMap.value[fieldName] || fieldName
+}
+
+function isXFieldDateType(): boolean {
+  const bt = String(config.value.xFieldMeta?.businessType ?? '')
+  return bt === ColumnFieldType.DateTime
+    || bt === ColumnFieldType.CreatedTime
+    || bt === ColumnFieldType.LastModifiedTime
+}
+
+function formatXAxisValue(value: any): string {
+  if (value === null || value === undefined || value === '') return 'Unknown'
+  if (!isXFieldDateType()) return String(value)
+
+  const dateFormat = config.value.xFieldMeta?.dateFormat || 'YYYY-MM-DD'
+  const parsed = isNaN(Number(value)) ? value : Number(value)
+  const formatted = dayjs(parsed).format(dateFormat)
+  return formatted === 'Invalid Date' ? String(value) : formatted
 }
 
 const chartTitle = computed(() => {
@@ -135,7 +154,7 @@ async function fetchData() {
     const res: any = await postDynamicActions(params)
     const rows = res.data?.data || []
     chartData.value = rows.map((row: any) => {
-      const item: any = { key: row[xField] ?? 'Unknown' }
+      const item: any = { key: formatXAxisValue(row[xField]) }
       validSeries.forEach((s: any, index: number) => {
         if (s.aggregation === 'count') {
           item[`series_${index}`] = row.__count ?? row[`series_${index}`] ?? 0
@@ -329,6 +348,7 @@ watch(
   () => [
     props.setting?.tableId,
     props.setting?.xField,
+    props.setting?.xFieldMeta,
     props.setting?.series,
     props.setting?.appearance
   ],

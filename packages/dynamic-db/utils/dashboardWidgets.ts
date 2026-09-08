@@ -280,6 +280,10 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     setting: {
       tableId: '',
       xField: '',
+      xFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       series: [
         {
           field: '',
