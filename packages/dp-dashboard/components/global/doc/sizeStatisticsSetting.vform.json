@@ -89,37 +89,6 @@
       "icon": "sub-form",
       "widgetList": [
         {
-          "key": 85962,
-          "type": "color",
-          "icon": "color-field",
-          "formItemFlag": true,
-          "options": {
-            "name": "color",
-            "label": "admin_watermark_color",
-            "labelAlign": "label-center-align",
-            "defaultValue": null,
-            "columnWidth": "200px",
-            "size": "",
-            "labelWidth": null,
-            "labelHidden": false,
-            "disabled": false,
-            "hidden": false,
-            "required": false,
-            "requiredHint": "",
-            "validation": "",
-            "validationHint": "",
-            "customClass": [],
-            "labelIconClass": null,
-            "labelIconPosition": "rear",
-            "labelTooltip": null,
-            "onCreated": "",
-            "onMounted": "",
-            "onChange": "",
-            "onValidate": ""
-          },
-          "id": "color49672"
-        },
-        {
           "key": 32765,
           "type": "select",
           "icon": "select-field",
@@ -161,6 +130,37 @@
             "onValidate": ""
           },
           "id": "select51475"
+        },
+        {
+          "key": 85962,
+          "type": "color",
+          "icon": "color-field",
+          "formItemFlag": true,
+          "options": {
+            "name": "color",
+            "label": "admin_watermark_color",
+            "labelAlign": "label-center-align",
+            "defaultValue": null,
+            "columnWidth": "200px",
+            "size": "",
+            "labelWidth": null,
+            "labelHidden": false,
+            "disabled": false,
+            "hidden": false,
+            "required": false,
+            "requiredHint": "",
+            "validation": "",
+            "validationHint": "",
+            "customClass": [],
+            "labelIconClass": null,
+            "labelIconPosition": "rear",
+            "labelTooltip": null,
+            "onCreated": "",
+            "onMounted": "",
+            "onChange": "",
+            "onValidate": ""
+          },
+          "id": "color49672"
         }
       ],
       "options": {
@@ -170,7 +170,8 @@
         "labelAlign": "label-left-align",
         "hidden": false,
         "customClass": [
-          "sub-form-x-scroll"
+          "sub-form-x-scroll",
+          "dashboard-docType"
         ],
         "onSubFormRowAdd": "",
         "onSubFormRowInsert": "",
@@ -237,7 +238,7 @@
     "labelPosition": "top",
     "size": "",
     "labelAlign": "label-left-align",
-    "cssCode": ".sub-form-x-scroll {\n  overflow-x: auto;\n}\n.sub-form-x-scroll .el-row{\n  display: flex;\n  flex-direction: row-reverse;\n  \n}\n.sub-form-x-scroll .el-row div:nth-of-type(3){\n  flex: 1;\n}\n\n/*.sub-form-x-scroll .action-button-column .el-button:nth-of-type(1) {*/\n/*  display: none!important;*/\n/*}*/",
+    "cssCode": ".sub-form-x-scroll {\n  overflow-x: auto;\n}\n\n.dashboard-docType .el-color-picker{\n  width: 100%;\n}",
     "customClass": [],
     "functions": "",
     "layoutType": "PC",
