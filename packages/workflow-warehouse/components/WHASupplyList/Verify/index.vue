@@ -7,7 +7,7 @@
         <WHASupplyListVerifyList />
       </el-splitter-panel>
       <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200" >
-        <WorkflowPreviewTitle :doc-id="selectedInvoice?.file?.id" :file-list="fileList" />
+        <WorkflowPreviewTitle :selectedInvoice="selectedInvoice" :doc-id="selectedInvoice?.file?.id" :file-list="fileList" />
       </el-splitter-panel>
       <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200" >
         <WHASupplyListVerifyTable />

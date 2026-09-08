@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import WorkflowPreview from './preview.vue'
+const workflowPreviewRef = ref<any>(null)
 
 const props = withDefaults(
   defineProps<{
     docId?: string
+    selectedInvoice?: any
     fileList?: Record<string, any>[]
   }>(),
   {
@@ -19,6 +21,7 @@ watch(
   (id) => {
     const nextId = id ? String(id) : ''
     if (nextId && currentDocId.value !== nextId) currentDocId.value = nextId
+
   }
 )
 
@@ -28,7 +31,7 @@ function handleTabChange(id: string | number) {
 </script>
 
 <template>
-  <WorkflowPreview :doc-id="currentDocId">
+  <WorkflowPreview ref="workflowPreviewRef" :doc-id="currentDocId">
     <template #title>
       <el-tabs :model-value="currentDocId" class="preview-file-tabs" @tab-change="handleTabChange">
         <el-tab-pane
