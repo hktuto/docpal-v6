@@ -54,7 +54,7 @@ async function loadInvoiceList() {
     const invoiceDatas = (data.data ?? []).map((item: Record<string, any>) => ({
       ...item,
       total_qty: undefined as number | undefined
-    }))
+    })).sort((a, b) => a[SGLA.Name].localeCompare(b[SGLA.Name]))
     invoiceList.value = invoiceDatas
     if (invoiceList.value.length > 0) {
       selectInvoice(invoiceList.value[0])

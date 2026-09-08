@@ -133,8 +133,7 @@ async function save() {
       }
     })
     await gatewayApi.users.putUsersUpdate(newUserInfo).then(r => r.data)
-
-    await newClientApi.putDmsUserSetting(userPreference.value as any).then(r => r.data)
+    await gatewayApi.userSettings.putUserSettings({ settings: userPreference.value as any }).then(r => r.data)
 
     await newClientApi.postNotificationSettingUserUseridSavePreferences(userId.value, state.notificationPreferenceList).then(r => r.data)
 

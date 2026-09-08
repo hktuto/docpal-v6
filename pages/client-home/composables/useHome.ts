@@ -1,4 +1,4 @@
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 import { useUserPreference } from '#imports'
 
 export const useHomeList = () => useState<any[]>('homeList', () => [])
@@ -67,7 +67,8 @@ export const useHomePage = () => {
       currentHome.value.layout = []
     } finally {
       preference.value.userStoreHome = detail.id
-      await newClientApi.putDmsUserSetting(preference.value as any)
+      await gatewayApi.userSettings.putUserSettings({ settings: preference.value as any })
+
       loading.value = false
     }
   }
