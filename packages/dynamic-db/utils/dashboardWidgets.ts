@@ -239,6 +239,7 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     setting: {
       tableId: '',
       columns: [],
+      columnConfig: [],
       rowLimit: 10,
       sortField: '',
       sortOrder: 'desc',

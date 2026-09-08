@@ -31,6 +31,13 @@ import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 import { rendererManager } from '@packages/dp-mdTable/renderers/registry-manager'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { convertFilterRuleToCondition } from '../../utils/PostgreSQLHelper'
+import { formatDateTime } from '@packages/dp-mdTable/utils/fieldValueFormat'
+import {
+  isDateBusinessType,
+  resolveWidgetColumnConfig,
+  type ResolvedColumnConfigItem
+} from '../../utils/dashboardFieldMeta'
 
 const props = withDefaults(
   defineProps<{
@@ -56,7 +63,6 @@ const cardRef = ref()
 
 const displayTitle = computed(() => props.setting?.title || 'Table View')
 
-// Full field metadata indexed by field_name
 const fieldMetaMap = ref<Record<string, any>>({})
 const { getFields } = useTableFields()
 
@@ -66,71 +72,87 @@ async function loadFieldMeta(tableId: string) {
     return
   }
   const fields = await getFields(tableId)
-  const map: Record<string, any> = {}
-  for (const f of fields) {
-    map[f.field_name] = f
-  }
-  fieldMetaMap.value = map
+  fieldMetaMap.value = Object.fromEntries(fields.map((f: any) => [f.field_name, f]))
 }
 
-const hiddenColumns = computed(() => new Set(props.setting?.hiddenColumns || []))
-const columnWidths = computed<Record<string, number>>(() => props.setting?.columnWidths || {})
+const resolvedColumnConfig = computed(() =>
+  resolveWidgetColumnConfig(props.setting, fieldMetaMap.value)
+)
 
-const gridOptions = computed<VxeGridProps>(() => {
-  const selectedColumns = props.setting?.columns || []
-  const meta = fieldMetaMap.value
+function isDateField(fieldName: string): boolean {
+  const fromConfig = resolvedColumnConfig.value.find((c) => c.field === fieldName)?.businessType
+  return isDateBusinessType(fromConfig || fieldMetaMap.value[fieldName]?.business_type)
+}
 
-  const buildColumn = (fieldName: string) => {
-    const fieldMeta = meta[fieldName]
-    const title = fieldMeta?.field_name_alias || fieldName
-    const storedWidth = columnWidths.value[fieldName]
-    const isHidden = hiddenColumns.value.has(fieldName)
-
-    let base: any
-    if (!fieldMeta) {
-      base = {
-        field: fieldName,
-        title,
-        minWidth: 120,
-        width: storedWidth || undefined,
-        visible: !isHidden
-      }
-    } else {
-      const type = (fieldMeta.business_type as ColumnFieldType) || ColumnFieldType.Text
-      const displayStructure = fieldMeta.display_structure || {}
-      base = {
-        ...fieldMeta,
-        field: fieldMeta.field_name,
-        title: fieldMeta.field_name_alias,
-        aggFunc: true,
-        colId: fieldMeta.field_name,
-        width: storedWidth || undefined,
-        visible: !isHidden,
-        ...rendererManager.getColumnConfig(type, displayStructure, displayStructure)
-      }
-    }
-    return base
-  }
-
-  const columns = selectedColumns.length
-    ? selectedColumns.map((field: string) => buildColumn(field))
-    : []
-
+function buildDateColumn(col: ResolvedColumnConfigItem, title: string, displayStructure: Record<string, any>) {
+  const dateFormat = col.dateFormat || displayStructure.dateFormat || 'YYYY-MM-DD'
   return {
-    border: true,
-    stripe: true,
-    resizable: true,
-    showOverflow: true,
-    size: 'small',
-    columns,
-    pagerConfig: {
-      enabled: true,
-      currentPage: currentPage.value,
-      pageSize: pageSize.value,
-      total: total.value
+    field: col.field,
+    title,
+    width: col.width || undefined,
+    visible: col.visible,
+    business_type: col.businessType,
+    formatter: ({ cellValue }: any) => {
+      if (cellValue === null || cellValue === undefined || cellValue === '') return ''
+      return formatDateTime(cellValue, { ...displayStructure, dateFormat })
     }
   }
-})
+}
+
+function buildTypedColumn(col: ResolvedColumnConfigItem, fieldMeta: any, title: string, displayStructure: Record<string, any>) {
+  const type = (col.businessType || fieldMeta?.business_type || ColumnFieldType.Text) as ColumnFieldType
+  return {
+    ...(fieldMeta || {}),
+    field: col.field,
+    title,
+    aggFunc: true,
+    colId: col.field,
+    business_type: type,
+    width: col.width || undefined,
+    visible: col.visible,
+    ...rendererManager.getColumnConfig(type, displayStructure, displayStructure)
+  }
+}
+
+function buildColumn(col: ResolvedColumnConfigItem) {
+  const fieldMeta = fieldMetaMap.value[col.field]
+  const title = fieldMeta?.field_name_alias || col.field
+  const displayStructure = {
+    ...(fieldMeta?.display_structure || {}),
+    ...(col.dateFormat ? { dateFormat: col.dateFormat } : {})
+  }
+
+  if (!fieldMeta && !col.businessType) {
+    return {
+      field: col.field,
+      title,
+      minWidth: 120,
+      width: col.width || undefined,
+      visible: col.visible
+    }
+  }
+
+  if (isDateBusinessType(col.businessType || fieldMeta?.business_type)) {
+    return buildDateColumn(col, title, displayStructure)
+  }
+
+  return buildTypedColumn(col, fieldMeta, title, displayStructure)
+}
+
+const gridOptions = computed<VxeGridProps>(() => ({
+  border: true,
+  stripe: true,
+  resizable: true,
+  showOverflow: true,
+  size: 'small',
+  columns: resolvedColumnConfig.value.map((col) => buildColumn(col)),
+  pagerConfig: {
+    enabled: true,
+    currentPage: currentPage.value,
+    pageSize: pageSize.value,
+    total: total.value
+  }
+}))
 
 function buildFilterConditions(): any[] {
   const filterRules = props.setting?.filterRules || []
@@ -138,34 +160,22 @@ function buildFilterConditions(): any[] {
 
   const value = filterRules
     .filter((rule: any) => rule.field && rule.operator)
-    .map((rule: any) => {
-      const params: any = {
-        column: rule.field,
-        type: rule.operator
-      }
-      if (!['IS_NULL', 'IS_NOT_NULL', 'DUPLICATE'].includes(rule.operator)) {
-        let val = rule.value
-        if (rule.operator === 'LIKE' && val) {
-          val = `%${val}%`
-        }
-        params.value = val
-      }
-      return params
-    })
+    .map((rule: any) =>
+      convertFilterRuleToCondition(
+        { field: rule.field, operator: rule.operator, value: rule.value },
+        isDateField
+      )
+    )
+    .filter((rule: any) => (rule.column && rule.type) || rule.type === 'AND')
 
-  if (!value.length) return []
-  return [{ type: 'AND', value }]
+  return value.length ? [{ type: 'AND', value }] : []
 }
 
 function buildOrderBy(): any[] {
   const sortRules = props.setting?.sortRules || []
-  const result: any[] = []
-
-  for (const rule of sortRules) {
-    if (rule.field) {
-      result.push({ column: rule.field, desc: rule.order === 'desc' })
-    }
-  }
+  const result = sortRules
+    .filter((rule: any) => rule.field)
+    .map((rule: any) => ({ column: rule.field, desc: rule.order === 'desc' }))
 
   if (!result.length && props.setting?.sortField) {
     result.push({
@@ -181,22 +191,17 @@ async function fetchData() {
   if (!props.setting?.tableId) return
   loading.value = true
   try {
-    const orderBy = buildOrderBy()
     const conditions = buildFilterConditions()
-
     const params: any = {
       tableId: props.setting.tableId,
       columns: [{ name: '*' }],
-      orderBy,
+      orderBy: buildOrderBy(),
       pagination: {
         pageSize: pageSize.value,
         pageNum: currentPage.value
       }
     }
-
-    if (conditions.length) {
-      params.conditions = conditions
-    }
+    if (conditions.length) params.conditions = conditions
 
     const { data }: any = await postDynamicActions(params)
     tableData.value = data?.data || []
@@ -212,9 +217,7 @@ async function fetchData() {
 
 function handlePageChange({ currentPage: page, pageSize: size }: any) {
   currentPage.value = page
-  if (size) {
-    pageSize.value = size
-  }
+  if (size) pageSize.value = size
   fetchData()
 }
 
@@ -225,6 +228,12 @@ function handleDelete() {
 function handleRefresh(newSetting: any) {
   currentPage.value = 1
   emit('refreshSetting', newSetting)
+}
+
+function reloadTable() {
+  currentPage.value = 1
+  pageSize.value = props.setting?.rowLimit || 10
+  fetchData()
 }
 
 watch(
@@ -244,26 +253,24 @@ watch(
     props.setting?.filterRules,
     props.setting?.sortRules,
     props.setting?.columns,
+    props.setting?.columnConfig,
     props.setting?.hiddenColumns,
     props.setting?.columnWidths
   ],
-  () => {
-    currentPage.value = 1
-    pageSize.value = props.setting?.rowLimit || 10
-    fetchData()
-  },
+  reloadTable,
   { immediate: true }
 )
 
 useDashboardLiveUpdate(
   computed(() => props.setting?.tableId),
-  () => {
-    currentPage.value = 1
-    fetchData()
-  }
+  reloadTable
 )
 
-provide('viewTools', { getPageParams: null, columns: gridOptions.value, tableFields: null })
+provide('viewTools', {
+  getPageParams: null,
+  columns: computed(() => gridOptions.value.columns),
+  tableFields: computed(() => Object.values(fieldMetaMap.value))
+})
 
 defineExpose({
   resize: () => {
