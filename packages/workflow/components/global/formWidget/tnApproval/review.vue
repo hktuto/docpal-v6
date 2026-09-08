@@ -131,21 +131,6 @@ function open(payload: ReviewPayload) {
   nextTick(() => reload())
 }
 
-function handleCancel() {
-  visible.value = false
-}
-
-function handleConfirm() {
-  emits('confirm', {
-    office: formModel.office,
-    tnPlannedDate: formModel.tnPlannedDate,
-    commodityInspection: formModel.commodityInspection,
-    remark: formModel.remark,
-    dataList: dataList.value
-  })
-  visible.value = false
-}
-
 const displayTnPlannedDate = computed(() => {
   if (!formModel.tnPlannedDate) return ''
   return dayjs(formModel.tnPlannedDate).format('YYYY/MMM/DD')
@@ -162,6 +147,7 @@ defineExpose({ open })
     class="big"
     destroy-on-close
     align-center
+    :before-close="visible = false"
   >
     <el-form :model="formModel" label-position="top" class="tn-review-form">
       <el-row :gutter="16">
@@ -189,11 +175,6 @@ defineExpose({ open })
     <div class="tn-review-table">
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" />
     </div>
-
-    <template #footer>
-      <el-button @click="handleCancel">Cancel</el-button>
-      <el-button type="primary" @click="handleConfirm">Confirm and Submit</el-button>
-    </template>
   </el-dialog>
 </template>
 
