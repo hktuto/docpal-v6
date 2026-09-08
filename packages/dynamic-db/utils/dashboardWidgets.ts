@@ -279,6 +279,10 @@ export const useDbDashboardWidgetSetting = () => useState<any>('dbDashboardWidge
     setting: {
       tableId: '',
       xField: '',
+      xFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       series: [
         {
           field: '',

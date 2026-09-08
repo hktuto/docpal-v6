@@ -27,7 +27,13 @@
       <el-divider>X-Axis (Horizontal Grouping)</el-divider>
 
       <el-form-item label="Field">
-        <el-select v-model="form.xField" placeholder="Select field to group by" style="width: 100%" :loading="fieldsLoading">
+        <el-select
+          v-model="form.xField"
+          placeholder="Select field to group by"
+          style="width: 100%"
+          :loading="fieldsLoading"
+          @change="handleXFieldChange"
+        >
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
@@ -143,7 +149,7 @@ import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTable
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
-const { tableOptions, fields, fieldsLoading, loadFields, numericFields } = useWidgetTableFields()
+const { tableOptions, fields, fieldsLoading, loadFields, numericFields, isDateField } = useWidgetTableFields()
 
 const seriesTypeOptions = [
   { label: 'Bar', value: 'bar' },
@@ -178,9 +184,17 @@ function createDefaultSeries(): any {
   }
 }
 
+function createEmptyXFieldMeta() {
+  return {
+    businessType: '',
+    dateFormat: ''
+  }
+}
+
 const form = reactive({
   tableId: '',
   xField: '',
+  xFieldMeta: createEmptyXFieldMeta(),
   series: [createDefaultSeries()] as any[],
   appearance: {
     legendPosition: 'bottom',
@@ -196,6 +210,24 @@ const form = reactive({
   footer: ''
 })
 
+function syncXFieldMeta(fieldName: string) {
+  if (!fieldName) {
+    form.xFieldMeta = createEmptyXFieldMeta()
+    return
+  }
+  const field = fields.value.find((f: any) => f.field_name === fieldName)
+  form.xFieldMeta = {
+    businessType: String(field?.business_type ?? ''),
+    dateFormat: isDateField(fieldName)
+      ? (field?.display_structure?.dateFormat || field?.properties?.dateFormat || '')
+      : ''
+  }
+}
+
+function handleXFieldChange(fieldName: string) {
+  syncXFieldMeta(fieldName)
+}
+
 const showStackedOption = computed(() =>
   form.series.some((s: any) => ['bar', 'line', 'area'].includes(s.type))
 )
@@ -206,6 +238,7 @@ const showSmoothOption = computed(() =>
 
 async function handleTableChange(tableId: string) {
   form.xField = ''
+  syncXFieldMeta('')
   form.series.forEach((s: any) => {
     s.field = ''
   })
@@ -227,6 +260,10 @@ watch(
       const raw = setting.value
       form.tableId = raw.tableId || ''
       form.xField = raw.xField || ''
+      form.xFieldMeta = {
+        businessType: raw.xFieldMeta?.businessType || '',
+        dateFormat: raw.xFieldMeta?.dateFormat || ''
+      }
 
       // Backward compatibility: copy global chartType to each series if series has no type
       const oldChartType = raw.chartType || 'bar'
@@ -254,6 +291,10 @@ watch(
 
       if (form.tableId) {
         await loadFields(form.tableId)
+        // Backfill meta for legacy settings that only stored xField name
+        if (form.xField && !form.xFieldMeta.businessType) {
+          syncXFieldMeta(form.xField)
+        }
       }
     }
   }
@@ -263,6 +304,7 @@ function handleSubmit() {
   baseSubmit({
     tableId: form.tableId,
     xField: form.xField,
+    xFieldMeta: { ...form.xFieldMeta },
     series: form.series.map((s: any) => ({ ...s })),
     appearance: { ...form.appearance },
     title: form.title,
