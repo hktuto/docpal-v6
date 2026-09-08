@@ -422,7 +422,15 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     setting: {
       tableId: '',
       rowField: '',
+      rowFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       columnField: '',
+      columnFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       valueField: '',
       aggregation: 'sum',
       subtitle: '',
