@@ -238,6 +238,7 @@ export const useDbDashboardWidgetSetting = () => useState<any>('dbDashboardWidge
     setting: {
       tableId: '',
       columns: [],
+      columnConfig: [],
       rowLimit: 10,
       sortField: '',
       sortOrder: 'desc',

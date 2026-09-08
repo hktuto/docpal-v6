@@ -25,10 +25,10 @@ import * as echarts from 'echarts/core'
 import { BarChart, LineChart, ScatterChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent, MarkLineComponent, DataZoomComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
 import { useChartExport } from '../../composables/dashboard/useChartExport'
+import { isDateBusinessType } from '../../utils/dashboardFieldMeta'
 import DbWidgetEmptyState from './DbWidgetEmptyState.vue'
 
 // Register required modules
@@ -82,10 +82,7 @@ function fieldLabel(fieldName: string): string {
 }
 
 function isXFieldDateType(): boolean {
-  const bt = String(config.value.xFieldMeta?.businessType ?? '')
-  return bt === ColumnFieldType.DateTime
-    || bt === ColumnFieldType.CreatedTime
-    || bt === ColumnFieldType.LastModifiedTime
+  return isDateBusinessType(config.value.xFieldMeta?.businessType)
 }
 
 function formatXAxisValue(value: any): string {
