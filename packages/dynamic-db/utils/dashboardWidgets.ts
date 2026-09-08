@@ -402,6 +402,10 @@ export const dbDashboardWidgetSetting: Record<string, DashboardWidgetSetting> = 
     setting: {
       tableId: '',
       categoryField: '',
+      categoryFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       valueField: '',
       aggregation: 'sum',
       limit: 10,
