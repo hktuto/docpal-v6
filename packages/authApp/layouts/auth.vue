@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TabApp } from '#components'
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 const {
   public: { platform }
@@ -94,7 +94,7 @@ async function persistTabsLayout(layout: TabPanel[]) {
     preference.value.userStoreTab = {}
   }
   preference.value.userStoreTab[appPlatform.value] = JSON.stringify(saveData)
-  await newClientApi.putDmsUserSetting(preference.value as any)
+  await gatewayApi.userSettings.putUserSettings({ settings: preference.value as any })
 }
 
 /** 初始化阶段跳过；之后短时间多次 layout 变更合并为一次 PUT */
