@@ -4674,7 +4674,12 @@
   "workPanel_name": "主頁名稱",
   "workPanel_workPanel": "主頁",
   "workflow": {
-    "adHocApproval": "Adhoc 審核"
+    "adHocApproval": "Adhoc 審核",
+    "state": {
+      "completed": "已完成",
+      "failed": "失敗",
+      "terminated": "已終止"
+    }
   },
   "workflowEdior": {
     "formField": "表單域"
@@ -4924,5 +4929,37 @@
     "pleaseEnterCustomerNo": "⌈{name}⌋ 請輸入客戶編號",
     "pleaseEnterPiAmount": "⌈{name}⌋ 請輸入 PI 金額",
     "pleaseEnterSelfDelivery": "⌈{name}⌋ 請選擇是否自送"
+  },
+  "quotationApproval": {
+    "brand": "品牌",
+    "partNumber": "型號",
+    "series": "系列",
+    "priceType": "價格類型",
+    "leadTime": "交貨時間",
+    "selectLeadTime": "請選擇交貨時間",
+    "tradeCurrency": "交易幣種",
+    "costCurrency": "成本貨幣",
+    "remarks": "備註",
+    "moreDetails": "更多詳情",
+    "hideDetails": "隱藏詳情",
+    "targetPriceHint": "設定不同數量檔位的目標價. 較高的最小起訂量 → 較低的目標價.",
+    "retrieveHistoricalPrices": "檢索歷史價格",
+    "tier": "檔位",
+    "exchangeRate": "匯率",
+    "moq": "起訂量 MOQ",
+    "targetPrice": "目標價",
+    "dataSource": "數據源",
+    "unitCost": "單位成本",
+    "unitPriceNoTax": "單價(未稅)",
+    "profit": "毛利率(%)",
+    "monthlyQuantity": "月用量",
+    "mpq": "最小包裝數 MPQ",
+    "quantityMachine": "單機用量",
+    "uom": "單位 UOM",
+    "competitorName": "競爭對手名稱",
+    "productApplication": "產品應用",
+    "customerPartNumber": "客戶零件編號",
+    "oldSalesPriceNoTax": "原銷售價格(不含稅)",
+    "enterKeyword": "請輸入關鍵詞"
   }
 }

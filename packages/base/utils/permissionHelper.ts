@@ -26,11 +26,14 @@ export const AllowTo = ({ feature, permission }: AllowToArgs) => {
     console.log('permission is null')
     return false
   }
+  const hold = permission.holdDocument || {}
+  const retention = permission.retentionDocument || {}
   // 针对 hold-policy, 仅 acl 为 ReadWrite 权限时显示
   if (feature !== 'ACL-ReadWrite') {
-    if (!!permission.hold && ['A', 'L', 'P'].includes(permission.hold.status)) return false
+    if (!!hold && ['A', 'L', 'P'].includes(hold.status)) return false
   }
-  if (!!permission.retention && permission.retention.status) return false
+  console.log('retention', retention)
+  if (!!retention && retention.status) return false
   const userPermission = permission.permission
   // ['A', 'L', 'P'].includes(holdStatus)
   // FIXME: Y add this?
@@ -97,24 +100,23 @@ const permissionOptions = [
   { label: 'rbac.permission.assignPermission', value: RbacPermission.assignPermission, group: 'manage', name: 'assignPermission' },
   { label: 'rbac.permission.addUserSet', value: RbacPermission.addUserSet, group: 'manage', name: 'addUserSet' }
 ]
-export const RbacAllowTo = (
-  rbacPermission: rbacPermission | any,
-  docDetail: any,
-  isFolder: boolean | '' = ''
-): boolean => {
+export const RbacAllowTo = (rbacPermission: rbacPermission | any, docDetail: any, isFolder: boolean | '' = ''): boolean => {
   // trash document is not editable
   if (!docDetail || docDetail.status === 20) return false
   const permissionIds = docDetail?.permissionIds || []
   if (!permissionIds) return false
+  const hold = docDetail.holdDocument || {}
+  const retention = docDetail.retentionDocument || {}
   if (['normal', 'read'].includes(rbacPermission)) return true
-  
+
   // hold status is A, L, P, return false,hold folder is not editable
   if (!['hold-write'].includes(rbacPermission)) {
-    if (!!docDetail.hold && ['A', 'L', 'P'].includes(docDetail.hold.status)) return false
+    if (!!hold && ['A', 'L', 'P'].includes(hold.status)) return false
   } else {
     rbacPermission = 'write'
   }
-  if(!Array.isArray(permissionIds)) {
+  if (!!retention && retention.status) return false
+  if (!Array.isArray(permissionIds)) {
     console.error('permissionIds', permissionIds)
   }
   return permissionIds.some((id: number) => {

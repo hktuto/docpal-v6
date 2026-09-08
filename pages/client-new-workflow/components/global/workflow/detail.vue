@@ -42,7 +42,6 @@ const contentData = ref<{
 })
 const nodeType = ref<'UserTask' | 'SignatureTask'>('UserTask')
 const isAssigneeUser = ref<boolean>(false)
-const jsonValue = ref<any>({})
 
 async function getDetail() {
   if (!db_id || db_id === '') {
@@ -115,7 +114,6 @@ async function initForm(node: any) {
     routerProvider?.message.error('The form does not exist!')
     return
   }
-  jsonValue.value = formJsonData.jsonValue
   fromRenderRef.value.setForm(formJsonData.jsonValue, variablesData.value)
   handleDisabledForm()
 }
@@ -404,7 +402,8 @@ async function handleTaskInfoChange(res: boolean) {
     handleDisabledForm()
   } else {
     fromRenderRef.value.enableForm()
-    fromRenderRef.value.setForm(jsonValue.value, variablesData.value)
+    await nextTick()
+    await fromRenderRef.value.updateData(variablesData.value)
   }
 
   taskDetail.value.config.human_task.assignee = res ? userId : ''

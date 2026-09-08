@@ -425,26 +425,45 @@ onMounted(() => {
 })
 
 async function getFormData(needValidation = true) {
-  const list = tableData.value.map((item: tableDataType, index: number) => ({
-    lineNo: index + 1,
-    endCustomerProject: item.endCustomer,
-    priceGroup: item.priceGroup,
-    supplierPartNumber: item.supplierPartNumber,
-    currency: item.currency,
-    originalUnitPrice: item.originalUnitPrice,
-    newUnitPrice: item.newUnitPrice,
-    adjustmentRate: item.adjustmentRate,
-    approverRemark: item.approvalRemark ?? ''
-  }))
+  const { list, document_data_list } = tableData.value.reduce(
+    (acc, item: tableDataType, index: number) => {
+      const lineNo = index + 1
+
+      acc.list.push({
+        lineNo,
+        endCustomerProject: item.endCustomer,
+        priceGroup: item.priceGroup,
+        supplierPartNumber: item.supplierPartNumber,
+        currency: item.currency,
+        originalUnitPrice: item.originalUnitPrice,
+        newUnitPrice: item.newUnitPrice,
+        adjustmentRate: item.adjustmentRate,
+        approverRemark: item.approvalRemark ?? ''
+      })
+
+      acc.document_data_list.push({
+        line: lineNo,
+        endCustomer: item.endCustomer,
+        priceGroup: item.priceGroup,
+        supplierPartNumber: item.supplierPartNumber,
+        adjustmentRate: item.adjustmentRate ? `${item.adjustmentRate}%` : ''
+      })
+
+      return acc
+    },
+    { list: [] as any[], document_data_list: [] as any[] }
+  )
 
   const result = !isApproval.value
     ? {
         brand: formModel.brand,
         effective_date: formModel.effectiveDate,
-        list
+        list,
+        document_data_list
       }
     : {
-        list
+        list,
+        document_data_list
       }
 
   if (!needValidation) return result
