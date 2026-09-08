@@ -33,7 +33,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_taskName', fixed: 'left' },
+    { field: 'name', title: 'workflow_taskName', fixed: 'left', slots: { default: 'name' } },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     { field: 'status.type', title: 'dpTable_status' },
     {
@@ -96,6 +96,9 @@ defineExpose({ reload })
             </el-select>
           </el-form-item>
         </div>
+      </template>
+      <template #name="{ row }">
+        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
