@@ -34,7 +34,7 @@ const { public:{ pdfReaderUrl } } = useRuntimeConfig();
 const { locale } = useI18n()
 const colorMode = useColorMode();
 
-const emits = defineEmits()
+const emits = defineEmits(['ready'])
 async function getAnnotation():Promise<Object> {
     if(!props.options.loadAnnotations) return new Map();
     const annotation = await newClientApi.getDmsDocumentAnnotations(props.doc.id);
@@ -51,20 +51,18 @@ async function getAnnotation():Promise<Object> {
     return annotationMap;
 }
 async function sendPdfAndAnnotation() {
-  console.log("correct pdf ")
     if(!props.blob) return;
-    const frame = iframe.value?.contentWindow;
     const blob = structuredClone(toRaw(props.blob))
     const annotations = await getAnnotation()
     const options = structuredClone(toRaw(props.options))
-    if(!frame) return;
-    frame.postMessage({
+
+    sendMessageToIframe({
         blob,
         filename: props.name,
         annotations,
         locale: locale.value,
         options
-    }, '*');
+    });
 }
 async function saveAnnotation(annotation:Map<string, object>) {
     //return if annotation is empty
@@ -90,6 +88,17 @@ async function saveAnnotation(annotation:Map<string, object>) {
     //  TODO : show notification
 }
 
+async function sendMessageToIframe(data?: any) {
+  const frame = iframe.value?.contentWindow;
+  if(!frame) return;
+  frame.postMessage(data, '*');
+}
+
+async function search(query: string) {
+  const frame = iframe.value?.contentWindow;
+  if(!frame) return;
+  sendMessageToIframe({ type: 'search', options: { query } });
+}
 
 function gotMessageFromIframe(message:MessageEvent) {
     const { data:{ data, type} } = message;
@@ -98,12 +107,13 @@ function gotMessageFromIframe(message:MessageEvent) {
         if(!props.loading) {
             clearInterval(interval)
             switch(type) {
-                case 'ready':
-                    sendPdfAndAnnotation()
-                    break;
-                case 'annotation':
-                    saveAnnotation(data)
+              case 'ready':
+                emits('ready')
+                sendPdfAndAnnotation()
                 break;
+              case 'annotation':
+                  saveAnnotation(data)
+              break;
               case 'print':
                 console.log('print from pdf')
                     // TODO :　 add print handler
@@ -116,6 +126,11 @@ function gotMessageFromIframe(message:MessageEvent) {
 
 }
 useEventListener(window, 'message', gotMessageFromIframe)
+
+defineExpose({
+  sendMessageToIframe,
+  search
+})
 </script>
 
 <style lang="scss" scoped>
