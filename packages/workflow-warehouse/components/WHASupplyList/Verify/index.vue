@@ -13,8 +13,8 @@
         <WHASupplyListVerifyTable />
       </el-splitter-panel>
       <el-splitter-panel class="mg-left side-panel" size="12%" :collapsible="isCollapsible" :min="150">
-        <WHASupplyListVerifyDetailCard ref="detailCardRef" />
-        <WHASupplyListVerifyDetectedCard class="mg-top" />
+        <WHASupplyListVerifyDetailCard ref="detailCardRef" @invoiceUpdate="handleInvoiceUpdate" />
+        <WHASupplyListVerifyDetectedCard ref="detectedCardRef" class="mg-top" />
         <WHASupplyListVerifyProgressCard class="mg-top" />
       </el-splitter-panel>
     </el-splitter>
@@ -22,16 +22,28 @@
 </template>
 
 <script setup lang="ts">
+import { newClientApi } from 'api'
 import { SGLA } from '../../../utils/variableMapping'
 
 const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const { t } = useI18n()
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList } = useWHASupplyListVerifyProvider(props)
+const { reload } = useWHASupplyListVerifyTableProvider(selectedInvoice)
 const fileList = computed(() => props.formData?.file_list_info || [])
-
 const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
-useWHASupplyListVerifyTableProvider(selectedInvoice)
+const detectedCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetectedCard>>()
+
+async function handleInvoiceUpdate(value: string, item: any) {
+  await newClientApi.postWmsPackingOrderSupplement({
+    batchNo: props.formData?.batch_no,
+    invoiceNum: value
+  })
+  await reload()
+  await detectedCardRef.value?.handleDetect(true, true)
+  item.status = 'pass'
+}
+
 async function getFormData(needValidation: boolean) {
   if (!needValidation) return
   const result = await detailCardRef.value?.validate()

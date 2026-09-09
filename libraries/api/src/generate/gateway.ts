@@ -373,6 +373,7 @@ export interface DtoUserProfileRequest {
 }
 
 export interface DtoUserSelectOptionDTO {
+    email?: string;
     firstName?: string;
     label?: string;
     lastName?: string;

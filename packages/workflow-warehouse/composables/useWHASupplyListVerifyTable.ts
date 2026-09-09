@@ -60,6 +60,21 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     nextTick(() => tableRef.value?.updateData?.())
   }
 
+  /** 将匹配行的 verified(Checked) 置为 false，返回是否有变更 */
+  function resetVerifiedMatches(matches: HighlightMatchKey | HighlightMatchKey[]) {
+    const list = Array.isArray(matches) ? matches : [matches]
+    const keys = new Set(list.map((m) => rowMatchKey(m.supplierPn, m.poLine)))
+    let changed = false
+    for (const row of tableData.value) {
+      if (!keys.has(itemMatchKey(row)) || !row[SGLA_ITEMS.Checked]) continue
+      row[SGLA_ITEMS.Checked] = false
+      tableRef.value?.setCheckboxRow?.(row, false)
+      changed = true
+    }
+    if (changed) nextTick(() => tableRef.value?.updateData?.())
+    return changed
+  }
+
   async function getCountryList() {
     try {
       countryList.value = await fetchCountryList()
@@ -311,6 +326,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     applyBatchEdit,
     highlightMatchingRows,
     clearMatchingRowHighlight,
+    resetVerifiedMatches,
     addRow,
     saveTableData
   }

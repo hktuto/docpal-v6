@@ -4,10 +4,10 @@ import { SGLA } from '../../../utils/variableMapping'
 
 const detecting = ref(false)
 const unmatchedList = ref<any[]>([])
-const { formData, selectedInvoice } = useWHASupplyListVerifyInject()
-const { saveTableData, highlightMatchingRows } = useWHASupplyListVerifyTableInject()
+const { formData, selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
+const { saveTableData, highlightMatchingRows, resetVerifiedMatches } = useWHASupplyListVerifyTableInject()
 
-async function handleDetect(isInit = true) {
+async function handleDetect(isInit = true, reset = false) {
   if (detecting.value) return
   detecting.value = true
   try {
@@ -16,7 +16,7 @@ async function handleDetect(isInit = true) {
       batchNo: formData.value?.batch_no,
       invoiceNum: selectedInvoice.value?.[SGLA.Name]
     })
-    unmatchedList.value = res.data
+    unmatchedList.value = (res.data || [])
       .filter((item: any) => !item.is_match)
       .map((item: any) => ({
         supplierPn: item.ocr.vendor_item_no,
@@ -26,6 +26,14 @@ async function handleDetect(isInit = true) {
         dbPo: item.database.po
       }))
     highlightMatchingRows(unmatchedList.value)
+
+    if (reset && unmatchedList.value.length) {
+      const changed = resetVerifiedMatches?.(unmatchedList.value)
+      if (selectedInvoice.value?.[SGLA.Status] === 'confirm') {
+        await updateInvoiceData({ [SGLA.Status]: 'created' })
+      }
+      if (changed) await saveTableData()
+    }
   } catch (error) {
     console.error(error)
   } finally {
