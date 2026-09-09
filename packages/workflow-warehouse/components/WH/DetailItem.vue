@@ -16,13 +16,7 @@
           @visible-change="handleDateVisibleChange"
           @keydown.esc.prevent="handleCancel"
         />
-        <el-button
-          v-if="buttonText"
-          v-tooltip="buttonTitle || buttonText"
-          type="primary"
-          size="small"
-          @click="handleBotton"
-        >
+        <el-button v-if="buttonText" v-tooltip="buttonTitle || buttonText" type="primary" size="small" @click="handleBotton">
           {{ buttonText }}
         </el-button>
       </div>
@@ -80,6 +74,9 @@
           <el-icon v-else-if="status === 'fail'" class="detail-edit-icon is-fail" aria-hidden="true" @click="handleRetry">
             <RefreshRight />
           </el-icon>
+          <el-icon v-else-if="status === 'error'" class="is-fail" aria-hidden="true">
+            <Warning />
+          </el-icon>
           <el-icon v-else class="detail-edit-icon" aria-hidden="true" @click="handleStartEdit">
             <EditPen />
           </el-icon>
@@ -90,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { EditPen, Loading, RefreshRight } from '@element-plus/icons-vue'
+import { EditPen, Loading, RefreshRight, Warning } from '@element-plus/icons-vue'
 import type { InputInstance } from 'element-plus'
 
 export type DetailSelectOption = {
@@ -105,7 +102,7 @@ const props = withDefaults(
     textValue?: string | number
     disabled?: boolean
     type?: 'text' | 'date' | 'select'
-    status?: 'pass' | 'fail' | 'loading'
+    status?: 'pass' | 'fail' | 'loading' | 'error'
     options?: DetailSelectOption[]
     buttonText?: string
     buttonTitle?: string
@@ -206,7 +203,7 @@ function handleBotton() {
 }
 
 function handleRetry() {
-  if (props.disabled || props.status !== 'fail') return
+  if (props.disabled || (props.status !== 'fail' && props.status !== 'error')) return
   emit('save', props.value == null ? '' : String(props.value))
 }
 
@@ -311,7 +308,6 @@ function handleCancel() {
     }
   }
 }
-
 .detail-edit-icon {
   flex-shrink: 0;
   color: var(--el-text-color-placeholder);
@@ -321,12 +317,10 @@ function handleCancel() {
   &:hover:not(.is-loading):not(.is-fail) {
     color: var(--el-color-primary);
   }
-
-  &.is-fail {
-    color: var(--el-color-danger);
-  }
 }
-
+.is-fail {
+  color: var(--el-color-danger);
+}
 .detail-value-edit {
   z-index: 20;
   position: absolute;

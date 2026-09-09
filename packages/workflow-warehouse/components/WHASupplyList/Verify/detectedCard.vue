@@ -7,7 +7,7 @@ const unmatchedList = ref<any[]>([])
 const { formData, selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { saveTableData, highlightMatchingRows, resetVerifiedMatches } = useWHASupplyListVerifyTableInject()
 
-async function handleDetect(isInit = true, reset = false) {
+async function handleDetect(isInit = true, reset = true) {
   if (detecting.value) return
   detecting.value = true
   try {

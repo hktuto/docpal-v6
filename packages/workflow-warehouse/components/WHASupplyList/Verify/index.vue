@@ -6,10 +6,10 @@
       <el-splitter-panel class="mg-right" size="7%" :collapsible="false" :min="50">
         <WHASupplyListVerifyList />
       </el-splitter-panel>
-      <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200" >
+      <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200">
         <WorkflowPreviewTitle :selectedInvoice="selectedInvoice" :doc-id="selectedInvoice?.file?.id" :file-list="fileList" />
       </el-splitter-panel>
-      <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200" >
+      <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200">
         <WHASupplyListVerifyTable />
       </el-splitter-panel>
       <el-splitter-panel class="mg-left side-panel" size="12%" :collapsible="isCollapsible" :min="150">
@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { newClientApi } from 'api'
 import { SGLA } from '../../../utils/variableMapping'
-
+import { ElMessage } from 'element-plus'
 const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const { t } = useI18n()
 const isCollapsible = ref(true)
@@ -35,13 +35,22 @@ const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
 const detectedCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetectedCard>>()
 
 async function handleInvoiceUpdate(value: string, item: any) {
-  await newClientApi.postWmsPackingOrderSupplement({
-    batchNo: props.formData?.batch_no,
-    invoiceNum: value
-  })
-  await reload()
-  await detectedCardRef.value?.handleDetect(true, true)
-  item.status = 'pass'
+  try {
+    const res = await newClientApi.postWmsPackingOrderSupplement({
+      batchNo: props.formData?.batch_no,
+      invoiceNum: value
+    })
+    if (!res.data) {
+      ElMessage.error('No invoice found')
+      item.status = 'error'
+      return
+    }
+    await reload()
+    await detectedCardRef.value?.handleDetect(true, true)
+    item.status = 'pass'
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 async function getFormData(needValidation: boolean) {
