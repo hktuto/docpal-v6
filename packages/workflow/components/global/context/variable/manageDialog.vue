@@ -135,7 +135,7 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="opened" title="Edit Variables" append-to-body class="big">
+  <el-dialog v-model="opened" title="Edit Variables" append-to-body class="big" :close-on-click-modal="false">
     <template #default>
       <div class="addFieldRow">
         <el-alert show-icon :title="$t('bpmn.globalRuleTip')" type="info" />

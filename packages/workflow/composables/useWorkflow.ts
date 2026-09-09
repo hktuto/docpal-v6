@@ -113,6 +113,10 @@ export const useWorkflow = () => {
         component: 'FormWidgetTnApprovalTable'
       },
       {
+        name: 'tnApprovalCancel',
+        component: 'FormWidgetTnApprovalCancel'
+      },
+      {
         name: 'reschedulePlanDate',
         component: 'FormWidgetReschedulePlanDate'
       }
