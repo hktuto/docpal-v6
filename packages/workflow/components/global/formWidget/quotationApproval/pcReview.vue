@@ -228,18 +228,15 @@ function handleHistoryPriceSubmit(data: any) {
 
     const newList = list.map((newItem: any, index: number) => {
       let priceItem: TargetPriceItem
-      let exchangeRate = 1
-      if (!newItem.exchangeRate) {
-        handelCostCurrency({ cost_currency: newItem.currency, exchange_rate: 1 })
-      }
+      const exchangeRate = !!newItem.exchangeRate ? newItem.exchangeRate : handelCostCurrency({ cost_currency: newItem.currency, exchange_rate: 1 })
 
       if (!!oldList[index]) {
         priceItem = {
           ...oldList[index],
           cost_currency: newItem.currency,
-          unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
-          unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
-          exchange_rate: newItem.exchangeRate,
+          unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(exchangeRate)).toFixed(6)),
+          unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchangeRate)).toFixed(6)),
+          exchange_rate: exchangeRate,
           data_source: newItem.type,
           profit: 1
         }
@@ -251,10 +248,10 @@ function handleHistoryPriceSubmit(data: any) {
           moq: 0,
           target_price: 0,
           data_source: newItem.type,
-          unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
-          unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(newItem.exchangeRate)).toFixed(6)),
+          unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(exchangeRate)).toFixed(6)),
+          unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchangeRate)).toFixed(6)),
           cost_currency: formData.currency,
-          exchange_rate: newItem.exchangeRate,
+          exchange_rate: exchangeRate,
           profit: 1,
           status: 'A'
         }
