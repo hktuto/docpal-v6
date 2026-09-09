@@ -4,6 +4,7 @@ import { newClientApi } from 'api'
 const props = defineProps<{
   options?: Object
   taskDetail?: any
+  workflowVariables?: Record<string, any>
 }>()
 const state = reactive<any>({
   formData: {},
@@ -296,7 +297,8 @@ provide('workflowFormRender', {
           :is="item.component"
           :ref="(el: any) => (formRenderSlotsRef[item.name] = el)"
           :disabled="state.readonly"
-          :formData="formData"
+          :formData="{ ...(props.workflowVariables || {}), ...(formData || {}) }"
+          :workflow-variables="props.workflowVariables"
           :options="data.options?.dynamicConfig"
           :vformOptions="data.options"
           :taskDetail="props.taskDetail"

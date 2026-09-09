@@ -503,7 +503,7 @@ onMounted(() => {
             <div v-if="nodeType === CellType.signatureTask" class="toggleFullScreenButton">
               <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
             </div>
-            <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" @formChange="handleFormChange">
+            <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" :workflowVariables="variablesData" @formChange="handleFormChange">
               <template #action>
                 <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
                   <template v-for="(item, index) in additionalButton" :key="index">
