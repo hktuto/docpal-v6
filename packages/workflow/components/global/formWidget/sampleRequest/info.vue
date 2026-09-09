@@ -111,7 +111,7 @@ async function getFormData(needValidation = true) {
   const result = {
     sample_info_list: formModel.list,
     part_number_list: part_number_list.join(','),
-    email_part_list: JSON.stringify(email_part_list)
+    email_part_list: email_part_list
   }
   if (!needValidation) return result
   await formRef.value?.validate()

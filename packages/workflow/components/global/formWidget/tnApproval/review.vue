@@ -1,35 +1,20 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
-
-const emits = defineEmits<{
-  confirm: [payload: ReviewPayload]
-}>()
-
 type ReviewPayload = {
   office: string
-  tnPlannedDate: string | number
+  toPlannedDate: string | number
   commodityInspection: string
   remark: string
   dataList: any[]
 }
 
-const visible = ref(false)
+const visible = ref<boolean>(false)
 const formModel = reactive({
   office: '',
-  tnPlannedDate: '' as string | number,
+  toPlannedDate: '' as string | number,
   commodityInspection: '',
   remark: ''
 })
 const dataList = ref<any[]>([])
-
-function formatNumber(value: unknown, fractionDigits?: number) {
-  const num = Number(value)
-  if (Number.isNaN(num)) return value ?? ''
-  return num.toLocaleString('en-US', {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits ?? 6
-  })
-}
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'tnApprovalReviewTable',
@@ -37,25 +22,21 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   columns: [
     {
       field: 'index',
-      title: 'Ln.',
+      title: '序號 Index',
       align: 'center',
       type: 'seq',
-      width: 60
-    },
-    {
-      field: 'po_line_number',
-      title: 'PO行號 PO Line',
-      minWidth: 120
+      fixed: 'left',
+      minWidth: 100
     },
     {
       field: 'po_number',
       title: 'PO編號 PO Number',
-      minWidth: 160
+      minWidth: 240
     },
     {
       field: 'part_number',
       title: '零件編號 Part Number',
-      minWidth: 160
+      minWidth: 240
     },
     {
       field: 'origin',
@@ -63,55 +44,43 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 100
     },
     {
-      field: 'onhand_qty',
-      title: '在手數量 Onhand Qty',
-      minWidth: 140,
-      formatter({ cellValue }: any) {
-        return formatNumber(cellValue, 0)
-      }
+      field: 'sys_qty',
+      title: '系統數量 Sys Qty',
+      minWidth: 240
     },
     {
       field: 'product_name',
       title: '產品名稱 Product Name',
-      minWidth: 160
+      minWidth: 240
     },
     {
       field: 'from_sub_inventory',
-      title: '來自子庫存 From Sub-Inv',
-      minWidth: 150
+      title: '來自子庫存 From Sub-Inventory',
+      minWidth: 240
     },
     {
       field: 'sub_inventory',
-      title: '至子庫存 To Sub-Inv',
-      minWidth: 140
+      title: '至子庫存 To Sub-Inventory',
+      minWidth: 240
     },
     {
       field: 'qty',
       title: '轉移數量 Transfer Qty',
-      minWidth: 140,
-      formatter({ cellValue }: any) {
-        return formatNumber(cellValue, 0)
-      }
+      minWidth: 140
     },
     {
       field: 'unit_price',
-      title: '單價 Unit Price (CNY)',
-      minWidth: 160,
-      formatter({ cellValue }: any) {
-        return formatNumber(cellValue, 6)
-      }
+      title: '單價 Unit Price',
+      minWidth: 160
     },
     {
       field: 'amount',
-      title: '合計 Amount (CNY)',
-      minWidth: 150,
-      formatter({ cellValue }: any) {
-        return formatNumber(cellValue, 2)
-      }
+      title: '合計 Amount',
+      minWidth: 150
     }
   ],
   zoom: false,
-  customeToolBar: false,
+  customeToolBar: true,
   virtualScroll: true,
   remoteSort: false,
   remoteFilter: false,
@@ -119,36 +88,21 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 })
 
 function open(payload: ReviewPayload) {
-  formModel.office = payload.office || ''
-  formModel.tnPlannedDate = payload.tnPlannedDate || ''
-  formModel.commodityInspection = payload.commodityInspection || ''
-  formModel.remark = payload.remark || ''
-  dataList.value = (payload.dataList || []).map((item) => ({
-    ...item,
-    onhand_qty: item.onhand_qty ?? item.sys_qty
-  }))
   visible.value = true
+  formModel.office = payload.office
+  formModel.toPlannedDate = payload.toPlannedDate
+  formModel.commodityInspection = payload.commodityInspection
+  formModel.remark = payload.remark
+  dataList.value = payload.dataList
+
   nextTick(() => reload())
 }
-
-const displayTnPlannedDate = computed(() => {
-  if (!formModel.tnPlannedDate) return ''
-  return dayjs(formModel.tnPlannedDate).format('YYYY/MMM/DD')
-})
 
 defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog
-    v-model="visible"
-    title="Transfer Note Creation - Confirm"
-    append-to-body
-    class="big"
-    destroy-on-close
-    align-center
-    :before-close="visible = false"
-  >
+  <el-dialog v-model="visible" title="Transfer Note Creation - Confirm" append-to-body class="big" destroy-on-close @close="visible = false">
     <el-form :model="formModel" label-position="top" class="tn-review-form">
       <el-row :gutter="16">
         <el-col :span="8">
@@ -158,7 +112,7 @@ defineExpose({ open })
         </el-col>
         <el-col :span="8">
           <el-form-item label="TN計畫日期 TN Planned Date">
-            <el-input :model-value="displayTnPlannedDate" disabled />
+            <el-input :model-value="formModel.toPlannedDate" disabled />
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -168,7 +122,7 @@ defineExpose({ open })
         </el-col>
       </el-row>
       <el-form-item label="備註 Remarks">
-        <el-input :model-value="formModel.remark" type="textarea" :rows="2" disabled />
+        <el-input :model-value="formModel.remark" disabled />
       </el-form-item>
     </el-form>
 
