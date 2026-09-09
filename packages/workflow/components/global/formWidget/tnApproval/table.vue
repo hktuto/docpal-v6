@@ -282,21 +282,17 @@ function handleDblClick(row: any) {
 }
 
 function handleReview() {
-  if (!selectedRowsList.value.length) {
-    ElMessage.error('請選擇訂單')
+  if (!dataList.value.length) {
+    ElMessage.error('請搜索訂單')
     return
   }
 
-  const firstRow = selectedRowsList.value[0]
-  const officeCode = firstRow.office || userInfo.value.office
-  const officeName = officeOption.value.find((item: any) => item.sub_office === officeCode)?.org_name || officeCode
-
   tnApprovalReviewRef.value?.open({
-    office: officeName,
-    tnPlannedDate: firstRow.tn_planned_date || toPlannedDate.value,
-    commodityInspection: firstRow.commodity_inspection || '',
+    office: userInfo.value.office,
+    toPlannedDate: toPlannedDate.value,
+    commodityInspection: '',
     remark: remark.value,
-    dataList: selectedRowsList.value
+    dataList: dataList.value
   })
 }
 
