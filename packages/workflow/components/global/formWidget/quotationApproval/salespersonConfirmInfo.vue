@@ -191,7 +191,7 @@ defineExpose({ getFormData })
                     <el-col :span="4">
                       <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled>
                         <template #suffix>
-                          <span>{{ targetPriceItem.cost_currency }}</span>
+                          <span>{{ formData.currency }}</span>
                         </template>
                       </el-input-number>
                     </el-col>
@@ -199,7 +199,7 @@ defineExpose({ getFormData })
                       <el-form-item class="target-price-form-item">
                         <el-input-number style="width: 90%" v-model="targetPriceItem.unit_price_no_tax" disabled>
                           <template #suffix>
-                            <span>{{ targetPriceItem.cost_currency }}</span>
+                            <span>{{ formData.currency }}</span>
                           </template>
                         </el-input-number>
                       </el-form-item>
@@ -213,7 +213,7 @@ defineExpose({ getFormData })
                         :step="0.000001"
                       >
                         <template #suffix>
-                          <span>{{ targetPriceItem.cost_currency }}</span>
+                          <span>{{ formData.currency }}</span>
                         </template>
                       </el-input-number>
                     </el-col>

@@ -208,10 +208,16 @@ function handelCostCurrency(item: any) {
   const cost_currency = item.cost_currency
   const currency = formData.currency
   if (!cost_currency || !currency) return
-  if (cost_currency === currency) return
+
+  if (cost_currency === currency) {
+    item.exchange_rate = 1
+    return 1
+  }
 
   const find: any = exchangeRateList.value.find((rate: any) => rate.from_currency === cost_currency && rate.to_currency === currency)
   item.exchange_rate = find.conversion_rate.toFixed(4)
+
+  return find.conversion_rate.toFixed(4)
 }
 
 function handleHistoryPriceSubmit(data: any) {
@@ -222,6 +228,11 @@ function handleHistoryPriceSubmit(data: any) {
 
     const newList = list.map((newItem: any, index: number) => {
       let priceItem: TargetPriceItem
+      let exchangeRate = 1
+      if (!newItem.exchangeRate) {
+        handelCostCurrency({ cost_currency: newItem.currency, exchange_rate: 1 })
+      }
+
       if (!!oldList[index]) {
         priceItem = {
           ...oldList[index],
@@ -305,7 +316,8 @@ async function init() {
       status: 'A',
       target_price: priceItem.target_price,
       tier_number: priceItem.tier_number,
-      unit_cost: '0.000001'
+      unit_cost: '0.000001',
+      exchange_rate: 1
     }))
 
     return {

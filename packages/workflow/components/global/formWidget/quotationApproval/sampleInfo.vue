@@ -475,7 +475,7 @@ defineExpose({ getFormData })
                           @change="handleTargetPriceChange(index, targetPriceIndex)"
                         >
                           <template #suffix>
-                            <span>{{ targetPriceItem.cost_currency }}</span>
+                            <span>{{ formData.currency }}</span>
                           </template>
                         </el-input-number>
                       </el-form-item>
