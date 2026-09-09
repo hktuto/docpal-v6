@@ -80,6 +80,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     }
   ],
   zoom: false,
+  refresh: false,
   customeToolBar: true,
   virtualScroll: true,
   remoteSort: false,

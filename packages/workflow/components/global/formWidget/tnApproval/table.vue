@@ -15,6 +15,7 @@ const tnApprovalDialogRef = ref()
 const tnApprovalReviewRef = ref()
 const selectedRowsList = ref<any[]>([])
 const formModel = reactive({
+  dataListLength: 0,
   selectedRowsListLength: 0
 })
 const isGitSearch = ref<boolean>(true)
@@ -30,7 +31,7 @@ const search = reactive({
   partNumber: '',
   poNumber: ''
 })
-const subInventoryOption = ref<any[]>()
+const subInventoryOption = ref<any[]>([])
 const officeOption = ref<any[]>([])
 
 const rules = {
@@ -54,6 +55,16 @@ watch(
   selectedRowsListLength,
   (len) => {
     formModel.selectedRowsListLength = len
+  },
+  { immediate: true }
+)
+const dataListLength = computed(() => {
+  return dataList.value.length || 0
+})
+watch(
+  dataListLength,
+  (len) => {
+    formModel.dataListLength = len
   },
   { immediate: true }
 )
@@ -243,6 +254,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     }
   ],
   zoom: false,
+  refresh: false,
   customeToolBar: false,
   virtualScroll: true,
   remoteSort: false,
@@ -319,7 +331,9 @@ async function getFormData(needValidation = true) {
 
   const result = {
     data_list: list,
-    remark: ''
+    remark: '',
+    email_create_date: dayjs().format('YYYY年MM月DD日'),
+    email_planned_date: dayjs(toPlannedDate.value).format('YYYY年MM月DD日')
   }
 
   if (!needValidation) return result
@@ -513,14 +527,17 @@ defineExpose({ getFormData })
   <div style="height: 79vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <el-form v-if="!formData.is_approval" ref="formRef" :model="formModel" :rules="rules" label-position="left" inline>
-          <el-form-item label="已選中數量 Selected Quantity" prop="selectedRowsListLength">
-            <el-input v-model="formModel.selectedRowsListLength" disabled />
-          </el-form-item>
-        </el-form>
-        <el-form-item v-else>
-          <el-input v-model="formModel.selectedRowsListLength" disabled />
-        </el-form-item>
+        <div class="toolbar-selected">
+          <el-form ref="formRef" :model="formModel" :rules="rules" label-position="left" inline class="toolbar-selected__form">
+            <el-form-item label="數量 Quantity" prop="dataListLength">
+              <el-input v-model="formModel.dataListLength" disabled />
+            </el-form-item>
+          </el-form>
+          <div>
+            已選中數量 Selected Quantity: {{ formModel.selectedRowsListLength }}
+            <el-button v-if="dataList.length > 0" type="danger">Clear</el-button>
+          </div>
+        </div>
       </template>
 
       <template #qty="{ row, index }">
@@ -529,7 +546,6 @@ defineExpose({ getFormData })
       <template #shipment_number="{ row, index }">
         <el-input v-model="row.shipment_number" />
       </template>
-
       <template #sub_inventory="{ row, index }">
         <el-select v-model="row.sub_inventory">
           <el-option v-for="item in subInventoryOption" :key="item.value" :label="item.label" :value="item.value" />
@@ -598,6 +614,22 @@ defineExpose({ getFormData })
   &__item {
     flex: 1;
     margin-bottom: 0;
+  }
+}
+
+.toolbar-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+
+  &__form {
+    margin-bottom: 0;
+
+    :deep(.el-form-item) {
+      margin-bottom: 0;
+    }
   }
 }
 </style>
