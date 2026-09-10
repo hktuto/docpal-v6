@@ -6,6 +6,7 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 const foundryCustNum = ref([])
 const customerOptions = ref<any[]>([])
 const loading = ref(false)
@@ -46,7 +47,7 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form-item label="代工廠編號 / 名">
+  <el-form-item :label="t('sampleRequest.foundryCustNum')">
     <el-select-v2
       v-model="foundryCustNum"
       filterable

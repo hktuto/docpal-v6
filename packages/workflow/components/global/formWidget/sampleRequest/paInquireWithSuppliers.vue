@@ -4,6 +4,7 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 function isSeries(item: any) {
   return item.series !== ''
@@ -46,8 +47,8 @@ const data = toRef(formModel, 'list')
 
 const formRef = ref()
 const rules = {
-  etd: [{ required: true, message: '請選擇供應商預計發貨時間', trigger: 'change' }],
-  eta: [{ required: true, message: '請選擇供應商樣品預計到達時間', trigger: 'change' }]
+  etd: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.etd') }), trigger: 'change' }],
+  eta: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.eta') }), trigger: 'change' }]
 }
 
 function init() {
@@ -83,12 +84,12 @@ defineExpose({ getFormData })
         <span class="info-item-card__index">{{ index + 1 }}.</span>
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="品牌">
+            <el-form-item :label="t('sampleRequest.brand')">
               <el-input disabled v-model="item.vendor" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="isSeries(item) ? '系列' : '型號'">
+            <el-form-item :label="isSeries(item) ? t('sampleRequest.series') : t('sampleRequest.partNumber')">
               <el-input disabled v-if="isSeries(item)" v-model="item.series" />
               <el-input disabled v-else v-model="item.part_number" />
             </el-form-item>
@@ -96,28 +97,28 @@ defineExpose({ getFormData })
           <el-col :span="8" />
 
           <el-col :span="8">
-            <el-form-item label="產品經理">
+            <el-form-item :label="t('sampleRequest.productManager')">
               <el-input v-model="item.pm" />
             </el-form-item>
-            <el-form-item label="供應商產地">
+            <el-form-item :label="t('sampleRequest.vendorCoo')">
               <el-input v-model="item.vendor_coo" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="銷售經理">
+            <el-form-item :label="t('sampleRequest.salesAdmin')">
               <el-input v-model="item.sales_admin" />
             </el-form-item>
-            <el-form-item label="供應商預計發貨時間" required :prop="`list.${index}.etd`" :rules="rules.etd">
+            <el-form-item :label="t('sampleRequest.etd')" required :prop="`list.${index}.etd`" :rules="rules.etd">
               <el-date-picker v-model="item.etd" type="date" placeholder="Pick a day" :clearable="false" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="供應商聯係人">
+            <el-form-item :label="t('sampleRequest.vendorAttn')">
               <el-input v-model="item.vendor_attn" />
             </el-form-item>
-            <el-form-item label="供應商樣品預計到達時間" required :prop="`list.${index}.eta`" :rules="rules.eta">
+            <el-form-item :label="t('sampleRequest.eta')" required :prop="`list.${index}.eta`" :rules="rules.eta">
               <el-date-picker v-model="item.eta" type="date" placeholder="Pick a day" :clearable="false" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>

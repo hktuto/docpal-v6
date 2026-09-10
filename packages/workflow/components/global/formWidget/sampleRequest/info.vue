@@ -8,6 +8,7 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 const formRef = ref()
 const isSeries = ref<boolean>(false)
 const loading = ref(false)
@@ -41,11 +42,11 @@ const data = toRef(formModel, 'list')
 const partList = ref<any[]>([])
 const seriesList = ref<any[]>([])
 const rules = {
-  purpose: [{ required: true, message: 'Please select purpose', trigger: 'change' }],
-  series: [{ required: true, message: 'Please select series', trigger: 'change' }],
-  part_number: [{ required: true, message: 'Please select part number', trigger: 'change' }],
-  remarks: [{ required: true, message: 'Please input remarks', trigger: 'change' }],
-  car_use: [{ required: true, message: 'Please select car use', trigger: 'change' }]
+  purpose: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.purpose') }), trigger: 'change' }],
+  series: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.series') }), trigger: 'change' }],
+  part_number: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.partNumber') }), trigger: 'change' }],
+  remarks: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.remarks') }), trigger: 'change' }],
+  car_use: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.carUse') }), trigger: 'change' }]
 }
 
 function handleAdd(index?: number) {
@@ -189,7 +190,7 @@ defineExpose({ getFormData })
 
 <template>
   <el-form label-position="top" :disabled="formData.disabledInfo" ref="formRef" :model="formModel">
-    <el-button v-if="data.length === 0" type="primary" @click="handleAdd">Add Sample Info</el-button>
+    <el-button v-if="data.length === 0" type="primary" @click="handleAdd">{{ t('sampleRequest.addSampleInfo') }}</el-button>
     <template v-for="(item, index) in data" :key="item.line_number">
       <div class="info-item-card">
         <div class="info-item-card__header">
@@ -201,13 +202,13 @@ defineExpose({ getFormData })
         </div>
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="品牌">
+            <el-form-item :label="t('sampleRequest.brand')">
               <el-input v-model="item.vendor" disabled />
             </el-form-item>
-            <el-form-item label="單機用量">
+            <el-form-item :label="t('sampleRequest.pcsUnit')">
               <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
-            <el-form-item v-if="checkPurpose(item.vendor)" label="目的" :prop="`list.${index}.purpose`" :rules="rules.purpose" required>
+            <el-form-item v-if="checkPurpose(item.vendor)" :label="t('sampleRequest.purpose')" :prop="`list.${index}.purpose`" :rules="rules.purpose" required>
               <el-select v-model="item.purpose">
                 <el-option value="New Design" label="New Design" />
                 <el-option value="Replacement" label="Replacement" />
@@ -218,7 +219,7 @@ defineExpose({ getFormData })
 
           <el-col :span="8">
             <el-form-item
-              :label="isSeries ? '系列' : '型號'"
+              :label="isSeries ? t('sampleRequest.series') : t('sampleRequest.partNumber')"
               required
               :prop="`list.${index}.${isSeries ? 'series' : 'part_number'}`"
               :rules="isSeries ? rules.series : rules.part_number"
@@ -253,7 +254,7 @@ defineExpose({ getFormData })
               </div>
             </el-form-item>
 
-            <el-form-item label="月用量(K/M)">
+            <el-form-item :label="t('sampleRequest.monthlyUsage')">
               <el-input-number v-model="item.fcst_qty" controls-position="right" :min="1" :step="1" step-strictly>
                 <template #suffix>
                   <span>K/M</span>
@@ -263,10 +264,10 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="申請數量">
+            <el-form-item :label="t('sampleRequest.requestQty')">
               <el-input-number v-model="item.request_qty" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
-            <el-form-item label="客戶月用量(K/M)">
+            <el-form-item :label="t('sampleRequest.customerMonthlyUsage')">
               <el-input-number v-model="item.run_rate" controls-position="right" :min="1" :step="1" step-strictly>
                 <template #suffix>
                   <span>K/M</span>
@@ -276,38 +277,38 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="整盤">
+            <el-form-item :label="t('sampleRequest.packaged')">
               <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" />
             </el-form-item>
-            <el-form-item label="競爭者名稱" prop="competitor_name">
+            <el-form-item :label="t('sampleRequest.competitorName')" prop="competitor_name">
               <el-input v-model="item.competitor_name" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="是否用於汽車" :required="['MMC', 'NCC'].includes(item.vendor.toUpperCase())" :prop="`list.${index}.car_use`">
+            <el-form-item :label="t('sampleRequest.carUse')" :required="['MMC', 'NCC'].includes(item.vendor.toUpperCase())" :prop="`list.${index}.car_use`">
               <el-switch v-model="item.car_use" active-text="Yes" active-value="Yes" inactive-text="No" inactive-value="No" />
             </el-form-item>
-            <el-form-item label="競爭者型號" prop="competitor_pn">
+            <el-form-item :label="t('sampleRequest.competitorPn')" prop="competitor_pn">
               <el-input v-model="item.competitor_pn" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="客戶選擇或銷售推薦">
+            <el-form-item :label="t('sampleRequest.custSelectedParts')">
               <el-switch
                 v-model="item.cust_selected_parts"
-                active-text="客户选择"
+                :active-text="t('sampleRequest.selectedByCustomer')"
                 active-value="Selected by Customer"
-                inactive-text="销售推荐"
+                :inactive-text="t('sampleRequest.introducedBySales')"
                 inactive-value="Introduced by Sales"
               />
             </el-form-item>
-            <el-form-item label="競爭者價格">
+            <el-form-item :label="t('sampleRequest.competitorUnitPrice')">
               <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="0.000001" :step="1" step-strictly />
             </el-form-item>
           </el-col>
 
           <el-col :span="24">
-            <el-form-item label="備注" :required="item.purpose === 'Others'" prop="remarks">
+            <el-form-item :label="t('sampleRequest.remarks')" :required="item.purpose === 'Others'" prop="remarks">
               <el-input v-model="item.remarks" :autosize="{ minRows: 2, maxRows: 6 }" type="textarea" placeholder="Please input" />
             </el-form-item>
           </el-col>

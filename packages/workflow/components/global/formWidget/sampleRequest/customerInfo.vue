@@ -6,6 +6,7 @@ const { disabled, formData } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 const formRef = ref()
 const defaultFormModel = () => ({
@@ -24,9 +25,9 @@ const defaultFormModel = () => ({
 const formModel = reactive(defaultFormModel())
 
 const rules = {
-  cust_num: [{ required: true, message: '請選擇客户编号', trigger: 'change' }],
-  customerName: [{ required: true, message: '請選擇客户中文名', trigger: 'change' }],
-  customerEnglishName: [{ required: true, message: '請選擇客户英文名', trigger: 'change' }]
+  cust_num: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerNumber') }), trigger: 'change' }],
+  customerName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerName') }), trigger: 'change' }],
+  customerEnglishName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerEnglishName') }), trigger: 'change' }]
 }
 
 const parties = ref<any[]>([])
@@ -180,7 +181,7 @@ defineExpose({ getFormData })
   <el-form ref="formRef" label-position="top" class="all-input-style" :model="formModel" :rules="rules" :disabled="disabled">
     <el-row>
       <el-col :span="8">
-        <el-form-item label="客户编号" prop="cust_num" required>
+        <el-form-item :label="t('sampleRequest.customerNumber')" prop="cust_num" required>
           <el-select-v2
             v-model="formModel.cust_num"
             filterable
@@ -194,15 +195,15 @@ defineExpose({ getFormData })
             @change="numberChange"
           />
         </el-form-item>
-        <el-form-item label="客戶地址">
+        <el-form-item :label="t('sampleRequest.customerLocation')">
           <el-input v-model="formModel.cust_location" />
         </el-form-item>
-        <el-form-item label="客戶電話">
+        <el-form-item :label="t('sampleRequest.customerTelephone')">
           <el-input v-model="formModel.cust_tel" />
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="客户中文名" prop="customerName" required>
+        <el-form-item :label="t('sampleRequest.customerName')" prop="customerName" required>
           <el-select-v2
             v-model="formModel.customerName"
             :reserve-keyword="false"
@@ -217,15 +218,15 @@ defineExpose({ getFormData })
             @change="nameChange"
           />
         </el-form-item>
-        <el-form-item label="客户网址">
+        <el-form-item :label="t('sampleRequest.customerWebsite')">
           <el-input v-model="formModel.cust_website" />
         </el-form-item>
-        <el-form-item label="客户郵箱">
+        <el-form-item :label="t('sampleRequest.customerEmail')">
           <el-input v-model="formModel.cust_email" />
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="客户英文名" prop="customerEnglishName" required>
+        <el-form-item :label="t('sampleRequest.customerEnglishName')" prop="customerEnglishName" required>
           <el-select-v2
             v-model="formModel.customerEnglishName"
             :reserve-keyword="false"
@@ -240,10 +241,10 @@ defineExpose({ getFormData })
             @change="enNameChange"
           />
         </el-form-item>
-        <el-form-item label="客户联系人">
+        <el-form-item :label="t('sampleRequest.customerContact')">
           <el-input v-model="formModel.cust_contact" />
         </el-form-item>
-        <el-form-item label="客户背景">
+        <el-form-item :label="t('sampleRequest.customerBackground')">
           <el-select v-model="formModel.cust_background">
             <el-option value="OEM">OEM</el-option>
             <el-option value="ODM">ODM</el-option>

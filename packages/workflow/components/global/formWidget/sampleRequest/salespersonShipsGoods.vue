@@ -4,6 +4,7 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 function isSeries(item: any) {
   return item.series !== ''
@@ -77,13 +78,13 @@ defineExpose({ getFormData })
         <span class="info-item-card__index">{{ index + 1 }}.</span>
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="品牌">
+            <el-form-item :label="t('sampleRequest.brand')">
               <el-input v-model="item.vendor" disabled />
             </el-form-item>
-            <el-form-item label="單機用量">
+            <el-form-item :label="t('sampleRequest.pcsUnit')">
               <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" disabled />
             </el-form-item>
-            <el-form-item v-if="checkPurpose(item.vendor)" label="目的">
+            <el-form-item v-if="checkPurpose(item.vendor)" :label="t('sampleRequest.purpose')">
               <el-select v-model="item.purpose" disabled>
                 <el-option value="New Design" label="New Design" />
                 <el-option value="Replacement" label="Replacement" />
@@ -92,12 +93,12 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="isSeries(item) ? '系列' : '型號'">
+            <el-form-item :label="isSeries(item) ? t('sampleRequest.series') : t('sampleRequest.partNumber')">
               <el-input disabled v-if="isSeries(item)" v-model="item.series" />
               <el-input disabled v-else v-model="item.part_number" />
             </el-form-item>
 
-            <el-form-item label="月用量(K/M)">
+            <el-form-item :label="t('sampleRequest.monthlyUsage')">
               <el-input-number v-model="item.fcst_qty" controls-position="right" :min="1" disabled :step="1" step-strictly>
                 <template #suffix>
                   <span>K/M</span>
@@ -106,10 +107,10 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="申請數量">
+            <el-form-item :label="t('sampleRequest.requestQty')">
               <el-input-number v-model="item.request_qty" controls-position="right" :min="1" disabled :step="1" step-strictly />
             </el-form-item>
-            <el-form-item label="客戶月用量(K/M)">
+            <el-form-item :label="t('sampleRequest.customerMonthlyUsage')">
               <el-input-number v-model="item.run_rate" controls-position="right" :min="1" disabled :step="1" step-strictly>
                 <template #suffix>
                   <span>K/M</span>
@@ -118,55 +119,55 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="整盤">
+            <el-form-item :label="t('sampleRequest.packaged')">
               <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" disabled />
             </el-form-item>
-            <el-form-item label="競爭者名稱" prop="competitor_name">
+            <el-form-item :label="t('sampleRequest.competitorName')" prop="competitor_name">
               <el-input v-model="item.competitor_name" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="是否用於汽車">
+            <el-form-item :label="t('sampleRequest.carUse')">
               <el-switch v-model="item.car_use" active-text="Yes" active-value="Yes" inactive-text="No" inactive-value="No" disabled />
             </el-form-item>
-            <el-form-item label="競爭者型號" prop="competitor_pn">
+            <el-form-item :label="t('sampleRequest.competitorPn')" prop="competitor_pn">
               <el-input v-model="item.competitor_pn" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="客戶選擇或銷售推薦">
+            <el-form-item :label="t('sampleRequest.custSelectedParts')">
               <el-switch
                 v-model="item.cust_selected_parts"
-                active-text="客户选择"
+                :active-text="t('sampleRequest.selectedByCustomer')"
                 active-value="Selected by Customer"
-                inactive-text="销售推荐"
+                :inactive-text="t('sampleRequest.introducedBySales')"
                 inactive-value="Introduced by Sales"
                 disabled
               />
             </el-form-item>
-            <el-form-item label="競爭者價格">
+            <el-form-item :label="t('sampleRequest.competitorUnitPrice')">
               <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="1" disabled :step="1" step-strictly />
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="備注" :required="item.purpose === 'Others'">
+            <el-form-item :label="t('sampleRequest.remarks')" :required="item.purpose === 'Others'">
               <el-input v-model="item.remarks" :autosize="{ minRows: 2, maxRows: 6 }" type="textarea" placeholder="Please input" disabled />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="快遞單號">
+            <el-form-item :label="t('sampleRequest.trackingNumber')">
               <el-input v-model="item.tracking_number" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="快遞日期">
+            <el-form-item :label="t('sampleRequest.trackingDate')">
               <el-date-picker v-model="item.tracking_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="送樣通知">
+            <el-form-item :label="t('sampleRequest.emailAlert')">
               <el-switch v-model="item.email_alert" active-text="Yes" active-value="YES" inactive-text="No" inactive-value="NO" />
             </el-form-item>
           </el-col>

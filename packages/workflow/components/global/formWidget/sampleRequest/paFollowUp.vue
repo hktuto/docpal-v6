@@ -4,6 +4,7 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 function isSeries(item: any) {
   return item.series !== ''
@@ -11,8 +12,8 @@ function isSeries(item: any) {
 
 const formRef = ref()
 const rules = {
-  received_date: [{ required: true, message: '請選擇收到供應商樣品時間', trigger: 'change' }],
-  actual_received_qty: [{ required: true, message: '請輸入實際接收數量', trigger: 'change' }]
+  received_date: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.receivedDate') }), trigger: 'change' }],
+  actual_received_qty: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.actualReceivedQty') }), trigger: 'change' }]
 }
 
 type dataType = {
@@ -79,12 +80,12 @@ defineExpose({ getFormData })
         <span class="info-item-card__index">{{ index + 1 }}.</span>
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="品牌">
+            <el-form-item :label="t('sampleRequest.brand')">
               <el-input disabled v-model="item.vendor" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="isSeries(item) ? '系列' : '型號'">
+            <el-form-item :label="isSeries(item) ? t('sampleRequest.series') : t('sampleRequest.partNumber')">
               <el-input disabled v-if="isSeries(item)" v-model="item.series" />
               <el-input disabled v-else v-model="item.part_number" />
             </el-form-item>
@@ -92,29 +93,29 @@ defineExpose({ getFormData })
           <el-col :span="8" />
 
           <el-col :span="8">
-            <el-form-item label="產品經理">
+            <el-form-item :label="t('sampleRequest.productManager')">
               <el-input v-model="item.pm" disabled />
             </el-form-item>
-            <el-form-item label="整盤">
+            <el-form-item :label="t('sampleRequest.packaged')">
               <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="銷售經理">
+            <el-form-item :label="t('sampleRequest.salesAdmin')">
               <el-input v-model="item.sales_admin" disabled />
             </el-form-item>
 
-            <el-form-item label="收到供應商樣品時間" required :prop="`list.${index}.received_date`">
+            <el-form-item :label="t('sampleRequest.receivedDate')" required :prop="`list.${index}.received_date`">
               <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="供應商聯係人">
+            <el-form-item :label="t('sampleRequest.vendorAttn')">
               <el-input v-model="item.vendor_attn" disabled />
             </el-form-item>
-            <el-form-item label="實際接收數量" required :prop="`list.${index}.actual_received_qty`">
+            <el-form-item :label="t('sampleRequest.actualReceivedQty')" required :prop="`list.${index}.actual_received_qty`">
               <el-input-number v-model="item.actual_received_qty" controls-position="right" :min="1" :step="1" step-strictly value-on-clear="min" />
             </el-form-item>
           </el-col>
