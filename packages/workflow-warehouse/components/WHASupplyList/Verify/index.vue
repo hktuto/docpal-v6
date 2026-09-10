@@ -6,15 +6,15 @@
       <el-splitter-panel class="mg-right" size="7%" :collapsible="false" :min="50">
         <WHASupplyListVerifyList />
       </el-splitter-panel>
-      <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200" >
-        <WorkflowPreviewTitle :doc-id="selectedInvoice?.file?.id" :file-list="fileList" />
+      <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200">
+        <WorkflowPreviewTitle :selectedInvoice="selectedInvoice" :doc-id="selectedInvoice?.file?.id" :file-list="fileList" />
       </el-splitter-panel>
-      <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200" >
+      <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200">
         <WHASupplyListVerifyTable />
       </el-splitter-panel>
       <el-splitter-panel class="mg-left side-panel" size="12%" :collapsible="isCollapsible" :min="150">
-        <WHASupplyListVerifyDetailCard ref="detailCardRef" />
-        <WHASupplyListVerifyDetectedCard class="mg-top" />
+        <WHASupplyListVerifyDetailCard ref="detailCardRef" @invoiceUpdate="handleInvoiceUpdate" />
+        <WHASupplyListVerifyDetectedCard ref="detectedCardRef" class="mg-top" />
         <WHASupplyListVerifyProgressCard class="mg-top" />
       </el-splitter-panel>
     </el-splitter>
@@ -22,16 +22,37 @@
 </template>
 
 <script setup lang="ts">
+import { newClientApi } from 'api'
 import { SGLA } from '../../../utils/variableMapping'
-
+import { ElMessage } from 'element-plus'
 const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const { t } = useI18n()
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList } = useWHASupplyListVerifyProvider(props)
+const { reload } = useWHASupplyListVerifyTableProvider(selectedInvoice)
 const fileList = computed(() => props.formData?.file_list_info || [])
-
 const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
-useWHASupplyListVerifyTableProvider(selectedInvoice)
+const detectedCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetectedCard>>()
+
+async function handleInvoiceUpdate(value: string, item: any) {
+  try {
+    const res = await newClientApi.postWmsPackingOrderSupplement({
+      batchNo: props.formData?.batch_no,
+      invoiceNum: value
+    })
+    if (!res.data) {
+      ElMessage.error('No invoice found')
+      item.status = 'error'
+      return
+    }
+    await reload()
+    await detectedCardRef.value?.handleDetect(true, true)
+    item.status = 'pass'
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 async function getFormData(needValidation: boolean) {
   if (!needValidation) return
   const result = await detailCardRef.value?.validate()

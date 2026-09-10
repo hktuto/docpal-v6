@@ -125,6 +125,7 @@
 import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
 import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { isDateBusinessType, resolveDateFormat } from '../../utils/dashboardFieldMeta'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
@@ -152,6 +153,8 @@ interface ColumnConfigItem {
   field: string
   width: number | undefined
   visible: boolean
+  businessType: string
+  dateFormat: string
 }
 
 const form = reactive({
@@ -166,15 +169,29 @@ const form = reactive({
   footer: ''
 })
 
+function resolveColumnMeta(fieldName: string, prev?: ColumnConfigItem) {
+  const field = fields.value.find((f: any) => f.field_name === fieldName)
+  const businessType = String(field?.business_type ?? prev?.businessType ?? '')
+  return {
+    businessType,
+    dateFormat: isDateBusinessType(businessType)
+      ? (resolveDateFormat(field, undefined, '') || prev?.dateFormat || '')
+      : ''
+  }
+}
+
 function syncColumnConfig() {
   // Preserve existing config for fields that are still selected
   const existing = new Map(form.columnConfig.map((c) => [c.field, c]))
   form.columnConfig = form.columns.map((field) => {
     const prev = existing.get(field)
+    const meta = resolveColumnMeta(field, prev)
     return {
       field,
       width: prev?.width ?? undefined,
-      visible: prev?.visible ?? true
+      visible: prev?.visible ?? true,
+      businessType: meta.businessType,
+      dateFormat: meta.dateFormat
     }
   })
 }
@@ -222,18 +239,19 @@ function removeFilterRule(index: number) {
 }
 
 function getFieldType(fieldName: string): string {
+  const fromConfig = form.columnConfig.find((c) => c.field === fieldName)?.businessType
+  if (fromConfig) return fromConfig
   const field = fields.value.find((f: any) => f.field_name === fieldName)
   return field?.business_type || ''
 }
 
 function isDateField(fieldName: string): boolean {
-  const type = getFieldType(fieldName)
-  return type === ColumnFieldType.DateTime || type === '5'
+  return isDateBusinessType(String(getFieldType(fieldName)))
 }
 
 function isNumericField(fieldName: string): boolean {
   const type = getFieldType(fieldName)
-  return type === ColumnFieldType.Number || type === '2' || type === ColumnFieldType.Rating || type === '12'
+  return type === ColumnFieldType.Number || type === ColumnFieldType.Rating
 }
 
 function getOperatorsForField(fieldName: string): { label: string; value: string }[] {
@@ -287,21 +305,39 @@ async function handleTableChange(tableId: string) {
   await loadFields(tableId)
 }
 
+function restoreColumnConfig() {
+  const savedConfig = setting.value.columnConfig
+  const savedWidths = setting.value.columnWidths || {}
+  const savedHidden = new Set(setting.value.hiddenColumns || [])
+
+  if (Array.isArray(savedConfig) && savedConfig.length) {
+    form.columnConfig = savedConfig.map((col: any) => ({
+      field: col.field || '',
+      width: col.width ?? savedWidths[col.field] ?? undefined,
+      visible: col.visible ?? !savedHidden.has(col.field),
+      businessType: String(col.businessType ?? ''),
+      dateFormat: col.dateFormat || ''
+    }))
+    form.columns = form.columnConfig.map((c) => c.field)
+    return
+  }
+
+  form.columns = setting.value.columns || []
+  form.columnConfig = form.columns.map((field: string) => ({
+    field,
+    width: savedWidths[field] ?? undefined,
+    visible: !savedHidden.has(field),
+    businessType: '',
+    dateFormat: ''
+  }))
+}
+
 watch(
   () => visible.value,
   async (isVisible) => {
     if (isVisible) {
       form.tableId = setting.value.tableId || ''
-      form.columns = setting.value.columns || []
-
-      // Restore column config from saved widths/visibility
-      const savedWidths = setting.value.columnWidths || {}
-      const savedHidden = new Set(setting.value.hiddenColumns || [])
-      form.columnConfig = form.columns.map((field: string) => ({
-        field,
-        width: savedWidths[field] ?? undefined,
-        visible: !savedHidden.has(field)
-      }))
+      restoreColumnConfig()
 
       form.rowLimit = setting.value.rowLimit || 10
       const oldSortField = setting.value.sortField || ''
@@ -326,6 +362,10 @@ watch(
 
       if (form.tableId) {
         await loadFields(form.tableId)
+        // Backfill meta for legacy settings / newly selected fields
+        if (form.columnConfig.some((c) => !c.businessType)) {
+          syncColumnConfig()
+        }
       }
     }
   }
@@ -335,16 +375,23 @@ function handleSubmit() {
   const columnWidths: Record<string, number> = {}
   const hiddenColumns: string[] = []
   const orderedFields: string[] = []
-
-  for (const col of form.columnConfig) {
+  const columnConfig = form.columnConfig.map((col) => {
     orderedFields.push(col.field)
     if (col.width) columnWidths[col.field] = col.width
     if (!col.visible) hiddenColumns.push(col.field)
-  }
+    return {
+      field: col.field,
+      width: col.width,
+      visible: col.visible,
+      businessType: col.businessType,
+      dateFormat: col.dateFormat
+    }
+  })
 
   baseSubmit({
     tableId: form.tableId,
     columns: orderedFields,
+    columnConfig,
     columnWidths,
     hiddenColumns,
     rowLimit: form.rowLimit,

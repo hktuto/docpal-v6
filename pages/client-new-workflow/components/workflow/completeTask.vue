@@ -31,7 +31,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_workflowName', fixed: 'left' },
+    { field: 'name', title: 'workflow_workflowName', fixed: 'left', slots: { default: 'name' } },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -93,6 +93,9 @@ defineExpose({ reload })
             </el-select>
           </el-form-item>
         </div>
+      </template>
+      <template #name="{ row }">
+        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
       </template>
       <template #status="{ row }">
         <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>

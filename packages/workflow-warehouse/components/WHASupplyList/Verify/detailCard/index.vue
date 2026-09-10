@@ -41,6 +41,7 @@ import advancedFormat from 'dayjs/plugin/advancedFormat'
 dayjs.extend(isoWeek)
 dayjs.extend(advancedFormat)
 
+const emits = defineEmits(['invoiceUpdate'])
 const { t } = useI18n()
 const { selectedInvoice, updateInvoiceData, disabled } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
@@ -50,7 +51,10 @@ const list = ref([
   {
     invoiceKey: 'Name',
     type: 'text',
-    status: 'pass'
+    status: 'pass',
+    save: (value: string, item: any) => {
+      emits('invoiceUpdate', value, item)
+    }
   },
   {
     label: t('workflowWarehouse.supplier'),
@@ -112,9 +116,13 @@ async function handleSave(value: string, item: any) {
     invoiceData[SGLA.VendorName] = matched?.label ?? null
   }
   const res = await updateInvoiceData(invoiceData)
-  setTimeout(() => {
-    item.status = res.result ? 'pass' : 'fail'
-  }, 1000)
+  if (item.save) {
+    await item.save(value, item)
+  } else {
+    setTimeout(() => {
+      item.status = res.result ? 'pass' : 'fail'
+    }, 1000)
+  }
 }
 async function handleBotton(value: string, item: any) {
   if (item.invoiceKey === 'DeliveryDate') {

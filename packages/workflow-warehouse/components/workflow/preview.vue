@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { newClientApi } from 'api'
 
+const readerRef = ref<any>(null)
+const {selectedInvoice} = useWHASupplyListVerifyInject()
 const props = withDefaults(
   defineProps<{
     docId?: string
@@ -49,6 +51,17 @@ async function loadPreview(docId: string) {
   }
 }
 
+function search(query: string) {
+  readerRef.value?.search(query)
+}
+
+function readerReadyHandler() {
+  // search the invoice name when the reader is ready
+  setTimeout(() => {
+    search(selectedInvoice.value[SGLA.Name])
+  },300)
+}
+
 watch(
   () => props.docId,
   (docId) => {
@@ -56,6 +69,20 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  () => selectedInvoice,
+  (invoice) => {
+    if (invoice) {
+      search(invoice.value[SGLA.Name])
+    }
+  },
+  { deep: true }
+)
+
+defineExpose({
+  search
+})
 </script>
 
 <template>
@@ -63,9 +90,11 @@ watch(
     <div class="workflow-preview__title">
       <slot name="title">{{ previewFile.name }}</slot>
     </div>
-    <Reader class="reader" v-if="previewFile.blob" v-bind="previewFile" freeze-first-row freeze-first-col />
+    <Reader ref="readerRef" class="reader" v-if="previewFile.blob" v-bind="previewFile" @ready="readerReadyHandler" freeze-first-row freeze-first-col />
   </div>
 </template>
+
+
 <style scoped lang="scss">
 .workflow-preview {
   width: 100%;

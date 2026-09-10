@@ -238,6 +238,7 @@ export const useDbDashboardWidgetSetting = () => useState<any>('dbDashboardWidge
     setting: {
       tableId: '',
       columns: [],
+      columnConfig: [],
       rowLimit: 10,
       sortField: '',
       sortOrder: 'desc',
@@ -279,6 +280,10 @@ export const useDbDashboardWidgetSetting = () => useState<any>('dbDashboardWidge
     setting: {
       tableId: '',
       xField: '',
+      xFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       series: [
         {
           field: '',

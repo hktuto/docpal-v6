@@ -49,12 +49,10 @@ const formModel = ref<{
 })
 const showDetails = ref<boolean[]>([])
 
-function handleUnitPriceNoTaxChange(item: TargetPriceItem) {
-  calculateMargin(item)
-}
-
 // (unit_price_no_tax - unit_cost × exchange_rate × markup_rate) / ( unit_cost × exchange_rate × markup_rate) × 100
-function calculateMargin(item: TargetPriceItem) {
+function calculateProfit(item: TargetPriceItem) {
+  if (!item.exchange_rate || !item.unit_cost || !item.unit_price_no_tax) return
+
   const exchange_rate = new Decimal(item.exchange_rate)
   const unitPriceNoTax = new Decimal(Number(item.unit_price_no_tax))
   const unitCost = new Decimal(Number(item.unit_cost))
@@ -66,8 +64,9 @@ function calculateMargin(item: TargetPriceItem) {
     return
   }
 
-  const totalCost = unitCost.times(exchange_rate).times(markup_rate)
-  item.profit = Number(unitPriceNoTax.minus(totalCost).dividedBy(totalCost).times(100).toFixed(4))
+  const totalCost = unitCost.times(markup_rate)
+  // const totalCost = unitCost.times(exchange_rate).times(markup_rate)
+  item.profit = Number(unitPriceNoTax.minus(totalCost).dividedBy(totalCost).times(100).toFixed(6))
 }
 
 async function init() {
@@ -171,7 +170,7 @@ defineExpose({ getFormData })
             <div class="targetPrice-item-card">
               <el-row class="targetPrice-item-card__table-header">
                 <el-col :span="1">檔位 Tier</el-col>
-                <!--                <el-col :span="2">幣種 Currency</el-col>-->
+                <el-col :span="2">幣種 Currency</el-col>
                 <el-col :span="3">匯率 Exchange Rate</el-col>
                 <el-col :span="3">起订量 MOQ</el-col>
                 <el-col :span="3">目標價 Target Price</el-col>
@@ -198,7 +197,7 @@ defineExpose({ getFormData })
                     <el-col :span="4">
                       <el-input-number style="width: 90%" v-model="targetPriceItem.unit_cost" disabled>
                         <template #suffix>
-                          <span>{{ targetPriceItem.cost_currency }}</span>
+                          <span>{{ formData.currency }}</span>
                         </template>
                       </el-input-number>
                     </el-col>
@@ -210,10 +209,10 @@ defineExpose({ getFormData })
                           controls-position="right"
                           :min="0.000001"
                           :step="0.000001"
-                          @change="handleUnitPriceNoTaxChange(targetPriceItem)"
+                          @change="calculateProfit(targetPriceItem)"
                         >
                           <template #suffix>
-                            <span>{{ targetPriceItem.cost_currency }}</span>
+                            <span>{{ formData.currency }}</span>
                           </template>
                         </el-input-number>
                       </el-form-item>

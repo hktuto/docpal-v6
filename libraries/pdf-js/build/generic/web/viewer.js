@@ -13693,7 +13693,7 @@ var _app_options = __webpack_require__(5);
 var _pdf_link_service = __webpack_require__(7);
 var _app = __webpack_require__(2);
 const pdfjsVersion = '3.4.0';
-const pdfjsBuild = 'f6363d93b';
+const pdfjsBuild = '4012e348a';
 const AppConstants = exports.PDFViewerApplicationConstants = {
   LinkTarget: _pdf_link_service.LinkTarget,
   RenderingStates: _ui_utils.RenderingStates,
@@ -13857,8 +13857,21 @@ function messageFromParent(ev) {
     annotations,
     locale,
     colorMode,
-    options
+    options,
+    type
   } = ev.data;
+  if (type && type === 'search' && options.query) {
+    _app.PDFViewerApplication.eventBus.dispatch("find", {
+      type: null,
+      query: options.query,
+      caseSensitive: false,
+      entireWord: false,
+      highlightAll: true,
+      matchDiacritics: false,
+      findPrevious: false
+    });
+    return;
+  }
   const urlCreator = window.URL || window.webkitURL;
   const url = urlCreator.createObjectURL(blob);
   const newLocal = locale === "zh-HK" ? "zh-TW" : locale;

@@ -83,7 +83,6 @@ async function loadSession() {
   const isMac = useIsMac()
 
   await Promise.all([getUser(), getFeature(), getUserPreference()])
-
   isDesktopMode.value = !(!window || !window.navigator || !window.navigator.userAgent || !window.navigator.userAgent.toLowerCase().includes('electron'))
   isMac.value = window.navigator.userAgent.toLowerCase().includes('apple')
 
@@ -321,11 +320,12 @@ const uiSize = [
  */
 export async function getUserPreference() {
   const preference = useUserPreference()
-  const data = await newClientApi.getDmsUserSetting().then((r) => r.data)
+  const data = await gatewayApi.userSettings.getUserSettings().then((r) => r.data)
+  console.log("user preference", data)
   if (!data) {
     throw new Error('get user preference fail')
   }
-  const userSetting = JSON.parse(data) || {}
+  const userSetting = data
   // normalize user preference , user may be come from old version
   userSetting.size ||= '14px'
   userSetting.color ||= 'light'
@@ -340,7 +340,7 @@ export async function getUserPreference() {
   }
   preference.value = Object.assign(
     {
-      size: '14px',
+      size: '22px',
       folderView: 'tree',
       language: 'en-US',
       color: 'light',

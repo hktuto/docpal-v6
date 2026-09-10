@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 import {ElMessage} from 'element-plus'
 import {logout} from '#imports'
 const routerProvider = inject(MenuRouterKey)
@@ -29,7 +29,7 @@ function switchPlatform() {
 async function changeLanguage(langCode:string) {
     const perference = useUserPreference()
     perference.value.language = langCode
-    await newClientApi.putDmsUserSetting(perference.value as any)
+    await gatewayApi.userSettings.updateUserSettings(perference.value as any)
     setLocale(langCode);
     window.location.reload()
 }

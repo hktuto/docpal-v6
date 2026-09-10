@@ -210,6 +210,12 @@ function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
 }
 
 async function init() {
+  if (!formData.sample_info_list) return
+  formModel.value.brand = formData.brand
+  formModel.value.infoList = formData.sample_info_list
+}
+
+async function getBrand() {
   brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
@@ -330,8 +336,18 @@ function handleChangeCurrency(currency) {
 }
 
 onMounted(() => {
-  init()
+  getBrand()
 })
+
+watch(
+  () => formData.is_pc_approval,
+  (value) => {
+    if (!value) {
+      init()
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 watch(
   () => formData.currency,
@@ -475,7 +491,7 @@ defineExpose({ getFormData })
                           @change="handleTargetPriceChange(index, targetPriceIndex)"
                         >
                           <template #suffix>
-                            <span>{{ targetPriceItem.cost_currency }}</span>
+                            <span>{{ formData.currency }}</span>
                           </template>
                         </el-input-number>
                       </el-form-item>

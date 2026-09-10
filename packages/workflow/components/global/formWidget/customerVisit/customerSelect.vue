@@ -25,33 +25,32 @@ const customerEnglishNameOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref(false)
 
 async function searchName(query?: string) {
-  if (query !== '') {
-    const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+  const q = query ? `q=${query}&` : ''
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?${q}limit=${5000}`).then((r: any) => r.data?.items)
 
-    const numberOptions: any[] = []
-    const nameOptions: any[] = []
-    const englishNameOptions: any[] = []
-    parties.value = data
+  const numberOptions: any[] = []
+  const nameOptions: any[] = []
+  const englishNameOptions: any[] = []
+  parties.value = data
 
-    data.forEach((item: any) => {
-      numberOptions.push({
-        label: item.account_number,
-        value: item.account_number
-      })
-      nameOptions.push({
-        label: item.customer_name,
-        value: item.account_number
-      })
-      englishNameOptions.push({
-        label: item.customer_eng_name,
-        value: item.account_number
-      })
+  data.forEach((item: any) => {
+    numberOptions.push({
+      label: item.account_number,
+      value: item.account_number
     })
+    nameOptions.push({
+      label: item.customer_name,
+      value: item.account_number
+    })
+    englishNameOptions.push({
+      label: item.customer_eng_name,
+      value: item.account_number
+    })
+  })
 
-    customerNumberOptions.value = numberOptions
-    customerNameOptions.value = nameOptions
-    customerEnglishNameOptions.value = englishNameOptions
-  }
+  customerNumberOptions.value = numberOptions
+  customerNameOptions.value = nameOptions
+  customerEnglishNameOptions.value = englishNameOptions
 }
 
 async function getCustomerInfo(customerNumber: string) {
