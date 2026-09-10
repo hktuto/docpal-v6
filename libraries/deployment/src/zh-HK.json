@@ -4960,7 +4960,7 @@
     "productApplication": "產品應用",
     "customerPartNumber": "客戶零件編號",
     "oldSalesPriceNoTax": "原銷售價格(不含稅)",
-    "enterKeyword": "請輸入關鍵詞"
+    "enterKeyword": "請輸入關鍵詞",
     "pleaseEnterSelfDelivery": "⌈{name}⌋ 請選擇是否自送",
     "shippingConfirmTitle": "Shipping Confirm",
     "shippingConfirmDescription": "根據 outRequestNo 查看 Shipping Confirm 比對結果，並保存人工修正內容。",

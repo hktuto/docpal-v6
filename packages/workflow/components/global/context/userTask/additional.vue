@@ -57,14 +57,28 @@ watch(
 </script>
 
 <template>
-  <el-form label-position="top" size="small">
-    <el-form-item :label="t('Due Date')">
-      <el-date-picker style="width: 100%" v-model="dueDate" type="datetime" format="YYYY-MM-DD HH:mm:ss" date-format="YYYY-MM-DD" @change="update" />
-    </el-form-item>
-    <el-form-item :label="t('Priority')">
-      <el-input-number style="width: 100%" v-model="priority" :min="1" :max="5" @change="update" />
-    </el-form-item>
+  <el-form label-position="top" size="small" class="schedule-form">
+    <div class="schedule-grid">
+      <el-form-item :label="t('Due Date')">
+        <el-date-picker style="width: 100%" v-model="dueDate" type="datetime" format="YYYY-MM-DD HH:mm:ss" date-format="YYYY-MM-DD" @change="update" />
+      </el-form-item>
+      <el-form-item :label="t('Priority')">
+        <el-input-number style="width: 100%" v-model="priority" :min="1" :max="5" @change="update" />
+      </el-form-item>
+    </div>
   </el-form>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.schedule-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(120px, 1fr);
+  gap: var(--app-space-s);
+}
+
+@media (max-width: 640px) {
+  .schedule-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

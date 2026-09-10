@@ -157,6 +157,16 @@ watch(
 <template>
   <el-form label-position="top" :disabled="graphProvider.readonly.value">
     <div class="title">{{ $t('Form Setting') }}</div>
+    <div class="form-summary-card">
+      <div class="form-summary-item">
+        <span class="summary-label">{{ t('Form Title') }}</span>
+        <strong class="summary-value">{{ formTitle || '-' }}</strong>
+      </div>
+      <div class="form-summary-item">
+        <span class="summary-label">Form Key</span>
+        <strong class="summary-value">{{ formKey || '-' }}</strong>
+      </div>
+    </div>
     <el-form-item :label="t('Form Title')">
       <el-input v-model="formTitle" @change="update" />
     </el-form-item>
@@ -165,7 +175,7 @@ watch(
       <el-button type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</el-button>
       <el-button v-if="formKey !== ''" type="success" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</el-button>
     </div>
-    <div class="actionsContainer">
+    <div class="secondaryActionsContainer">
       <el-button size="small" @click="copyFormAndFieldSetting">Copy Form</el-button>
       <el-button v-if="graphProvider.copyKey.value" size="small" @click="pasteForm">Paste Form</el-button>
     </div>
@@ -181,22 +191,85 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-.actionsContainer {
+.title {
+  margin-bottom: var(--app-space-s);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.form-summary-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--app-space-s);
+  margin-bottom: var(--app-space-s);
+}
+
+.form-summary-item {
   display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--app-space-s);
+  border: 1px solid var(--app-grey-800, #dcdfe6);
+  border-radius: var(--app-border-radius-m);
+  background: var(--el-fill-color-lighter);
+}
+
+.summary-label {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+
+.summary-value {
+  min-width: 0;
+  font-size: 13px;
+  color: var(--el-text-color-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actionsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-block: var(--app-font-size-xs);
   gap: var(--app-space-xs);
   padding-block: var(--app-space-xs);
   border-top: 1px solid var(--app-grey-800);
 
   > * {
-    width: 100%;
+    min-width: 0;
   }
 
   :deep(.el-button + .el-button) {
     margin-left: 0;
+  }
+}
+
+.actionsContainer :deep(#Workflow__UserTask__PreviewForm) {
+  grid-column: 1 / -1;
+}
+
+.secondaryActionsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--app-space-xs);
+  padding-top: var(--app-space-xs);
+  border-top: 1px solid var(--app-grey-800);
+}
+
+.secondaryActionsContainer > * {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .form-summary-card,
+  .actionsContainer,
+  .secondaryActionsContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .actionsContainer :deep(#Workflow__UserTask__PreviewForm) {
+    grid-column: auto;
   }
 }
 </style>

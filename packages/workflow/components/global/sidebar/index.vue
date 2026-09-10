@@ -7,10 +7,32 @@ const editComponent = ref()
 const selectedNode = ref()
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-const activeTab = ref('properties')
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
+
+function formatInspectorText(value?: string) {
+  if (!value) return 'Properties'
+  return String(value)
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const inspectorTitle = computed(() => {
+  const cell: any = selectedNode.value
+  if (!cell) return 'Node Inspector'
+  const data = typeof cell.getData === 'function' ? cell.getData() : cell?.data
+  return data?.name || formatInspectorText(data?.metadata?.type || cell?.shape)
+})
+
+const inspectorSubtitle = computed(() => {
+  const cell: any = selectedNode.value
+  if (!cell) return 'Select a node to edit its behavior and data mapping.'
+  const data = typeof cell.getData === 'function' ? cell.getData() : cell?.data
+  return formatInspectorText(data?.metadata?.type || cell?.shape || 'Properties')
+})
 
 function openInfo() {
   // get process node
@@ -43,47 +65,91 @@ defineExpose({
 
 <template>
   <div :class="{ contextHandler: true, opened }">
-    <!-- tabs container -->
-    <el-tabs v-model="activeTab" type="card">
-      <el-tab-pane label="Properties" name="properties">
-        <component v-if="editComponent" :is="editComponent" :node="selectedNode" />
-      </el-tab-pane>
-    </el-tabs>
+    <div class="inspectorHeader">
+      <div class="inspectorEyebrow">Inspector</div>
+      <div class="inspectorTitle">{{ inspectorTitle }}</div>
+      <div class="inspectorSubtitle">{{ inspectorSubtitle }}</div>
+    </div>
+    <div class="inspectorBody">
+      <component v-if="editComponent" :is="editComponent" :node="selectedNode" />
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .contextHandler {
   position: absolute;
-  width: 332px;
+  width: min(408px, calc(100% - var(--app-space-xs) * 2));
   height: calc(100% - var(--app-space-xs) * 2);
-  overflow: auto;
+  overflow: hidden;
   right: var(--app-space-xs);
   top: var(--app-space-xs);
-  z-index: 2;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
+  z-index: 5;
+  background: rgba(247, 248, 250, 0.96);
+  backdrop-filter: blur(18px);
   opacity: 0;
-  padding: var(--app-space-s);
-  border-radius: var(--app-border-radius-m);
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.14),
+    0 8px 24px rgba(15, 23, 42, 0.08);
   transform: translateX(100%);
   transition: all 0.2s ease-in-out;
   display: grid;
   grid-template-rows: min-content 1fr;
-  gap: var(--app-space-xs);
+  gap: 0;
 
   &.opened {
     transform: translateX(0);
     opacity: 1;
   }
 
-  :deep(.el-tab-pane) {
-    height: 100%;
+  :deep(.el-form-item__label) {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #475569;
   }
 }
 
-.opened {
-  opacity: 1;
+.inspectorHeader {
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 248, 250, 0.88) 100%);
+}
+
+.inspectorEyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.inspectorTitle {
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.inspectorSubtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.inspectorBody {
+  min-height: 0;
+  overflow: auto;
+  padding: 18px 20px 20px;
+  scrollbar-width: none;
+}
+
+.inspectorBody::-webkit-scrollbar {
+  display: none;
 }
 </style>

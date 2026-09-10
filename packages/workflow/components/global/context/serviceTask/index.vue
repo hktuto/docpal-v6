@@ -71,8 +71,44 @@ onMounted(() => {
 </script>
 
 <template>
-  <SidebarLabel :node="node" />
-  <component v-if="editComponent" :is="editComponent" :config="selectedServiceConfig" @update="handleUpdateConfig" />
+  <div class="fromContainer">
+    <section class="property-section">
+      <div class="section-title">Basic</div>
+      <SidebarLabel :node="node" />
+    </section>
+    <section class="property-section">
+      <div class="section-title">Configuration</div>
+      <component v-if="editComponent" :is="editComponent" :config="selectedServiceConfig" @update="handleUpdateConfig" />
+    </section>
+  </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.fromContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-l);
+}
+
+.property-section {
+  padding-top: var(--app-space-s);
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.section-title {
+  margin-bottom: var(--app-space-m);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.property-section :deep(.el-form-item:last-child) {
+  margin-bottom: 0;
+}
+
+.property-section :deep(.el-divider) {
+  display: none;
+}
+</style>

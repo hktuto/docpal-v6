@@ -99,20 +99,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-divider />
   <div class="formContainer">
-    <h4>Boolean Button</h4>
-    <div>
-      <span>Button Setting</span>
-      <el-form label-position="top">
-        <div style="display: flex; width: 100%; justify-content: space-between; align-items: center">
+    <div class="settings-card">
+      <span class="settings-title">Button Setting</span>
+      <el-form label-position="top" class="button-setting-form">
+        <div class="setting-row">
           <p>Submit Button</p>
           <el-switch size="small" v-model="buttonSetting.showSubmitButton" active-text="Show" inactive-text="Disabled" @change="updateData" />
         </div>
         <el-input v-if="buttonSetting.showSubmitButton" v-model="buttonSetting.submitButtonLabel" @change="updateData" />
 
         <template v-if="node.data.metadata.type === 'UserTask'">
-          <div style="display: flex; width: 100%; justify-content: space-between; align-items: center">
+          <div class="setting-row">
             <p>Show Save Draft Button</p>
             <el-switch size="small" v-model="buttonSetting.showSaveDraft" active-text="Show" inactive-text="Disabled" @change="updateData" />
           </div>
@@ -158,6 +156,42 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-s);
+}
+
+.settings-card {
+  padding: var(--app-space-s);
+  border: 1px solid var(--app-grey-800);
+  border-radius: var(--app-border-radius-m);
+  background: var(--el-fill-color-lighter);
+}
+
+.settings-title {
+  display: block;
+  margin-bottom: var(--app-space-s);
+  font-weight: 600;
+}
+
+.button-setting-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-s);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-s);
+}
+
+.setting-row p {
+  margin: 0;
+}
+
 .listContainer {
   display: flex;
   flex-direction: column;

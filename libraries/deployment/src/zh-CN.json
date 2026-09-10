@@ -4888,7 +4888,7 @@
     "productApplication": "产品应用",
     "customerPartNumber": "客户零件编号",
     "oldSalesPriceNoTax": "原销售价格(不含税)",
-    "enterKeyword": "请输入关键词"
+    "enterKeyword": "请输入关键词",
     "pleaseEnterSelfDelivery": "⌈{name}⌋ 请选择是否自送",
     "shippingConfirmTitle": "Shipping Confirm",
     "shippingConfirmDescription": "根据 outRequestNo 查看 Shipping Confirm 比对结果，并保存人工修正内容。",
