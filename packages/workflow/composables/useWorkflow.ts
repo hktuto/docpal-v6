@@ -37,6 +37,10 @@ export const useWorkflow = () => {
         component: 'FormWidgetCustomerVisitCustomerSelect'
       },
       {
+        name: 'customerVisitCustomerType',
+        component: 'FormWidgetCustomerVisitType'
+      },
+      {
         name: 'sampleRequestCustomerInfo',
         component: 'FormWidgetSampleRequestCustomerInfo'
       },
