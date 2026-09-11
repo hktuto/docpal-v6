@@ -52,7 +52,8 @@ function getFormData() {
     line_id: item.id,
     tracking_number: item.tracking_number || '',
     tracking_date: item.tracking_date,
-    email_alert: item.email_alert
+    email_alert: item.email_alert,
+    delivery_date: Date.now()
   }))
 
   return { sample_info_list: data.value, tracking_List: newTracking_List }
