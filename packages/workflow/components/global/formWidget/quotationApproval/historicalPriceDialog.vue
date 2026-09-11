@@ -24,23 +24,23 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     return handleSearch(pageParams)
   },
   columns: [
-    { field: 'po_number', title: '編號 Number', fixed: 'left', type: 'checkbox', width: 200 },
-    { field: 'type', title: '類型 Type', width: 130 },
-    { field: 'item', title: '項 Item', width: 300 },
-    { field: 'moq', title: '起訂量 MOQ' },
-    { field: 'quantity', title: '數量 Quantity', width: 200 },
-    { field: 'cost', title: '成本 Cost' },
-    { field: 'currency', title: '貨幣 Currency' },
-    { field: 'po_customer', title: '客戶 Customer', width: 400 },
+    { field: 'po_number', title: t('quotationApproval.number'), fixed: 'left', type: 'checkbox', width: 200 },
+    { field: 'type', title: t('quotationApproval.type'), width: 130 },
+    { field: 'item', title: t('quotationApproval.item'), width: 300 },
+    { field: 'moq', title: t('quotationApproval.moq') },
+    { field: 'quantity', title: t('quotationApproval.quantity'), width: 200 },
+    { field: 'cost', title: t('quotationApproval.cost') },
+    { field: 'currency', title: t('quotationApproval.currency') },
+    { field: 'po_customer', title: t('quotationApproval.customer'), width: 400 },
     {
       field: 'creation_date',
-      title: '生效日期 Effective Date',
+      title: t('quotationApproval.effectiveDate'),
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       },
       width: 200
     },
-    { field: 'note_to_vendor', title: '供應商注意事項 Note to Vendor', width: 300 }
+    { field: 'note_to_vendor', title: t('quotationApproval.noteToVendor'), width: 300 }
   ],
   selectChangeHander: (selectedRows: any[]) => {
     selectList.value = [...selectedRows]
@@ -103,7 +103,7 @@ function handleSubmit() {
   const uniqueCurrencies = new Set(selectList.value.map((item) => item.currency))
   if (uniqueCurrencies.size > 1) {
     ElMessage({
-      message: '只允許選擇一個幣種的階梯。',
+      message: t('quotationApproval.singleCurrencyTierOnly'),
       type: 'warning',
       plain: true
     })
@@ -134,24 +134,24 @@ defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="showDialog" title="歷史價格 historical price" class="big" append-to-body>
+  <el-dialog v-model="showDialog" :title="t('quotationApproval.historicalPrice')" class="big" append-to-body>
     <div style="height: 600px">
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
           <el-form :inline="true" label-position="top" class="historical-price-filter-form">
-            <el-form-item label="型號 Part Number" prop="part_number">
+            <el-form-item :label="t('quotationApproval.partNumber')" prop="part_number">
               <el-input v-model="searchData.part_number" disabled />
             </el-form-item>
-            <el-form-item label="系列 Series" prop="series">
+            <el-form-item :label="t('quotationApproval.series')" prop="series">
               <el-input v-model="searchData.series" disabled />
             </el-form-item>
-            <el-form-item label="日期范圍 Date Range" prop="date_range">
+            <el-form-item :label="t('quotationApproval.dateRange')" prop="date_range">
               <el-date-picker v-model="searchData.date_range" type="daterange" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
-            <el-form-item label="類型 Type" prop="type">
-              <el-select v-model="searchData.type" placeholder="請選擇類型" clearable>
-                <el-option label="已購訂單 PO" value="PO" />
-                <el-option label="訂單 Quotation" value="Quotation" />
+            <el-form-item :label="t('quotationApproval.type')" prop="type">
+              <el-select v-model="searchData.type" :placeholder="t('quotationApproval.selectType')" clearable>
+                <el-option :label="t('quotationApproval.typePo')" value="PO" />
+                <el-option :label="t('quotationApproval.typeQuotation')" value="Quotation" />
               </el-select>
             </el-form-item>
             <el-form-item class="historical-price-filter-form__action">

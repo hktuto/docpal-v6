@@ -9,6 +9,7 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 const workflowProvider = inject('workflowFormRender')
 
 const eFormData = computed(() => {
@@ -58,12 +59,12 @@ const brandOptions = ref<any[]>([])
 const part_numberOptions = ref([])
 const rules = {
   part_number: [
-    { required: true, message: 'Please select Part number', trigger: 'change' },
+    { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.partNumber') }), trigger: 'change' },
     {
       validator: async (_rule, value, callback) => {
         const b = await checkPartNumberIsFlow(Number(_rule.field.split('.')[1]) + 1, value)
         if (b) {
-          callback(new Error('该型号还有记录在等待审批中'))
+          callback(new Error(t('quotationApproval.partNumberPendingApproval')))
           return
         }
         callback()
@@ -71,14 +72,14 @@ const rules = {
       trigger: 'change'
     }
   ],
-  product_application: [{ required: true, message: 'Please input product application', trigger: 'blur' }],
-  monthly_quantity: [{ required: true, type: 'number', message: 'Please input monthly quantity', trigger: 'change' }],
-  old_sales_price_noTax: [{ required: true, message: 'Please input Old Sales Price(NoTax)', trigger: 'blur' }]
+  product_application: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.productApplication') }), trigger: 'blur' }],
+  monthly_quantity: [{ required: true, type: 'number', message: t('render.hint.fieldRequired', { name: t('quotationApproval.monthlyQuantity') }), trigger: 'change' }],
+  old_sales_price_noTax: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.oldSalesPriceNoTax') }), trigger: 'blur' }]
 }
 
 function getMoqRules(itemIndex: number, tierIndex: number) {
   return [
-    { required: true, type: 'number', message: 'Please input MOQ', trigger: 'change' },
+    { required: true, type: 'number', message: t('render.hint.fieldRequired', { name: t('quotationApproval.moq') }), trigger: 'change' },
     {
       validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
         if (tierIndex === 0) {
@@ -87,7 +88,7 @@ function getMoqRules(itemIndex: number, tierIndex: number) {
         }
         const prevMoq = formModel.value.infoList[itemIndex]?.target_price_list[tierIndex - 1]?.moq
         if (prevMoq != null && value <= prevMoq) {
-          callback(new Error('MOQ must be greater than the previous tier'))
+          callback(new Error(t('quotationApproval.moqMustGreaterThanPrevious')))
           return
         }
         callback()
@@ -99,7 +100,7 @@ function getMoqRules(itemIndex: number, tierIndex: number) {
 
 function getTargetPriceRules(itemIndex: number, tierIndex: number) {
   return [
-    { required: true, type: 'number', message: 'Please input target price', trigger: 'change' },
+    { required: true, type: 'number', message: t('render.hint.fieldRequired', { name: t('quotationApproval.targetPrice') }), trigger: 'change' },
     {
       validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
         if (tierIndex === 0) {
@@ -108,7 +109,7 @@ function getTargetPriceRules(itemIndex: number, tierIndex: number) {
         }
         const prevPrice = formModel.value.infoList[itemIndex]?.target_price_list[tierIndex - 1]?.target_price
         if (prevPrice != null && new Decimal(value).gte(prevPrice)) {
-          callback(new Error('Target price must be lower than the previous tier'))
+          callback(new Error(t('quotationApproval.targetPriceMustLowerThanPrevious')))
           return
         }
         callback()
@@ -261,7 +262,7 @@ async function checkPartNumberIsFlow(lineNumber: number, partNumber: string) {
   try {
     const allFormData = await workflowProvider?.getFormData(false, false)
     if (!allFormData.customer_name || allFormData.customer_name === '') {
-      ElMessage.error('请选择客戶編號!')
+      ElMessage.error(t('quotationApproval.pleaseSelectCustomerNumber'))
       return false
     }
     const q = {
@@ -366,7 +367,7 @@ defineExpose({ getFormData })
   <el-form ref="formRef" label-position="top" :model="formModel">
     <el-row>
       <el-col :span="8">
-        <el-form-item label="品牌 Brand" prop="brand" required>
+        <el-form-item :label="t('quotationApproval.brand')" prop="brand" required>
           <el-select v-model="formModel.brand" class="full-width-input" clearable filterable :disabled="data.length > 0" @change="handleChangeBrand">
             <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.lable" :value="item.value" />
           </el-select>
@@ -374,7 +375,7 @@ defineExpose({ getFormData })
       </el-col>
     </el-row>
 
-    <el-button v-if="!!formModel.brand && data.length === 0" type="primary" @click="handleSampleInfoAdd">Add Sample Info</el-button>
+    <el-button v-if="!!formModel.brand && data.length === 0" type="primary" @click="handleSampleInfoAdd">{{ t('quotationApproval.addSampleInfo') }}</el-button>
     <template v-for="(item, index) in formModel.infoList" :key="item.sample_id">
       <div class="info-item-card">
         <div class="info-item-card__header">
@@ -387,7 +388,7 @@ defineExpose({ getFormData })
 
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="型號 Part Number" :prop="`infoList.${index}.part_number`" :rules="rules.part_number">
+            <el-form-item :label="t('quotationApproval.partNumber')" :prop="`infoList.${index}.part_number`" :rules="rules.part_number">
               <el-select-v2
                 v-model="item.part_number"
                 filterable
@@ -396,42 +397,42 @@ defineExpose({ getFormData })
                 remote-show-suffix
                 clearable
                 :options="part_numberOptions"
-                placeholder="Please enter a keyword"
+                :placeholder="t('quotationApproval.enterKeyword')"
                 @change="handlePartNumberChange(item)"
               />
             </el-form-item>
-            <el-form-item label="單機用量 Quantity Machine" prop="quantity_machine">
+            <el-form-item :label="t('quotationApproval.quantityMachine')" prop="quantity_machine">
               <el-input-number v-model="item.quantity_machine" controls-position="right" :min="0" :step="1" step-strictly />
             </el-form-item>
-            <el-form-item label="競爭對手名稱 Competitor Name" prop="competitor_name">
+            <el-form-item :label="t('quotationApproval.competitorName')" prop="competitor_name">
               <el-input v-model="item.competitor_name" clearable />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="產品應用 Product Application" :prop="`infoList.${index}.product_application`" :rules="rules.product_application" required>
+            <el-form-item :label="t('quotationApproval.productApplication')" :prop="`infoList.${index}.product_application`" :rules="rules.product_application" required>
               <el-input v-model="item.product_application" />
             </el-form-item>
-            <el-form-item label="最小包裝數 MPQ " prop="mpq">
+            <el-form-item :label="t('quotationApproval.mpq')" prop="mpq">
               <el-input-number v-model="item.mpq" disabled />
             </el-form-item>
 
-            <el-form-item label="客戶零件編號 Customer Part Number" prop="customer_part_number">
+            <el-form-item :label="t('quotationApproval.customerPartNumber')" prop="customer_part_number">
               <el-input v-model="item.customer_part_number" clearable />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="月用量 Monthly Quantity" :prop="`infoList.${index}.monthly_quantity`" :rules="rules.monthly_quantity" required>
+            <el-form-item :label="t('quotationApproval.monthlyQuantity')" :prop="`infoList.${index}.monthly_quantity`" :rules="rules.monthly_quantity" required>
               <el-input-number v-model="item.monthly_quantity" controls-position="right" :min="1" :step="1" step-strictly />
             </el-form-item>
-            <el-form-item label="单位 UOM" prop="uom">
+            <el-form-item :label="t('quotationApproval.uom')" prop="uom">
               <el-input v-model="item.uom" disabled />
             </el-form-item>
 
             <el-form-item
               v-if="eFormData.quotation_reason === 'Discount Request'"
-              label="原銷售價格(不含稅) Old Sales Price(NoTax)"
+              :label="t('quotationApproval.oldSalesPriceNoTax')"
               :prop="`infoList.${index}.old_sales_price_noTax`"
               :rules="rules.old_sales_price_noTax"
               required
@@ -442,18 +443,18 @@ defineExpose({ getFormData })
 
           <el-divider />
           <el-col :span="24">
-            <el-form-item label="詢價列表 Target Price List">
+            <el-form-item :label="t('quotationApproval.targetPriceList')">
               <div class="targetPrice-item-card">
                 <div class="targetPrice-item-card__header">
-                  <span>設定不同數量檔位的目標價。 Higher MOQ → lower target price.</span>
+                  <span>{{ t('quotationApproval.targetPriceHint') }}</span>
                   <el-button :icon="Plus" type="primary" :disabled="item.target_price_list.length === 10" @click="handleTargetPriceItemAdd(index)" />
                 </div>
                 <el-divider />
                 <el-row class="targetPrice-item-card__table-header">
-                  <el-col :span="1">檔位 Tier</el-col>
-                  <el-col :span="10">起订量 MOQ (階梯遞增加 Step decrease)</el-col>
-                  <el-col :span="10">目標價 Target Price</el-col>
-                  <el-col :span="2">操作 Actions</el-col>
+                  <el-col :span="1">{{ t('quotationApproval.tier') }}</el-col>
+                  <el-col :span="10">{{ t('quotationApproval.moqWithStepHint') }}</el-col>
+                  <el-col :span="10">{{ t('quotationApproval.targetPrice') }}</el-col>
+                  <el-col :span="2">{{ t('quotationApproval.actions') }}</el-col>
                 </el-row>
                 <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list.length > 5 }">
                   <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
