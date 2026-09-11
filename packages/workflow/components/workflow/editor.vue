@@ -507,6 +507,7 @@ defineExpose({ init, workflowJson, isNew, saveWorkflowJSON, handelReplayViewer, 
 <template>
   <div class="bpmnEditorContainer">
     <div class="bpmnViewerContainer">
+      <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
         <div v-if="!readonly" class="group">
           <ToolbarHistory />
