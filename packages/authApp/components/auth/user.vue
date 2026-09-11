@@ -15,6 +15,7 @@ const appPlatform = useAppPlatform()
 const isAdmin = useIsAdmin()
 const isSuperAdmin = useIsSuperAdmin()
 const appThemeEditorRef = ref<InstanceType<typeof AppThemeEditor>>()
+const globalUserPopoverSlots = useGlobalUserPopoverSlots()
 
 const showSwitchMenu = computed(() => {
   return isAdmin.value || isSuperAdmin.value
@@ -100,10 +101,14 @@ function handleOpenUpload(show: boolean = false, action: 'upload' | 'ai' | '' = 
                         {{$t(lang.code)}}
                     </ElDropdownItem>
                     <ElDivider />
+                    <template v-if="globalUserPopoverSlots">
+                      <component v-for="(value, index) in globalUserPopoverSlots" :key="index" :is="value.component" />
+                    </template>
                     <template v-if="showSwitchMenu">
                       <ElDropdownItem @click="switchPlatform()">Switch to {{ appPlatform === 'admin' ? 'Client' : 'Admin' }}</ElDropdownItem>
                       <ElDivider />
                     </template>
+
                     <ElDropdownItem v-if="isDesktop" @click="removeBaseUrl">Reset Desktop</ElDropdownItem>
                     <ElDropdownItem @click="logout">{{ $t('login_loginOut')}}</ElDropdownItem>
                 </template>
