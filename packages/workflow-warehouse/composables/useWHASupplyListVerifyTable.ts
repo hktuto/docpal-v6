@@ -1,4 +1,5 @@
 ﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { newClientApi, postDynamicActions } from 'api'
 import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
@@ -138,8 +139,12 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const searchQuery = ref('')
   const tableData = ref<Record<string, any>[]>([])
   const countryList = ref<SelectOption[]>([])
-  /** Supplier_PN::PoLine → 高亮 */
+  /** Supplier_PN::PoLine → 问题行红底 */
   const highlightedMatchKeys = ref<Set<string>>(new Set())
+  /** 当前点击定位的行 → 黄底 */
+  const locatedMatchKey = ref('')
+  /** insertRow / 定位行切 filter 时跳过一次 watch reload */
+  let skipNextFilterReload = false
 
   function itemMatchKey(row: Record<string, any>) {
     return rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine])
@@ -148,16 +153,33 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   function highlightMatchingRows(matches: HighlightMatchKey | HighlightMatchKey[]) {
     const list = Array.isArray(matches) ? matches : [matches]
     highlightedMatchKeys.value = new Set(list.map((m) => rowMatchKey(m.supplierPn, m.poLine)))
-    nextTick(() => {
-      tableRef.value?.updateData?.()
-      const first = tableData.value.find((row) => highlightedMatchKeys.value.has(itemMatchKey(row)))
-      if (first) tableRef.value?.scrollToRow?.(first)
-    })
+    locatedMatchKey.value = ''
+    nextTick(() => tableRef.value?.updateData?.())
   }
 
   function clearMatchingRowHighlight() {
     highlightedMatchKeys.value = new Set()
+    locatedMatchKey.value = ''
     nextTick(() => tableRef.value?.updateData?.())
+  }
+
+  async function scrollToMatchingRow(match: HighlightMatchKey) {
+    const key = rowMatchKey(match.supplierPn, match.poLine)
+    const row = tableData.value.find((item) => itemMatchKey(item) === key)
+    if (!row) return
+
+    const isVisible = getFilteredItems(tableData.value).some((item) => itemMatchKey(item) === key)
+    if (!isVisible) {
+      skipNextFilterReload = true
+      statusFilter.value = 'all'
+      searchQuery.value = ''
+      await (tableRef.value as any)?.loadData?.(getFilteredItems(tableData.value))
+    }
+
+    locatedMatchKey.value = key
+    await nextTick()
+    tableRef.value?.updateData?.()
+    tableRef.value?.scrollToRow?.(row)
   }
 
   /** 将匹配行的 verified(Checked) 置为 false，返回是否有变更 */
@@ -247,7 +269,12 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       },
       onCopy: (row) => copyRow(row),
       onDelete: (row) => deleteRow(row),
-      getRowClassName: (row) => (highlightedMatchKeys.value.has(itemMatchKey(row)) ? 'wha-verify-row-highlight' : ''),
+      getRowClassName: (row) => {
+        const key = itemMatchKey(row)
+        if (locatedMatchKey.value === key) return 'wha-verify-row-located'
+        if (highlightedMatchKeys.value.has(key)) return 'wha-verify-row-highlight'
+        return ''
+      },
       checkboxField: SGLA_ITEMS.Checked
     }),
     api: async () => {
@@ -331,9 +358,6 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       source
     )
   }
-
-  /** insertRow 切 filter 时跳过一次 watch reload，避免冲掉滚到首行 */
-  let skipNextFilterReload = false
 
   async function insertRow(payload: Record<string, any>) {
     if (creatingRow.value) return false
@@ -431,6 +455,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     applyBatchEdit,
     highlightMatchingRows,
     clearMatchingRowHighlight,
+    scrollToMatchingRow,
     resetVerifiedMatches,
     addRow,
     saveTableData
