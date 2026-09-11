@@ -37,8 +37,43 @@ function syncUnmatchedFromInvoice() {
   }
 }
 
+function isEmptyValue(value: unknown) {
+  if (value == null) return true
+  if (typeof value === 'string') return value.trim() === '' || value.trim() === '—'
+  return false
+}
+
+function validateInvoiceRequiredFields() {
+  const invoice = selectedInvoice.value
+  if (!invoice) return false
+
+  const invoiceNum = invoice.invoiceNum || invoice.invoice_num
+  if (isEmptyValue(invoiceNum)) {
+    ElMessage.warning(t('workflowWarehouse.pleaseEnterInvoiceNumber'))
+    return false
+  }
+  if (isEmptyValue(invoice.vendorId ?? invoice.vendor_id)) {
+    ElMessage.warning(t('workflowWarehouse.pleaseSelectSupplier', { name: invoiceNum }))
+    return false
+  }
+  if (isEmptyValue(invoice.orgId ?? invoice.org_id ?? invoice.org)) {
+    ElMessage.warning(t('workflowWarehouse.pleaseSelectOrg', { name: invoiceNum }))
+    return false
+  }
+  if (isEmptyValue(invoice.gitDate ?? invoice.git_date)) {
+    ElMessage.warning(t('render.hint.fieldRequired', { name: t('workflowWarehouse.gitDate') }))
+    return false
+  }
+  if (isEmptyValue(invoice.currency)) {
+    ElMessage.warning(t('render.hint.fieldRequired', { name: t('workflowWarehouse.currency') }))
+    return false
+  }
+  return true
+}
+
 async function handleDetect() {
   if (matchingLoading.value || !selectedInvoice.value?.id) return
+  if (!validateInvoiceRequiredFields()) return
   try {
     await runMatchingAndReload()
     syncUnmatchedFromInvoice()
@@ -49,7 +84,6 @@ async function handleDetect() {
     }
   } catch (error) {
     console.error(error)
-    ElMessage.error(String((error as any)?.message || error))
   }
 }
 

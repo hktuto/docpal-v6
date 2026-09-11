@@ -69,13 +69,15 @@ const list = ref([
     field: 'gitDate',
     type: 'date',
     status: 'pass',
+    required: true,
     format: DELIVERY_DATE_FORMAT
   },
   {
     label: t('workflowWarehouse.currency'),
     field: 'currency',
     type: 'text',
-    status: 'pass'
+    status: 'pass',
+    required: true
   },
   {
     label: t('workflowWarehouse.fileName'),
