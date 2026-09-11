@@ -5060,6 +5060,7 @@
     "remarks": "Remarks"
   },
   "sampleRequest": {
+    "sampleDetails": "Sample Request Details",
     "applicantInfo":"Applicant Info",
     "sampleRequestNumber": "Sample Request Number",
     "pmComment": "PM Comment",
@@ -5116,8 +5117,10 @@
     "vendorCoo": "Vendor Country of Origin",
     "etd": "Supplier Estimated Ship Date",
     "eta": "Supplier Sample Estimated Arrival Date",
+    "vendorAgreeDate": "Vendor Agree Date",
     "trackingNumber": "Tracking Number",
     "trackingDate": "Tracking Date",
-    "emailAlert": "Sample Delivery Notice"
+    "emailAlert": "Sample Delivery Notice",
+    "status": "Application Status"
   }
 }

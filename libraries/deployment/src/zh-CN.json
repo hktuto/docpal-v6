@@ -4956,6 +4956,7 @@
     "remarks": "备注"
   },
   "sampleRequest": {
+    "sampleDetails": "寄送样品申请详情",
     "applicantInfo":"申请人信息",
     "sampleRequestNumber": "样品申请编号",
     "pmComment": "PM 备注",
@@ -5012,8 +5013,10 @@
     "vendorCoo": "供应商产地",
     "etd": "供应商预计发货时间",
     "eta": "供应商样品预计到达时间",
+    "vendorAgreeDate": "供应商同意日期",
     "trackingNumber": "快递单号",
     "trackingDate": "快递日期",
-    "emailAlert": "送样通知"
+    "emailAlert": "送样通知",
+    "status": "申请状态"
   }
 }

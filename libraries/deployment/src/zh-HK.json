@@ -5028,6 +5028,7 @@
     "remarks": "備註"
   },
   "sampleRequest": {
+    "sampleDetails": "寄送樣品申請詳情",
     "applicantInfo":"申請人信息",
     "sampleRequestNumber": "样品申请编号",
     "pmComment": "PM 備註",
@@ -5082,10 +5083,12 @@
     "actualReceivedQty": "實際接收數量",
     "foundryCustNum": "代工廠編號 / 名",
     "vendorCoo": "供應商產地",
+    "vendorAgreeDate": "供應商同意日期",
     "etd": "供應商預計發貨時間",
     "eta": "供應商樣品預計到達時間",
     "trackingNumber": "快遞單號",
     "trackingDate": "快遞日期",
-    "emailAlert": "送樣通知"
+    "emailAlert": "送樣通知",
+    "status": "申請狀態"
   }
 }
