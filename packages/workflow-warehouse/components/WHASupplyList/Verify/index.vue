@@ -87,7 +87,7 @@ defineExpose({ getFormData })
   min-height: 500px;
 }
 :deep(.el-splitter-bar__dragger-horizontal) {
-  opacity: 0.1;
+  opacity: 1;
 }
 :deep(.mg-left) {
   margin-left: var(--app-space-xs);
