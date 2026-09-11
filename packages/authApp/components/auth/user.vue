@@ -29,7 +29,7 @@ function switchPlatform() {
 async function changeLanguage(langCode:string) {
     const perference = useUserPreference()
     perference.value.language = langCode
-    await gatewayApi.userSettings.updateUserSettings(perference.value as any)
+    await gatewayApi.userSettings.putUserSettings({settings:perference.value as any})
     setLocale(langCode);
     window.location.reload()
 }
