@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import WorkflowPreview from './preview.vue'
+import { SGLA } from '../../utils/variableMapping'
+
 const workflowPreviewRef = ref<any>(null)
 
 const props = withDefaults(
@@ -16,12 +18,22 @@ const props = withDefaults(
 
 const currentDocId = ref(props.docId ? String(props.docId) : '')
 
+const searchText = computed(() => {
+  const invoice = unref(props.selectedInvoice)
+  if (!invoice) return ''
+  return String(
+    invoice[SGLA.Name]
+      || invoice.invoiceNum
+      || invoice.invoice_num
+      || ''
+  )
+})
+
 watch(
   () => props.docId,
   (id) => {
     const nextId = id ? String(id) : ''
     if (nextId && currentDocId.value !== nextId) currentDocId.value = nextId
-
   }
 )
 
@@ -31,7 +43,7 @@ function handleTabChange(id: string | number) {
 </script>
 
 <template>
-  <WorkflowPreview ref="workflowPreviewRef" :doc-id="currentDocId">
+  <WorkflowPreview ref="workflowPreviewRef" :doc-id="currentDocId" :search-text="searchText">
     <template #title>
       <el-tabs :model-value="currentDocId" class="preview-file-tabs" @tab-change="handleTabChange">
         <el-tab-pane
