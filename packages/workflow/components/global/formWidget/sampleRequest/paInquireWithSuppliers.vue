@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { clientApi, newClientApi } from 'api'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -51,10 +53,65 @@ const rules = {
   eta: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.eta') }), trigger: 'change' }]
 }
 
-function init() {
+async function init() {
   if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
-    formModel.list = formData.sample_info_list
+    const conditions = [
+      {
+        value: [{ column: 'f_14878_b8992035', type: 'EQ', value: formData.sample_request_id }],
+        type: 'AND'
+      }
+    ]
+    const dbData: any = await getDbData('a38fddb0-6a18-11f1-bb31-59e406a19732', conditions)
+
+    formModel.list = formData.sample_info_list.map((item: any) => {
+      const find = dbData.find((db: any) => db.line_id === item.line_id)
+
+      return {
+        ...item,
+        id: !!find ? find.id : ''
+      }
+    })
   }
+}
+
+async function getDbData(tableId: string, conditions?: any[]) {
+  // Get Filed Mapping
+  const filedData: any = await newClientApi
+    .getDocpalMasterTableUserConfig({
+      tableId: tableId,
+      userId: 'master',
+      type: 'detail'
+    })
+    .then((res) => res.data)
+  const filedMapping: any = {}
+  filedData.tableFields.forEach((item: any) => {
+    filedMapping[item.field_name as string] = item.field_name_alias
+  })
+
+  const param = {
+    tableId: tableId,
+    conditions,
+    columns: [{ name: 'id' }, { name: 'f_8574_48965b6a' }],
+    pagination: {
+      pageSize: 1000,
+      pageNum: 0
+    }
+  }
+
+  // Get BD Data
+  const dbData = await clientApi.instance.post('/apis/v1/dynamic-actions', param).then((res: any) => res.data.data)
+
+  // 匹配數據
+  return dbData.map((row: any) => {
+    const out = {
+      id: ''
+    }
+    out.id = row['id']
+    for (const [fromKey, toKey] of Object.entries(filedMapping)) {
+      if (fromKey in row) out[toKey] = row[fromKey]
+    }
+    return out
+  })
 }
 
 async function getFormData(needValidation = true) {
