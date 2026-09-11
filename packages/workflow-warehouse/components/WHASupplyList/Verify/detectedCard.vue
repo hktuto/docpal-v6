@@ -88,15 +88,18 @@ defineExpose({
           :aria-label="item.supplierPn"
           @click="handleCopy(item.supplierPn)"
           @keydown.enter="handleCopy(item.supplierPn)"
-        >{{ item.supplierPn }}</b>
+          >{{ item.supplierPn }}</b
+        >
         <span
+          v-if="item.poLine"
           class="po-line"
           v-tooltip="item.poLine"
           tabindex="0"
           :aria-label="item.poLine"
           @click="handleCopy(item.poLine)"
           @keydown.enter="handleCopy(item.poLine)"
-        >({{ item.poLine }})</span>
+          >({{ item.poLine }})</span
+        >
         <div v-if="item.dbTotalQty !== item.totalQty">
           <span>{{ item.dbTotalQty }}</span>
           <span class="is-danger">{{ item.totalQty }}</span>
