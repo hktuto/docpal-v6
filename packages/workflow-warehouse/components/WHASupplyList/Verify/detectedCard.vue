@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
 import { newClientApi } from 'api'
 import { SGLA } from '../../../utils/variableMapping'
+import type { HighlightMatchKey } from '../../../utils/tableHelper'
 
-const { t } = useI18n()
 const detecting = ref(false)
 const unmatchedList = ref<any[]>([])
 const { formData, selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
-const { saveTableData, highlightMatchingRows, resetVerifiedMatches } = useWHASupplyListVerifyTableInject()
+const { saveTableData, highlightMatchingRows, resetVerifiedMatches, scrollToMatchingRow } = useWHASupplyListVerifyTableInject()
+
+function handleLocateIssue(item: HighlightMatchKey) {
+  scrollToMatchingRow?.(item)
+}
 
 async function handleCopy(value: unknown) {
   if (value == null || value === '') return
@@ -69,7 +72,15 @@ defineExpose({
 <template>
   <WHDetectedCard :issues="unmatchedList" :detecting="detecting" @detect="handleDetect(false)">
     <template #default="{ issues }">
-      <div v-for="(item, index) in issues" :key="index" class="detected-issue-card">
+      <div
+        v-for="(item, index) in issues"
+        :key="index"
+        class="detected-issue-card"
+        tabindex="0"
+        :aria-label="item.supplierPn"
+        @click="handleLocateIssue(item)"
+        @keydown.enter="handleLocateIssue(item)"
+      >
         <b
           class="supplier-pn"
           v-tooltip="item.supplierPn"
@@ -107,6 +118,7 @@ defineExpose({
   border-radius: var(--app-border-radius-m);
   background-color: var(--el-bg-color);
   box-shadow: var(--el-box-shadow-light);
+  cursor: pointer;
 }
 
 .supplier-pn {
