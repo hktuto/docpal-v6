@@ -1,11 +1,22 @@
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 import { newClientApi } from 'api'
 import { SGLA } from '../../../utils/variableMapping'
 
+const { t } = useI18n()
 const detecting = ref(false)
 const unmatchedList = ref<any[]>([])
 const { formData, selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
 const { saveTableData, highlightMatchingRows, resetVerifiedMatches } = useWHASupplyListVerifyTableInject()
+
+async function handleCopy(value: unknown) {
+  if (value == null || value === '') return
+  try {
+    await navigator.clipboard.writeText(String(value))
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 async function handleDetect(isInit = true, reset = true) {
   if (detecting.value) return
@@ -59,7 +70,22 @@ defineExpose({
   <WHDetectedCard :issues="unmatchedList" :detecting="detecting" @detect="handleDetect(false)">
     <template #default="{ issues }">
       <div v-for="(item, index) in issues" :key="index" class="detected-issue-card">
-        <b>{{ item.supplierPn }}</b>({{ item.poLine }})
+        <b
+          class="supplier-pn"
+          v-tooltip="item.supplierPn"
+          tabindex="0"
+          :aria-label="item.supplierPn"
+          @click="handleCopy(item.supplierPn)"
+          @keydown.enter="handleCopy(item.supplierPn)"
+        >{{ item.supplierPn }}</b>
+        <span
+          class="po-line"
+          v-tooltip="item.poLine"
+          tabindex="0"
+          :aria-label="item.poLine"
+          @click="handleCopy(item.poLine)"
+          @keydown.enter="handleCopy(item.poLine)"
+        >({{ item.poLine }})</span>
         <div v-if="item.dbTotalQty !== item.totalQty">
           <span>{{ item.dbTotalQty }}</span>
           <span class="is-danger">{{ item.totalQty }}</span>
@@ -72,6 +98,8 @@ defineExpose({
 
 <style scoped lang="scss">
 .detected-issue-card {
+  min-width: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: var(--app-space-xs);
@@ -79,6 +107,20 @@ defineExpose({
   border-radius: var(--app-border-radius-m);
   background-color: var(--el-bg-color);
   box-shadow: var(--el-box-shadow-light);
+}
+
+.supplier-pn {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.po-line {
+  width: fit-content;
+  cursor: pointer;
 }
 
 .is-danger {
