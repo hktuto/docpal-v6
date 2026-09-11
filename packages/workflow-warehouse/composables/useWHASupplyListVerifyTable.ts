@@ -6,11 +6,11 @@ import {
   applyBatchValueToColumn,
   applySelectOptionsToColumns,
   createRowFromColumns,
-  createVerificationTableColumns,
   createVerificationTableOptions,
+  editableColumn,
   fetchCountryList,
   filterTableItems,
-  generateVerificationItemsParams,
+  generateMasterDetailParams,
   getFormDataFromColumns,
   getMissingRequiredLabels,
   getStatusCounts,
@@ -18,14 +18,114 @@ import {
   normalizeCountryFields,
   rowMatchKey,
   toNumberOrNull,
-  VERIFY_TABLE_COUNTRY_FIELDS,
-  VERIFY_TABLE_SEARCH_FIELDS,
   type HighlightMatchKey,
   type SelectOption,
   type VerificationStatusFilter,
-  type VerificationTableColumn,
   type VerificationTableContext
 } from '../utils/tableHelper'
+
+const SEARCH_FIELDS = [
+  SGLA_ITEMS.Carton,
+  SGLA_ITEMS.Supplier_PN,
+  SGLA_ITEMS.WCL_PN,
+  SGLA_ITEMS.Qty,
+  SGLA_ITEMS.PoLine
+] as const
+
+const COUNTRY_FIELDS = [SGLA_ITEMS.CountryOfOrigin, SGLA_ITEMS.CountryOfWafer]
+
+function createVerificationTableColumns(t: (key: string) => string) {
+  return [
+    {
+      type: 'seq',
+      width: 50,
+      align: 'right',
+      fixed: 'left'
+    },
+    {
+      field: SGLA_ITEMS.Carton,
+      title: t('workflowWarehouse.carton'),
+      minWidth: 70,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Supplier_PN,
+      title: t('workflowWarehouse.supplierPn'),
+      minWidth: 150,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.WCL_PN,
+      title: t('workflowWarehouse.wclPn'),
+      minWidth: 170,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Qty,
+      title: t('workflowWarehouse.qty'),
+      minWidth: 90,
+      type: 'number',
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn('number')
+    },
+    {
+      field: SGLA_ITEMS.PoLine,
+      title: t('workflowWarehouse.po'),
+      minWidth: 140,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.SupplierItemRefNo,
+      title: t('workflowWarehouse.SupplierItemRefNo'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.DateCode,
+      title: t('workflowWarehouse.dateCode'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.CountryOfOrigin,
+      title: t('workflowWarehouse.countryOfOrigin'),
+      minWidth: 140,
+      ...editableColumn('select')
+    },
+    {
+      field: SGLA_ITEMS.CountryOfWafer,
+      title: t('workflowWarehouse.countryOfWafer'),
+      minWidth: 140,
+      ...editableColumn('select')
+    },
+    {
+      field: SGLA_ITEMS.DrawingNo,
+      title: t('workflowWarehouse.drawingNo'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Remark,
+      title: t('workflowWarehouse.remark'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      type: 'checkbox',
+      title: t('workflowWarehouse.verified'),
+      fixed: 'right',
+      width: 88,
+      align: 'center'
+    }
+  ]
+}
 
 export const WHASupplyListVerifyTableKey: InjectionKey<VerificationTableContext> = Symbol('WHASupplyListVerifyTable')
 
@@ -78,7 +178,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   async function getCountryList() {
     try {
       countryList.value = await fetchCountryList()
-      applySelectOptionsToColumns(verificationTableColumns, VERIFY_TABLE_COUNTRY_FIELDS, countryList.value)
+      applySelectOptionsToColumns(verificationTableColumns, COUNTRY_FIELDS, countryList.value)
     } catch (error) {
       console.error(error)
       countryList.value = []
@@ -90,7 +190,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       statusFilter: statusFilter.value,
       searchQuery: searchQuery.value,
       checkedField: SGLA_ITEMS.Checked,
-      searchFields: VERIFY_TABLE_SEARCH_FIELDS
+      searchFields: SEARCH_FIELDS
     })
   }
 
@@ -153,7 +253,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     api: async () => {
       if (!countryList.value.length) await getCountryList()
       const data = await fetchTableData()
-      const normalized = normalizeCountryFields(data, countryList.value)
+      const normalized = normalizeCountryFields(data, countryList.value, COUNTRY_FIELDS)
       tableData.value = normalized
       return getFilteredItems(normalized)
     }
@@ -199,7 +299,11 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
     loading.value = true
     try {
-      const params = generateVerificationItemsParams(masterId)
+      const orderBy = [
+        { column: SGLA_ITEMS.Carton, desc: false },
+        { column: SGLA_ITEMS.PoLine, desc: false },
+      ]
+      const params = generateMasterDetailParams(SGLA_ITEMS_TABLE_ID, SGLA_ITEMS.MasterId, masterId, orderBy)
       const { data } = await postDynamicActions(params)
       return normalizeCheckedField(data?.data ?? [], SGLA_ITEMS.Checked)
     } catch (error) {
@@ -248,7 +352,8 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
             [SGLA_ITEMS.Checked]: !!data?.data?.data?.[SGLA_ITEMS.Checked]
           }
         ],
-        countryList.value
+        countryList.value,
+        COUNTRY_FIELDS
       )[0]
 
       if (!insertedRow?.id) return false

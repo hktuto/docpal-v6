@@ -1,7 +1,6 @@
 import type { Ref } from 'vue'
 import { postDynamicActions } from 'api'
 import { COUNTRY_STATIC_ALIASES } from './countryAliases'
-import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from './variableMapping'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
@@ -13,16 +12,6 @@ export type HighlightMatchKey = {
 export type EditableColumnType = 'text' | 'number' | 'select'
 
 export type SelectOption = { label: string; value: string | number }
-
-export const VERIFY_TABLE_SEARCH_FIELDS = [
-  SGLA_ITEMS.Carton,
-  SGLA_ITEMS.Supplier_PN,
-  SGLA_ITEMS.WCL_PN,
-  SGLA_ITEMS.Qty,
-  SGLA_ITEMS.PoLine
-] as const
-
-export const VERIFY_TABLE_COUNTRY_FIELDS = [SGLA_ITEMS.CountryOfOrigin, SGLA_ITEMS.CountryOfWafer]
 
 export function matchSearchValue(value: unknown, query: string): boolean {
   if (value == null || value === '') return false
@@ -78,101 +67,6 @@ export function editableColumn(type: EditableColumnType = 'text', selectOptions:
     }
   }
 }
-
-export function createVerificationTableColumns(t: (key: string) => string) {
-  return [
-    {
-      type: 'seq',
-      width: 50,
-      align: 'right',
-      fixed: 'left'
-    },
-    {
-      field: SGLA_ITEMS.Carton,
-      title: t('workflowWarehouse.carton'),
-      minWidth: 70,
-      ...editableColumn()
-    },
-    {
-      field: SGLA_ITEMS.Supplier_PN,
-      title: t('workflowWarehouse.supplierPn'),
-      minWidth: 150,
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn()
-    },
-    {
-      field: SGLA_ITEMS.WCL_PN,
-      title: t('workflowWarehouse.wclPn'),
-      minWidth: 170,
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn()
-    },
-    {
-      field: SGLA_ITEMS.Qty,
-      title: t('workflowWarehouse.qty'),
-      minWidth: 90,
-      type: 'number',
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn('number')
-    },
-    {
-      field: SGLA_ITEMS.PoLine,
-      title: t('workflowWarehouse.po'),
-      minWidth: 140,
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn()
-    },
-    {
-      field: SGLA_ITEMS.SupplierItemRefNo,
-      title: t('workflowWarehouse.SupplierItemRefNo'),
-      minWidth: 140,
-      ...editableColumn()
-    },
-    {
-      field: SGLA_ITEMS.DateCode,
-      title: t('workflowWarehouse.dateCode'),
-      minWidth: 140,
-      ...editableColumn()
-    },
-    {
-      field: SGLA_ITEMS.CountryOfOrigin,
-      title: t('workflowWarehouse.countryOfOrigin'),
-      minWidth: 140,
-      ...editableColumn('select')
-    },
-    {
-      field: SGLA_ITEMS.CountryOfWafer,
-      title: t('workflowWarehouse.countryOfWafer'),
-      minWidth: 140,
-      ...editableColumn('select')
-    },
-    {
-      field: SGLA_ITEMS.DrawingNo,
-      title: t('workflowWarehouse.drawingNo'),
-      minWidth: 140,
-      ...editableColumn()
-    },
-    {
-      field: SGLA_ITEMS.Remark,
-      title: t('workflowWarehouse.remark'),
-      minWidth: 140,
-      ...editableColumn()
-    },
-    {
-      type: 'checkbox',
-      title: t('workflowWarehouse.verified'),
-      fixed: 'right',
-      width: 88,
-      align: 'center'
-    }
-  ]
-}
-
-export type VerificationTableColumn = ReturnType<typeof createVerificationTableColumns>[number]
 
 export function createInvoiceVerificationTableColumns(t: (key: string) => string) {
   return [
@@ -242,8 +136,6 @@ export function createInvoiceVerificationTableColumns(t: (key: string) => string
   ]
 }
 
-export type InvoiceVerificationTableColumn = ReturnType<typeof createInvoiceVerificationTableColumns>[number]
-
 export interface VerificationTableContext {
   loading: Ref<boolean>
   creatingRow: Ref<boolean>
@@ -254,7 +146,7 @@ export interface VerificationTableContext {
   statusFilter: Ref<VerificationStatusFilter>
   statusCounts: Ref<Record<VerificationStatusFilter, number>>
   searchQuery: Ref<string>
-  columns: VerificationTableColumn[]
+  columns: any[]
   reload: () => void
   batchEditDialogVisible?: Ref<boolean>
   selectedColumn?: Ref<string | undefined>
@@ -270,7 +162,7 @@ export interface VerificationTableContext {
 
 export type CreateVerificationTableOptionsParams = {
   t: (key: string) => string
-  columns: VerificationTableColumn[] | InvoiceVerificationTableColumn[]
+  columns: any[]
   onCopy: (row: Record<string, any>) => void
   onDelete: (row: Record<string, any>) => void
   getRowClassName: (row: Record<string, any>) => string
@@ -384,11 +276,13 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
   }
 }
 
-export function generateMasterDetailParams(tableId: string, masterColumn: string, masterId: string) {
+export type DynamicOrderBy = { column: string; desc: boolean }
+
+export function generateMasterDetailParams(tableId: string, masterColumn: string, masterId: string, orderBy: DynamicOrderBy[]) {
   return {
     tableId,
     columns: [{ name: '*' }],
-    orderBy: [{ column: 'created_at', desc: false }],
+    orderBy,
     conditions: [
       {
         value: [
@@ -402,10 +296,6 @@ export function generateMasterDetailParams(tableId: string, masterColumn: string
       }
     ]
   }
-}
-
-export function generateVerificationItemsParams(masterTableId: string) {
-  return generateMasterDetailParams(SGLA_ITEMS_TABLE_ID, SGLA_ITEMS.MasterId, masterTableId)
 }
 
 export function normalizeCountryKey(value: unknown): string {
@@ -439,7 +329,7 @@ export function buildCountryLookup(list: SelectOption[]) {
 export function normalizeCountryFields(
   rows: Record<string, any>[],
   countryList: SelectOption[],
-  fields: readonly string[] = VERIFY_TABLE_COUNTRY_FIELDS
+  fields: readonly string[]
 ) {
   if (!countryList.length) return rows
   const lookup = buildCountryLookup(countryList)
