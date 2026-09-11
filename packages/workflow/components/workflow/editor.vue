@@ -61,9 +61,6 @@ const workflowId = ref<string>('')
 const workflowKey = ref<string>('')
 const version = ref<number>(0)
 const emits = defineEmits(['refresh', 'updateActivate'])
-const RULER_STEP = 100
-const RULER_COUNT = 40
-const rulerMarks = Array.from({ length: RULER_COUNT + 1 }, (_, index) => index * RULER_STEP)
 
 const dropActionsItems = computed(() => {
   return Object.values(workflowElement).reduce((acc: any, cur: any) => {
@@ -148,7 +145,7 @@ function init() {
           visible: true,
           type: 'mesh',
           args: {
-            color: '#d8dee9',
+            color: '#eee',
             thickness: 1
           }
         },
@@ -157,7 +154,7 @@ function init() {
           max: 2
         },
         background: {
-          color: '#f8fafc'
+          color: 'var(--app-grey-9000)'
         },
         autoResize: true,
         panning: {
@@ -232,7 +229,6 @@ function init() {
       })
       fitIn()
       graphReady()
-      graph.value?.centerContent()
     })
   } catch (e) {
     console.log(e)
@@ -511,20 +507,6 @@ defineExpose({ init, workflowJson, isNew, saveWorkflowJSON, handelReplayViewer, 
 <template>
   <div class="bpmnEditorContainer">
     <div class="bpmnViewerContainer">
-      <div class="rulerOrigin">0</div>
-      <div class="ruler ruler--top" aria-hidden="true">
-        <span v-for="mark in rulerMarks" :key="`top-${mark}`" class="ruler__mark" :style="{ left: `${mark}px` }">
-          {{ mark }}
-        </span>
-      </div>
-      <div class="ruler ruler--left" aria-hidden="true">
-        <span v-for="mark in rulerMarks" :key="`left-${mark}`" class="ruler__mark" :style="{ top: `${mark}px` }">
-          {{ mark }}
-        </span>
-      </div>
-      <div class="bpmnGraphStage">
-        <div class="bpmnGraphContainer" ref="containerEl" />
-      </div>
       <div v-if="isReady" class="toolbar">
         <div v-if="!readonly" class="group">
           <ToolbarHistory />
@@ -550,7 +532,6 @@ defineExpose({ init, workflowJson, isNew, saveWorkflowJSON, handelReplayViewer, 
 
 <style scoped lang="scss">
 .bpmnEditorContainer {
-  --workflow-ruler-size: 28px;
   width: 100%;
   height: 100%;
   position: relative;
@@ -558,116 +539,23 @@ defineExpose({ init, workflowJson, isNew, saveWorkflowJSON, handelReplayViewer, 
   grid-template-rows: 1fr min-content;
 }
 
-.bpmnEditorContainer {
-  min-height: 0;
-}
-
 .bpmnViewerContainer {
-  position: relative;
   width: 100%;
   height: 100%;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 24px;
-  background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 24%), linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  border: 1px solid #eee;
   overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 12px 28px rgba(15, 23, 42, 0.08);
-}
 
-.rulerOrigin {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--workflow-ruler-size);
-  height: var(--workflow-ruler-size);
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-right: 1px solid rgba(15, 23, 42, 0.08);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.94);
-  color: #475569;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.ruler {
-  position: absolute;
-  z-index: 2;
-  background: rgba(255, 255, 255, 0.92);
-  color: #64748b;
-  pointer-events: none;
-}
-
-.ruler--top {
-  left: var(--workflow-ruler-size);
-  top: 0;
-  right: 0;
-  height: var(--workflow-ruler-size);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  background-image:
-    repeating-linear-gradient(to right, rgba(15, 23, 42, 0.18) 0, rgba(15, 23, 42, 0.18) 1px, transparent 1px, transparent 20px),
-    repeating-linear-gradient(to right, rgba(15, 23, 42, 0.32) 0, rgba(15, 23, 42, 0.32) 1px, transparent 1px, transparent 100px);
-}
-
-.ruler--left {
-  left: 0;
-  top: var(--workflow-ruler-size);
-  bottom: 0;
-  width: var(--workflow-ruler-size);
-  border-right: 1px solid rgba(15, 23, 42, 0.08);
-  background-image:
-    repeating-linear-gradient(to bottom, rgba(15, 23, 42, 0.18) 0, rgba(15, 23, 42, 0.18) 1px, transparent 1px, transparent 20px),
-    repeating-linear-gradient(to bottom, rgba(15, 23, 42, 0.32) 0, rgba(15, 23, 42, 0.32) 1px, transparent 1px, transparent 100px);
-}
-
-.ruler__mark {
-  position: absolute;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1;
-}
-
-.ruler--top .ruler__mark {
-  top: 7px;
-  transform: translateX(-50%);
-}
-
-.ruler--left .ruler__mark {
-  left: 7px;
-  transform: translateY(-50%);
-}
-
-.bpmnGraphStage {
-  position: absolute;
-  left: var(--workflow-ruler-size);
-  top: var(--workflow-ruler-size);
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  cursor: grab;
-}
-
-.bpmnGraphStage:active {
-  cursor: grabbing;
-}
-
-.bpmnGraphContainer {
-  width: 100%;
-  height: 100%;
-  touch-action: none;
+  > .bpmnGraphContainer {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .toolbar {
   position: absolute;
-  left: calc(var(--workflow-ruler-size) + var(--app-space-m));
-  top: calc(var(--workflow-ruler-size) + var(--app-space-m));
-  z-index: 4;
+  left: var(--app-space-m);
+  top: var(--app-space-m);
+  z-index: 2;
   display: flex;
   flex-flow: column nowrap;
   justify-content: stretch;
@@ -678,19 +566,18 @@ defineExpose({ init, workflowJson, isNew, saveWorkflowJSON, handelReplayViewer, 
 
   .group {
     box-shadow: var(--app-shadow-s);
-    color: #475569;
+    color: var(--app-grey-400);
     line-height: 0;
     display: flex;
     flex-flow: column nowrap;
     justify-content: flex-start;
     align-items: flex-start;
     border-radius: var(--app-border-radius-m);
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--app-grey-800);
     gap: var(--app-space-xs);
     font-size: var(--app-font-size-l);
     padding: var(--app-space-xs);
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
+    background: var(--app-grey-950);
   }
 
   &:hover,
@@ -750,11 +637,5 @@ defineExpose({ init, workflowJson, isNew, saveWorkflowJSON, handelReplayViewer, 
   stroke: var(--app-main-color) !important;
   stroke-dasharray: 5;
   animation: running-line 60s infinite linear;
-}
-
-.bpmnGraphContainer::-webkit-scrollbar,
-.x6-graph::-webkit-scrollbar,
-.x6-graph-scroller::-webkit-scrollbar {
-  display: none;
 }
 </style>
