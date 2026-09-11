@@ -70,7 +70,11 @@ export function requestSuccessHelper(config: AxiosRequestConfig, _axiosInstance?
   const token = localStorage.getItem('access_token')
   if (token) {
     config.headers = config.headers || {}
-    config.headers.Authorization = `Bearer ${token}`
+    if (config.headers.noAuth) {
+      delete config.headers.noAuth
+    } else {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     config.headers['accept-language'] = localStorage.getItem('v_form_locale') || 'en-US'
     // TODO: 等待後端更改登錄接口，從登錄接口獲取該環境變量
     if (config.url?.includes(WORKFLOW_PATH)) {

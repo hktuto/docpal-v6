@@ -31,6 +31,10 @@ export async function getLocale() {
     const { data: clientData } = (await newClientApi.getDmsFormPropertiesLanguageList({
       locale: locale.value,
       languageKey: 'client'
+    }, {
+      headers: {
+        "noAuth" : "true"
+      }
     })) as any
     clientJson = JSON.parse(clientData[0].languageContent)
   } else {
@@ -41,11 +45,19 @@ export async function getLocale() {
   const { data: adminData } = (await newClientApi.getDmsFormPropertiesLanguageList({
     locale: locale.value,
     languageKey: 'admin'
+  }, {
+    headers: {
+      "noAuth" : "true"
+    }
   })) as any
   const adminJson = JSON.parse(adminData[0].languageContent)
   const { data: metaData } = (await newClientApi.getDmsFormPropertiesLanguageList({
     locale: locale.value,
     languageKey: 'meta'
+  }, {
+    headers: {
+      "noAuth" : "true"
+    }
   })) as any
   const metaJson = JSON.parse(metaData[0].languageContent)
 

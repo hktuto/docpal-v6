@@ -210,6 +210,10 @@ async function GetLanguages() {
     const { data } = await newClientApi.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: state.selectedSection
+    }, {
+      headers: {
+        "noAuth" : "true"
+      }
     }) as any
     if (data && data[0]) {
       state.languageStores[key] = {
