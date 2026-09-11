@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDF.js Findbar 本地测试</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f5f7;
+        --panel: #fff;
+        --border: #d8dbe2;
+        --text: #1f2329;
+        --muted: #646a73;
+        --accent: #2b6cb0;
+        --danger: #c53030;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      body {
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        padding: 10px 14px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .toolbar h1 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .hint {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .status {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--accent);
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-left: auto;
+        align-items: center;
+      }
+
+      button,
+      label.file-btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--text);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      button:hover:not(:disabled),
+      label.file-btn:hover {
+        filter: brightness(0.97);
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #525659;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="toolbar">
+      <div>
+        <h1>PDF.js Findbar 本地测试</h1>
+        <p class="hint">
+          本仓库 viewer 通过 postMessage 传 PDF（不是 ?file=）。打开查找后拖左侧手柄即可移动。
+        </p>
+        <p class="status" id="statusText">正在等待 viewer ready…</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="primary" id="loadSampleBtn" disabled>
+          加载示例 PDF
+        </button>
+        <label class="file-btn">
+          打开本地 PDF
+          <input id="fileInput" type="file" accept="application/pdf,.pdf" />
+        </label>
+        <button type="button" id="openFindBtn" disabled>打开查找</button>
+      </div>
+    </header>
+
+    <iframe
+      id="viewerFrame"
+      title="PDF.js viewer"
+      src="../build/generic/web/viewer.html"
+    ></iframe>
+
+    <script>
+      const SAMPLE_PDF_URL = "../examples/learning/helloworld.pdf";
+      const frame = document.getElementById("viewerFrame");
+      const statusText = document.getElementById("statusText");
+      const loadSampleBtn = document.getElementById("loadSampleBtn");
+      const openFindBtn = document.getElementById("openFindBtn");
+
+      let viewerReady = false;
+      let pendingBlob = null;
+
+      function setStatus(message, isError = false) {
+        statusText.textContent = message;
+        statusText.classList.toggle("error", isError);
+      }
+
+      function setControlsEnabled(enabled) {
+        loadSampleBtn.disabled = !enabled;
+        openFindBtn.disabled = !enabled;
+      }
+
+      function postPdfToViewer(blob, fileName = "document.pdf") {
+        if (!viewerReady || !frame.contentWindow) {
+          pendingBlob = blob;
+          setStatus("viewer 未就绪，已排队等待发送…");
+          return;
+        }
+
+        frame.contentWindow.postMessage(
+          {
+            blob,
+            locale: "zh-CN",
+            annotations: new Map(),
+            options: {
+              print: true,
+              readOnly: false,
+              fileName,
+            },
+          },
+          "*"
+        );
+        setStatus(`已发送 PDF：${fileName}`);
+      }
+
+      async function loadSamplePdf() {
+        try {
+          setStatus("正在下载示例 PDF…");
+          const response = await fetch(SAMPLE_PDF_URL);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const blob = await response.blob();
+          postPdfToViewer(blob, "helloworld.pdf");
+        } catch (error) {
+          console.error(error);
+          setStatus(`加载示例 PDF 失败：${error.message}`, true);
+        }
+      }
+
+      window.addEventListener("message", (event) => {
+        if (event.source !== frame.contentWindow) {
+          return;
+        }
+
+        const type = event.data?.type;
+        if (type === "ready") {
+          viewerReady = true;
+          setControlsEnabled(true);
+          setStatus("viewer ready，正在自动加载示例 PDF…");
+          if (pendingBlob) {
+            const blob = pendingBlob;
+            pendingBlob = null;
+            postPdfToViewer(blob);
+          } else {
+            loadSamplePdf();
+          }
+          return;
+        }
+
+        if (type) {
+          console.log("[viewer message]", event.data);
+        }
+      });
+
+      loadSampleBtn.addEventListener("click", () => {
+        loadSamplePdf();
+      });
+
+      document.getElementById("fileInput").addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        if (!file) {
+          return;
+        }
+        postPdfToViewer(file, file.name);
+      });
+
+      openFindBtn.addEventListener("click", () => {
+        const btn = frame.contentWindow?.document?.getElementById("viewFind");
+        if (!btn) {
+          setStatus("查找按钮尚未就绪", true);
+          return;
+        }
+        btn.click();
+        setStatus("已打开查找框，可拖动手柄测试");
+      });
+    </script>
+  </body>
+</html>
