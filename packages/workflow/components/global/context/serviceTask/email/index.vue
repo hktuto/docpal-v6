@@ -155,11 +155,21 @@ async function getEmailVariablesList() {
     emailVariablesList.value = []
     return
   }
-  emailVariablesList.value = JSON.parse(find.emailTemplateVariable).map((key: string) => ({
-    id: key,
-    name: key,
-    value: ''
-  }))
+
+  emailVariablesList.value = JSON.parse(find.emailTemplateVariable).map((key: string) => {
+    // TODO: 根據 Steve 反饋現在後端的 send email 的接口對與table類型的數據 只保留外層變量名
+    let id = key
+    if (key.includes(',')) {
+      const arrList = key.split(',')
+      id = arrList[0]
+    }
+
+    return {
+      id: id,
+      name: key,
+      value: ''
+    }
+  })
 }
 
 onMounted(() => {
