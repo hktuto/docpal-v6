@@ -27,6 +27,10 @@ export async function getMetaLanguageList(languageKey: string = 'meta') {
       newClientApi.getDmsFormPropertiesLanguageList({
         locale,
         languageKey
+      }, {
+        headers: {
+          "noAuth" : "true"
+        }
       }).then((res) => res.data[0])
     )
   }
