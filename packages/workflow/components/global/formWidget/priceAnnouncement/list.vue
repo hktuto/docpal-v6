@@ -44,7 +44,7 @@ const partNumberOptions = ref<any[]>([])
 const formModel = reactive({
   priceAnnouncementNumber: '',
   brand: 'ABBYY',
-  effectiveDate: dayjs(Date.now()).format('YYYY-MM-DD'),
+  effectiveDate: dayjs().add(1, 'day').format('YYYY-MM-DD'),
   submittedBy: '',
   dateSubmitted: 0,
   listLength: 0
@@ -53,7 +53,23 @@ const formRef = ref()
 const headerFormRef = ref()
 const rules = {
   brand: [{ required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.brand') }), trigger: 'change' }],
-  effectiveDate: [{ required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.effectiveDate') }), trigger: 'change' }],
+  effectiveDate: [
+    { required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.effectiveDate') }), trigger: 'change' },
+    {
+      validator: (_rule, value, callback) => {
+        if (!value) {
+          callback()
+          return
+        }
+        if (!dayjs(value).isAfter(dayjs(), 'day')) {
+          callback(new Error(t('priceAnnouncement.effectiveDateMustAfterToday')))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ],
   listLength: [
     {
       validator: (_rule, value, callback) => {
@@ -67,6 +83,10 @@ const rules = {
       trigger: 'change'
     }
   ]
+}
+
+function disabledEffectiveDate(date: Date) {
+  return !dayjs(date).isAfter(dayjs(), 'day')
 }
 
 watch(
@@ -332,7 +352,10 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
       formModel.effectiveDate = ''
       ElMessage.error(t('priceAnnouncement.unableToGetEffectiveDate'))
     } else {
-      formModel.effectiveDate = parseEffectiveDate(effectiveDateField[1])
+      const parsedDate = parseEffectiveDate(effectiveDateField[1])
+      const minEffectiveDate = dayjs().add(1, 'day')
+      formModel.effectiveDate =
+        parsedDate && dayjs(parsedDate).isAfter(dayjs(), 'day') ? parsedDate : minEffectiveDate.format('YYYY-MM-DD')
     }
 
     tableData.value = rows
@@ -506,6 +529,7 @@ defineExpose({ getFormData })
             value-format="YYYY-MM-DD"
             style="width: 90%"
             :disabled="isApproval"
+            :disabled-date="disabledEffectiveDate"
             :clearable="false"
           />
         </el-form-item>

@@ -5203,6 +5203,7 @@
     "excelFormatMismatch": "The Excel file format does not match the template.",
     "unableToGetEffectiveDate": "Unable to get effective date.",
     "rowsImported": "{count} rows imported.",
-    "unableToReadExcel": "Unable to read the Excel file."
+    "unableToReadExcel": "Unable to read the Excel file.",
+    "effectiveDateMustAfterToday": "Effective date must be later than today"
   }
 }

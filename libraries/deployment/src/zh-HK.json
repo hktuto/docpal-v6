@@ -5171,6 +5171,7 @@
     "excelFormatMismatch": "Excel 檔案格式與模板不相符。",
     "unableToGetEffectiveDate": "無法獲取生效日期。",
     "rowsImported": "已導入 {count} 行。",
-    "unableToReadExcel": "無法讀取 Excel 檔案。"
+    "unableToReadExcel": "無法讀取 Excel 檔案。",
+    "effectiveDateMustAfterToday": "生效日期必須大於當天"
   }
 }

@@ -5099,6 +5099,7 @@
     "excelFormatMismatch": "Excel 文件格式与模板不匹配。",
     "unableToGetEffectiveDate": "无法获取生效日期。",
     "rowsImported": "已导入 {count} 行。",
-    "unableToReadExcel": "无法读取 Excel 文件。"
+    "unableToReadExcel": "无法读取 Excel 文件。",
+    "effectiveDateMustAfterToday": "生效日期必须大于当天"
   }
 }
