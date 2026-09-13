@@ -11,6 +11,7 @@ const { formData } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 type tableDataType = {
   endCustomer: string
@@ -51,14 +52,14 @@ const formModel = reactive({
 const formRef = ref()
 const headerFormRef = ref()
 const rules = {
-  brand: [{ required: true, message: '请选择品牌', trigger: 'change' }],
-  effectiveDate: [{ required: true, message: '请选择生效日期', trigger: 'change' }],
+  brand: [{ required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.brand') }), trigger: 'change' }],
+  effectiveDate: [{ required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.effectiveDate') }), trigger: 'change' }],
   listLength: [
     {
       validator: (_rule, value, callback) => {
         if (!value || Number(value) < 1) {
           callback(new Error(''))
-          ElMessage.error('请选择需要公告的零件')
+          ElMessage.error(t('priceAnnouncement.pleaseSelectParts'))
           return
         }
         callback()
@@ -78,12 +79,12 @@ watch(
 
 function getColumns() {
   const checkboxCol = { type: 'checkbox', width: 60, align: 'center', fixed: 'left' }
-  const approvalRemark = { field: 'approvalRemark', title: '审批备注 Approval Remark', minWidth: 240, slots: { default: 'approvalRemark' } }
+  const approvalRemark = { field: 'approvalRemark', title: t('priceAnnouncement.approvalRemark'), minWidth: 240, slots: { default: 'approvalRemark' } }
 
   const defList: any[] = [
     {
       field: 'index',
-      title: '序号 Index',
+      title: t('priceAnnouncement.index'),
       align: 'center',
       type: 'seq',
       fixed: 'left',
@@ -91,43 +92,43 @@ function getColumns() {
     },
     {
       field: 'endCustomer',
-      title: '最终客户/项目 End Customer/Project',
+      title: t('priceAnnouncement.endCustomer'),
       minWidth: 240,
       slots: { default: 'endCustomer' }
     },
     {
       field: 'priceGroup',
-      title: '价格组 Price Group',
+      title: t('priceAnnouncement.priceGroup'),
       minWidth: 240,
       slots: { default: 'priceGroup' }
     },
     {
       field: 'supplierPartNumber',
-      title: '供应商零件编号 Supplier Part Number',
+      title: t('priceAnnouncement.supplierPartNumber'),
       minWidth: 240,
       slots: { default: 'supplierPartNumber' }
     },
     {
       field: 'currency',
-      title: '货币 Currency',
+      title: t('priceAnnouncement.currency'),
       minWidth: 240,
       slots: { default: 'currency' }
     },
     {
       field: 'originalUnitPrice',
-      title: '原单价 Original Unit Price',
+      title: t('priceAnnouncement.originalUnitPrice'),
       minWidth: 240,
       slots: { default: 'originalUnitPrice' }
     },
     {
       field: 'newUnitPrice',
-      title: '新单价 New Unit Price',
+      title: t('priceAnnouncement.newUnitPrice'),
       minWidth: 240,
       slots: { default: 'newUnitPrice' }
     },
     {
       field: 'adjustmentRate',
-      title: '调整率 Adjustment Rate',
+      title: t('priceAnnouncement.adjustmentRate'),
       minWidth: 240,
       slots: { default: 'adjustmentRate' }
     }
@@ -161,7 +162,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     [
       {
         code: 'delete',
-        name: 'Delete',
+        name: t('priceAnnouncement.delete'),
         action: ({ row }: { row: any }) => {
           handleDelete(row)
         }
@@ -322,14 +323,14 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
     const fieldIndexes = IMPORT_FIELDS.map((field) => headers.findIndex((header) => header.includes(normalizeHeader(field))))
 
     if (fieldIndexes.some((index) => index === -1)) {
-      ElMessage.error('The Excel file format does not match the template.')
+      ElMessage.error(t('priceAnnouncement.excelFormatMismatch'))
       return
     }
 
     const effectiveDateField: any[] = (rows[0] ?? []).slice(0, 2)
     if (effectiveDateField.length < 2) {
       formModel.effectiveDate = ''
-      ElMessage.error('无法获取生效日期.')
+      ElMessage.error(t('priceAnnouncement.unableToGetEffectiveDate'))
     } else {
       formModel.effectiveDate = parseEffectiveDate(effectiveDateField[1])
     }
@@ -351,9 +352,9 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
 
     reload()
     selectList.value = []
-    ElMessage.success(`${tableData.value.length} rows imported.`)
+    ElMessage.success(t('priceAnnouncement.rowsImported', { count: tableData.value.length }))
   } catch {
-    ElMessage.error('Unable to read the Excel file.')
+    ElMessage.error(t('priceAnnouncement.unableToReadExcel'))
   } finally {
     tableConfig.loading = false
   }
@@ -478,19 +479,26 @@ defineExpose({ getFormData })
   <el-form ref="headerFormRef" :model="formModel" :rules="rules" label-position="top">
     <el-row>
       <el-col v-if="isApproval" :span="5">
-        <el-form-item label="PA編號 PA Number">
+        <el-form-item :label="t('priceAnnouncement.paNumber')">
           <el-input v-model="formModel.priceAnnouncementNumber" disabled style="width: 90%" />
         </el-form-item>
       </el-col>
       <el-col :span="!isApproval ? 6 : 4">
-        <el-form-item label="品牌 Brand" prop="brand" required>
-          <el-select v-model="formModel.brand" filterable placeholder="Select an option" :disabled="isApproval" style="width: 90%" @change="handleGetSeries">
+        <el-form-item :label="t('priceAnnouncement.brand')" prop="brand" required>
+          <el-select
+            v-model="formModel.brand"
+            filterable
+            :placeholder="$t('render.hint.selectPlaceholder')"
+            :disabled="isApproval"
+            style="width: 90%"
+            @change="handleGetSeries"
+          >
             <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="!isApproval ? 6 : 5">
-        <el-form-item label="生效日期 Effective Date" prop="effectiveDate" required>
+        <el-form-item :label="t('priceAnnouncement.effectiveDate')" prop="effectiveDate" required>
           <el-date-picker
             v-model="formModel.effectiveDate"
             type="date"
@@ -503,12 +511,12 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col v-if="isApproval" :span="5">
-        <el-form-item label="提交人 Submitter">
+        <el-form-item :label="t('priceAnnouncement.submitter')">
           <el-input v-model="formModel.submittedBy" disabled style="width: 90%" />
         </el-form-item>
       </el-col>
       <el-col v-if="isApproval" :span="5">
-        <el-form-item label="提交日期 Date Submitted">
+        <el-form-item :label="t('priceAnnouncement.dateSubmitted')">
           <el-date-picker v-model="formModel.dateSubmitted" type="date" format="YYYY/MMM/DD" value-format="x" style="width: 90%" disabled />
         </el-form-item>
       </el-col>
@@ -521,24 +529,26 @@ defineExpose({ getFormData })
         <div class="toolbar-actions">
           <div class="toolbar-actions__left">
             <el-upload v-if="!isApproval" :auto-upload="false" :show-file-list="false" accept=".xlsx" :on-change="handleExcelFileChange">
-              <el-button type="primary" :icon="Download" style="margin-right: 10px">Import Excel</el-button>
+              <el-button type="primary" :icon="Download" style="margin-right: 10px">{{ t('priceAnnouncement.importExcel') }}</el-button>
             </el-upload>
-            <el-button v-if="!isApproval" @click="handleDownloadTemplate">Download Excel Template</el-button>
+            <el-button v-if="!isApproval" @click="handleDownloadTemplate">{{ t('priceAnnouncement.downloadExcelTemplate') }}</el-button>
             <el-input
               v-model="search"
               clearable
               :prefix-icon="Search"
               style="width: 300px; margin-left: 10px"
-              placeholder="Search across all columns"
+              :placeholder="t('priceAnnouncement.searchAcrossAllColumns')"
               @change="handleSearch"
             />
           </div>
           <el-form v-if="!isApproval" ref="formRef" class="toolbar-actions__form" :model="formModel" :rules="rules" label-position="left" inline>
             <div class="toolbar-actions__right">
-              <el-form-item label="數量 Quantity" prop="listLength">
+              <el-form-item :label="t('priceAnnouncement.quantity')" prop="listLength">
                 <el-input v-model="formModel.listLength" disabled style="width: 100px; margin-right: 10px" />
-                <el-button v-if="selectList.length === 0" type="primary" :icon="Plus" @click="handleAddRow">Add Row</el-button>
-                <el-button v-else :icon="Delete" type="danger" @click="handleDeleteSelected">Delete Selected {{ selectList.length }}</el-button>
+                <el-button v-if="selectList.length === 0" type="primary" :icon="Plus" @click="handleAddRow">{{ t('priceAnnouncement.addRow') }}</el-button>
+                <el-button v-else :icon="Delete" type="danger" @click="handleDeleteSelected">
+                  {{ t('priceAnnouncement.deleteSelected', { count: selectList.length }) }}
+                </el-button>
               </el-form-item>
             </div>
           </el-form>
@@ -560,7 +570,7 @@ defineExpose({ getFormData })
           remote-show-suffix
           clearable
           :options="seriesOptions"
-          placeholder="Select an option"
+          :placeholder="$t('render.hint.selectPlaceholder')"
           @change="getPartNumber"
         />
       </template>
@@ -577,7 +587,7 @@ defineExpose({ getFormData })
           remote-show-suffix
           clearable
           :options="partNumberOptions"
-          placeholder="Select an option"
+          :placeholder="$t('render.hint.selectPlaceholder')"
         />
       </template>
       <template #currency="{ row, index }">

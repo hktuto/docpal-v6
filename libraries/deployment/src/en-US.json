@@ -5176,5 +5176,33 @@
     "trackingDate": "Tracking Date",
     "emailAlert": "Sample Delivery Notice",
     "status": "Application Status"
+  },
+  "priceAnnouncement": {
+    "paNumber": "PA Number",
+    "brand": "Brand",
+    "effectiveDate": "Effective Date",
+    "submitter": "Submitter",
+    "dateSubmitted": "Date Submitted",
+    "index": "Index",
+    "endCustomer": "End Customer/Project",
+    "priceGroup": "Price Group",
+    "supplierPartNumber": "Supplier Part Number",
+    "currency": "Currency",
+    "originalUnitPrice": "Original Unit Price",
+    "newUnitPrice": "New Unit Price",
+    "adjustmentRate": "Adjustment Rate",
+    "approvalRemark": "Approval Remark",
+    "importExcel": "Import Excel",
+    "downloadExcelTemplate": "Download Excel Template",
+    "searchAcrossAllColumns": "Search across all columns",
+    "quantity": "Quantity",
+    "addRow": "Add Row",
+    "delete": "Delete",
+    "deleteSelected": "Delete Selected {count}",
+    "pleaseSelectParts": "Please select parts to announce",
+    "excelFormatMismatch": "The Excel file format does not match the template.",
+    "unableToGetEffectiveDate": "Unable to get effective date.",
+    "rowsImported": "{count} rows imported.",
+    "unableToReadExcel": "Unable to read the Excel file."
   }
 }

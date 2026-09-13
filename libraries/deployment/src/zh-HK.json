@@ -5144,5 +5144,33 @@
     "trackingDate": "快遞日期",
     "emailAlert": "送樣通知",
     "status": "申請狀態"
+  },
+  "priceAnnouncement": {
+    "paNumber": "PA編號",
+    "brand": "品牌",
+    "effectiveDate": "生效日期",
+    "submitter": "提交人",
+    "dateSubmitted": "提交日期",
+    "index": "序號",
+    "endCustomer": "最終客戶/項目",
+    "priceGroup": "價格組",
+    "supplierPartNumber": "供應商零件編號",
+    "currency": "貨幣",
+    "originalUnitPrice": "原單價",
+    "newUnitPrice": "新單價",
+    "adjustmentRate": "調整率",
+    "approvalRemark": "審批備註",
+    "importExcel": "導入 Excel",
+    "downloadExcelTemplate": "下載 Excel 模板",
+    "searchAcrossAllColumns": "搜尋所有欄",
+    "quantity": "數量",
+    "addRow": "新增列",
+    "delete": "刪除",
+    "deleteSelected": "刪除所選 {count}",
+    "pleaseSelectParts": "請選擇需要公告的零件",
+    "excelFormatMismatch": "Excel 檔案格式與模板不相符。",
+    "unableToGetEffectiveDate": "無法獲取生效日期。",
+    "rowsImported": "已導入 {count} 行。",
+    "unableToReadExcel": "無法讀取 Excel 檔案。"
   }
 }

@@ -5072,5 +5072,33 @@
     "trackingDate": "快递日期",
     "emailAlert": "送样通知",
     "status": "申请状态"
+  },
+  "priceAnnouncement": {
+    "paNumber": "PA编号",
+    "brand": "品牌",
+    "effectiveDate": "生效日期",
+    "submitter": "提交人",
+    "dateSubmitted": "提交日期",
+    "index": "序号",
+    "endCustomer": "最终客户/项目",
+    "priceGroup": "价格组",
+    "supplierPartNumber": "供应商零件编号",
+    "currency": "货币",
+    "originalUnitPrice": "原单价",
+    "newUnitPrice": "新单价",
+    "adjustmentRate": "调整率",
+    "approvalRemark": "审批备注",
+    "importExcel": "导入 Excel",
+    "downloadExcelTemplate": "下载 Excel 模板",
+    "searchAcrossAllColumns": "搜索所有列",
+    "quantity": "数量",
+    "addRow": "添加行",
+    "delete": "删除",
+    "deleteSelected": "删除所选 {count}",
+    "pleaseSelectParts": "请选择需要公告的零件",
+    "excelFormatMismatch": "Excel 文件格式与模板不匹配。",
+    "unableToGetEffectiveDate": "无法获取生效日期。",
+    "rowsImported": "已导入 {count} 行。",
+    "unableToReadExcel": "无法读取 Excel 文件。"
   }
 }
