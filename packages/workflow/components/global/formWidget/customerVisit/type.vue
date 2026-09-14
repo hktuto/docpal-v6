@@ -22,14 +22,14 @@ const supplierInfo = reactive({
 
 const formRef = ref()
 const supplierRules = {
-  supplier_name: [{ required: true, message: t('render.hint.fieldRequired', { name: t('customerVisit.supplierName') }), trigger: 'blur' }],
-  name: [{ required: true, message: t('render.hint.fieldRequired', { name: t('customerVisit.name') }), trigger: 'blur' }],
+  supplierName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('customerVisit.supplierName') }), trigger: 'blur' }],
+  contactName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('customerVisit.name') }), trigger: 'blur' }],
   email: [{ validator: validateEmail, trigger: 'blur' }]
 }
 
 function validateEmail(_rule: unknown, value: string, callback: (error?: Error) => void) {
   if (!value) {
-    callback(new Error(t('render.hint.fieldRequired', { name: t('customerVisit.email') })))
+    callback()
     return
   }
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -73,12 +73,12 @@ defineExpose({ getFormData })
     <el-form ref="formRef" :model="supplierInfo" :rules="supplierRules" label-position="top" class="all-input-style">
       <el-row>
         <el-col :span="6">
-          <el-form-item :label="t('customerVisit.supplierName')" prop="supplier_name">
+          <el-form-item :label="t('customerVisit.supplierName')" prop="supplierName">
             <el-input v-model="supplierInfo.supplierName" />
           </el-form-item>
         </el-col>
         <el-col :span="4">
-          <el-form-item :label="t('customerVisit.name')" prop="name">
+          <el-form-item :label="t('customerVisit.name')" prop="contactName">
             <el-input v-model="supplierInfo.contactName" />
           </el-form-item>
         </el-col>
