@@ -214,7 +214,7 @@ function handleAddRow() {
   tableData.value.push({
     endCustomer: '',
     priceGroup: '',
-    supplierPartNumber: '',
+    supplierPartNumber: 'Any',
     currency: '',
     originalUnitPrice: 0,
     newUnitPrice: 0,
@@ -365,7 +365,7 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
         return {
           endCustomer: row[fieldIndexes[0]],
           priceGroup: formModel.brand === 'KOA' ? row[fieldIndexes[1]] : '',
-          supplierPartNumber: row[fieldIndexes[2]],
+          supplierPartNumber: row[fieldIndexes[2]] !== '' ? row[fieldIndexes[2]] : 'Any',
           currency: row[fieldIndexes[3]],
           originalUnitPrice: parseNumber(row[fieldIndexes[4]]),
           newUnitPrice: parseNumber(row[fieldIndexes[5]]),
@@ -457,7 +457,7 @@ async function getFormData(needValidation = true) {
         lineNo,
         endCustomerProject: item.endCustomer,
         priceGroup: item.priceGroup,
-        supplierPartNumber: item.supplierPartNumber,
+        supplierPartNumber: item.supplierPartNumber !== '' ? item.supplierPartNumber : 'Any',
         currency: item.currency,
         originalUnitPrice: item.originalUnitPrice,
         newUnitPrice: item.newUnitPrice,
