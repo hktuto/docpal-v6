@@ -1,15 +1,10 @@
 <script lang="ts" setup>
-import { newClientApi, newAdminApi } from 'api'
 import type { UserDTO } from 'api/src/generate/admin'
-import { userProviderDetailKey } from '~/util/userProvider'
 
 const { id } = defineProps<{
   id: string
 }>()
-const routerProvider = inject(MenuRouterKey)
-if (!routerProvider) {
-  throw new Error('MenuRouterKey is not provided')
-}
+const { fetchUserById } = useAdminUser()
 const state = reactive<{
   curUser: UserDTO | null
 }>({
@@ -19,56 +14,12 @@ defineOptions({
   name: 'AdminUserDetailDead'
 })
 
-function openUserList(openInNewTab: boolean = false) {
-  // TODO: open detail page
-  const newItem: any = {
-    menuKey: routerProvider?.menuSymbol,
-    id: 'admin-user',
-    name: 'admin-user-list',
-    icon: 'lucide:user',
-    label: 'Admin User',
-    component: 'LazyAdminUserList',
-    props: {}
-  }
-  routerProvider?.navigateTo({ ...newItem }, openInNewTab)
-}
-
 async function getUser() {
-  const data: any = await newAdminApi.getUcenterUserUserid(id).then((r) => r.data)
+  const data: any = await fetchUserById(id)
   if (!data) return
-  console.log('user info', data)
   data.status = data.status === 'A' ? 'A' : 'D'
   state.curUser = data
 }
-
-provide(userProviderDetailKey, {
-  SetUserStatusApi: (params: any) => {
-    return newClientApi.putUcenterStatus(params)
-  },
-  BatchActiveUserApi: (params: any) => {
-    return newClientApi.postUcenterBatchActive(params)
-  },
-  BatchDeleteUserApi: (params: any) => {
-    return newAdminApi.postUcenterUsersBatchDelete(params)
-  },
-  PatchUserPasswordApi: (params: any) => {
-    return newAdminApi.patchUcenterPasswordUpdatePassword(params)
-  },
-  MemberGroupGetApi: (params: any) => {
-    return newAdminApi.postUcenterMemberGroup(params)
-  },
-  BatchUserRemoveGroupsApi: (params: any) => {
-    return newAdminApi.postUcenterUserBatchRemoveGroups(params)
-  },
-  BatchUserAddGroupsApi: (params: any) => {
-    return newAdminApi.postUcenterUserBatchAddGroups(params)
-  },
-  GetGroupListApi: async () => {
-    return await newAdminApi.postUcenterGroups().then((r) => r.data)
-  },
-  getUser,
-  openUserList
-})
 
 onMounted(() => {
   getUser()

@@ -354,7 +354,6 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
   }
 
   function saveStartEventFormFields(startNode: Node) {
-    const formFields = variables.value.filter((item: any) => item.required && !item.id.startsWith('__system__'))
     const data = startNode.getData()
     const newData = {
       ...data,
@@ -362,7 +361,7 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
         ...data.config,
         initialise: {
           ...data.config.initialise,
-          form_fields: formFields
+          form_fields: variables.value
         }
       },
       version: (data.version || 0) + 1

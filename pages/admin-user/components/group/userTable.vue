@@ -12,13 +12,8 @@
       </div>
       <div v-show="state.selectedRows.length === 0" class="flex-x-between">
         <span>{{ $t('user_users') }}</span>
-        <el-button
-          id="UserGroupList__Info__AddUsersToUserGroup"
-          v-show="group && group.isCanModified"
-          class="button"
-          type="primary"
-          @click="handleGroupAddMemberFormShow()"
-        >
+        <!-- v-show="group && group.isCanModified" -->
+        <el-button id="UserGroupList__Info__AddUsersToUserGroup" class="button" type="primary" @click="handleGroupAddMemberFormShow()">
           {{ $t('user_addUsersToUserGroup') }}
         </el-button>
       </div>
@@ -36,12 +31,11 @@
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { groupProviderDetailKey } from '~/util/userProvider'
 import type { GroupDTO, UserDTO } from 'api/src/generate/admin'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
-const groupProviderDetail = inject(groupProviderDetailKey)
+const { fetchGroupMembers, removeUsersFromGroup } = useAdminGroup()
 const props = defineProps<{
   group: GroupDTO
 }>()
@@ -57,7 +51,7 @@ const { tableConfig, tableEvent, tableRef, cleanSelectedRows } = useVxeTable({
     return getMemberGroupList()
   },
   columns: [
-    { field: 'username', title: 'user_username', fixed: 'left', type: 'checkbox' },
+    { field: 'userName', title: 'user_username', fixed: 'left', type: 'checkbox' },
     { field: 'userId', title: 'user_groupIdentifer' }
   ],
   bodyActions: [
@@ -91,17 +85,19 @@ function handleFilterFormChange(formModel: any) {
 }
 
 function handleGroupAddMemberFormShow() {
-  UserAddGroupDialogRef.value.handleOpen(tableConfig.data)
+  UserAddGroupDialogRef.value.handleOpen(state.userList)
 }
 
 async function getMemberGroupList() {
   setTimeout(async () => {
-    const res = await groupProviderDetail?.GetMemberListApi({
-      groupName: props.group.name
+    const data = await fetchGroupMembers({
+      groupId: props.group.id,
+      page: 1,
+      pageSize: 100
     })
-    state.userList = res.data
+    state.userList = data?.list ?? []
     state.selectedRows = []
-    tableRef.value?.loadData(res.data)
+    tableRef.value?.loadData(state.userList)
   })
 }
 
@@ -115,7 +111,7 @@ async function handleDeleteSelected() {
     if (action !== 'confirm') return
     const ids = state.selectedRows.map((item: any) => item.userId)
 
-    await groupProviderDetail?.BatchGroupRemoveUsersApi({
+    await removeUsersFromGroup({
       groupId: props.group.id,
       userIds: ids
     })
@@ -135,7 +131,7 @@ async function handleDelete(row: UserDTO) {
       dangerouslyUseHTMLString: true
     })
     if (action !== 'confirm') return
-    await groupProviderDetail?.BatchGroupRemoveUsersApi({
+    await removeUsersFromGroup({
       userIds: [row.userId],
       groupId: props.group.id
     })
@@ -146,15 +142,6 @@ async function handleDelete(row: UserDTO) {
   }
 }
 
-watch(
-  () => props.group,
-  async (newValue) => {
-    if (newValue) getMemberGroupList()
-  },
-  {
-    immediate: true
-  }
-)
 </script>
 
 <style lang="scss" scoped>

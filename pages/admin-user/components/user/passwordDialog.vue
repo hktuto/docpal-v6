@@ -9,28 +9,24 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button id="UserList__Info__ChangePassword__Submit" type="primary" :loading="state.loading"
-                 @click="handleSubmit">
+      <el-button id="UserList__Info__ChangePassword__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { userProviderDetailKey } from '~/util/userProvider'
 import { ElMessage } from 'element-plus'
-import { newAdminApi } from 'api'
+import { gatewayApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const userProviderDetail = inject(userProviderDetailKey)
+const { updateUserPassword } = useAdminUser()
 
 const props = defineProps<{
-  user: object,
+  user: object
 }>()
-const emits = defineEmits([
-  'refresh'
-])
+const emits = defineEmits(['refresh'])
 const state = reactive({
   loading: false,
   visible: false
@@ -41,9 +37,9 @@ const form = reactive({
   confirmPassword: ''
 })
 const passwordPolicy = ref<{
-  minPasswordLength?: number,
-  containLowerAndUppercase: boolean,
-  containNumericDigits: boolean,
+  minPasswordLength?: number
+  containLowerAndUppercase: boolean
+  containNumericDigits: boolean
   containSpecialCharacters: boolean
 }>({
   minPasswordLength: 8,
@@ -123,11 +119,13 @@ async function handleSubmit() {
       newPassword: form.password,
       userId: props.user.userId
     }
-    await userProviderDetail?.PatchUserPasswordApi(param)
-    ElMessage.success(t('tip_updateMsg', {
-      modelName: t('user_userPassword'),
-      name: param.userId
-    }))
+    await updateUserPassword(param)
+    ElMessage.success(
+      t('tip_updateMsg', {
+        modelName: t('user_userPassword'),
+        name: param.userId
+      })
+    )
     state.visible = false
     formRef.value.resetFields()
     form.password = ''
@@ -142,7 +140,8 @@ async function handleSubmit() {
 }
 
 async function getPasswordPolicy() {
-  const response = await newAdminApi.getUcenterPasswordConfig().then(r => r.data)
+  console.log('getPasswordPolicy')
+  const response = await gatewayApi.password.getPasswordPolicy().then((r) => r.data)
   if (!response) {
     routerProvider?.message.error(t('Password policy rules not found'))
     state.visible = false
@@ -164,6 +163,4 @@ async function handleOpen() {
 
 defineExpose({ handleOpen })
 </script>
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

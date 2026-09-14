@@ -44,6 +44,33 @@ async function handleRefresh() {
   }
 }
 
+function goHome() {
+  const defaultTab = useAppDefaultTab()
+  const home = defaultTab.value as Record<string, any> | undefined
+  if (!home || typeof home !== 'object' || !home.component) return
+  const nextTab = {
+    ...home,
+    parent: tab.value.parent,
+    id: tab.value.id,
+    initized: true
+  } as TabItem
+  tab.value = nextTab
+  const panel = layout.value.find((lay) => lay.id === nextTab.parent)
+  if (!panel) return
+  const tabIndex = panel.tabs.findIndex((item) => item.id === nextTab.id)
+  if (tabIndex === -1) {
+    panel.tabs.push(nextTab)
+    panel.showingTabIndex = panel.tabs.length - 1
+    return
+  }
+  panel.tabs[tabIndex] = nextTab
+  panel.showingTabIndex = tabIndex
+}
+
+function syncPanelRoute(lastId: string) {
+  if (!panelRouteUpdate(tab.value.parent, lastId, tab.value)) goHome()
+}
+
 function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreExist: boolean = false) {
   if (appNeedUpdate.value) {
     window.location.reload()
@@ -76,7 +103,7 @@ function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreEx
   if (errorBoundary.value) {
     errorBoundary.value?.clearError()
   }
-  panelRouteUpdate(tab.value.parent, lastId, tab.value)
+  syncPanelRoute(lastId)
 }
 
 function replace(param: RouterParams) {
@@ -97,7 +124,7 @@ function replace(param: RouterParams) {
   if (errorBoundary.value) {
     errorBoundary.value?.clearError()
   }
-  panelRouteUpdate(tab.value.parent, lastId, tab.value)
+  syncPanelRoute(lastId)
 }
 
 function getHistory() {
@@ -149,7 +176,7 @@ function back(fallback?: any) {
       initized: true
     }
 
-    panelRouteUpdate(tab.value.parent, lastId, tab.value)
+    syncPanelRoute(lastId)
   }
 }
 
@@ -180,13 +207,13 @@ function forward() {
     if (errorBoundary.value) {
       errorBoundary.value?.clearError()
     }
-    panelRouteUpdate(tab.value.parent, lastId, tab.value)
+    syncPanelRoute(lastId)
   }
 }
 
 function updateProps(newProps: any) {
   tab.value.props = { ...tab.value.props, ...newProps }
-  panelRouteUpdate(tab.value.parent, tab.value.id, tab.value)
+  syncPanelRoute(tab.value.id)
 }
 
 function updateTabName(newName: string) {
@@ -253,7 +280,12 @@ watch(
     const currentPanel = layout.value.find((lay) => lay.id === hightLightPanel.value)
 
     if (!currentPanel) return
-    if (currentPanel.id === tab.value.parent && currentPanel.tabs[currentPanel.showingTabIndex].id === tab.value.id) {
+    const showingTab = currentPanel.tabs[currentPanel.showingTabIndex]
+    if (!showingTab) {
+      if (currentPanel.id === tab.value.parent) goHome()
+      return
+    }
+    if (currentPanel.id === tab.value.parent && showingTab.id === tab.value.id) {
       handleRefresh()
     }
   },

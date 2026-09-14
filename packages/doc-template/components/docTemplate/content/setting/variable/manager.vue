@@ -1,87 +1,105 @@
-<template>
-  <div class="variable-manager">
-    <div class="header">
-      <h2>Variables</h2>
-      <el-button type="primary" @click="handleOpenCreate" v-tooltip="'Create new variable'">New Variable</el-button>
-    </div>
-    <el-table :data="docTemplateCtx.variables.value" :key="renderKey + '_' + docTemplateCtx.variables.value.length" height="400">
-      <el-table-column prop="name" label="Name" />
-      <el-table-column prop="type" label="Type" />
-      <el-table-column prop="displayValue" label="Display Value" />
-      <el-table-column label="Actions">
-        <template #default="{ row }">
-          <el-button size="small" @click="handleEdit(row)" v-tooltip="'Edit variable'">Edit</el-button>
-          <el-button size="small" type="danger" @click="handleDelete(row)" v-tooltip="'Delete variable'" :disabled="editorUse(row.id)">Delete </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-dialog v-model="showForm" :title="formMode === 'create' ? 'Create Variable' : 'Edit Variable'" class="big" destroy-on-close>
-      <VariableForm
-        v-if="showForm"
-        :mode="formMode"
-        :variable="selectedVariable"
-        :variables="docTemplateCtx.variables"
-        @submit="handleFormSubmit"
-        @cancel="handleFormCancel"
-      />
-    </el-dialog>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, inject } from 'vue'
-import VariableForm from './variableForm.vue'
-import { DocTemplateProveKey } from '../../../../../utils/docTemplateHelper'
-import type { DocTemplateVariable } from '../../../../../utils/docTemplateHelper'
+import { type DocTemplateVariable } from '../../../../../utils/docTemplateHelper'
 
 const docTemplateCtx = inject(DocTemplateProveKey)
 if (!docTemplateCtx) {
   throw new Error('DocTemplateContext not found')
 }
 
-// force re-render the table when the variables are updated
-const renderKey = ref(0)
+const variableFormRef = ref()
 
-const showForm = ref(false)
-const formMode = ref<'create' | 'edit'>('create')
-const selectedVariable = ref<DocTemplateVariable | null>(null)
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+  id: 'DocumentTemplateVariableManage',
+  zoom: false,
+  virtualScroll: true,
+  api: () => {
+    return docTemplateCtx.variables.value
+  },
+  columns: [
+    { title: 'Name', field: 'name' },
+    { title: 'Type', field: 'type' },
+    { title: 'Display Value', field: 'value' }
+  ],
+  dblClickAction: ({ row, column, event }: any) => {
+    handleEdit(row)
+  },
+  bodyActions: [
+    [
+      {
+        code: 'edit',
+        name: 'common_edit',
+        action: ({ row }) => {
+          handleEdit(row)
+        }
+      },
+      {
+        code: 'delete',
+        name: 'common_delete',
+        action: ({ row }) => {
+          handleDelete(row)
+        }
+      }
+    ]
+  ],
+  permissionMethod: ({ row, code }: { row: any; code?: string }) => {
+    if (!row) {
+      return { visible: false, disabled: false }
+    }
+
+    if (code === 'edit') {
+      return {
+        visible: true,
+        disabled: false
+      }
+    }
+
+    if (code === 'delete') {
+      return {
+        visible: !editorUse(row.id),
+        disabled: false
+      }
+    }
+
+    return {
+      visible: false,
+      disabled: true
+    }
+  },
+  optionalConfig: {
+    rowConfig: {
+      keyField: 'id'
+    }
+  },
+  saveColumnOrder: false
+})
 
 function handleOpenCreate() {
-  formMode.value = 'create'
-  selectedVariable.value = null
-  showForm.value = true
+  variableFormRef.value.open()
 }
 
 function handleEdit(variable: DocTemplateVariable) {
-  formMode.value = 'edit'
-  selectedVariable.value = { ...variable }
-  showForm.value = true
-  renderKey.value++
+  variableFormRef.value.open(variable)
 }
 
 function handleDelete(variable: DocTemplateVariable) {
   if ('inUse' in variable && variable.inUse) return
   docTemplateCtx?.removeVariable?.({ ...variable })
-  renderKey.value++
+  reload()
 }
 
-function handleFormSubmit(payload: { mode: 'create' | 'edit'; variable: any }) {
-  if (payload.mode === 'create') {
-    docTemplateCtx?.addVariable?.({ ...payload.variable })
-  } else {
-    docTemplateCtx?.updateVariable?.({ ...payload.variable })
-  }
-  renderKey.value++
-  showForm.value = false
+function handleFormSubmit(variable: DocTemplateVariable) {
+  docTemplateCtx?.addVariable?.({ ...variable })
+  reload()
 }
 
-function handleFormCancel() {
-  showForm.value = false
+function handleUpdate(variable: DocTemplateVariable) {
+  docTemplateCtx?.updateVariable?.({ ...variable })
+  reload()
 }
 
-function editorUse(id) {
+function editorUse(id: string) {
   if (!id) return false
-  let editorJson = docTemplateCtx.editor.value.getJSON()
+  let editorJson = docTemplateCtx?.editor.value.getJSON()
   if (!editorJson) return false
   // Check if the id exists
   return checkIdIsExists(editorJson, id)
@@ -97,15 +115,20 @@ function checkIdIsExists(item: any, id: string) {
 }
 </script>
 
-<style lang="scss" scoped>
-.variable-manager {
-  padding: 1rem;
+<template>
+  <div class="tableSection">
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+      <template #toolbar_buttons>
+        <el-button type="primary" @click="handleOpenCreate">New Variable</el-button>
+      </template>
+    </VxeGrid>
+  </div>
 
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
+  <DocTemplateContentSettingVariableForm ref="variableFormRef" @submit="handleFormSubmit" @update="handleUpdate" />
+</template>
+
+<style lang="scss" scoped>
+.tableSection {
+  height: 60vh;
 }
 </style>

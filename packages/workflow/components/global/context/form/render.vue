@@ -9,7 +9,8 @@ const state = reactive<any>({
   formData: {},
   formJson: {},
   writableIds: [],
-  readonly: false
+  readonly: false,
+  originalFieldDisabled: {} as Record<string, boolean>
 })
 const { formData, formJson } = toRefs(state)
 // @ts-ignore
@@ -50,12 +51,46 @@ const defaultFormJson = {
 }
 
 const FormRendererRef = ref()
+
+function collectFieldDisabledMap(json: string | object): Record<string, boolean> {
+  const map: Record<string, boolean> = {}
+  const walk = (list: any[] = []) => {
+    list.forEach((widget) => {
+      if (!widget) return
+      const name = widget.options?.name
+      if (name) map[name] = !!widget.options.disabled
+      if (widget.widgetList?.length) walk(widget.widgetList)
+      if (widget.cols?.length) {
+        widget.cols.forEach((col: any) => walk(col.widgetList || []))
+      }
+      if (widget.tabs?.length) {
+        widget.tabs.forEach((tab: any) => walk(tab.widgetList || []))
+      }
+      if (widget.rows?.length) {
+        widget.rows.forEach((row: any) => {
+          row.cols?.forEach((col: any) => walk(col.widgetList || []))
+        })
+      }
+    })
+  }
+  const formJson = typeof json === 'string' ? JSON.parse(json) : json
+  walk(formJson?.widgetList || [])
+  return map
+}
+
+function getFieldBaseName(wName: string) {
+  return wName.includes('@row') ? wName.split('@row')[0] : wName
+}
+
 // #region module: set
 async function setForm(json: string | object, data?: object, properties: any[] = []) {
   if (JSON.stringify(json) === '{}') {
     FormRendererRef.value.setFormJson(defaultFormJson)
+    state.originalFieldDisabled = {}
     return
   }
+  // 必须在 setFormJson / disableForm 之前快照，否则 options.disabled 会被原地改写
+  state.originalFieldDisabled = collectFieldDisabledMap(json)
   state.formJson = json
   FormRendererRef.value.setFormJson(json)
   if (data && properties) {
@@ -184,9 +219,34 @@ function getWidgetNames(widgetNames: string[], checkMultiple: boolean = false, c
   }, [])
 }
 
-function enableForm() {
+function enableForm(options?: { forceAll?: boolean }) {
   state.readonly = false
-  FormRendererRef.value.vFormRenderRef.enableForm()
+  const vForm = FormRendererRef.value?.vFormRenderRef
+  if (!vForm) return
+
+  // 强制全部可编辑（忽略设计态 disabled），兼容旧 enableForm 语义
+  if (options?.forceAll) {
+    vForm.enableForm()
+    return
+  }
+
+  const disabledMap = state.originalFieldDisabled || {}
+  const refs = Object.keys(vForm.widgetRefList || {})
+    .map((wName) => ({ wName, foundW: vForm.getWidgetRef(wName) }))
+    .filter((item) => !!item.foundW)
+
+  // 先处理子表单容器，再按设计态恢复每个字段的 disabled
+  refs.forEach(({ wName, foundW }) => {
+    if (foundW.widget?.type !== 'sub-form') return
+    const name = foundW.widget.options?.name || wName
+    if (disabledMap[name]) foundW.disableSubForm?.()
+    else foundW.enableSubForm?.()
+  })
+
+  refs.forEach(({ wName, foundW }) => {
+    if (foundW.widget?.type === 'sub-form' || !foundW.setDisabled) return
+    foundW.setDisabled(!!disabledMap[getFieldBaseName(wName)])
+  })
 }
 
 function disableForm() {
@@ -211,7 +271,7 @@ function formDataChange(newFormData: any) {
 }
 
 onMounted(() => {})
-defineExpose({ setForm, getFormData, disableForm, enableForm })
+defineExpose({ setForm, getFormData, disableForm, enableForm, updateData })
 provide('workflowFormRender', {
   updateData,
   getFormData

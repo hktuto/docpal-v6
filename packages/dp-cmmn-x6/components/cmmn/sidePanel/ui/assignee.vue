@@ -18,7 +18,7 @@
 </template>
 <script lang="ts" setup>
 import { Graph, Node } from "@antv/x6";
-import { newClientApi } from 'api'
+import { gatewayApi } from 'api'
 const props = defineProps<{
   graph: Graph;
   node: Node;
@@ -49,11 +49,11 @@ async function getCaseInformation(graph) {
    { label: "Creator",
     value: "${creator}",}
   ]
-  const group = await newClientApi.postUcenterGroups().then(r => r.data)
+  const group = await gatewayApi.groups.getGroupsSelect().then(r => r.data)
   console.log("group", group)
-  defaultOption.push(...group.map((item) => ({
-    label: item.name,
-    value: item.id,
+  defaultOption.push(...(group || []).map((item) => ({
+    label: item.label,
+    value: item.value,
   })))
   state.options = defaultOption
   // try {

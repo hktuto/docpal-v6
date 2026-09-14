@@ -1,23 +1,36 @@
 <script setup lang="ts">
-import { CircleCheckFilled } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import { SGLA } from '../../../utils/variableMapping'
-const { t } = useI18n()
+import type { HighlightMatchKey } from '../../../utils/tableHelper'
+
 const detecting = ref(false)
-const unmatchedList = ref([])
-const { formData, selectedInvoice } = useWHASupplyListVerifyInject()
-const { saveTableData, highlightMatchingRows } = useWHASupplyListVerifyTableInject()
-async function handleDetect(isInit = true) {
+const unmatchedList = ref<any[]>([])
+const { formData, selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
+const { saveTableData, highlightMatchingRows, resetVerifiedMatches, scrollToMatchingRow } = useWHASupplyListVerifyTableInject()
+
+function handleLocateIssue(item: HighlightMatchKey) {
+  scrollToMatchingRow?.(item)
+}
+
+async function handleCopy(value: unknown) {
+  if (value == null || value === '') return
+  try {
+    await navigator.clipboard.writeText(String(value))
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function handleDetect(isInit = true, reset = true) {
   if (detecting.value) return
   detecting.value = true
   try {
-    console.log('handleDetect', isInit)
     if (!isInit) await saveTableData()
     const res = await newClientApi.postWmsPackingOrderCompare({
       batchNo: formData.value?.batch_no,
       invoiceNum: selectedInvoice.value?.[SGLA.Name]
     })
-    unmatchedList.value = res.data
+    unmatchedList.value = (res.data || [])
       .filter((item: any) => !item.is_match)
       .map((item: any) => ({
         supplierPn: item.ocr.vendor_item_no,
@@ -27,12 +40,21 @@ async function handleDetect(isInit = true) {
         dbPo: item.database.po
       }))
     highlightMatchingRows(unmatchedList.value)
+
+    if (reset && unmatchedList.value.length) {
+      const changed = resetVerifiedMatches?.(unmatchedList.value)
+      if (selectedInvoice.value?.[SGLA.Status] === 'confirm') {
+        await updateInvoiceData({ [SGLA.Status]: 'created' })
+      }
+      if (changed) await saveTableData()
+    }
   } catch (error) {
     console.error(error)
   } finally {
     detecting.value = false
   }
 }
+
 watch(
   selectedInvoice,
   (invoice) => {
@@ -41,111 +63,57 @@ watch(
   },
   { immediate: true }
 )
+
 defineExpose({
   handleDetect
 })
 </script>
 
 <template>
-  <div class="detected-card">
-    <div class="detected-card-header">
-      <div class="detected-card-header-text">
-        <h3 class="detected-card-title">{{ $t('workflowWarehouse.detectedIssues') }}</h3>
-        <p class="detected-card-subtitle">{{ $t('workflowWarehouse.detectedIssuesSubtitle') }}</p>
-      </div>
-    </div>
-
-    <div v-if="unmatchedList.length === 0" class="detected-card-status">
-      <el-icon class="detected-card-status-icon" aria-hidden="true">
-        <CircleCheckFilled />
-      </el-icon>
-      <span>{{ $t('workflowWarehouse.noAutomaticIssues') }}</span>
-    </div>
-    <div v-else class="detected-issue-list">
-      <div v-for="item in unmatchedList" :key="item.id" class="detected-issue-card">
-        <b>{{ item.supplierPn }}</b
-        >({{ item.poLine }})
+  <WHDetectedCard :issues="unmatchedList" :detecting="detecting" @detect="handleDetect(false)">
+    <template #default="{ issues }">
+      <div
+        v-for="(item, index) in issues"
+        :key="index"
+        class="detected-issue-card"
+        tabindex="0"
+        :aria-label="item.supplierPn"
+        @click="handleLocateIssue(item)"
+        @keydown.enter="handleLocateIssue(item)"
+      >
+        <b
+          class="supplier-pn"
+          v-tooltip="item.supplierPn"
+          tabindex="0"
+          :aria-label="item.supplierPn"
+          @click="handleCopy(item.supplierPn)"
+          @keydown.enter="handleCopy(item.supplierPn)"
+          >{{ item.supplierPn }}</b
+        >
+        <span
+          v-if="item.poLine"
+          class="po-line"
+          v-tooltip="item.poLine"
+          tabindex="0"
+          :aria-label="item.poLine"
+          @click="handleCopy(item.poLine)"
+          @keydown.enter="handleCopy(item.poLine)"
+          >({{ item.poLine }})</span
+        >
         <div v-if="item.dbTotalQty !== item.totalQty">
           <span>{{ item.dbTotalQty }}</span>
           <span class="is-danger">{{ item.totalQty }}</span>
           (QTY)
         </div>
       </div>
-    </div>
-    <el-button
-      style="width: 100%"
-      type="primary"
-      :loading="detecting"
-      tabindex="0"
-      :aria-label="t('workflowWarehouse.reDetect')"
-      @click="handleDetect(false)"
-      @keydown.enter="handleDetect(false)"
-    >
-      {{ $t('workflowWarehouse.reDetect') }}
-    </el-button>
-  </div>
+    </template>
+  </WHDetectedCard>
 </template>
 
 <style scoped lang="scss">
-.detected-card {
-  max-height: 30vh;
-  overflow-y: auto;
-  width: 100%;
-  padding: var(--app-space-m);
-  border-radius: var(--app-border-radius-m);
-  background-color: var(--el-bg-color);
-  box-shadow: var(--el-box-shadow-light);
-}
-
-.detected-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--app-space-s);
-  margin-bottom: var(--app-space-m);
-}
-
-.detected-card-header-text {
-  min-width: 0;
-}
-
-.detected-card-title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--el-text-color-primary);
-}
-
-.detected-card-subtitle {
-  margin: var(--app-space-xxs) 0 0;
-  font-size: 0.8125rem;
-  color: var(--el-text-color-secondary);
-}
-
-.detected-card-status {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-xs);
-  font-size: 0.875rem;
-  color: var(--el-text-color-regular);
-  margin-bottom: var(--app-space-m);
-}
-
-.detected-card-status-icon {
-  flex-shrink: 0;
-  font-size: 1.125rem;
-  color: var(--el-color-primary);
-}
-
-.detected-issue-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--app-space-s);
-  margin-bottom: var(--app-space-m);
-}
-
 .detected-issue-card {
+  min-width: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: var(--app-space-xs);
@@ -153,6 +121,21 @@ defineExpose({
   border-radius: var(--app-border-radius-m);
   background-color: var(--el-bg-color);
   box-shadow: var(--el-box-shadow-light);
+  cursor: pointer;
+}
+
+.supplier-pn {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.po-line {
+  width: fit-content;
+  cursor: pointer;
 }
 
 .is-danger {

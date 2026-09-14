@@ -36,7 +36,7 @@ export default defineNuxtConfig({
     '../../pages/admin-setting',
     '../../pages/admin-audit',
     // '../../pages/admin-azure',
-    '../../pages/admin-masterTable',
+      // '../../pages/admin-masterTable',
     '../../pages/admin-easy-form',
     '../../pages/super-workflow-form',
     '../../pages/admin-dam',
@@ -78,6 +78,7 @@ export default defineNuxtConfig({
     // "../../demo/inline-ocr"
     // workflow packages
     '../../packages/workflow-warehouse',
+    '../../packages/weltronic-dashboard',
   ],
   features: {
     inlineStyles: true
@@ -87,6 +88,7 @@ export default defineNuxtConfig({
       platform: 'client',
       /** 根应用显式声明，确保客户端 useRuntimeConfig() 能拿到（仅靠 layers 合并时可能缺失） */
       DOCPAL_GATEWAY_PROXY: process.env.DOCPAL_GATEWAY_PROXY,
+      DOCPAL_GATEWAY_PROXY_V1: process.env.DOCPAL_GATEWAY_PROXY_V1,
       defaultTab: {
         id: 'client-work-panel',
         name: 'client-work-panel',

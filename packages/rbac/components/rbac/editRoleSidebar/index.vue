@@ -47,6 +47,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { newAdminApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import type { FormInstance } from 'element-plus'
 
 const { t } = useI18n()
@@ -115,7 +116,8 @@ function treeToArray(root) {
 
 async function getUserList() {
   try {
-    return await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
+    const list = await fetchUsersSelectSorted(undefined, { value: 'user_name', label: 'user_name' })
+    return list.map((item) => ({ username: item.label }))
   } catch (error) {
     console.error(error)
     return []

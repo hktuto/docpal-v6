@@ -13957,8 +13957,21 @@ function messageFromParent(ev) {
     annotations,
     locale,
     colorMode,
-    options
+    options,
+    type
   } = ev.data;
+  if (type && type === 'search' && options.query) {
+    _app.PDFViewerApplication.eventBus.dispatch("find", {
+      type: null,
+      query: options.query,
+      caseSensitive: false,
+      entireWord: false,
+      highlightAll: true,
+      matchDiacritics: false,
+      findPrevious: false
+    });
+    return;
+  }
   const urlCreator = window.URL || window.webkitURL;
   const url = urlCreator.createObjectURL(blob);
   const newLocal = locale === "zh-HK" ? "zh-TW" : locale;

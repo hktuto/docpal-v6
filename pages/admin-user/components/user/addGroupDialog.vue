@@ -2,30 +2,26 @@
   <el-dialog v-model="state.visible" :title="$t('user_addGroups')" :close-on-click-modal="false">
     <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
-      <el-button id="UserList__Info__AssignUserGroup__Submit" type="primary" :loading="state.loading"
-                 @click="handleSubmit">
+      <el-button id="UserList__Info__AssignUserGroup__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { userProviderDetailKey } from '~/util/userProvider'
 import formJson from './addGroupDialog.vform.json'
 import { ElMessage } from 'element-plus'
 const { t } = useI18n()
-const routerProvider = inject(MenuRouterKey)
-const userProviderDetail = inject(userProviderDetailKey)
+const { batchAddGroup } = useAdminUser()
 const props = defineProps<{
-  user: object,
+  user: any
 }>()
-const emits = defineEmits([
-  'refresh'
-])
+const emits = defineEmits(['refresh'])
 const state = reactive({
   loading: false,
   visible: false,
-  groupList: []
+  exitGroupIds: [] as string[],
+  userIds: [] as string[]
 })
 const FormRendererRef = ref()
 
@@ -33,53 +29,51 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     state.loading = true
-    const param = {
-      groupIds: data.id,
-      userId: props.user.userId
-    }
-    await userProviderDetail?.BatchUserAddGroupsApi(param)
+    const groupIds = Array.isArray(data.id) ? data.id : [data.id]
+    await batchAddGroup({
+      userIds: state.userIds && state.userIds.length > 0 ? state.userIds : [props.user.userId],
+      groupIds
+    })
     ElMessage.success(t('user_userGroupsAssignedSuccessMsg'))
     state.visible = false
     FormRendererRef.value.vFormRenderRef.resetForm()
     emits('refresh')
   } catch (error) {
-
+    console.log(error)
+  } finally {
+    state.loading = false
   }
-  state.loading = false
 }
 
-function handleOpen(exitList: any) {
+function handleOpen(exitList: any[] = [], userIds: string[] = []) {
+  state.exitGroupIds = (exitList || []).map((item: any) => item.groupId ?? item.id ?? item.value).filter(Boolean)
+  state.userIds = userIds
   state.visible = true
-  setTimeout(async () => {
-    state.groupList = await userProviderDetail?.GetGroupListApi()
-    handleOptions(exitList)
+  nextTick(() => {
+    setTimeout(() => {
+      handleOptions()
+    }, 100)
   })
 }
 
-function handleOptions(exitList: any) {
-  const idRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('id')
-  const options = userListFilter()
-  console.log(options)
+async function handleOptions() {
+  const idRef = FormRendererRef.value?.vFormRenderRef?.getWidgetRef('id')
+  if (!idRef) return
+  const groupList = idRef.getOptionItems()
+  const exitIds = new Set(state.exitGroupIds)
+  const options = groupList
+    .filter((item: any) => {
+      const value = item.value ?? item.id
+      return value && !exitIds.has(value)
+    })
+    .map((item: any) => ({
+      value: item.value ?? item.id,
+      label: item.label ?? item.name ?? item.value ?? item.id
+    }))
+    .sort((a: any, b: any) => a.label.localeCompare(b.label))
   idRef.loadOptions(options)
-
-  function userListFilter() {
-    return state.groupList.reduce((prev: any, item: any) => {
-      const index = exitList.findIndex((exitItem: any) => exitItem.id === item.id)
-      if (index === -1) {
-        item.value = item.id
-        item.label = item.name || item.username
-        if (!item.isCanModified) item.disabled = true
-        prev.push(JSON.parse(JSON.stringify(item)))
-      }
-      return prev
-    }, [])
-  }
 }
 
-onMounted(async () => {
-})
 defineExpose({ handleOpen })
 </script>
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

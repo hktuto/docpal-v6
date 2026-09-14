@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 const emits = defineEmits(['submit'])
 const showDialog = ref<boolean>(false)
 const searchData = ref<any>({
+  org_id: 0,
   brand: '',
   currency: '',
   part_number: '',
@@ -19,26 +21,26 @@ const routerProvider = inject(MenuRouterKey)
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-user-table',
   api: async (pageParams: any) => {
-    return handleSearch()
+    return handleSearch(pageParams)
   },
   columns: [
-    { field: 'poNumber', title: '編號 Number', fixed: 'left', type: 'checkbox', width: 200 },
-    { field: 'type', title: '類型 Type', width: 130 },
-    { field: 'item', title: '項 Item', width: 300 },
-    { field: 'moq', title: '起訂量 MOQ' },
-    { field: 'quantity', title: '數量 Quantity', width: 200 },
-    { field: 'cost', title: '成本 Cost' },
-    { field: 'currency', title: '貨幣 Currency' },
-    { field: 'poCustomer', title: '客戶 Customer', width: 400 },
+    { field: 'po_number', title: t('quotationApproval.number'), fixed: 'left', type: 'checkbox', width: 200 },
+    { field: 'type', title: t('quotationApproval.type'), width: 130 },
+    { field: 'item', title: t('quotationApproval.item'), width: 300 },
+    { field: 'moq', title: t('quotationApproval.moq') },
+    { field: 'quantity', title: t('quotationApproval.quantity'), width: 200 },
+    { field: 'cost', title: t('quotationApproval.cost') },
+    { field: 'currency', title: t('quotationApproval.currency') },
+    { field: 'po_customer', title: t('quotationApproval.customer'), width: 400 },
     {
-      field: 'creationDate',
-      title: '生效日期 Effective Date',
+      field: 'creation_date',
+      title: t('quotationApproval.effectiveDate'),
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       },
       width: 200
     },
-    { field: 'noteToVendor', title: '供應商注意事項 Note to Vendor', width: 300 }
+    { field: 'note_to_vendor', title: t('quotationApproval.noteToVendor'), width: 300 }
   ],
   selectChangeHander: (selectedRows: any[]) => {
     selectList.value = [...selectedRows]
@@ -55,159 +57,53 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
 function open(item: any) {
   showDialog.value = true
   searchData.value = {
+    org_id: item.org_id,
     brand: item.brand,
+    currency: item.currency,
     part_number: item.part_number || '',
-    series: item.series || '',
-    series: item.series || ''
+    series: item.series ?? ''
   }
   index.value = item.index
+  reload()
 }
 
-async function handleSearch() {
-  // tableData.value = [{}]
-  // cell API Get data
-
-  // test Data
-  const data = [
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 3.92,
-      quantity: 73,
-      creationDate: '2024-10-25',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 1,
-      moq: 73
-    },
-    {
-      currency: 'JPY',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 6,
-      quantity: 1,
-      creationDate: '2023-04-10',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 2,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 2.97,
-      quantity: 250000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 3,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 4.09,
-      quantity: 10000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 4,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 3.12,
-      quantity: 100000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 5,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 3.83,
-      quantity: 20000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 6,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: 'Cust for Quotation',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '112000104',
-      cost: 3.39,
-      quantity: 50000,
-      creationDate: '2022-12-15',
-      noteToVendor: 'E/F/XIAO TIAN LI',
-      type: 'QUOTATION',
-      rowId: 7,
-      moq: 73
-    },
-    {
-      currency: 'EUR',
-      poCustomer: '合肥美亚光电技术股份有限公司',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '339080480',
-      cost: 3.92,
-      quantity: 73,
-      creationDate: '2026-04-02',
-      noteToVendor: null,
-      type: 'PO',
-      rowId: 8,
-      moq: null
-    },
-    {
-      currency: 'EUR',
-      poCustomer: '梅卡曼德（雄安）机器人科技股份有限公司',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '349021829',
-      cost: 3.92,
-      quantity: 1460,
-      creationDate: '2026-04-01',
-      noteToVendor: null,
-      type: 'PO',
-      rowId: 9,
-      moq: null
-    },
-    {
-      currency: 'EUR',
-      poCustomer: '合肥瑞识智能科技有限公司',
-      item: 'ICHAUS/IC-HG30 QFN28-5X5',
-      poNumber: '339080258',
-      cost: 3.92,
-      quantity: 73,
-      creationDate: '2026-03-25',
-      noteToVendor: null,
-      type: 'PO',
-      rowId: 10,
-      moq: null
+async function handleSearch(pageParams: any) {
+  try {
+    const body: any = {
+      currency: searchData.value.currency,
+      part_number: searchData.value.part_number,
+      org_id: searchData.value.org_id,
+      brand: searchData.value.brand,
+      page: pageParams.pageNum + 1,
+      size: pageParams.pageSize
     }
-  ]
-  tableRef.value?.loadData(data)
+    if (searchData.value.series !== '') {
+      body.series = searchData.value.series
+    }
+    if (!!searchData.value.date_range && searchData.value.date_range.length > 1) {
+      body.start_date = searchData.value.date_range[0]
+      body.end_date = searchData.value.date_range[1]
+    }
+    if (!!searchData.value.type) {
+      body.type = searchData.value.type
+    }
+
+    const response = await clientApi.instance.post('/apis/v1/ms/oracle/quotation/cost-history', body).then((r: any) => r.data)
+    const data = {
+      entryList: response.items ?? [],
+      totalSize: response.total ?? response.count ?? 0
+    }
+    return { data }
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 function handleSubmit() {
   const uniqueCurrencies = new Set(selectList.value.map((item) => item.currency))
   if (uniqueCurrencies.size > 1) {
     ElMessage({
-      message: '只允許選擇一個幣種的階梯。',
+      message: t('quotationApproval.singleCurrencyTierOnly'),
       type: 'warning',
       plain: true
     })
@@ -226,7 +122,9 @@ function handleSubmit() {
       quantity: item.quantity,
       cost: item.cost,
       currency: item.currency,
-      poCustomer: item.poCustomer
+      poCustomer: item.poCustomer,
+      exchangeRate: item.exchange_rate,
+      type: item.type
     }))
   emits('submit', { index: index.value, list })
   showDialog.value = false
@@ -236,28 +134,28 @@ defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="showDialog" title="歷史價格 historical price" class="big" append-to-body>
+  <el-dialog v-model="showDialog" :title="t('quotationApproval.historicalPrice')" class="big" append-to-body>
     <div style="height: 600px">
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
           <el-form :inline="true" label-position="top" class="historical-price-filter-form">
-            <el-form-item label="型號 Part Number" prop="part_number">
+            <el-form-item :label="t('quotationApproval.partNumber')" prop="part_number">
               <el-input v-model="searchData.part_number" disabled />
             </el-form-item>
-            <el-form-item label="系列 Series" prop="series">
+            <el-form-item :label="t('quotationApproval.series')" prop="series">
               <el-input v-model="searchData.series" disabled />
             </el-form-item>
-            <el-form-item label="日期范圍 Date Range" prop="date_range">
+            <el-form-item :label="t('quotationApproval.dateRange')" prop="date_range">
               <el-date-picker v-model="searchData.date_range" type="daterange" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
-            <el-form-item label="類型 Type" prop="type">
-              <el-select v-model="searchData.type" placeholder="請選擇類型" clearable>
-                <el-option label="已購訂單 PO" value="PO" />
-                <el-option label="訂單 Quotation" value="Quotation" />
+            <el-form-item :label="t('quotationApproval.type')" prop="type">
+              <el-select v-model="searchData.type" :placeholder="t('quotationApproval.selectType')" clearable>
+                <el-option :label="t('quotationApproval.typePo')" value="PO" />
+                <el-option :label="t('quotationApproval.typeQuotation')" value="Quotation" />
               </el-select>
             </el-form-item>
             <el-form-item class="historical-price-filter-form__action">
-              <el-button type="primary" @click="handleSearch">{{ $t('Search') }}</el-button>
+              <el-button type="primary" @click="reload">{{ $t('Search') }}</el-button>
             </el-form-item>
           </el-form>
         </template>

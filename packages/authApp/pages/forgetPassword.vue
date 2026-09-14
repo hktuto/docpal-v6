@@ -41,7 +41,7 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { newClientApi } from 'api'
+import { gatewayApi } from 'api'
 
 const {
   public: { DEFAULT_PATH }
@@ -64,16 +64,11 @@ const FormRef = ref()
 
 // #region module: before submit form
 async function handleSubmit() {
-  try {
-    await FormRef.value.validate()
-  } catch (e) {
-    console.error(e)
-    return
-  }
+  if (!form.value.userId) return
 
   loading.value = true
   try {
-    const data = await newClientApi.postUcenterPasswordForgetPassword({ userId: form.value.userId }).then((r) => r.data)
+    const data = await gatewayApi.auth.postAuthForgotPasswordRequest({ userId: form.value.userId }).then((r) => r.data)
     if (!!data) status.value = 'submitted'
     ElMessage.success(t('dpMsg_success'))
     returnLogin()

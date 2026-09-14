@@ -106,6 +106,7 @@
 </template>
 <script lang="ts" setup>
 import { newAdminApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import { ElMessage } from 'element-plus'
 
 const routerProvider = inject(MenuRouterKey)
@@ -370,11 +371,11 @@ async function getUserList() {
     state.userList = userListStore.value
     return
   }
-  const userList = await newAdminApi.postUcenterUsers({}).then((res) => res.data)
+  const userList = await fetchUsersSelectSorted()
   const _userList = userList
     .map((item) => ({
-      label: (item.firstName && item.lastName && item.firstName !== item.lastName ? `${item.firstName} ${item.lastName}` : item.username) + ` <${item.email}>`,
-      value: item.userId
+      label: item.label || '',
+      value: item.value
     }))
     .filter((item) => item.value !== userId)
   // state.userList.unshift(...sourceList.value)

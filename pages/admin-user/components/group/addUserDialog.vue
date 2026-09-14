@@ -10,14 +10,13 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { groupProviderDetailKey } from '~/util/userProvider'
 import formJson from './addUserDialog.vform.json'
 import type { UserDTO, GroupDTO } from 'api/src/generate/admin'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
-const groupProviderDetail = inject(groupProviderDetailKey)
+const { assignUsersToGroup } = useAdminGroup()
 const props = defineProps<{
   group: GroupDTO,
 }>()
@@ -43,7 +42,7 @@ async function handleSubmit() {
       groupId: props.group.id,
       userIds: data.id
     }
-    await groupProviderDetail?.BatchGroupAddUsersApi(param)
+    await assignUsersToGroup(param)
     setTimeout(() => {
       state.visible = false
     }, 300)
@@ -66,25 +65,11 @@ function handleOpen(exitList: UserDTO[]) {
 
 async function handleOptions(exitList: UserDTO[]) {
   try {
-    console.log(exitList)
-    if (!state.userList || state.userList.length === 0) state.userList = await groupProviderDetail?.getUserListApi()
     const idRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('id')
-
-    const options = userListFilter()
-
-    idRef.loadOptions(options)
-
-    function userListFilter() {
-      return state.userList.reduce((prev: any[], item: UserDTO & any) => {
-        const index = exitList.findIndex(exitItem => exitItem.userId === item.userId)
-        if (index === -1 && item.userId) {
-          item.value = item.userId
-          item.label = item.username
-          prev.push(item)
-        }
-        return prev
-      }, [])
-    }
+    const options = idRef.getOptionItems()
+    const exitIds = new Set(exitList.map((item: any) => item.userId ?? item.id ?? item.value).filter(Boolean))
+    const newOptions = options.filter((item: any) => !exitIds.has(item.value))
+    idRef.loadOptions(newOptions)
   } catch (e) {
     console.log(e)
   }

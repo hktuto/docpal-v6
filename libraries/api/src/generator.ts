@@ -10,10 +10,11 @@ dotenv.config()
 const clientUrl = process.env.CLIENTURL || setting.CLIENT_URL
 const publicUrl = process.env.PUBLIC_URL || setting.PUBLIC_URL
 const templateUrl = process.env.OPEN_PROXY || setting.TEMPLATE_URL
-
+const gatewayUrl = process.env.DOCPAL_GATEWAY_PROXY || setting.DOCPAL_GATEWAY_PROXY
 const endpoint = [
     {name: 'newClient', url:`${clientUrl}/v3/api-docs`, className:"Standard"},
     {name: 'template', url:`${templateUrl}/docs/swagger.json`, className:"Template"},
+    {name: 'gateway', url:`${gatewayUrl}/v1/ucenter/swagger/doc.json`, className:"Gateway"},
 ]
 
 async function generate(){

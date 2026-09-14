@@ -42,7 +42,6 @@ const contentData = ref<{
 })
 const nodeType = ref<'UserTask' | 'SignatureTask'>('UserTask')
 const isAssigneeUser = ref<boolean>(false)
-const jsonValue = ref<any>({})
 
 async function getDetail() {
   if (!db_id || db_id === '') {
@@ -115,7 +114,6 @@ async function initForm(node: any) {
     routerProvider?.message.error('The form does not exist!')
     return
   }
-  jsonValue.value = formJsonData.jsonValue
   fromRenderRef.value.setForm(formJsonData.jsonValue, variablesData.value)
   handleDisabledForm()
 }
@@ -404,7 +402,8 @@ async function handleTaskInfoChange(res: boolean) {
     handleDisabledForm()
   } else {
     fromRenderRef.value.enableForm()
-    fromRenderRef.value.setForm(jsonValue.value, variablesData.value)
+    await nextTick()
+    await fromRenderRef.value.updateData(variablesData.value)
   }
 
   taskDetail.value.config.human_task.assignee = res ? userId : ''
@@ -433,9 +432,7 @@ async function handleTerminate() {
     if (action !== 'confirm') return
 
     state.loading = true
-    await clientApi.instance
-      .delete(`/oniflow/api/v1/processes/instance/${processInstanceId}/terminated`)
-      .then((r: any) => workflowResponseHelper(r))
+    await clientApi.instance.delete(`/oniflow/api/v1/processes/instance/${processInstanceId}/terminated`).then((r: any) => workflowResponseHelper(r))
 
     routerProvider?.message.success(t('msg_successfulOperation'))
     routerProvider?.replace(
@@ -449,6 +446,20 @@ async function handleTerminate() {
     routerProvider?.message.error(error?.message)
   } finally {
     state.loading = false
+  }
+}
+
+async function handleSaveDraft() {
+  try {
+    const formData = await fromRenderRef.value.getFormData(false, false)
+    const cFormData = conversionFormDataByVariables(formData, variables.value)
+    const body = {
+      assignee: userId,
+      variables: cFormData
+    }
+    const data = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.value.db_id}/form-data`, body).then((r) => r.data)
+  } catch (e) {
+    console.log(e)
   }
 }
 
@@ -504,7 +515,7 @@ onMounted(() => {
                     v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"
                     id="Workflow__AvailableTask__Detail__Form__SaveDraft"
                     :disabled="workflowType === 'completeTask'"
-                    @click="handleSave"
+                    @click="handleSaveDraft"
                   >
                     <template v-if="pageButtonSetting && pageButtonSetting.saveDraftLabel">
                       {{ pageButtonSetting.saveDraftLabel }}

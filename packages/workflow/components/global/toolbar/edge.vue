@@ -157,11 +157,16 @@ function setupEdge() {
 
     // Set Label to condition edge
     if (newEdgeData.metadata.sourceType === CellType.conditionTask) {
+      const failure = 'failure'
       newEdgeData.metadata.label = 'Success'
       if (isNew) {
         if (allNodeConnected.length > 0) {
-          newEdgeData.metadata.conditionStatus = 'failure'
-          newEdgeData.metadata.label = 'Failure'
+          if (allNodeConnected[0].data?.metadata.conditionStatus === failure) {
+            newEdgeData.metadata.conditionStatus = 'success'
+          } else {
+            newEdgeData.metadata.conditionStatus = failure
+            newEdgeData.metadata.label = 'Failure'
+          }
         }
         edge.setLabels(newEdgeData.metadata.label)
       }

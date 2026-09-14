@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 
 type MenuItemPermissionLevel = 'View' | 'Edit' | 'Manage'
 
@@ -50,11 +50,11 @@ const userOptions = computed(() => {
 async function loadUsers() {
   usersLoading.value = true
   try {
-    const { data } = await clientApi.admin.postUcenterGetKeycloakAllUsers()
-    users.value = (data || []).map((u: any) => ({
-      id: u.userId,
-      username: u.username,
-      name: u.name || u.email || u.username
+    const data = await fetchUsersSelectSorted()
+    users.value = data.map((u) => ({
+      id: u.value,
+      username: u.label,
+      name: u.label
     }))
   } catch (error) {
     console.error('Failed to load users:', error)

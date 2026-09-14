@@ -93,7 +93,7 @@ defineExpose({ open })
         </el-table-column>
         <el-table-column :label="t('Response Value')" prop="value">
           <template #default="{ row, $index }">
-            <el-select v-model="row.value">
+            <el-select v-model="row.value" filterable>
               <el-option v-for="item in allFields" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </template>

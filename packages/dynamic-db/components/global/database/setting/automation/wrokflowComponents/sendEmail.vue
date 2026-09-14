@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { newAdminApi } from 'api'
-import { getUserSelectOption } from '#imports'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 
 const { data, tableFields } = defineProps<{
   data: any
@@ -21,13 +21,12 @@ async function getEmailTemplateList() {
 }
 
 async function getEmailRecipient() {
-  const userList = await getUserSelectOption()
-  const map = userList.map((item: any) => ({
-    id: item.email,
-    name: item.label
-  }))
+  const userList = await fetchUsersSelectSorted(undefined, {
+    value: 'email',
+    label: 'user_name'
+  })
   emailRecipient.value = [
-    { label: 'User', options: Array.from(new Map(map.map((x: any) => [x.id, x])).values()) },
+    { label: 'User', options: userList.map((item) => ({ id: item.value, name: item.label })) },
     { label: 'Table Fields', options: tableFields }
   ]
 }

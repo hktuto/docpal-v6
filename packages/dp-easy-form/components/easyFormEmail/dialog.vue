@@ -40,10 +40,10 @@
         >
           <el-option
             v-for="item in state.userList"
-            :key="item.userId"
+            :key="item.value"
             :type="emailCheck ? 'danger' : 'info'"
-            :label="`${item.firstName} ${item.lastName} <${item.email}>`"
-            :value="item.email"
+            :label="item.label"
+            :value="item.value"
           />
         </el-select>
       </el-form-item>
@@ -94,6 +94,7 @@
 </template>
 <script lang="ts" setup>
 import { newClientApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import type { FormInstance } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
@@ -212,11 +213,10 @@ async function handleSubmit() {
 
   function getEmail() {
     return form.value.emails.reduce((prev, email: string) => {
-      const user = state.userList.find((item) => item.email === email)
-      console.log(user)
+      const user = state.userList.find((item) => item.value === email || item.label === email)
       prev.push({
-        username: user ? user.firstName + user.lastName : '',
-        email: user ? user.email : email
+        username: user ? user.label : '',
+        email: email.includes('@') ? email : (user?.label || email)
       })
       return prev
     }, [])
@@ -247,11 +247,7 @@ function handleSelectChange() {
 // #endregion
 // #endregion
 onMounted(async () => {
-  const data = await newClientApi.postUcenterUsers({}).then((res) => res.data)
-  const uniqueEmails = Array.from(
-    new Map(data.map((item) => [item.email, item])).values()
-  )
-  state.userList = uniqueEmails || ([] as any)
+  state.userList = await fetchUsersSelectSorted()
 })
 
 defineExpose({ handleOpen })

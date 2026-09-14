@@ -190,10 +190,13 @@ export const getTaskItemConfig = {
       body: {
         tos: [],
         ccs: [],
-        bcc: [],
+        toGroupNames: [],
+        ccGroupNames: [],
+        documentIds: [],
         templateId: '',
-        attachmentsFilePath: '',
-        variables: {}
+        variables: {},
+        subject: '',
+        text: ''
       }
     },
     input_mapping: {},

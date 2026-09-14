@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { newClientApi } from 'api'
 
+const readerRef = ref<any>(null)
+
 const props = withDefaults(
   defineProps<{
     docId?: string
+    /** Invoice number / text to highlight in the preview reader */
+    searchText?: string
   }>(),
   {
-    docId: ''
+    docId: '',
+    searchText: ''
   }
 )
 
@@ -49,13 +54,41 @@ async function loadPreview(docId: string) {
   }
 }
 
+function search(query?: string) {
+  const text = String(query ?? props.searchText ?? '').trim()
+  if (!text) return
+  readerRef.value?.search(text)
+}
+
+function readerReadyHandler() {
+  setTimeout(() => {
+    search()
+  }, 300)
+}
+
 watch(
   () => props.docId,
   (docId) => {
-    docId && loadPreview(docId)
+    if (docId) loadPreview(docId)
+    else {
+      previewFile.blob = null
+      previewFile.id = ''
+      previewFile.name = ''
+    }
   },
   { immediate: true }
 )
+
+watch(
+  () => props.searchText,
+  (text) => {
+    if (text) search(text)
+  }
+)
+
+defineExpose({
+  search
+})
 </script>
 
 <template>
@@ -63,9 +96,18 @@ watch(
     <div class="workflow-preview__title">
       <slot name="title">{{ previewFile.name }}</slot>
     </div>
-    <Reader class="reader" v-if="previewFile.blob" v-bind="previewFile" freeze-first-row freeze-first-col />
+    <Reader
+      v-if="previewFile.blob"
+      ref="readerRef"
+      class="reader"
+      v-bind="previewFile"
+      freeze-first-row
+      freeze-first-col
+      @ready="readerReadyHandler"
+    />
   </div>
 </template>
+
 <style scoped lang="scss">
 .workflow-preview {
   width: 100%;

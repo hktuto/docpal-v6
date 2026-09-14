@@ -20,3 +20,5 @@ env/.env.dev.client
 apps/*/dist
 apps/desktop/dist
 docs/.obsidian/workspace.json
+
+rh-docs

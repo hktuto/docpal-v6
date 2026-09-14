@@ -10,7 +10,7 @@
         <template #dropdown>
             <el-dropdown-menu>
                 <el-dropdown-item command='' :disabled="!user">{{$t('dashboard.allUser')}}</el-dropdown-item>
-                <el-dropdown-item v-for="item in state.userList" :command="item.userId" :disabled="item.userId === user">{{item.username}}</el-dropdown-item>
+                <el-dropdown-item v-for="item in state.userList" :key="item.value" :command="item.value" :disabled="item.value === user">{{item.label}}</el-dropdown-item>
             </el-dropdown-menu>
         </template>
     </el-dropdown>
@@ -18,7 +18,7 @@
 
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { newClientApi } from 'api';
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 const props = withDefaults( defineProps<{
     user: string,
     show: boolean
@@ -27,7 +27,7 @@ const props = withDefaults( defineProps<{
     show: true
 })
 const state = reactive({
-    userList: []
+    userList: [] as { label: string; value: string }[]
 })
 const emits = defineEmits([
     'refreshSetting', 'delete', 'update:layout'
@@ -36,7 +36,7 @@ function handleCommand(command) {
     emits('refreshSetting', command)
 }
 onMounted(async() => {
-  state.userList = await newClientApi.postUcenterUsers({}).then((res) => res.data)
+  state.userList = await fetchUsersSelectSorted()
 })
 </script>
 

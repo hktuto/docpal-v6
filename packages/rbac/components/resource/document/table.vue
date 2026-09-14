@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { newAdminApi } from 'api'
+import { newAdminApi, gatewayApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 
 const props = defineProps<{
   id: string
@@ -249,7 +250,7 @@ const { flatRole } = useRBAC()
 async function getFilter() {
   async function getGroupList() {
     try {
-      return await newAdminApi.postUcenterGroups().then(r => r.data)
+      return await gatewayApi.groups.getGroupsSelect().then(r => r.data ?? [])
     } catch (error) {
       console.error(error)
       return []
@@ -258,7 +259,7 @@ async function getFilter() {
 
   async function getUserList() {
     try {
-      return await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
+      return await fetchUsersSelectSorted()
     } catch (error) {
       console.error(error)
       return []

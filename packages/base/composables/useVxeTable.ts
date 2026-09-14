@@ -1,7 +1,6 @@
 import { useEventBus, EventType, emitBus } from 'eventbus'
 
-import { newClientApi } from 'api'
-import type { TABLE_CONTEXT_PARAMS } from '#imports'
+import { gatewayApi } from 'api'
 import type { VxeGridProps, VxeGridListeners, VxeGridPropTypes, VxeTableDefines, VxeTablePropTypes, VxeGridInstance, VxeGridDefines } from 'vxe-table'
 import { useUserPreference } from '../../authApp/composables/useAuth'
 
@@ -59,7 +58,7 @@ export interface UseVxeTableParams<R = any> {
   }
 }
 
-export type PermissionMethodParams = { row: any; code?: string; rowIndex?: number; additionalData?: any }
+export type PermissionMethodParams = { row: any; code?: string; rowIndex?: number; column?: any; additionalData?: any }
 
 interface Config extends VxeGridProps {
   proxyConfig: VxeGridPropTypes.ProxyConfig
@@ -161,7 +160,8 @@ export const useVxeTable = (params: UseVxeTableParams) => {
             if (!perference.value.tableSettings) perference.value.tableSettings = {}
             perference.value.tableSettings[id] = storeData
             // save perference
-            return newClientApi.putDmsUserSetting(perference.value)
+            //
+            return gatewayApi.userSettings.putUserSettings({ settings: perference.value as any }, )
           } catch (error) {
             console.error('error', error)
           }
@@ -202,7 +202,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
                 // if all children are disabled , set item.disabled = true
 
                 item.children.forEach((child) => {
-                  const permission = permissionMethod({ row, rowIndex, code: child.code, additionalData })
+                  const permission = permissionMethod({ row, rowIndex, code: child.code, column, additionalData })
                   if(!permission){
                     child.visible = true
                     child.disabled = false
@@ -216,8 +216,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
                 item.visible = allVisible
                 item.disabled = allDisabled
               } else {
-                const permission = permissionMethod({ row, rowIndex, code: item.code, additionalData })
-                console.log("permission", permission)
+                const permission = permissionMethod({ row, rowIndex, code: item.code, column, additionalData })
                 if (!permission) {
                   item.visible = true
                   item.disabled = false
@@ -416,6 +415,13 @@ export const useVxeTable = (params: UseVxeTableParams) => {
   if (params.footerActions && params.footerActions.length > 0) {
     tableConfig.menuConfig.footer.options = params.footerActions
   }
+  if (
+    (params.headerActions && params.headerActions.length > 0) ||
+    (actions && actions.length > 0) ||
+    (params.footerActions && params.footerActions.length > 0)
+  ) {
+    tableConfig.menuConfig.enabled = true
+  }
 
   // #endregion
 
@@ -507,7 +513,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     }
   }
   async function responsiveScrollHandler({ scrollTop, direction }: VxeGridDefines.ScrollEventParams) {
-    if (params.virtualScroll || !params.api) {
+    if (!params.api) {
       return
     }
     // 不是 virtualScroll 或者 api 或者 大于 mobile 的时候不处理 scroll
@@ -518,7 +524,9 @@ export const useVxeTable = (params: UseVxeTableParams) => {
   }
 
   async function lazyLoad() {
-    console.log('lazyLoad')
+    if(tableConfig.loading) {
+      return
+    }
     if (tablePageParams.value.total && tablePageParams.value.total === tableConfig.data.length) {
       console.log('no more data')
       return
@@ -560,6 +568,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     }
     tableConfig.data = []
     tablePageParams.value.pageNum = 0
+    tablePageParams.value.currentPage = 1
     tablePageParams.value.total = undefined
     tablePageParams.value.pageSize = params.pageSize || 20
     lazyLoad()
@@ -676,7 +685,8 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     tableData,
     cleanSelectedRows,
     reload,
-    query
+    query,
+    setupLazyLoad
   }
 }
 async function visibleMethodHelper(row: any, options: any, params: any) {

@@ -1,4 +1,4 @@
-import { newClientApi, newAdminApi } from 'api'
+import { newClientApi, newAdminApi, gatewayApi } from 'api'
 
 export const conditionType = [
   { label: 'authors', value: 'authors' },
@@ -119,11 +119,11 @@ export const getMetadataOptions = async () => {
 }
 
 export const getGroupList = async () => {
-  const data = await newClientApi.postUcenterGroups().then(r => r.data)
-  const optionList = data.map((item: any) => ({
+  const data = await gatewayApi.groups.getGroupsSelect().then(r => r.data)
+  const optionList = (data || []).map((item: any) => ({
     ...item,
-    label: item.name,
-    value: item.id
+    label: item.label,
+    value: item.value
   }))
   return optionList
 }

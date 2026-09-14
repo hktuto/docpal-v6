@@ -138,7 +138,7 @@ import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 // import { GridLayout, GridItem } from "vue3-grid-layout-next";
 import { GridItem, GridLayout } from 'grid-layout-plus'
-import type { DashboardWidgetSetting } from '~/utils/dashboardWidgetHelper'
+import type { DashboardWidgetSetting } from '~/composables/useDashborad'
 import { useDebounceFn } from '@vueuse/core'
 import { useDashboardDrag } from '~/utils/dashboardDragHelper'
 import { findFirstFitPosition, applyPackedPositions } from '~/utils/dashboardLayoutHelper'

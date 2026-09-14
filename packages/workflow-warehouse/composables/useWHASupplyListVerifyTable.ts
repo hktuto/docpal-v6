@@ -1,67 +1,41 @@
 ﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { newClientApi, postDynamicActions } from 'api'
 import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
-import { COUNTRY_STATIC_ALIASES } from '../utils/countryAliases'
+import {
+  applyBatchValueToColumn,
+  applySelectOptionsToColumns,
+  createRowFromColumns,
+  createVerificationTableOptions,
+  editableColumn,
+  fetchCountryList,
+  filterTableItems,
+  generateMasterDetailParams,
+  getFormDataFromColumns,
+  getMissingRequiredLabels,
+  getStatusCounts,
+  normalizeCheckedField,
+  normalizeCountryFields,
+  rowMatchKey,
+  toNumberOrNull,
+  type HighlightMatchKey,
+  type SelectOption,
+  type VerificationStatusFilter,
+  type VerificationTableContext
+} from '../utils/tableHelper'
 
-export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
+const SEARCH_FIELDS = [
+  SGLA_ITEMS.Carton,
+  SGLA_ITEMS.Supplier_PN,
+  SGLA_ITEMS.WCL_PN,
+  SGLA_ITEMS.Qty,
+  SGLA_ITEMS.PoLine
+] as const
 
-export type HighlightMatchKey = {
-  supplierPn: string | number
-  poLine: string | number
-}
+const COUNTRY_FIELDS = [SGLA_ITEMS.CountryOfOrigin, SGLA_ITEMS.CountryOfWafer]
 
-const SEARCH_FIELDS = [SGLA_ITEMS.Carton, SGLA_ITEMS.Supplier_PN, SGLA_ITEMS.WCL_PN, SGLA_ITEMS.Qty, SGLA_ITEMS.PoLine] as const
-
-function matchSearchValue(value: unknown, query: string): boolean {
-  if (value == null || value === '') return false
-  return String(value).toLowerCase().includes(query)
-}
-
-function rowMatchKey(supplierPn: unknown, poLine: unknown) {
-  return `${String(supplierPn ?? '').trim()}::${String(poLine ?? '').trim()}`
-}
-type EditableColumnType = 'text' | 'number' | 'select'
-
-type SelectOption = { label: string; value: string | number }
-
-function editableColumn(type: EditableColumnType = 'text', selectOptions: SelectOption[] = []) {
-  if (type === 'number') {
-    return {
-      editRender: {
-        name: 'VxeInput',
-        autofocus: '.vxe-input--inner',
-        props: { type: 'number' }
-      }
-    }
-  }
-
-  if (type === 'select') {
-    return {
-      editRender: {
-        name: 'VxeSelect',
-        autofocus: '.vxe-input--inner',
-        options: selectOptions,
-        props: {
-          clearable: true,
-          filterable: true,
-          transfer: true,
-          popupClassName: 'wha-verify-select-panel'
-        }
-      }
-    }
-  }
-
-  return {
-    editRender: {
-      name: 'VxeTextarea',
-      autofocus: '.vxe-textarea--inner',
-      props: { rows: 2, autosize: { minRows: 2, maxRows: 6 } }
-    }
-  }
-}
-
-export function createVerificationTableColumns(t: (key: string) => string) {
+function createVerificationTableColumns(t: (key: string) => string) {
   return [
     {
       type: 'seq',
@@ -154,55 +128,7 @@ export function createVerificationTableColumns(t: (key: string) => string) {
   ]
 }
 
-export type VerificationTableColumn = ReturnType<typeof createVerificationTableColumns>[number]
-
-export interface WHASupplyListVerifyTableContext {
-  loading: Ref<boolean>
-  creatingRow: Ref<boolean>
-  tableData: Ref<any[]>
-  tableConfig: any
-  tableEvent: any
-  tableRef: Ref<any>
-  statusFilter: Ref<VerificationStatusFilter>
-  statusCounts: Ref<Record<VerificationStatusFilter, number>>
-  searchQuery: Ref<string>
-  columns: VerificationTableColumn[]
-  reload: () => void
-  SGLA_ITEMS: typeof SGLA_ITEMS
-  batchEditDialogVisible: Ref<boolean>
-  selectedColumn: Ref<string | undefined>
-  applyBatchEdit: (val: string) => void
-  /** 按 Supplier_PN + PoLine 高亮匹配行（红底），可传单条或数组 */
-  highlightMatchingRows: (matches: HighlightMatchKey | HighlightMatchKey[]) => void
-  clearMatchingRowHighlight: () => void
-  addRow: () => Promise<void>
-  saveTableData: () => Promise<void>
-}
-
-export const WHASupplyListVerifyTableKey: InjectionKey<WHASupplyListVerifyTableContext> = Symbol('WHASupplyListVerifyTable')
-
-function generateParams(masterTableId: string) {
-  return {
-    tableId: SGLA_ITEMS_TABLE_ID,
-    columns: [{ name: '*' }],
-    orderBy: [
-      { column: 'created_at', desc: false }
-      // { column: SGLA_ITEMS.Carton, desc: false }
-    ],
-    conditions: [
-      {
-        value: [
-          {
-            column: SGLA_ITEMS.MasterId,
-            type: 'EQ',
-            value: masterTableId
-          }
-        ],
-        type: 'AND'
-      }
-    ]
-  }
-}
+export const WHASupplyListVerifyTableKey: InjectionKey<VerificationTableContext> = Symbol('WHASupplyListVerifyTable')
 
 export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<string, any> | null>) {
   const { t } = useI18n()
@@ -213,111 +139,88 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const searchQuery = ref('')
   const tableData = ref<Record<string, any>[]>([])
   const countryList = ref<SelectOption[]>([])
-  /** Supplier_PN::PoLine → 高亮 */
+  /** Supplier_PN::PoLine → 问题行红底 */
   const highlightedMatchKeys = ref<Set<string>>(new Set())
+  /** 当前点击定位的行 → 黄底 */
+  const locatedMatchKey = ref('')
+  /** insertRow / 定位行切 filter 时跳过一次 watch reload */
+  let skipNextFilterReload = false
+
+  function itemMatchKey(row: Record<string, any>) {
+    return rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine])
+  }
 
   function highlightMatchingRows(matches: HighlightMatchKey | HighlightMatchKey[]) {
     const list = Array.isArray(matches) ? matches : [matches]
     highlightedMatchKeys.value = new Set(list.map((m) => rowMatchKey(m.supplierPn, m.poLine)))
-    nextTick(() => {
-      tableRef.value?.updateData?.()
-      const first = tableData.value.find((row) => highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine])))
-      if (first) tableRef.value?.scrollToRow?.(first)
-    })
+    locatedMatchKey.value = ''
+    nextTick(() => tableRef.value?.updateData?.())
   }
 
   function clearMatchingRowHighlight() {
     highlightedMatchKeys.value = new Set()
+    locatedMatchKey.value = ''
     nextTick(() => tableRef.value?.updateData?.())
   }
-  function normalizeCountryKey(value: unknown): string {
-    return String(value ?? '')
-      .toLowerCase()
-      .replace(/\([^)]*\)/g, ' ')
-      .replace(/[^a-z0-9]+/g, '')
+
+  async function scrollToMatchingRow(match: HighlightMatchKey) {
+    const key = rowMatchKey(match.supplierPn, match.poLine)
+    const row = tableData.value.find((item) => itemMatchKey(item) === key)
+    if (!row) return
+
+    const isVisible = getFilteredItems(tableData.value).some((item) => itemMatchKey(item) === key)
+    if (!isVisible) {
+      skipNextFilterReload = true
+      statusFilter.value = 'all'
+      searchQuery.value = ''
+      await (tableRef.value as any)?.loadData?.(getFilteredItems(tableData.value))
+    }
+
+    locatedMatchKey.value = key
+    await nextTick()
+    tableRef.value?.updateData?.()
+    tableRef.value?.scrollToRow?.(row)
   }
 
-  function buildCountryLookup(list: SelectOption[]) {
-    const map = new Map<string, string | number>()
-    const add = (key: unknown, code: string | number) => {
-      const raw = String(key ?? '').trim()
-      if (!raw) return
-      map.set(raw.toLowerCase(), code)
-      const normalized = normalizeCountryKey(raw)
-      if (normalized) map.set(normalized, code)
+  /** 将匹配行的 verified(Checked) 置为 false，返回是否有变更 */
+  function resetVerifiedMatches(matches: HighlightMatchKey | HighlightMatchKey[]) {
+    const list = Array.isArray(matches) ? matches : [matches]
+    const keys = new Set(list.map((m) => rowMatchKey(m.supplierPn, m.poLine)))
+    let changed = false
+    for (const row of tableData.value) {
+      if (!keys.has(itemMatchKey(row)) || !row[SGLA_ITEMS.Checked]) continue
+      row[SGLA_ITEMS.Checked] = false
+      tableRef.value?.setCheckboxRow?.(row, false)
+      changed = true
     }
-    for (const item of list) {
-      add(item.label, item.value)
-      add(item.value, item.value)
-      const code = String(item.value ?? '')
-        .trim()
-        .toUpperCase()
-      const aliases = COUNTRY_STATIC_ALIASES[code] ?? []
-      aliases.forEach((alias) => add(alias, item.value))
-    }
-    return map
-  }
-
-  function normalizeCountryFields(rows: Record<string, any>[]) {
-    if (!countryList.value.length) return rows
-    const lookup = buildCountryLookup(countryList.value)
-    const fields = [SGLA_ITEMS.CountryOfOrigin, SGLA_ITEMS.CountryOfWafer]
-    return rows.map((row) => {
-      const next = { ...row }
-      fields.forEach((field) => {
-        const raw = next[field]
-        if (raw == null || raw === '') return
-        const code = lookup.get(String(raw).toLowerCase()) ?? lookup.get(normalizeCountryKey(raw))
-        if (code != null) next[field] = code
-      })
-      return next
-    })
+    if (changed) nextTick(() => tableRef.value?.updateData?.())
+    return changed
   }
 
   async function getCountryList() {
     try {
-      const { data } = await postDynamicActions({
-        table: 'cfg_country_dict',
-        columns: [{ name: '*' }]
-      })
-      countryList.value = (data?.data ?? []).map((item: any) => ({
-        label: item.country_name_en,
-        value: item.country_code
-      }))
-      const selectFields = [SGLA_ITEMS.CountryOfOrigin, SGLA_ITEMS.CountryOfWafer]
-      selectFields.forEach((field) => {
-        const column = verificationTableColumns.find((col: any) => col.field === field) as any
-        if (column?.editRender) {
-          column.editRender.options = countryList.value
-        }
-      })
+      countryList.value = await fetchCountryList()
+      applySelectOptionsToColumns(verificationTableColumns, COUNTRY_FIELDS, countryList.value)
     } catch (error) {
       console.error(error)
       countryList.value = []
     }
   }
+
   function getFilteredItems(data: Record<string, any>[]) {
-    let list = data
-    if (statusFilter.value === 'ok') {
-      list = list.filter((row) => !!row[SGLA_ITEMS.Checked])
-    } else if (statusFilter.value === 'unVerified') {
-      list = list.filter((row) => !row[SGLA_ITEMS.Checked])
-    }
-    const q = searchQuery.value.trim().toLowerCase()
-    if (!q) return list
-    return list.filter((row) => SEARCH_FIELDS.some((field) => matchSearchValue(row[field], q)))
+    return filterTableItems(data, {
+      statusFilter: statusFilter.value,
+      searchQuery: searchQuery.value,
+      checkedField: SGLA_ITEMS.Checked,
+      searchFields: SEARCH_FIELDS
+    })
   }
 
   const requiredColumns = verificationTableColumns.filter((col: any) => col.required && col.field)
 
-  /** 返回未填必填列标题；空数组表示可勾选 */
-  function getMissingRequiredLabels(row: Record<string, any>) {
-    return requiredColumns.filter((col: any) => row[col.field] == null || row[col.field] === '').map((col: any) => col.title)
-  }
-
   /** 勾选为 true 时校验必填；不通过则回滚。cancelWarn 用于批量时由外层统一提示 */
   function assertCanVerify(row: Record<string, any>, options?: { silent?: boolean }) {
-    const missing = getMissingRequiredLabels(row)
+    const missing = getMissingRequiredLabels(row, requiredColumns as Array<{ field: string; title: string }>)
     if (!missing.length) return true
     row[SGLA_ITEMS.Checked] = false
     nextTick(() => tableRef.value?.setCheckboxRow?.(row, false))
@@ -339,7 +242,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       await newClientApi.deleteDynamicDbTableTableidDataDataid(SGLA_ITEMS_TABLE_ID, row.id)
       tableData.value = tableData.value.filter((item) => item.id !== row.id)
       const nextHighlightedKeys = new Set(highlightedMatchKeys.value)
-      nextHighlightedKeys.delete(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine]))
+      nextHighlightedKeys.delete(itemMatchKey(row))
       highlightedMatchKeys.value = nextHighlightedKeys
       const grid = tableRef.value as any
       grid?.loadData?.(getFilteredItems(tableData.value))
@@ -351,82 +254,35 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     }
   }
 
+  // selected column for batch edit
+  const selectedColumn = ref<string | undefined>(undefined)
+  const batchEditDialogVisible = ref(false)
+
   const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     id: 'wha-receiving-verification-items',
-    height: '100%',
-    refresh: false,
-    zoom: false,
-    saveColumnOrder: false,
-    columns: verificationTableColumns as any,
-    virtualScroll: true,
+    ...createVerificationTableOptions({
+      t,
+      columns: verificationTableColumns,
+      onBatchEdit: (field) => {
+        batchEditDialogVisible.value = true
+        selectedColumn.value = field
+      },
+      onCopy: (row) => copyRow(row),
+      onDelete: (row) => deleteRow(row),
+      getRowClassName: (row) => {
+        const key = itemMatchKey(row)
+        if (locatedMatchKey.value === key) return 'wha-verify-row-located'
+        if (highlightedMatchKeys.value.has(key)) return 'wha-verify-row-highlight'
+        return ''
+      },
+      checkboxField: SGLA_ITEMS.Checked
+    }),
     api: async () => {
       if (!countryList.value.length) await getCountryList()
       const data = await fetchTableData()
-      const normalized = normalizeCountryFields(data)
+      const normalized = normalizeCountryFields(data, countryList.value, COUNTRY_FIELDS)
       tableData.value = normalized
       return getFilteredItems(normalized)
-    },
-    headerActions: [
-      [
-        {
-          code: 'batchEdit',
-          name: 'BatchEdit',
-          action: ({ menu, row, column }) => {
-            batchEditDialogVisible.value = true
-            selectedColumn.value = column.field
-          }
-        }
-      ]
-    ],
-    bodyActions: [
-      [
-        {
-          code: 'delete',
-          name: t('mdTable.deleteRow'),
-          action: ({ row }) => deleteRow(row)
-        }
-      ]
-    ],
-    permissionMethod: ({ row }) => {
-      return {
-        visible: !!row,
-        disabled: false
-      }
-    },
-    editRender: {
-      editClosed: () => undefined,
-      editConfig: {
-        trigger: 'click',
-        mode: 'cell',
-        showIcon: false,
-        showStatus: false,
-        autoFocus: true
-      }
-    },
-    optionalConfig: {
-      border: 'inner',
-      stripe: false,
-      mouseConfig: {
-        selected: true
-      },
-      keyboardConfig: {
-        isEsc: true
-      },
-      pagerConfig: { enabled: false },
-      rowClassName: ({ row }: { row: Record<string, any> }) =>
-        highlightedMatchKeys.value.has(rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine])) ? 'wha-verify-row-highlight' : '',
-      // type=checkbox 列上的 field 是 label，不是勾选绑定；勾选状态靠 checkField
-      checkboxConfig: {
-        checkField: SGLA_ITEMS.Checked,
-        highlight: true,
-        range: true
-      },
-      toolbarConfig: {
-        custom: false,
-        zoom: false,
-        refresh: false,
-        slots: { buttons: 'toolbar_buttons' }
-      }
     }
   })
 
@@ -458,25 +314,11 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     })
   }
 
-  // selected column for batch edit //
-  const selectedColumn = ref<string | undefined>(undefined)
-  const batchEditDialogVisible = ref(false)
   function applyBatchEdit(val: string) {
-    if (!selectedColumn.value) return
-    const { tableData } = tableRef.value.getTableData()
-    tableData.forEach((row: any) => {
-      row[selectedColumn.value] = val
-    })
+    applyBatchValueToColumn(tableRef.value, selectedColumn.value, val)
     batchEditDialogVisible.value = false
   }
-  const statusCounts = computed(() => {
-    const list = tableData.value
-    return {
-      all: list.length,
-      unVerified: list.filter((row: any) => !row[SGLA_ITEMS.Checked]).length,
-      ok: list.filter((row: any) => !!row[SGLA_ITEMS.Checked]).length
-    }
-  })
+  const statusCounts = computed(() => getStatusCounts(tableData.value, SGLA_ITEMS.Checked))
 
   async function fetchTableData() {
     const masterId = selectedInvoice.value?.id
@@ -484,13 +326,13 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
     loading.value = true
     try {
-      const params = generateParams(masterId)
+      const orderBy = [
+        { column: SGLA_ITEMS.Carton, desc: false },
+        { column: SGLA_ITEMS.PoLine, desc: false },
+      ]
+      const params = generateMasterDetailParams(SGLA_ITEMS_TABLE_ID, SGLA_ITEMS.MasterId, masterId, orderBy)
       const { data } = await postDynamicActions(params)
-      // checkField 要求严格 boolean，接口可能返回 null/0/1/'true' 等
-      return (data?.data ?? []).map((row: Record<string, any>) => ({
-        ...row,
-        [SGLA_ITEMS.Checked]: row[SGLA_ITEMS.Checked] === true || row[SGLA_ITEMS.Checked] === 1 || row[SGLA_ITEMS.Checked] === 'true'
-      }))
+      return normalizeCheckedField(data?.data ?? [], SGLA_ITEMS.Checked)
     } catch (error) {
       console.error(error)
       return []
@@ -500,85 +342,95 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   }
 
   function createEmptyRow(masterId: string) {
-    return {
+    return createRowFromColumns(verificationTableColumns, {
       [SGLA_ITEMS.MasterId]: masterId,
-      [SGLA_ITEMS.Carton]: '',
-      [SGLA_ITEMS.Supplier_PN]: '',
-      [SGLA_ITEMS.WCL_PN]: '',
-      [SGLA_ITEMS.Qty]: null,
-      [SGLA_ITEMS.PoLine]: '',
-      [SGLA_ITEMS.SupplierItemRefNo]: '',
-      [SGLA_ITEMS.DateCode]: '',
-      [SGLA_ITEMS.CountryOfOrigin]: '',
-      [SGLA_ITEMS.CountryOfWafer]: '',
-      [SGLA_ITEMS.DrawingNo]: '',
-      [SGLA_ITEMS.Remark]: '',
       [SGLA_ITEMS.Checked]: false
-    }
+    })
   }
 
-  async function addRow() {
-    const masterId = selectedInvoice.value?.id
-    if (!masterId || creatingRow.value) return
+  function createRowPayloadFromSource(masterId: string, source: Record<string, any>) {
+    return createRowFromColumns(
+      verificationTableColumns,
+      {
+        [SGLA_ITEMS.MasterId]: masterId,
+        [SGLA_ITEMS.Checked]: false
+      },
+      source
+    )
+  }
+
+  async function insertRow(payload: Record<string, any>) {
+    if (creatingRow.value) return false
 
     creatingRow.value = true
     try {
       const { data } = await newClientApi.postDynamicDbTableTableidData(SGLA_ITEMS_TABLE_ID, {
-        data: createEmptyRow(masterId)
+        data: payload
       })
-      const insertedRow = normalizeCountryFields([
-        {
-          id: data?.id,
-          ...(data?.data?.data ?? {}),
-          [SGLA_ITEMS.Qty]: data?.data?.data?.[SGLA_ITEMS.Qty] ?? null,
-          [SGLA_ITEMS.Checked]: !!data?.data?.data?.[SGLA_ITEMS.Checked]
-        }
-      ])[0]
+      const insertedRow = normalizeCountryFields(
+        [
+          {
+            id: data?.id,
+            ...(data?.data?.data ?? {}),
+            [SGLA_ITEMS.Qty]: toNumberOrNull(data?.data?.data?.[SGLA_ITEMS.Qty]),
+            [SGLA_ITEMS.Checked]: !!data?.data?.data?.[SGLA_ITEMS.Checked]
+          }
+        ],
+        countryList.value,
+        COUNTRY_FIELDS
+      )[0]
 
-      if (!insertedRow?.id) return
+      if (!insertedRow?.id) return false
 
       tableData.value.unshift(insertedRow)
-      statusFilter.value = 'all'
+      if (statusFilter.value !== 'all') {
+        skipNextFilterReload = true
+        statusFilter.value = 'all'
+      }
       const grid = tableRef.value as any
-      grid?.loadData?.(getFilteredItems(tableData.value))
+      await grid?.loadData?.(getFilteredItems(tableData.value))
 
-      nextTick(() => {
-        grid?.scrollToRow?.(insertedRow)
-        grid?.setEditCell?.(insertedRow, SGLA_ITEMS.Supplier_PN)
-        const supplierPnColumn = verificationTableColumns.find((col: any) => col.field === SGLA_ITEMS.Supplier_PN)
-        focusEditCell(supplierPnColumn as any, insertedRow)
-      })
+      await nextTick()
+      // 新行在顶部；虚拟滚动下 scrollToRow 不稳定，直接滚到第一行
+      grid?.scrollTo?.(0, 0)
+      grid?.setEditCell?.(insertedRow, SGLA_ITEMS.Supplier_PN)
+      const supplierPnColumn = verificationTableColumns.find((col: any) => col.field === SGLA_ITEMS.Supplier_PN)
+      focusEditCell(supplierPnColumn as any, insertedRow)
+      return true
     } catch (error) {
       console.error(error)
+      ElMessage.error(t('common_addFail'))
+      return false
     } finally {
       creatingRow.value = false
     }
   }
 
+  async function addRow() {
+    const masterId = selectedInvoice.value?.id
+    if (!masterId) return
+    await insertRow(createEmptyRow(masterId))
+  }
+
+  async function copyRow(row: Record<string, any>) {
+    const masterId = selectedInvoice.value?.id
+    if (!masterId || !row) return
+    const ok = await insertRow(createRowPayloadFromSource(masterId, row))
+    if (ok) ElMessage.success(t('common_copySuccess'))
+  }
+
   const debouncedReload = useDebounceFn(() => reload(), 300)
 
-  watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => debouncedReload())
+  watch([() => statusFilter.value, () => searchQuery.value, () => selectedInvoice.value?.id], () => {
+    if (skipNextFilterReload) {
+      skipNextFilterReload = false
+      return
+    }
+    debouncedReload()
+  })
 
   function getFormData() {
-    // checkbox 列用 checkField 绑定，列上没有 field，需显式带上 Checked
-    const fields = verificationTableColumns.map((column: any) => column.field).filter((item): item is string => item !== undefined)
-    const formFields = [...new Set([...fields, SGLA_ITEMS.Checked, 'id'])]
-    return tableData.value.map((item) => {
-      const data: Record<string, any> = {}
-      formFields.forEach((field) => {
-        if (field === SGLA_ITEMS.Checked) {
-          data[field] = !!item[field]
-          return
-        }
-        const fieldColumn = verificationTableColumns.find((column: any) => column.field === field)
-        if (fieldColumn?.type === 'number') {
-          data[field] = Number(item[field])
-        } else {
-          data[field] = item[field] ?? ''
-        }
-      })
-      return data
-    })
+    return getFormDataFromColumns(tableData.value, verificationTableColumns, [SGLA_ITEMS.Checked, 'id'], [SGLA_ITEMS.Checked])
   }
 
   async function saveTableData() {
@@ -586,7 +438,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     await newClientApi.patchDynamicDbTableTableidDataBatchTransactional(SGLA_ITEMS_TABLE_ID, { data })
   }
 
-  const context: WHASupplyListVerifyTableContext = {
+  const context: VerificationTableContext = {
     loading,
     creatingRow,
     tableData,
@@ -598,12 +450,13 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     searchQuery,
     columns: verificationTableColumns,
     reload,
-    SGLA_ITEMS,
     batchEditDialogVisible,
     selectedColumn,
     applyBatchEdit,
     highlightMatchingRows,
     clearMatchingRowHighlight,
+    scrollToMatchingRow,
+    resetVerifiedMatches,
     addRow,
     saveTableData
   }
@@ -613,7 +466,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   return context
 }
 
-export function useWHASupplyListVerifyTableInject(): WHASupplyListVerifyTableContext {
+export function useWHASupplyListVerifyTableInject(): VerificationTableContext {
   const context = inject(WHASupplyListVerifyTableKey)
   if (!context) {
     throw new Error('WHASupplyListVerifyTable context not found. Make sure useWHASupplyListVerifyTableProvider is called in a parent component.')

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" class="scroll-dialog" :fullscreen="fullscreen" @close="resetForm">
+  <el-dialog v-model="visible" class="scroll-dialog md-form-detail-dialog" :fullscreen="fullscreen" @close="resetForm">
     <template v-if="mode === 'edit'" #header>
       <div class="el-dialog__title mdForm-title">
         {{ title }}
@@ -169,7 +169,7 @@ async function handleSubmit() {
 async function open(row: any, _mode: 'default' | 'edit' = 'edit', _title: string = '') {
   formData.value = JSON.parse(JSON.stringify(row))
   mode.value = _mode
-  activeTab.value = 'form'
+  activeTab.value = row?.id ? 'dashboard' : 'form'
   visible.value = true
   if (props.showMoveButtons) setCurrentRow(row)
   if (_title) {
@@ -422,6 +422,17 @@ defineExpose({ open, close })
     font-size: var(--app-font-size-s);
     white-space: pre-wrap;
     word-break: break-word;
+  }
+}
+</style>
+
+<style lang="scss">
+// el-dialog is teleported to body, so this override must be unscoped
+.md-form-detail-dialog {
+  width: 90vw;
+
+  &.is-fullscreen {
+    width: 100%;
   }
 }
 </style>

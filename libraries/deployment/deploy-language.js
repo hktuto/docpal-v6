@@ -27,24 +27,28 @@ const { SUPERADMIN, PASSWORD, ADMINURL } = argv
 const URL = ADMINURL.replace('/admin/api', '')
 
 async function loginAdmin() {
-  try {
-    const path = `${URL}/api/auth/login`
-    console.log("try to login admin", path)
-    const { data } = await fetch(path, {
-      method: 'POST',
-      body: JSON.stringify({
-        username: SUPERADMIN,
-        password: PASSWORD
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then(async (res) => await res.json())
-    return data.access_token
-  } catch (e) {
-    console.log('--login error', e)
-    throw e
+  // 用户中心登录：Gateway /apis/v1/ucenter/auth/login，body 需 serviceId
+  const loginUrl = `${URL}/apis/v1/ucenter/auth/login`
+  console.log('try to login admin', loginUrl)
+  const res = await fetch(loginUrl, {
+    method: 'POST',
+    body: JSON.stringify({
+      username: SUPERADMIN,
+      password: PASSWORD,
+      serviceId: 'docpal',
+      rememberMe: true
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  const body = await res.json().catch(() => null)
+  const token = body?.data?.access_token
+  if (!token) {
+    console.log('--login failed', res.status, JSON.stringify(body))
+    throw new Error(body?.message || `login failed: HTTP ${res.status}`)
   }
+  return token
 }
 
 async function updateLanguage(code, token) {

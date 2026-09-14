@@ -1,0 +1,83 @@
+<script setup lang="ts">
+import WorkflowPreview from './preview.vue'
+import { SGLA } from '../../utils/variableMapping'
+
+const workflowPreviewRef = ref<any>(null)
+
+const props = withDefaults(
+  defineProps<{
+    docId?: string
+    selectedInvoice?: any
+    fileList?: Record<string, any>[]
+  }>(),
+  {
+    docId: '',
+    fileList: () => []
+  }
+)
+
+const currentDocId = ref(props.docId ? String(props.docId) : '')
+
+const searchText = computed(() => {
+  const invoice = unref(props.selectedInvoice)
+  if (!invoice) return ''
+  return String(
+    invoice[SGLA.Name]
+      || invoice.invoiceNum
+      || invoice.invoice_num
+      || ''
+  )
+})
+
+watch(
+  () => props.docId,
+  (id) => {
+    const nextId = id ? String(id) : ''
+    if (nextId && currentDocId.value !== nextId) currentDocId.value = nextId
+  }
+)
+
+function handleTabChange(id: string | number) {
+  currentDocId.value = String(id)
+}
+</script>
+
+<template>
+  <WorkflowPreview ref="workflowPreviewRef" :doc-id="currentDocId" :search-text="searchText">
+    <template #title>
+      <el-tabs :model-value="currentDocId" class="preview-file-tabs" @tab-change="handleTabChange">
+        <el-tab-pane
+          v-for="file in fileList"
+          :key="file.id"
+          :label="file.file_name || file.name"
+          :name="String(file.id)"
+        />
+      </el-tabs>
+    </template>
+  </WorkflowPreview>
+</template>
+
+<style scoped lang="scss">
+.preview-file-tabs {
+  width: 100%;
+
+  :deep(.el-tabs__header) {
+    margin: 0;
+  }
+
+  :deep(.el-tabs__nav-wrap) {
+    width: 100%;
+  }
+
+  :deep(.el-tabs__item) {
+    max-width: 180px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: bottom;
+    line-height: 40px;
+  }
+}
+</style>

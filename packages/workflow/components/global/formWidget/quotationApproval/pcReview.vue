@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { clientApi, newClientApi } from 'api'
 import { Delete } from '@element-plus/icons-vue'
+import { MenuRouterKey } from '@packages/base/utils/menuType'
+import { v7 as uuidv7 } from 'uuid'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -9,7 +11,10 @@ const { disabled, formData, options } = defineProps<{
 }>()
 
 const formRef = ref()
-
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 type SampleInfoItem = {
   id?: string
   sample_id: string
@@ -26,6 +31,8 @@ type SampleInfoItem = {
   customer_part_number: string
   old_sales_price_noTax?: number
   remarks: string
+  price_type: string
+  lead_time: number
   target_price_list: TargetPriceItem[]
 }
 
@@ -61,7 +68,7 @@ const costCurrencyOptions = ref([
   { label: 'HKD', value: 'HKD' },
   { label: 'USD', value: 'USD' }
 ])
-const exchangeRateList = ref<any[]>([])
+const exchangeRateList = ref<{ from_currency: string; to_currency: string; conversion_rate: number }[]>([])
 const rules = {
   cost_currency: [{ required: true, message: 'Please select Cost Currency', trigger: 'change' }],
   price_type: [{ required: true, message: 'Please select Price Type', trigger: 'change' }]
@@ -168,74 +175,32 @@ function handleUnitCostChange(itemIndex: number, tierIndex: number, item: Target
 }
 
 async function getExchangeRateList() {
-  exchangeRateList.value = await getDbData('aca40000-75dc-11f1-850d-35881bc838c2')
-}
-
-async function getSeriesList() {
-  const list = await getDbData('c13ccf90-7101-11f1-a5ba-a73b7858cef3')
-  const seen = new Set<any>()
-
-  seriesList.value = list.reduce((acc: any[], item: any) => {
-    const value = item.mfg_part_num
-    if (seen.has(value)) return acc
-    seen.add(value)
-
-    acc.push({
-      id: item.id,
-      label: item.mfg_part_num,
-      value: value,
-      brand: ''
-    })
-    return acc
-  }, [])
-}
-
-async function getDbData(tableId: string, conditions?: any[]) {
-  // Get Filed Mapping
-  const filedData: any = await newClientApi
-    .getDocpalMasterTableUserConfig({
-      tableId: tableId,
-      userId: 'master',
-      type: 'detail'
-    })
-    .then((res) => res.data)
-  const filedMapping: any = {}
-  filedData.tableFields.forEach((item: any) => {
-    filedMapping[item.field_name as string] = item.field_name_alias
-  })
-
-  const param = {
-    tableId: tableId,
-    conditions,
-    columns: [
-      {
-        name: '*'
-      }
-    ],
-    pagination: {
-      pageSize: 1000,
-      pageNum: 0
-    }
+  try {
+    exchangeRateList.value = await clientApi.instance.get('/apis/v1/ms/oracle/conversion-rate?limit=500').then((r: any) => r.data.items)
+  } catch (e) {
+    console.log(e)
   }
+}
 
-  // Get BD Data
-  const dbData = await clientApi.instance.post('/apis/v1/dynamic-actions', param).then((res: any) => res.data.data)
+async function getSeriesList(seriesNumber?: string) {
+  try {
+    const q = !!seriesNumber && seriesNumber !== '' ? `q=${seriesNumber}&` : ''
+    const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}pageNum=1&pageSize=50`).then((r: any) => r.data.items)
 
-  // 匹配數據
-  return dbData.map((row: any) => {
-    const out = {}
-    for (const [fromKey, toKey] of Object.entries(filedMapping)) {
-      if (fromKey in row) out[toKey] = row[fromKey]
-    }
-    return out
-  })
+    seriesList.value = data.map((item: any) => ({
+      label: item.displayName,
+      value: item.value
+    }))
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 const historyPriceRef = ref()
 function openDialog(index: number, item: any) {
   item.index = index
   item.currency = formData.currency
-  item.org_id = 1
+  item.org_id = formData.org_id
   historyPriceRef.value.open(item)
 }
 
@@ -244,56 +209,65 @@ function handelCostCurrency(item: any) {
   const currency = formData.currency
   if (!cost_currency || !currency) return
 
-  const find = exchangeRateList.value.find((item: any) => item.base_currency === cost_currency && item.target_currency === currency)
-  item.exchange_rate = find.exchange_rate as number
-  return item.exchange_rate
+  if (cost_currency === currency) {
+    item.exchange_rate = 1
+    return 1
+  }
+
+  const find: any = exchangeRateList.value.find((rate: any) => rate.from_currency === cost_currency && rate.to_currency === currency)
+  item.exchange_rate = find.conversion_rate.toFixed(4)
+
+  return find.conversion_rate.toFixed(4)
 }
 
 function handleHistoryPriceSubmit(data: any) {
-  const item = formModel.value.infoList[data.index]
-  const list = data.list || []
-  const oldList = item.target_price_list || []
+  try {
+    const item = formModel.value.infoList[data.index]
+    const list = data.list || []
+    const oldList = item.target_price_list || []
 
-  // 取得兩者中的最大長度，確保所有項目都被遍歷到
-  const maxLength = Math.max(list.length, oldList.length)
+    const newList = list.map((newItem: any, index: number) => {
+      let priceItem: TargetPriceItem
+      const exchangeRate = !!newItem.exchangeRate ? newItem.exchangeRate : handelCostCurrency({ cost_currency: newItem.currency, exchange_rate: 1 })
 
-  item.target_price_list = Array.from({ length: maxLength }, (_, index) => {
-    const newItem = list[index]
-    const oldItem = oldList[index]
-
-    // 情況 1: 新列表有項目，更新或新增
-    if (newItem) {
-      const exchange_rate = handelCostCurrency({ cost_currency: newItem.currency })
-
-      const baseItem = oldItem
-        ? { ...oldItem, data_source: newItem.poCustomer }
-        : {
-            sample_id: item.sample_id,
-            tier_number: index + 1,
-            target_price: undefined,
-            profit: 0,
-            status: 'A'
-          }
-
-      const updatedItem = {
-        ...baseItem,
-        moq: newItem.moq,
-        unit_cost: newItem.cost,
-        unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchange_rate)).toFixed(6)),
-        cost_currency: newItem.currency,
-        exchange_rate: Number(new Decimal(exchange_rate))
+      if (!!oldList[index]) {
+        priceItem = {
+          ...oldList[index],
+          cost_currency: newItem.currency,
+          unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(exchangeRate)).toFixed(6)),
+          unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchangeRate)).toFixed(6)),
+          exchange_rate: exchangeRate,
+          data_source: newItem.type,
+          profit: 1
+        }
+      } else {
+        priceItem = {
+          id: uuidv7(),
+          sample_id: item.sample_id,
+          tier_number: index,
+          moq: 0,
+          target_price: 0,
+          data_source: newItem.type,
+          unit_cost: Number(new Decimal(newItem.cost).times(new Decimal(exchangeRate)).toFixed(6)),
+          unit_price_no_tax: Number(new Decimal(newItem.cost).times(new Decimal(exchangeRate)).toFixed(6)),
+          cost_currency: formData.currency,
+          exchange_rate: exchangeRate,
+          profit: 1,
+          status: 'A'
+        }
       }
+      calculateProfit(priceItem)
+      return priceItem
+    })
 
-      calculateProfit(updatedItem as TargetPriceItem)
-      return updatedItem
+    if (item.target_price_list.length > newList.length) {
+      item.target_price_list.splice(0, newList.length, ...newList)
+    } else {
+      item.target_price_list = newList
     }
-
-    // 情況 2: 新列表沒有項目，將舊項目標記為刪除 (若存在)
-    return {
-      ...oldItem,
-      status: 'D'
-    }
-  })
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 function handleTargetPriceItemRemove(index: number, targetPriceIndex: number) {
@@ -315,19 +289,60 @@ function calculateProfit(item: TargetPriceItem) {
     return
   }
 
-  const totalCost = unitCost.times(exchange_rate).times(markup_rate)
+  const totalCost = unitCost.times(markup_rate)
+  // const totalCost = unitCost.times(exchange_rate).times(markup_rate)
   item.profit = Number(unitPriceNoTax.minus(totalCost).dividedBy(totalCost).times(100).toFixed(6))
 }
 
-function checkMinUnitPriceNoTax(item) {
-  if (!item || !item?.unit_cost || !item?.exchange_rate) return 0.000001
-  return Number(new Decimal(item?.unit_cost).times(new Decimal(item?.exchange_rate)).toFixed(6))
-}
-
 async function init() {
+  if (!formData.quotation_number || formData.quotation_number === '') {
+    routerProvider?.message.error('未找到報價編號')
+    return
+  }
+
+  const data = await newClientApi.getQuotationFormQuotationnumber(formData.quotation_number).then((r: any) => r.data)
+  if (!data.lines || data.lines.length === 0) {
+    routerProvider?.message.error('未找到對應的零件信息!')
+    return
+  }
+  const infoList = data.lines.map((item: any) => {
+    const target_price_list = item.pricing_list.map((priceItem: any) => ({
+      cost_currency: formData.currency,
+      moq: priceItem.moq,
+      sample_id: uuidv7(),
+      status: 'A',
+      target_price: priceItem.target_price,
+      tier_number: priceItem.tier_number,
+      unit_cost: '0.000001',
+      exchange_rate: 1
+    }))
+
+    return {
+      brand: item.brand,
+      competitor_name: item.competitor_name,
+      customer_part_number: item.cust_part_number,
+      monthly_quantity: item.monthly_quantity,
+      mpq: item.moq,
+      old_sales_price_noTax: item.old_sales_price,
+      part_number: item.part_number,
+      product_application: item.product_application,
+      quantity_machine: 0,
+      quotation_number: formData.quotation_number,
+      remarks: '',
+      sample_id: item.line_id,
+      series: '',
+      status: 'A',
+      lead_time: '',
+      price_type: 'STD',
+      target_price_list: target_price_list,
+      uom: item.uom,
+      review_id: item.review_id
+    }
+  })
+
   formModel.value = {
     brand: formData.brand,
-    infoList: formData.sample_info_list
+    infoList: infoList
   }
 }
 
@@ -340,34 +355,10 @@ async function getFormData(needValidation = true) {
     return newItem
   })
 
-  const conditions = [
-    {
-      type: 'EQ',
-      column: 'f_8961_e9cf64a9',
-      value: formModel.value.brand
-    }
-  ]
-  const rateData = await getDbData('b5a2a170-712c-11f1-ab82-b167ae310fd8', conditions)
-  const roleMap: Record<string, string> = {
-    'CRM Price Controller': 'PC',
-    'CRM Product Manager': 'PM',
-    'CRM General Manager': 'GM'
-  }
-
-  const margin_rate_list = rateData.reduce((acc: any, curr: any) => {
-    const key = roleMap[curr.role as string]
-    if (key) {
-      const { role, brand, ...rates } = curr
-      acc[key] = rates
-    }
-    return acc
-  }, {})
-
   const result = {
     sample_info_list: formModel.value.infoList,
     set_sample_list: newSetSampleList,
-    target_price_list: newTargetPriceList,
-    margin_rate_list: margin_rate_list
+    target_price_list: newTargetPriceList
   }
   if (!needValidation) return result
   await formRef.value?.validate()
@@ -388,11 +379,12 @@ watch(
 )
 
 watch(
-  () => formData.sample_info_list,
+  () => formData.quotation_number,
   (value) => {
-    if (!!value && value.length > 0) {
-      init()
+    if (!value) {
+      return
     }
+    init()
   },
   { immediate: true, deep: true }
 )
@@ -404,7 +396,7 @@ defineExpose({ getFormData })
   <el-form ref="formRef" label-position="top" :model="formModel">
     <el-row>
       <el-col :span="8">
-        <el-form-item label="品牌 Brand" prop="brand">
+        <el-form-item :label="$t('quotationApproval.brand')" prop="brand">
           <el-input v-model="formModel.brand" disabled />
         </el-form-item>
       </el-col>
@@ -416,39 +408,46 @@ defineExpose({ getFormData })
           <span class="info-item-card__index">{{ index + 1 }}.</span>
           <div class="info-item-card__actions">
             <el-button type="primary" @click="showDetails[index] = !showDetails[index]">
-              {{ showDetails[index] ? '隱藏詳情' : '更多詳情' }}
+              {{ showDetails[index] ? $t('quotationApproval.hideDetails') : $t('quotationApproval.moreDetails') }}
             </el-button>
           </div>
         </div>
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="型號 Part Number" prop="part_number">
+            <el-form-item :label="$t('quotationApproval.partNumber')" prop="part_number">
               <el-input v-model="item.part_number" disabled />
             </el-form-item>
-            <el-form-item label="系列 Series" v-if="formModel.brand === 'KOA'">
-              <el-select v-model="item.series" class="full-width-input" clearable filterable :value-on-clear="''">
-                <el-option v-for="part in seriesList" :key="part.id" :label="part.label" :value="part.value" />
-              </el-select>
+            <el-form-item :label="$t('quotationApproval.series')" v-if="formModel.brand === 'KOA'">
+              <el-select-v2
+                v-model="item.series"
+                filterable
+                remote
+                :remote-method="getSeriesList"
+                remote-show-suffix
+                clearable
+                :options="seriesList"
+                :placeholder="$t('quotationApproval.enterKeyword')"
+              />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="價格類型 Price Type" :prop="`infoList.${index}.price_type`" required :rules="rules.price_type">
+            <el-form-item :label="$t('quotationApproval.priceType')" :prop="`infoList.${index}.price_type`" required :rules="rules.price_type">
               <el-select v-model="item.price_type" class="full-width-input">
                 <el-option value="STD" label="STD" />
                 <el-option value="SP" label="SP" />
               </el-select>
             </el-form-item>
-            <el-form-item label="交貨時間 Lead Time">
-              <el-date-picker v-model="item.lead_time" type="date" placeholder="請選擇交貨時間" format="YYYY/MM/DD" value-format="x" />
+            <el-form-item :label="$t('quotationApproval.leadTime')">
+              <el-date-picker v-model="item.lead_time" type="date" :placeholder="$t('quotationApproval.selectLeadTime')" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="交易幣種 Currency">
+            <el-form-item :label="$t('quotationApproval.tradeCurrency')">
               <el-input v-model="formData.currency" disabled />
             </el-form-item>
-            <el-form-item label="備注 Remarks" prop="remarks">
+            <el-form-item :label="$t('quotationApproval.remarks')" prop="remarks">
               <el-input v-model="item.remarks" type="textarea" autosize />
             </el-form-item>
           </el-col>
@@ -456,20 +455,20 @@ defineExpose({ getFormData })
           <el-col :span="24">
             <div class="targetPrice-item-card">
               <div class="targetPrice-item-card__header">
-                <span>設定不同數量檔位的目標價。 Higher MOQ → lower target price.</span>
-                <el-button type="primary" @click="openDialog(index, item)">檢索歷史價格 Retrieve historical prices</el-button>
+                <span>{{ $t('quotationApproval.targetPriceHint') }}</span>
+                <el-button type="primary" @click="openDialog(index, item)">{{ $t('quotationApproval.retrieveHistoricalPrices') }}</el-button>
               </div>
               <el-divider />
               <el-row class="targetPrice-item-card__table-header">
-                <el-col :span="1">檔位 Tier</el-col>
-                <el-col :span="2">幣種 Currency</el-col>
-                <el-col :span="3">匯率 Exchange Rate</el-col>
-                <el-col :span="2">起订量 MOQ</el-col>
-                <el-col :span="3">目標價 Target Price</el-col>
-                <el-col :span="3">數據源 Data Source</el-col>
-                <el-col :span="3">單位成本 Unit Cost</el-col>
-                <el-col :span="4">單價(未稅) Unit Price(No Tax)</el-col>
-                <el-col :span="3">毛利率(%) Profit(%)</el-col>
+                <el-col :span="1">{{ $t('quotationApproval.tier') }}</el-col>
+                <el-col :span="2">{{ $t('quotationApproval.costCurrency') }}</el-col>
+                <el-col :span="3">{{ $t('quotationApproval.exchangeRate') }}</el-col>
+                <el-col :span="3">{{ $t('quotationApproval.moq') }}</el-col>
+                <el-col :span="3">{{ $t('quotationApproval.targetPrice') }}</el-col>
+                <el-col :span="3">{{ $t('quotationApproval.dataSource') }}</el-col>
+                <el-col :span="3">{{ $t('quotationApproval.unitCost') }}</el-col>
+                <el-col :span="3">{{ $t('quotationApproval.unitPriceNoTax') }}</el-col>
+                <el-col :span="3">{{ $t('quotationApproval.profit') }}</el-col>
                 <!--                <el-col :span="2">操作 Actions</el-col>-->
               </el-row>
               <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
@@ -477,12 +476,14 @@ defineExpose({ getFormData })
                   <!--                  <template v-if="targetPriceItem.status !== 'D'">-->
                   <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
                   <el-col :span="2">
-                    <el-input v-model="targetPriceItem.cost_currency" style="width: 90%" disabled />
+                    <el-select v-model="targetPriceItem.cost_currency" style="width: 90%" @change="handelCostCurrency(targetPriceItem)">
+                      <el-option v-for="currency in costCurrencyOptions" :key="currency.value" :label="currency.label" :value="currency.value" />
+                    </el-select>
                   </el-col>
                   <el-col :span="3">
                     <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
                   </el-col>
-                  <el-col :span="2">
+                  <el-col :span="3">
                     <el-form-item
                       :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
                       :rules="getMoqRules(index, targetPriceIndex)"
@@ -500,7 +501,11 @@ defineExpose({ getFormData })
                     </el-form-item>
                   </el-col>
                   <el-col :span="3">
-                    <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
+                    <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled>
+                      <template #suffix>
+                        <span>{{ formData.currency }}</span>
+                      </template>
+                    </el-input-number>
                   </el-col>
                   <el-col :span="3">
                     <el-input v-model="targetPriceItem.data_source" disabled style="width: 90%" />
@@ -519,10 +524,14 @@ defineExpose({ getFormData })
                         :step="0.000001"
                         step-strictly
                         @change="handleUnitCostChange(index, targetPriceIndex, targetPriceItem)"
-                      />
+                      >
+                        <template #suffix>
+                          <span>{{ formData.currency }}</span>
+                        </template>
+                      </el-input-number>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="4">
+                  <el-col :span="3">
                     <el-form-item
                       :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_price_no_tax`"
                       :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_price_no_tax', 'Unit price must be lower than the previous tier')"
@@ -532,11 +541,15 @@ defineExpose({ getFormData })
                         style="width: 90%"
                         v-model="targetPriceItem.unit_price_no_tax"
                         controls-position="right"
-                        :min="checkMinUnitPriceNoTax(targetPriceItem)"
+                        :min="targetPriceItem.unit_cost"
                         :step="0.000001"
                         step-strictly
                         @change="handleUnitPriceNoTaxChange(index, targetPriceIndex, targetPriceItem)"
-                      />
+                      >
+                        <template #suffix>
+                          <span>{{ formData.currency }}</span>
+                        </template>
+                      </el-input-number>
                     </el-form-item>
                   </el-col>
                   <el-col :span="3">
@@ -560,36 +573,36 @@ defineExpose({ getFormData })
           <template v-if="showDetails[index]">
             <el-divider />
             <el-col :span="6">
-              <el-form-item label="月用量 Monthly Quantity" prop="monthly_quantity">
+              <el-form-item :label="$t('quotationApproval.monthlyQuantity')" prop="monthly_quantity">
                 <el-input-number v-model="item.monthly_quantity" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
-              <el-form-item label="最小包裝數 MPQ " prop="mpq">
+              <el-form-item :label="$t('quotationApproval.mpq')" prop="mpq">
                 <el-input v-model="item.mpq" disabled />
               </el-form-item>
             </el-col>
 
             <el-col :span="6">
-              <el-form-item label="單機用量 Quantity Machine" prop="quantity_machine">
+              <el-form-item :label="$t('quotationApproval.quantityMachine')" prop="quantity_machine">
                 <el-input-number v-model="item.quantity_machine" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
-              <el-form-item label="单位 UOM" prop="uom">
+              <el-form-item :label="$t('quotationApproval.uom')" prop="uom">
                 <el-input v-model="item.uom" disabled />
               </el-form-item>
             </el-col>
 
             <el-col :span="6">
-              <el-form-item label="競爭對手名稱 Competitor Name" prop="competitor_name">
+              <el-form-item :label="$t('quotationApproval.competitorName')" prop="competitor_name">
                 <el-input v-model="item.competitor_name" disabled />
               </el-form-item>
-              <el-form-item label="產品應用 Product Application" prop="product_application">
+              <el-form-item :label="$t('quotationApproval.productApplication')" prop="product_application">
                 <el-input v-model="item.product_application" disabled />
               </el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="客戶零件編號 Customer Part Number" prop="customer_part_number">
+              <el-form-item :label="$t('quotationApproval.customerPartNumber')" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item label="原銷售價格(不含稅) Old Sales Price(NoTax)" prop="old_sales_price_noTax">
+              <el-form-item :label="$t('quotationApproval.oldSalesPriceNoTax')" prop="old_sales_price_noTax">
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>

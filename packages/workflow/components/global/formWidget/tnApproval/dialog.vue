@@ -1,27 +1,13 @@
 <script setup lang="ts">
 const emits = defineEmits(['submit'])
 
-const { disabled } = defineProps<{
-  disabled: boolean
+const { subInventoryOption, officeOption } = defineProps<{
+  subInventoryOption: any[]
+  officeOption: any[]
 }>()
 
 const visible = ref(false)
 const rowData = ref<any>({})
-const subInventoryList = ref<any[]>([
-  { label: 'OSWF', value: 'OSWF' },
-  { label: 'STAGING', value: 'STAGING' },
-  { label: 'STORE1', value: 'STORE1' },
-  { label: 'STORE2', value: 'STORE2' },
-  { label: 'SZBYDA860', value: 'SZBYDA860' },
-  { label: 'SZBYDA961', value: 'SZBYDA961' },
-  { label: 'SZBYDA963', value: 'SZBYDA963' },
-  { label: 'SZBYDA964', value: 'SZBYDA964' },
-  { label: 'S7S711', value: 'S7S711' }
-])
-const officeList = ref<any[]>([
-  { label: '深圳创能', value: '深圳创能' },
-  { label: '金领导', value: '金领导' }
-])
 
 function open(row: any) {
   rowData.value = deepCopy(row)
@@ -38,7 +24,7 @@ defineExpose({ open })
 
 <template>
   <el-dialog v-model="visible" title="零件詳情 Part Details" append-to-body class="big" destroy-on-close align-center>
-    <el-form :model="rowData" label-position="top" class="all-input-style" :disabled="disabled">
+    <el-form :model="rowData" label-position="top" class="all-input-style">
       <el-row>
         <el-col :span="6">
           <el-form-item label="PO編號 PO Number">
@@ -47,9 +33,9 @@ defineExpose({ open })
           <el-form-item label="數量 QTY">
             <el-input-number v-model="rowData.qty" controls-position="right" :min="0" :step="1" step-strictly />
           </el-form-item>
-          <el-form-item label="子庫存 Sub-Inventory">
+          <el-form-item label="至子庫存 To Sub-Inventory">
             <el-select v-model="rowData.sub_inventory" style="width: 90%">
-              <el-option v-for="item in subInventoryList" :key="item.value" :label="item.label" :value="item.value" />
+              <el-option v-for="item in subInventoryOption" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
           <el-form-item label="產品名稱 Product Name">
@@ -64,7 +50,7 @@ defineExpose({ open })
             <el-input v-model="rowData.part_number" style="width: 90%" disabled />
           </el-form-item>
           <el-form-item label="單價 Unit Price">
-            <el-input-number v-model="rowData.unit_price" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
+            <el-input-number v-model="rowData.unit_price" controls-position="right" :min="0.000001" :step="0.000001" step-strictly disabled />
           </el-form-item>
           <el-form-item label="TN計畫日期 TN Planned Date">
             <el-date-picker v-model="rowData.tn_planned_date" type="date" format="YYYY/MM/DD" value-format="x" style="width: 90%" />
@@ -85,7 +71,7 @@ defineExpose({ open })
           </el-form-item>
           <el-form-item label="辦公室 To Office">
             <el-select v-model="rowData.office" style="width: 90%">
-              <el-option v-for="item in officeList" :key="item.value" :label="item.label" :value="item.value" />
+              <el-option v-for="item in officeOption" :key="item.sub_office" :label="item.org_name" :value="item.sub_office" />
             </el-select>
           </el-form-item>
           <el-form-item label="GIT STK">
@@ -116,7 +102,7 @@ defineExpose({ open })
     </el-form>
 
     <template #footer>
-      <el-button v-if="!disabled" type="primary" @click="handleSubmit">
+      <el-button type="primary" @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>

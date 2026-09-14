@@ -2,7 +2,7 @@ import { buildPageParams } from '@packages/dynamic-db/utils/pageParams'
 import { getDisplayColumns, updateViewColumnOrder } from '@packages/dynamic-db/utils/tableViews'
 import { useUserPreference } from '../../../authApp/composables/useAuth'
 import { ref } from 'vue'
-import { newClientApi } from 'api'
+import { gatewayApi } from 'api'
 const extraColumnConfig = {
   updateViewColumnCountMethod: (a: any, b: any, c: any) => {
     console.log('updateViewColumnCountMethod', a, b, c)
@@ -37,7 +37,7 @@ function initTableConfig(table: string, tableFields: any[]) {
 async function updatePreference() {
   const preference = useUserPreference()
   try {
-    await newClientApi.putDmsUserSetting(preference.value as any)
+    await gatewayApi.userSettings.putUserSettings({ settings: preference.value as any })
   } catch (error) {
     console.error('updateColumn error', error)
   }

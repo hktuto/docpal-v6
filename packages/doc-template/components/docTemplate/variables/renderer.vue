@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import EditVariablesDialog from './editVariablesDialog.vue'
-
 interface VariableItem {
   key: string
   id: string
@@ -51,14 +49,9 @@ function handleUpdate(item: VariableItem) {
 
 async function getData(type: string) {
   if (type !== 'Word') {
-    const existEmptyValue = state.variables.some(item =>
-      item.required &&
-      (
-        !('value' in item) ||
-        item.value === null ||
-        item.value === undefined ||
-        (typeof item.value === 'string' && item.value.trim() === '')
-      )
+    const existEmptyValue = state.variables.some(
+      (item) =>
+        item.required && (!('value' in item) || item.value === null || item.value === undefined || (typeof item.value === 'string' && item.value.trim() === ''))
     )
     if (existEmptyValue) {
       routerProvider?.message.error('The required fields exist in template variables')
@@ -77,8 +70,8 @@ defineExpose({ setVariables, getData })
 
 <template>
   <div class="renderer-container">
-    <div v-for="(item,index) in state.variables" class="variable-item" @dblclick="handleVariableData(item)">
-      <div v-if="item.type==='text'" class="variable-content">
+    <div v-for="(item, index) in state.variables" class="variable-item" @dblclick="handleVariableData(item)">
+      <div v-if="item.type === 'text'" class="variable-content">
         {{ $t('docTemplate.variable.name') }}: {{ item.name }}
         <el-form style="margin-top: 5px">
           <el-form-item :key="item.key" :label="`${t('docTemplate.variable.value')}:`">
@@ -87,7 +80,7 @@ defineExpose({ setVariables, getData })
         </el-form>
       </div>
 
-      <div v-if="item.type==='link'" class="variable-content">
+      <div v-if="item.type === 'link'" class="variable-content">
         {{ $t('docTemplate.variable.name') }}: {{ item.name }}
         <el-form label-position="top">
           <el-form-item :key="item.key" :label="`${t('docTemplate.variable.value')}:`">
@@ -107,7 +100,7 @@ defineExpose({ setVariables, getData })
         </el-form>
       </div>
 
-      <div v-if="item.type==='list'" class="variable-content">
+      <div v-if="item.type === 'list'" class="variable-content">
         {{ $t('docTemplate.variable.name') }}: {{ item.name }}
         <el-form label-position="top">
           <el-form-item :key="item.key" :label="`${t('docTemplate.variable.value')}:`">
@@ -121,22 +114,21 @@ defineExpose({ setVariables, getData })
         </el-form>
       </div>
 
-      <div v-if="item.type==='table'" class="variable-content">
+      <div v-if="item.type === 'table'" class="variable-content">
         {{ $t('docTemplate.variable.name') }}: {{ item.name }}
         <br />
         <div class="el-form-item__label">{{ $t('docTemplate.variable.value') + ':' }}</div>
-        <el-table :data="handleTableData(item.value.columns,item.value.rows)" :stripe="item.value.striped"
-                  style="width: 100%">
+        <el-table :data="handleTableData(item.value.columns, item.value.rows)" :stripe="item.value.striped" style="width: 100%">
           <el-table-column v-for="column in item.value.columns" :prop="column.key" :label="column.name" width="180" />
         </el-table>
       </div>
 
-      <div v-if="item.type==='input'" class="variable-content">
+      <div v-if="item.type === 'input'" class="variable-content">
         <el-form style="margin-top: 5px" :model="state">
           <el-form-item
             :key="item.name"
             :label="item.name"
-            :prop="'variables.'+ index +'.value'"
+            :prop="'variables.' + index + '.value'"
             :rules="{
               required: item.required,
               message: t('render.hint.fieldRequired', { name: item.name }),
@@ -147,13 +139,11 @@ defineExpose({ setVariables, getData })
           </el-form-item>
         </el-form>
       </div>
-      <div v-if="item.type==='signature'" class="variable-content">
-        {{ $t('docTemplate.variable.name') }}: {{ item.name }}
-      </div>
+      <div v-if="item.type === 'signature'" class="variable-content">{{ $t('docTemplate.variable.name') }}: {{ item.name }}</div>
     </div>
   </div>
 
-  <EditVariablesDialog ref="editVariablesDialogRef" @update="handleUpdate" class="big"/>
+  <DocTemplateVariablesEditVariablesDialog ref="editVariablesDialogRef" @update="handleUpdate" class="big" />
 </template>
 
 <style scoped lang="scss">
@@ -173,6 +163,10 @@ defineExpose({ setVariables, getData })
     border: 1px solid #e4e7ed;
     border-radius: 4px;
     background-color: #fafafa;
+
+    :deep(.el-table__inner-wrapper::before) {
+      content: none;
+    }
 
     &:last-child {
       margin-bottom: 0;
@@ -221,6 +215,6 @@ defineExpose({ setVariables, getData })
 
 .ol-ul-container {
   margin: 0;
-  line-height: 22px
+  line-height: 22px;
 }
 </style>

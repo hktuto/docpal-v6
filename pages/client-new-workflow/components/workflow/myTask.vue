@@ -28,7 +28,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_jobName' },
+    { field: 'name', title: 'workflow_jobName', slots: { default: 'name' } },
     { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
       field: 'execution.started_at',
@@ -82,6 +82,9 @@ defineExpose({ reload })
             </el-select>
           </el-form-item>
         </div>
+      </template>
+      <template #name="{ row }">
+        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>

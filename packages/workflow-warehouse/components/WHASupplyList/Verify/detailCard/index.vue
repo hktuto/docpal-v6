@@ -3,7 +3,7 @@
     <template v-if="selectedInvoice">
       <div class="detail-card-body">
         <template v-for="item in list" :key="item.label">
-          <WHASupplyListVerifyDetailCardItem
+          <WHDetailItem
             v-if="item.invoiceKey"
             v-model:value="selectedInvoice[SGLA[item.invoiceKey]]"
             :label="item.label"
@@ -19,7 +19,7 @@
             @button="(v) => handleBotton(v, item)"
           />
           <template v-else>
-            <WHASupplyListVerifyDetailCardItem :label="item.label" :text-value="unref(item.value)" :type="item.type" :disabled="item.disabled" />
+            <WHDetailItem :label="item.label" :text-value="unref(item.value)" :type="item.type" :disabled="item.disabled" />
           </template>
         </template>
       </div>
@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { newClientApi, postDynamicActions } from 'api'
 import { SGLA, SGLA_ITEMS, SUPPLIER_LIST_TABLE_NAME, DELIVERY_DATE_FORMAT } from '../../../../utils/variableMapping'
+import { syncSelectField } from '../../../../utils/workflowHelper'
 import { ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import isoWeek from 'dayjs/plugin/isoWeek'
@@ -40,6 +41,7 @@ import advancedFormat from 'dayjs/plugin/advancedFormat'
 dayjs.extend(isoWeek)
 dayjs.extend(advancedFormat)
 
+const emits = defineEmits(['invoiceUpdate'])
 const { t } = useI18n()
 const { selectedInvoice, updateInvoiceData, disabled } = useWHASupplyListVerifyInject()
 const { tableData } = useWHASupplyListVerifyTableInject()
@@ -49,7 +51,10 @@ const list = ref([
   {
     invoiceKey: 'Name',
     type: 'text',
-    status: 'pass'
+    status: 'pass',
+    save: (value: string, item: any) => {
+      emits('invoiceUpdate', value, item)
+    }
   },
   {
     label: t('workflowWarehouse.supplier'),
@@ -107,13 +112,17 @@ async function handleSave(value: string, item: any) {
   const payload = item.valueType === 'number' && value !== '' && value != null ? Number(value) : value
   const invoiceData: Record<string, any> = { [SGLA[item.invoiceKey]]: payload }
   if (item.invoiceKey === 'VendorId' && !!payload) {
-    const matched = SupplierList.value.find((opt) => String(opt.value) === String(payload))
+    const matched = SupplierList.value.find((opt) => String(opt.label) === String(payload) || String(opt.shortName) === String(payload))
     invoiceData[SGLA.VendorName] = matched?.label ?? null
   }
   const res = await updateInvoiceData(invoiceData)
-  setTimeout(() => {
-    item.status = res.result ? 'pass' : 'fail'
-  }, 1000)
+  if (item.save) {
+    await item.save(value, item)
+  } else {
+    setTimeout(() => {
+      item.status = res.result ? 'pass' : 'fail'
+    }, 1000)
+  }
 }
 async function handleBotton(value: string, item: any) {
   if (item.invoiceKey === 'DeliveryDate') {
@@ -163,7 +172,7 @@ async function getOrgList() {
     const { data } = await newClientApi.getWmsOrganizationList()
     OrgList.value = data
       .map((item: any) => ({
-        label: item.org_name || item.org_id,
+        label: item.organization_code || item.org_id,
         value: item.org_id
       }))
       .filter((item) => item.value)
@@ -172,28 +181,15 @@ async function getOrgList() {
   } finally {
   }
 }
-function syncSelectField(field: keyof typeof SGLA, options: { label: string; value: string | number; shortName?: string }[]) {
-  const invoice = selectedInvoice.value
-  if (!invoice || !options.length) return
-  const current = invoice[SGLA[field]]
-  if (current == null || current === '') return
-  const currentStr = String(current)
-  const matched = options.find((opt) => {
-    if (String(opt.value) === currentStr || String(opt.label) === currentStr) return true
-    // VendorId 历史数据可能存的是 short_name
-    if (field === 'VendorId' && opt.shortName != null && String(opt.shortName) === currentStr) return true
-    return false
-  })
-  invoice[SGLA[field]] = matched ? matched.value : ''
-}
-
 watch(
   [() => selectedInvoice.value?.id, SupplierList, OrgList],
   () => {
-    syncSelectField('VendorId', SupplierList.value)
-    syncSelectField('Org', OrgList.value)
+    const invoice = selectedInvoice.value
+    if (!invoice) return
+    if (invoice[SGLA.VendorId] && SupplierList.value.length) invoice[SGLA.VendorId] = syncSelectField(invoice[SGLA.VendorId], SupplierList.value)
+    if (invoice[SGLA.Org] && OrgList.value.length) invoice[SGLA.Org] = syncSelectField(invoice[SGLA.Org], OrgList.value)
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 onMounted(async () => {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { newAdminApi } from 'api'
-import { getUserSelectOption } from '@packages/base/composables/usePermissionOption'
+import { gatewayApi, newAdminApi } from 'api'
+import { getGroupsSelectOption } from '@packages/base/composables/usePermissionOption'
 
 const emits = defineEmits(['update'])
 const { getVariablesByDisplayTypes } = useVariablesProvide()
@@ -11,49 +11,70 @@ const arrayStringVariablesList = computed(() => {
 const fileVariablesList = computed(() => {
   return getVariablesByDisplayTypes(['file'], true)
 })
+
 const allVariablesList = computed(() => {
   return getVariablesByDisplayTypes([], true)
 })
+
 const emailRecipient = ref<any[]>([])
+const userGroupOption = ref<any[]>([])
 const emailTemplateList = ref<any[]>([])
 const emailVariablesList = ref<any[]>([])
 const { config } = defineProps<{
   config: {
     http_request: {
-      body: {
-        tos: string[]
-        ccs: string[]
-        templateId: string
-        attachmentsFilePath: string
-        variables: any
-      }
+      url: string
+      method: string
       headers: {
         'Content-Type': string
         ServerKey: string
         ServerName: string
         'x-api-key': string
       }
-      method: string
-      url: string
+      body: {
+        tos: string[] | ''
+        ccs: string[] | ''
+        toGroupNames: string[]
+        ccGroupNames: string[]
+        documentIds: string[]
+        templateId: string
+        variables: any
+        subject?: string
+        text?: string
+      }
     }
     input_mapping: {}
     output_mapping: {}
   }
 }>()
 const formData = ref<{
-  tos: string[]
-  ccs: string[]
+  tos: string[] | ''
+  ccs: string[] | ''
+  toGroupNames: string[]
+  ccGroupNames: string[]
+  documentIds: string[]
   templateId: string
-  attachmentsFilePath: string
   variables: any
-}>()
+  subject?: string
+  text?: string
+}>({
+  tos: [],
+  ccs: [],
+  toGroupNames: [],
+  ccGroupNames: [],
+  documentIds: [],
+  templateId: '',
+  variables: {},
+  subject: '',
+  text: ''
+})
 const tosIsArray = ref<boolean>(false)
-const cssIsArray = ref<boolean>(false)
+const ccIsArray = ref<boolean>(false)
 
 async function initForm() {
   formData.value = config.http_request.body
   tosIsArray.value = typeof formData.value.tos === 'string'
-  cssIsArray.value = typeof formData.value.ccs === 'string'
+  ccIsArray.value = typeof formData.value.ccs === 'string'
   await getEmailVariablesList()
 
   // reset emailVariablesList item value
@@ -80,8 +101,10 @@ function updateData() {
   const data = {
     tos: formData.value.tos,
     ccs: formData.value.ccs,
+    toGroupNames: formData.value.toGroupNames,
+    ccGroupNames: formData.value.ccGroupNames,
+    documentIds: formData.value.documentIds,
     templateId: formData.value.templateId,
-    attachmentsFilePath: formData.value.attachmentsFilePath,
     variables: map
   }
 
@@ -100,16 +123,17 @@ function updateData() {
 async function getEmailRecipient() {
   const stringAndArrayVariables = getVariablesByDisplayTypes(['text'], true)
 
-  const userList = await getUserSelectOption()
+  const userList = await gatewayApi.users.getUsersSelect({ value: 'email' }).then((res) => res.data)
   const map = userList.map((item: any) => ({
-    id: item.email,
+    id: item.value,
     name: item.label
   }))
 
   emailRecipient.value = [
-    { label: 'User', options: Array.from(new Map(map.map((x: any) => [x.id, x])).values()) },
+    { label: 'User', options: map },
     { label: 'Variables', options: stringAndArrayVariables }
   ]
+  userGroupOption.value = await getGroupsSelectOption()
 }
 
 async function getEmailTemplateList() {
@@ -131,11 +155,21 @@ async function getEmailVariablesList() {
     emailVariablesList.value = []
     return
   }
-  emailVariablesList.value = JSON.parse(find.emailTemplateVariable).map((key: string) => ({
-    id: key,
-    name: key,
-    value: ''
-  }))
+
+  emailVariablesList.value = JSON.parse(find.emailTemplateVariable).map((key: string) => {
+    // TODO: 根據 Steve 反饋現在後端的 send email 的接口對與table類型的數據 只保留外層變量名
+    let id = key
+    if (key.includes(',')) {
+      const arrList = key.split(',')
+      id = arrList[0]
+    }
+
+    return {
+      id: id,
+      name: key,
+      value: ''
+    }
+  })
 }
 
 onMounted(() => {
@@ -156,11 +190,6 @@ watch(
 
 <template>
   <el-form label-position="top">
-    <el-form-item label="Template ID">
-      <el-select v-model="formData.templateId" filterable @change="handleEmailTemplateChange">
-        <el-option v-for="item in emailTemplateList" :key="item.id" :label="item.label" :value="item.id" />
-      </el-select>
-    </el-form-item>
     <el-form-item label="TOS" class="tos-form-item">
       <template #label>
         <div class="tos-form-item__label">
@@ -177,12 +206,17 @@ watch(
         <el-option v-for="item in arrayStringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
+    <el-form-item label="TO User Groups">
+      <el-select v-model="formData.toGroupNames" filterable multiple @change="updateData">
+        <el-option v-for="item in userGroupOption" :key="item.value" :label="item.label" :value="item.label" />
+      </el-select>
+    </el-form-item>
     <el-form-item>
       <div class="tos-form-item__label">
-        <span>CSS</span>
-        <el-switch v-model="cssIsArray" active-text="Array" inactive-text="Single" />
+        <span>CC</span>
+        <el-switch v-model="ccIsArray" active-text="Array" inactive-text="Single" />
       </div>
-      <el-select v-if="!cssIsArray" v-model="formData.ccs" multiple filterable clearable @change="updateData">
+      <el-select v-if="!ccIsArray" v-model="formData.ccs" multiple filterable clearable @change="updateData">
         <el-option-group v-for="group in emailRecipient" :key="group.label" :label="group.label">
           <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
         </el-option-group>
@@ -191,13 +225,23 @@ watch(
         <el-option v-for="item in arrayStringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-    <el-form-item label="Attachments File Path">
-      <el-select v-model="formData.attachmentsFilePath" filterable clearable @change="updateData">
+    <el-form-item label="CC User Groups">
+      <el-select v-model="formData.ccGroupNames" filterable multiple @change="updateData">
+        <el-option v-for="item in userGroupOption" :key="item.value" :label="item.label" :value="item.label" />
+      </el-select>
+    </el-form-item>
+    <el-form-item label="Attachments File">
+      <el-select v-model="formData.documentIds" filterable multiple clearable @change="updateData">
         <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
 
     <el-divider />
+    <el-form-item label="Template ID">
+      <el-select v-model="formData.templateId" filterable @change="handleEmailTemplateChange">
+        <el-option v-for="item in emailTemplateList" :key="item.id" :label="item.label" :value="item.id" />
+      </el-select>
+    </el-form-item>
     <span>Variables</span>
     <template v-for="variable in emailVariablesList" :key="variable.id">
       <el-form-item :label="variable.name">

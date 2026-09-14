@@ -225,7 +225,20 @@ function messageFromParent(ev) {
   if (!ev || !ev.data) {
     return;
   }
-  const { blob, annotations, locale, colorMode, options } = ev.data;
+
+  const { blob, annotations, locale, colorMode, options, type } = ev.data;
+  if (type && type === 'search' && options.query) {
+    PDFViewerApplication.eventBus.dispatch("find", {
+      type: null,              // "" for new search, "again" for next/prev
+      query: options.query,
+      caseSensitive: false,
+      entireWord: false,
+      highlightAll: true,
+      matchDiacritics: false,
+      findPrevious: false,   // true = search backwards
+    });
+    return
+  }
   const urlCreator = window.URL || window.webkitURL;
   const url = urlCreator.createObjectURL(blob);
 

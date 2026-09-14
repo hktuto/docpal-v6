@@ -7,7 +7,7 @@ const pageKeys: any = {
 }
 const GetLanguageApi = async(locale: string, languageKey: string) => {
     const data: any = await newClientApi.getDmsFormPropertiesLanguageList({locale, languageKey}, {
-        headers: { 'noRouteErrorPage' : "true" }
+        headers: { 'noRouteErrorPage' : "true", "noAuth" : "true"  }
     }).then(res=>res.data)
     if(!!data && !!data[0]) return {
         ...data[0],
@@ -82,10 +82,10 @@ export const useLanguage = () => {
     }
     async function getLanguage (code:string, section:string) {
         console.log('getLanguage', code, section);
-        
+
         try {
             const res = await GetLanguageApi(code, section)
-            
+
             const flattenData = flattenJSON(res.languageContent, {})
             languageStores.set(getStoreKey(code, section), { ...res, _languageContent: flattenData })
             Object.keys(flattenData).forEach((key: string) => {
@@ -101,7 +101,7 @@ export const useLanguage = () => {
                 }
             })
         } catch (error) {
-            
+
         }
     }
     function flattenJSON (obj: any = {}, res: any = {}, extraKey = '') {
@@ -145,7 +145,7 @@ export const useLanguage = () => {
                 pList.push(handleSetLanguage(data, {code, section: row.section, key: row[code]}))
             }
         })
-        
+
         if (pList.length === 0) return
         let result = await Promise.all(pList)
         const locales: string[] = []
@@ -203,7 +203,7 @@ export const useLanguage = () => {
     }
     async function loadLanguage(locale: string) {
         console.log('loadLanguage');
-        
+
         if (locale.includes('en')) locale = 'en-US'
         if (locale.includes('zh') && locale !== 'zh-HK') locale = 'zh-CN'
         if (!i18n.availableLocales.includes(locale)) {
@@ -239,4 +239,3 @@ export const useLanguage = () => {
         loadLanguage
     }
 }
-

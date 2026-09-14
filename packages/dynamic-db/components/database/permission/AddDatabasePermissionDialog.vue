@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { clientApi, gatewayApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 type PermissionLevel = 'Member' | 'Manage'
 
 interface TargetOption {
@@ -52,11 +53,11 @@ async function loadTargets() {
 }
 
 async function loadUsers() {
-  const { data } = await clientApi.admin.postUcenterGetKeycloakAllUsers()
-  users.value = (data || []).map((u: any) => ({
-    id: u.userId,
-    username: u.username,
-    name: u.name || u.email || u.username
+  const data = await fetchUsersSelectSorted()
+  users.value = data.map((u) => ({
+    id: u.value,
+    username: u.label,
+    name: u.label
   }))
 }
 
@@ -72,10 +73,10 @@ async function loadRoles() {
 }
 
 async function loadGroups() {
-  const { data } = await clientApi.admin.postUcenterGroups()
+  const { data } = await gatewayApi.groups.getGroupsSelect()
   groups.value = (data || []).map((g: any) => ({
-    id: g.id,
-    name: g.name
+    id: g.value,
+    name: g.label
   }))
 }
 

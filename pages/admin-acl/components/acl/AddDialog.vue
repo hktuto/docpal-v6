@@ -9,7 +9,8 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { adminApi, gatewayApi } from 'api'
+import { fetchUsersSelectSorted } from '@packages/base/composables/usePermissionOption'
 import formJson from './acl.vform.json'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
@@ -75,18 +76,20 @@ function handleOptions() {
 }
 
 onMounted(async () => {
-  const data =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
-  state.userList = data || ([] as any)
-  state.userList.forEach((item: any) => {
-    item.value = item.userId
-    item.label = item.username
-  })
-  const groupResponse = await clientApi.api.postUcenterGroups()
-  state.groupList = groupResponse.data || ([] as any)
-  state.groupList.forEach((item: any) => {
-    item.value = item.id
-    item.label = item.name
-  })
+  const users = await fetchUsersSelectSorted()
+  state.userList = users.map((item) => ({
+    ...item,
+    id: item.value,
+    userId: item.value,
+    username: item.label,
+  }))
+  const groupResponse = await gatewayApi.groups.getGroupsSelect()
+  state.groupList = (groupResponse.data || []).map((item: any) => ({
+    ...item,
+    value: item.value,
+    label: item.label,
+    id: item.value,
+  }))
 })
 defineExpose({ handleOpen })
 </script>

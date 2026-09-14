@@ -2,7 +2,7 @@
   <div class="verification-table" v-loading="loading">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <WHASupplyListVerifyTableToolbar
+        <WHVerifyTableToolbar
           v-model="statusFilter"
           v-model:search="searchQuery"
           :counts="statusCounts"
@@ -12,16 +12,15 @@
         />
       </template>
     </VxeGrid>
-    <WHASupplyListVerifyTableEditColumn
-      :selectedColumn="selectedColumn"
-      v-model:batchEditDialogVisible="batchEditDialogVisible"
-      :applyBatchEdit="applyBatchEdit"
+    <WHBatchEditDialog
+      :selected-column="selectedColumn"
+      v-model:batch-edit-dialog-visible="batchEditDialogVisible"
+      :apply-batch-edit="applyBatchEdit"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-
 import { useWHASupplyListVerifyTableInject } from '../../../../composables/useWHASupplyListVerifyTable'
 import { useWHASupplyListVerifyInject } from '../../../../composables/useWHASupplyListVerify'
 
@@ -84,6 +83,11 @@ const { disabled, selectedInvoice } = useWHASupplyListVerifyInject()
   :deep(.vxe-body--row.wha-verify-row-highlight),
   :deep(.vxe-body--row.wha-verify-row-highlight .vxe-body--column) {
     background-color: var(--el-color-danger-light-7) !important;
+  }
+
+  :deep(.vxe-body--row.wha-verify-row-located),
+  :deep(.vxe-body--row.wha-verify-row-located .vxe-body--column) {
+    background-color: var(--el-color-warning-light-7) !important;
   }
 }
 

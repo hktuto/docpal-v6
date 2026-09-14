@@ -10,12 +10,11 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { groupProviderKey } from '~/util/userProvider'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const groupProvider = inject(groupProviderKey)
+const { createGroup } = useAdminGroup()
 const emits = defineEmits(['refresh'])
 const props = defineProps<{
   groups: any[]
@@ -34,13 +33,18 @@ async function handleSubmit() {
       return
     }
     // check group name exist
-    if (props.groups.some((g: any) => g.name === data.groupName || g.id === data.groupId)) {
+    if (
+      props.groups.some(
+        (g: any) =>
+          (g.groupName ?? g.name) === data.groupName || (g.groupId ?? g.id) === data.groupId
+      )
+    ) {
       ElMessage.error(t('user_userGroupsIsExistsMsg'))
       return
     }
     data.groupName = data.groupName.trim()
     state.loading = true
-    await groupProvider?.CreateGroupApi(data)
+    await createGroup(data)
     ElMessage.success(t('tip_createdMsg', {name:  t('user_NewUserGroup') }))
     state.visible = false
     FormRendererRef.value.vFormRenderRef.resetForm()
@@ -54,7 +58,9 @@ async function handleSubmit() {
 function handleOpen() {
   state.visible = true
   setTimeout(() => {
-    FormRendererRef.value.vFormRenderRef.optionData.exitGroups = props.groups.map((item) => item.name)
+    FormRendererRef.value.vFormRenderRef.optionData.exitGroups = props.groups.map(
+      (item) => item.groupName ?? item.name
+    )
   })
 }
 

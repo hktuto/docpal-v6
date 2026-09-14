@@ -4,7 +4,7 @@
       <div v-if="id">{{ $t('file.NoExist') }}</div>
     </template>
     <template v-else-if="state.fileType === 'application/pdf' && state.url">
-      <LazyReaderPdf v-bind="props" :no-annotation="!!annotations"></LazyReaderPdf>
+      <LazyReaderPdf v-bind="props" ref="readerRef" @ready="emits('ready')"" :no-annotation="!!annotations"></LazyReaderPdf>
     </template>
     <template
       v-else-if="
@@ -82,8 +82,18 @@ const state = reactive({
   url: '',
   fileType: ''
 })
+const emits = defineEmits(['ready'])
+
+const readerRef = ref()
 function handleDownload() {
   downloadBlob(props.blob, props.name, props.blob.type)
+}
+function search(query: string) {
+  if (state.fileType === 'application/pdf') {
+    if(readerRef.value && readerRef.value.search) {
+      readerRef.value.search(query)
+    }
+  }
 }
 watch(
   () => props.blob,
@@ -95,7 +105,7 @@ watch(
   },
   { immediate: true }
 )
-defineExpose({ handleDownload })
+defineExpose({ handleDownload, search})
 </script>
 
 <style lang="scss" scoped>

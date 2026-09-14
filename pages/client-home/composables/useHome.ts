@@ -1,4 +1,4 @@
-import { newClientApi } from 'api'
+import { newClientApi, gatewayApi } from 'api'
 import { useUserPreference } from '#imports'
 
 export const useHomeList = () => useState<any[]>('homeList', () => [])
@@ -24,15 +24,15 @@ export const useHomePage = () => {
       personal.name = 'PERSONAL'
       homeList.value = [personal, ...dashboardList]
       let storageHomeList = preference.value.userStoreHome || 'PERSONAL'
-      console.log('storageHomeList', storageHomeList, dashboardList)
+      console.log('storageHomeList', preference.value.userStoreHome, personal, dashboardList)
       // TODO : remove PERSONAL
-      if (!storageHomeList || storageHomeList === 'PERSONAL' && dashboardList[0] ) {
-        storageHomeList = dashboardList[0]?.id
+      if (storageHomeList === 'PERSONAL') {
+        await checkoutDashboard(personal)
+        loading.value = false
+        return
       }
       if (storageHomeList) {
-        console.log('storageHomeList', dashboardList)
         const detail = dashboardList.find((item: any) => item.id === storageHomeList)
-        console.log('detail', storageHomeList, dashboardList)
         if (detail) {
           await checkoutDashboard(detail)
         } else {
@@ -67,7 +67,8 @@ export const useHomePage = () => {
       currentHome.value.layout = []
     } finally {
       preference.value.userStoreHome = detail.id
-      await newClientApi.putDmsUserSetting(preference.value as any)
+      await gatewayApi.userSettings.putUserSettings({ settings: preference.value as any })
+
       loading.value = false
     }
   }

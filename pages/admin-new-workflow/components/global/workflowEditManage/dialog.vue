@@ -91,7 +91,7 @@ async function handleSubmit() {
         permissionLevel: 'default'
       },
       {
-        baseURL: '/gateway'
+        baseURL: '/apis'
       }
     )
 
@@ -105,7 +105,7 @@ async function handleSubmit() {
         permissionLevel: 'default'
       },
       {
-        baseURL: '/gateway'
+        baseURL: '/apis'
       }
     )
 

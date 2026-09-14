@@ -1,5 +1,4 @@
 import { createError, useState } from '#imports'
-import { FormWidgetProformaInvoiceInfo } from '#components'
 
 type FormRenderSlotsType = {
   name: string
@@ -38,6 +37,10 @@ export const useWorkflow = () => {
         component: 'FormWidgetCustomerVisitCustomerSelect'
       },
       {
+        name: 'customerVisitCustomerType',
+        component: 'FormWidgetCustomerVisitType'
+      },
+      {
         name: 'sampleRequestCustomerInfo',
         component: 'FormWidgetSampleRequestCustomerInfo'
       },
@@ -64,6 +67,10 @@ export const useWorkflow = () => {
       {
         name: 'sampleRequestSalespersonFollowUp',
         component: 'FormWidgetSampleRequestSalespersonFollowUp'
+      },
+      {
+        name: 'quotationApprovalCustomerSelect',
+        component: 'FormWidgetQuotationApprovalCustomerSelect'
       },
       {
         name: 'quotationApprovalSampleInfo',
@@ -108,6 +115,14 @@ export const useWorkflow = () => {
       {
         name: 'tnApprovalTable',
         component: 'FormWidgetTnApprovalTable'
+      },
+      {
+        name: 'tnApprovalCancel',
+        component: 'FormWidgetTnApprovalCancel'
+      },
+      {
+        name: 'reschedulePlanDate',
+        component: 'FormWidgetReschedulePlanDate'
       }
     ])
   )
