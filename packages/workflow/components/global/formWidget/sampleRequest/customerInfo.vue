@@ -27,7 +27,21 @@ const formModel = reactive(defaultFormModel())
 const rules = {
   cust_num: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerNumber') }), trigger: 'change' }],
   customerName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerName') }), trigger: 'change' }],
-  customerEnglishName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerEnglishName') }), trigger: 'change' }]
+  customerEnglishName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerEnglishName') }), trigger: 'change' }],
+  cust_email: [{ validator: validateEmail, trigger: 'blur' }]
+}
+
+function validateEmail(_rule: unknown, value: string, callback: (error?: Error) => void) {
+  if (!value) {
+    callback()
+    return
+  }
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailPattern.test(value)) {
+    callback(new Error(t('user_emailFormatError')))
+    return
+  }
+  callback()
 }
 
 const parties = ref<any[]>([])
@@ -221,7 +235,7 @@ defineExpose({ getFormData })
         <el-form-item :label="t('sampleRequest.customerWebsite')">
           <el-input v-model="formModel.cust_website" />
         </el-form-item>
-        <el-form-item :label="t('sampleRequest.customerEmail')">
+        <el-form-item :label="t('sampleRequest.customerEmail')" prop="cust_email">
           <el-input v-model="formModel.cust_email" />
         </el-form-item>
       </el-col>

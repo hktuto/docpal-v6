@@ -166,7 +166,7 @@ defineExpose({ getFormData })
             <el-form-item :label="t('sampleRequest.salesAdmin')">
               <el-input v-model="item.sales_admin" />
             </el-form-item>
-            <el-form-item :label="t('sampleRequest.etd')" required :prop="`list.${index}.etd`" :rules="rules.etd">
+            <el-form-item :label="t('sampleRequest.etd')" :prop="`list.${index}.etd`" :rules="rules.etd">
               <el-date-picker v-model="item.etd" type="date" placeholder="Pick a day" :clearable="false" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
@@ -175,7 +175,7 @@ defineExpose({ getFormData })
             <el-form-item :label="t('sampleRequest.vendorAttn')">
               <el-input v-model="item.vendor_attn" />
             </el-form-item>
-            <el-form-item :label="t('sampleRequest.eta')" required :prop="`list.${index}.eta`" :rules="rules.eta">
+            <el-form-item :label="t('sampleRequest.eta')" :prop="`list.${index}.eta`" :rules="rules.eta">
               <el-date-picker v-model="item.eta" type="date" placeholder="Pick a day" :clearable="false" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>

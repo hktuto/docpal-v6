@@ -46,7 +46,10 @@ const rules = {
   series: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.series') }), trigger: 'change' }],
   part_number: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.partNumber') }), trigger: 'change' }],
   remarks: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.remarks') }), trigger: 'change' }],
-  car_use: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.carUse') }), trigger: 'change' }]
+  car_use: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.carUse') }), trigger: 'change' }],
+  fcst_qty: [{ required: true, type: 'number', message: t('render.hint.fieldRequired', { name: t('sampleRequest.monthlyUsage') }), trigger: 'change' }],
+  request_qty: [{ required: true, type: 'number', message: t('render.hint.fieldRequired', { name: t('sampleRequest.requestQty') }), trigger: 'change' }],
+  pcs_unit: [{ required: true, type: 'number', message: t('render.hint.fieldRequired', { name: t('sampleRequest.pcsUnit') }), trigger: 'change' }]
 }
 
 function handleAdd(index?: number) {
@@ -205,8 +208,8 @@ defineExpose({ getFormData })
             <el-form-item :label="t('sampleRequest.brand')">
               <el-input v-model="item.vendor" disabled />
             </el-form-item>
-            <el-form-item :label="t('sampleRequest.pcsUnit')">
-              <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" :step="1" step-strictly />
+            <el-form-item :label="t('sampleRequest.pcsUnit')" :prop="`list.${index}.pcs_unit`" :rules="rules.pcs_unit" required>
+              <el-input-number v-model="item.pcs_unit" controls-position="right" :min="1" :step="1" step-strictly :value-on-clear="null" />
             </el-form-item>
             <el-form-item v-if="checkPurpose(item.vendor)" :label="t('sampleRequest.purpose')" :prop="`list.${index}.purpose`" :rules="rules.purpose" required>
               <el-select v-model="item.purpose">
@@ -254,8 +257,8 @@ defineExpose({ getFormData })
               </div>
             </el-form-item>
 
-            <el-form-item :label="t('sampleRequest.monthlyUsage')">
-              <el-input-number v-model="item.fcst_qty" controls-position="right" :min="1" :step="1" step-strictly>
+            <el-form-item :label="t('sampleRequest.monthlyUsage')" :prop="`list.${index}.fcst_qty`" :rules="rules.fcst_qty" required>
+              <el-input-number v-model="item.fcst_qty" controls-position="right" :min="1" :step="1" step-strictly :value-on-clear="null">
                 <template #suffix>
                   <span>K/M</span>
                 </template>
@@ -264,8 +267,8 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="8">
-            <el-form-item :label="t('sampleRequest.requestQty')">
-              <el-input-number v-model="item.request_qty" controls-position="right" :min="1" :step="1" step-strictly />
+            <el-form-item :label="t('sampleRequest.requestQty')" :prop="`list.${index}.request_qty`" :rules="rules.request_qty" required>
+              <el-input-number v-model="item.request_qty" controls-position="right" :min="1" :step="1" step-strictly :value-on-clear="null" />
             </el-form-item>
             <el-form-item :label="t('sampleRequest.customerMonthlyUsage')">
               <el-input-number v-model="item.run_rate" controls-position="right" :min="1" :step="1" step-strictly>

@@ -106,7 +106,7 @@ defineExpose({ getFormData })
               <el-input v-model="item.sales_admin" disabled />
             </el-form-item>
 
-            <el-form-item :label="t('sampleRequest.receivedDate')" required :prop="`list.${index}.received_date`">
+            <el-form-item :label="t('sampleRequest.receivedDate')" :prop="`list.${index}.received_date`" :rules="rules.received_date">
               <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
@@ -115,7 +115,7 @@ defineExpose({ getFormData })
             <el-form-item :label="t('sampleRequest.vendorAttn')">
               <el-input v-model="item.vendor_attn" disabled />
             </el-form-item>
-            <el-form-item :label="t('sampleRequest.actualReceivedQty')" required :prop="`list.${index}.actual_received_qty`">
+            <el-form-item :label="t('sampleRequest.actualReceivedQty')" :prop="`list.${index}.actual_received_qty`" :rules="rules.actual_received_qty">
               <el-input-number v-model="item.actual_received_qty" controls-position="right" :min="1" :step="1" step-strictly value-on-clear="min" />
             </el-form-item>
           </el-col>
