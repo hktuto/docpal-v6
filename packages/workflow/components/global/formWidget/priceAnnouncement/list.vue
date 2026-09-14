@@ -40,7 +40,7 @@ const currencyOptions = ref([
   { label: 'USD', value: 'USD' }
 ])
 const seriesOptions = ref<any[]>([])
-const partNumberOptions = ref<any[]>([])
+const partNumberOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
 const formModel = reactive({
   priceAnnouncementNumber: '',
   brand: 'ABBYY',
@@ -287,10 +287,11 @@ async function getPartNumber(series?: string, partNumber?: string) {
       .then((r: any) => r.data.items)
     if (!data?.length) return
 
-    partNumberOptions.value = data.map((item: any) => ({
+    const value = data.map((item: any) => ({
       label: item.vendor_item_no,
       value: item.vendor_item_no
     }))
+    partNumberOptions.value = [...value, ...partNumberOptions.value]
   } catch (e) {
     console.log(e)
   }
@@ -354,8 +355,7 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
     } else {
       const parsedDate = parseEffectiveDate(effectiveDateField[1])
       const minEffectiveDate = dayjs().add(1, 'day')
-      formModel.effectiveDate =
-        parsedDate && dayjs(parsedDate).isAfter(dayjs(), 'day') ? parsedDate : minEffectiveDate.format('YYYY-MM-DD')
+      formModel.effectiveDate = parsedDate && dayjs(parsedDate).isAfter(dayjs(), 'day') ? parsedDate : minEffectiveDate.format('YYYY-MM-DD')
     }
 
     tableData.value = rows

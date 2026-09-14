@@ -58,6 +58,7 @@ const data = toRef(formModel.value, 'infoList')
 const brandOptions = ref<any[]>([])
 const part_numberOptions = ref([])
 const rules = {
+  brand: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.brand') }), trigger: 'change' }],
   part_number: [
     { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.partNumber') }), trigger: 'change' },
     {
@@ -367,7 +368,7 @@ defineExpose({ getFormData })
   <el-form ref="formRef" label-position="top" :model="formModel">
     <el-row>
       <el-col :span="8">
-        <el-form-item :label="t('quotationApproval.brand')" prop="brand" required>
+        <el-form-item :label="t('quotationApproval.brand')" prop="brand" :rules="rules.brand" required>
           <el-select v-model="formModel.brand" class="full-width-input" clearable filterable :disabled="data.length > 0" @change="handleChangeBrand">
             <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.lable" :value="item.value" />
           </el-select>
