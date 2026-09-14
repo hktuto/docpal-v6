@@ -26,7 +26,13 @@
       </el-form-item>
 
       <el-form-item label="Category Field (Slices)">
-        <el-select v-model="form.categoryField" placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
+        <el-select
+          v-model="form.categoryField"
+          placeholder="Select field"
+          style="width: 100%"
+          :loading="fieldsLoading"
+          @change="handleCategoryFieldChange"
+        >
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
@@ -57,6 +63,11 @@
 <script setup lang="ts">
 import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
 import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
+import {
+  buildFieldTypeMeta,
+  createEmptyFieldTypeMeta,
+  type FieldTypeMeta
+} from '../../utils/dashboardFieldMeta'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
@@ -86,6 +97,7 @@ const form = reactive({
   tableId: '',
   chartType: 'pie',
   categoryField: '',
+  categoryFieldMeta: createEmptyFieldTypeMeta() as FieldTypeMeta,
   valueField: '',
   aggregation: 'count',
   rowLimit: 20,
@@ -101,9 +113,29 @@ const form = reactive({
   footer: ''
 })
 
+function findField(fieldName: string) {
+  return fields.value.find((f: any) => f.field_name === fieldName)
+}
+
+function syncCategoryFieldMeta(fieldName: string, keepPrev = false) {
+  if (!fieldName) {
+    form.categoryFieldMeta = createEmptyFieldTypeMeta()
+    return
+  }
+  form.categoryFieldMeta = buildFieldTypeMeta(
+    findField(fieldName),
+    keepPrev ? form.categoryFieldMeta : undefined
+  )
+}
+
+function handleCategoryFieldChange(fieldName: string) {
+  syncCategoryFieldMeta(fieldName)
+}
+
 async function handleTableChange(tableId: string) {
   form.categoryField = ''
   form.valueField = ''
+  syncCategoryFieldMeta('')
   await loadFields(tableId)
 }
 
@@ -111,24 +143,32 @@ watch(
   () => visible.value,
   async (isVisible) => {
     if (isVisible) {
-      form.tableId = setting.value.tableId || ''
-      form.chartType = setting.value.chartType || 'pie'
-      form.categoryField = setting.value.categoryField || ''
-      form.valueField = setting.value.valueField || ''
-      form.aggregation = setting.value.aggregation || 'count'
-      form.rowLimit = setting.value.rowLimit || 20
-      form.label = setting.value.label || ''
-      form.appearance = {
-        innerRadius: setting.value.appearance?.innerRadius ?? (setting.value.chartType === 'donut' ? 40 : 0),
-        outerRadius: setting.value.appearance?.outerRadius ?? 70,
-        showPercentage: setting.value.appearance?.showPercentage ?? true,
-        showAbsolute: setting.value.appearance?.showAbsolute ?? true,
-        bucketThreshold: setting.value.appearance?.bucketThreshold ?? 0
+      const raw = setting.value
+      form.tableId = raw.tableId || ''
+      form.chartType = raw.chartType || 'pie'
+      form.categoryField = raw.categoryField || ''
+      form.categoryFieldMeta = {
+        businessType: raw.categoryFieldMeta?.businessType || '',
+        dateFormat: raw.categoryFieldMeta?.dateFormat || ''
       }
-      form.subtitle = setting.value.subtitle || ''
-      form.footer = setting.value.footer || ''
+      form.valueField = raw.valueField || ''
+      form.aggregation = raw.aggregation || 'count'
+      form.rowLimit = raw.rowLimit || 20
+      form.label = raw.label || ''
+      form.appearance = {
+        innerRadius: raw.appearance?.innerRadius ?? (raw.chartType === 'donut' ? 40 : 0),
+        outerRadius: raw.appearance?.outerRadius ?? 70,
+        showPercentage: raw.appearance?.showPercentage ?? true,
+        showAbsolute: raw.appearance?.showAbsolute ?? true,
+        bucketThreshold: raw.appearance?.bucketThreshold ?? 0
+      }
+      form.subtitle = raw.subtitle || ''
+      form.footer = raw.footer || ''
       if (form.tableId) {
         await loadFields(form.tableId)
+        if (form.categoryField && !form.categoryFieldMeta.businessType) {
+          syncCategoryFieldMeta(form.categoryField, true)
+        }
       }
     }
   }
@@ -139,6 +179,7 @@ function handleSubmit() {
     tableId: form.tableId,
     chartType: form.chartType,
     categoryField: form.categoryField,
+    categoryFieldMeta: { ...form.categoryFieldMeta },
     valueField: form.valueField,
     aggregation: form.aggregation,
     rowLimit: form.rowLimit,
