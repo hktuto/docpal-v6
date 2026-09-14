@@ -8,13 +8,25 @@
       </el-form-item>
 
       <el-form-item label="Row Field">
-        <el-select v-model="form.rowField" placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
+        <el-select
+          v-model="form.rowField"
+          placeholder="Select field"
+          style="width: 100%"
+          :loading="fieldsLoading"
+          @change="handleRowFieldChange"
+        >
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="Column Field">
-        <el-select v-model="form.columnField" placeholder="Select field" style="width: 100%" :loading="fieldsLoading">
+        <el-select
+          v-model="form.columnField"
+          placeholder="Select field"
+          style="width: 100%"
+          :loading="fieldsLoading"
+          @change="handleColumnFieldChange"
+        >
           <el-option v-for="f in fields" :key="f.field_name" :label="f.field_name_alias || f.field_name" :value="f.field_name" />
         </el-select>
       </el-form-item>
@@ -55,6 +67,11 @@
 <script setup lang="ts">
 import { useWidgetSetting } from '../../composables/dashboard/useWidgetSetting'
 import { useWidgetTableFields } from '../../composables/dashboard/useWidgetTableFields'
+import {
+  buildFieldTypeMeta,
+  createEmptyFieldTypeMeta,
+  type FieldTypeMeta
+} from '../../utils/dashboardFieldMeta'
 
 const emit = defineEmits(['refresh', 'delete'])
 const { visible, setting, handleOpen, handleSubmit: baseSubmit, handleDelete, handleClose } = useWidgetSetting(emit)
@@ -71,7 +88,9 @@ const aggregationOptions = [
 const form = reactive({
   tableId: '',
   rowField: '',
+  rowFieldMeta: createEmptyFieldTypeMeta() as FieldTypeMeta,
   columnField: '',
+  columnFieldMeta: createEmptyFieldTypeMeta() as FieldTypeMeta,
   valueField: '',
   aggregation: 'sum',
   label: '',
@@ -79,27 +98,76 @@ const form = reactive({
   footer: ''
 })
 
+function findField(fieldName: string) {
+  return fields.value.find((f: any) => f.field_name === fieldName)
+}
+
+function syncRowFieldMeta(fieldName: string, keepPrev = false) {
+  if (!fieldName) {
+    form.rowFieldMeta = createEmptyFieldTypeMeta()
+    return
+  }
+  form.rowFieldMeta = buildFieldTypeMeta(
+    findField(fieldName),
+    keepPrev ? form.rowFieldMeta : undefined
+  )
+}
+
+function syncColumnFieldMeta(fieldName: string, keepPrev = false) {
+  if (!fieldName) {
+    form.columnFieldMeta = createEmptyFieldTypeMeta()
+    return
+  }
+  form.columnFieldMeta = buildFieldTypeMeta(
+    findField(fieldName),
+    keepPrev ? form.columnFieldMeta : undefined
+  )
+}
+
+function handleRowFieldChange(fieldName: string) {
+  syncRowFieldMeta(fieldName)
+}
+
+function handleColumnFieldChange(fieldName: string) {
+  syncColumnFieldMeta(fieldName)
+}
+
 async function handleTableChange(tableId: string) {
   form.rowField = ''
   form.columnField = ''
   form.valueField = ''
+  syncRowFieldMeta('')
+  syncColumnFieldMeta('')
   await loadFields(tableId)
+}
+
+function restoreFieldMeta(raw: any, key: 'rowFieldMeta' | 'columnFieldMeta'): FieldTypeMeta {
+  return {
+    businessType: raw?.[key]?.businessType || '',
+    dateFormat: raw?.[key]?.dateFormat || ''
+  }
 }
 
 watch(
   () => visible.value,
   async (isVisible) => {
     if (isVisible) {
-      form.tableId = setting.value.tableId || ''
-      form.rowField = setting.value.rowField || ''
-      form.columnField = setting.value.columnField || ''
-      form.valueField = setting.value.valueField || ''
-      form.aggregation = setting.value.aggregation || 'sum'
-      form.label = setting.value.label || ''
-      form.subtitle = setting.value.subtitle || ''
-      form.footer = setting.value.footer || ''
+      const raw = setting.value
+      form.tableId = raw.tableId || ''
+      form.rowField = raw.rowField || ''
+      form.rowFieldMeta = restoreFieldMeta(raw, 'rowFieldMeta')
+      form.columnField = raw.columnField || ''
+      form.columnFieldMeta = restoreFieldMeta(raw, 'columnFieldMeta')
+      form.valueField = raw.valueField || ''
+      form.aggregation = raw.aggregation || 'sum'
+      form.label = raw.label || ''
+      form.subtitle = raw.subtitle || ''
+      form.footer = raw.footer || ''
+
       if (form.tableId) {
         await loadFields(form.tableId)
+        if (form.rowField && !form.rowFieldMeta.businessType) syncRowFieldMeta(form.rowField, true)
+        if (form.columnField && !form.columnFieldMeta.businessType) syncColumnFieldMeta(form.columnField, true)
       }
     }
   }
@@ -109,7 +177,9 @@ function handleSubmit() {
   baseSubmit({
     tableId: form.tableId,
     rowField: form.rowField,
+    rowFieldMeta: { ...form.rowFieldMeta },
     columnField: form.columnField,
+    columnFieldMeta: { ...form.columnFieldMeta },
     valueField: form.valueField,
     aggregation: form.aggregation,
     label: form.label,

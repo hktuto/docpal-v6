@@ -421,7 +421,15 @@ export const useDbDashboardWidgetSetting = () => useState<any>('dbDashboardWidge
     setting: {
       tableId: '',
       rowField: '',
+      rowFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       columnField: '',
+      columnFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       valueField: '',
       aggregation: 'sum',
       subtitle: '',
