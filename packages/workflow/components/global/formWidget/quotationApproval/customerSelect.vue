@@ -36,7 +36,19 @@ const rules = {
     { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerEmail') }), trigger: 'blur' },
     { type: 'email', message: t('user_emailFormatError'), trigger: 'blur' }
   ],
-  customer_background: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerBackground') }), trigger: 'change' }]
+  customer_background: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerBackground') }), trigger: 'change' }],
+  end_user: [
+    {
+      validator: (_rule, value, callback) => {
+        if (formModel.customer_background === 'OEM' && (!value || String(value).trim() === '')) {
+          callback(new Error(t('render.hint.fieldRequired', { name: t('quotationApproval.endUser') })))
+          return
+        }
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ]
 }
 
 const parties = ref<any[]>([])
@@ -49,6 +61,16 @@ function resetFormModel() {
   const checkCustomer = formModel.check_customer
   Object.assign(formModel, defaultFormModel())
   formModel.check_customer = checkCustomer
+}
+
+function handleCustomerBackgroundChange() {
+  nextTick(() => {
+    if (formModel.customer_background !== 'OEM') {
+      formRef.value?.clearValidate('end_user')
+      return
+    }
+    formRef.value?.validateField('end_user')
+  })
 }
 
 async function searchName(query?: string) {
@@ -280,7 +302,11 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="6">
         <el-form-item :label="t('quotationApproval.customerBackground')" prop="customer_background">
-          <el-select v-model="formModel.customer_background" :placeholder="t('quotationApproval.selectOptionRequired')">
+          <el-select
+            v-model="formModel.customer_background"
+            :placeholder="t('quotationApproval.selectOptionRequired')"
+            @change="handleCustomerBackgroundChange"
+          >
             <el-option value="OEM">OEM</el-option>
             <el-option value="ODM">ODM</el-option>
             <el-option value="Trading">Trading</el-option>
