@@ -401,6 +401,10 @@ export const useDbDashboardWidgetSetting = () => useState<any>('dbDashboardWidge
     setting: {
       tableId: '',
       categoryField: '',
+      categoryFieldMeta: {
+        businessType: '',
+        dateFormat: ''
+      },
       valueField: '',
       aggregation: 'sum',
       limit: 10,
