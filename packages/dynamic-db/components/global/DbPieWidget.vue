@@ -24,8 +24,14 @@ import * as echarts from 'echarts/core'
 import { PieChart } from 'echarts/charts'
 import { TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { formatDateTime } from '@packages/dp-mdTable/utils/fieldValueFormat'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import {
+  isDateBusinessType,
+  normalizeBusinessType,
+  resolveDateFormat
+} from '../../utils/dashboardFieldMeta'
 import DbWidgetEmptyState from './DbWidgetEmptyState.vue'
 
 // Register required modules
@@ -72,24 +78,35 @@ function fieldLabel(fieldName: string): string {
   return fieldMetaMap.value[fieldName]?.field_name_alias || fieldName
 }
 
+const config = computed(() => props.setting || {})
+
 /**
  * Resolve a raw category value to a display label.
- * For SingleSelect/MultiSelect fields, maps option IDs to their labels.
+ * Handles Date / SingleSelect / MultiSelect fields.
  */
 function resolveCategoryLabel(rawValue: any, fieldMeta: any): string {
   if (rawValue == null || rawValue === '') return 'Unknown'
 
-  const type = fieldMeta?.business_type
-  const options = fieldMeta?.display_structure?.options
+  const savedMeta = config.value.categoryFieldMeta
+  const businessType = normalizeBusinessType(savedMeta?.businessType || fieldMeta?.business_type)
 
+  if (isDateBusinessType(businessType)) {
+    const dateFormat = resolveDateFormat(fieldMeta, savedMeta?.dateFormat)
+    return formatDateTime(rawValue, {
+      ...(fieldMeta?.display_structure || {}),
+      dateFormat
+    })
+  }
+
+  const options = fieldMeta?.display_structure?.options
   if (!Array.isArray(options)) return String(rawValue)
 
-  if (type === '3' || type === 'SingleSelect') {
+  if (businessType === '3' || businessType === 'SingleSelect') {
     const option = options.find((opt: any) => opt.id === rawValue)
     return option?.label || String(rawValue)
   }
 
-  if (type === '4' || type === 'MultiSelect') {
+  if (businessType === '4' || businessType === 'MultiSelect') {
     const ids = Array.isArray(rawValue) ? rawValue : [rawValue]
     const labels = ids
       .map((id: string) => {
@@ -102,8 +119,6 @@ function resolveCategoryLabel(rawValue: any, fieldMeta: any): string {
 
   return String(rawValue)
 }
-
-const config = computed(() => props.setting || {})
 
 const chartTitle = computed(() => {
   const { label, categoryField } = config.value
@@ -272,6 +287,7 @@ watch(
   () => [
     props.setting?.tableId,
     props.setting?.categoryField,
+    props.setting?.categoryFieldMeta,
     props.setting?.valueField,
     props.setting?.aggregation,
     props.setting?.chartType,
@@ -282,7 +298,7 @@ watch(
   () => {
     fetchData()
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 useDashboardLiveUpdate(
