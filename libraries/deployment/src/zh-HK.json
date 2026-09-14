@@ -5164,7 +5164,7 @@
     "downloadExcelTemplate": "下載 Excel 模板",
     "searchAcrossAllColumns": "搜尋所有欄",
     "quantity": "數量",
-    "addRow": "新增列",
+    "addRow": "新增行",
     "delete": "刪除",
     "deleteSelected": "刪除所選 {count}",
     "pleaseSelectParts": "請選擇需要公告的零件",
