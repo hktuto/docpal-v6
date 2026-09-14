@@ -4976,7 +4976,7 @@
     "targetPriceMustLowerThanPrevious": "目标价必须低于上一档"
   },
   "customerVisit": {
-    "customerVisitInfo": "访客信息",
+    "customerVisitType": "访客类型",
     "visitorType": "访客类型",
     "regularVisitor": "普通访客",
     "jointVisitor": "联合访客",

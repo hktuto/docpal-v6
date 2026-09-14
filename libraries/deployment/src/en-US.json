@@ -5080,7 +5080,7 @@
     "targetPriceMustLowerThanPrevious": "Target price must be lower than the previous tier"
   },
   "customerVisit": {
-    "customerVisitInfo":"Customer Visit Info",
+    "customerVisitType":"Customer Visit Type",
     "visitorType": "Visitor Type",
     "regularVisitor":"Regular Visitor",
     "jointVisitor":"Joint Visitors",

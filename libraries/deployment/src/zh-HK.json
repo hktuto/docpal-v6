@@ -5048,7 +5048,7 @@
     "targetPriceMustLowerThanPrevious": "目標價必須低於上一檔"
   },
   "customerVisit": {
-    "customerVisitInfo": "訪客信息",
+    "customerVisitType": "訪客類型",
     "visitorType": "訪客類型",
     "regularVisitor": "普通訪客",
     "jointVisitor": "聯合訪客",
