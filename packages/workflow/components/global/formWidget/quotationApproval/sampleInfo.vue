@@ -74,7 +74,9 @@ const rules = {
     }
   ],
   product_application: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.productApplication') }), trigger: 'blur' }],
-  monthly_quantity: [{ required: true, type: 'number', message: t('render.hint.fieldRequired', { name: t('quotationApproval.monthlyQuantity') }), trigger: 'change' }],
+  monthly_quantity: [
+    { required: true, type: 'number', message: t('render.hint.fieldRequired', { name: t('quotationApproval.monthlyQuantity') }), trigger: 'change' }
+  ],
   old_sales_price_noTax: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.oldSalesPriceNoTax') }), trigger: 'blur' }]
 }
 
@@ -370,7 +372,7 @@ defineExpose({ getFormData })
       <el-col :span="8">
         <el-form-item :label="t('quotationApproval.brand')" prop="brand" :rules="rules.brand" required>
           <el-select v-model="formModel.brand" class="full-width-input" clearable filterable :disabled="data.length > 0" @change="handleChangeBrand">
-            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.lable" :value="item.value" />
+            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-col>
@@ -411,7 +413,11 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="8">
-            <el-form-item :label="t('quotationApproval.productApplication')" :prop="`infoList.${index}.product_application`" :rules="rules.product_application" required>
+            <el-form-item
+              :label="t('quotationApproval.productApplication')"
+              :prop="`infoList.${index}.product_application`"
+              :rules="rules.product_application"
+            >
               <el-input v-model="item.product_application" />
             </el-form-item>
             <el-form-item :label="t('quotationApproval.mpq')" prop="mpq">
