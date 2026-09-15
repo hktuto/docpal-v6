@@ -441,7 +441,9 @@ function handleAmount(row: any) {
   const amount = new Decimal(qty || 0).mul(unit_price || 0).toNumber()
   row.amount = amount
 
-  saveLine(row.id)
+  if (!!row.id) {
+    saveLine(row.id)
+  }
   return amount
 }
 
@@ -468,15 +470,15 @@ async function saveLine(id: string) {
     office: item.office
   }
 
-  const list = [...row]
+  const list: any[] = []
+  list.push(row)
 
   const raw = {
     batch_id: batch_id.value,
     org_id: userInfo.value.org_id,
     lines: list
   }
-
-  await clientApi.instance.post(`/api/tn/lines`, raw).then((r) => r.data)
+  await clientApi.instance.put(`/api/tn/lines`, raw).then((r) => r.data)
 }
 
 async function getFormData(needValidation = true) {
