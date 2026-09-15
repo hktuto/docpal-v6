@@ -2,13 +2,14 @@
 import { ElMessage } from 'element-plus'
 import { clientApi } from 'api'
 import dayjs from 'dayjs'
+import { v7 as uuidv7 } from 'uuid'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
   options: any
 }>()
-
+const routerProvider = inject(MenuRouterKey)
 const formRef = ref()
 const dataList = ref<any[]>([])
 const tnApprovalDialogRef = ref()
@@ -20,14 +21,16 @@ const formModel = reactive({
 })
 const isGitSearch = ref<boolean>(true)
 const remark = ref<string>('')
+const batch_id = ref<string>('')
 const userInfo = ref<any>({
   user: '',
-  office: ''
+  office: '',
+  org_id: ''
 })
 const toPlannedDate = ref<string>('')
 const search = reactive({
-  gitDate: '',
-  brand: '',
+  gitDate: dayjs().format('YYYY-MM-DD'),
+  brand: 'ABBYY',
   partNumber: '',
   poNumber: ''
 })
@@ -79,9 +82,10 @@ async function init() {
 
     if (user.org.length > 0) {
       userInfo.value.office = user.org[0].organizationCode
+      userInfo.value.org_id = user.org[0].operatingId
     }
   }
-  toPlannedDate.value = dayjs().format('YYYY-MMM-DD')
+  toPlannedDate.value = dayjs().format('YYYY-MM-DD')
 
   await getOffice()
   await getInventory()
@@ -89,39 +93,56 @@ async function init() {
 }
 
 async function getOffice() {
-  officeOption.value = await clientApi.instance.get(`/apis/v1/ms/oracle/order-info/offices`).then((r: any) => r.data.items)
+  try {
+    officeOption.value = await clientApi.instance.get(`/apis/v1/ms/oracle/order-info/offices`).then((r: any) => r.data.items)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function getInventory() {
-  const inventoryList: any = await clientApi.instance.get(`/apis/v1/ms/oracle/warehouses?active_only=true&limit=500`).then((r: any) => r.data.items)
-  subInventoryOption.value = inventoryList.map((item: any) => ({
-    label: item.warehouse_code,
-    value: item.warehouse_code,
-    organization_code: item.organization_code
-  }))
+  try {
+    const inventoryList: any = await clientApi.instance.get(`/apis/v1/ms/oracle/warehouses?active_only=true&limit=500`).then((r: any) => r.data.items)
+    subInventoryOption.value = inventoryList.map((item: any) => ({
+      label: item.warehouse_code,
+      value: item.warehouse_code,
+      organization_code: item.organization_code
+    }))
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function getBrandOptions() {
-  brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
+  try {
+    brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function getPartList(query?: string) {
-  const q = query ? `q=${query}&` : ''
-  const brandQuery = search.brand ? `brand=${search.brand}&` : ''
-  const data = await clientApi.instance
-    .get(`/apis/v1/ms/oracle/wcl-item-nos?${q}${brandQuery}pageNum=1&pageSize=100&includeCustomer=false`)
-    .then((r: any) => r.data.items)
-  if (!data?.length) return
+  try {
+    const q = query ? `q=${query}&` : ''
+    const brandQuery = search.brand ? `brand=${search.brand}&` : ''
+    const data = await clientApi.instance
+      .get(`/apis/v1/ms/oracle/wcl-item-nos?${q}${brandQuery}pageNum=1&pageSize=100&includeCustomer=false`)
+      .then((r: any) => r.data.items)
+    if (!data?.length) return
 
-  partNumberOptions.value = data.map((item: any) => ({
-    label: item.wcl_item_no,
-    value: item.wcl_item_no
-  }))
+    partNumberOptions.value = data.map((item: any) => ({
+      label: item.wcl_item_no,
+      value: item.wcl_item_no
+    }))
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 function handleBrandChange() {
   search.partNumber = ''
   partNumberOptions.value = []
+  getPartList()
 }
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
@@ -238,8 +259,8 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 240
     },
     {
-      field: 'ship_number',
-      title: '船號 Ship Number',
+      field: 'shipment_num',
+      title: '出貨行號 Shipment Num',
       minWidth: 240
     },
     {
@@ -315,6 +336,149 @@ function update(row: any) {
   }
 }
 
+async function handleSearchByDate() {
+  isGitSearch.value = true
+  dataList.value = []
+  if (!search.gitDate || search.gitDate === '') {
+    routerProvider?.message.error('請選擇GIT日期')
+    return
+  }
+
+  const raw = {
+    org_id: userInfo.value.org_id,
+    git_date: search.gitDate
+  }
+
+  try {
+    const data = await clientApi.instance.post(`/api/tn/inquiry/git`, raw).then((r: any) => r.data.data)
+
+    if (data.lines.length === 0) {
+      routerProvider?.message.warning('未檢索到數據!')
+      return
+    }
+
+    batch_id.value = data.batch_id
+    dataList.value = data.lines.map((item: any) => ({
+      id: uuidv7(),
+      po_number: item.po_number,
+      part_number: item.item,
+      part_description: item.item_description,
+      sys_qty: item.qty_delivered_onhand,
+      qty: item.qty_delivered_onhand,
+      unit_price: item.unit_price_in_hkd,
+      shipment_number: item.shipment_number,
+      amount: handleAmount({ qty: item.qty_delivered_onhand, unit_price: item.unit_price_in_hkd }),
+      sub_inventory: item.to_subinventory,
+      tn_planned_date: toPlannedDate.value,
+      rcv_transaction_id: item.rcv_transaction_id,
+      office: item.office,
+      origin: item.item_origin,
+      product_name: item.product_name,
+      description: item.description,
+      git_stk: item.git_flag,
+      from_sub_inventory: item.from_subinventory,
+      po_line_number: item.line_num,
+      shipment_num: item.shipment_num,
+      commodity_inspection: item.commodity_inspection,
+      status: item.status
+    }))
+    reload()
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+async function handleSearchByPo() {
+  isGitSearch.value = false
+  dataList.value = []
+  const raw = {
+    org_id: userInfo.value.org_id,
+    item: search.partNumber,
+    po_number: search.poNumber
+  }
+
+  try {
+    const data = await clientApi.instance.post(`/api/tn/inquiry/onhand`, raw).then((r: any) => r.data.data)
+
+    if (data.lines.length === 0) {
+      routerProvider?.message.warning('未檢索到數據!')
+      return
+    }
+
+    batch_id.value = data.batch_id
+    dataList.value = data.lines.map((item: any) => ({
+      id: uuidv7(),
+      po_number: item.po_number,
+      part_number: item.item,
+      part_description: item.item_description,
+      sys_qty: item.qty_delivered_onhand,
+      qty: item.qty_delivered_onhand,
+      unit_price: item.unit_price_in_hkd,
+      shipment_number: item.shipment_number,
+      amount: handleAmount({ qty: item.qty_delivered_onhand, unit_price: item.unit_price_in_hkd }),
+      sub_inventory: item.to_subinventory,
+      tn_planned_date: toPlannedDate.value,
+      rcv_transaction_id: item.rcv_transaction_id,
+      office: item.office,
+      origin: item.item_origin,
+      product_name: item.product_name,
+      description: item.description,
+      git_stk: item.git_flag,
+      from_sub_inventory: item.from_subinventory,
+      po_line_number: item.line_num,
+      shipment_num: item.shipment_num,
+      commodity_inspection: item.commodity_inspection,
+      status: item.status
+    }))
+    reload()
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+function handleAmount(row: any) {
+  const { qty, unit_price } = row
+  const amount = new Decimal(qty || 0).mul(unit_price || 0).toNumber()
+  row.amount = amount
+
+  saveLine(row.id)
+  return amount
+}
+
+function handleClear() {
+  const selectedSet = new Set(selectedRowsList.value)
+  dataList.value = dataList.value.filter((item) => !selectedSet.has(item))
+  selectedRowsList.value = []
+  reload()
+}
+
+async function saveLine(id: string) {
+  const item: any = dataList.value.find((item: any) => item.id === id)
+  const row = {
+    po_number: item.po_number,
+    line_num: item.po_line_number,
+    shipment_num: item.shipment_num,
+    item: item.part_number,
+    rcv_transaction_id: item.rcv_transaction_id,
+    transfer_quantity: item.qty,
+    unit_price_in_hkd: item.unit_price,
+    shipment_number: item.shipment_number,
+    to_subinventory: item.sub_inventory,
+    tn_planned_date: item.tn_planned_date,
+    office: item.office
+  }
+
+  const list = [...row]
+
+  const raw = {
+    batch_id: batch_id.value,
+    org_id: userInfo.value.org_id,
+    lines: list
+  }
+
+  await clientApi.instance.post(`/api/tn/lines`, raw).then((r) => r.data)
+}
+
 async function getFormData(needValidation = true) {
   if (!needValidation) return {}
 
@@ -323,149 +487,38 @@ async function getFormData(needValidation = true) {
     ElMessage.error('請選擇訂單')
     throw new Error('')
   }
+  if (selectedRowsListLength.value === 0) {
+    ElMessage.error('請選擇訂單')
+    throw new Error('')
+  }
 
-  const list = deepCopy(selectedRowsList.value).map((item: any) => {
-    delete item['_X_ROW_KEY']
-    return item
+  const list = deepCopy(selectedRowsList.value).map((item: any, index: number) => {
+    return {
+      po_number: item.po_number,
+      line_num: item.po_line_number,
+      shipment_num: item.shipment_num,
+      item: item.part_number,
+      rcv_transaction_id: item.rcv_transaction_id,
+      transfer_quantity: item.qty,
+      unit_price_in_hkd: item.unit_price,
+      shipment_number: item.shipment_number,
+      to_subinventory: item.sub_inventory,
+      tn_planned_date: item.tn_planned_date,
+      office: item.office
+    }
   })
 
   const result = {
+    batch_id: batch_id.value,
+    org_id: userInfo.value.org_id,
     data_list: list,
-    remark: '',
+    remark: remark.value,
     email_create_date: dayjs().format('YYYY年MM月DD日'),
     email_planned_date: dayjs(toPlannedDate.value).format('YYYY年MM月DD日')
   }
 
   if (!needValidation) return result
   return result
-}
-
-async function handleSearchByDate() {
-  isGitSearch.value = true
-  dataList.value = []
-  reload()
-}
-
-async function handleSearchByPo() {
-  isGitSearch.value = false
-  dataList.value = [
-    {
-      id: '1',
-      po_number: 'PO-2026-0001',
-      part_number: 'PN-A1001',
-      part_description: '主機板 Motherboard A1',
-      sys_qty: 100,
-      qty: 10,
-      unit_price: 125.5,
-      shipment_number: 'SHP-001',
-      amount: 1255,
-      sub_inventory: 'SUB-01',
-      tn_planned_date: toPlannedDate.value,
-      office: 'WSZ',
-      origin: 'HK',
-      product_name: 'Product Alpha',
-      description: '測試描述 1',
-      git_stk: 'GIT-01',
-      from_sub_inventory: 'FROM-01',
-      po_line_number: '1',
-      ship_number: 'VESSEL-01',
-      commodity_inspection: 'N',
-      status: 'pending'
-    },
-    {
-      id: '2',
-      po_number: 'PO-2026-0002',
-      part_number: 'PN-B2002',
-      part_description: '電源供應器 Power Supply B2',
-      sys_qty: 80,
-      qty: 20,
-      unit_price: 88,
-      shipment_number: 'SHP-002',
-      amount: 1760,
-      sub_inventory: 'SUB-02',
-      tn_planned_date: toPlannedDate.value,
-      office: 'WGZ',
-      origin: 'CN',
-      product_name: 'Product Beta',
-      description: '測試描述 2',
-      git_stk: 'GIT-02',
-      from_sub_inventory: 'FROM-02',
-      po_line_number: '2',
-      ship_number: 'VESSEL-02',
-      commodity_inspection: 'Y',
-      status: 'pending'
-    },
-    {
-      id: '3',
-      po_number: 'PO-2026-0003',
-      part_number: 'PN-C3003',
-      part_description: '散熱模組 Cooling Module C3',
-      sys_qty: 50,
-      qty: 5,
-      unit_price: 46.8,
-      shipment_number: 'SHP-003',
-      amount: 234,
-      sub_inventory: 'SUB-03',
-      tn_planned_date: toPlannedDate.value,
-      office: 'WSZ',
-      origin: 'TW',
-      product_name: 'Product Gamma',
-      description: '測試描述 3',
-      git_stk: 'GIT-03',
-      from_sub_inventory: 'FROM-03',
-      po_line_number: '3',
-      ship_number: 'VESSEL-03',
-      commodity_inspection: 'N',
-      status: 'pending'
-    },
-    {
-      id: '4',
-      po_number: 'PO-2026-0004',
-      part_number: 'PN-D4004',
-      part_description: '連接線纜 Cable Assembly D4',
-      sys_qty: 200,
-      qty: 50,
-      unit_price: 12.3,
-      shipment_number: 'SHP-004',
-      amount: 615,
-      sub_inventory: 'SUB-01',
-      tn_planned_date: toPlannedDate.value,
-      office: 'WGZ',
-      origin: 'HK',
-      product_name: 'Product Delta',
-      description: '測試描述 4',
-      git_stk: 'GIT-04',
-      from_sub_inventory: 'FROM-01',
-      po_line_number: '4',
-      ship_number: 'VESSEL-04',
-      commodity_inspection: 'Y',
-      status: 'pending'
-    },
-    {
-      id: '5',
-      po_number: 'PO-2026-0005',
-      part_number: 'PN-E5005',
-      part_description: '外殼組件 Enclosure E5',
-      sys_qty: 60,
-      qty: 15,
-      unit_price: 210,
-      shipment_number: 'SHP-005',
-      amount: 3150,
-      sub_inventory: 'SUB-02',
-      tn_planned_date: toPlannedDate.value,
-      office: 'WSZ',
-      origin: 'CN',
-      product_name: 'Product Epsilon',
-      description: '測試描述 5',
-      git_stk: 'GIT-05',
-      from_sub_inventory: 'FROM-02',
-      po_line_number: '5',
-      ship_number: 'VESSEL-05',
-      commodity_inspection: 'N',
-      status: 'pending'
-    }
-  ]
-  reload()
 }
 
 onMounted(() => {
@@ -489,7 +542,15 @@ defineExpose({ getFormData })
       <el-divider content-position="left">根據GIT日期搜尋 Search By GIT Date</el-divider>
       <div class="git-date-search">
         <el-form-item label="GIT 日期 GIT Date" class="git-date-search__item">
-          <el-date-picker v-model="search.gitDate" type="date" placeholder="Select date" />
+          <el-date-picker
+            v-model="search.gitDate"
+            type="date"
+            placeholder="Select date"
+            format="YYYY/MMM/DD"
+            value-format="YYYY-MM-DD"
+            :clearable="false"
+            :value-on-clear="dayjs().format('YYYY-MM-DD')"
+          />
         </el-form-item>
         <el-button type="primary" @click="handleSearchByDate">Search By GIT Data</el-button>
       </div>
@@ -498,8 +559,8 @@ defineExpose({ getFormData })
       <el-divider content-position="left">根據PO搜索 Search By PO</el-divider>
       <div class="git-date-search-2">
         <el-form-item label="品牌 Brand" prop="brand" class="git-date-search-2__item">
-          <el-select v-model="search.brand" filterable clearable placeholder="Select an option" @change="handleBrandChange" style="width: 100%">
-            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.lable || item.label" :value="item.value" />
+          <el-select v-model="search.brand" filterable placeholder="Select an option" @change="handleBrandChange" style="width: 100%">
+            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="零件編號 Part Number" prop="part_number" class="git-date-search-2__item">
@@ -516,7 +577,7 @@ defineExpose({ getFormData })
           />
         </el-form-item>
         <el-form-item label="PO編號 PO Number" class="git-date-search-2__item">
-          <el-input v-model="search.poNumber" />
+          <el-input v-model="search.poNumber" clearable />
         </el-form-item>
         <el-button type="primary" @click="handleSearchByPo">Search By PO</el-button>
       </div>
@@ -535,27 +596,46 @@ defineExpose({ getFormData })
           </el-form>
           <div>
             已選中數量 Selected Quantity: {{ formModel.selectedRowsListLength }}
-            <el-button v-if="dataList.length > 0" type="danger">Clear</el-button>
+            <el-button v-if="formModel.selectedRowsListLength > 0" type="danger" @click="handleClear">Clear</el-button>
           </div>
         </div>
       </template>
 
       <template #qty="{ row, index }">
-        <el-input-number v-model="row.qty" controls-position="right" :min="1" :step="1" step-strictly style="width: 100%" />
+        <el-input-number
+          v-model="row.qty"
+          controls-position="right"
+          :min="1"
+          :max="row.sys_qty"
+          :step="1"
+          step-strictly
+          style="width: 100%"
+          :value-on-clear="row.sys_qty"
+          @change="handleAmount(row)"
+        />
       </template>
       <template #shipment_number="{ row, index }">
-        <el-input v-model="row.shipment_number" />
+        <el-input v-model="row.shipment_number" @change="saveLine(row.id)" />
       </template>
       <template #sub_inventory="{ row, index }">
-        <el-select v-model="row.sub_inventory">
+        <el-select v-model="row.sub_inventory" @change="saveLine(row.id)">
           <el-option v-for="item in subInventoryOption" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </template>
       <template #tn_planned_date="{ row, index }">
-        <el-date-picker v-model="row.tn_planned_date" type="date" format="YYYY/MMM/DD" value-format="x" style="width: 100%" :clearable="false" />
+        <el-date-picker
+          v-model="row.tn_planned_date"
+          type="date"
+          format="YYYY/MMM/DD"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+          :clearable="false"
+          :value-on-clear="dayjs().format('YYYY-MM-DD')"
+          @change="saveLine(row.id)"
+        />
       </template>
       <template #office="{ row, index }">
-        <el-select v-model="row.office">
+        <el-select v-model="row.office" @change="saveLine(row.id)">
           <el-option v-for="item in officeOption" :key="item.sub_office" :label="item.org_name" :value="item.sub_office" />
         </el-select>
       </template>

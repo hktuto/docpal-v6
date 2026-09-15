@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import dayjs from 'dayjs'
+
 const emits = defineEmits(['submit'])
 
 const { subInventoryOption, officeOption } = defineProps<{
@@ -12,6 +14,13 @@ const rowData = ref<any>({})
 function open(row: any) {
   rowData.value = deepCopy(row)
   visible.value = true
+}
+
+function handleAmount(row: any) {
+  const { qty, unit_price } = row
+  const amount = new Decimal(qty || 0).mul(unit_price || 0).toNumber()
+  row.amount = amount
+  return amount
 }
 
 function handleSubmit() {
@@ -31,7 +40,16 @@ defineExpose({ open })
             <el-input v-model="rowData.po_number" style="width: 90%" disabled />
           </el-form-item>
           <el-form-item label="數量 QTY">
-            <el-input-number v-model="rowData.qty" controls-position="right" :min="0" :step="1" step-strictly />
+            <el-input-number
+              v-model="rowData.qty"
+              controls-position="right"
+              :min="1"
+              :max="rowData.sys_qty"
+              :step="1"
+              step-strictly
+              :value-on-clear="rowData.sys_qty"
+              @change="handleAmount(rowData)"
+            />
           </el-form-item>
           <el-form-item label="至子庫存 To Sub-Inventory">
             <el-select v-model="rowData.sub_inventory" style="width: 90%">
@@ -53,13 +71,21 @@ defineExpose({ open })
             <el-input-number v-model="rowData.unit_price" controls-position="right" :min="0.000001" :step="0.000001" step-strictly disabled />
           </el-form-item>
           <el-form-item label="TN計畫日期 TN Planned Date">
-            <el-date-picker v-model="rowData.tn_planned_date" type="date" format="YYYY/MM/DD" value-format="x" style="width: 90%" />
+            <el-date-picker
+              v-model="rowData.tn_planned_date"
+              type="date"
+              format="YYYY/MM/DD"
+              value-format="YYYY-MM-DD"
+              :clearable="false"
+              :value-on-clear="dayjs().format('YYYY-MM-DD')"
+              style="width: 90%"
+            />
           </el-form-item>
           <el-form-item label="描述 Description">
             <el-input v-model="rowData.description" style="width: 90%" disabled />
           </el-form-item>
           <el-form-item label="船號 Ship Number">
-            <el-input v-model="rowData.ship_number" style="width: 90%" disabled />
+            <el-input v-model="rowData.shipment_num" style="width: 90%" disabled />
           </el-form-item>
         </el-col>
         <el-col :span="6">
