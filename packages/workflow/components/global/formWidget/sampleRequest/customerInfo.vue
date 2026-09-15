@@ -28,7 +28,8 @@ const rules = {
   cust_num: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerNumber') }), trigger: 'change' }],
   customerName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerName') }), trigger: 'change' }],
   customerEnglishName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.customerEnglishName') }), trigger: 'change' }],
-  cust_email: [{ validator: validateEmail, trigger: 'blur' }]
+  cust_email: [{ validator: validateEmail, trigger: 'blur' }],
+  cust_tel: [{ validator: validateTel, trigger: 'blur' }]
 }
 
 function validateEmail(_rule: unknown, value: string, callback: (error?: Error) => void) {
@@ -39,6 +40,19 @@ function validateEmail(_rule: unknown, value: string, callback: (error?: Error) 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailPattern.test(value)) {
     callback(new Error(t('user_emailFormatError')))
+    return
+  }
+  callback()
+}
+
+function validateTel(_rule: unknown, value: string, callback: (error?: Error) => void) {
+  if (!value) {
+    callback()
+    return
+  }
+  const numberPattern = /^\d+$/
+  if (!numberPattern.test(value)) {
+    callback(new Error(t('validateFn_number')))
     return
   }
   callback()
@@ -212,7 +226,7 @@ defineExpose({ getFormData })
         <el-form-item :label="t('sampleRequest.customerLocation')">
           <el-input v-model="formModel.cust_location" />
         </el-form-item>
-        <el-form-item :label="t('sampleRequest.customerTelephone')">
+        <el-form-item :label="t('sampleRequest.customerTelephone')" prop="cust_tel">
           <el-input v-model="formModel.cust_tel" />
         </el-form-item>
       </el-col>
