@@ -95,6 +95,33 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       }
     ]
   ],
+  permissionMethod: (args: PermissionMethodParams) => {
+    if (!args.row) {
+      return { visible: false, disabled: false }
+    }
+    if (args.code === 'edit_easyForm') {
+      return {
+        visible: true,
+        disabled: false
+      }
+    }
+    if (args.code === 'config') {
+      return {
+        visible: true,
+        disabled: false
+      }
+    }
+    if (args.code === 'delete') {
+      return {
+        visible: true,
+        disabled: false
+      }
+    }
+    return {
+      visible: true,
+      disabled: false
+    }
+  },
   dblClickAction: ({ row, column, event }: any) => {
     handleDblclick(row)
   }
