@@ -329,11 +329,13 @@ function handleReview() {
   })
 }
 
-function update(row: any) {
+function handleUpdate(row: any) {
   const index = dataList.value.findIndex((item: any) => item.id === row.id)
   if (index !== -1) {
     dataList.value[index] = row
   }
+  saveLine(row)
+  reload()
 }
 
 async function handleSearchByDate() {
@@ -644,7 +646,7 @@ defineExpose({ getFormData })
     </VxeGrid>
   </div>
 
-  <LazyFormWidgetTnApprovalDialog ref="tnApprovalDialogRef" :subInventoryOption="subInventoryOption" :officeOption="officeOption" @submit="update" />
+  <LazyFormWidgetTnApprovalDialog ref="tnApprovalDialogRef" :subInventoryOption="subInventoryOption" :officeOption="officeOption" @submit="handleUpdate" />
   <LazyFormWidgetTnApprovalReview ref="tnApprovalReviewRef" />
 </template>
 
