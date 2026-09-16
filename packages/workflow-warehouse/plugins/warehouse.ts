@@ -17,5 +17,4 @@ export default defineNuxtPlugin((nuxtApp) => {
     component: WHUserSwitcherPlatform,
     show: true,
   })
-  console.log("globalUserPopoverSlots", globalUserPopoverSlots.value)
 })

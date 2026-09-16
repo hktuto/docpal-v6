@@ -85,7 +85,7 @@ export function requestSuccessHelper(config: AxiosRequestConfig, _axiosInstance?
 
   if (process.env.NODE_ENV !== 'development' && config.baseURL) {
     config.baseURL = resolveBaseUrl(config.baseURL)
-    console.log('config.baseURL', config.baseURL)
+
   }
 
   return config
