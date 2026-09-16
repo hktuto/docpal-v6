@@ -542,7 +542,7 @@ onMounted(() => {
                     @click="handleSubmit"
                   >
                     <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
-                      {{ pageButtonSetting.submitButtonLabel }}
+                      {{ $t(pageButtonSetting.submitButtonLabel) }}
                     </template>
                     <template v-else>
                       {{ $t('common_submit') }}

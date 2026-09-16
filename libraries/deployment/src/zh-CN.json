@@ -5071,7 +5071,8 @@
     "trackingNumber": "快递单号",
     "trackingDate": "快递日期",
     "emailAlert": "送样通知",
-    "status": "申请状态"
+    "status": "申请状态",
+    "customerConfirmsReceipt": "客户确认收货"
   },
   "priceAnnouncement": {
     "paNumber": "PA编号",

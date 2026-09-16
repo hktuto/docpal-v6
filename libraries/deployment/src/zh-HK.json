@@ -5143,7 +5143,8 @@
     "trackingNumber": "快遞單號",
     "trackingDate": "快遞日期",
     "emailAlert": "送樣通知",
-    "status": "申請狀態"
+    "status": "申請狀態",
+    "customerConfirmsReceipt": "客戶確認收貨"
   },
   "priceAnnouncement": {
     "paNumber": "PA編號",
