@@ -226,7 +226,8 @@ async function getBrand() {
 async function getFormData(needValidation = true) {
   const result = {
     brand: formModel.value.brand,
-    sample_info_list: formModel.value.infoList
+    sample_info_list: formModel.value.infoList,
+    contact_email: contactEmail.value
   }
   if (!needValidation) return result
   await formRef.value?.validate()
@@ -259,6 +260,27 @@ async function handleChangeBrand() {
   part_numberOptions.value = []
   handleSampleInfoAdd()
   await getPartList('')
+  await getBrandEmail()
+}
+
+const contactEmail = ref<string>('')
+async function getBrandEmail() {
+  try {
+    const param = {
+      table: 'cmz_product_inquiry_email',
+      columns: [{ name: 'contact_email' }],
+      conditions: [{ type: 'AND', nested: [{ type: 'EQ', column: 'brand_name', value: formModel.value.brand }] }]
+    }
+
+    const dbData = await clientApi.instance
+      .post('/apis/v1/dynamic-actions', param, { headers: { 'X-Tenant-Id': 'oracle_db' } })
+      .then((res: any) => res.data.data)
+    if (dbData.length > 0) {
+      contactEmail.value = dbData[0].contact_email
+    }
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function checkPartNumberIsFlow(lineNumber: number, partNumber: string) {
@@ -290,43 +312,6 @@ function handlePartNumberChange(item: any) {
     item.mpq = find.mpq
     item.uom = find.uom
   }
-}
-
-async function getDbData(tableId: string, conditions?: any[]) {
-  // Get Filed Mapping
-  const filedData: any = await newClientApi
-    .getDocpalMasterTableUserConfig({
-      tableId: tableId,
-      userId: 'master',
-      type: 'detail'
-    })
-    .then((res) => res.data)
-  const filedMapping: any = {}
-  filedData.tableFields.forEach((item: any) => {
-    filedMapping[item.field_name as string] = item.field_name_alias
-  })
-
-  const param = {
-    tableId: tableId,
-    conditions,
-    columns: [{ name: 'f_7969_c576d886' }, { name: 'f_7965_9760c235' }, { name: 'f_8110_037ef712' }, { name: 'f_8100_c3428722' }],
-    pagination: {
-      pageSize: 1000,
-      pageNum: 0
-    }
-  }
-
-  // Get BD Data
-  const dbData = await clientApi.instance.post('/apis/v1/dynamic-actions', param).then((res: any) => res.data.data)
-
-  // 匹配數據
-  return dbData.map((row: any) => {
-    const out = {}
-    for (const [fromKey, toKey] of Object.entries(filedMapping)) {
-      if (fromKey in row) out[toKey] = row[fromKey]
-    }
-    return out
-  })
 }
 
 function handleChangeCurrency(currency) {
@@ -413,11 +398,7 @@ defineExpose({ getFormData })
           </el-col>
 
           <el-col :span="8">
-            <el-form-item
-              :label="t('quotationApproval.productApplication')"
-              :prop="`infoList.${index}.product_application`"
-              :rules="rules.product_application"
-            >
+            <el-form-item :label="t('quotationApproval.productApplication')" :prop="`infoList.${index}.product_application`" :rules="rules.product_application">
               <el-input v-model="item.product_application" />
             </el-form-item>
             <el-form-item :label="t('quotationApproval.mpq')" prop="mpq">
