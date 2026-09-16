@@ -133,7 +133,18 @@ async function getEmailRecipient() {
     { label: 'User', options: map },
     { label: 'Variables', options: stringAndArrayVariables }
   ]
-  userGroupOption.value = await getGroupsSelectOption()
+
+  const groups = await getGroupsSelectOption()
+  userGroupOption.value = [
+    { label: 'Variables', options: stringAndArrayVariables },
+    {
+      label: 'Groups',
+      options: groups.map((item: any) => ({
+        id: item.value,
+        name: item.label
+      }))
+    }
+  ]
 }
 
 async function getEmailTemplateList() {
@@ -207,8 +218,10 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="TO User Groups">
-      <el-select v-model="formData.toGroupNames" filterable multiple @change="updateData">
-        <el-option v-for="item in userGroupOption" :key="item.value" :label="item.label" :value="item.label" />
+      <el-select v-model="formData.toGroupNames" placeholder="Select Groups" filterable clearable multiple @change="updateData">
+        <el-option-group v-for="group in userGroupOption" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+        </el-option-group>
       </el-select>
     </el-form-item>
     <el-form-item>
@@ -226,8 +239,10 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="CC User Groups">
-      <el-select v-model="formData.ccGroupNames" filterable multiple @change="updateData">
-        <el-option v-for="item in userGroupOption" :key="item.value" :label="item.label" :value="item.label" />
+      <el-select v-model="formData.ccGroupNames" placeholder="Select Groups" filterable clearable multiple @change="updateData">
+        <el-option-group v-for="group in userGroupOption" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+        </el-option-group>
       </el-select>
     </el-form-item>
     <el-form-item label="Attachments File">

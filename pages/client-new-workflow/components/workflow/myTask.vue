@@ -84,7 +84,7 @@ defineExpose({ reload })
         </div>
       </template>
       <template #name="{ row }">
-        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
+        <span>{{ row.name || row?.config?.human_task?.form_title }}</span>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>
