@@ -10,10 +10,10 @@ if (!graphProvider) {
   throw createError('provider not found')
 }
 const { getVariablesByDisplayTypes } = useVariablesProvide()
-const assignFieldList = ref<any[]>([])
+const userFieldList = ref<any[]>([])
 const checkedTypes = ref<string[]>(['User'])
 const allUserRole = ref<BaseOption[]>([])
-const allUserGroup = ref<BaseOption[]>([])
+const groupFieldList = ref<any[]>([])
 const candidateUsers = ref<string>('')
 const candidateGroups = ref<string[]>([])
 const candidateRoles = ref<string[]>([])
@@ -120,11 +120,11 @@ function handleCheckboxChange(val: string[]) {
   updateNodeData()
 }
 
-async function getAssignFieldList() {
+async function getUserFieldList() {
   const stringVariables = getVariablesByDisplayTypes(['text'], true)
   const userList = await getUserSelectOption()
 
-  assignFieldList.value = [
+  userFieldList.value = [
     {
       label: 'Variables',
       options: stringVariables
@@ -139,10 +139,28 @@ async function getAssignFieldList() {
   ]
 }
 
+async function getGroupFieldList() {
+  const stringVariables = getVariablesByDisplayTypes(['text'], true)
+  const groups = await getGroupsSelectOption()
+  groupFieldList.value = [
+    {
+      label: 'Variables',
+      options: stringVariables
+    },
+    {
+      label: 'Groups',
+      options: groups.map((item: any) => ({
+        id: item.value,
+        name: item.label
+      }))
+    }
+  ]
+}
+
 async function getSelect() {
-  await getAssignFieldList()
+  await getUserFieldList()
+  await getGroupFieldList()
   allUserRole.value = await getRoleSelectOption()
-  allUserGroup.value = await getGroupsSelectOption()
 }
 
 onMounted(async () => {
@@ -176,7 +194,7 @@ watch(
     <template v-if="checkedTypes.includes('User')">
       <el-form-item label="Candidate Users" :required="checkedTypes.length == 1">
         <el-select v-model="candidateUsers" placeholder="Select Field" filterable clearable @change="updateNodeData">
-          <el-option-group v-for="group in assignFieldList" :key="group.label" :label="group.label">
+          <el-option-group v-for="group in userFieldList" :key="group.label" :label="group.label">
             <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
           </el-option-group>
         </el-select>
@@ -186,7 +204,9 @@ watch(
     <template v-if="checkedTypes.includes('Groups')">
       <el-form-item label="Candidate Groups">
         <el-select v-model="candidateGroups" placeholder="Select Groups" filterable clearable multiple @change="updateNodeData">
-          <el-option v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option-group v-for="group in groupFieldList" :key="group.label" :label="group.label">
+            <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+          </el-option-group>
         </el-select>
       </el-form-item>
     </template>
