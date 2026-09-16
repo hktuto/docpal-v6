@@ -1,8 +1,8 @@
 ﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { newClientApi, postDynamicActions } from 'api'
-import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
+import { clientApi, newClientApi, postDynamicActions } from 'api'
+import { SGLA, SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
 import {
   applyBatchValueToColumn,
   applySelectOptionsToColumns,
@@ -55,7 +55,7 @@ function createVerificationTableColumns(t: (key: string) => string) {
       minWidth: 150,
       required: true,
       headerClassName: 'is-required',
-      ...editableColumn()
+      ...editableColumn('select')
     },
     {
       field: SGLA_ITEMS.WCL_PN,
@@ -139,6 +139,10 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const searchQuery = ref('')
   const tableData = ref<Record<string, any>[]>([])
   const countryList = ref<SelectOption[]>([])
+  const vendorItemOptions = ref<SelectOption[]>([])
+  /** vendor_item_no → wcl_item_no */
+  const vendorItemToWclMap = ref<Map<string, string>>(new Map())
+  let lastFetchedInvoiceNum = ''
   /** Supplier_PN::PoLine → 问题行红底 */
   const highlightedMatchKeys = ref<Set<string>>(new Set())
   /** 当前点击定位的行 → 黄底 */
@@ -148,6 +152,79 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
   function itemMatchKey(row: Record<string, any>) {
     return rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine])
+  }
+
+  function syncWclPnFromVendorItem(row: Record<string, any>, vendorItemNo?: unknown) {
+    const value = String(vendorItemNo ?? row[SGLA_ITEMS.Supplier_PN] ?? '').trim()
+    row[SGLA_ITEMS.Supplier_PN] = value
+    row[SGLA_ITEMS.WCL_PN] = value ? (vendorItemToWclMap.value.get(value) ?? '') : ''
+  }
+
+  function applyVendorItemOptions(options: SelectOption[]) {
+    vendorItemOptions.value = options
+    applySelectOptionsToColumns(verificationTableColumns, [SGLA_ITEMS.Supplier_PN], options)
+  }
+
+  function bindSupplierPnSelectEvents() {
+    const column = verificationTableColumns.find((col: any) => col.field === SGLA_ITEMS.Supplier_PN)
+    if (!column?.editRender) return
+    column.editRender.events = {
+      change: ({ row }: { row: Record<string, any> }, eventParams?: { value?: unknown }) => {
+        syncWclPnFromVendorItem(row, eventParams?.value)
+      }
+    }
+  }
+  bindSupplierPnSelectEvents()
+
+  function mergeExistingVendorItemOptions(rows: Record<string, any>[]) {
+    if (!rows.length) return
+    const existing = new Set(vendorItemOptions.value.map((item) => String(item.value)))
+    const extras: SelectOption[] = []
+    for (const row of rows) {
+      const value = String(row[SGLA_ITEMS.Supplier_PN] ?? '').trim()
+      if (!value || existing.has(value)) continue
+      existing.add(value)
+      extras.push({ label: value, value })
+    }
+    if (extras.length) applyVendorItemOptions([...vendorItemOptions.value, ...extras])
+  }
+
+  async function fetchVendorItemOptions() {
+    const invoiceNum = String(selectedInvoice.value?.[SGLA.Name] ?? '').trim()
+    if (!invoiceNum) {
+      lastFetchedInvoiceNum = ''
+      vendorItemToWclMap.value = new Map()
+      applyVendorItemOptions([])
+      return
+    }
+    if (invoiceNum === lastFetchedInvoiceNum) return
+
+    try {
+      const { data } = await clientApi.instance.get('/v1/ms/oracle/rcv-shipments', {
+        baseURL: '/apis',
+        params: { invoiceNum }
+      })
+      const items = data?.items ?? []
+      const map = new Map<string, string>()
+      const options: SelectOption[] = []
+      const seen = new Set<string>()
+      for (const item of items) {
+        const vendorItemNo = String(item?.vendor_item_no ?? '').trim()
+        if (!vendorItemNo || seen.has(vendorItemNo)) continue
+        seen.add(vendorItemNo)
+        options.push({ label: vendorItemNo, value: vendorItemNo })
+        const wclItemNo = String(item?.wcl_item_no ?? '').trim()
+        if (wclItemNo) map.set(vendorItemNo, wclItemNo)
+      }
+      vendorItemToWclMap.value = map
+      applyVendorItemOptions(options)
+      lastFetchedInvoiceNum = invoiceNum
+    } catch (error) {
+      console.error(error)
+      vendorItemToWclMap.value = new Map()
+      applyVendorItemOptions([])
+      lastFetchedInvoiceNum = ''
+    }
   }
 
   function highlightMatchingRows(matches: HighlightMatchKey | HighlightMatchKey[]) {
@@ -275,12 +352,18 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
         if (highlightedMatchKeys.value.has(key)) return 'wha-verify-row-highlight'
         return ''
       },
-      checkboxField: SGLA_ITEMS.Checked
+      checkboxField: SGLA_ITEMS.Checked,
+      onEditClosed: ({ row, column }) => {
+        // fallback：清空/离开单元格时再对齐一次
+        if (column?.field === SGLA_ITEMS.Supplier_PN) syncWclPnFromVendorItem(row)
+      }
     }),
     api: async () => {
       if (!countryList.value.length) await getCountryList()
+      await fetchVendorItemOptions()
       const data = await fetchTableData()
       const normalized = normalizeCountryFields(data, countryList.value, COUNTRY_FIELDS)
+      mergeExistingVendorItemOptions(normalized)
       tableData.value = normalized
       return getFilteredItems(normalized)
     }
@@ -316,6 +399,10 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
   function applyBatchEdit(val: string) {
     applyBatchValueToColumn(tableRef.value, selectedColumn.value, val)
+    if (selectedColumn.value === SGLA_ITEMS.Supplier_PN) {
+      const wcl = String(val ?? '').trim() ? (vendorItemToWclMap.value.get(String(val).trim()) ?? '') : ''
+      applyBatchValueToColumn(tableRef.value, SGLA_ITEMS.WCL_PN, wcl)
+    }
     batchEditDialogVisible.value = false
   }
   const statusCounts = computed(() => getStatusCounts(tableData.value, SGLA_ITEMS.Checked))
@@ -428,6 +515,13 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     }
     debouncedReload()
   })
+
+  watch(
+    () => selectedInvoice.value?.[SGLA.Name],
+    () => {
+      lastFetchedInvoiceNum = ''
+    }
+  )
 
   function getFormData() {
     return getFormDataFromColumns(tableData.value, verificationTableColumns, [SGLA_ITEMS.Checked, 'id'], [SGLA_ITEMS.Checked])

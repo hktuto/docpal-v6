@@ -168,7 +168,7 @@ export type CreateVerificationTableOptionsParams = {
   onDelete: (row: Record<string, any>) => void
   getRowClassName: (row: Record<string, any>) => string
   onBatchEdit?: (columnField: string | undefined) => void
-  onEditClosed?: (params: { row: Record<string, any> }) => void
+  onEditClosed?: (params: { row: Record<string, any>; column?: { field?: string } }) => void
   beforeEditMethod?: (params: { row: Record<string, any>; column?: any }) => boolean
   /** supply-list verify uses checkbox; invoice verify uses status text */
   checkboxField?: string
