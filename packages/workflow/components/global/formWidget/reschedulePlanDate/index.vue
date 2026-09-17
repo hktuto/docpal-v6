@@ -342,6 +342,7 @@ defineExpose({ getFormData })
             :placeholder="t('reschedulePlanDate.selectOptionRequired')"
             @change="numberChange"
             style="width: 90%"
+            disabled
           />
         </el-form-item>
       </el-col>
@@ -359,6 +360,7 @@ defineExpose({ getFormData })
             :placeholder="t('reschedulePlanDate.selectOptionRequired')"
             @change="numberChange"
             style="width: 90%"
+            disabled
           />
         </el-form-item>
       </el-col>
@@ -376,6 +378,7 @@ defineExpose({ getFormData })
             :placeholder="t('reschedulePlanDate.selectOptionRequired')"
             @change="numberChange"
             style="width: 90%"
+            disabled
           />
         </el-form-item>
       </el-col>

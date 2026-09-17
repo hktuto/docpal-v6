@@ -5044,7 +5044,7 @@
     "checkCustomer": "Check Customer",
     "customerNumber": "Customer Number",
     "customerName": "Customer Name",
-    "customerEngName": "Customer Eng Name",
+    "customerEngName": "Customer English Name",
     "customerContact": "Customer Contact",
     "telephoneNumber": "Telephone Number",
     "customerEmail": "Customer Email",
@@ -5211,7 +5211,7 @@
   "reschedulePlanDate": {
     "customerNumber": "Customer Number",
     "customerName": "Customer Name",
-    "customerEngName": "Customer Eng Name",
+    "customerEngName": "Customer English Name",
     "org": "ORG",
     "lineItems": "Line Items",
     "piNumber": "PI Number",
