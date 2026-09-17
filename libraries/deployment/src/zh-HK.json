@@ -3778,7 +3778,8 @@
       "userSignature": "使用者簽名",
       "userSignatureFailed": "取得簽名失敗",
       "username": "使用者名稱",
-      "website": "網站"
+      "website": "網站",
+      "readyOnly": "只讀"
     }
   },
   "userManage": {
@@ -5174,5 +5175,28 @@
     "rowsImported": "已導入 {count} 行。",
     "unableToReadExcel": "無法讀取 Excel 檔案。",
     "effectiveDateMustAfterToday": "生效日期必須大於當天"
+  },
+  "reschedulePlanDate": {
+    "customerNumber": "客戶編號",
+    "customerName": "客戶名稱",
+    "customerEngName": "客戶英文名",
+    "org": "ORG",
+    "lineItems": "計劃明細",
+    "piNumber": "PI編號",
+    "oldPlanDate": "舊計劃日期",
+    "newPlanDate": "新計劃日期",
+    "brand": "品牌",
+    "remark": "備註",
+    "importCsv": "導入 CSV",
+    "add": "新增",
+    "remove": "移除",
+    "dragToReorder": "拖動以重新排序",
+    "selectOptionRequired": "必須選擇其中一個選項",
+    "pleaseEnterPiInvoice": "請輸入PI發票",
+    "customerNumberPiMismatch": "客戶編號與 PI Invoice 不一致",
+    "pleaseSelectNewPlanDate": "請選擇新計劃日期",
+    "pleaseSelectCsv": "請選擇 CSV 檔案",
+    "noValidCsvData": "CSV 中沒有有效資料",
+    "rowsImported": "已導入 {count} 行"
   }
 }
