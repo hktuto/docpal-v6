@@ -103,6 +103,12 @@ function handleRemove(index: number) {
 
 async function handleImportCSV(uploadFile: UploadFile) {
   const file = uploadFile.raw
+  formModel.list = []
+  formModel.customer_number = ''
+  formModel.customer_name = ''
+  formModel.customer_english_name = ''
+  formModel.org = ''
+
   csvUploadRef.value?.clearFiles()
   if (!file) return
 
