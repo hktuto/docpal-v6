@@ -195,7 +195,7 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
     height: '100%',
     refresh: false,
     zoom: false,
-    saveColumnOrder: false,
+    saveColumnOrder: true,
     columns: columns as any,
     virtualScroll: true,
     ...(enableHeaderActions && onBatchEdit
