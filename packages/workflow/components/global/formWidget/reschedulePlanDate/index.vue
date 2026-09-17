@@ -14,6 +14,7 @@ const { disabled, formData } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 type LineItem = {
   id: string
@@ -47,7 +48,7 @@ type CsvLineItem = {
 
 const lineRules = {
   pi_invoice: [
-    { required: true, message: '請輸入PI發票', trigger: 'blur' },
+    { required: true, message: t('reschedulePlanDate.pleaseEnterPiInvoice'), trigger: 'blur' },
     {
       validator: async (rule: any, value: string, callback: any) => {
         const index = Number(String(rule.field).match(/^list\.(\d+)\.pi_invoice$/)?.[1])
@@ -58,7 +59,7 @@ const lineRules = {
             item.old_plan_date = ''
             item.brand_code = ''
           }
-          callback(new Error('Customer Number 与 PI Invoice 不一致'))
+          callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
           return
         }
         if (item?.pi_invoice === value) {
@@ -70,7 +71,7 @@ const lineRules = {
       trigger: 'blur'
     }
   ],
-  new_plan_date: [{ required: true, message: '請選擇新計劃日期', trigger: 'change' }]
+  new_plan_date: [{ required: true, message: t('reschedulePlanDate.pleaseSelectNewPlanDate'), trigger: 'change' }]
 }
 
 function createEmptyLine(): LineItem {
@@ -105,16 +106,16 @@ async function handleImportCSV(uploadFile: UploadFile) {
   const name = file.name.toLowerCase()
 
   if (!(name.endsWith('.csv') || file.type === 'text/csv')) {
-    ElMessage.error('Please select a CSV file')
+    ElMessage.error(t('reschedulePlanDate.pleaseSelectCsv'))
     return
   }
   const list = await csvTextToLineItems(await file.text())
   if (!list.length) {
-    ElMessage.error('No valid data found in CSV')
+    ElMessage.error(t('reschedulePlanDate.noValidCsvData'))
     return
   }
   formModel.list = list.map((item) => ({ ...createEmptyLine(), ...item }))
-  ElMessage.success(`Imported ${list.length} row(s)`)
+  ElMessage.success(t('reschedulePlanDate.rowsImported', { count: list.length }))
   if (formModel.list.length > 0) {
     await setCustomerNumber(formModel.list[0])
     await lineFormRef.value?.validate()
@@ -322,7 +323,7 @@ defineExpose({ getFormData })
   <el-form label-position="top">
     <el-row>
       <el-col :span="6">
-        <el-form-item label="客戶編號 Customer Number" prop="customer_number">
+        <el-form-item :label="t('reschedulePlanDate.customerNumber')" prop="customer_number">
           <el-select-v2
             v-model="formModel.customer_number"
             filterable
@@ -331,14 +332,14 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerNumberOptions"
-            placeholder="One of the options must be selected."
+            :placeholder="t('reschedulePlanDate.selectOptionRequired')"
             @change="numberChange"
             style="width: 90%"
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶名稱 Customer Name">
+        <el-form-item :label="t('reschedulePlanDate.customerName')">
           <el-select-v2
             v-model="formModel.customer_name"
             :reserve-keyword="false"
@@ -348,14 +349,14 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerNameOptions"
-            placeholder="One of the options must be selected."
+            :placeholder="t('reschedulePlanDate.selectOptionRequired')"
             @change="numberChange"
             style="width: 90%"
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶英文名 Customer Eng Name" prop="customerEnglishName">
+        <el-form-item :label="t('reschedulePlanDate.customerEngName')" prop="customerEnglishName">
           <el-select-v2
             v-model="formModel.customer_english_name"
             :reserve-keyword="false"
@@ -365,14 +366,14 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerEnglishNameOptions"
-            placeholder="One of the options must be selected."
+            :placeholder="t('reschedulePlanDate.selectOptionRequired')"
             @change="numberChange"
             style="width: 90%"
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="ORG">
+        <el-form-item :label="t('reschedulePlanDate.org')">
           <el-input v-model="formModel.org" disabled style="width: 90%" />
         </el-form-item>
       </el-col>
@@ -380,42 +381,47 @@ defineExpose({ getFormData })
   </el-form>
 
   <el-upload ref="csvUploadRef" accept=".csv" :auto-upload="false" :show-file-list="false" :disabled="disabled" :on-change="handleImportCSV">
-    <el-button type="primary" :disabled="disabled">Import CSV</el-button>
+    <el-button type="primary" :disabled="disabled">{{ t('reschedulePlanDate.importCsv') }}</el-button>
   </el-upload>
 
-  <el-divider content-position="left">計劃明細 Line Items</el-divider>
+  <el-divider content-position="left">{{ t('reschedulePlanDate.lineItems') }}</el-divider>
 
   <div style="max-height: 40vh; overflow: auto">
     <el-form ref="lineFormRef" label-position="top" class="line-form all-input-style" :model="formModel" :disabled="disabled">
-      <el-button v-if="formModel.list.length === 0 && !disabled" type="primary" @click="handleAdd">Add</el-button>
+      <el-button v-if="formModel.list.length === 0 && !disabled" type="primary" @click="handleAdd">{{ t('reschedulePlanDate.add') }}</el-button>
       <draggable v-model="formModel.list" item-key="id" handle=".drag-handle" :animation="200" ghost-class="line-row-ghost" :disabled="disabled">
         <template #item="{ element, index }">
           <div class="line-row">
             <span class="line-row__index">#{{ index + 1 }}</span>
-            <el-form-item class="line-row__field line-row__field--pi" label="PI編號 PI Number" :prop="`list.${index}.pi_invoice`" :rules="lineRules.pi_invoice">
+            <el-form-item
+              class="line-row__field line-row__field--pi"
+              :label="t('reschedulePlanDate.piNumber')"
+              :prop="`list.${index}.pi_invoice`"
+              :rules="lineRules.pi_invoice"
+            >
               <el-input v-model="element.pi_invoice" clearable />
             </el-form-item>
-            <el-form-item class="line-row__field line-row__field--date" label="舊計劃日期 Old Plan Date">
+            <el-form-item class="line-row__field line-row__field--date" :label="t('reschedulePlanDate.oldPlanDate')">
               <el-date-picker v-model="element.old_plan_date" disabled format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
             </el-form-item>
             <el-form-item
               class="line-row__field line-row__field--date"
-              label="新計劃日期 New Plan Date"
+              :label="t('reschedulePlanDate.newPlanDate')"
               :prop="`list.${index}.new_plan_date`"
               :rules="lineRules.new_plan_date"
             >
               <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
             </el-form-item>
-            <el-form-item class="line-row__field line-row__field--brand" label="品牌 Brand">
+            <el-form-item class="line-row__field line-row__field--brand" :label="t('reschedulePlanDate.brand')">
               <el-input v-model="element.brand_code" disabled />
             </el-form-item>
-            <el-form-item class="line-row__field line-row__field--remark" label="備注 Remark">
+            <el-form-item class="line-row__field line-row__field--remark" :label="t('reschedulePlanDate.remark')">
               <el-input v-model="element.remark" />
             </el-form-item>
             <div v-if="!disabled" class="line-row__actions">
-              <el-button type="primary" text size="small" @click="handleAdd(index)">Add</el-button>
-              <el-button type="danger" text size="small" @click="handleRemove(index)">Remove</el-button>
-              <span class="drag-handle" role="button" tabindex="0" aria-label="Drag to reorder row">⋮⋮</span>
+              <el-button type="primary" text size="small" @click="handleAdd(index)">{{ t('reschedulePlanDate.add') }}</el-button>
+              <el-button type="danger" text size="small" @click="handleRemove(index)">{{ t('reschedulePlanDate.remove') }}</el-button>
+              <span class="drag-handle" role="button" tabindex="0" :aria-label="t('reschedulePlanDate.dragToReorder')">⋮⋮</span>
             </div>
           </div>
         </template>
