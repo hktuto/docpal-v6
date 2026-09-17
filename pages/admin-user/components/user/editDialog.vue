@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { newClientApi } from 'api'
+import { clientApi, newClientApi } from 'api'
 import UserSettingProfileCompany from '@packages/user-setting/components/global/userSetting/profile/company.vue'
 import UserSettingProfileDepartment from '@packages/user-setting/components/global/userSetting/profile/department.vue'
 
@@ -17,19 +17,56 @@ const state = reactive({
   form: {}
 })
 
+const officesOptions = ref<any[]>([])
+async function getOffices() {
+  try {
+    officesOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/order-info/offices`).then((r) => r.data.items)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+const branchOfficesOptions = ref<any[]>([])
+async function getBranchOffices() {
+  try {
+    branchOfficesOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/order-info/branch-offices`).then((r) => r.data.items)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+async function getOrganization(orgId: number) {
+  try {
+    return await clientApi.instance.get(`/apis/v1/ms/oracle/org-mapping/convert?org_id=${orgId}`).then((r) => r.data)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 async function handleSubmit() {
   try {
-    const data = state.form
-    console.log(123, state.form)
-    // data.groups = state.form.originalGroups
-    return
+    const orgId = branchOfficesOptions.value.find((item) => item.branch_office == state.form.department).org_id
+    const organization = await getOrganization(orgId)
+    const data = {
+      userId: state.form.userId,
+      firstName: state.form.firstName,
+      lastName: state.form.lastName,
+      phone: state.form.phone,
+      email: state.form.email,
+      userLevel: state.form.userLevel,
+      oracleUserInfo: state.form.oracleUserInfo,
+      org: [
+        {
+          organizationId: String(organization.organization_id),
+          organizationCode: organization.organization_code,
+          organizationName: organization.organization_name,
+          operatingId: String(orgId),
+          operatingName: state.form.department
+        }
+      ]
+    }
     state.loading = true
-    // await updateUser({
-    //   ...props.user,
-    //   ...data,
-    //   userId: props.user.userId,
-    //   userName: data.username ?? data.userName ?? props.user.userName ?? props.user.username
-    // }
+    await updateUser(data)
 
     ElMessage.success(t('tip_updateMsg', { modelName: t('user_info'), name: data.userId }))
     state.visible = false
@@ -83,6 +120,8 @@ function isCustomer(key: string) {
 
 onMounted(() => {
   getUserProfileFields()
+  getOffices()
+  getBranchOffices()
 })
 
 defineExpose({ handleOpen })

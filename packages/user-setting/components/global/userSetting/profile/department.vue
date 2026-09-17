@@ -22,7 +22,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-select v-model="modelValue" :disabled="item?.readyOnly">
+  <el-select v-model="modelValue" :disabled="item?.readyOnly" filterable>
     <el-option v-for="i in branchOfficesOptions" :key="i.branch_office" :label="i.branch_office" :value="i.branch_office" />
   </el-select>
 </template>
