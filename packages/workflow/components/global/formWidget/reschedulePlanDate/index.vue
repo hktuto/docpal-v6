@@ -53,20 +53,23 @@ const lineRules = {
       validator: async (rule: any, value: string, callback: any) => {
         const index = Number(String(rule.field).match(/^list\.(\d+)\.pi_invoice$/)?.[1])
         const item = formModel.list[index]
-        const data = await checkingPiNumber(value)
-        if (!data) {
-          if (item?.pi_invoice === value) {
-            item.old_plan_date = ''
-            item.brand_code = ''
+        try {
+          const data = await checkingPiNumber(value)
+          if (!data) {
+            if (item?.pi_invoice === value) {
+              item.old_plan_date = ''
+              item.brand_code = ''
+            }
+            return
           }
+          if (item?.pi_invoice === value) {
+            item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
+            item.brand_code = data.brand ?? ''
+          }
+          callback()
+        } catch (e) {
           callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
-          return
         }
-        if (item?.pi_invoice === value) {
-          item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
-          item.brand_code = data.brand ?? ''
-        }
-        callback()
       },
       trigger: 'blur'
     }
@@ -266,8 +269,12 @@ function numberChange(value: string) {
 }
 
 async function checkingPiNumber(value: string) {
-  const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
-  return clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data.data)
+  try {
+    const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
+    return clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data.data)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function setCustomerNumber(item: any) {
