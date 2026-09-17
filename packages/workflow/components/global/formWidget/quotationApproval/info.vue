@@ -20,6 +20,8 @@ type SampleInfoItem = {
   quantity_machine: number
   mpq: number
   uom: string
+  price_type: string
+  lead_time: number | undefined
   competitor_name: string
   customer_part_number: string
   old_sales_price_noTax?: number
@@ -154,7 +156,11 @@ defineExpose({ getFormData })
               <el-input v-model="item.price_type" class="full-width-input" disabled />
             </el-form-item>
             <el-form-item :label="t('quotationApproval.leadTime')">
-              <el-date-picker v-model="item.lead_time" type="date" :placeholder="t('quotationApproval.selectLeadTime')" disabled />
+              <el-input-number v-model="item.lead_time" :min="0" :step="1" step-strictly controls-position="right" disabled>
+                <template #suffix>
+                  <span>{{ $t('common_day') }}</span>
+                </template>
+              </el-input-number>
             </el-form-item>
           </el-col>
 
