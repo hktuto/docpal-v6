@@ -5229,6 +5229,7 @@
     "pleaseSelectNewPlanDate": "Please select a new plan date",
     "pleaseSelectCsv": "Please select a CSV file",
     "noValidCsvData": "No valid data found in CSV",
+    "csvTemplateMismatch": "The file template is incorrect",
     "rowsImported": "Imported {count} row(s)"
   }
 }

@@ -5125,6 +5125,7 @@
     "pleaseSelectNewPlanDate": "请选择新计划日期",
     "pleaseSelectCsv": "请选择 CSV 文件",
     "noValidCsvData": "CSV 中没有有效数据",
+    "csvTemplateMismatch": "文件模板不正确",
     "rowsImported": "已导入 {count} 行"
   }
 }

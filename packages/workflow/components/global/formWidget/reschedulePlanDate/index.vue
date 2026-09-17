@@ -37,6 +37,8 @@ const formModel = reactive({
   list: [] as LineItem[]
 })
 const CSV_COLUMNS = ['pi_invoice', 'new_plan_date', 'remark'] as const
+const CSV_HEADER_COLUMNS = ['PI Invoice', 'New Plan Date (yyyyMMdd)', 'Remark'] as const
+const CSV_TEMPLATE_MISMATCH = 'CSV_TEMPLATE_MISMATCH'
 
 type CsvLineItem = {
   pi_invoice: string
@@ -118,7 +120,16 @@ async function handleImportCSV(uploadFile: UploadFile) {
     ElMessage.error(t('reschedulePlanDate.pleaseSelectCsv'))
     return
   }
-  const list = await csvTextToLineItems(await file.text())
+  let list: CsvLineItem[]
+  try {
+    list = await csvTextToLineItems(await file.text())
+  } catch (error) {
+    if (error instanceof Error && error.message === CSV_TEMPLATE_MISMATCH) {
+      ElMessage.error(t('reschedulePlanDate.csvTemplateMismatch'))
+      return
+    }
+    throw error
+  }
   if (!list.length) {
     ElMessage.error(t('reschedulePlanDate.noValidCsvData'))
     return
@@ -131,15 +142,16 @@ async function handleImportCSV(uploadFile: UploadFile) {
   }
 }
 
-function normalizeHeader(name: string) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/\s*\([^)]*\)\s*/g, '')
-    .replace(/#/g, '')
-    .replace(/\s+/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/^_|_$/g, '')
+function trimTrailingEmpty(cells: string[]): string[] {
+  const result = [...cells]
+  while (result.length && result[result.length - 1] === '') result.pop()
+  return result
+}
+
+function isCsvTemplateHeader(headerRow: string[]): boolean {
+  const cells = trimTrailingEmpty(headerRow).map((cell) => cell.trim())
+  if (cells.length !== CSV_HEADER_COLUMNS.length) return false
+  return CSV_HEADER_COLUMNS.every((expected, i) => cells[i].toLowerCase() === expected.toLowerCase())
 }
 
 function parseCsvLine(line: string): string[] {
@@ -181,11 +193,12 @@ async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
     .map(parseCsvLine)
     .filter((row) => row.some((cell) => cell !== ''))
   if (!rows.length) return []
+  if (!isCsvTemplateHeader(rows[0])) {
+    throw new Error(CSV_TEMPLATE_MISMATCH)
+  }
 
-  const header = rows[0].map(normalizeHeader)
-  const hasHeader = header.some((col) => CSV_COLUMNS.includes(col as (typeof CSV_COLUMNS)[number]))
-  const columns = hasHeader ? header : [...CSV_COLUMNS]
-  const dataRows = hasHeader ? rows.slice(1) : rows
+  const columns = [...CSV_COLUMNS]
+  const dataRows = rows.slice(1)
 
   const set = new Set()
 
