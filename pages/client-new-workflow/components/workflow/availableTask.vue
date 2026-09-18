@@ -24,10 +24,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       page_size: pageParams.pageSize
     }
 
-    const data = await clientApi.instance
-      .post(`/oniflow/api/v1/task/overview/available`, params)
-      .then((r: any) => workflowResponseHelper(r))
-
+    const data = await clientApi.instance.post(`/oniflow/api/v1/task/overview/available`, params).then((r: any) => workflowResponseHelper(r))
     return {
       data: data || []
     }
@@ -57,6 +54,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
+  console.log(123, row)
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -74,7 +72,9 @@ async function claimTask(row: any) {
     const parms = {
       user_id: user.userId
     }
-    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
+    const response = await clientApi.instance
+      .post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms)
+      .then((r: any) => workflowResponseHelper(r))
     reload()
   } catch (e) {
     routerProvider?.message?.error('Unable to claim this task')
@@ -98,7 +98,7 @@ defineExpose({ reload })
         </div>
       </template>
       <template #name="{ row }">
-        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
+        <span>{{ row.name || row?.config?.human_task?.form_title }}</span>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>

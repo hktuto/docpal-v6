@@ -3781,7 +3781,8 @@
       "userSignature": "User Signature",
       "userSignatureFailed": "Get signature failed",
       "username": "Username",
-      "website": "Website"
+      "website": "Website",
+      "readyOnly": "Ready Only"
     }
   },
   "userManage": {
@@ -5043,7 +5044,7 @@
     "checkCustomer": "Check Customer",
     "customerNumber": "Customer Number",
     "customerName": "Customer Name",
-    "customerEngName": "Customer Eng Name",
+    "customerEngName": "Customer English Name",
     "customerContact": "Customer Contact",
     "telephoneNumber": "Telephone Number",
     "customerEmail": "Customer Email",
@@ -5080,10 +5081,10 @@
     "targetPriceMustLowerThanPrevious": "Target price must be lower than the previous tier"
   },
   "customerVisit": {
-    "customerVisitType":"Customer Visit Type",
+    "customerVisitType": "Customer Visit Type",
     "visitorType": "Visitor Type",
-    "regularVisitor":"Regular Visitor",
-    "jointVisitor":"Joint Visitors",
+    "regularVisitor": "Regular Visitor",
+    "jointVisitor": "Joint Visitors",
     "supplierInfo": "Supplier Info",
     "supplierName": "Supplier Name",
     "visitorInfo": "Visitor Info",
@@ -5093,7 +5094,7 @@
     "team": "Team",
     "companion": "Companion",
     "customerInfo": "Customer Info",
-    "customerInfoDetail":"Customer participants information is only required to fill in the customer's participants, please fill in according to the actual situation",
+    "customerInfoDetail": "Customer participants information is only required to fill in the customer's participants, please fill in according to the actual situation",
     "customerNumber": "Customer Number",
     "customerName": "Customer Chinese Name",
     "customerEnglishName": "Customer English Name",
@@ -5206,5 +5207,29 @@
     "rowsImported": "{count} rows imported.",
     "unableToReadExcel": "Unable to read the Excel file.",
     "effectiveDateMustAfterToday": "Effective date must be later than today"
+  },
+  "reschedulePlanDate": {
+    "customerNumber": "Customer Number",
+    "customerName": "Customer Name",
+    "customerEngName": "Customer English Name",
+    "org": "ORG",
+    "lineItems": "Line Items",
+    "piNumber": "PI Number",
+    "oldPlanDate": "Old Plan Date",
+    "newPlanDate": "New Plan Date",
+    "brand": "Brand",
+    "remark": "Remark",
+    "importCsv": "Import CSV",
+    "add": "Add",
+    "remove": "Remove",
+    "dragToReorder": "Drag to reorder row",
+    "selectOptionRequired": "One of the options must be selected.",
+    "pleaseEnterPiInvoice": "Please enter PI Invoice",
+    "customerNumberPiMismatch": "Customer Number does not match PI Invoice",
+    "pleaseSelectNewPlanDate": "Please select a new plan date",
+    "pleaseSelectCsv": "Please select a CSV file",
+    "noValidCsvData": "No valid data found in CSV",
+    "csvTemplateMismatch": "The file template is incorrect",
+    "rowsImported": "Imported {count} row(s)"
   }
 }

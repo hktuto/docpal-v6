@@ -34,8 +34,8 @@ const { config } = defineProps<{
       body: {
         tos: string[] | ''
         ccs: string[] | ''
-        toGroupNames: string[]
-        ccGroupNames: string[]
+        toGroupIds: string[]
+        ccGroupIds: string[]
         documentIds: string[]
         templateId: string
         variables: any
@@ -50,8 +50,8 @@ const { config } = defineProps<{
 const formData = ref<{
   tos: string[] | ''
   ccs: string[] | ''
-  toGroupNames: string[]
-  ccGroupNames: string[]
+  toGroupIds: string[]
+  ccGroupIds: string[]
   documentIds: string[]
   templateId: string
   variables: any
@@ -60,8 +60,8 @@ const formData = ref<{
 }>({
   tos: [],
   ccs: [],
-  toGroupNames: [],
-  ccGroupNames: [],
+  toGroupIds: [],
+  ccGroupIds: [],
   documentIds: [],
   templateId: '',
   variables: {},
@@ -101,8 +101,8 @@ function updateData() {
   const data = {
     tos: formData.value.tos,
     ccs: formData.value.ccs,
-    toGroupNames: formData.value.toGroupNames,
-    ccGroupNames: formData.value.ccGroupNames,
+    toGroupIds: formData.value.toGroupIds,
+    ccGroupIds: formData.value.ccGroupIds,
     documentIds: formData.value.documentIds,
     templateId: formData.value.templateId,
     variables: map
@@ -133,7 +133,18 @@ async function getEmailRecipient() {
     { label: 'User', options: map },
     { label: 'Variables', options: stringAndArrayVariables }
   ]
-  userGroupOption.value = await getGroupsSelectOption()
+
+  const groups = await getGroupsSelectOption()
+  userGroupOption.value = [
+    { label: 'Variables', options: stringAndArrayVariables },
+    {
+      label: 'Groups',
+      options: groups.map((item: any) => ({
+        id: item.value,
+        name: item.label
+      }))
+    }
+  ]
 }
 
 async function getEmailTemplateList() {
@@ -207,8 +218,10 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="TO User Groups">
-      <el-select v-model="formData.toGroupNames" filterable multiple @change="updateData">
-        <el-option v-for="item in userGroupOption" :key="item.value" :label="item.label" :value="item.label" />
+      <el-select v-model="formData.toGroupIds" placeholder="Select Groups" filterable clearable multiple @change="updateData">
+        <el-option-group v-for="group in userGroupOption" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+        </el-option-group>
       </el-select>
     </el-form-item>
     <el-form-item>
@@ -226,8 +239,10 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="CC User Groups">
-      <el-select v-model="formData.ccGroupNames" filterable multiple @change="updateData">
-        <el-option v-for="item in userGroupOption" :key="item.value" :label="item.label" :value="item.label" />
+      <el-select v-model="formData.ccGroupIds" placeholder="Select Groups" filterable clearable multiple @change="updateData">
+        <el-option-group v-for="group in userGroupOption" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+        </el-option-group>
       </el-select>
     </el-form-item>
     <el-form-item label="Attachments File">

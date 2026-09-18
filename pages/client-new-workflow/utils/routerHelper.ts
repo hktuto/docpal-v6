@@ -3,7 +3,7 @@ export const routeWorkflowDetail = function (params: any) {
     id: 'workflow-detail-versions-' + new Date().getTime(),
     name: 'workflow-detail-versions-' + params.id,
     icon: 'dp-icon:flow-outline',
-    label: params.name,
+    label: params.config?.human_task?.form_title ?? params.name,
     component: 'LazyWorkflowDetail',
     props: {
       detail: params,

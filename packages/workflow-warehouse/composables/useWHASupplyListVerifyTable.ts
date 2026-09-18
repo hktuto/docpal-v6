@@ -66,6 +66,12 @@ function createVerificationTableColumns(t: (key: string) => string) {
       ...editableColumn()
     },
     {
+      field: SGLA_ITEMS.DrawingNo,
+      title: t('workflowWarehouse.drawingNo'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
       field: SGLA_ITEMS.Qty,
       title: t('workflowWarehouse.qty'),
       minWidth: 90,
@@ -74,20 +80,7 @@ function createVerificationTableColumns(t: (key: string) => string) {
       headerClassName: 'is-required',
       ...editableColumn('number')
     },
-    {
-      field: SGLA_ITEMS.PoLine,
-      title: t('workflowWarehouse.po'),
-      minWidth: 140,
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn()
-    },
-    {
-      field: SGLA_ITEMS.SupplierItemRefNo,
-      title: t('workflowWarehouse.SupplierItemRefNo'),
-      minWidth: 140,
-      ...editableColumn()
-    },
+
     {
       field: SGLA_ITEMS.DateCode,
       title: t('workflowWarehouse.dateCode'),
@@ -107,8 +100,16 @@ function createVerificationTableColumns(t: (key: string) => string) {
       ...editableColumn('select')
     },
     {
-      field: SGLA_ITEMS.DrawingNo,
-      title: t('workflowWarehouse.drawingNo'),
+      field: SGLA_ITEMS.PoLine,
+      title: t('workflowWarehouse.po'),
+      minWidth: 140,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.SupplierItemRefNo,
+      title: t('workflowWarehouse.SupplierItemRefNo'),
       minWidth: 140,
       ...editableColumn()
     },
