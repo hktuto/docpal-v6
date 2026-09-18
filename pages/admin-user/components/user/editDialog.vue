@@ -55,15 +55,13 @@ async function handleSubmit() {
       email: state.form.email,
       userLevel: state.form.userLevel,
       oracleUserInfo: state.form.oracleUserInfo,
-      org: [
-        {
-          organizationId: String(organization.organization_id),
-          organizationCode: organization.organization_code,
-          organizationName: organization.organization_name,
-          operatingId: String(orgId),
-          operatingName: state.form.department
-        }
-      ]
+      org: {
+        organizationId: String(organization.organization_id),
+        organizationCode: organization.organization_code,
+        organizationName: organization.organization_name,
+        operatingId: String(orgId),
+        operatingName: state.form.department
+      }
     }
     state.loading = true
     await updateUser(data)
