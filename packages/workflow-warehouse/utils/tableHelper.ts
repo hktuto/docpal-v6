@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { postDynamicActions } from 'api'
 import { COUNTRY_STATIC_ALIASES } from './countryAliases'
+import { normalizeMatchText } from './workflowHelper'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
@@ -19,7 +20,7 @@ export function matchSearchValue(value: unknown, query: string): boolean {
 }
 
 export function rowMatchKey(...parts: unknown[]) {
-  return parts.map((part) => String(part ?? '').trim()).join('::')
+  return parts.map((part) => normalizeMatchText(part)).join('::')
 }
 
 export function toNumberOrNull(value: unknown): number | null {
