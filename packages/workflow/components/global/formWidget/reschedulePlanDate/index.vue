@@ -322,7 +322,14 @@ function numberChange(value: string) {
 
 async function checkingPiNumber(value: string) {
   try {
-    const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
+    let customer_number = ''
+    if (!!formModel.customer_number && formModel.customer_number !== '') {
+      customer_number = `customer_number=${formModel.customer_number}&`
+    }
+    if (formModel.list.length === 1) {
+      customer_number = ''
+    }
+
     const { data } = await clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data)
     return data
   } catch (e) {
@@ -375,6 +382,17 @@ async function handlePiChange(row: LineItem) {
 }
 
 async function setCustomer(data: any) {
+  if (formModel.list.length === 1) {
+    formModel.customer_number = data.customer_number
+    formModel.customer_name = data.customer_number
+    formModel.customer_english_name = data.customer_number
+    formModel.org = data.org_id
+    formModel.customerName = data.customer_name
+    formModel.customerEnglishName = data.customer_name
+    await searchName(data.customer_number)
+    return
+  }
+
   if (!formModel.org) {
     formModel.customer_number = data.customer_number
     formModel.customer_name = data.customer_number
