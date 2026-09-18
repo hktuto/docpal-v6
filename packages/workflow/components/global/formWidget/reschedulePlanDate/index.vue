@@ -68,6 +68,7 @@ const lineRules = {
             item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
             item.brand_code = data.brand ?? ''
           }
+          await setCustomer(data)
           callback()
         } catch (e) {
           callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
@@ -77,6 +78,10 @@ const lineRules = {
     }
   ],
   new_plan_date: [{ required: true, message: t('reschedulePlanDate.pleaseSelectNewPlanDate'), trigger: 'change' }]
+}
+
+function disabledPastDate(date: Date) {
+  return dayjs(date).isBefore(dayjs(), 'day')
 }
 
 function createEmptyLine(): LineItem {
@@ -110,6 +115,8 @@ async function handleImportCSV(uploadFile: UploadFile) {
   formModel.customer_name = ''
   formModel.customer_english_name = ''
   formModel.org = ''
+  formModel.customerName = ''
+  formModel.customerEnglishName = ''
 
   csvUploadRef.value?.clearFiles()
   if (!file) return
@@ -244,15 +251,15 @@ const customerNameOptions = ref<{ label: string; value: string }[]>([])
 const customerEnglishNameOptions = ref<{ label: string; value: string }[]>([])
 
 async function searchName(query?: string) {
-  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+  const { items } = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data)
 
-  if (data.length === 0) return
+  if (items.length === 0) return
 
   const numberOptions: any[] = []
   const nameOptions: any[] = []
   const englishNameOptions: any[] = []
 
-  data.forEach((item: any) => {
+  items.forEach((item: any) => {
     numberOptions.push({
       label: item.account_number,
       value: item.account_number
@@ -284,13 +291,14 @@ function numberChange(value: string) {
   formModel.customer_name = value
   formModel.customer_english_name = value
 
-  formModel.customerName = customerNameOptions.value.find((item: any) => item.value === value).label
+  formModel.customerName = customerNameOptions.value.find((item: any) => item.value === value)?.label ?? ''
 }
 
 async function checkingPiNumber(value: string) {
   try {
     const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
-    return clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data.data)
+    const { data } = clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data)
+    return data
   } catch (e) {
     console.log(e)
   }
@@ -330,6 +338,51 @@ async function getFormData(needValidation = true) {
   await lineFormRef.value?.validate()
   return result
 }
+
+async function handlePiChange(row: LineItem) {
+  if (!row.pi_invoice || row.pi_invoice === '') {
+    row.brand_code = ''
+    row.old_plan_date = ''
+    return
+  }
+}
+
+async function setCustomer(data: any) {
+  if (!formModel.org) {
+    formModel.customer_number = data.customer_number
+    formModel.customer_name = data.customer_number
+    formModel.customer_english_name = data.customer_number
+    formModel.org = data.org_id
+    formModel.customerName = data.customer_name
+    formModel.customerEnglishName = data.customer_name
+    await searchName(data.customer_number)
+  }
+}
+
+watch(
+  () => formModel.list,
+  (value) => {
+    if (value.length === 0) {
+      formModel.customer_number = ''
+      formModel.customer_name = ''
+      formModel.customer_english_name = ''
+      formModel.org = ''
+      formModel.customerName = ''
+      formModel.customerEnglishName = ''
+      return
+    }
+
+    if (!value[0].pi_invoice) {
+      formModel.customer_number = ''
+      formModel.customer_name = ''
+      formModel.customer_english_name = ''
+      formModel.org = ''
+      formModel.customerName = ''
+      formModel.customerEnglishName = ''
+    }
+  },
+  { deep: true }
+)
 
 onMounted(() => {
   if (formData?.line_list?.length) {
@@ -428,7 +481,7 @@ defineExpose({ getFormData })
               :prop="`list.${index}.pi_invoice`"
               :rules="lineRules.pi_invoice"
             >
-              <el-input v-model="element.pi_invoice" clearable />
+              <el-input v-model="element.pi_invoice" clearable @change="handlePiChange(element)" />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--date" :label="t('reschedulePlanDate.oldPlanDate')">
               <el-date-picker v-model="element.old_plan_date" disabled format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
@@ -439,7 +492,7 @@ defineExpose({ getFormData })
               :prop="`list.${index}.new_plan_date`"
               :rules="lineRules.new_plan_date"
             >
-              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
+              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="YYYY-MM-DD" :disabled-date="disabledPastDate" />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--brand" :label="t('reschedulePlanDate.brand')">
               <el-input v-model="element.brand_code" disabled />
