@@ -297,7 +297,7 @@ function numberChange(value: string) {
 async function checkingPiNumber(value: string) {
   try {
     const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
-    const { data } = clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data)
+    const { data } = await clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data)
     return data
   } catch (e) {
     console.log(e)
