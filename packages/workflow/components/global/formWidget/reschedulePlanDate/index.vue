@@ -23,6 +23,7 @@ type LineItem = {
   new_plan_date: string
   brand_code: string
   remark: string
+  status: string
 }
 
 const lineFormRef = ref()
@@ -61,15 +62,22 @@ const lineRules = {
             if (item?.pi_invoice === value) {
               item.old_plan_date = ''
               item.brand_code = ''
+              item.status = ''
             }
             return
           }
           if (item?.pi_invoice === value) {
             item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
             item.brand_code = data.brand ?? ''
+            item.status = data.status ?? ''
           }
           await setCustomer(data)
           callback()
+          nextTick(() => {
+            if (index !== undefined && !Number.isNaN(index)) {
+              lineFormRef.value?.validateField(`list.${index}.status`)
+            }
+          })
         } catch (e) {
           callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
         }
@@ -77,7 +85,23 @@ const lineRules = {
       trigger: 'blur'
     }
   ],
-  new_plan_date: [{ required: true, message: t('reschedulePlanDate.pleaseSelectNewPlanDate'), trigger: 'change' }]
+  new_plan_date: [{ required: true, message: t('reschedulePlanDate.pleaseSelectNewPlanDate'), trigger: 'change' }],
+  status: [
+    {
+      validator: (_rule: any, value: string, callback: any) => {
+        if (!value) {
+          callback()
+          return
+        }
+        if (value.toLowerCase() !== 'open') {
+          callback(new Error(t('reschedulePlanDate.statusMustBeOpen')))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
 }
 
 function disabledPastDate(date: Date) {
@@ -91,7 +115,8 @@ function createEmptyLine(): LineItem {
     old_plan_date: '',
     new_plan_date: '',
     brand_code: '',
-    remark: ''
+    remark: '',
+    status: ''
   }
 }
 
@@ -343,6 +368,7 @@ async function handlePiChange(row: LineItem) {
   if (!row.pi_invoice || row.pi_invoice === '') {
     row.brand_code = ''
     row.old_plan_date = ''
+    row.status = ''
     return
   }
 }
@@ -500,6 +526,14 @@ defineExpose({ getFormData })
             <el-form-item class="line-row__field line-row__field--remark" :label="t('reschedulePlanDate.remark')">
               <el-input v-model="element.remark" />
             </el-form-item>
+            <el-form-item
+              class="line-row__field line-row__field--status"
+              :label="t('reschedulePlanDate.status')"
+              :prop="`list.${index}.status`"
+              :rules="lineRules.status"
+            >
+              <el-input v-model="element.status" disabled />
+            </el-form-item>
             <div v-if="!disabled" class="line-row__actions">
               <el-button type="primary" text size="small" @click="handleAdd(index)">{{ t('reschedulePlanDate.add') }}</el-button>
               <el-button type="danger" text size="small" @click="handleRemove(index)">{{ t('reschedulePlanDate.remove') }}</el-button>
@@ -548,6 +582,7 @@ defineExpose({ getFormData })
 
     &--pi {
       flex: 0 0 180px;
+      margin-block: 2px;
     }
 
     &--date {
@@ -561,6 +596,10 @@ defineExpose({ getFormData })
     &--remark {
       flex: 1 1 240px;
       min-width: 160px;
+    }
+    &--status {
+      flex: 1 1 100px;
+      margin-block: 2px;
     }
   }
 

@@ -5190,6 +5190,8 @@
     "importCsv": "導入 CSV",
     "add": "新增",
     "remove": "移除",
+    "status": "狀態",
+    "statusMustBeOpen": "狀態必須為 Open",
     "dragToReorder": "拖動以重新排序",
     "selectOptionRequired": "必須選擇其中一個選項",
     "pleaseEnterPiInvoice": "請輸入PI發票",

@@ -5222,6 +5222,8 @@
     "importCsv": "Import CSV",
     "add": "Add",
     "remove": "Remove",
+    "status": "Status",
+    "statusMustBeOpen": "Status must be Open",
     "dragToReorder": "Drag to reorder row",
     "selectOptionRequired": "One of the options must be selected.",
     "pleaseEnterPiInvoice": "Please enter PI Invoice",

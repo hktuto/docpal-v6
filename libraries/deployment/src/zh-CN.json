@@ -5118,6 +5118,8 @@
     "importCsv": "导入 CSV",
     "add": "添加",
     "remove": "删除",
+    "status": "状态",
+    "statusMustBeOpen": "状态必须为 Open",
     "dragToReorder": "拖动以重新排序",
     "selectOptionRequired": "必须选择其中一个选项",
     "pleaseEnterPiInvoice": "请输入PI发票",
