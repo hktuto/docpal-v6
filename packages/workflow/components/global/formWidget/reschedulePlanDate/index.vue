@@ -64,12 +64,13 @@ const lineRules = {
               item.brand_code = ''
               item.status = ''
             }
+            callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
             return
           }
           if (item?.pi_invoice === value) {
             item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
             item.brand_code = data.brand ?? ''
-            item.status = data.status ?? ''
+            item.status = data.status_code ?? ''
           }
           await setCustomer(data)
           callback()
@@ -93,7 +94,7 @@ const lineRules = {
           callback()
           return
         }
-        if (value.toLowerCase() !== 'open') {
+        if (value.toLowerCase() !== 'op') {
           callback(new Error(t('reschedulePlanDate.statusMustBeOpen')))
           return
         }
@@ -523,9 +524,6 @@ defineExpose({ getFormData })
             <el-form-item class="line-row__field line-row__field--brand" :label="t('reschedulePlanDate.brand')">
               <el-input v-model="element.brand_code" disabled />
             </el-form-item>
-            <el-form-item class="line-row__field line-row__field--remark" :label="t('reschedulePlanDate.remark')">
-              <el-input v-model="element.remark" />
-            </el-form-item>
             <el-form-item
               class="line-row__field line-row__field--status"
               :label="t('reschedulePlanDate.status')"
@@ -533,6 +531,9 @@ defineExpose({ getFormData })
               :rules="lineRules.status"
             >
               <el-input v-model="element.status" disabled />
+            </el-form-item>
+            <el-form-item class="line-row__field line-row__field--remark" :label="t('reschedulePlanDate.remark')">
+              <el-input v-model="element.remark" />
             </el-form-item>
             <div v-if="!disabled" class="line-row__actions">
               <el-button type="primary" text size="small" @click="handleAdd(index)">{{ t('reschedulePlanDate.add') }}</el-button>
@@ -593,13 +594,15 @@ defineExpose({ getFormData })
       flex: 0 0 160px;
     }
 
+    &--status {
+      flex: 0 0 100px;
+      min-width: 80px;
+      margin-block: 2px;
+    }
+
     &--remark {
       flex: 1 1 240px;
       min-width: 160px;
-    }
-    &--status {
-      flex: 1 1 100px;
-      margin-block: 2px;
     }
   }
 
