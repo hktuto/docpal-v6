@@ -263,10 +263,7 @@ async function handleGetSeries(brandName: string) {
 
 async function getSeries(series?: string) {
   try {
-    let q = !!series && series !== '' ? `q=${series}&` : ''
-    if (formModel.brand === 'KOA') {
-      q = ''
-    }
+    const q = !!series && series !== '' ? `q=${series}&` : ''
 
     const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}brand=KOA&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
     if (!data?.length) return
@@ -284,8 +281,12 @@ async function getSeries(series?: string) {
 async function getPartNumber(series?: string, partNumber?: string) {
   try {
     const b = formModel.brand ? `brand=${formModel.brand}&` : ''
-    const s = series ? `series=${series}&` : ''
+    let s = series ? `series=${series}&` : ''
     const q = partNumber ? `q=${partNumber}&` : ''
+
+    if (formModel.brand === 'KOA') {
+      s = ''
+    }
 
     const data = await clientApi.instance
       .get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50&includeCustomer=false`)
