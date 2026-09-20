@@ -38,6 +38,9 @@ RUN mkdir -p /tmp/puppeteer-cache && chmod 777 /tmp/puppeteer-cache
 
 RUN npm install -g pnpm
 
+ENV HOME=/tmp
+ENV PNPM_HOME=/tmp/pnpm
+
 # 设置默认 shell 为 bash
 SHELL ["/bin/bash", "-c"]
 
