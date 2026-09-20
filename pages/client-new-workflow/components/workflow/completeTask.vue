@@ -16,9 +16,17 @@ const user = useUserState().value
 const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'complete_task',
+  optionalConfig: {
+    rowConfig: {
+      useKey: true,
+      isCurrent: true
+    }
+  },
   optionalEvent: {
     cellClick: ({ row }: { row: Record<string, any> }) => {
-      if (row) emit('select', row)
+      if (!row) return
+      tableRef.value?.setCurrentRow?.(row)
+      emit('select', row)
     }
   },
   api: async (pageParams: any) => {
@@ -87,7 +95,10 @@ function handleDblclick(row: any) {
   )
 }
 
-defineExpose({ reload })
+defineExpose({
+  reload,
+  clearHighlight: () => tableRef.value?.clearCurrentRow?.()
+})
 </script>
 
 <template>
@@ -116,5 +127,9 @@ defineExpose({ reload })
 <style lang="scss" scoped>
 :deep(.el-input) {
   width: 200px;
+}
+
+:deep(.vxe-body--row.row--current) {
+  background-color: var(--el-color-primary-light-9) !important;
 }
 </style>

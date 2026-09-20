@@ -20,6 +20,7 @@ function handleSelectRow(row: Record<string, any>) {
 
 function handleClosePanel() {
   selectedRow.value = null
+  workflowRef.value?.clearHighlight?.()
 }
 
 function handleTaskInfoChange() {
