@@ -5203,6 +5203,7 @@
     "rowsImported": "已導入 {count} 行"
   },
   "transferNoteApproval": {
+    "review": "檢閱",
     "remark": "備註",
     "searchByGitDate": "根據GIT日期搜尋",
     "gitDate": "GIT 日期",
@@ -5242,6 +5243,21 @@
     "insufficientStock": "{items} 庫存不足",
     "confirmTitle": "調撥單創建 - 確認",
     "office": "辦事處",
-    "transferQty": "轉移數量"
+    "transferQty": "轉移數量",
+    "tnNumber": "TN 編號",
+    "createdBy": "創建者",
+    "creationDate": "建立日期",
+    "version": "版本",
+    "selectLinesToCancel": "選擇要取消的行",
+    "tnLineNumber": "TN 行號",
+    "wclPartNumber": "WCL零件編號",
+    "onHandQty": "在手數量",
+    "lineStatus": "行狀態",
+    "cancelReason": "取消原因",
+    "noRelatedInfoFound": "未查詢到相關信息!",
+    "linesPendingApproval ": "待審批行",
+    "linesPendingApprovalCancellation": "{selected} / {total} 行已選擇取消",
+    "showCancelLines": "顯示取消行",
+    "showAllLines": "顯示全部行"
   }
 }

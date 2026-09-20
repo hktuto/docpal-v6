@@ -39,6 +39,7 @@ const currencyOptions = ref([
   { label: 'HKD', value: 'HKD' },
   { label: 'USD', value: 'USD' }
 ])
+const endCustomerOptions = ref<any[]>([])
 const seriesOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
 const partNumberOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
 const formModel = reactive({
@@ -90,7 +91,7 @@ function disabledEffectiveDate(date: Date) {
 }
 
 watch(
-  tableData,
+  tableData.value,
   (list) => {
     formModel.listLength = list.length
   },
@@ -254,6 +255,16 @@ function handleDownloadTemplate() {
   link.href = templateUrl
   link.download = 'PriceAnnouncement_Upload_Template.xlsx'
   link.click()
+}
+
+async function getCustomers(query?: string) {
+  const q = query ? `q=${query}&` : ''
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?${q}&limit=${6000}`).then((r: any) => r.data?.items)
+  const map = data.map((item: any) => ({
+    label: item.customer_name,
+    value: item.account_number
+  }))
+  endCustomerOptions.value = [...map, ...endCustomerOptions.value]
 }
 
 async function handleGetSeries(brandName: string) {
@@ -585,7 +596,18 @@ defineExpose({ getFormData })
         </div>
       </template>
       <template #endCustomer="{ row, index }">
-        <el-input v-model="row.endCustomer" :disabled="isApproval" />
+        <el-input v-if="isApproval" v-model="row.endCustomer" disabled />
+        <el-select-v2
+          v-model="row.endCustomer"
+          v-else
+          filterable
+          remote
+          :remote-method="getCustomers"
+          remote-show-suffix
+          clearable
+          :options="endCustomerOptions"
+          :placeholder="$t('render.hint.selectPlaceholder')"
+        />
       </template>
       <template #priceGroup="{ row, index }">
         <el-input v-model="row.priceGroup" v-if="isApproval" disabled />

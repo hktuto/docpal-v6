@@ -5131,6 +5131,7 @@
     "rowsImported": "已导入 {count} 行"
   },
   "transferNoteApproval": {
+    "review": "检阅",
     "remark": "备注",
     "searchByGitDate": "根据GIT日期搜索",
     "gitDate": "GIT 日期",
@@ -5170,6 +5171,21 @@
     "insufficientStock": "{items} 库存不足",
     "confirmTitle": "调拨单创建 - 确认",
     "office": "办事处",
-    "transferQty": "转移数量"
+    "transferQty": "转移数量",
+    "tnNumber": "TN 编号",
+    "createdBy": "创建者",
+    "creationDate": "创建日期",
+    "version": "版本",
+    "selectLinesToCancel": "选择要取消的行",
+    "tnLineNumber": "TN 行号",
+    "wclPartNumber": "WCL零件编号",
+    "onHandQty": "在手数量",
+    "lineStatus": "行状态",
+    "cancelReason": "取消原因",
+    "noRelatedInfoFound": "未查询到相关信息!",
+    "linesPendingApproval ": "待审批行",
+    "linesPendingApprovalCancellation": "{selected} / {total} 行已选择取消",
+    "showCancelLines": "显示取消行",
+    "showAllLines": "显示全部行"
   }
 }
