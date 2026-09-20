@@ -90,7 +90,7 @@ function disabledEffectiveDate(date: Date) {
 }
 
 watch(
-  tableData,
+  tableData.value,
   (list) => {
     formModel.listLength = list.length
   },
