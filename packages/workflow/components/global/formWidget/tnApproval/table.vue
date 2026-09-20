@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { clientApi, newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { v7 as uuidv7 } from 'uuid'
 
@@ -9,6 +9,7 @@ const { disabled, formData, options } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
 const formRef = ref()
 const dataList = ref<any[]>([])
@@ -83,12 +84,12 @@ async function init() {
     if (user.org.length > 0) {
       userInfo.value.office = user.org[0].organizationCode
       userInfo.value.org_id = user.org[0].operatingId
+      await getInventory(userInfo.value.office)
     }
   }
   toPlannedDate.value = dayjs().format('YYYY-MM-DD')
 
   await getOffice()
-  await getInventory()
   await getBrandOptions()
 }
 
@@ -100,13 +101,17 @@ async function getOffice() {
   }
 }
 
-async function getInventory() {
+async function getInventory(organization_code: string) {
   try {
-    const inventoryList: any = await clientApi.instance.get(`/apis/v1/ms/oracle/warehouses?active_only=true&limit=500`).then((r: any) => r.data.items)
+    const inventoryList: any = await clientApi.instance
+      .get(`/apis/v1/ms/oracle/warehouses?organization_code=${organization_code}&active_only=true&limit=500`)
+      .then((r: any) => r.data.items)
     subInventoryOption.value = inventoryList.map((item: any) => ({
       label: item.warehouse_code,
       value: item.warehouse_code,
-      organization_code: item.organization_code
+      organization_code: item.organization_code,
+      description: item.description,
+      org_id: item.org_id
     }))
   } catch (e) {
     console.log(e)
@@ -159,7 +164,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'index',
-      title: '序號 Index',
+      title: t('transferNoteApproval.index'),
       align: 'center',
       type: 'seq',
       fixed: 'left',
@@ -167,55 +172,55 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'po_number',
-      title: 'PO編號 PO Number',
+      title: t('transferNoteApproval.poNumber'),
       minWidth: 240
     },
     {
       field: 'part_number',
-      title: '零件編號 Part Number',
+      title: t('transferNoteApproval.partNumber'),
       minWidth: 240
     },
     {
       field: 'part_description',
-      title: '零件描述 Part Description',
+      title: t('transferNoteApproval.partDescription'),
       minWidth: 240
     },
     {
       field: 'sys_qty',
-      title: '系統數量 Sys Qty',
+      title: t('transferNoteApproval.sysQty'),
       minWidth: 240
     },
     {
       field: 'qty',
-      title: '數量 QTY',
+      title: t('transferNoteApproval.qty'),
       minWidth: 240,
       slots: { default: 'qty' }
     },
     {
       field: 'unit_price',
-      title: '單價 Unit Price',
+      title: t('transferNoteApproval.unitPrice'),
       minWidth: 240
     },
     {
       field: 'shipment_number',
-      title: '出貨編號 Shipment Number',
+      title: t('transferNoteApproval.shipmentNumber'),
       minWidth: 240,
       slots: { default: 'shipment_number' }
     },
     {
       field: 'amount',
-      title: '合計 Amount',
+      title: t('transferNoteApproval.amount'),
       minWidth: 240
     },
     {
       field: 'sub_inventory',
-      title: '至子庫存 To Sub-Inventory',
+      title: t('transferNoteApproval.toSubInventory'),
       minWidth: 240,
       slots: { default: 'sub_inventory' }
     },
     {
       field: 'tn_planned_date',
-      title: 'TN計畫日期 TN Planned Date',
+      title: t('transferNoteApproval.tnPlannedDate'),
       minWidth: 240,
       formatter({ cellValue }: any) {
         return dayjs(cellValue).format('YYYY-MMM-DD')
@@ -224,53 +229,53 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'office',
-      title: '辦事處 To Office',
+      title: t('transferNoteApproval.toOffice'),
       minWidth: 240,
       slots: { default: 'office' }
     },
     {
       field: 'origin',
-      title: '來源 Origin',
+      title: t('transferNoteApproval.origin'),
       minWidth: 240
     },
     {
       field: 'product_name',
-      title: '產品名稱 Product Name',
+      title: t('transferNoteApproval.productName'),
       minWidth: 240
     },
     {
       field: 'description',
-      title: '描述 Description',
+      title: t('transferNoteApproval.description'),
       minWidth: 240
     },
     {
       field: 'git_stk',
-      title: 'GIT STK',
+      title: t('transferNoteApproval.gitStk'),
       minWidth: 240
     },
     {
       field: 'from_sub_inventory',
-      title: '來自子庫存 From Sub-Inventory',
+      title: t('transferNoteApproval.fromSubInventory'),
       minWidth: 240
     },
     {
       field: 'po_line_number',
-      title: 'PO行號 PO Line Numbe',
+      title: t('transferNoteApproval.poLineNumber'),
       minWidth: 240
     },
     {
       field: 'shipment_num',
-      title: '出貨行號 Shipment Num',
+      title: t('transferNoteApproval.shipmentNum'),
       minWidth: 240
     },
     {
       field: 'commodity_inspection',
-      title: '商品檢驗 Commodity Inspection',
+      title: t('transferNoteApproval.commodityInspection'),
       minWidth: 240
     },
     {
       field: 'status',
-      title: '狀態 Status',
+      title: t('transferNoteApproval.status'),
       minWidth: 240
     }
   ],
@@ -288,7 +293,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     [
       {
         code: 'open',
-        name: 'Open',
+        name: t('transferNoteApproval.open'),
         action: ({ row }: { row: any }) => {
           handleDblClick(row)
         }
@@ -314,18 +319,27 @@ function handleDblClick(row: any) {
   tnApprovalDialogRef.value.open(row)
 }
 
-function handleReview() {
-  if (!dataList.value.length) {
-    ElMessage.error('請搜索訂單')
+async function handleReview() {
+  if (selectedRowsListLength.value === 0) {
+    ElMessage.error(t('transferNoteApproval.pleaseSelectOrders'))
     return
   }
+
+  const checkList: any[] = selectedRowsList.value.map((item) => ({
+    org_id: userInfo.value.org_id,
+    part_num: item.part_number,
+    sub_inv: item.from_sub_inventory,
+    metrics: ['onhand']
+  }))
+
+  const boolean = await batchStockCheck(checkList)
 
   tnApprovalReviewRef.value?.open({
     office: userInfo.value.office,
     toPlannedDate: toPlannedDate.value,
-    commodityInspection: '',
+    commodityInspection: !boolean ? 'Y' : 'N',
     remark: remark.value,
-    dataList: dataList.value
+    dataList: selectedRowsList.value
   })
 }
 
@@ -342,7 +356,7 @@ async function handleSearchByDate() {
   isGitSearch.value = true
   dataList.value = []
   if (!search.gitDate || search.gitDate === '') {
-    routerProvider?.message.error('請選擇GIT日期')
+    routerProvider?.message.error(t('transferNoteApproval.pleaseSelectGitDate'))
     return
   }
 
@@ -352,10 +366,10 @@ async function handleSearchByDate() {
   }
 
   try {
-    const data = await clientApi.instance.post(`/api/tn/inquiry/git`, raw).then((r: any) => r.data.data)
+    const data = await newClientApi.postTnInquiryGit(raw).then((r: any) => r.data)
 
     if (data.lines.length === 0) {
-      routerProvider?.message.warning('未檢索到數據!')
+      routerProvider?.message.warning(t('transferNoteApproval.noDataFound'))
       return
     }
 
@@ -400,10 +414,10 @@ async function handleSearchByPo() {
   }
 
   try {
-    const data = await clientApi.instance.post(`/api/tn/inquiry/onhand`, raw).then((r: any) => r.data.data)
+    const data = await newClientApi.postTnInquiryOnhand(raw).then((r: any) => r.data)
 
     if (data.lines.length === 0) {
-      routerProvider?.message.warning('未檢索到數據!')
+      routerProvider?.message.warning(t('transferNoteApproval.noDataFound'))
       return
     }
 
@@ -480,7 +494,23 @@ async function saveLine(id: string) {
     org_id: userInfo.value.org_id,
     lines: list
   }
-  await clientApi.instance.put(`/api/tn/lines`, raw).then((r) => r.data)
+  await newClientApi.putTnLines(raw)
+}
+
+async function batchStockCheck(list: any[]) {
+  const data: any[] = await clientApi.instance.post(`/apis/v1/ms/postgres/stock-check/enquiry/batch`, list).then((r) => r.data)
+
+  const filter = data.filter((item) => {
+    if (item.onhand === 0) {
+      return item.part_num
+    }
+  })
+
+  if (filter.length > 0) {
+    ElMessage.error(t('transferNoteApproval.insufficientStock', { items: filter.map((item) => item.part_num).join(',') }))
+    return true
+  }
+  return false
 }
 
 async function getFormData(needValidation = true) {
@@ -488,34 +518,48 @@ async function getFormData(needValidation = true) {
 
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) {
-    ElMessage.error('請選擇訂單')
+    ElMessage.error(t('transferNoteApproval.pleaseSelectOrders'))
     throw new Error('')
   }
   if (selectedRowsListLength.value === 0) {
-    ElMessage.error('請選擇訂單')
+    ElMessage.error(t('transferNoteApproval.pleaseSelectOrders'))
     throw new Error('')
   }
 
-  const list = deepCopy(selectedRowsList.value).map((item: any, index: number) => {
-    return {
-      po_number: item.po_number,
-      line_num: item.po_line_number,
-      shipment_num: item.shipment_num,
-      item: item.part_number,
-      rcv_transaction_id: item.rcv_transaction_id,
-      transfer_quantity: item.qty,
-      unit_price_in_hkd: item.unit_price,
-      shipment_number: item.shipment_number,
-      to_subinventory: item.sub_inventory,
-      tn_planned_date: item.tn_planned_date,
-      office: item.office
-    }
-  })
+  const { resultList, checkList } = selectedRowsList.value.reduce(
+    (acc, item) => {
+      acc.resultList.push({
+        po_number: item.po_number,
+        line_num: item.po_line_number,
+        shipment_num: item.shipment_num,
+        item: item.part_number,
+        rcv_transaction_id: item.rcv_transaction_id,
+        transfer_quantity: item.qty,
+        unit_price_in_hkd: item.unit_price,
+        shipment_number: item.shipment_number,
+        to_subinventory: item.sub_inventory,
+        tn_planned_date: item.tn_planned_date,
+        office: item.office
+      })
+      acc.checkList.push({
+        org_id: userInfo.value.org_id,
+        part_num: item.part_number,
+        sub_inv: item.from_sub_inventory,
+        metrics: ['onhand']
+      })
+      return acc
+    },
+    { resultList: [], checkList: [] }
+  )
+
+  if (await batchStockCheck(checkList)) {
+    throw new Error('')
+  }
 
   const result = {
     batch_id: batch_id.value,
     org_id: userInfo.value.org_id,
-    data_list: list,
+    data_list: resultList,
     remark: remark.value,
     email_create_date: dayjs().format('YYYY年MM月DD日'),
     email_planned_date: dayjs(toPlannedDate.value).format('YYYY年MM月DD日')
@@ -534,7 +578,7 @@ defineExpose({ getFormData })
 
 <template>
   <div class="remark-review">
-    <el-form-item label="備注 Remark" class="remark-review__item">
+    <el-form-item :label="t('transferNoteApproval.remark')" class="remark-review__item">
       <el-input v-model="remark" />
     </el-form-item>
 
@@ -543,31 +587,31 @@ defineExpose({ getFormData })
 
   <el-row class="search-groups">
     <el-col :span="10">
-      <el-divider content-position="left">根據GIT日期搜尋 Search By GIT Date</el-divider>
+      <el-divider content-position="left">{{ t('transferNoteApproval.searchByGitDate') }}</el-divider>
       <div class="git-date-search">
-        <el-form-item label="GIT 日期 GIT Date" class="git-date-search__item">
+        <el-form-item :label="t('transferNoteApproval.gitDate')" class="git-date-search__item">
           <el-date-picker
             v-model="search.gitDate"
             type="date"
-            placeholder="Select date"
+            :placeholder="t('transferNoteApproval.selectDate')"
             format="YYYY/MMM/DD"
             value-format="YYYY-MM-DD"
             :clearable="false"
             :value-on-clear="dayjs().format('YYYY-MM-DD')"
           />
         </el-form-item>
-        <el-button type="primary" @click="handleSearchByDate">Search By GIT Data</el-button>
+        <el-button type="primary" @click="handleSearchByDate">{{ t('transferNoteApproval.searchByGitDate') }}</el-button>
       </div>
     </el-col>
     <el-col :span="14">
-      <el-divider content-position="left">根據PO搜索 Search By PO</el-divider>
+      <el-divider content-position="left">{{ t('transferNoteApproval.searchByPo') }}</el-divider>
       <div class="git-date-search-2">
-        <el-form-item label="品牌 Brand" prop="brand" class="git-date-search-2__item">
-          <el-select v-model="search.brand" filterable placeholder="Select an option" @change="handleBrandChange" style="width: 100%">
+        <el-form-item :label="t('transferNoteApproval.brand')" prop="brand" class="git-date-search-2__item">
+          <el-select v-model="search.brand" filterable :placeholder="t('transferNoteApproval.selectAnOption')" @change="handleBrandChange" style="width: 100%">
             <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="零件編號 Part Number" prop="part_number" class="git-date-search-2__item">
+        <el-form-item :label="t('transferNoteApproval.partNumber')" prop="part_number" class="git-date-search-2__item">
           <el-select-v2
             v-model="search.partNumber"
             filterable
@@ -576,31 +620,31 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="partNumberOptions"
-            placeholder="Select an option"
+            :placeholder="t('transferNoteApproval.selectAnOption')"
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item label="PO編號 PO Number" class="git-date-search-2__item">
+        <el-form-item :label="t('transferNoteApproval.poNumber')" class="git-date-search-2__item">
           <el-input v-model="search.poNumber" clearable />
         </el-form-item>
-        <el-button type="primary" @click="handleSearchByPo">Search By PO</el-button>
+        <el-button type="primary" @click="handleSearchByPo">{{ t('transferNoteApproval.searchByPo') }}</el-button>
       </div>
     </el-col>
   </el-row>
 
-  <el-divider content-position="left">搜尋結果 Search Results</el-divider>
+  <el-divider content-position="left">{{ t('transferNoteApproval.searchResults') }}</el-divider>
   <div style="height: 79vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="toolbar-selected">
           <el-form ref="formRef" :model="formModel" :rules="rules" label-position="left" inline class="toolbar-selected__form">
-            <el-form-item label="數量 Quantity" prop="dataListLength">
+            <el-form-item :label="t('transferNoteApproval.quantity')" prop="dataListLength">
               <el-input v-model="formModel.dataListLength" disabled />
             </el-form-item>
           </el-form>
           <div>
-            已選中數量 Selected Quantity: {{ formModel.selectedRowsListLength }}
-            <el-button v-if="formModel.selectedRowsListLength > 0" type="danger" @click="handleClear">Clear</el-button>
+            {{ t('transferNoteApproval.selectedQuantity') }}: {{ formModel.selectedRowsListLength }}
+            <el-button v-if="formModel.selectedRowsListLength > 0" type="danger" @click="handleClear">{{ t('transferNoteApproval.clear') }}</el-button>
           </div>
         </div>
       </template>
@@ -622,8 +666,10 @@ defineExpose({ getFormData })
         <el-input v-model="row.shipment_number" @change="saveLine(row.id)" />
       </template>
       <template #sub_inventory="{ row, index }">
-        <el-select v-model="row.sub_inventory" @change="saveLine(row.id)">
-          <el-option v-for="item in subInventoryOption" :key="item.value" :label="item.label" :value="item.value" />
+        <el-select v-model="row.sub_inventory" @change="saveLine(row.id)" filterable>
+          <el-option v-for="item in subInventoryOption" :key="item.value" :label="item.label" :value="item.value">
+            <template #default> {{ item.label }} - {{ item.description }} </template>
+          </el-option>
         </el-select>
       </template>
       <template #tn_planned_date="{ row, index }">

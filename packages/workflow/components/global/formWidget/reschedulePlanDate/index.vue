@@ -23,6 +23,7 @@ type LineItem = {
   new_plan_date: string
   brand_code: string
   remark: string
+  status: string
 }
 
 const lineFormRef = ref()
@@ -61,15 +62,23 @@ const lineRules = {
             if (item?.pi_invoice === value) {
               item.old_plan_date = ''
               item.brand_code = ''
+              item.status = ''
             }
+            callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
             return
           }
           if (item?.pi_invoice === value) {
             item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
             item.brand_code = data.brand ?? ''
+            item.status = data.status_code ?? ''
           }
           await setCustomer(data)
           callback()
+          nextTick(() => {
+            if (index !== undefined && !Number.isNaN(index)) {
+              lineFormRef.value?.validateField(`list.${index}.status`)
+            }
+          })
         } catch (e) {
           callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
         }
@@ -77,7 +86,23 @@ const lineRules = {
       trigger: 'blur'
     }
   ],
-  new_plan_date: [{ required: true, message: t('reschedulePlanDate.pleaseSelectNewPlanDate'), trigger: 'change' }]
+  new_plan_date: [{ required: true, message: t('reschedulePlanDate.pleaseSelectNewPlanDate'), trigger: 'change' }],
+  status: [
+    {
+      validator: (_rule: any, value: string, callback: any) => {
+        if (!value) {
+          callback()
+          return
+        }
+        if (value.toLowerCase() !== 'op') {
+          callback(new Error(t('reschedulePlanDate.statusMustBeOpen')))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
 }
 
 function disabledPastDate(date: Date) {
@@ -91,7 +116,8 @@ function createEmptyLine(): LineItem {
     old_plan_date: '',
     new_plan_date: '',
     brand_code: '',
-    remark: ''
+    remark: '',
+    status: ''
   }
 }
 
@@ -296,7 +322,14 @@ function numberChange(value: string) {
 
 async function checkingPiNumber(value: string) {
   try {
-    const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
+    let customer_number = ''
+    if (!!formModel.customer_number && formModel.customer_number !== '') {
+      customer_number = `customer_number=${formModel.customer_number}&`
+    }
+    if (formModel.list.length === 1) {
+      customer_number = ''
+    }
+
     const { data } = await clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data)
     return data
   } catch (e) {
@@ -343,11 +376,23 @@ async function handlePiChange(row: LineItem) {
   if (!row.pi_invoice || row.pi_invoice === '') {
     row.brand_code = ''
     row.old_plan_date = ''
+    row.status = ''
     return
   }
 }
 
 async function setCustomer(data: any) {
+  if (formModel.list.length === 1) {
+    formModel.customer_number = data.customer_number
+    formModel.customer_name = data.customer_number
+    formModel.customer_english_name = data.customer_number
+    formModel.org = data.org_id
+    formModel.customerName = data.customer_name
+    formModel.customerEnglishName = data.customer_name
+    await searchName(data.customer_number)
+    return
+  }
+
   if (!formModel.org) {
     formModel.customer_number = data.customer_number
     formModel.customer_name = data.customer_number
@@ -497,6 +542,14 @@ defineExpose({ getFormData })
             <el-form-item class="line-row__field line-row__field--brand" :label="t('reschedulePlanDate.brand')">
               <el-input v-model="element.brand_code" disabled />
             </el-form-item>
+            <el-form-item
+              class="line-row__field line-row__field--status"
+              :label="t('reschedulePlanDate.status')"
+              :prop="`list.${index}.status`"
+              :rules="lineRules.status"
+            >
+              <el-input v-model="element.status" disabled />
+            </el-form-item>
             <el-form-item class="line-row__field line-row__field--remark" :label="t('reschedulePlanDate.remark')">
               <el-input v-model="element.remark" />
             </el-form-item>
@@ -548,6 +601,7 @@ defineExpose({ getFormData })
 
     &--pi {
       flex: 0 0 180px;
+      margin-block: 2px;
     }
 
     &--date {
@@ -556,6 +610,12 @@ defineExpose({ getFormData })
 
     &--brand {
       flex: 0 0 160px;
+    }
+
+    &--status {
+      flex: 0 0 100px;
+      min-width: 80px;
+      margin-block: 2px;
     }
 
     &--remark {

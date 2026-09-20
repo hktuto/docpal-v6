@@ -39,7 +39,7 @@ const currencyOptions = ref([
   { label: 'HKD', value: 'HKD' },
   { label: 'USD', value: 'USD' }
 ])
-const seriesOptions = ref<any[]>([])
+const seriesOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
 const partNumberOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
 const formModel = reactive({
   priceAnnouncementNumber: '',
@@ -213,7 +213,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 function handleAddRow() {
   tableData.value.push({
     endCustomer: '',
-    priceGroup: '',
+    priceGroup: 'Any',
     supplierPartNumber: 'Any',
     currency: '',
     originalUnitPrice: 0,
@@ -264,13 +264,15 @@ async function handleGetSeries(brandName: string) {
 async function getSeries(series?: string) {
   try {
     const q = !!series && series !== '' ? `q=${series}&` : ''
+
     const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}brand=KOA&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
     if (!data?.length) return
 
-    seriesOptions.value = data.map((item: any) => ({
+    const value = data.map((item: any) => ({
       label: item.displayName,
       value: item.value
     }))
+    seriesOptions.value = [...seriesOptions.value, ...value]
   } catch (e) {
     console.log(e)
   }
@@ -279,8 +281,12 @@ async function getSeries(series?: string) {
 async function getPartNumber(series?: string, partNumber?: string) {
   try {
     const b = formModel.brand ? `brand=${formModel.brand}&` : ''
-    const s = series ? `series=${series}&` : ''
+    let s = series ? `series=${series}&` : ''
     const q = partNumber ? `q=${partNumber}&` : ''
+
+    if (formModel.brand === 'KOA') {
+      s = ''
+    }
 
     const data = await clientApi.instance
       .get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50&includeCustomer=false`)
@@ -291,7 +297,7 @@ async function getPartNumber(series?: string, partNumber?: string) {
       label: item.vendor_item_no,
       value: item.vendor_item_no
     }))
-    partNumberOptions.value = [...value, ...partNumberOptions.value]
+    partNumberOptions.value = [...partNumberOptions.value, ...value]
   } catch (e) {
     console.log(e)
   }
@@ -364,7 +370,7 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
       .map((row: any) => {
         return {
           endCustomer: row[fieldIndexes[0]],
-          priceGroup: formModel.brand === 'KOA' ? row[fieldIndexes[1]] : '',
+          priceGroup: formModel.brand === 'KOA' ? row[fieldIndexes[1]] : 'Any',
           supplierPartNumber: row[fieldIndexes[2]] !== '' ? row[fieldIndexes[2]] : 'Any',
           currency: row[fieldIndexes[3]],
           originalUnitPrice: parseNumber(row[fieldIndexes[4]]),
@@ -391,7 +397,7 @@ watch(
     if (newValue !== 'KOA' && tableData.value.length > 0) {
       tableData.value = tableData.value.map((item: any) => ({
         endCustomer: item.endCustomer,
-        priceGroup: '',
+        priceGroup: 'Any',
         supplierPartNumber: item.supplierPartNumber,
         currency: item.currency,
         originalUnitPrice: item.originalUnitPrice,
