@@ -257,6 +257,7 @@ watch(
 
 async function getFormData(needValidation = true) {
   const result = {
+    org_id: userInfo.value.org_id,
     office: header.value.office,
     tn_number: header.value.tn_number,
     tn_planned_date: header.value.tn_planned_date,
