@@ -263,7 +263,11 @@ async function handleGetSeries(brandName: string) {
 
 async function getSeries(series?: string) {
   try {
-    const q = !!series && series !== '' ? `q=${series}&` : ''
+    let q = !!series && series !== '' ? `q=${series}&` : ''
+    if (formModel.brand === 'KOA') {
+      q = ''
+    }
+
     const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}brand=KOA&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
     if (!data?.length) return
 
