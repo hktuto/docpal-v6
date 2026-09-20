@@ -66,18 +66,9 @@ const rules = reactive({
   ]
 })
 
-const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'tnApprovalReviewTable',
-  api: () => {
-    return dataList.value
-  },
-  columns: [
-    {
-      type: 'checkbox',
-      width: 60,
-      align: 'center',
-      fixed: 'left'
-    },
+function getColumns() {
+  const checkboxCol = { type: 'checkbox', width: 60, align: 'center', fixed: 'left' }
+  const columns: any[] = [
     {
       field: 'tn_line_num',
       title: t('transferNoteApproval.tnLineNumber'),
@@ -145,7 +136,20 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 240,
       slots: { default: 'cancel_reason' }
     }
-  ],
+  ]
+
+  if (!isApproval.value) {
+    columns.unshift(checkboxCol)
+  }
+  return columns
+}
+
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
+  id: 'tnApprovalReviewTable',
+  api: () => {
+    return dataList.value
+  },
+  columns: getColumns(),
   zoom: false,
   refresh: false,
   customeToolBar: false,
@@ -155,6 +159,14 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   saveColumnOrder: false,
   selectChangeHander: (selectedRows: any[]) => {
     selectedRowsList.value = selectedRows
+  },
+  optionalConfig: {
+    rowClassName: ({ row }: { row: any }) => {
+      if (isApproval.value && String(row.cancel_reason ?? '').trim()) {
+        return 'row--cancel-highlight'
+      }
+      return ''
+    }
   }
 })
 
@@ -196,7 +208,10 @@ async function init() {
   selectedRowsList.value = formData.select_list ?? []
   dataList.value = formData.list ?? []
 
-  nextTick(() => reload())
+  nextTick(() => {
+    tableConfig.columns = getColumns()
+    reload()
+  })
 }
 
 async function getTNData(tnNumber: string) {
@@ -360,6 +375,14 @@ defineExpose({ getFormData })
 
   &--approval {
     height: 50vh;
+  }
+
+  :deep(.vxe-body--row.row--cancel-highlight) {
+    background-color: #fff8e1;
+
+    .vxe-body--column {
+      background-color: #fff8e1;
+    }
   }
 }
 </style>
