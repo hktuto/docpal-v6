@@ -354,6 +354,7 @@ function handleUpdate(row: any) {
 
 async function handleSearchByDate() {
   isGitSearch.value = true
+  tableConfig.loading = true
   dataList.value = []
   if (!search.gitDate || search.gitDate === '') {
     routerProvider?.message.error(t('transferNoteApproval.pleaseSelectGitDate'))
@@ -401,11 +402,14 @@ async function handleSearchByDate() {
     reload()
   } catch (e) {
     console.log(e)
+  } finally {
+    tableConfig.loading = false
   }
 }
 
 async function handleSearchByPo() {
   isGitSearch.value = false
+  tableConfig.loading = true
   dataList.value = []
   const raw = {
     org_id: userInfo.value.org_id,
@@ -449,6 +453,8 @@ async function handleSearchByPo() {
     reload()
   } catch (e) {
     console.log(e)
+  } finally {
+    tableConfig.loading = false
   }
 }
 
@@ -582,7 +588,7 @@ defineExpose({ getFormData })
       <el-input v-model="remark" />
     </el-form-item>
 
-    <el-button type="primary" @click="handleReview">{{ $t('Review') }}</el-button>
+    <el-button type="primary" @click="handleReview">{{ $t('transferNoteApproval.review') }}</el-button>
   </div>
 
   <el-row class="search-groups">

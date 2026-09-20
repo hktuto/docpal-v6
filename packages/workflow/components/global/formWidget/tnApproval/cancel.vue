@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
 
+const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -17,6 +18,52 @@ const userInfo = ref<any>({
 })
 const isApproval = ref<boolean>(false)
 const selectedRowsList = ref<any[]>([])
+const header = ref<{
+  office: string
+  tn_number: string
+  tn_planned_date: string
+  commodity_inspection: string
+  status: string
+  created_by: string
+  creation_date: string
+  version: string
+}>({
+  office: '',
+  tn_number: '',
+  tn_planned_date: '',
+  commodity_inspection: '',
+  status: '',
+  created_by: '',
+  creation_date: '',
+  version: ''
+})
+const formRef = ref()
+const selectData = reactive({
+  selectedRowsListLength: 0
+})
+
+watch(
+  () => selectedRowsList.value,
+  (value) => {
+    selectData.selectedRowsListLength = value.length
+  },
+  { deep: true }
+)
+
+const rules = reactive({
+  selectedRowsListLength: [
+    {
+      validator: (rule: any, value: any, callback: any) => {
+        if (value === 0) {
+          callback(new Error(''))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    }
+  ]
+})
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'tnApprovalReviewTable',
@@ -32,68 +79,68 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'tn_line_num',
-      title: 'TN 行號',
+      title: t('transferNoteApproval.tnLineNumber'),
       align: 'center',
       minWidth: 100
     },
     {
       field: 'line_num',
-      title: 'PO 行號',
+      title: t('transferNoteApproval.poLineNumber'),
       minWidth: 100
     },
     {
       field: 'po_number',
-      title: 'PO編號 PO Number',
+      title: t('transferNoteApproval.poNumber'),
       minWidth: 240
     },
     {
       field: 'item',
-      title: 'WCL零件編號 WCL Part Number',
+      title: t('transferNoteApproval.wclPartNumber'),
       minWidth: 240
     },
     {
       field: 'item_origin',
-      title: '來源 Origin',
+      title: t('transferNoteApproval.origin'),
       minWidth: 100
     },
     {
       field: 'qty_delivered_onhand',
-      title: '在手數量 On Hand Qty',
+      title: t('transferNoteApproval.onHandQty'),
       minWidth: 240
     },
     {
       field: 'from_subinventory',
-      title: '來自子庫存 From Sub-Inventory',
+      title: t('transferNoteApproval.fromSubInventory'),
       minWidth: 240
     },
     {
       field: 'to_subinventory',
-      title: '至子庫存 To Sub-Inventory',
+      title: t('transferNoteApproval.toSubInventory'),
       minWidth: 240
     },
     {
       field: 'transfer_quantity',
-      title: '轉移數量 Transfer Qty',
+      title: t('transferNoteApproval.transferQty'),
       minWidth: 140
     },
     {
       field: 'unit_price_in_hkd',
-      title: '單價 Unit Price',
+      title: t('transferNoteApproval.unitPrice'),
       minWidth: 160
     },
     {
       field: 'amount_in_hkd',
-      title: '合計 Amount',
+      title: t('transferNoteApproval.amount'),
       minWidth: 150
     },
     {
       field: 'status',
-      title: '行狀態 Line Status',
+      title: t('transferNoteApproval.lineStatus'),
       minWidth: 240
     },
     {
       field: 'cancel_reason',
-      title: '取消原因 Cancel Reason',
+      title: t('transferNoteApproval.cancelReason'),
       minWidth: 240,
       slots: { default: 'cancel_reason' }
     }
@@ -115,8 +162,7 @@ function handleShowData() {
   tableRef.value.loadData(data)
   // reload()
 }
-
-async function init(tn_number: string) {
+function getUserInfo() {
   const useLocalStorage = localStorage.getItem('docpal-user')
   if (useLocalStorage) {
     const user = JSON.parse(useLocalStorage)
@@ -126,28 +172,36 @@ async function init(tn_number: string) {
       userInfo.value.org_id = user.org[0].operatingId
     }
   }
+}
+
+async function init() {
   showAll.value = true
   tnList.value = []
   dataList.value = []
-  await getTNData(tn_number)
-  // nextTick(() => reload())
+
+  nextTick(() => reload())
 }
 
 async function getTNData(tnNumber: string) {
+  tableConfig.loading = true
   const raw = {
-    // org_id: userInfo.value.org_id,
-    org_id: 14,
+    org_id: userInfo.value.org_id,
     tn_numbers: [tnNumber]
   }
 
   const data = await clientApi.instance.post(`/api/tn/details`, raw).then((r) => r.data.data.items)
   if (data.length === 0) {
-    routerProvider?.message.warning('未查詢到相關信息!')
+    routerProvider?.message.warning(t('transferNoteApproval.noRelatedInfoFound'))
     return
   }
 
+  const dataHeader = data[0].header
+  header.value = {
+    ...dataHeader
+  }
+
   dataList.value = data[0].lines
-  console.log(123, data[0].lines)
+  tableConfig.loading = false
   reload()
 }
 
@@ -161,40 +215,120 @@ watch(
   { immediate: true, deep: true }
 )
 
-onMounted(async () => {
-  await getTNData('a')
-})
+async function getFormData(needValidation = true) {
+  const result = {
+    office: header.value.office,
+    tn_number: header.value.tn_number,
+    tn_planned_date: header.value.tn_planned_date,
+    commodity_inspection: header.value.commodity_inspection,
+    status: header.value.status,
+    created_by: header.value.created_by,
+    creation_date: header.value.creation_date,
+    version: header.value.version,
+    list: dataList.value
+  }
 
-function getFormData() {
-  return {}
+  if (!needValidation) return result
+  await formRef.value?.validate()
+  return result
 }
-const tnNumber = ref('')
+
+onMounted(() => {
+  getUserInfo()
+})
 
 defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-input v-model="tnNumber" @change="getTNData" />
+  <el-row>
+    <el-col :span="6">
+      <el-form-item :label="t('transferNoteApproval.office')">
+        <el-input v-model="header.office" disabled style="width: 90%" />
+      </el-form-item>
+      <el-form-item :label="t('transferNoteApproval.status')">
+        <el-input v-model="header.status" disabled style="width: 90%" />
+      </el-form-item>
+    </el-col>
+    <el-col :span="6">
+      <el-form-item :label="t('transferNoteApproval.tnNumber')">
+        <el-input v-model="header.tn_number" style="width: 90%" @change="getTNData" />
+      </el-form-item>
+      <el-form-item :label="t('transferNoteApproval.createdBy')">
+        <el-input v-model="header.created_by" disabled style="width: 90%" />
+      </el-form-item>
+    </el-col>
+    <el-col :span="6">
+      <el-form-item :label="t('transferNoteApproval.tnPlannedDate')">
+        <el-input v-model="header.tn_planned_date" disabled style="width: 90%" />
+      </el-form-item>
+      <el-form-item :label="t('transferNoteApproval.creationDate')">
+        <el-input v-model="header.creation_date" disabled style="width: 90%" />
+      </el-form-item>
+    </el-col>
+    <el-col :span="6">
+      <el-form-item :label="t('transferNoteApproval.commodityInspection')">
+        <el-input v-model="header.commodity_inspection" disabled style="width: 90%" />
+      </el-form-item>
+      <el-form-item :label="t('transferNoteApproval.version')">
+        <el-input v-model="header.version" disabled style="width: 90%" />
+      </el-form-item>
+    </el-col>
+  </el-row>
 
   <div class="tn-review-table">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <el-divider v-if="!isApproval" content-position="left">選擇要取消的行 Select Lines To Cancel</el-divider>
+        <div v-if="!isApproval" class="table-header-center">
+          <el-divider content-position="left">{{ t('transferNoteApproval.selectLinesToCancel') }}</el-divider>
+
+          <el-form ref="formRef" :model="selectData" :rules="rules" label-position="left">
+            <el-form-item :label="t('transferNoteApproval.selectedQuantity')" prop="selectedRowsListLength" style="width: 100%">
+              <el-input v-model="selectData.selectedRowsListLength" disabled />
+            </el-form-item>
+          </el-form>
+        </div>
+
         <el-divider v-else content-position="left">
-          Lines Pending Approval {{ selectedRowsList.length }} of {{ dataList.length }} lines selected for cancellation
+          <span>{{ t('transferNoteApproval.linesPendingApproval') }}</span>
+
+          {{
+            t('transferNoteApproval.linesPendingApprovalCancellation', {
+              selected: selectedRowsList.length,
+              total: dataList.length
+            })
+          }}
         </el-divider>
-        <el-button v-if="isApproval" type="primary" @click="handleShowData">{{ showAll ? 'Show Cancel Lines' : 'Show All Lines' }}</el-button>
+        <el-button v-if="isApproval" type="primary" @click="handleShowData">
+          {{ showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
+        </el-button>
       </template>
 
       <template #cancel_reason="{ row, index }">
-        <el-input v-model="row.cancel_reason" />
+        <el-input v-model="row.cancel_reason" :disabled="isApproval" />
       </template>
     </VxeGrid>
   </div>
 </template>
 
 <style scoped lang="scss">
+.table-header-center {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.table-header-center .el-divider {
+  flex: 1;
+  margin: 0;
+}
+
+.table-header-center .el-form-item {
+  margin-bottom: 0;
+}
+
 .tn-review-table {
-  height: 60vh;
+  height: 70vh;
 }
 </style>
