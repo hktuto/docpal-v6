@@ -15,9 +15,17 @@ const user = useUserState().value
 const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'Available_task',
+  optionalConfig: {
+    rowConfig: {
+      useKey: true,
+      isCurrent: true
+    }
+  },
   optionalEvent: {
     cellClick: ({ row }: { row: Record<string, any> }) => {
-      if (row) emit('select', row)
+      if (!row) return
+      tableRef.value?.setCurrentRow?.(row)
+      emit('select', row)
     }
   },
   api: async (pageParams: any) => {
@@ -90,7 +98,10 @@ async function claimTask(row: any) {
   }
 }
 
-defineExpose({ reload })
+defineExpose({
+  reload,
+  clearHighlight: () => tableRef.value?.clearCurrentRow?.()
+})
 </script>
 
 <template>
@@ -125,4 +136,8 @@ defineExpose({ reload })
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+:deep(.vxe-body--row.row--current) {
+  background-color: var(--el-color-primary-light-9) !important;
+}
+</style>
