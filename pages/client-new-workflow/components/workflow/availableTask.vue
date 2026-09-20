@@ -2,6 +2,9 @@
 import { clientApi } from 'api'
 import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
 
+const emit = defineEmits<{
+  select: [row: Record<string, any>]
+}>()
 const workflowList = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -12,6 +15,11 @@ const user = useUserState().value
 const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'Available_task',
+  optionalEvent: {
+    cellClick: ({ row }: { row: Record<string, any> }) => {
+      if (row) emit('select', row)
+    }
+  },
   api: async (pageParams: any) => {
     const params = {
       groups: user.aclUserDetail.groups.map((item: any) => item.groupId),

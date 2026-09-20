@@ -7,12 +7,20 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
+const emit = defineEmits<{
+  select: [row: Record<string, any>]
+}>()
 const workflowList = await getWorkflowList()
 const { t } = useI18n()
 const userId: string = useUserId().value
 const definition_id = ref<string>('')
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'my_task',
+  optionalEvent: {
+    cellClick: ({ row }: { row: Record<string, any> }) => {
+      if (row) emit('select', row)
+    }
+  },
   api: async (pageParams: any) => {
     const params = {
       page_size: pageParams.pageSize,
