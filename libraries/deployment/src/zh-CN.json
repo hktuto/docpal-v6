@@ -5183,9 +5183,10 @@
     "lineStatus": "行状态",
     "cancelReason": "取消原因",
     "noRelatedInfoFound": "未查询到相关信息!",
-    "linesPendingApproval ": "待审批行",
+    "linesPendingApproval": "待审批行",
     "linesPendingApprovalCancellation": "{selected} / {total} 行已选择取消",
     "showCancelLines": "显示取消行",
-    "showAllLines": "显示全部行"
+    "showAllLines": "显示全部行",
+    "rejectReason":"拒绝理由"
   }
 }

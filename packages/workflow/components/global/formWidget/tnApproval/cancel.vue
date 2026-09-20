@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
+import { v7 as uuidv7 } from 'uuid'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -9,7 +10,7 @@ const { disabled, formData, options } = defineProps<{
   options: any
 }>()
 const showAll = ref<boolean>(true)
-const tnList = ref<any[]>([])
+const allList = ref<any[]>([])
 const dataList = ref<any[]>([])
 const userInfo = ref<any>({
   user: '',
@@ -158,9 +159,10 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 })
 
 function handleShowData() {
-  const data = showAll ? [] : dataList.value
-  tableRef.value.loadData(data)
-  // reload()
+  dataList.value = showAll ? allList.value : selectedRowsList.value
+
+  showAll.value = !showAll.value
+  reload()
 }
 function getUserInfo() {
   const useLocalStorage = localStorage.getItem('docpal-user')
@@ -176,8 +178,23 @@ function getUserInfo() {
 
 async function init() {
   showAll.value = true
-  tnList.value = []
+  allList.value = []
   dataList.value = []
+  isApproval.value = formData.is_approval
+
+  header.value = {
+    office: formData.office ?? '',
+    tn_number: formData.tn_number ?? '',
+    tn_planned_date: formData.tn_planned_date ?? '',
+    commodity_inspection: formData.commodity_inspection ?? '',
+    status: formData.status ?? '',
+    created_by: formData.created_by ?? '',
+    creation_date: formData.creation_date ?? '',
+    version: formData.version ?? ''
+  }
+  allList.value = formData.list ?? []
+  selectedRowsList.value = formData.select_list ?? []
+  dataList.value = formData.list ?? []
 
   nextTick(() => reload())
 }
@@ -197,7 +214,15 @@ async function getTNData(tnNumber: string) {
 
   const dataHeader = data[0].header
   header.value = {
-    ...dataHeader
+    id: uuidv7(),
+    office: dataHeader.office ?? '',
+    tn_number: dataHeader.tn_number ?? '',
+    tn_planned_date: dataHeader.tn_planned_date ?? '',
+    commodity_inspection: dataHeader.commodity_inspection ?? '',
+    status: dataHeader.status ?? '',
+    created_by: dataHeader.created_by ?? '',
+    creation_date: dataHeader.creation_date ?? '',
+    version: dataHeader.version ?? ''
   }
 
   dataList.value = data[0].lines
@@ -206,10 +231,10 @@ async function getTNData(tnNumber: string) {
 }
 
 watch(
-  () => formData.tn_number,
+  () => formData.list,
   (value) => {
-    if (!!value) {
-      init(value)
+    if (!!value && value.length > 0) {
+      init()
     }
   },
   { immediate: true, deep: true }
@@ -225,7 +250,8 @@ async function getFormData(needValidation = true) {
     created_by: header.value.created_by,
     creation_date: header.value.creation_date,
     version: header.value.version,
-    list: dataList.value
+    list: dataList.value,
+    select_list: selectedRowsList.value
   }
 
   if (!needValidation) return result
@@ -276,7 +302,7 @@ defineExpose({ getFormData })
     </el-col>
   </el-row>
 
-  <div class="tn-review-table">
+  <div class="tn-review-table" :class="{ 'tn-review-table--approval': isApproval }">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div v-if="!isApproval" class="table-header-center">
@@ -289,19 +315,20 @@ defineExpose({ getFormData })
           </el-form>
         </div>
 
-        <el-divider v-else content-position="left">
-          <span>{{ t('transferNoteApproval.linesPendingApproval') }}</span>
-
-          {{
-            t('transferNoteApproval.linesPendingApprovalCancellation', {
-              selected: selectedRowsList.length,
-              total: dataList.length
-            })
-          }}
-        </el-divider>
-        <el-button v-if="isApproval" type="primary" @click="handleShowData">
-          {{ showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
-        </el-button>
+        <div v-else class="table-header-center">
+          <el-divider content-position="left">
+            <span style="font-weight: bold; font-size: 16px">{{ $t('transferNoteApproval.linesPendingApproval') }}</span>
+            {{
+              t('transferNoteApproval.linesPendingApprovalCancellation', {
+                selected: selectedRowsList.length,
+                total: dataList.length
+              })
+            }}
+          </el-divider>
+          <el-button type="primary" @click="handleShowData">
+            {{ showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
+          </el-button>
+        </div>
       </template>
 
       <template #cancel_reason="{ row, index }">
@@ -330,5 +357,9 @@ defineExpose({ getFormData })
 
 .tn-review-table {
   height: 70vh;
+
+  &--approval {
+    height: 50vh;
+  }
 }
 </style>

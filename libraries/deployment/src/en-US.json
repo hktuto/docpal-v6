@@ -5287,9 +5287,10 @@
     "lineStatus": "Line Status",
     "cancelReason": "Cancel Reason",
     "noRelatedInfoFound": "No related information found!",
-    "linesPendingApproval ": "Lines Pending Approval",
+    "linesPendingApproval": "Lines Pending Approval",
     "linesPendingApprovalCancellation": "{selected} of {total} lines selected for cancellation",
     "showCancelLines": "Show Cancel Lines",
-    "showAllLines": "Show All Lines"
+    "showAllLines": "Show All Lines",
+    "rejectReason":"Reject Reason"
   }
 }

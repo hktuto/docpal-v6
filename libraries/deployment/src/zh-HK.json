@@ -5255,9 +5255,10 @@
     "lineStatus": "行狀態",
     "cancelReason": "取消原因",
     "noRelatedInfoFound": "未查詢到相關信息!",
-    "linesPendingApproval ": "待審批行",
+    "linesPendingApproval": "待審批行",
     "linesPendingApprovalCancellation": "{selected} / {total} 行已選擇取消",
     "showCancelLines": "顯示取消行",
-    "showAllLines": "顯示全部行"
+    "showAllLines": "顯示全部行",
+    "rejectReason":"拒絕理由"
   }
 }
