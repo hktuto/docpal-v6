@@ -283,7 +283,7 @@ async function getSeries(series?: string) {
       label: item.displayName,
       value: item.value
     }))
-    seriesOptions.value = [...seriesOptions.value, ...value]
+    seriesOptions.value = [...value, ...seriesOptions.value]
   } catch (e) {
     console.log(e)
   }
@@ -308,7 +308,7 @@ async function getPartNumber(series?: string, partNumber?: string) {
       label: item.vendor_item_no,
       value: item.vendor_item_no
     }))
-    partNumberOptions.value = [...partNumberOptions.value, ...value]
+    partNumberOptions.value = [...value, ...partNumberOptions.value]
   } catch (e) {
     console.log(e)
   }
