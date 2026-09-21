@@ -5165,7 +5165,7 @@
     "approvalRemark": "審批備註",
     "importExcel": "導入 Excel",
     "downloadExcelTemplate": "下載 Excel 模板",
-    "searchAcrossAllColumns": "搜尋所有欄",
+    "searchAcrossAllColumns": "搜尋最終客戶/項目、價格組、供應商零件編號欄",
     "quantity": "數量",
     "addRow": "新增行",
     "delete": "刪除",

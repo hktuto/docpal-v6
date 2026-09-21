@@ -85,13 +85,16 @@ const rules = {
     }
   ]
 }
+const endCustomerRules = {
+  endCustomer: [{ required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.endCustomer') }), trigger: 'change' }]
+}
 
 function disabledEffectiveDate(date: Date) {
   return !dayjs(date).isAfter(dayjs(), 'day')
 }
 
 watch(
-  tableData.value,
+  () => selectList.value,
   (list) => {
     formModel.listLength = list.length
   },
@@ -259,12 +262,20 @@ function handleDownloadTemplate() {
 
 async function getCustomers(query?: string) {
   const q = query ? `q=${query}&` : ''
-  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?${q}&limit=${6000}`).then((r: any) => r.data?.items)
-  const map = data.map((item: any) => ({
-    label: item.customer_name,
-    value: item.account_number
-  }))
-  endCustomerOptions.value = [...map, ...endCustomerOptions.value]
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?${q}&limit=${1000}`).then((r: any) => r.data?.items)
+  const map = data
+    .map((item: any) => ({
+      label: item.customer_name,
+      value: item.account_number
+    }))
+    .sort((a: any, b: any) => a.label.localeCompare(b.label))
+  const merged = [...map, ...endCustomerOptions.value]
+  const seen = new Set<string>()
+  endCustomerOptions.value = merged.filter((item) => {
+    if (seen.has(item.value)) return false
+    seen.add(item.value)
+    return true
+  })
 }
 
 async function handleGetSeries(brandName: string) {
@@ -279,11 +290,19 @@ async function getSeries(series?: string) {
     const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}brand=KOA&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
     if (!data?.length) return
 
-    const value = data.map((item: any) => ({
-      label: item.displayName,
-      value: item.value
-    }))
-    seriesOptions.value = [...value, ...seriesOptions.value]
+    const value = data
+      .map((item: any) => ({
+        label: item.displayName,
+        value: item.value
+      }))
+      .sort((a: any, b: any) => a.label.localeCompare(b.label))
+    const merged = [...value, ...seriesOptions.value]
+    const seen = new Set<string>()
+    seriesOptions.value = merged.filter((item) => {
+      if (seen.has(item.value)) return false
+      seen.add(item.value)
+      return true
+    })
   } catch (e) {
     console.log(e)
   }
@@ -304,11 +323,19 @@ async function getPartNumber(series?: string, partNumber?: string) {
       .then((r: any) => r.data.items)
     if (!data?.length) return
 
-    const value = data.map((item: any) => ({
-      label: item.vendor_item_no,
-      value: item.vendor_item_no
-    }))
-    partNumberOptions.value = [...value, ...partNumberOptions.value]
+    const value = data
+      .map((item: any) => ({
+        label: item.vendor_item_no,
+        value: item.vendor_item_no
+      }))
+      .sort((a: any, b: any) => a.label.localeCompare(b.label))
+    const merged = [...value, ...partNumberOptions.value]
+    const seen = new Set<string>()
+    partNumberOptions.value = merged.filter((item) => {
+      if (seen.has(item.value)) return false
+      seen.add(item.value)
+      return true
+    })
   } catch (e) {
     console.log(e)
   }
@@ -508,6 +535,10 @@ async function getFormData(needValidation = true) {
       }
 
   if (!needValidation) return result
+  if (!isApproval.value && tableData.value.some((item) => !String(item.endCustomer ?? '').trim())) {
+    ElMessage.error(t('render.hint.fieldRequired', { name: t('priceAnnouncement.endCustomer') }))
+    throw new Error('')
+  }
   await Promise.all([headerFormRef.value?.validate(), formRef.value?.validate()])
   return result
 }
@@ -564,7 +595,7 @@ defineExpose({ getFormData })
     </el-row>
   </el-form>
 
-  <div style="height: 75vh">
+  <div style="height: 74vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="toolbar-actions">
@@ -577,7 +608,7 @@ defineExpose({ getFormData })
               v-model="search"
               clearable
               :prefix-icon="Search"
-              style="width: 300px; margin-left: 10px"
+              style="width: 550px; margin-left: 10px"
               :placeholder="t('priceAnnouncement.searchAcrossAllColumns')"
               @change="handleSearch"
             />
@@ -597,17 +628,20 @@ defineExpose({ getFormData })
       </template>
       <template #endCustomer="{ row, index }">
         <el-input v-if="isApproval" v-model="row.endCustomer" disabled />
-        <el-select-v2
-          v-model="row.endCustomer"
-          v-else
-          filterable
-          remote
-          :remote-method="getCustomers"
-          remote-show-suffix
-          clearable
-          :options="endCustomerOptions"
-          :placeholder="$t('render.hint.selectPlaceholder')"
-        />
+        <el-form v-else class="cell-form" :model="row" :rules="endCustomerRules">
+          <el-form-item prop="endCustomer">
+            <el-select-v2
+              v-model="row.endCustomer"
+              filterable
+              remote
+              :remote-method="getCustomers"
+              remote-show-suffix
+              clearable
+              :options="endCustomerOptions"
+              :placeholder="$t('render.hint.selectPlaceholder')"
+            />
+          </el-form-item>
+        </el-form>
       </template>
       <template #priceGroup="{ row, index }">
         <el-input v-model="row.priceGroup" v-if="isApproval" disabled />
@@ -710,6 +744,12 @@ defineExpose({ getFormData })
   :deep(.el-form-item) {
     margin-bottom: 0;
     margin-right: 0;
+  }
+}
+
+.cell-form {
+  :deep(.el-form-item) {
+    margin-bottom: 0;
   }
 }
 

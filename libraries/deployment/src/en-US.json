@@ -5197,7 +5197,7 @@
     "approvalRemark": "Approval Remark",
     "importExcel": "Import Excel",
     "downloadExcelTemplate": "Download Excel Template",
-    "searchAcrossAllColumns": "Search across all columns",
+    "searchAcrossAllColumns": "Search the End Customer/Project, Price Group, and Supplier Part Number fields",
     "quantity": "Quantity",
     "addRow": "Add Row",
     "delete": "Delete",
