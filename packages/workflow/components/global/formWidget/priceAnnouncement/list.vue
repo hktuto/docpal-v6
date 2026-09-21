@@ -230,6 +230,7 @@ function handleAddRow() {
 
 function handleDelete(row: tableDataType) {
   tableData.value = tableData.value.filter((item: tableDataType) => item !== row)
+  selectList.value = []
   reload()
 }
 
