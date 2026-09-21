@@ -5292,6 +5292,7 @@
     "linesPendingApprovalCancellation": "{selected} of {total} lines selected for cancellation",
     "showCancelLines": "Show Cancel Lines",
     "showAllLines": "Show All Lines",
-    "rejectReason":"Reject Reason"
+    "rejectReason": "Reject Reason",
+    "partDetails": "Part Details"
   }
 }

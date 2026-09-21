@@ -5188,6 +5188,7 @@
     "linesPendingApprovalCancellation": "{selected} / {total} 行已选择取消",
     "showCancelLines": "显示取消行",
     "showAllLines": "显示全部行",
-    "rejectReason":"拒绝理由"
+    "rejectReason": "拒绝理由",
+    "partDetails": "零件详情"
   }
 }

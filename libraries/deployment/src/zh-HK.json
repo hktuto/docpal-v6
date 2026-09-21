@@ -5260,6 +5260,7 @@
     "linesPendingApprovalCancellation": "{selected} / {total} 行已選擇取消",
     "showCancelLines": "顯示取消行",
     "showAllLines": "顯示全部行",
-    "rejectReason":"拒絕理由"
+    "rejectReason": "拒絕理由",
+    "partDetails": "零件詳情"
   }
 }
