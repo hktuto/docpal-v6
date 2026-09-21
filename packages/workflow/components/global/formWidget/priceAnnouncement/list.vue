@@ -654,6 +654,7 @@ defineExpose({ getFormData })
           controls-position="right"
           :min="0.000001"
           :step="0.000001"
+          step-strictly
           :disabled="isApproval"
           @change="changePrice(row)"
         />
@@ -665,6 +666,7 @@ defineExpose({ getFormData })
           controls-position="right"
           :min="0.000001"
           :step="0.000001"
+          step-strictly
           :disabled="isApproval"
           @change="changePrice(row)"
         />

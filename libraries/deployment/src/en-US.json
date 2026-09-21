@@ -4762,6 +4762,7 @@
   "workflow_holdPolicy": "Hold Policy",
   "workflow_info": "Job Info",
   "workflow_jobName": "Job Name",
+  "workflow_availableTask": "Available Task",
   "workflow_joinTask": "Task in Progress",
   "workflow_myTask": "My Task",
   "workflow_newWorkflow": "New Workflow",

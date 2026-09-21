@@ -4759,6 +4759,7 @@
   "workflow_holdPolicy": "保留政策",
   "workflow_info": "信息",
   "workflow_jobName": "工作名稱",
+  "workflow_availableTask": "可用任務",
   "workflow_joinTask": "正在參與的任務",
   "workflow_myTask": "我的任務",
   "workflow_newWorkflow": "創建任務",

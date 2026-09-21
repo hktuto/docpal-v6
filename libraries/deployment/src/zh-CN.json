@@ -4710,6 +4710,7 @@
   "workflow_holdPolicy": "保留政策",
   "workflow_info": "信息",
   "workflow_jobName": "工作名称",
+  "workflow_availableTask": "可用任务",
   "workflow_joinTask": "正在参与的任务",
   "workflow_myTask": "我的任务",
   "workflow_newWorkflow": "创建任务",
