@@ -372,7 +372,6 @@ function handleUpdate(row: any) {
   if (index !== -1) {
     dataList.value[index] = row
   }
-  saveLine(row)
   reload()
 }
 
@@ -487,9 +486,6 @@ function handleAmount(row: any) {
   const amount = new Decimal(qty || 0).mul(unit_price || 0).toNumber()
   row.amount = amount
 
-  if (!!row.id) {
-    saveLine(row.id)
-  }
   return amount
 }
 
@@ -500,9 +496,8 @@ function handleClear() {
   reload()
 }
 
-async function saveLine(id: string) {
-  const item: any = dataList.value.find((item: any) => item.id === id)
-  const row = {
+async function saveLine() {
+  const list = dataList.value.map((item: any) => ({
     po_number: item.po_number,
     line_num: item.po_line_number,
     shipment_num: item.shipment_num,
@@ -514,10 +509,7 @@ async function saveLine(id: string) {
     to_subinventory: item.sub_inventory,
     tn_planned_date: item.tn_planned_date,
     office: item.office
-  }
-
-  const list: any[] = []
-  list.push(row)
+  }))
 
   const raw = {
     batch_id: batch_id.value,
@@ -604,8 +596,9 @@ async function getFormData(needValidation = true) {
     email_create_date: dayjs().format('YYYY年MM月DD日'),
     email_planned_date: dayjs(toPlannedDate.value).format('YYYY年MM月DD日')
   }
-
   if (!needValidation) return result
+
+  await saveLine()
   return result
 }
 
@@ -705,12 +698,12 @@ defineExpose({ getFormData })
       <template #shipment_number="{ row, index }">
         <el-form class="cell-form" :model="row" :rules="shipmentNumberRules">
           <el-form-item prop="shipment_number">
-            <el-input v-model="row.shipment_number" @change="saveLine(row.id)" />
+            <el-input v-model="row.shipment_number" />
           </el-form-item>
         </el-form>
       </template>
       <template #sub_inventory="{ row, index }">
-        <el-select v-model="row.sub_inventory" @change="saveLine(row.id)" filterable :value-on-clear="row.from_sub_inventory">
+        <el-select v-model="row.sub_inventory" filterable :value-on-clear="row.from_sub_inventory">
           <el-option v-for="item in subInventoryOption" :key="item.value" :label="item.label" :value="item.value">
             <template #default> {{ item.label }} - {{ item.description }} </template>
           </el-option>
@@ -725,11 +718,10 @@ defineExpose({ getFormData })
           style="width: 100%"
           :clearable="false"
           :value-on-clear="dayjs().format('YYYY-MM-DD')"
-          @change="saveLine(row.id)"
         />
       </template>
       <template #office="{ row, index }">
-        <el-select v-model="row.office" @change="saveLine(row.id)">
+        <el-select v-model="row.office">
           <el-option v-for="item in officeOption" :key="item.office_name" :label="item.office_name" :value="item.office_name" />
         </el-select>
       </template>

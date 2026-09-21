@@ -20,6 +20,7 @@ const userInfo = ref<any>({
 const isApproval = ref<boolean>(false)
 const selectedRowsList = ref<any[]>([])
 const header = ref<{
+  tn_header_id: number
   office: string
   tn_number: string
   tn_planned_date: string
@@ -28,7 +29,9 @@ const header = ref<{
   created_by: string
   creation_date: string
   version: string
+  tn_line_ids: string[]
 }>({
+  tn_header_id: 0,
   office: '',
   tn_number: '',
   tn_planned_date: '',
@@ -36,7 +39,8 @@ const header = ref<{
   status: '',
   created_by: '',
   creation_date: '',
-  version: ''
+  version: '',
+  tn_line_ids: []
 })
 const formRef = ref()
 const selectData = reactive({
@@ -195,6 +199,7 @@ async function init() {
   isApproval.value = formData.is_approval
 
   header.value = {
+    tn_header_id: formData.tn_header_id ?? '',
     office: formData.office ?? '',
     tn_number: formData.tn_number ?? '',
     tn_planned_date: formData.tn_planned_date ?? '',
@@ -202,7 +207,8 @@ async function init() {
     status: formData.status ?? '',
     created_by: formData.created_by ?? '',
     creation_date: formData.creation_date ?? '',
-    version: formData.version ?? ''
+    version: formData.version ?? '',
+    tn_line_ids: formData.tn_line_ids ?? []
   }
   allList.value = formData.list ?? []
   selectedRowsList.value = formData.select_list ?? []
@@ -215,34 +221,48 @@ async function init() {
 }
 
 async function getTNData(tnNumber: string) {
-  tableConfig.loading = true
-  const raw = {
-    org_id: userInfo.value.org_id,
-    tn_numbers: [tnNumber]
-  }
+  if (!tnNumber) return
 
-  const data = await clientApi.instance.post(`/api/tn/details`, raw).then((r) => r.data.data.items)
-  if (data.length === 0) {
-    routerProvider?.message.warning(t('transferNoteApproval.noRelatedInfoFound'))
-    return
-  }
+  try {
+    tableConfig.loading = true
+    const raw = {
+      org_id: userInfo.value.org_id,
+      tn_numbers: [tnNumber]
+    }
 
-  const dataHeader = data[0].header
-  header.value = {
-    id: uuidv7(),
-    office: dataHeader.office ?? '',
-    tn_number: dataHeader.tn_number ?? '',
-    tn_planned_date: dataHeader.tn_planned_date ?? '',
-    commodity_inspection: dataHeader.commodity_inspection ?? '',
-    status: dataHeader.status ?? '',
-    created_by: dataHeader.created_by ?? '',
-    creation_date: dataHeader.creation_date ?? '',
-    version: dataHeader.version ?? ''
-  }
+    const data = await clientApi.instance.post(`/api/tn/details`, raw).then((r) => r.data.data.items)
+    if (data.length === 0) {
+      routerProvider?.message.warning(t('transferNoteApproval.noRelatedInfoFound'))
+      return
+    }
 
-  dataList.value = data[0].lines
-  tableConfig.loading = false
-  reload()
+    const dataHeader = data[0].header
+
+    dataList.value = data[0].lines.map((item: any) => ({
+      id: uuidv7(),
+      ...item
+    }))
+
+    header.value = {
+      tn_header_id: dataHeader.tn_header_id ?? 0,
+      office: dataHeader.office ?? '',
+      tn_number: dataHeader.tn_number ?? '',
+      tn_planned_date: dataHeader.tn_planned_date ?? '',
+      commodity_inspection: dataHeader.commodity_inspection ?? '',
+      status: dataHeader.status ?? '',
+      created_by: dataHeader.created_by ?? '',
+      creation_date: dataHeader.creation_date ?? '',
+      version: dataHeader.version ?? '',
+      tn_line_ids: dataList.value.map((item: any) => {
+        return item.tn_line_id
+      }) as string[]
+    }
+
+    tableConfig.loading = false
+    reload()
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 watch(
@@ -256,18 +276,23 @@ watch(
 )
 
 async function getFormData(needValidation = true) {
-  const result = {
-    org_id: userInfo.value.org_id,
-    office: header.value.office,
-    tn_number: header.value.tn_number,
-    tn_planned_date: header.value.tn_planned_date,
-    commodity_inspection: header.value.commodity_inspection,
-    status: header.value.status,
-    created_by: header.value.created_by,
-    creation_date: header.value.creation_date,
-    version: header.value.version,
-    list: dataList.value,
-    select_list: selectedRowsList.value
+  let result = {}
+  if (!isApproval.value) {
+    result = {
+      org_id: userInfo.value.org_id,
+      office: header.value.office,
+      tn_number: header.value.tn_number,
+      tn_planned_date: header.value.tn_planned_date,
+      commodity_inspection: header.value.commodity_inspection,
+      status: header.value.status,
+      created_by: header.value.created_by,
+      creation_date: header.value.creation_date,
+      version: header.value.version,
+      list: dataList.value,
+      select_list: selectedRowsList.value,
+      tn_header_id: header.value.tn_header_id,
+      tn_line_ids: header.value.tn_line_ids
+    }
   }
 
   if (!needValidation) return result
