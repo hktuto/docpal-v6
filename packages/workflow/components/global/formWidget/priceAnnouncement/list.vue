@@ -100,7 +100,7 @@ watch(
 
 function getColumns() {
   const checkboxCol = { type: 'checkbox', width: 60, align: 'center', fixed: 'left' }
-  const approvalRemark = { field: 'approvalRemark', title: t('priceAnnouncement.approvalRemark'), minWidth: 240, slots: { default: 'approvalRemark' } }
+  const approvalRemark = { field: 'approvalRemark', title: t('priceAnnouncement.approvalRemark'), minWidth: 220, slots: { default: 'approvalRemark' } }
 
   const defList: any[] = [
     {
@@ -109,7 +109,7 @@ function getColumns() {
       align: 'center',
       type: 'seq',
       fixed: 'left',
-      minWidth: 100
+      minWidth: 80
     },
     {
       field: 'endCustomer',
@@ -132,25 +132,25 @@ function getColumns() {
     {
       field: 'currency',
       title: t('priceAnnouncement.currency'),
-      minWidth: 240,
+      minWidth: 120,
       slots: { default: 'currency' }
     },
     {
       field: 'originalUnitPrice',
       title: t('priceAnnouncement.originalUnitPrice'),
-      minWidth: 240,
+      minWidth: 160,
       slots: { default: 'originalUnitPrice' }
     },
     {
       field: 'newUnitPrice',
       title: t('priceAnnouncement.newUnitPrice'),
-      minWidth: 240,
+      minWidth: 160,
       slots: { default: 'newUnitPrice' }
     },
     {
       field: 'adjustmentRate',
       title: t('priceAnnouncement.adjustmentRate'),
-      minWidth: 240,
+      minWidth: 160,
       slots: { default: 'adjustmentRate' }
     }
   ]
