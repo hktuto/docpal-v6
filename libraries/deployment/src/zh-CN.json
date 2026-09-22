@@ -5159,7 +5159,7 @@
     "origin": "来源",
     "productName": "产品名称",
     "description": "描述",
-    "gitStk": "GIT STK",
+    "gitStk": "是否 GIT",
     "fromSubInventory": "来自子库存",
     "poLineNumber": "PO行号",
     "shipmentNum": "出货行号",

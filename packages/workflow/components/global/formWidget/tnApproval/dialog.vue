@@ -132,7 +132,7 @@ defineExpose({ open })
           </el-form-item>
           <el-form-item :label="t('transferNoteApproval.toOffice')">
             <el-select v-model="rowData.office" style="width: 90%">
-              <el-option v-for="item in officeOption" :key="item.sub_office" :label="item.sub_office" :value="item.sub_office" />
+              <el-option v-for="item in officeOption" :key="item.office_name" :label="item.office_name" :value="item.office_name" />
             </el-select>
           </el-form-item>
           <el-form-item :label="t('transferNoteApproval.gitStk')">
