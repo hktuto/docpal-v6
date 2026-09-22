@@ -5293,6 +5293,7 @@
     "showCancelLines": "Show Cancel Lines",
     "showAllLines": "Show All Lines",
     "rejectReason": "Reject Reason",
-    "partDetails": "Part Details"
+    "partDetails": "Part Details",
+    "statusCannotBeCanceled": "Status cannot be CANCELED"
   }
 }

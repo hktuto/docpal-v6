@@ -29,7 +29,6 @@ const header = ref<{
   created_by: string
   creation_date: string
   version: string
-  tn_line_ids: string[]
 }>({
   tn_header_id: 0,
   office: '',
@@ -39,10 +38,10 @@ const header = ref<{
   status: '',
   created_by: '',
   creation_date: '',
-  version: '',
-  tn_line_ids: []
+  version: ''
 })
 const formRef = ref()
+const headerFormRef = ref()
 const selectData = reactive({
   selectedRowsListLength: 0
 })
@@ -69,6 +68,25 @@ const rules = reactive({
     }
   ]
 })
+
+const headerRules = {
+  status: [
+    {
+      validator: (_rule: any, value: string, callback: any) => {
+        if (
+          String(value ?? '')
+            .trim()
+            .toUpperCase() === 'CANCELED'
+        ) {
+          callback(new Error(t('transferNoteApproval.statusCannotBeCanceled')))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
+}
 
 function getColumns() {
   const checkboxCol = { type: 'checkbox', width: 60, align: 'center', fixed: 'left' }
@@ -207,8 +225,7 @@ async function init() {
     status: formData.status ?? '',
     created_by: formData.created_by ?? '',
     creation_date: formData.creation_date ?? '',
-    version: formData.version ?? '',
-    tn_line_ids: formData.tn_line_ids ?? []
+    version: formData.version ?? ''
   }
   allList.value = formData.list ?? []
   selectedRowsList.value = formData.select_list ?? []
@@ -217,6 +234,7 @@ async function init() {
   nextTick(() => {
     tableConfig.columns = getColumns()
     reload()
+    headerFormRef.value?.validateField('status')
   })
 }
 
@@ -232,6 +250,12 @@ async function getTNData(tnNumber: string) {
 
     const data = await clientApi.instance.post(`/api/tn/details`, raw).then((r) => r.data.data.items)
     if (data.length === 0) {
+      routerProvider?.message.warning(t('transferNoteApproval.noRelatedInfoFound'))
+      return
+    }
+    if (!data[0].header) {
+      dataList.value = []
+
       routerProvider?.message.warning(t('transferNoteApproval.noRelatedInfoFound'))
       return
     }
@@ -252,16 +276,14 @@ async function getTNData(tnNumber: string) {
       status: dataHeader.status ?? '',
       created_by: dataHeader.created_by ?? '',
       creation_date: dataHeader.creation_date ?? '',
-      version: dataHeader.version ?? '',
-      tn_line_ids: dataList.value.map((item: any) => {
-        return item.tn_line_id
-      }) as string[]
+      version: dataHeader.version ?? ''
     }
-
-    tableConfig.loading = false
-    reload()
+    nextTick(() => headerFormRef.value?.validateField('status'))
   } catch (e) {
     console.log(e)
+  } finally {
+    reload()
+    tableConfig.loading = false
   }
 }
 
@@ -291,12 +313,14 @@ async function getFormData(needValidation = true) {
       list: dataList.value,
       select_list: selectedRowsList.value,
       tn_header_id: header.value.tn_header_id,
-      tn_line_ids: header.value.tn_line_ids
+      tn_line_ids: selectedRowsList.value.map((item: any) => {
+        return item.tn_line_id
+      })
     }
   }
 
   if (!needValidation) return result
-  await formRef.value?.validate()
+  await Promise.all([headerFormRef.value?.validate(), formRef.value?.validate()])
   return result
 }
 
@@ -308,40 +332,42 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-row>
-    <el-col :span="6">
-      <el-form-item :label="t('transferNoteApproval.office')">
-        <el-input v-model="header.office" disabled style="width: 90%" />
-      </el-form-item>
-      <el-form-item :label="t('transferNoteApproval.status')">
-        <el-input v-model="header.status" disabled style="width: 90%" />
-      </el-form-item>
-    </el-col>
-    <el-col :span="6">
-      <el-form-item :label="t('transferNoteApproval.tnNumber')">
-        <el-input v-model="header.tn_number" style="width: 90%" @change="getTNData" />
-      </el-form-item>
-      <el-form-item :label="t('transferNoteApproval.createdBy')">
-        <el-input v-model="header.created_by" disabled style="width: 90%" />
-      </el-form-item>
-    </el-col>
-    <el-col :span="6">
-      <el-form-item :label="t('transferNoteApproval.tnPlannedDate')">
-        <el-input v-model="header.tn_planned_date" disabled style="width: 90%" />
-      </el-form-item>
-      <el-form-item :label="t('transferNoteApproval.creationDate')">
-        <el-input v-model="header.creation_date" disabled style="width: 90%" />
-      </el-form-item>
-    </el-col>
-    <el-col :span="6">
-      <el-form-item :label="t('transferNoteApproval.commodityInspection')">
-        <el-input v-model="header.commodity_inspection" disabled style="width: 90%" />
-      </el-form-item>
-      <el-form-item :label="t('transferNoteApproval.version')">
-        <el-input v-model="header.version" disabled style="width: 90%" />
-      </el-form-item>
-    </el-col>
-  </el-row>
+  <el-form ref="headerFormRef" :model="header" :rules="headerRules" label-position="top">
+    <el-row>
+      <el-col :span="6">
+        <el-form-item :label="t('transferNoteApproval.office')">
+          <el-input v-model="header.office" disabled style="width: 90%" />
+        </el-form-item>
+        <el-form-item :label="t('transferNoteApproval.status')" prop="status">
+          <el-input v-model="header.status" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="t('transferNoteApproval.tnNumber')">
+          <el-input v-model="header.tn_number" style="width: 90%" @change="getTNData" />
+        </el-form-item>
+        <el-form-item :label="t('transferNoteApproval.createdBy')">
+          <el-input v-model="header.created_by" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="t('transferNoteApproval.tnPlannedDate')">
+          <el-input v-model="header.tn_planned_date" disabled style="width: 90%" />
+        </el-form-item>
+        <el-form-item :label="t('transferNoteApproval.creationDate')">
+          <el-input v-model="header.creation_date" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="t('transferNoteApproval.commodityInspection')">
+          <el-input v-model="header.commodity_inspection" disabled style="width: 90%" />
+        </el-form-item>
+        <el-form-item :label="t('transferNoteApproval.version')">
+          <el-input v-model="header.version" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+    </el-row>
+  </el-form>
 
   <div class="tn-review-table" :class="{ 'tn-review-table--approval': isApproval }">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">

@@ -5189,6 +5189,7 @@
     "showCancelLines": "显示取消行",
     "showAllLines": "显示全部行",
     "rejectReason": "拒绝理由",
-    "partDetails": "零件详情"
+    "partDetails": "零件详情",
+    "statusCannotBeCanceled": "状态不能为 CANCELED"
   }
 }
