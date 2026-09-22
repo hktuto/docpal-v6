@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useUserState } from '@packages/authApp/composables/useAuth'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -6,6 +8,7 @@ const { disabled, formData, options } = defineProps<{
 }>()
 const { t } = useI18n()
 const isApproval = ref<boolean>(false)
+const isReview = ref<boolean>(false)
 const formRef = ref()
 const formModel = reactive({
   pi_number: '',
@@ -27,18 +30,21 @@ const formModel = reactive({
   pi_remarks: '',
   submitted_by: '',
   submitted_date: '',
-  reject_reason: ''
+  reject_reason: '',
+  approver: '',
+  approval_date: '',
+  items: []
 })
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'proformaInvoiceInfoTable',
   api: () => {
-    return []
+    return formModel.items
   },
   columns: [
     {
       field: 'index',
-      title: 'Ln',
+      title: t('proformaInvoice.index'),
       align: 'center',
       type: 'seq',
       fixed: 'left',
@@ -46,42 +52,45 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'schedule_date',
-      title: 'Schedule Date 預定日期',
-      minWidth: 240
+      title: t('proformaInvoice.scheduleDate'),
+      minWidth: 240,
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
     },
     {
       field: 'order_ln',
-      title: 'Order Ln 订单行号',
+      title: t('proformaInvoice.orderLn'),
       minWidth: 240
     },
     {
       field: 'order_number',
-      title: 'Order Number 订单编号',
+      title: t('proformaInvoice.orderNumber'),
       minWidth: 240
     },
     {
       field: 'wcl_part_number',
-      title: 'WCL Part Number WCL料号',
+      title: t('proformaInvoice.wclPartNumber'),
       minWidth: 240
     },
     {
       field: 'order_qty',
-      title: 'Order Qty 订单数量',
+      title: t('proformaInvoice.orderQty'),
       minWidth: 240
     },
     {
       field: 'line_amount',
-      title: 'Line Amount 行金额',
+      title: t('proformaInvoice.lineAmount'),
       minWidth: 240
     },
     {
       field: 'tax_code',
-      title: 'Tax Code 税码',
+      title: t('proformaInvoice.taxCode'),
       minWidth: 240
     },
     {
       field: 'status',
-      title: 'Status 状态',
+      title: t('proformaInvoice.status'),
       minWidth: 240
     }
   ],
@@ -105,7 +114,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     ]
   ],
   permissionMethod: ({ code, row }: any) => {
-    if (!row) {
+    if (!row || isApproval.value) {
       return { visible: false, disabled: false }
     }
     return {
@@ -116,7 +125,8 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 })
 
 function handleDelete(row: any) {
-  console.log(row)
+  formModel.items = formModel.items.filter((item: any) => item.id !== row.id)
+  reload()
 }
 
 function init() {
@@ -139,13 +149,20 @@ function init() {
     overdue_debt: formData.overdue_debt ?? '',
     pi_remarks: formData.pi_remarks ?? formData.remarks ?? '',
     submitted_by: formData.submitted_by ?? '',
-    submitted_date: formData.submitted_date ?? ''
+    submitted_date: formData.submitted_date ?? '',
+    approver: formData.approver ?? '',
+    approval_date: formData.approval_date ?? '',
+    reject_reason: formData.reject_reason ?? '',
+    items: formData.items ?? []
   })
 }
 
 watch(
   () => formData,
-  () => init(),
+  (value) => {
+    if (!value) return
+    init()
+  },
   { immediate: true, deep: true }
 )
 
@@ -159,7 +176,11 @@ const invoiceHeaderOption = ref<any[]>([
   { label: 'MCE', value: 'MCE' }
 ])
 
-onMounted(() => {})
+onMounted(() => {
+  const user = useUserState()
+  console.log(123, user.value.userId)
+  console.log(123, user.value.email)
+})
 
 async function getFormData(needValidation = true) {
   if (!needValidation) return { ...formModel }
@@ -240,13 +261,19 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item :label="t('proformaInvoice.submittedBy')">
+        <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedBy')">
           <el-input v-model="formModel.submitted_by" disabled />
+        </el-form-item>
+        <el-form-item v-if="isReview" :label="t('proformaInvoice.approver')">
+          <el-input v-model="formModel.approver" disabled />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item :label="t('proformaInvoice.submittedDate')">
+        <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedDate')">
           <el-input v-model="formModel.submitted_date" disabled />
+        </el-form-item>
+        <el-form-item v-if="isReview" :label="t('proformaInvoice.approvalDate')">
+          <el-input v-model="formModel.approval_date" disabled />
         </el-form-item>
       </el-col>
     </el-row>
@@ -260,10 +287,12 @@ defineExpose({ getFormData })
     </VxeGrid>
   </div>
 
-  <el-divider content-position="left" />
-  <el-form-item label="驳回原因 Reject Reason">
-    <el-input type="textarea" v-model="formModel.reject_reason" :autosize="{ minRows: 2, maxRows: 4 }" />
-  </el-form-item>
+  <div v-if="isApproval || isReview">
+    <el-divider content-position="left" />
+    <el-form-item :label="t('proformaInvoice.rejectReason')">
+      <el-input type="textarea" v-model="formModel.reject_reason" :autosize="{ minRows: 2, maxRows: 4 }" :disabled="!isApproval" />
+    </el-form-item>
+  </div>
 </template>
 
 <style scoped lang="scss">

@@ -5279,10 +5279,20 @@
     "totalAmount": "總金額",
     "warehouseLocation": "倉庫位置",
     "subInventory": "子庫存",
-    "paymentInAdv": "貨到付款 COD / 預付款 Payment in Adv",
+    "paymentInAdv": "貨到付款 / 預付款",
     "overdueDebt": "逾期欠數",
     "piRemarks": "PI 備註",
     "submittedBy": "提交人",
-    "submittedDate": "提交日期"
+    "submittedDate": "提交日期",
+    "index": "序號",
+    "orderLn": "訂單行號",
+    "orderNumber": "訂單編號",
+    "wclPartNumber": "WCL料號",
+    "orderQty": "訂單數量",
+    "lineAmount": "行金額",
+    "taxCode": "稅碼",
+    "rejectReason": "駁回原因",
+    "approver": "審批人",
+    "approvalDate": "審批日期"
   }
 }

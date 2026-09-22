@@ -5207,10 +5207,20 @@
     "totalAmount": "总金额",
     "warehouseLocation": "仓库位置",
     "subInventory": "子库存",
-    "paymentInAdv": "货到付款 COD / 预付款 Payment in Adv",
+    "paymentInAdv": "货到付款 / 预付款",
     "overdueDebt": "逾期欠数",
     "piRemarks": "PI 备注",
     "submittedBy": "提交人",
-    "submittedDate": "提交日期"
+    "submittedDate": "提交日期",
+    "index": "序号",
+    "orderLn": "订单行号",
+    "orderNumber": "订单编号",
+    "wclPartNumber": "WCL料号",
+    "orderQty": "订单数量",
+    "lineAmount": "行金额",
+    "taxCode": "税码",
+    "rejectReason": "驳回原因",
+    "approver": "审批人",
+    "approvalDate": "审批日期"
   }
 }

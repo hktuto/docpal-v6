@@ -5315,6 +5315,16 @@
     "overdueDebt": "Overdue Debt",
     "piRemarks": "PI Remarks",
     "submittedBy": "Submitted By",
-    "submittedDate": "Submitted Date"
+    "submittedDate": "Submitted Date",
+    "index": "Index",
+    "orderLn": "Order Ln",
+    "orderNumber": "Order Number",
+    "wclPartNumber": "WCL Part Number",
+    "orderQty": "Order Qty",
+    "lineAmount": "Line Amount",
+    "taxCode": "Tax Code",
+    "rejectReason": "Reject Reason",
+    "approver": "Approver",
+    "approvalDate": "Approval Date"
   }
 }
