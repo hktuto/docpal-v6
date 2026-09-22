@@ -29,9 +29,18 @@ function handleActionSuccess(payload: { action: 'submit' | 'terminate'; dbId: st
     selectedRow.value.isHandle = true
   }
   workflowRef.value?.markStruck?.(payload.dbId, payload.processId)
-  if (selectedRow.value != null && String(selectedRow.value.db_id) === String(payload.dbId)) {
-    handleClosePanel()
+  if (selectedRow.value == null || String(selectedRow.value.db_id) !== String(payload.dbId)) return
+
+  if (payload.action === 'submit') {
+    const closingDbId = payload.dbId
+    setTimeout(() => {
+      if (selectedRow.value != null && String(selectedRow.value.db_id) === String(closingDbId)) {
+        handleClosePanel()
+      }
+    }, 1000)
+    return
   }
+  handleClosePanel()
 }
 
 watch(activeTab, () => {
