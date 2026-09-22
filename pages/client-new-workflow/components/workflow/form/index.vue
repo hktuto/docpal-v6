@@ -200,7 +200,7 @@ defineExpose({
       </el-button>
       <WorkflowFormButtonSubmit button-id="Workflow__AvailableTask__Detail__Form__Confirm" label-key="common_submit" />
     </div>
-    <WorkflowSignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
+    <SignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
   </template>
 </template>
 
