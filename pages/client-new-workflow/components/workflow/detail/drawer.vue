@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { newClientApi, clientApi } from 'api'
-import { routeWorkflowDetail, workflowResponseHelper } from '#imports'
+import { routeWorkflowDetail } from '#imports'
 
 const props = defineProps<{
   taskDetail: Record<string, any>
@@ -9,7 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: []
-  change: []
+  actionSuccess: [payload: { action: 'submit' | 'terminate'; dbId: string; processId?: string }]
 }>()
 
 const routerProvider = inject(MenuRouterKey)
@@ -17,22 +16,18 @@ if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 
-const loading = ref(false)
-const fromRenderRef = ref()
-const resolvedTaskDetail = ref<Record<string, any>>({})
-const variablesData = ref<Record<string, any>>({})
-
-const selectedTitle = computed(() => {
-  const row = resolvedTaskDetail.value?.db_id ? resolvedTaskDetail.value : props.taskDetail
-  if (!row) return ''
-  return row?.execution?.input_variables?.business_key || row?.config?.human_task?.form_title || row?.name || ''
-})
-
 const taskDbId = computed(() => {
   if (props.workflowType === 'completeTask') {
-    return props.taskDetail?.completed_nodes?.[props.taskDetail.completed_nodes.length - 2]
+    return props.taskDetail?.completed_nodes?.[props.taskDetail.completed_nodes.length - 2] || ''
   }
-  return props.taskDetail?.db_id
+  return props.taskDetail?.db_id || ''
+})
+
+const { workflowFormRef, taskDetail, loading, selectedTitle, error } = useWorkflowFormProvider({
+  workflowType: toRef(props, 'workflowType'),
+  dbId: taskDbId,
+  sourceTask: toRef(props, 'taskDetail'),
+  onActionSuccess: (payload) => emit('actionSuccess', payload)
 })
 
 function handleClose() {
@@ -58,58 +53,6 @@ function handleViewDetail() {
 
   routerProvider?.navigateTo(routeWorkflowDetail(detailParams), false)
 }
-
-async function initForm(node: any) {
-  const formKey = node.config?.human_task?.form_key
-  if (!formKey) {
-    routerProvider?.message.error('The formKey does not exist!')
-    return
-  }
-
-  const formJsonData = await newClientApi.getDmsFormPropertiesId(formKey).then((r: any) => r.data)
-  if (!formJsonData || !formJsonData.jsonValue) {
-    routerProvider?.message.error('The form does not exist!')
-    return
-  }
-  await nextTick()
-  fromRenderRef.value?.setForm?.(formJsonData.jsonValue, variablesData.value)
-  await nextTick()
-  fromRenderRef.value?.disableForm?.()
-}
-
-async function loadForm() {
-  const dbId = taskDbId.value
-  if (!dbId || props.workflowType === 'completeTask') {
-    resolvedTaskDetail.value = props.taskDetail || {}
-    return
-  }
-
-  loading.value = true
-  try {
-    const data: any = await clientApi.instance.get(`/oniflow/api/v1/processes/instance-task/${dbId}`).then((r: any) => workflowResponseHelper(r))
-    if (!data) {
-      routerProvider?.message.error('Get Task Detail Failed')
-      return
-    }
-    resolvedTaskDetail.value = data
-
-    const instanceData = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
-    variablesData.value = instanceData.variables || {}
-    await initForm(data)
-  } catch (error) {
-    console.error(error)
-  } finally {
-    loading.value = false
-  }
-}
-
-watch(
-  () => [taskDbId.value, props.workflowType],
-  () => {
-    loadForm()
-  },
-  { immediate: true }
-)
 </script>
 
 <template>
@@ -127,9 +70,13 @@ watch(
         </el-button>
       </div>
     </header>
-    <div class="workflow-side-panel__body">
+    <div v-if="error" class="workflow-side-panel__body">
+      Workflow id not found, workflow id : {{ taskDbId }}.
+      <p>{{ error }}</p>
+    </div>
+    <div v-else class="workflow-side-panel__body" :class="{ 'is-form': workflowType !== 'completeTask' }">
       <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail" state="completeTask" />
-      <ContextFormRender v-else ref="fromRenderRef" :taskDetail="resolvedTaskDetail" />
+      <WorkflowForm v-else ref="workflowFormRef" />
     </div>
   </aside>
 </template>
@@ -174,5 +121,18 @@ watch(
   min-height: 0;
   overflow: auto;
   padding-top: var(--app-space-s);
+
+  &.is-form {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    :deep(> *) {
+      flex: 1 1 0;
+      min-height: 0;
+      min-width: 0;
+      width: 100%;
+    }
+  }
 }
 </style>

@@ -15,6 +15,7 @@ function reload() {
 }
 
 function handleSelectRow(row: Record<string, any>) {
+  if (row?.isHandle) return
   selectedRow.value = row
 }
 
@@ -23,9 +24,14 @@ function handleClosePanel() {
   workflowRef.value?.clearHighlight?.()
 }
 
-function handleTaskInfoChange() {
-  reload()
-  handleClosePanel()
+function handleActionSuccess(payload: { action: 'submit' | 'terminate'; dbId: string; processId?: string }) {
+  if (selectedRow.value) {
+    selectedRow.value.isHandle = true
+  }
+  workflowRef.value?.markStruck?.(payload.dbId, payload.processId)
+  if (selectedRow.value != null && String(selectedRow.value.db_id) === String(payload.dbId)) {
+    handleClosePanel()
+  }
 }
 
 watch(activeTab, () => {
@@ -65,7 +71,12 @@ onMounted(() => {
         </div>
       </el-splitter-panel>
       <el-splitter-panel v-if="selectedRow" size="75%" :min="280" class="workflow-splitter__side">
-        <WorkflowDetailDrawer :taskDetail="selectedRow" :workflowType="activeTab" @close="handleClosePanel" @change="handleTaskInfoChange" />
+        <WorkflowDetailDrawer
+          :taskDetail="selectedRow"
+          :workflowType="activeTab"
+          @close="handleClosePanel"
+          @action-success="handleActionSuccess"
+        />
       </el-splitter-panel>
     </el-splitter>
   </div>

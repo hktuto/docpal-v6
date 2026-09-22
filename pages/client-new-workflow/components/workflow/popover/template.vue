@@ -101,7 +101,6 @@ async function generatePreviewFile() {
     const ext = mimeTypeToExtension(res.type)
     previewFile.blob = res
   } catch (e) {
-    console.log(e)
   } finally {
     state.loading = false
   }
@@ -143,7 +142,6 @@ async function handleSubmit(fileType: string) {
     downloadBlob(res, state.fileName)
     state.dialogVisible = false
   } catch (error) {
-    console.log(error)
     throw error
   }
   state.loading = false
@@ -206,7 +204,6 @@ onMounted(async () => {
   try {
     state.templateList = await newClientApi.postDmsTemplateDocumentList().then(res => res.data) || []
   } catch (error) {
-    console.log(error)
     state.templateList = []
   }
 })

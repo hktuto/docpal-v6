@@ -14,7 +14,7 @@ const workflowList = await getWorkflowList()
 const { t } = useI18n()
 const user = useUserState().value
 const definition_id = ref<string>('')
-const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'complete_task',
   optionalConfig: {
     rowConfig: {
@@ -37,9 +37,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       roles: [user.aclUserDetail.roleId],
       definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : '',
       status: ['completed', 'failed', 'terminated'],
-      involved_user_id: user.userId,
-      // sort_by: 'updated_at',
-      // sort_type: 'desc'
+      involved_user_id: user.userId
     }
     const data = await clientApi.instance.post(`/oniflow/api/v1/processes/instance/page`, params).then((r: any) => workflowResponseHelper(r))
     return {
@@ -115,10 +113,6 @@ defineExpose({
       </template>
       <template #name="{ row }">
         <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
       </template>
     </VxeGrid>
   </div>

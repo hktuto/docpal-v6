@@ -98,6 +98,7 @@ export function useInvoiceVerifyTableProvider(
 
   const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     id: 'wha-invoice-verification-items',
+    applyDefaultMinWidth: false,
     ...createVerificationTableOptions({
       t,
       columns: verificationTableColumns,
@@ -248,7 +249,10 @@ export function useInvoiceVerifyTableProvider(
     (items) => {
       if (!items) return
       tableData.value = [...items]
-      nextTick(() => tableRef.value?.loadData?.(getFilteredItems(tableData.value)))
+      nextTick(() => {
+        tableRef.value?.loadData?.(getFilteredItems(tableData.value))
+        nextTick(() => tableRef.value?.recalculate?.(true))
+      })
     }
   )
 

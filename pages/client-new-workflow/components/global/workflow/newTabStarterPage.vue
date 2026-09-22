@@ -36,7 +36,6 @@ async function init() {
       vFormRef.value.setForm(formJson.jsonValue)
     })
   } catch (e) {
-    console.log(e)
   }
 }
 
@@ -69,7 +68,6 @@ async function handleSubmit() {
     }, 100)
     cancel()
   } catch (error) {
-    console.log(error)
   } finally {
     loading.value = false
   }

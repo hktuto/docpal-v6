@@ -11,7 +11,7 @@
       <el-splitter-panel class="mg-right preview-panel" :collapsible="isCollapsible" :min="200">
         <WorkflowPreviewTitle :selectedInvoice="selectedInvoice" :doc-id="selectedInvoice?.file?.id" :file-list="fileList" />
       </el-splitter-panel>
-      <el-splitter-panel :collapsible="isCollapsible" size="40%" :min="200">
+      <el-splitter-panel class="table-panel" :collapsible="isCollapsible" size="40%" :min="200">
         <WHInvoiceSupplyListTable />
       </el-splitter-panel>
       <el-splitter-panel class="mg-left side-panel" size="14%" :collapsible="isCollapsible" :min="180">

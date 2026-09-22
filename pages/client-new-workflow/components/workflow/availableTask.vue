@@ -13,17 +13,19 @@ if (!routerProvider) {
 const { t } = useI18n()
 const user = useUserState().value
 const definition_id = ref<string>('')
-const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'Available_task',
   optionalConfig: {
     rowConfig: {
       useKey: true,
       isCurrent: true
-    }
+    },
+    rowClassName: ({ row }: { row: Record<string, any> }) => (row?.isHandle ? 'row--struck' : '')
   },
   optionalEvent: {
     cellClick: ({ row }: { row: Record<string, any> }) => {
-      if (!row) return
+      if (!row || row.isHandle) return
       tableRef.value?.setCurrentRow?.(row)
       emit('select', row)
     }
@@ -70,7 +72,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
-  console.log(123, row)
+  if (row?.isHandle) return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -82,25 +84,56 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  if (row.status.type !== 'waiting') return
+  if (row?.isHandle || row.status.type !== 'waiting') return
 
   try {
     const parms = {
       user_id: user.userId
     }
-    const response = await clientApi.instance
+    await clientApi.instance
       .post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms)
       .then((r: any) => workflowResponseHelper(r))
     reload()
   } catch (e) {
     routerProvider?.message?.error('Unable to claim this task')
-    console.log(e)
   }
+}
+
+function getTableRows() {
+  const grid = tableRef.value as any
+  return grid?.getTableData?.()?.fullData ?? grid?.getData?.() ?? []
+}
+
+function handleRefreshHandledRows() {
+  nextTick(() => {
+    const grid = tableRef.value as any
+    if (!grid) return
+    const fullData = getTableRows()
+    if (typeof grid.loadData === 'function') {
+      grid.loadData([...fullData])
+      return
+    }
+    grid.updateData?.()
+    grid.recalculate?.(true)
+  })
+}
+
+/** submit/terminate 后给相关行打 isHandle，用于删除线样式 */
+function markStruck(dbId: string, processId?: string) {
+  const id = String(dbId)
+  const pid = processId != null ? String(processId) : ''
+  getTableRows().forEach((row: Record<string, any>) => {
+    if (String(row.db_id) === id || (pid && String(row.process_id) === pid)) {
+      row.isHandle = true
+    }
+  })
+  handleRefreshHandledRows()
 }
 
 defineExpose({
   reload,
-  clearHighlight: () => tableRef.value?.clearCurrentRow?.()
+  clearHighlight: () => tableRef.value?.clearCurrentRow?.(),
+  markStruck
 })
 </script>
 
@@ -140,4 +173,16 @@ defineExpose({
 :deep(.vxe-body--row.row--current) {
   background-color: var(--el-color-primary-light-9) !important;
 }
+
+:deep(.vxe-body--row.row--struck) {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+
+  .vxe-body--column,
+  .vxe-cell {
+    text-decoration: line-through;
+  }
+}
 </style>
+

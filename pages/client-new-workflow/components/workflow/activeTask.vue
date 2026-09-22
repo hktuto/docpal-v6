@@ -14,17 +14,19 @@ const workflowList = await getWorkflowList()
 const { t } = useI18n()
 const user = useUserState().value
 const definition_id = ref<string>('')
-const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'active_task',
   optionalConfig: {
     rowConfig: {
       useKey: true,
       isCurrent: true
-    }
+    },
+    rowClassName: ({ row }: { row: Record<string, any> }) => (row?.isHandle ? 'row--struck' : '')
   },
   optionalEvent: {
     cellClick: ({ row }: { row: Record<string, any> }) => {
-      if (!row) return
+      if (!row || row.isHandle) return
       tableRef.value?.setCurrentRow?.(row)
       emit('select', row)
     }
@@ -37,8 +39,6 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
       roles: [user.aclUserDetail.roleId],
       definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : ''
-      // sort:'',
-      // order:'desc'
     }
     const data = await clientApi.instance
       .post(`/oniflow/api/v1/task/overview/involved`, params)
@@ -64,6 +64,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
+  if (row?.isHandle) return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -79,9 +80,41 @@ function handleAssignee(assignee: string) {
   return !assignee.includes('${')
 }
 
+function getTableRows() {
+  const grid = tableRef.value as any
+  return grid?.getTableData?.()?.fullData ?? grid?.getData?.() ?? []
+}
+
+function handleRefreshHandledRows() {
+  nextTick(() => {
+    const grid = tableRef.value as any
+    if (!grid) return
+    const fullData = getTableRows()
+    if (typeof grid.loadData === 'function') {
+      grid.loadData([...fullData])
+      return
+    }
+    grid.updateData?.()
+    grid.recalculate?.(true)
+  })
+}
+
+/** submit/terminate 后给相关行打 isHandle，用于删除线样式 */
+function markStruck(dbId: string, processId?: string) {
+  const id = String(dbId)
+  const pid = processId != null ? String(processId) : ''
+  getTableRows().forEach((row: Record<string, any>) => {
+    if (String(row.db_id) === id || (pid && String(row.process_id) === pid)) {
+      row.isHandle = true
+    }
+  })
+  handleRefreshHandledRows()
+}
+
 defineExpose({
   reload,
-  clearHighlight: () => tableRef.value?.clearCurrentRow?.()
+  clearHighlight: () => tableRef.value?.clearCurrentRow?.(),
+  markStruck
 })
 </script>
 
@@ -116,5 +149,16 @@ defineExpose({
 
 :deep(.vxe-body--row.row--current) {
   background-color: var(--el-color-primary-light-9) !important;
+}
+
+:deep(.vxe-body--row.row--struck) {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+
+  .vxe-body--column,
+  .vxe-cell {
+    text-decoration: line-through;
+  }
 }
 </style>
