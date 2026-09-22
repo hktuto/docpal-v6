@@ -816,7 +816,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         icon: '/workflowIcons/form.svg',
         buttonSetting: {
           showSubmitButton: true,
-          submitButtonLabel: 'Submit',
+          submitButtonLabel: 'common_submit',
           showSaveDraft: false,
           saveDraftLabel: 'Save Draft',
           booleanButton: []
