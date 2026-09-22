@@ -28,7 +28,7 @@ const buttonSetting = ref<{
   booleanButton: buttonItem[]
 }>({
   showSubmitButton: true,
-  submitButtonLabel: 'Submit',
+  submitButtonLabel: 'common_submit',
   showSaveDraft: true,
   saveDraftLabel: 'Save Draft',
   booleanButton: []

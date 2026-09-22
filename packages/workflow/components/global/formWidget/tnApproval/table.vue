@@ -32,8 +32,8 @@ const toPlannedDate = ref<string>('')
 const search = reactive({
   gitDate: dayjs().format('YYYY-MM-DD'),
   brand: 'ABBYY',
-  partNumber: '',
-  poNumber: ''
+  partNumber: null,
+  poNumber: null
 })
 const subInventoryOption = ref<any[]>([])
 const officeOption = ref<any[]>([])
@@ -49,6 +49,15 @@ const rules = {
         callback()
       },
       trigger: 'change'
+    }
+  ]
+}
+const shipmentNumberRules = {
+  shipment_number: [
+    {
+      required: true,
+      message: t('render.hint.fieldRequired', { name: t('transferNoteApproval.shipmentNumber') }),
+      trigger: 'blur'
     }
   ]
 }
@@ -91,11 +100,20 @@ async function init() {
 
   await getOffice()
   await getBrandOptions()
+  await getPartList()
 }
 
 async function getOffice() {
   try {
-    officeOption.value = await clientApi.instance.get(`/apis/v1/ms/oracle/order-info/offices`).then((r: any) => r.data.items)
+    const param = {
+      table: 'cmz_tn_office_wcl',
+      columns: [{ name: '*' }],
+      conditions: [{ type: 'AND', nested: [{ type: 'EQ', column: 'org_id', value: userInfo.value.org_id }] }]
+    }
+
+    officeOption.value = await clientApi.instance
+      .post('/apis/v1/dynamic-actions', param, { headers: { 'X-Tenant-Id': 'oracle_db' } })
+      .then((res: any) => res.data.data)
   } catch (e) {
     console.log(e)
   }
@@ -126,6 +144,11 @@ async function getBrandOptions() {
   }
 }
 
+async function searchPart(query?: string) {
+  if (!query) return
+  await getPartList(query)
+}
+
 async function getPartList(query?: string) {
   try {
     const q = query ? `q=${query}&` : ''
@@ -145,7 +168,7 @@ async function getPartList(query?: string) {
 }
 
 function handleBrandChange() {
-  search.partNumber = ''
+  search.partNumber = null
   partNumberOptions.value = []
   getPartList()
 }
@@ -324,6 +347,7 @@ async function handleReview() {
     ElMessage.error(t('transferNoteApproval.pleaseSelectOrders'))
     return
   }
+  if (!validateSelectedShipmentNumbers()) return
 
   const checkList: any[] = selectedRowsList.value.map((item) => ({
     org_id: userInfo.value.org_id,
@@ -348,7 +372,6 @@ function handleUpdate(row: any) {
   if (index !== -1) {
     dataList.value[index] = row
   }
-  saveLine(row)
   reload()
 }
 
@@ -463,9 +486,6 @@ function handleAmount(row: any) {
   const amount = new Decimal(qty || 0).mul(unit_price || 0).toNumber()
   row.amount = amount
 
-  if (!!row.id) {
-    saveLine(row.id)
-  }
   return amount
 }
 
@@ -476,9 +496,8 @@ function handleClear() {
   reload()
 }
 
-async function saveLine(id: string) {
-  const item: any = dataList.value.find((item: any) => item.id === id)
-  const row = {
+async function saveLine() {
+  const list = dataList.value.map((item: any) => ({
     po_number: item.po_number,
     line_num: item.po_line_number,
     shipment_num: item.shipment_num,
@@ -490,10 +509,7 @@ async function saveLine(id: string) {
     to_subinventory: item.sub_inventory,
     tn_planned_date: item.tn_planned_date,
     office: item.office
-  }
-
-  const list: any[] = []
-  list.push(row)
+  }))
 
   const raw = {
     batch_id: batch_id.value,
@@ -519,6 +535,13 @@ async function batchStockCheck(list: any[]) {
   return false
 }
 
+function validateSelectedShipmentNumbers() {
+  const hasEmpty = selectedRowsList.value.some((item) => !String(item.shipment_number ?? '').trim())
+  if (!hasEmpty) return true
+  ElMessage.error(t('render.hint.fieldRequired', { name: t('transferNoteApproval.shipmentNumber') }))
+  return false
+}
+
 async function getFormData(needValidation = true) {
   if (!needValidation) return {}
 
@@ -529,6 +552,9 @@ async function getFormData(needValidation = true) {
   }
   if (selectedRowsListLength.value === 0) {
     ElMessage.error(t('transferNoteApproval.pleaseSelectOrders'))
+    throw new Error('')
+  }
+  if (!validateSelectedShipmentNumbers()) {
     throw new Error('')
   }
 
@@ -570,8 +596,9 @@ async function getFormData(needValidation = true) {
     email_create_date: dayjs().format('YYYY年MM月DD日'),
     email_planned_date: dayjs(toPlannedDate.value).format('YYYY年MM月DD日')
   }
-
   if (!needValidation) return result
+
+  await saveLine()
   return result
 }
 
@@ -622,7 +649,7 @@ defineExpose({ getFormData })
             v-model="search.partNumber"
             filterable
             remote
-            :remote-method="getPartList"
+            :remote-method="searchPart"
             remote-show-suffix
             clearable
             :options="partNumberOptions"
@@ -669,10 +696,14 @@ defineExpose({ getFormData })
         />
       </template>
       <template #shipment_number="{ row, index }">
-        <el-input v-model="row.shipment_number" @change="saveLine(row.id)" />
+        <el-form class="cell-form" :model="row" :rules="shipmentNumberRules">
+          <el-form-item prop="shipment_number">
+            <el-input v-model="row.shipment_number" />
+          </el-form-item>
+        </el-form>
       </template>
       <template #sub_inventory="{ row, index }">
-        <el-select v-model="row.sub_inventory" @change="saveLine(row.id)" filterable>
+        <el-select v-model="row.sub_inventory" filterable :value-on-clear="row.from_sub_inventory">
           <el-option v-for="item in subInventoryOption" :key="item.value" :label="item.label" :value="item.value">
             <template #default> {{ item.label }} - {{ item.description }} </template>
           </el-option>
@@ -687,12 +718,11 @@ defineExpose({ getFormData })
           style="width: 100%"
           :clearable="false"
           :value-on-clear="dayjs().format('YYYY-MM-DD')"
-          @change="saveLine(row.id)"
         />
       </template>
       <template #office="{ row, index }">
-        <el-select v-model="row.office" @change="saveLine(row.id)">
-          <el-option v-for="item in officeOption" :key="item.sub_office" :label="item.org_name" :value="item.sub_office" />
+        <el-select v-model="row.office">
+          <el-option v-for="item in officeOption" :key="item.office_name" :label="item.office_name" :value="item.office_name" />
         </el-select>
       </template>
     </VxeGrid>
@@ -766,6 +796,12 @@ defineExpose({ getFormData })
     :deep(.el-form-item) {
       margin-bottom: 0;
     }
+  }
+}
+
+.cell-form {
+  :deep(.el-form-item) {
+    margin-bottom: 0;
   }
 }
 </style>

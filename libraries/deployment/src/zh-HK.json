@@ -4759,6 +4759,7 @@
   "workflow_holdPolicy": "保留政策",
   "workflow_info": "信息",
   "workflow_jobName": "工作名稱",
+  "workflow_availableTask": "可用任務",
   "workflow_joinTask": "正在參與的任務",
   "workflow_myTask": "我的任務",
   "workflow_newWorkflow": "創建任務",
@@ -5164,7 +5165,7 @@
     "approvalRemark": "審批備註",
     "importExcel": "導入 Excel",
     "downloadExcelTemplate": "下載 Excel 模板",
-    "searchAcrossAllColumns": "搜尋所有欄",
+    "searchAcrossAllColumns": "搜尋最終客戶/項目、價格組、供應商零件編號欄",
     "quantity": "數量",
     "addRow": "新增行",
     "delete": "刪除",
@@ -5255,9 +5256,12 @@
     "lineStatus": "行狀態",
     "cancelReason": "取消原因",
     "noRelatedInfoFound": "未查詢到相關信息!",
-    "linesPendingApproval ": "待審批行",
+    "linesPendingApproval": "待審批行",
     "linesPendingApprovalCancellation": "{selected} / {total} 行已選擇取消",
     "showCancelLines": "顯示取消行",
-    "showAllLines": "顯示全部行"
+    "showAllLines": "顯示全部行",
+    "rejectReason": "拒絕理由",
+    "partDetails": "零件詳情",
+    "statusCannotBeCanceled": "狀態不能為 CANCELED"
   }
 }

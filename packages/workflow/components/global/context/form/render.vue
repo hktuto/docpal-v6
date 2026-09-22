@@ -164,7 +164,11 @@ async function getFormData(needValidation = true, onlyWritable = false) {
       ...slotData
     }
   } catch (error: any) {
-    throw error instanceof Error ? error : new Error(error?.message || String(error))
+    const messages = Object.keys(error).flatMap((key) => {
+      const arr = error[key]
+      return Array.isArray(arr) ? arr.map((x) => x.message) : []
+    })
+    throw error instanceof Error ? error : new Error(error?.message || messages)
   }
 }
 

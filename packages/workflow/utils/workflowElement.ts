@@ -547,27 +547,27 @@ export const workflowElement: WorkflowElement = {
   Gateway: {
     embed: false,
     toolbar: [
-      // {
-      //   id: CellType.exclusiveGateway,
-      //   icon: 'mdi:call-split',
-      //   label: 'Exclusive',
-      //   group: 'Gateway',
-      //   order: 0
-      // },
-      // {
-      //   id: CellType.parallelGateway,
-      //   icon: 'mdi:axis-arrow',
-      //   label: 'Parallel',
-      //   group: 'Gateway',
-      //   order: 0
-      // },
-      // {
-      //   id: CellType.inclusiveGateway,
-      //   icon: 'mdi:axis-arrow',
-      //   label: 'Inclusive',
-      //   group: 'Gateway',
-      //   order: 0
-      // }
+      {
+        id: CellType.exclusiveGateway,
+        icon: 'mdi:call-split',
+        label: 'Exclusive',
+        group: 'Gateway',
+        order: 0
+      },
+      {
+        id: CellType.parallelGateway,
+        icon: 'mdi:axis-arrow',
+        label: 'Parallel',
+        group: 'Gateway',
+        order: 0
+      },
+      {
+        id: CellType.inclusiveGateway,
+        icon: 'mdi:axis-arrow',
+        label: 'Inclusive',
+        group: 'Gateway',
+        order: 0
+      }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
     clickHandler: () => {},
@@ -816,7 +816,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         icon: '/workflowIcons/form.svg',
         buttonSetting: {
           showSubmitButton: true,
-          submitButtonLabel: 'Submit',
+          submitButtonLabel: 'common_submit',
           showSaveDraft: false,
           saveDraftLabel: 'Save Draft',
           booleanButton: []

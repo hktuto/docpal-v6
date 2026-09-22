@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
+import { v7 as uuidv7 } from 'uuid'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -9,7 +10,7 @@ const { disabled, formData, options } = defineProps<{
   options: any
 }>()
 const showAll = ref<boolean>(true)
-const tnList = ref<any[]>([])
+const allList = ref<any[]>([])
 const dataList = ref<any[]>([])
 const userInfo = ref<any>({
   user: '',
@@ -19,6 +20,7 @@ const userInfo = ref<any>({
 const isApproval = ref<boolean>(false)
 const selectedRowsList = ref<any[]>([])
 const header = ref<{
+  tn_header_id: number
   office: string
   tn_number: string
   tn_planned_date: string
@@ -28,6 +30,7 @@ const header = ref<{
   creation_date: string
   version: string
 }>({
+  tn_header_id: 0,
   office: '',
   tn_number: '',
   tn_planned_date: '',
@@ -38,6 +41,7 @@ const header = ref<{
   version: ''
 })
 const formRef = ref()
+const headerFormRef = ref()
 const selectData = reactive({
   selectedRowsListLength: 0
 })
@@ -65,18 +69,28 @@ const rules = reactive({
   ]
 })
 
-const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'tnApprovalReviewTable',
-  api: () => {
-    return dataList.value
-  },
-  columns: [
+const headerRules = {
+  status: [
     {
-      type: 'checkbox',
-      width: 60,
-      align: 'center',
-      fixed: 'left'
-    },
+      validator: (_rule: any, value: string, callback: any) => {
+        if (
+          String(value ?? '')
+            .trim()
+            .toUpperCase() === 'CANCELED'
+        ) {
+          callback(new Error(t('transferNoteApproval.statusCannotBeCanceled')))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
+}
+
+function getColumns() {
+  const checkboxCol = { type: 'checkbox', width: 60, align: 'center', fixed: 'left' }
+  const columns: any[] = [
     {
       field: 'tn_line_num',
       title: t('transferNoteApproval.tnLineNumber'),
@@ -144,7 +158,20 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 240,
       slots: { default: 'cancel_reason' }
     }
-  ],
+  ]
+
+  if (!isApproval.value) {
+    columns.unshift(checkboxCol)
+  }
+  return columns
+}
+
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
+  id: 'tnApprovalReviewTable',
+  api: () => {
+    return dataList.value
+  },
+  columns: getColumns(),
   zoom: false,
   refresh: false,
   customeToolBar: false,
@@ -154,13 +181,22 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   saveColumnOrder: false,
   selectChangeHander: (selectedRows: any[]) => {
     selectedRowsList.value = selectedRows
+  },
+  optionalConfig: {
+    rowClassName: ({ row }: { row: any }) => {
+      if (isApproval.value && String(row.cancel_reason ?? '').trim()) {
+        return 'row--cancel-highlight'
+      }
+      return ''
+    }
   }
 })
 
 function handleShowData() {
-  const data = showAll ? [] : dataList.value
-  tableRef.value.loadData(data)
-  // reload()
+  dataList.value = showAll ? allList.value : selectedRowsList.value
+
+  showAll.value = !showAll.value
+  reload()
 }
 function getUserInfo() {
   const useLocalStorage = localStorage.getItem('docpal-user')
@@ -176,60 +212,115 @@ function getUserInfo() {
 
 async function init() {
   showAll.value = true
-  tnList.value = []
+  allList.value = []
   dataList.value = []
+  isApproval.value = formData.is_approval
 
-  nextTick(() => reload())
+  header.value = {
+    tn_header_id: formData.tn_header_id ?? '',
+    office: formData.office ?? '',
+    tn_number: formData.tn_number ?? '',
+    tn_planned_date: formData.tn_planned_date ?? '',
+    commodity_inspection: formData.commodity_inspection ?? '',
+    status: formData.status ?? '',
+    created_by: formData.created_by ?? '',
+    creation_date: formData.creation_date ?? '',
+    version: formData.version ?? ''
+  }
+  allList.value = formData.list ?? []
+  selectedRowsList.value = formData.select_list ?? []
+  dataList.value = formData.list ?? []
+
+  nextTick(() => {
+    tableConfig.columns = getColumns()
+    reload()
+    headerFormRef.value?.validateField('status')
+  })
 }
 
 async function getTNData(tnNumber: string) {
-  tableConfig.loading = true
-  const raw = {
-    org_id: userInfo.value.org_id,
-    tn_numbers: [tnNumber]
-  }
+  if (!tnNumber) return
 
-  const data = await clientApi.instance.post(`/api/tn/details`, raw).then((r) => r.data.data.items)
-  if (data.length === 0) {
-    routerProvider?.message.warning(t('transferNoteApproval.noRelatedInfoFound'))
-    return
-  }
+  try {
+    tableConfig.loading = true
+    const raw = {
+      org_id: userInfo.value.org_id,
+      tn_numbers: [tnNumber]
+    }
 
-  const dataHeader = data[0].header
-  header.value = {
-    ...dataHeader
-  }
+    const data = await clientApi.instance.post(`/api/tn/details`, raw).then((r) => r.data.data.items)
+    if (data.length === 0) {
+      routerProvider?.message.warning(t('transferNoteApproval.noRelatedInfoFound'))
+      return
+    }
+    if (!data[0].header) {
+      dataList.value = []
 
-  dataList.value = data[0].lines
-  tableConfig.loading = false
-  reload()
+      routerProvider?.message.warning(t('transferNoteApproval.noRelatedInfoFound'))
+      return
+    }
+
+    const dataHeader = data[0].header
+
+    dataList.value = data[0].lines.map((item: any) => ({
+      id: uuidv7(),
+      ...item
+    }))
+
+    header.value = {
+      tn_header_id: dataHeader.tn_header_id ?? 0,
+      office: dataHeader.office ?? '',
+      tn_number: dataHeader.tn_number ?? '',
+      tn_planned_date: dataHeader.tn_planned_date ?? '',
+      commodity_inspection: dataHeader.commodity_inspection ?? '',
+      status: dataHeader.status ?? '',
+      created_by: dataHeader.created_by ?? '',
+      creation_date: dataHeader.creation_date ?? '',
+      version: dataHeader.version ?? ''
+    }
+    nextTick(() => headerFormRef.value?.validateField('status'))
+  } catch (e) {
+    console.log(e)
+  } finally {
+    reload()
+    tableConfig.loading = false
+  }
 }
 
 watch(
-  () => formData.tn_number,
+  () => formData.list,
   (value) => {
-    if (!!value) {
-      init(value)
+    if (!!value && value.length > 0) {
+      init()
     }
   },
   { immediate: true, deep: true }
 )
 
 async function getFormData(needValidation = true) {
-  const result = {
-    office: header.value.office,
-    tn_number: header.value.tn_number,
-    tn_planned_date: header.value.tn_planned_date,
-    commodity_inspection: header.value.commodity_inspection,
-    status: header.value.status,
-    created_by: header.value.created_by,
-    creation_date: header.value.creation_date,
-    version: header.value.version,
-    list: dataList.value
+  let result = {}
+  if (!isApproval.value) {
+    result = {
+      org_id: userInfo.value.org_id,
+      office: header.value.office,
+      tn_number: header.value.tn_number,
+      tn_planned_date: header.value.tn_planned_date,
+      commodity_inspection: header.value.commodity_inspection,
+      status: header.value.status,
+      created_by: header.value.created_by,
+      creation_date: header.value.creation_date,
+      version: header.value.version,
+      list: dataList.value,
+      select_list: selectedRowsList.value,
+      tn_header_id: header.value.tn_header_id,
+      tn_line_ids: selectedRowsList.value.map((item: any) => {
+        return item.tn_line_id
+      })
+    }
   }
 
   if (!needValidation) return result
-  await formRef.value?.validate()
+  await Promise.all([headerFormRef.value?.validate(), formRef.value?.validate()])
   return result
 }
 
@@ -241,42 +332,44 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-row>
-    <el-col :span="6">
-      <el-form-item :label="t('transferNoteApproval.office')">
-        <el-input v-model="header.office" disabled style="width: 90%" />
-      </el-form-item>
-      <el-form-item :label="t('transferNoteApproval.status')">
-        <el-input v-model="header.status" disabled style="width: 90%" />
-      </el-form-item>
-    </el-col>
-    <el-col :span="6">
-      <el-form-item :label="t('transferNoteApproval.tnNumber')">
-        <el-input v-model="header.tn_number" style="width: 90%" @change="getTNData" />
-      </el-form-item>
-      <el-form-item :label="t('transferNoteApproval.createdBy')">
-        <el-input v-model="header.created_by" disabled style="width: 90%" />
-      </el-form-item>
-    </el-col>
-    <el-col :span="6">
-      <el-form-item :label="t('transferNoteApproval.tnPlannedDate')">
-        <el-input v-model="header.tn_planned_date" disabled style="width: 90%" />
-      </el-form-item>
-      <el-form-item :label="t('transferNoteApproval.creationDate')">
-        <el-input v-model="header.creation_date" disabled style="width: 90%" />
-      </el-form-item>
-    </el-col>
-    <el-col :span="6">
-      <el-form-item :label="t('transferNoteApproval.commodityInspection')">
-        <el-input v-model="header.commodity_inspection" disabled style="width: 90%" />
-      </el-form-item>
-      <el-form-item :label="t('transferNoteApproval.version')">
-        <el-input v-model="header.version" disabled style="width: 90%" />
-      </el-form-item>
-    </el-col>
-  </el-row>
+  <el-form ref="headerFormRef" :model="header" :rules="headerRules" label-position="top">
+    <el-row>
+      <el-col :span="6">
+        <el-form-item :label="t('transferNoteApproval.office')">
+          <el-input v-model="header.office" disabled style="width: 90%" />
+        </el-form-item>
+        <el-form-item :label="t('transferNoteApproval.status')" prop="status">
+          <el-input v-model="header.status" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="t('transferNoteApproval.tnNumber')">
+          <el-input v-model="header.tn_number" style="width: 90%" @change="getTNData" />
+        </el-form-item>
+        <el-form-item :label="t('transferNoteApproval.createdBy')">
+          <el-input v-model="header.created_by" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="t('transferNoteApproval.tnPlannedDate')">
+          <el-input v-model="header.tn_planned_date" disabled style="width: 90%" />
+        </el-form-item>
+        <el-form-item :label="t('transferNoteApproval.creationDate')">
+          <el-input v-model="header.creation_date" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="t('transferNoteApproval.commodityInspection')">
+          <el-input v-model="header.commodity_inspection" disabled style="width: 90%" />
+        </el-form-item>
+        <el-form-item :label="t('transferNoteApproval.version')">
+          <el-input v-model="header.version" disabled style="width: 90%" />
+        </el-form-item>
+      </el-col>
+    </el-row>
+  </el-form>
 
-  <div class="tn-review-table">
+  <div class="tn-review-table" :class="{ 'tn-review-table--approval': isApproval }">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div v-if="!isApproval" class="table-header-center">
@@ -289,19 +382,20 @@ defineExpose({ getFormData })
           </el-form>
         </div>
 
-        <el-divider v-else content-position="left">
-          <span>{{ t('transferNoteApproval.linesPendingApproval') }}</span>
-
-          {{
-            t('transferNoteApproval.linesPendingApprovalCancellation', {
-              selected: selectedRowsList.length,
-              total: dataList.length
-            })
-          }}
-        </el-divider>
-        <el-button v-if="isApproval" type="primary" @click="handleShowData">
-          {{ showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
-        </el-button>
+        <div v-else class="table-header-center">
+          <el-divider content-position="left">
+            <span style="font-weight: bold; font-size: 16px">{{ $t('transferNoteApproval.linesPendingApproval') }}</span>
+            {{
+              t('transferNoteApproval.linesPendingApprovalCancellation', {
+                selected: selectedRowsList.length,
+                total: dataList.length
+              })
+            }}
+          </el-divider>
+          <el-button type="primary" @click="handleShowData">
+            {{ showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
+          </el-button>
+        </div>
       </template>
 
       <template #cancel_reason="{ row, index }">
@@ -330,5 +424,17 @@ defineExpose({ getFormData })
 
 .tn-review-table {
   height: 70vh;
+
+  &--approval {
+    height: 50vh;
+  }
+
+  :deep(.vxe-body--row.row--cancel-highlight) {
+    background-color: #fff8e1;
+
+    .vxe-body--column {
+      background-color: #fff8e1;
+    }
+  }
 }
 </style>

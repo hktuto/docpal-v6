@@ -4762,6 +4762,7 @@
   "workflow_holdPolicy": "Hold Policy",
   "workflow_info": "Job Info",
   "workflow_jobName": "Job Name",
+  "workflow_availableTask": "Available Task",
   "workflow_joinTask": "Task in Progress",
   "workflow_myTask": "My Task",
   "workflow_newWorkflow": "New Workflow",
@@ -5196,7 +5197,7 @@
     "approvalRemark": "Approval Remark",
     "importExcel": "Import Excel",
     "downloadExcelTemplate": "Download Excel Template",
-    "searchAcrossAllColumns": "Search across all columns",
+    "searchAcrossAllColumns": "Search the End Customer/Project, Price Group, and Supplier Part Number fields",
     "quantity": "Quantity",
     "addRow": "Add Row",
     "delete": "Delete",
@@ -5287,9 +5288,12 @@
     "lineStatus": "Line Status",
     "cancelReason": "Cancel Reason",
     "noRelatedInfoFound": "No related information found!",
-    "linesPendingApproval ": "Lines Pending Approval",
+    "linesPendingApproval": "Lines Pending Approval",
     "linesPendingApprovalCancellation": "{selected} of {total} lines selected for cancellation",
     "showCancelLines": "Show Cancel Lines",
-    "showAllLines": "Show All Lines"
+    "showAllLines": "Show All Lines",
+    "rejectReason": "Reject Reason",
+    "partDetails": "Part Details",
+    "statusCannotBeCanceled": "Status cannot be CANCELED"
   }
 }
