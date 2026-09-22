@@ -34,14 +34,30 @@ const rowData = reactive<any>({
   status: ''
 })
 
-const rules = {
-  shipment_number: [
-    {
-      required: true,
-      message: t('render.hint.fieldRequired', { name: t('transferNoteApproval.shipmentNumber') }),
-      trigger: 'blur'
-    }
-  ]
+function isShipmentNumberRequired(row: any) {
+  return row?.git_stk === 'Y' && String(row?.part_number ?? '').includes('ICHAUS')
+}
+
+const shipmentNumberRequiredMessage = t('render.hint.fieldRequired', { name: t('transferNoteApproval.shipmentNumber') })
+function getShipmentNumberRules(row: any) {
+  return {
+    shipment_number: [
+      {
+        validator: (_rule: any, value: string, callback: any) => {
+          if (!isShipmentNumberRequired(row)) {
+            callback()
+            return
+          }
+          if (!String(value ?? '').trim()) {
+            callback(new Error(shipmentNumberRequiredMessage))
+            return
+          }
+          callback()
+        },
+        trigger: 'blur'
+      }
+    ]
+  }
 }
 
 function open(row: any) {
@@ -68,7 +84,7 @@ defineExpose({ open })
 
 <template>
   <el-dialog v-model="visible" :title="t('transferNoteApproval.partDetails')" append-to-body class="big" destroy-on-close align-center>
-    <el-form ref="formRef" :model="rowData" :rules="rules" label-position="top" class="all-input-style">
+    <el-form ref="formRef" :model="rowData" label-position="top" class="all-input-style">
       <el-row>
         <el-col :span="6">
           <el-form-item :label="t('transferNoteApproval.poNumber')">
@@ -127,7 +143,7 @@ defineExpose({ open })
           <el-form-item :label="t('transferNoteApproval.partDescription')">
             <el-input v-model="rowData.part_description" style="width: 90%" disabled />
           </el-form-item>
-          <el-form-item :label="t('transferNoteApproval.shipmentNumber')" prop="shipment_number" required>
+          <el-form-item :label="t('transferNoteApproval.shipmentNumber')" prop="shipment_number" :rules="getShipmentNumberRules(rowData)">
             <el-input v-model="rowData.shipment_number" style="width: 90%" />
           </el-form-item>
           <el-form-item :label="t('transferNoteApproval.toOffice')">

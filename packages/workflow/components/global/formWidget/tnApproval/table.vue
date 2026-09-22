@@ -52,14 +52,31 @@ const rules = {
     }
   ]
 }
-const shipmentNumberRules = {
-  shipment_number: [
-    {
-      required: true,
-      message: t('render.hint.fieldRequired', { name: t('transferNoteApproval.shipmentNumber') }),
-      trigger: 'blur'
-    }
-  ]
+const shipmentNumberRequiredMessage = t('render.hint.fieldRequired', { name: t('transferNoteApproval.shipmentNumber') })
+
+function isShipmentNumberRequired(row: any) {
+  return row?.git_stk === 'Y' && String(row?.part_number ?? '').toLowerCase().includes('ichaus')
+}
+
+function getShipmentNumberRules(row: any) {
+  return {
+    shipment_number: [
+      {
+        validator: (_rule: any, value: string, callback: any) => {
+          if (!isShipmentNumberRequired(row)) {
+            callback()
+            return
+          }
+          if (!String(value ?? '').trim()) {
+            callback(new Error(shipmentNumberRequiredMessage))
+            return
+          }
+          callback()
+        },
+        trigger: 'blur'
+      }
+    ]
+  }
 }
 const selectedRowsListLength = computed(() => {
   return selectedRowsList.value.length || 0
@@ -536,9 +553,9 @@ async function batchStockCheck(list: any[]) {
 }
 
 function validateSelectedShipmentNumbers() {
-  const hasEmpty = selectedRowsList.value.some((item) => !String(item.shipment_number ?? '').trim())
+  const hasEmpty = selectedRowsList.value.some((item) => isShipmentNumberRequired(item) && !String(item.shipment_number ?? '').trim())
   if (!hasEmpty) return true
-  ElMessage.error(t('render.hint.fieldRequired', { name: t('transferNoteApproval.shipmentNumber') }))
+  ElMessage.error(shipmentNumberRequiredMessage)
   return false
 }
 
@@ -696,7 +713,7 @@ defineExpose({ getFormData })
         />
       </template>
       <template #shipment_number="{ row, index }">
-        <el-form class="cell-form" :model="row" :rules="shipmentNumberRules">
+        <el-form class="cell-form" :model="row" :rules="getShipmentNumberRules(row)">
           <el-form-item prop="shipment_number">
             <el-input v-model="row.shipment_number" />
           </el-form-item>
