@@ -95,12 +95,12 @@ function getColumns() {
       field: 'tn_line_num',
       title: t('transferNoteApproval.tnLineNumber'),
       align: 'center',
-      minWidth: 120
+      minWidth: 140
     },
     {
       field: 'line_num',
       title: t('transferNoteApproval.poLineNumber'),
-      minWidth: 120
+      minWidth: 140
     },
     {
       field: 'po_number',
@@ -120,17 +120,17 @@ function getColumns() {
     {
       field: 'qty_delivered_onhand',
       title: t('transferNoteApproval.onHandQty'),
-      minWidth: 100
+      minWidth: 120
     },
     {
       field: 'from_subinventory',
       title: t('transferNoteApproval.fromSubInventory'),
-      minWidth: 100
+      minWidth: 160
     },
     {
       field: 'to_subinventory',
       title: t('transferNoteApproval.toSubInventory'),
-      minWidth: 100
+      minWidth: 140
     },
     {
       field: 'transfer_quantity',
@@ -193,7 +193,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 })
 
 function handleShowData() {
-  dataList.value = showAll ? allList.value : selectedRowsList.value
+  dataList.value = showAll.value ? allList.value : selectedRowsList.value
 
   showAll.value = !showAll.value
   reload()
@@ -388,12 +388,12 @@ defineExpose({ getFormData })
             {{
               t('transferNoteApproval.linesPendingApprovalCancellation', {
                 selected: selectedRowsList.length,
-                total: dataList.length
+                total: allList.length
               })
             }}
           </el-divider>
           <el-button type="primary" @click="handleShowData">
-            {{ showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
+            {{ !showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
           </el-button>
         </div>
       </template>
