@@ -47,11 +47,11 @@ const selectData = reactive({
 })
 
 watch(
-  () => selectedRowsList.value,
-  (value) => {
-    selectData.selectedRowsListLength = value.length
+  () => selectedRowsList.value.length,
+  (len) => {
+    selectData.selectedRowsListLength = len
   },
-  { deep: true }
+  { immediate: true }
 )
 
 const rules = reactive({
@@ -294,7 +294,7 @@ watch(
       init()
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 )
 
 async function getFormData(needValidation = true) {
