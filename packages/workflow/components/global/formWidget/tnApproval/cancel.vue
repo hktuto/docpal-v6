@@ -95,22 +95,22 @@ function getColumns() {
       field: 'tn_line_num',
       title: t('transferNoteApproval.tnLineNumber'),
       align: 'center',
-      minWidth: 100
+      minWidth: 120
     },
     {
       field: 'line_num',
       title: t('transferNoteApproval.poLineNumber'),
-      minWidth: 100
+      minWidth: 120
     },
     {
       field: 'po_number',
       title: t('transferNoteApproval.poNumber'),
-      minWidth: 240
+      minWidth: 150
     },
     {
       field: 'item',
       title: t('transferNoteApproval.wclPartNumber'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'item_origin',
@@ -120,37 +120,37 @@ function getColumns() {
     {
       field: 'qty_delivered_onhand',
       title: t('transferNoteApproval.onHandQty'),
-      minWidth: 240
+      minWidth: 100
     },
     {
       field: 'from_subinventory',
       title: t('transferNoteApproval.fromSubInventory'),
-      minWidth: 240
+      minWidth: 100
     },
     {
       field: 'to_subinventory',
       title: t('transferNoteApproval.toSubInventory'),
-      minWidth: 240
+      minWidth: 100
     },
     {
       field: 'transfer_quantity',
       title: t('transferNoteApproval.transferQty'),
-      minWidth: 140
+      minWidth: 100
     },
     {
       field: 'unit_price_in_hkd',
       title: t('transferNoteApproval.unitPrice'),
-      minWidth: 160
+      minWidth: 100
     },
     {
       field: 'amount_in_hkd',
       title: t('transferNoteApproval.amount'),
-      minWidth: 150
+      minWidth: 100
     },
     {
       field: 'status',
       title: t('transferNoteApproval.lineStatus'),
-      minWidth: 240
+      minWidth: 100
     },
     {
       field: 'cancel_reason',
@@ -228,7 +228,7 @@ async function init() {
     version: formData.version ?? ''
   }
   allList.value = formData.list ?? []
-  selectedRowsList.value = formData.select_list ?? []
+  selectedRowsList.value = formData.is_approval ? formData.select_list : []
   dataList.value = formData.list ?? []
 
   nextTick(() => {
