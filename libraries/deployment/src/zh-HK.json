@@ -5263,5 +5263,26 @@
     "rejectReason": "拒絕理由",
     "partDetails": "零件詳情",
     "statusCannotBeCanceled": "狀態不能為 CANCELED"
+  },
+  "proformaInvoice": {
+    "piNumber": "PI 編號",
+    "status": "狀態",
+    "invoiceDate": "發票日期",
+    "scheduleDate": "預定日期",
+    "customerCode": "客戶編號",
+    "customerName": "客戶名稱",
+    "office": "辦事處",
+    "invoiceHeader": "發票抬頭",
+    "currency": "貨幣",
+    "subTotal": "小計",
+    "totalTax": "稅額",
+    "totalAmount": "總金額",
+    "warehouseLocation": "倉庫位置",
+    "subInventory": "子庫存",
+    "paymentInAdv": "貨到付款 COD / 預付款 Payment in Adv",
+    "overdueDebt": "逾期欠數",
+    "piRemarks": "PI 備註",
+    "submittedBy": "提交人",
+    "submittedDate": "提交日期"
   }
 }

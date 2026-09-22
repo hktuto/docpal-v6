@@ -5295,5 +5295,26 @@
     "rejectReason": "Reject Reason",
     "partDetails": "Part Details",
     "statusCannotBeCanceled": "Status cannot be CANCELED"
+  },
+  "proformaInvoice": {
+    "piNumber": "PI Number",
+    "status": "Status",
+    "invoiceDate": "Invoice Date",
+    "scheduleDate": "Schedule Date",
+    "customerCode": "Customer Code",
+    "customerName": "Customer Name",
+    "office": "Office",
+    "invoiceHeader": "Invoice Header",
+    "currency": "Currency",
+    "subTotal": "Sub Total",
+    "totalTax": "Total Tax",
+    "totalAmount": "Total Amount",
+    "warehouseLocation": "Warehouse Location",
+    "subInventory": "Sub Inventory",
+    "paymentInAdv": "COD / Payment in Adv",
+    "overdueDebt": "Overdue Debt",
+    "piRemarks": "PI Remarks",
+    "submittedBy": "Submitted By",
+    "submittedDate": "Submitted Date"
   }
 }
