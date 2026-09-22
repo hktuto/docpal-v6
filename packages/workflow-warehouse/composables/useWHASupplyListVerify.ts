@@ -1,6 +1,6 @@
 ﻿import { inject, provide, ref, toRef, type InjectionKey, type Ref } from 'vue'
 import { newClientApi } from 'api'
-import { SGLA, SGLA_TABLE_ID } from '../utils/variableMapping'
+import { SGLA, SGLA_ITEMS, SGLA_TABLE_ID } from '../utils/variableMapping'
 import { resolveWorkflowFile } from '../utils/workflowHelper'
 
 export interface WHASupplyListVerifyProps {
@@ -18,6 +18,8 @@ export interface WHASupplyListVerifyContext {
   selectInvoice: (item: Record<string, any>) => void
   /** 更新当前选中发票字段 */
   updateInvoiceData: (invoiceData: Record<string, any>) => Promise<any>
+  /** 根据明细表汇总 total_qty / Total_Ctn 到当前选中发票 */
+  syncInvoiceTotals: (rows: Record<string, any>[]) => void
 }
 
 export const WHASupplyListVerifyKey: InjectionKey<WHASupplyListVerifyContext> = Symbol('WHASupplyListVerify')
@@ -45,6 +47,14 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
     return res
   }
 
+  function syncInvoiceTotals(rows: Record<string, any>[]) {
+    if (!selectedInvoice.value) return
+    selectedInvoice.value.total_qty = rows.reduce((sum, row) => sum + (Number(row[SGLA_ITEMS.Qty]) || 0), 0)
+    selectedInvoice.value[SGLA.Total_Ctn] = new Set(
+      rows.map((row) => row[SGLA_ITEMS.Carton]).filter((v) => v != null && String(v).trim() !== '')
+    ).size
+  }
+
   const context: WHASupplyListVerifyContext = {
     formData,
     taskDetail,
@@ -52,6 +62,7 @@ export function useWHASupplyListVerifyProvider(props: WHASupplyListVerifyProps) 
     selectedInvoice,
     selectInvoice,
     updateInvoiceData,
+    syncInvoiceTotals,
     disabled
   }
 
