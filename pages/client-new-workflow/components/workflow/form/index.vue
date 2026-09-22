@@ -194,7 +194,7 @@ defineExpose({
     </div>
 
     <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
-      <WorkflowFormButtonSignCancel button-id="Workflow__AvailableTask__Detail__Form__Cancel" />
+      <SignatureButtonCancel button-id="Workflow__AvailableTask__Detail__Form__Cancel" />
       <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="disabled" @click="openSignatureSettingDialog">
         {{ $t('workflow_resign') }}
       </el-button>
