@@ -2,7 +2,7 @@
 import { ArrowDown } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
-import { conversionFormDataByVariables, newWorkflowStartPage } from '#imports'
+import { conversionFormDataByVariables, newWorkflowStartPage, useUserState } from '#imports'
 import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const vFormRef = ref()
@@ -18,7 +18,7 @@ const state = reactive({
   loading: false
 })
 const emits = defineEmits(['reload'])
-const userId = useUserId()
+const user = useUserState()
 const workflowList = await getWorkflowList()
 
 async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = false, originalData?: any) {
@@ -91,10 +91,11 @@ async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = fal
 async function directlyStart(definition_id: string, workflowData?: any) {
   try {
     const formParams = {
-      start_user_id: userId.value,
+      start_user_id: user.value.userId,
       definition_id: definition_id,
       variables: {
-        __system__user_creator_id: userId.value,
+        __system__user_creator_id: user.value.userId,
+        __system__user_creator_email: user.value.email,
         ...workflowData
       }
     }
@@ -125,11 +126,12 @@ async function checkAndSubmit() {
     const cFormData = conversionFormDataByVariables(formData, state.formVariables)
 
     const formParams = {
-      start_user_id: userId.value,
+      start_user_id: user.value.userId,
       definition_id: state.selectedWorkflow.id,
       variables: {
         ...cFormData,
-        __system__user_creator_id: userId.value
+        __system__user_creator_id: user.value.userId,
+        __system__user_creator_email: user.value.email
       }
     }
 
