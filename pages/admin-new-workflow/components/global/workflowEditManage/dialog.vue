@@ -57,7 +57,7 @@ async function handleSubmit() {
 
     // Edit Workflow Info
     if (isEdit.value) {
-      const workflowJson = formData.value.draft_content
+      const workflowJson: any = formData.value.draft_content
       workflowJson.description = formData.value.description
       await clientApi.instance.put(`/oniflow/api/v1/workflow/definitions/instance/${formData.value.id}`, workflowJson).then((res) => res.data)
       emits('refresh')
@@ -65,7 +65,6 @@ async function handleSubmit() {
     }
     const key = formData.value.name.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\s]/g, '')
 
-    // Create Workflow
     const defWorkflowJson = {
       ...json,
       key: `${key}_${Date.now()}`,
@@ -113,10 +112,11 @@ async function handleSubmit() {
       id: data.id,
       name: data.name
     })
-    openDialog.value = false
     routerProvider?.navigateTo(workflowEdit)
   } catch (e) {
     console.log(e)
+  } finally {
+    openDialog.value = false
   }
 }
 
