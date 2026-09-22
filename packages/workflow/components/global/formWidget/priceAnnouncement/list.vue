@@ -219,10 +219,10 @@ function handleAddRow() {
     endCustomer: '',
     priceGroup: 'Any',
     supplierPartNumber: 'Any',
-    currency: '',
-    originalUnitPrice: 0,
-    newUnitPrice: 0,
-    adjustmentRate: 0,
+    currency: 'CNY',
+    originalUnitPrice: 1,
+    newUnitPrice: 1,
+    adjustmentRate: 100,
     approvalRemark: ''
   })
   reload()
@@ -690,6 +690,7 @@ defineExpose({ getFormData })
           :min="0.000001"
           :step="0.000001"
           step-strictly
+          :value-on-clear="1"
           :disabled="isApproval"
           @change="changePrice(row)"
         />
@@ -702,6 +703,7 @@ defineExpose({ getFormData })
           :min="0.000001"
           :step="0.000001"
           step-strictly
+          :value-on-clear="1"
           :disabled="isApproval"
           @change="changePrice(row)"
         />
