@@ -154,57 +154,68 @@ defineExpose({
 </script>
 
 <template>
-  <div
-    ref="workflowFormContainerRef"
-    v-show="nodeType !== CellType.signatureTask || signSubmitStage !== 'afterSubmit'"
-    :class="{ workflowFormContainer: true, [nodeType]: true, glass: nodeType === CellType.signatureTask && !isFullScreenForm, showForm }"
-  >
-    <div v-if="nodeType === CellType.signatureTask" class="toggleFormButton">
-      <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'" size="20" @click="toggleShowForm" />
-    </div>
-    <div v-if="nodeType === CellType.signatureTask" class="toggleFullScreenButton">
-      <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
-    </div>
-    <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" @formChange="handleFormChange">
-      <template #action>
-        <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
-          <template v-for="(item, index) in additionalButton" :key="index">
-            <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
-          </template>
+  <div class="workflow-form-root">
+    <div
+      ref="workflowFormContainerRef"
+      v-show="nodeType !== CellType.signatureTask || signSubmitStage !== 'afterSubmit'"
+      :class="{ workflowFormContainer: true, [nodeType]: true, glass: nodeType === CellType.signatureTask && !isFullScreenForm, showForm }"
+    >
+      <div v-if="nodeType === CellType.signatureTask" class="toggleFormButton">
+        <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'" size="20" @click="toggleShowForm" />
+      </div>
+      <div v-if="nodeType === CellType.signatureTask" class="toggleFullScreenButton">
+        <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
+      </div>
+      <ContextFormRender ref="fromRenderRef" :taskDetail="taskDetail" @formChange="handleFormChange">
+        <template #action>
+          <div v-if="isAssigneeUser" class="workflow-form__button-list">
+            <template v-for="(item, index) in additionalButton" :key="index">
+              <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
+            </template>
 
-          <WorkflowFormButtonTerminate button-id="Workflow__AvailableTask__Detail__Form__Terminate" />
+            <WorkflowFormButtonTerminate button-id="Workflow__AvailableTask__Detail__Form__Terminate" />
 
-          <WorkflowFormButtonSubmit
-            v-if="pageButtonSetting && (nodeType !== CellType.signatureTask || signSubmitStage === 'beforeSubmit')"
-            button-id="Workflow__AvailableTask__Detail__Form__Submit"
-            :label-key="pageButtonSetting?.submitButtonLabel || 'common_submit'"
-          />
-        </div>
-      </template>
-    </ContextFormRender>
+            <WorkflowFormButtonSubmit
+              v-if="pageButtonSetting && (nodeType !== CellType.signatureTask || signSubmitStage === 'beforeSubmit')"
+              button-id="Workflow__AvailableTask__Detail__Form__Submit"
+              :label-key="pageButtonSetting?.submitButtonLabel || 'common_submit'"
+            />
+          </div>
+        </template>
+      </ContextFormRender>
+    </div>
+
+    <template v-if="nodeType === CellType.signatureTask">
+      <div class="templateViewerContainer">
+        <DocTemplateViewer
+          v-if="!!signatureDetail && !!signatureDetail.templateDetail.json"
+          :options="signatureDetail.templateDetail.json.options"
+          :json="signatureDetail.templateDetail.json.content"
+        />
+      </div>
+
+      <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
+        <SignatureButtonCancel button-id="Workflow__AvailableTask__Detail__Form__Cancel" />
+        <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="disabled" @click="openSignatureSettingDialog">
+          {{ $t('workflow_resign') }}
+        </el-button>
+        <WorkflowFormButtonSubmit button-id="Workflow__AvailableTask__Detail__Form__Confirm" label-key="common_submit" />
+      </div>
+      <SignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
+    </template>
   </div>
-
-  <template v-if="nodeType === CellType.signatureTask">
-    <div class="templateViewerContainer">
-      <DocTemplateViewer
-        v-if="!!signatureDetail && !!signatureDetail.templateDetail.json"
-        :options="signatureDetail.templateDetail.json.options"
-        :json="signatureDetail.templateDetail.json.content"
-      />
-    </div>
-
-    <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
-      <SignatureButtonCancel button-id="Workflow__AvailableTask__Detail__Form__Cancel" />
-      <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="disabled" @click="openSignatureSettingDialog">
-        {{ $t('workflow_resign') }}
-      </el-button>
-      <WorkflowFormButtonSubmit button-id="Workflow__AvailableTask__Detail__Form__Confirm" label-key="common_submit" />
-    </div>
-    <SignatureDialog ref="signatureSettingDialogRef" :signatureSetting="signatureDetail" @confirm="handleApplySignature" />
-  </template>
 </template>
 
 <style lang="scss" scoped>
+.workflow-form-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
 .floatingButtonContainer {
   position: absolute;
   left: 50%;
@@ -223,13 +234,15 @@ defineExpose({
   overflow: hidden;
 }
 
-.workflow-detail-pane--btns {
+.workflow-form__button-list {
+  flex-shrink: 0;
   box-shadow: var(--el-box-shadow-light);
   padding: var(--app-space-s);
   display: flex;
   flex-flow: row nowrap;
   gap: var(--app-space-s);
   justify-content: flex-start;
+
   :deep(.el-button + .el-button) {
     margin-left: 0;
   }
@@ -237,7 +250,10 @@ defineExpose({
 
 .workflowFormContainer {
   position: relative;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+
   &.SignatureTask {
     position: fixed;
     background: var(--app-grey-950);

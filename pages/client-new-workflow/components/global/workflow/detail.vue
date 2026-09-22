@@ -45,21 +45,21 @@ onMounted(() => {
 
 <template>
   <div v-if="!error" class="pageContainer--padding workflow-detail">
-    <div class="wrapper">
-      <el-tabs v-model="state.activeTab" class="dp-tabs--auto">
-        <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_info')" name="info">
+    <el-tabs v-model="state.activeTab" class="workflow-detail__tabs">
+      <el-tab-pane :label="$t('workflow_info')" name="info">
+        <div class="workflow-detail__content is-scroll">
           <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail" :state="workflowType" />
           <WorkflowDetailInfo v-else :taskDetail="taskDetail" @change="handleClaimChange" />
-        </el-tab-pane>
+        </div>
+      </el-tab-pane>
 
-        <el-tab-pane v-if="showForm" class="workflow-detail-pane" :label="$t('workflow_form')" name="form">
-          <WorkflowForm ref="workflowFormRef" />
-        </el-tab-pane>
-      </el-tabs>
-    </div>
+      <el-tab-pane v-if="showForm" :label="$t('workflow_form')" name="form">
+        <WorkflowForm ref="workflowFormRef" class="workflow-detail__form" />
+      </el-tab-pane>
+    </el-tabs>
   </div>
 
-  <div v-else>
+  <div v-else class="workflow-detail-error">
     Workflow id not found, workflow id : {{ db_id }}.
     <el-button id="Workflow__AvailableTask__Detail__Form__Back" type="primary" @click="handleBack">
       {{ $t('common_back') }}
@@ -70,34 +70,52 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .pageContainer--padding.workflow-detail {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  gap: var(--app-space-xs);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workflow-detail__tabs {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 
-  > .wrapper {
-    display: flex;
-    flex-flow: column nowrap;
+  :deep(.el-tabs__header) {
+    flex-shrink: 0;
+    margin-bottom: var(--app-space-s);
+  }
+
+  :deep(.el-tabs__content) {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  :deep(.el-tab-pane) {
     height: 100%;
     overflow: hidden;
-    position: relative;
-    gap: var(--app-space-s);
   }
 }
 
-.dp-tabs--auto {
+.workflow-detail__content {
   height: 100%;
-  overflow: hidden;
+  min-height: 0;
 
-  .el-tab-pane {
-    height: 100%;
+  &.is-scroll {
+    overflow: auto;
   }
 }
 
-.workflow-detail-pane {
-  display: grid;
-  grid-template-rows: 1fr min-content;
-  transform: scale(1);
+.workflow-detail__form {
+  height: 100%;
+  min-height: 0;
+}
+
+.workflow-detail-error {
+  padding: var(--app-space-s);
 }
 </style>
