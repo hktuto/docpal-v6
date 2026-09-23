@@ -62,7 +62,7 @@ async function loadInvoiceList() {
     invoiceList.value.forEach(async (item) => {
       const { data: aggData } = await postDynamicActions(buildInvoiceAggParams(item.id))
       item.total_qty = aggData.data[0]?.[`agg_${SGLA_ITEMS.Qty}`]
-    })
+    }).sort((a, b) => a[SGLA.Name].localeCompare(b[SGLA.Name]))
   } catch (error) {
     console.error(error)
     invoiceList.value = []
