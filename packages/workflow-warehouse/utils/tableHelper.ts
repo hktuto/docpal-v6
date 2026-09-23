@@ -41,7 +41,7 @@ export function toCheckedBoolean(value: unknown): boolean {
   return value === true || value === 1 || value === 'true'
 }
 
-export function editableColumn(type: EditableColumnType = 'text', selectOptions: SelectOption[] = []) {
+export function editableColumn(type: EditableColumnType = 'text', props: Record<string, any> = {}) {
   if (type === 'number') {
     return {
       align: 'right',
@@ -54,7 +54,8 @@ export function editableColumn(type: EditableColumnType = 'text', selectOptions:
           min: 0,
           autoFill: false,
           align: 'right',
-          showCurrency: false
+          showCurrency: false,
+          ...props
         }
       }
     }
@@ -65,12 +66,12 @@ export function editableColumn(type: EditableColumnType = 'text', selectOptions:
       editRender: {
         name: 'VxeSelect',
         autofocus: '.vxe-input--inner',
-        options: selectOptions,
         props: {
           clearable: true,
           filterable: true,
           transfer: true,
-          popupClassName: 'wha-verify-select-panel'
+          popupClassName: 'wha-verify-select-panel',
+          ...props
         }
       }
     }
@@ -80,7 +81,7 @@ export function editableColumn(type: EditableColumnType = 'text', selectOptions:
     editRender: {
       name: 'VxeTextarea',
       autofocus: '.vxe-textarea--inner',
-      props: { rows: 2, autosize: { minRows: 2, maxRows: 6 } }
+      props: { rows: 2, autosize: { minRows: 2, maxRows: 6 }, ...props }
     }
   }
 }
@@ -133,7 +134,7 @@ export function createInvoiceVerificationTableColumns(t: (key: string) => string
       type: 'number',
       required: true,
       headerClassName: 'is-required',
-      ...editableColumn('number')
+      ...editableColumn('number', { digits: 3 })
     },
     {
       field: 'line_amount',
@@ -142,7 +143,7 @@ export function createInvoiceVerificationTableColumns(t: (key: string) => string
       type: 'number',
       required: true,
       headerClassName: 'is-required',
-      ...editableColumn('number')
+      ...editableColumn('number', { digits: 3, step: 1 })
     },
     {
       field: 'status',
@@ -195,18 +196,7 @@ export type CreateVerificationTableOptionsParams = {
 
 /** useVxeTable 共用配置（height / actions / edit / optionalConfig） */
 export function createVerificationTableOptions(params: CreateVerificationTableOptionsParams) {
-  const {
-    t,
-    columns,
-    onBatchEdit,
-    onCopy,
-    onDelete,
-    getRowClassName,
-    onEditClosed,
-    beforeEditMethod,
-    checkboxField,
-    enableHeaderActions = true
-  } = params
+  const { t, columns, onBatchEdit, onCopy, onDelete, getRowClassName, onEditClosed, beforeEditMethod, checkboxField, enableHeaderActions = true } = params
 
   return {
     height: '100%',
@@ -344,11 +334,7 @@ export function buildCountryLookup(list: SelectOption[]) {
   return map
 }
 
-export function normalizeCountryFields(
-  rows: Record<string, any>[],
-  countryList: SelectOption[],
-  fields: readonly string[]
-) {
+export function normalizeCountryFields(rows: Record<string, any>[], countryList: SelectOption[], fields: readonly string[]) {
   if (!countryList.length) return rows
   const lookup = buildCountryLookup(countryList)
   return rows.map((row) => {
@@ -421,18 +407,11 @@ export function getStatusCounts(
   }
 }
 
-export function getMissingRequiredLabels(
-  row: Record<string, any>,
-  requiredColumns: Array<{ field: string; title: string }>
-) {
+export function getMissingRequiredLabels(row: Record<string, any>, requiredColumns: Array<{ field: string; title: string }>) {
   return requiredColumns.filter((col) => row[col.field] == null || row[col.field] === '').map((col) => col.title)
 }
 
-export function createRowFromColumns(
-  columns: Array<{ field?: string; type?: string }>,
-  extras: Record<string, any>,
-  source?: Record<string, any>
-) {
+export function createRowFromColumns(columns: Array<{ field?: string; type?: string }>, extras: Record<string, any>, source?: Record<string, any>) {
   const row: Record<string, any> = { ...extras }
   columns.forEach((col) => {
     if (!col.field) return
