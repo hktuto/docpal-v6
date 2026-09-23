@@ -29,7 +29,7 @@ const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const { t } = useI18n()
 const isCollapsible = ref(true)
 const { selectedInvoice, invoiceList } = useWHASupplyListVerifyProvider(props)
-const { reload } = useWHASupplyListVerifyTableProvider(selectedInvoice)
+const { reload, hasHighlightedRows } = useWHASupplyListVerifyTableProvider(selectedInvoice)
 const fileList = computed(() => props.formData?.file_list_info || [])
 const detailCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetailCard>>()
 const detectedCardRef = ref<InstanceType<typeof WHASupplyListVerifyDetectedCard>>()
@@ -55,6 +55,9 @@ async function handleInvoiceUpdate(value: string, item: any) {
 
 async function getFormData(needValidation: boolean) {
   if (!needValidation) return
+  if (hasHighlightedRows.value) {
+    throw new Error(t('workflowWarehouse.hasUnmatchedRows'))
+  }
   const result = await detailCardRef.value?.validate()
   if (result === 'cancel') throw new Error('__CANCEL__')
   invoiceList.value.forEach((item) => {

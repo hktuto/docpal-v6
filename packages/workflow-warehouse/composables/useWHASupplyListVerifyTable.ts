@@ -146,6 +146,8 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   let lastFetchedInvoiceNum = ''
   /** Supplier_PN::PoLine → 问题行红底 */
   const highlightedMatchKeys = ref<Set<string>>(new Set())
+  /** 是否存在红底未匹配行 */
+  const hasHighlightedRows = computed(() => highlightedMatchKeys.value.size > 0)
   /** 当前点击定位的行 → 黄底 */
   const locatedMatchKey = ref('')
   /** insertRow / 定位行切 filter 时跳过一次 watch reload */
@@ -550,6 +552,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     applyBatchEdit,
     highlightMatchingRows,
     clearMatchingRowHighlight,
+    hasHighlightedRows,
     scrollToMatchingRow,
     resetVerifiedMatches,
     addRow,
