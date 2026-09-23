@@ -63,7 +63,7 @@ async function getFormData(needValidation: boolean) {
         type: 'warning'
       })
     } catch {
-      throw new Error('**CANCEL**')
+      throw new Error('__CANCEL__')
     }
   }
   const result = await detailCardRef.value?.validate()
