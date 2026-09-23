@@ -10,29 +10,63 @@ const { t } = useI18n()
 const isApproval = ref<boolean>(false)
 const isReview = ref<boolean>(false)
 const formRef = ref()
-const formModel = reactive({
+const formModel = reactive<{
+  pi_number: string
+  status: string
+  invoice_date: number
+  schedule_date: number
+  customer_code: string
+  customer_name: string
+  office: string
+  invoice_header: string
+  currency: 'CNY' | 'USD' | 'HKD' | 'EUR' | 'JPY' | 'AUD' | 'MOP' | 'THB'
+  sub_total: number
+  total_tax: number
+  total_amount: number
+  warehouse_location: string
+  sub_inventory: string
+  payment_in_adv: 'Y' | 'N'
+  overdue_debt: 'Y' | 'N'
+  pi_remarks: string
+  submitted_by: string
+  submitted_date: number
+  reject_reason: string
+  approver: string
+  approval_date: number
+  items: {
+    id: string
+    schedule_date: number
+    order_ln: number
+    order_number: string
+    wcl_part_number: string
+    order_qty: number
+    line_amount: number
+    tax_code: string
+    status: string
+  }[]
+}>({
   pi_number: '',
   status: '',
-  invoice_date: '',
-  schedule_date: '',
+  invoice_date: 0,
+  schedule_date: 0,
   customer_code: '',
   customer_name: '',
   office: '',
   invoice_header: '',
-  currency: '',
-  sub_total: '',
-  total_tax: '',
-  total_amount: '',
+  currency: 'CNY',
+  sub_total: 0,
+  total_tax: 0,
+  total_amount: 0,
   warehouse_location: '',
   sub_inventory: '',
-  payment_in_adv: '',
-  overdue_debt: '',
+  payment_in_adv: 'Y',
+  overdue_debt: 'Y',
   pi_remarks: '',
   submitted_by: '',
-  submitted_date: '',
+  submitted_date: 0,
   reject_reason: '',
   approver: '',
-  approval_date: '',
+  approval_date: 0,
   items: []
 })
 
@@ -155,6 +189,9 @@ function init() {
     reject_reason: formData.reject_reason ?? '',
     items: formData.items ?? []
   })
+
+  isApproval.value = formData.is_approval
+  isReview.value = formData.is_review
 }
 
 watch(
@@ -176,10 +213,57 @@ const invoiceHeaderOption = ref<any[]>([
   { label: 'MCE', value: 'MCE' }
 ])
 
-onMounted(() => {
+const userInfo = ref<{
+  org_id: number
+  operatingName: string
+  userId: string
+}>({
+  org_id: 0,
+  operatingName: '',
+  userId: ''
+})
+
+function getUserInfo() {
   const user = useUserState()
-  console.log(123, user.value.userId)
-  console.log(123, user.value.email)
+  userInfo.value.org_id = Number(user.value.operatingId)
+  userInfo.value.operatingName = user.value.operatingName
+  userInfo.value.userId = user.value.userId
+}
+
+onMounted(() => {
+  // if (!!formData) return
+  getUserInfo()
+
+  formModel.pi_number = '1234567890'
+  formModel.status = '1234567890'
+  formModel.invoice_date = 1790155908490
+  formModel.schedule_date = 1790155908490
+  formModel.customer_code = '1234567890'
+  formModel.customer_name = '1234567890'
+  formModel.office = '1234567890'
+  formModel.invoice_header = 'SZ'
+  formModel.currency = 'CNY'
+  formModel.sub_total = 1234567890
+  formModel.total_tax = 1234567890
+  formModel.total_amount = 1234567890
+  formModel.warehouse_location = '1234567890'
+  formModel.sub_inventory = '1234567890'
+  formModel.payment_in_adv = 'N'
+  formModel.overdue_debt = 'N'
+  formModel.pi_remarks = '1234567890'
+  formModel.items = [
+    {
+      id: '11',
+      schedule_date: 1790155908490,
+      order_ln: 1,
+      order_number: '1234567890',
+      wcl_part_number: '1234567890',
+      order_qty: 1,
+      line_amount: 1,
+      tax_code: '1234567890',
+      status: 'aaa'
+    }
+  ]
 })
 
 async function getFormData(needValidation = true) {
@@ -225,7 +309,7 @@ defineExpose({ getFormData })
 
       <el-col :span="6">
         <el-form-item :label="t('proformaInvoice.invoiceDate')">
-          <el-input v-model="formModel.invoice_date" disabled />
+          <el-date-picker v-model="formModel.invoice_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
         </el-form-item>
         <el-form-item :label="t('proformaInvoice.office')">
           <el-input v-model="formModel.office" disabled />
@@ -240,7 +324,7 @@ defineExpose({ getFormData })
 
       <el-col :span="6">
         <el-form-item :label="t('proformaInvoice.scheduleDate')">
-          <el-input v-model="formModel.schedule_date" disabled />
+          <el-date-picker v-model="formModel.schedule_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
         </el-form-item>
         <el-form-item :label="t('proformaInvoice.invoiceHeader')">
           <el-select v-model="formModel.invoice_header" :disabled="isApproval">
@@ -270,10 +354,10 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="6">
         <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedDate')">
-          <el-input v-model="formModel.submitted_date" disabled />
+          <el-date-picker v-model="formModel.submitted_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
         </el-form-item>
         <el-form-item v-if="isReview" :label="t('proformaInvoice.approvalDate')">
-          <el-input v-model="formModel.approval_date" disabled />
+          <el-date-picker v-model="formModel.approval_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
         </el-form-item>
       </el-col>
     </el-row>
