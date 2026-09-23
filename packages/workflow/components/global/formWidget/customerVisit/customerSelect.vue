@@ -106,6 +106,8 @@ async function nameChange(value: string) {
     const find = parties.value.find((item) => item.account_number === value)
     if (!!find) {
       customerDetail.value.customer_number = value
+      customerDetail.value.customer_name = find.customer_name
+      customerDetail.value.customer_english_name = find.customer_eng_name
       searchData.value.customerEnglishName = value
       await getCustomerInfo(value)
     } else {
@@ -122,6 +124,8 @@ async function enNameChange(value: string) {
     const find = parties.value.find((item) => item.account_number === value)
     if (!!find) {
       customerDetail.value.customer_number = value
+      customerDetail.value.customer_name = find.customer_name
+      customerDetail.value.customer_english_name = find.customer_eng_name
       searchData.value.customerName = value
       await getCustomerInfo(value)
     } else {
