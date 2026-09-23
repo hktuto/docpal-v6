@@ -276,97 +276,99 @@ defineExpose({ getFormData })
 
 <template>
   <el-form ref="formRef" :model="formModel" label-position="top" class="all-input-style">
-    <el-row>
-      <el-col :span="6">
-        <el-form-item :label="t('proformaInvoice.piNumber')">
-          <el-input v-model="formModel.pi_number" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.customerCode')">
-          <el-input v-model="formModel.customer_code" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.currency')">
-          <el-input v-model="formModel.currency" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.warehouseLocation')">
-          <el-input v-model="formModel.warehouse_location" disabled />
-        </el-form-item>
-      </el-col>
+    <div class="info-item-card">
+      <el-row>
+        <el-col :span="6">
+          <el-form-item :label="t('proformaInvoice.piNumber')">
+            <el-input v-model="formModel.pi_number" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.customerCode')">
+            <el-input v-model="formModel.customer_code" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.currency')">
+            <el-input v-model="formModel.currency" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.warehouseLocation')">
+            <el-input v-model="formModel.warehouse_location" disabled />
+          </el-form-item>
+        </el-col>
 
-      <el-col :span="6">
-        <el-form-item :label="t('proformaInvoice.status')">
-          <el-input v-model="formModel.status" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.customerName')">
-          <el-input v-model="formModel.customer_name" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.subTotal')">
-          <el-input v-model="formModel.sub_total" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.subInventory')">
-          <el-input v-model="formModel.sub_inventory" disabled />
-        </el-form-item>
-      </el-col>
+        <el-col :span="6">
+          <el-form-item :label="t('proformaInvoice.status')">
+            <el-input v-model="formModel.status" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.customerName')">
+            <el-input v-model="formModel.customer_name" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.subTotal')">
+            <el-input v-model="formModel.sub_total" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.subInventory')">
+            <el-input v-model="formModel.sub_inventory" disabled />
+          </el-form-item>
+        </el-col>
 
-      <el-col :span="6">
-        <el-form-item :label="t('proformaInvoice.invoiceDate')">
-          <el-date-picker v-model="formModel.invoice_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.office')">
-          <el-input v-model="formModel.office" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.totalTax')">
-          <el-input v-model="formModel.total_tax" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.paymentInAdv')">
-          <el-input v-model="formModel.payment_in_adv" disabled />
-        </el-form-item>
-      </el-col>
+        <el-col :span="6">
+          <el-form-item :label="t('proformaInvoice.invoiceDate')">
+            <el-date-picker v-model="formModel.invoice_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.office')">
+            <el-input v-model="formModel.office" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.totalTax')">
+            <el-input v-model="formModel.total_tax" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.paymentInAdv')">
+            <el-input v-model="formModel.payment_in_adv" disabled />
+          </el-form-item>
+        </el-col>
 
-      <el-col :span="6">
-        <el-form-item :label="t('proformaInvoice.scheduleDate')">
-          <el-date-picker v-model="formModel.schedule_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.invoiceHeader')">
-          <el-select v-model="formModel.invoice_header" :disabled="isApproval">
-            <el-option v-for="item in invoiceHeaderOption" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.totalAmount')">
-          <el-input v-model="formModel.total_amount" disabled />
-        </el-form-item>
-        <el-form-item :label="t('proformaInvoice.overdueDebt')">
-          <el-input v-model="formModel.overdue_debt" disabled />
-        </el-form-item>
-      </el-col>
+        <el-col :span="6">
+          <el-form-item :label="t('proformaInvoice.scheduleDate')">
+            <el-date-picker v-model="formModel.schedule_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.invoiceHeader')">
+            <el-select v-model="formModel.invoice_header" :disabled="isApproval">
+              <el-option v-for="item in invoiceHeaderOption" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.totalAmount')">
+            <el-input v-model="formModel.total_amount" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.overdueDebt')">
+            <el-input v-model="formModel.overdue_debt" disabled />
+          </el-form-item>
+        </el-col>
 
-      <el-col :span="12">
-        <el-form-item :label="t('proformaInvoice.piRemarks')">
-          <el-input v-model="formModel.pi_remarks" :disabled="isApproval" />
-        </el-form-item>
-      </el-col>
-      <el-col :span="6">
-        <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedBy')">
-          <el-input v-model="formModel.submitted_by" disabled />
-        </el-form-item>
-        <el-form-item v-if="isReview" :label="t('proformaInvoice.approver')">
-          <el-input v-model="formModel.approver" disabled />
-        </el-form-item>
-      </el-col>
-      <el-col :span="6">
-        <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedDate')">
-          <el-date-picker v-model="formModel.submitted_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
-        </el-form-item>
-        <el-form-item v-if="isReview" :label="t('proformaInvoice.approvalDate')">
-          <el-date-picker v-model="formModel.approval_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
-        </el-form-item>
-      </el-col>
-    </el-row>
+        <el-col :span="12">
+          <el-form-item :label="t('proformaInvoice.piRemarks')">
+            <el-input v-model="formModel.pi_remarks" :disabled="isApproval" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedBy')">
+            <el-input v-model="formModel.submitted_by" disabled />
+          </el-form-item>
+          <el-form-item v-if="isReview" :label="t('proformaInvoice.approver')">
+            <el-input v-model="formModel.approver" disabled />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedDate')">
+            <el-date-picker v-model="formModel.submitted_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
+          </el-form-item>
+          <el-form-item v-if="isReview" :label="t('proformaInvoice.approvalDate')">
+            <el-date-picker v-model="formModel.approval_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </div>
   </el-form>
 
   <div class="table-container">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <el-divider content-position="left">Line Items</el-divider>
+        <span style="font-size: 20px; color: #2354b8">Line Items</span>
       </template>
     </VxeGrid>
   </div>
@@ -380,6 +382,13 @@ defineExpose({ getFormData })
 </template>
 
 <style scoped lang="scss">
+.info-item-card {
+  border: 1px solid var(--app-grey-800);
+  border-radius: var(--app-border-radius-m);
+  padding: var(--app-space-s);
+  margin-top: var(--app-space-s);
+}
+
 .table-container {
   min-height: 550px;
   max-height: 600px;
