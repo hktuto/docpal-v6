@@ -172,6 +172,8 @@ export interface VerificationTableContext {
   /** 按 Supplier_PN + PoLine 高亮匹配行（红底），可传单条或数组 */
   highlightMatchingRows: (matches: HighlightMatchKey | HighlightMatchKey[]) => void
   clearMatchingRowHighlight: () => void
+  /** 当前是否存在红底高亮（未匹配）行 */
+  hasHighlightedRows: Ref<boolean>
   scrollToMatchingRow?: (match: HighlightMatchKey) => void
   /** 将匹配行的 verified 勾选重置为 false */
   resetVerifiedMatches?: (matches: HighlightMatchKey | HighlightMatchKey[]) => boolean

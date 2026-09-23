@@ -4848,6 +4848,8 @@
     "description": "核對 OCR 解析的發票明細，並對照客戶料號進行核驗。",
     "pleaseEnterInvoiceNumber": "請輸入發票號",
     "pleaseApproveInvoice": "⌈{name}⌋ 請先批准該發票",
+    "hasUnmatchedRows": "表格中存在未匹配的行，請先處理後再提交",
+    "unmatchedRowsConfirm": "表格中存在未匹配的行，仍要提交嗎？",
     "pleaseSelectSupplier": "⌈{name}⌋ 請選擇供應商",
     "pleaseSelectOrg": "⌈{name}⌋ 請選擇組織",
     "pleaseEnterCustomerName": "⌈{name}⌋ 請輸入客戶名稱",

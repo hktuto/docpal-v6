@@ -36,6 +36,8 @@ export function useInvoiceVerifyTableProvider(
   const searchQuery = ref('')
   const tableData = ref<GitInvoiceLineItem[]>([])
   const highlightedMatchKeys = ref<Set<string>>(new Set())
+  /** 是否存在红底高亮行 */
+  const hasHighlightedRows = computed(() => highlightedMatchKeys.value.size > 0)
   const dirtyRowIds = ref(new Set<string>())
 
   function markRowDirty(row: Record<string, any> | null | undefined) {
@@ -315,6 +317,7 @@ export function useInvoiceVerifyTableProvider(
     reload,
     highlightMatchingRows,
     clearMatchingRowHighlight,
+    hasHighlightedRows,
     addRow,
     saveTableData,
     runMatchingAndReload,

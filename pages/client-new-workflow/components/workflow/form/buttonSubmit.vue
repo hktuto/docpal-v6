@@ -112,7 +112,7 @@ async function handleSubmit() {
       )
     }
   } catch (error: any) {
-    if (error?.message === '__CANCEL__') return
+    if (error?.message === '__CANCEL__' || error?.message === '**CANCEL**') return
     routerProvider?.message.error(error?.message)
   } finally {
     loading.value = false
