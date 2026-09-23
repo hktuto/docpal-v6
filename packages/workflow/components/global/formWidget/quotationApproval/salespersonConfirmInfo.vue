@@ -256,7 +256,11 @@ defineExpose({ getFormData })
               <el-form-item :label="t('quotationApproval.customerPartNumber')" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item :label="t('quotationApproval.oldSalesPriceNoTax')" prop="old_sales_price_noTax">
+              <el-form-item
+                v-if="formData.quotation_reason === 'Discount Request'"
+                :label="t('quotationApproval.oldSalesPriceNoTax')"
+                prop="old_sales_price_noTax"
+              >
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>

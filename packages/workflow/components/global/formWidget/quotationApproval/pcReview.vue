@@ -325,7 +325,7 @@ async function init() {
       old_sales_price_noTax: item.old_sales_price,
       part_number: item.part_number,
       product_application: item.product_application,
-      quantity_machine: 0,
+      quantity_machine: item.quantity_per_machine,
       quotation_number: formData.quotation_number,
       remarks: '',
       sample_id: item.line_id,
@@ -605,7 +605,11 @@ defineExpose({ getFormData })
               <el-form-item :label="$t('quotationApproval.customerPartNumber')" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item :label="$t('quotationApproval.oldSalesPriceNoTax')" prop="old_sales_price_noTax">
+              <el-form-item
+                v-if="formData.quotation_reason === 'Discount Request'"
+                :label="$t('quotationApproval.oldSalesPriceNoTax')"
+                prop="old_sales_price_noTax"
+              >
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>
