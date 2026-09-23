@@ -47,11 +47,11 @@ const selectData = reactive({
 })
 
 watch(
-  () => selectedRowsList.value,
-  (value) => {
-    selectData.selectedRowsListLength = value.length
+  () => selectedRowsList.value.length,
+  (len) => {
+    selectData.selectedRowsListLength = len
   },
-  { deep: true }
+  { immediate: true }
 )
 
 const rules = reactive({
@@ -95,22 +95,22 @@ function getColumns() {
       field: 'tn_line_num',
       title: t('transferNoteApproval.tnLineNumber'),
       align: 'center',
-      minWidth: 100
+      minWidth: 140
     },
     {
       field: 'line_num',
       title: t('transferNoteApproval.poLineNumber'),
-      minWidth: 100
+      minWidth: 140
     },
     {
       field: 'po_number',
       title: t('transferNoteApproval.poNumber'),
-      minWidth: 240
+      minWidth: 150
     },
     {
       field: 'item',
       title: t('transferNoteApproval.wclPartNumber'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'item_origin',
@@ -120,37 +120,37 @@ function getColumns() {
     {
       field: 'qty_delivered_onhand',
       title: t('transferNoteApproval.onHandQty'),
-      minWidth: 240
+      minWidth: 120
     },
     {
       field: 'from_subinventory',
       title: t('transferNoteApproval.fromSubInventory'),
-      minWidth: 240
+      minWidth: 160
     },
     {
       field: 'to_subinventory',
       title: t('transferNoteApproval.toSubInventory'),
-      minWidth: 240
+      minWidth: 140
     },
     {
       field: 'transfer_quantity',
       title: t('transferNoteApproval.transferQty'),
-      minWidth: 140
+      minWidth: 100
     },
     {
       field: 'unit_price_in_hkd',
       title: t('transferNoteApproval.unitPrice'),
-      minWidth: 160
+      minWidth: 100
     },
     {
       field: 'amount_in_hkd',
       title: t('transferNoteApproval.amount'),
-      minWidth: 150
+      minWidth: 100
     },
     {
       field: 'status',
       title: t('transferNoteApproval.lineStatus'),
-      minWidth: 240
+      minWidth: 100
     },
     {
       field: 'cancel_reason',
@@ -193,7 +193,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 })
 
 function handleShowData() {
-  dataList.value = showAll ? allList.value : selectedRowsList.value
+  dataList.value = showAll.value ? allList.value : selectedRowsList.value
 
   showAll.value = !showAll.value
   reload()
@@ -228,7 +228,7 @@ async function init() {
     version: formData.version ?? ''
   }
   allList.value = formData.list ?? []
-  selectedRowsList.value = formData.select_list ?? []
+  selectedRowsList.value = formData.is_approval ? formData.select_list : []
   dataList.value = formData.list ?? []
 
   nextTick(() => {
@@ -294,7 +294,7 @@ watch(
       init()
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 )
 
 async function getFormData(needValidation = true) {
@@ -388,12 +388,12 @@ defineExpose({ getFormData })
             {{
               t('transferNoteApproval.linesPendingApprovalCancellation', {
                 selected: selectedRowsList.length,
-                total: dataList.length
+                total: allList.length
               })
             }}
           </el-divider>
           <el-button type="primary" @click="handleShowData">
-            {{ showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
+            {{ !showAll ? t('transferNoteApproval.showCancelLines') : t('transferNoteApproval.showAllLines') }}
           </el-button>
         </div>
       </template>

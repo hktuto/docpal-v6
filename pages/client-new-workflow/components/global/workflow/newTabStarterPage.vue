@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { conversionFormDataByVariables, MenuRouterKey } from '#imports'
+import { conversionFormDataByVariables, MenuRouterKey, useUserState } from '#imports'
 import { newClientApi, clientApi } from 'api'
 
 const { definition_id, taskNode, formVariables } = defineProps<{
@@ -10,7 +10,7 @@ const { definition_id, taskNode, formVariables } = defineProps<{
 defineOptions({
   name: 'WorkflowStartFullPageDead'
 })
-const userId = useUserId()
+const user = useUserState()
 const loading = ref(false)
 const vFormRef = ref()
 const routerProvider = inject(MenuRouterKey)
@@ -35,8 +35,7 @@ async function init() {
     nextTick(() => {
       vFormRef.value.setForm(formJson.jsonValue)
     })
-  } catch (e) {
-  }
+  } catch (e) {}
 }
 
 async function handleSubmit() {
@@ -49,11 +48,12 @@ async function handleSubmit() {
     const cFormData = conversionFormDataByVariables(formData, variables)
 
     const formParams = {
-      start_user_id: userId.value,
+      start_user_id: user.value.userId,
       definition_id: definition_id,
       variables: {
         ...cFormData,
-        __system__user_creator_id: userId.value
+        __system__user_creator_id: user.value.userId,
+        __system__user_creator_email: user.value.email
       }
     }
 

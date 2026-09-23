@@ -84,6 +84,20 @@
         "min_length": 1
       },
       "order": 1
+    },
+    "__system__user_creator_email": {
+      "name": "Creator Email",
+      "type": "string",
+      "display_type": "text",
+      "default_value": "",
+      "description": "",
+      "display_option": {},
+      "order": 1,
+      "required": true,
+      "validation": {
+        "max_length": 255,
+        "min_length": 1
+      }
     }
   },
   "metadata": {
