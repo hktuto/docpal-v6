@@ -29,6 +29,14 @@ export function toNumberOrNull(value: unknown): number | null {
   return Number.isFinite(n) ? n : null
 }
 
+/** 数字展示：千分位；空值返回空字符串 */
+export function formatThousandNumber(value: unknown): string {
+  if (value === '' || value == null) return ''
+  const n = Number(value)
+  if (!Number.isFinite(n)) return ''
+  return n.toLocaleString('en-US')
+}
+
 export function toCheckedBoolean(value: unknown): boolean {
   return value === true || value === 1 || value === 'true'
 }
@@ -36,10 +44,18 @@ export function toCheckedBoolean(value: unknown): boolean {
 export function editableColumn(type: EditableColumnType = 'text', selectOptions: SelectOption[] = []) {
   if (type === 'number') {
     return {
+      align: 'right',
+      formatter: ({ cellValue }: { cellValue: unknown }) => formatThousandNumber(cellValue),
       editRender: {
-        name: 'VxeInput',
-        autofocus: '.vxe-input--inner',
-        props: { type: 'number' }
+        name: 'VxeNumberInput',
+        autofocus: '.vxe-number-input--input',
+        props: {
+          type: 'amount',
+          min: 0,
+          autoFill: false,
+          align: 'right',
+          showCurrency: false
+        }
       }
     }
   }
