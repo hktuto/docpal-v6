@@ -138,6 +138,7 @@ async function numberChange(value: string) {
     formModel.customerEnglishName = ''
     formModel.customer_location = ''
   }
+  await getCheckCustomer(value)
 }
 
 async function nameChange(value: string) {
@@ -156,6 +157,7 @@ async function nameChange(value: string) {
     formModel.customerEnglishName = ''
     formModel.customer_location = ''
   }
+  await getCheckCustomer(value)
 }
 
 async function enNameChange(value: string) {
@@ -173,6 +175,20 @@ async function enNameChange(value: string) {
     formModel.customer_eng_name = value
     formModel.customerName = ''
     formModel.customer_location = ''
+  }
+  await getCheckCustomer(value)
+}
+
+const orgId = ref<number>()
+async function getCheckCustomer(customer_number: string) {
+  const { new_customer, over_due, credit_total_amt } = await clientApi.instance
+    .get(`/apis/v1/ms/oracle/customers/status?accountNumber=${customer_number}&orgId=${orgId.value}`)
+    .then((r) => r.data)
+
+  formModel.check_customer = new_customer === 1 ? 'New Customer' : 'Existing Customer'
+
+  if (over_due === 1) {
+    formModel.check_customer = 'Overdraft Customer'
   }
 }
 
@@ -194,6 +210,7 @@ function init() {
     customerName: formData.customer_number ?? '',
     customerEnglishName: formData.customer_number ?? ''
   })
+  orgId.value = formData.org_id
 }
 
 async function getFormData(needValidation = true) {
@@ -227,6 +244,7 @@ defineExpose({ getFormData })
           <el-select v-model="formModel.check_customer" :placeholder="t('quotationApproval.selectOptionRequired')" disabled>
             <el-option :label="t('quotationApproval.newCustomer')" value="New Customer" />
             <el-option :label="t('quotationApproval.existingCustomer')" value="Existing Customer" />
+            <el-option :label="t('quotationApproval.overdraftCustomer')" value="Overdraft Customer" />
           </el-select>
         </el-form-item>
       </el-col>

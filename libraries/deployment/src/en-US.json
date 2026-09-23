@@ -5055,6 +5055,7 @@
     "endUser": "End User",
     "newCustomer": "New Customer",
     "existingCustomer": "Existing Customer",
+    "overdraftCustomer": "Overdraft Customer",
     "selectOptionRequired": "One of the options must be selected.",
     "historicalPrice": "Historical Price",
     "number": "Number",

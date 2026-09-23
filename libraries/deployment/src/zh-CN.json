@@ -4951,6 +4951,7 @@
     "endUser": "终端用户",
     "newCustomer": "新客户",
     "existingCustomer": "现有客户",
+    "overdraftCustomer": "欠款客户",
     "selectOptionRequired": "必须选择其中一个选项",
     "historicalPrice": "历史价格",
     "number": "编号",

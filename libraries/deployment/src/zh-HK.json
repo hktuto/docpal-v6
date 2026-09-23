@@ -5023,6 +5023,7 @@
     "endUser": "終端用戶",
     "newCustomer": "新客戶",
     "existingCustomer": "現有客戶",
+    "overdraftCustomer": "欠款客戶",
     "selectOptionRequired": "必須選擇其中一個選項",
     "historicalPrice": "歷史價格",
     "number": "編號",
