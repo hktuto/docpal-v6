@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="verification">
     <h3 class="title">{{ $t('workflowWarehouse.title') }}</h3>
     <small class="description">{{ $t('workflowWarehouse.description') }}</small>
@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { newClientApi } from 'api'
 import { SGLA } from '../../../utils/variableMapping'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const { t } = useI18n()
 const isCollapsible = ref(true)
@@ -56,7 +56,15 @@ async function handleInvoiceUpdate(value: string, item: any) {
 async function getFormData(needValidation: boolean) {
   if (!needValidation) return
   if (hasHighlightedRows.value) {
-    throw new Error(t('workflowWarehouse.hasUnmatchedRows'))
+    try {
+      await ElMessageBox.confirm(t('workflowWarehouse.unmatchedRowsConfirm'), t('dpTip_warning'), {
+        confirmButtonText: t('confirm'),
+        cancelButtonText: t('common_cancel'),
+        type: 'warning'
+      })
+    } catch {
+      throw new Error('**CANCEL**')
+    }
   }
   const result = await detailCardRef.value?.validate()
   if (result === 'cancel') throw new Error('__CANCEL__')
