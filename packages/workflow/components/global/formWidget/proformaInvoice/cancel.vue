@@ -287,7 +287,7 @@ defineExpose({ getFormData })
         <div class="toolbar-selected">
           <div>
             <span style="font-size: 20px; color: #2354b8">Line Items</span>
-            <span style="font-size: 20px; color: #ca322d">Tick the lines to cancel,then Submit./勾选要取消的行,然后提交。</span>
+            <span style="margin-left: 10px; font-size: 20px; color: #ca322d">Tick the lines to cancel,then Submit./勾选要取消的行,然后提交。</span>
           </div>
 
           <el-form ref="formRef" :model="selectData" :rules="rules" label-position="left" inline class="toolbar-selected__form">
@@ -320,6 +320,22 @@ defineExpose({ getFormData })
   :deep(.el-select),
   :deep(.el-input) {
     width: 98%;
+  }
+}
+
+.toolbar-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  //gap: 12px;
+  width: 100%;
+
+  &__form {
+    margin-bottom: 0;
+
+    :deep(.el-form-item) {
+      margin-bottom: 0;
+    }
   }
 }
 </style>
