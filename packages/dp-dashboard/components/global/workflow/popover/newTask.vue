@@ -19,7 +19,12 @@ const state = reactive({
 })
 const emits = defineEmits(['reload'])
 const user = useUserState()
-const workflowList = await getWorkflowList()
+const workflowList = ref<any[]>([])
+
+async function getWorkflowListOption() {
+  const data: any[] = await getWorkflowList()
+  workflowList.value = data.sort((a: any, b: any) => a.name.localeCompare(b.name))
+}
 
 async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = false, originalData?: any) {
   state.loading = true
@@ -164,6 +169,10 @@ watch(newWorkflowTask, async (item) => {
   const { id, data } = item
   newWorkflowTask.value = null
   await workflowClickHandler({ id }, true, data)
+})
+
+onMounted(() => {
+  getWorkflowListOption()
 })
 </script>
 
