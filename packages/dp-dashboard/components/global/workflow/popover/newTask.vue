@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { conversionFormDataByVariables, newWorkflowStartPage, useUserState } from '#imports'
 import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
@@ -24,7 +24,7 @@ const workflowList = await getWorkflowList()
 async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = false, originalData?: any) {
   state.loading = true
   try {
-    const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))
+    const data = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))
     if (!data) return
     if (data.published_version < 1) {
       state.loading = false
@@ -99,7 +99,7 @@ async function directlyStart(definition_id: string, workflowData?: any) {
         ...workflowData
       }
     }
-    await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
+    await clientApi.instance.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
   } catch (e) {
     console.log(e)
   }
@@ -136,11 +136,11 @@ async function checkAndSubmit() {
     }
 
     try {
-      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
+      const data = await clientApi.instance.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
 
       setTimeout(async () => {
         // Check workflow running status
-        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
+        const newVar = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
         if (newVar.state === 'running') {
           routerProvider?.message.success('Workflow created')
         }

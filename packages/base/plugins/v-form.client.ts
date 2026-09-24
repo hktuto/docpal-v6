@@ -1,4 +1,4 @@
-import { clientApi } from 'api';
+import { clientApi, workflowApi } from 'api';
 import dayjs from 'dayjs';
 
 // @ts-ignore
@@ -15,7 +15,7 @@ export default defineNuxtPlugin(async nuxtApp => {
   if (window) {
     const pathname = window.location.pathname
     // @ts-ignore
-    window.$api = clientApi?.instance;
+    window.$api = workflowApi?.instance;
     // @ts-ignore
     window.$i18n = nuxtApp.$i18n;
 

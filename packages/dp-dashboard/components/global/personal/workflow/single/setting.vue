@@ -23,8 +23,8 @@ async function handleWorkflowChange(processId: string) {
   try {
     const selectedWorkflowData = workflowList.value.find((item: any) => item.process_id === processId)
     if (!selectedWorkflowData) return
-    const instanceData = await $api.get(`/oniflow/api/v1/processes/instance/${processId}`).then((r: any) => workflowResponseHelper(r))
-    const data = await $api
+    const instanceData = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${processId}`).then((r: any) => workflowResponseHelper(r))
+    const data = await clientApi.instance
       .get(`/oniflow/api/v1/workflow/definitions/instance/${instanceData.definition_id}/content`)
       .then((r: any) => workflowResponseHelper(r))
 
