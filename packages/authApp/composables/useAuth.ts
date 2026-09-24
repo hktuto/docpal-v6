@@ -321,7 +321,6 @@ const uiSize = [
 export async function getUserPreference() {
   const preference = useUserPreference()
   const data = await gatewayApi.userSettings.getUserSettings().then((r) => r.data)
-  console.log("user preference", data)
   if (!data) {
     throw new Error('get user preference fail')
   }
