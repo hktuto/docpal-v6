@@ -110,6 +110,10 @@ export const useSingleDatabase = () => {
     isDragging: false
   })
 
+  function conbineDatabasePermission(level: PermissionLevel[]): string {
+    if(level.includes('Manage')) return 'Manage'
+    return 'Member'
+  }
   function getDatabasePermissionIds(level: PermissionLevel): number[] {
     switch (level) {
       case 'Manage': return [47, 48, 49]
@@ -149,7 +153,7 @@ export const useSingleDatabase = () => {
     permissionsLoading.value = true
     try {
       const { data }: any = await newClientApi.getDynamicDbPermissionsDatabaseDatabaseidMembers(database.value.id)
-
+      console.log("permissions data:", data)
       permissions.value = data.map((item: any) => ({
         id: item.permissionRecordId || item.id,
         targetId: item.targetId,
@@ -163,10 +167,21 @@ export const useSingleDatabase = () => {
       }))
 
       // Find current user's permission level
+      const allPermissionIds = new Set()
       const userPerm = permissions.value.find(
         (p) => p.targetType === 1 && p.targetId === currentUserId.value
       )
-      currentUserPermission.value = userPerm?.permissionLevel || null
+      if (userPerm?.permissionLevel) allPermissionIds.add(userPerm.permissionLevel)
+      const user = useUserState()
+      const groups = user.value.aclUserDetail.groups.map((g) => g.groupId)
+      const role = user.value.aclUserDetail.roleId
+      const groupPermission = permissions.value.filter(
+        (p) => p.targetType === 3 && groups.includes(p.targetId)
+      ).forEach((p) => allPermissionIds.add(p.permissionLevel))
+      const rolePermission = permissions.value.filter(
+        (p) => p.targetType === 2 && p.targetId === role
+      ).forEach((p) => allPermissionIds.add(p.permissionLevel))
+      currentUserPermission.value = conbineDatabasePermission(Array.from(allPermissionIds))
     } catch (error) {
       console.error('Failed to load permissions:', error)
       permissions.value = []
