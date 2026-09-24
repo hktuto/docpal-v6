@@ -56,27 +56,9 @@ const fromJsonNormalizer = computed((): FormJson => {
   // normalize vue 2 form designer
   if (!json.formConfig) json.formConfig = {}
   json.formConfig.jsonVersion = 3
-  /**
-   * old migrate function , change axious to $api
-   */
-  // let st = JSON.stringify(json)
-  // st = st.replaceAll('this.$axios', '$api')
-  // st = st.replaceAll('this.$cookies.get', '$getCookie')
-  // st = st.replaceAll('yyyy-MM-dd', 'YYYY-MM-DD')
-  // json = JSON.parse(st)
-
   return json
 })
 function setFormJson(json: FormJson) {
-  // console.log('setFormJson', json)
-  /**
-   * old migrate function , change axious to $api
-   */
-  // let st = JSON.stringify(json)
-  // st = st.replaceAll('this.$axios', '$api').replaceAll('_$api', '$api')
-  // st = st.replaceAll('this.$cookies.get', '$getCookie')
-  // st = st.replaceAll('yyyy-MM-dd', 'YYYY-MM-DD')
-  // json = JSON.parse(st)
   vFormRenderRef.value?.setFormJson(json)
 }
 function setFormData(data: FormData) {

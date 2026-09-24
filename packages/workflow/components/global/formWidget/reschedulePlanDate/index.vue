@@ -251,9 +251,6 @@ async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
       remark: record.remark ?? ''
     }
   })
-  // Cell Api Get Data
-  // const data = await $api.post(`/api/pi-invoices`, { list: [...set] }).then((r: any) => r.data)
-  // fillCsvData(data, csvData)
   return csvData
 }
 
