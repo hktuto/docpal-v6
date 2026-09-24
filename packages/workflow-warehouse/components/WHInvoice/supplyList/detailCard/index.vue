@@ -11,7 +11,7 @@
             v-model:value="selectedInvoice[item.field]"
             :label="item.label"
             :type="item.type"
-            :disabled="item.disabled || disabled"
+            :disabled="item.disabled || editDisabled"
             :status="item.status"
             :options="unref(item.options) ?? []"
             :format="item.format"
@@ -35,7 +35,7 @@ import { useInvoiceVerifyInject } from '../../../../composables/useInvoiceVerify
 import { useInvoiceVerifyTableInject } from '../../../../composables/useInvoiceVerifyTable'
 
 const { t } = useI18n()
-const { selectedInvoice, updateInvoiceData, disabled } = useInvoiceVerifyInject()
+const { selectedInvoice, updateInvoiceData, editDisabled } = useInvoiceVerifyInject()
 const { tableData, statusCounts } = useInvoiceVerifyTableInject()
 const SupplierList = ref<Array<{ label: string; value: string | number; shortName?: string }>>([])
 const OrgList = ref<Array<{ label: string; value: string | number; code?: string }>>([])

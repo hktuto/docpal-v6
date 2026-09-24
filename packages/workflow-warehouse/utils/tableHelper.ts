@@ -86,74 +86,6 @@ export function editableColumn(type: EditableColumnType = 'text', props: Record<
   }
 }
 
-export function createInvoiceVerificationTableColumns(t: (key: string) => string) {
-  return [
-    {
-      type: 'seq',
-      width: 56,
-      align: 'right',
-      fixed: 'left',
-      title: t('workflowWarehouse.lineNo')
-    },
-    {
-      field: 'po_no',
-      title: t('workflowWarehouse.poNo'),
-      minWidth: 130,
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn()
-    },
-    {
-      field: 'po_line',
-      title: t('workflowWarehouse.poLine'),
-      minWidth: 90,
-      type: 'number',
-      ...editableColumn('number')
-    },
-    {
-      field: 'vendor_item_no',
-      title: t('workflowWarehouse.vendorItemNo'),
-      minWidth: 150,
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn()
-    },
-    {
-      field: 'line_qty',
-      title: t('workflowWarehouse.lineQty'),
-      minWidth: 100,
-      type: 'number',
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn('number')
-    },
-    {
-      field: 'unit_price',
-      title: t('workflowWarehouse.unitPrice'),
-      minWidth: 110,
-      type: 'number',
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn('number', { digits: 6, step: 0.1 })
-    },
-    {
-      field: 'line_amount',
-      title: t('workflowWarehouse.lineAmount'),
-      minWidth: 120,
-      type: 'number',
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn('number', { digits: 3, step: 1 })
-    },
-    {
-      field: 'status',
-      title: t('workflowWarehouse.lineStatus'),
-      minWidth: 160,
-      showOverflow: true
-    }
-  ]
-}
-
 export interface VerificationTableContext {
   loading: Ref<boolean>
   creatingRow: Ref<boolean>
@@ -190,6 +122,8 @@ export type CreateVerificationTableOptionsParams = {
   onBatchEdit?: (columnField: string | undefined) => void
   onEditClosed?: (params: { row: Record<string, any>; column?: { field?: string } }) => void
   beforeEditMethod?: (params: { row: Record<string, any>; column?: any }) => boolean
+  /** return false to lock cell edit and row actions */
+  isEditable?: () => boolean
   /** supply-list verify uses checkbox; invoice verify uses status text */
   checkboxField?: string
   /** default true; invoice verify disables header batch edit */
@@ -198,7 +132,11 @@ export type CreateVerificationTableOptionsParams = {
 
 /** useVxeTable 共用配置（height / actions / edit / optionalConfig） */
 export function createVerificationTableOptions(params: CreateVerificationTableOptionsParams) {
-  const { t, columns, onBatchEdit, onCopy, onDelete, getRowClassName, onEditClosed, beforeEditMethod, checkboxField, enableHeaderActions = true } = params
+  const { t, columns, onBatchEdit, onCopy, onDelete, getRowClassName, onEditClosed, beforeEditMethod, isEditable, checkboxField, enableHeaderActions = true } = params
+
+  function canEdit() {
+    return isEditable?.() ?? true
+  }
 
   return {
     height: '100%',
@@ -237,12 +175,13 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
       ]
     ],
     permissionMethod: ({ row, code, column }: any) => {
+      const editable = canEdit()
       if (code === 'batchEdit') {
-        return { visible: Boolean(column?.editRender), disabled: false }
+        return { visible: editable && Boolean(column?.editRender), disabled: !editable }
       }
       return {
-        visible: !!row,
-        disabled: false
+        visible: !!row && editable,
+        disabled: !editable
       }
     },
     editRender: {
@@ -253,7 +192,10 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
         showIcon: false,
         showStatus: false,
         autoFocus: true,
-        ...(beforeEditMethod ? { beforeEditMethod } : {})
+        beforeEditMethod: (params: any) => {
+          if (!canEdit()) return false
+          return beforeEditMethod?.(params) ?? true
+        }
       }
     },
     optionalConfig: {

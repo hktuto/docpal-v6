@@ -3,8 +3,8 @@ import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { newClientApi } from 'api'
 import {
-  createInvoiceVerificationTableColumns,
   createVerificationTableOptions,
+  editableColumn,
   filterTableItems,
   rowMatchKey,
   type HighlightMatchKey,
@@ -19,7 +19,75 @@ import {
   type GitInvoice,
   type GitInvoiceLineItem
 } from '../utils/gitInvoice'
-import type { InvoiceVerifyContext } from './useInvoiceVerify'
+import { getInvoiceGroupId, type InvoiceVerifyContext } from './useInvoiceVerify'
+
+function createInvoiceVerificationTableColumns(t: (key: string) => string) {
+  return [
+    {
+      type: 'seq',
+      width: 56,
+      align: 'right',
+      fixed: 'left',
+      title: t('workflowWarehouse.lineNo')
+    },
+    {
+      field: 'po_no',
+      title: t('workflowWarehouse.poNo'),
+      minWidth: 130,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: 'po_line',
+      title: t('workflowWarehouse.poLine'),
+      minWidth: 90,
+      type: 'number',
+      ...editableColumn('number')
+    },
+    {
+      field: 'vendor_item_no',
+      title: t('workflowWarehouse.vendorItemNo'),
+      minWidth: 150,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: 'line_qty',
+      title: t('workflowWarehouse.lineQty'),
+      minWidth: 100,
+      type: 'number',
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn('number')
+    },
+    {
+      field: 'unit_price',
+      title: t('workflowWarehouse.unitPrice'),
+      minWidth: 110,
+      type: 'number',
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn('number', { digits: 6, step: 0.1 })
+    },
+    {
+      field: 'line_amount',
+      title: t('workflowWarehouse.lineAmount'),
+      minWidth: 120,
+      type: 'number',
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn('number', { digits: 3, step: 1 })
+    },
+    {
+      field: 'status',
+      title: t('workflowWarehouse.lineStatus'),
+      minWidth: 160,
+      showOverflow: true
+    }
+  ]
+}
 
 export const InvoiceVerifyTableKey: InjectionKey<VerificationTableContext> = Symbol('InvoiceVerifyTable')
 
@@ -39,6 +107,10 @@ export function useInvoiceVerifyTableProvider(
   /** 是否存在红底高亮行 */
   const hasHighlightedRows = computed(() => highlightedMatchKeys.value.size > 0)
   const dirtyRowIds = ref(new Set<string>())
+
+  function isEditLocked() {
+    return !!getInvoiceGroupId(selectedInvoice.value)
+  }
 
   function markRowDirty(row: Record<string, any> | null | undefined) {
     if (row?.id) dirtyRowIds.value.add(String(row.id))
@@ -74,7 +146,7 @@ export function useInvoiceVerifyTableProvider(
 
   async function deleteRow(row: Record<string, any>) {
     const invoiceId = selectedInvoice.value?.id
-    if (!invoiceId || !row?.id || matchingLoading.value) return
+    if (!invoiceId || !row?.id || matchingLoading.value || isEditLocked()) return
 
     try {
       await ElMessageBox.confirm(t('contextMenu.confirmDelete'), t('dpTip_warning'), {
@@ -105,12 +177,13 @@ export function useInvoiceVerifyTableProvider(
       t,
       columns: verificationTableColumns,
       enableHeaderActions: false,
+      isEditable: () => !matchingLoading.value && !isEditLocked(),
       onCopy: (row) => {
-        if (matchingLoading.value) return
+        if (matchingLoading.value || isEditLocked()) return
         copyRow(row)
       },
       onDelete: (row) => {
-        if (matchingLoading.value) return
+        if (matchingLoading.value || isEditLocked()) return
         deleteRow(row)
       },
       getRowClassName: (row) => {
@@ -120,7 +193,7 @@ export function useInvoiceVerifyTableProvider(
         return classes.join(' ')
       },
       onEditClosed: ({ row }) => markRowDirty(row),
-      beforeEditMethod: ({ row }) => !matchingLoading.value && !isGitLineMatched(row)
+      beforeEditMethod: ({ row }) => !matchingLoading.value && !isEditLocked() && !isGitLineMatched(row)
     }),
     api: async () => {
       const data = await fetchTableData()
@@ -160,7 +233,7 @@ export function useInvoiceVerifyTableProvider(
 
   async function insertRow(payload: GitInvoiceLineItem) {
     const invoiceId = selectedInvoice.value?.id
-    if (!invoiceId || creatingRow.value) return false
+    if (!invoiceId || creatingRow.value || isEditLocked()) return false
 
     creatingRow.value = true
     try {
@@ -206,12 +279,12 @@ export function useInvoiceVerifyTableProvider(
   }
 
   async function addRow() {
-    if (!selectedInvoice.value?.id || matchingLoading.value) return
+    if (!selectedInvoice.value?.id || matchingLoading.value || isEditLocked()) return
     await insertRow(createEmptyGitInvoiceLine())
   }
 
   async function copyRow(row: Record<string, any>) {
-    if (!selectedInvoice.value?.id || !row || matchingLoading.value) return
+    if (!selectedInvoice.value?.id || !row || matchingLoading.value || isEditLocked()) return
     const { id: _id, status: _status, ...rest } = row
     const ok = await insertRow({
       ...createEmptyGitInvoiceLine(),
@@ -275,7 +348,7 @@ export function useInvoiceVerifyTableProvider(
   }
 
   async function runMatchingAndReload() {
-    if (matchingLoading.value) return null
+    if (matchingLoading.value || isEditLocked()) return null
     matchingLoading.value = true
     await new Promise((resolve) => setTimeout(resolve, 3000))
     try {

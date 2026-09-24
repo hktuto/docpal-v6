@@ -8,7 +8,7 @@
           :counts="statusCounts"
           :tabs="statusTabs"
           :creating-row="creatingRow"
-          :disabled="disabled || !selectedInvoice || matchingLoading"
+          :disabled="editDisabled || !selectedInvoice || matchingLoading"
           @add-row="addRow"
         />
       </template>
@@ -36,7 +36,7 @@ const {
   addRow
 } = useInvoiceVerifyTableInject()
 
-const { disabled, selectedInvoice } = useInvoiceVerifyInject()
+const { editDisabled, selectedInvoice } = useInvoiceVerifyInject()
 const tableContainerRef = ref<HTMLElement | null>(null)
 
 const statusTabs = computed(() => [
