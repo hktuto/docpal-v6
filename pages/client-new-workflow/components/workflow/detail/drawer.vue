@@ -75,8 +75,13 @@ function handleViewDetail() {
       <p>{{ error }}</p>
     </div>
     <div v-else class="workflow-side-panel__body" :class="{ 'is-form': workflowType !== 'completeTask' }">
-      <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail" state="completeTask" />
-      <WorkflowForm v-else ref="workflowFormRef" />
+      <WorkflowDetailCompleteInfo
+        v-if="workflowType === 'completeTask'"
+        :key="taskDbId"
+        :taskDetail="taskDetail"
+        state="completeTask"
+      />
+      <WorkflowForm v-else :key="taskDbId" ref="workflowFormRef" />
     </div>
   </aside>
 </template>
