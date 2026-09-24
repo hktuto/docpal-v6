@@ -71,7 +71,7 @@ const formModel = reactive<{
 })
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'proformaInvoiceInfoTable',
+  id: 'proformaInvoiceForm',
   api: () => {
     return formModel.items
   },
@@ -225,9 +225,14 @@ const userInfo = ref<{
 
 function getUserInfo() {
   const user = useUserState()
-  userInfo.value.org_id = Number(user.value.operatingId)
-  userInfo.value.operatingName = user.value.operatingName
-  userInfo.value.userId = user.value.userId
+
+  if (user.value.org.length === 0) return
+
+  const org = user.value.org[0]
+  userInfo.value.org_id = Number(org.operatingId)
+  userInfo.value.operatingName = org.operatingName
+  userInfo.value.userId = org.userId
+  search.office = org.operatingName
 }
 
 onMounted(() => {
@@ -368,7 +373,7 @@ defineExpose({ getFormData })
   <div class="table-container">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <span style="font-size: 20px; color: #2354b8">Line Items</span>
+        <span style="font-size: 20px; color: #2354b8">{{ t('proformaInvoice.lineItems') }}</span>
       </template>
     </VxeGrid>
   </div>

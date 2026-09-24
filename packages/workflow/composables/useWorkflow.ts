@@ -101,6 +101,10 @@ export const useWorkflow = () => {
         component: 'FormWidgetSalesOrderApprovalModificationTable'
       },
       {
+        name: 'proformaInvoiceBatch',
+        component: 'FormWidgetProformaInvoiceBatch'
+      },
+      {
         name: 'proformaInvoiceForm',
         component: 'FormWidgetProformaInvoiceForm'
       },

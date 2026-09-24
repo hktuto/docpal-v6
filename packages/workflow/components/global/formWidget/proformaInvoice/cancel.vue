@@ -94,7 +94,7 @@ const formModel = reactive<{
   items: []
 })
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'proformaInvoiceInfoTable',
+  id: 'proformaInvoiceCancel',
   api: () => {
     return formModel.items
   },
@@ -115,7 +115,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'imported',
-      title: '已导入 Imported',
+      title: t('proformaInvoice.imported'),
       minWidth: 60
     },
     {
@@ -189,9 +189,14 @@ const userInfo = ref<{
 
 function getUserInfo() {
   const user = useUserState()
-  userInfo.value.org_id = Number(user.value.operatingId)
-  userInfo.value.operatingName = user.value.operatingName
-  userInfo.value.userId = user.value.userId
+
+  if (user.value.org.length === 0) return
+
+  const org = user.value.org[0]
+  userInfo.value.org_id = Number(org.operatingId)
+  userInfo.value.operatingName = org.operatingName
+  userInfo.value.userId = org.userId
+  search.office = org.operatingName
 }
 
 onMounted(() => {
@@ -285,9 +290,9 @@ defineExpose({ getFormData })
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="toolbar-selected">
-          <div>
-            <span style="font-size: 20px; color: #2354b8">Line Items</span>
-            <span style="margin-left: 10px; font-size: 20px; color: #ca322d">Tick the lines to cancel,then Submit./勾选要取消的行,然后提交。</span>
+          <div class="toolbar-selected__title">
+            <span class="toolbar-selected__label">{{ t('proformaInvoice.lineItems') }}</span>
+            <span class="toolbar-selected__hint">{{ t('proformaInvoice.cancelHint') }}</span>
           </div>
 
           <el-form ref="formRef" :model="selectData" :rules="rules" label-position="left" inline class="toolbar-selected__form">
@@ -312,8 +317,20 @@ defineExpose({ getFormData })
   min-height: 550px;
   max-height: 600px;
   overflow: auto;
-
   margin-block-end: 20px;
+
+  :deep(.vxe-toolbar) {
+    padding-right: 0;
+  }
+
+  :deep(.vxe-buttons--wrapper) {
+    width: 100%;
+  }
+
+  :deep(.vxe-tools--wrapper),
+  :deep(.vxe-tools--operate) {
+    display: none;
+  }
 }
 
 .all-input-style {
@@ -327,14 +344,35 @@ defineExpose({ getFormData })
   display: flex;
   align-items: center;
   justify-content: space-between;
-  //gap: 12px;
+  gap: 12px;
   width: 100%;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 20px;
+    color: #2354b8;
+    white-space: nowrap;
+  }
+
+  &__hint {
+    font-size: 20px;
+    color: #ca322d;
+  }
 
   &__form {
     margin-bottom: 0;
+    flex-shrink: 0;
 
     :deep(.el-form-item) {
       margin-bottom: 0;
+      margin-right: 0;
     }
   }
 }
