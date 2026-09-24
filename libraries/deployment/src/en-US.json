@@ -5354,6 +5354,7 @@
     "submissionWillCreate": "This submission will create {count} invoices.",
     "invoiceOf": "Invoice {current} / {total} · Grouping {grouping}",
     "linesCount": "{count} lines",
-    "confirmSubmit": "Confirm Submit"
+    "confirmSubmit": "Confirm Submit",
+    "csvMustBeLessThan": "Data must be less than {length} rows"
   }
 }

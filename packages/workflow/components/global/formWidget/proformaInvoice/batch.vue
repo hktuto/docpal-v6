@@ -16,13 +16,24 @@ const invoiceHeaderOption = ref<any[]>([
   { label: 'MCE', value: 'MCE' }
 ])
 type dataItem = {
+  id: string
+  org_id: string
+  organization_id: string
+  pi_number?: string
   schedule_date: string
-  order_number: string
-  order_ln: string
-  order_qty: string
-  wcl_part_number: string
+  order_number: number
+  order_ln: number
+  order_qty: number
+  part_number: string
   currency: string
-  line_amount: string
+  line_amount: number
+  tax_code: string
+  customer_number: string
+  customer_name: string
+  bill_to_location: string
+  ship_to_location: string
+  sub_inventory: string
+  grouping?: number
 }
 
 const tableData = ref<dataItem[]>([])
@@ -37,7 +48,6 @@ const search = reactive({
   partNumber: ''
 })
 const customerInfo = ref({
-  customer_number: '',
   customer_name: '',
   bill_to_location: '',
   ship_to_location: ''
@@ -53,10 +63,12 @@ const selectData = reactive({
 })
 const userInfo = ref<{
   org_id: number
+  organization_id: number
   operatingName: string
   userId: string
 }>({
   org_id: 0,
+  organization_id: 0,
   operatingName: '',
   userId: ''
 })
@@ -70,6 +82,7 @@ function getUserInfo() {
   userInfo.value.org_id = Number(org.operatingId)
   userInfo.value.operatingName = org.operatingName
   userInfo.value.userId = org.userId
+  userInfo.value.organization_id = org.organizationId
   formModel.invoice_header = org.operatingName
   search.office = org.operatingName
 }
@@ -96,6 +109,13 @@ async function searchName(query?: string) {
     console.error(error)
   } finally {
     loading.value = false
+  }
+}
+
+function handleCustomerNumber(customerNumber: string) {
+  const customer = customerNumberOptions.value.find((item: any) => item.value === customerNumber)
+  if (!!customer) {
+    customerInfo.value.customer_name = customer.label
   }
 }
 
@@ -129,17 +149,44 @@ async function searchPart(query?: string) {
 }
 
 async function handleSearch() {
+  if (!customerInfo.value.customer_name || customerInfo.value.customer_name === '') {
+    ElMessage.error('Customer Name Cannot Be Empty')
+    return
+  }
+
   const orgId = search.office ? `orgId=${search.office}&` : ''
-  const customerName = search.customer_number ? `customerName=${search.customer_number}&` : ''
+  const customerName = `customerName=${customerInfo.value.customer_name}&`
   const orderNumber = search.orderNumber ? `orderNumber=${search.orderNumber}&` : ''
-  const partNum = search.partNumber ? `partNum=${search.partNumber}` : ' '
+  const partNum = search.partNumber ? `partNum=${search.partNumber}` : ''
 
   try {
     const data = await clientApi.instance
       .get(`/apis/v1/ms/wfl/proforma-invoices/candidate-lines?${orgId}${customerName}${orderNumber}${partNum}`)
       .then((r) => r.data.items)
 
-    tableData.value = [...tableData.value, ...data]
+    const map: dataItem[] = data.map((item: any) => {
+      return {
+        id: uuidv7(),
+        org_id: item.orgId,
+        organization_id: item.organizationId,
+        pi_number: item.pi_number ?? '',
+        schedule_date: item.scheduleDate,
+        order_number: item.orderNumber,
+        order_ln: item.soLineId,
+        order_qty: item.orderQty,
+        part_number: item.partNum,
+        currency: item.currencyCode,
+        line_amount: item.line_amount ?? 0,
+        tax_code: item.taxCode,
+        customer_number: item.customerNumber,
+        customer_name: item.customerName,
+        bill_to_location: item.billToAddress,
+        ship_to_location: item.shipToAddress,
+        sub_inventory: item.subinventory
+      } as dataItem
+    })
+
+    tableData.value = [...tableData.value, ...map]
     reload()
   } catch (e) {
     console.log(e)
@@ -157,6 +204,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       width: 60,
       align: 'center',
       fixed: 'left'
+    },
+    {
+      field: 'pi_number',
+      title: t('proformaInvoice.piNumber'),
+      minWidth: 240
     },
     {
       field: 'schedule_date',
@@ -182,18 +234,13 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 240
     },
     {
-      field: 'wcl_part_number',
+      field: 'part_number',
       title: t('proformaInvoice.wclPartNumber'),
       minWidth: 240
     },
     {
       field: 'currency',
       title: t('proformaInvoice.currency'),
-      minWidth: 240
-    },
-    {
-      field: 'line_amount',
-      title: t('proformaInvoice.lineAmount'),
       minWidth: 240
     },
     {
@@ -300,18 +347,30 @@ async function handleImportCSV(uploadFile: UploadFile) {
   try {
     list = await csvTextToLineItems(await file.text())
   } catch (error) {
+    tableConfig.loading = false
     if (error instanceof Error && error.message === CSV_TEMPLATE_MISMATCH) {
       ElMessage.error(t('reschedulePlanDate.csvTemplateMismatch'))
       return
     }
     throw error
   }
+
   if (!list.length) {
+    tableConfig.loading = false
     ElMessage.error(t('reschedulePlanDate.noValidCsvData'))
     return
   }
-  tableData.value = list.map((item) => ({ ...tableData.value, ...item }))
+
+  if (list.length > 100) {
+    tableConfig.loading = false
+    ElMessage.warning(t('proformaInvoice.csvMustBeLessThan', { length: 100 }))
+    return
+  }
+
+  tableData.value = [...tableData.value, ...list]
   ElMessage.success(t('reschedulePlanDate.rowsImported', { count: list.length }))
+  reload()
+  tableConfig.loading = false
 }
 
 const CSV_COLUMNS = ['customer_number', 'order_number', 'line', 'deliver_qty', 'invoice_header', 'invoice_date', 'remark', 'grouping'] as const
@@ -400,6 +459,18 @@ onMounted(async () => {
   await searchPart()
 })
 
+/**
+ * 根據CSV的 order number 與 line 重新查詢數據。以數據庫的數據爲準
+ */
+async function getOrderData() {
+  console.log()
+}
+
+/**
+ * 拆單
+ * 規則：根據辦事處、客戶編號、貨幣、倉庫位置、子庫存、賬單地址、送貨地址、分組
+ *
+ */
 function buildPreviewGroups() {
   return selectedRowsList.value
     .sort((a, b) => Number(a[0]) - Number(b[0]))
@@ -439,6 +510,8 @@ async function getFormData(needValidation = true) {
     ElMessage.error(t('proformaInvoice.selectAtLeastOneRow'))
     throw new Error('')
   }
+
+  // 循環啓動workflow
 
   return { ...formModel }
 }
@@ -486,6 +559,7 @@ defineExpose({ getFormData })
             :options="customerNumberOptions"
             :loading="loading"
             :placeholder="t('transferNoteApproval.selectAnOption')"
+            @change="handleCustomerNumber"
             style="width: 100%"
           />
         </el-form-item>

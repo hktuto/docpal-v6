@@ -5322,6 +5322,7 @@
     "submissionWillCreate": "本次提交將生成 {count} 張發票",
     "invoiceOf": "發票 {current} / {total} · 分組 {grouping}",
     "linesCount": "{count} 項",
-    "confirmSubmit": "確認提交"
+    "confirmSubmit": "確認提交",
+    "csvMustBeLessThan": "數據必須小於 {length} 行"
   }
 }
