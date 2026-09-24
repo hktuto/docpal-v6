@@ -68,7 +68,6 @@ function refreshAccessToken() {
 
 export function requestSuccessHelper(config: AxiosRequestConfig, _axiosInstance?: AxiosInstance) {
   const token = localStorage.getItem('access_token')
-  console.log('config', config)
   if (token) {
     config.headers = config.headers || {}
     if (config.headers.noAuth) {
