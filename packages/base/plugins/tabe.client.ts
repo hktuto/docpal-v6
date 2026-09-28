@@ -13,6 +13,7 @@ import {
   VxeButton,
   
   VxeInput,
+  VxeNumberInput,
   VxeTextarea,
   
 } from 'vxe-pc-ui'
@@ -37,6 +38,7 @@ function lazyVxeUI (app:any) {
   app.use(VxeButton)
   
   app.use(VxeInput)
+  app.use(VxeNumberInput)
   app.use(VxeTextarea)
   
 }

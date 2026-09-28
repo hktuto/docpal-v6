@@ -56,7 +56,7 @@ function handleSave() {
 async function handleStatus() {
   try {
     if (!checkWorkflowRequiredParameter()) {
-      routerProvider?.message.error('Start Task No form configured')
+      routerProvider?.message.error('If the variables include mandatory fields, a form must be configured.')
       return
     }
     // TODO 檢查主要綫路上的節點是否有正確配置參數
@@ -83,7 +83,13 @@ function checkWorkflowRequiredParameter() {
   const initialise = find.config.initialise
 
   // 沒有必填的參數
-  if (initialise.form_fields.length === 0) return true
+  const formFields = initialise.form_fields.filter((item: any) => {
+    if (!item.id.includes('__system__') && item.required) {
+      return item
+    }
+  })
+
+  if (formFields.length === 0) return true
 
   // 有必填參數但未設置start Form
   return initialise.form_key !== ''

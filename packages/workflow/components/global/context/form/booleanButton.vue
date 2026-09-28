@@ -10,6 +10,7 @@ const {
   buttonText: string
   applyState: boolean
 }>()
+const { t } = useI18n()
 const workflowProvider = inject('workflowFormRender')
 const emits = defineEmits(['submit'])
 
@@ -31,7 +32,7 @@ defineExpose({ beforeSubmit, booleanValue })
 
 <template>
   <el-button :type="buttonStyle" @click="submit">
-    {{ buttonText }}
+    {{ $t(buttonText) }}
   </el-button>
 </template>
 

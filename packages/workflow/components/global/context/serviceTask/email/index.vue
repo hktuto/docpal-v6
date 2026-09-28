@@ -34,9 +34,9 @@ const { config } = defineProps<{
       body: {
         tos: string[] | ''
         ccs: string[] | ''
-        toGroupNames: string[]
-        ccGroupNames: string[]
-        documentIds: string[]
+        toGroupIds: string[]
+        ccGroupIds: string[]
+        documentIds: string | string[]
         templateId: string
         variables: any
         subject?: string
@@ -50,9 +50,9 @@ const { config } = defineProps<{
 const formData = ref<{
   tos: string[] | ''
   ccs: string[] | ''
-  toGroupNames: string[]
-  ccGroupNames: string[]
-  documentIds: string[]
+  toGroupIds: string[]
+  ccGroupIds: string[]
+  documentIds: string | string[]
   templateId: string
   variables: any
   subject?: string
@@ -60,8 +60,8 @@ const formData = ref<{
 }>({
   tos: [],
   ccs: [],
-  toGroupNames: [],
-  ccGroupNames: [],
+  toGroupIds: [],
+  ccGroupIds: [],
   documentIds: [],
   templateId: '',
   variables: {},
@@ -70,11 +70,13 @@ const formData = ref<{
 })
 const tosIsArray = ref<boolean>(false)
 const ccIsArray = ref<boolean>(false)
+const attachmentsIsArray = ref<boolean>(false)
 
 async function initForm() {
   formData.value = config.http_request.body
   tosIsArray.value = typeof formData.value.tos === 'string'
   ccIsArray.value = typeof formData.value.ccs === 'string'
+  attachmentsIsArray.value = typeof formData.value.documentIds === 'string'
   await getEmailVariablesList()
 
   // reset emailVariablesList item value
@@ -101,8 +103,8 @@ function updateData() {
   const data = {
     tos: formData.value.tos,
     ccs: formData.value.ccs,
-    toGroupNames: formData.value.toGroupNames,
-    ccGroupNames: formData.value.ccGroupNames,
+    toGroupIds: formData.value.toGroupIds,
+    ccGroupIds: formData.value.ccGroupIds,
     documentIds: formData.value.documentIds,
     templateId: formData.value.templateId,
     variables: map
@@ -133,7 +135,18 @@ async function getEmailRecipient() {
     { label: 'User', options: map },
     { label: 'Variables', options: stringAndArrayVariables }
   ]
-  userGroupOption.value = await getGroupsSelectOption()
+
+  const groups = await getGroupsSelectOption()
+  userGroupOption.value = [
+    { label: 'Variables', options: stringAndArrayVariables },
+    {
+      label: 'Groups',
+      options: groups.map((item: any) => ({
+        id: item.value,
+        name: item.label
+      }))
+    }
+  ]
 }
 
 async function getEmailTemplateList() {
@@ -155,11 +168,21 @@ async function getEmailVariablesList() {
     emailVariablesList.value = []
     return
   }
-  emailVariablesList.value = JSON.parse(find.emailTemplateVariable).map((key: string) => ({
-    id: key,
-    name: key,
-    value: ''
-  }))
+
+  emailVariablesList.value = JSON.parse(find.emailTemplateVariable).map((key: string) => {
+    // TODO: 根據 Steve 反饋現在後端的 send email 的接口對與table類型的數據 只保留外層變量名
+    let id = key
+    if (key.includes(',')) {
+      const arrList = key.split(',')
+      id = arrList[0]
+    }
+
+    return {
+      id: id,
+      name: key,
+      value: ''
+    }
+  })
 }
 
 onMounted(() => {
@@ -197,8 +220,10 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="TO User Groups">
-      <el-select v-model="formData.toGroupNames" filterable multiple @change="updateData">
-        <el-option v-for="item in userGroupOption" :key="item.value" :label="item.label" :value="item.label" />
+      <el-select v-model="formData.toGroupIds" placeholder="Select Groups" filterable clearable multiple @change="updateData">
+        <el-option-group v-for="group in userGroupOption" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+        </el-option-group>
       </el-select>
     </el-form-item>
     <el-form-item>
@@ -216,13 +241,22 @@ watch(
       </el-select>
     </el-form-item>
     <el-form-item label="CC User Groups">
-      <el-select v-model="formData.ccGroupNames" filterable multiple @change="updateData">
-        <el-option v-for="item in userGroupOption" :key="item.value" :label="item.label" :value="item.label" />
+      <el-select v-model="formData.ccGroupIds" placeholder="Select Groups" filterable clearable multiple @change="updateData">
+        <el-option-group v-for="group in userGroupOption" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.id" :label="item.name" :value="item.id" />
+        </el-option-group>
       </el-select>
     </el-form-item>
-    <el-form-item label="Attachments File">
-      <el-select v-model="formData.documentIds" filterable multiple clearable @change="updateData">
+    <el-form-item label="">
+      <div class="tos-form-item__label">
+        <span>Attachments File</span>
+        <el-switch v-model="attachmentsIsArray" active-text="Array" inactive-text="Single" />
+      </div>
+      <el-select v-if="!attachmentsIsArray" v-model="formData.documentIds" filterable multiple clearable @change="updateData">
         <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+      <el-select v-else v-model="formData.documentIds" filterable clearable @change="updateData">
+        <el-option v-for="item in arrayStringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
 

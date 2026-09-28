@@ -32,6 +32,32 @@ export function resolveDateFormat(
     || fallback
 }
 
+export interface FieldTypeMeta {
+  businessType: string
+  dateFormat: string
+}
+
+export function createEmptyFieldTypeMeta(): FieldTypeMeta {
+  return {
+    businessType: '',
+    dateFormat: ''
+  }
+}
+
+export function buildFieldTypeMeta(
+  field?: { business_type?: unknown; display_structure?: Record<string, any>; properties?: Record<string, any> } | null,
+  prev?: Partial<FieldTypeMeta>
+): FieldTypeMeta {
+  if (!field && !prev?.businessType) return createEmptyFieldTypeMeta()
+  const businessType = String(field?.business_type ?? prev?.businessType ?? '')
+  return {
+    businessType,
+    dateFormat: isDateBusinessType(businessType)
+      ? (resolveDateFormat(field, undefined, '') || prev?.dateFormat || '')
+      : ''
+  }
+}
+
 export interface ResolvedColumnConfigItem {
   field: string
   width?: number

@@ -42,6 +42,8 @@
 <script setup lang="ts">
 import { postDynamicActions } from 'api'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
+import { formatDateTime } from '@packages/dp-mdTable/utils/fieldValueFormat'
+import { isDateBusinessType } from '../../utils/dashboardFieldMeta'
 
 const props = withDefaults(
   defineProps<{
@@ -63,10 +65,18 @@ const cardRef = ref()
 
 const displayTitle = computed(() => props.setting?.label || 'Top List')
 
+function formatCategoryName(value: any): string {
+  if (value === null || value === undefined || value === '') return '-'
+  const meta = props.setting?.categoryFieldMeta
+  if (!isDateBusinessType(meta?.businessType)) return String(value)
+  const dateFormat = meta?.dateFormat || 'YYYY-MM-DD'
+  return formatDateTime(value, { dateFormat })
+}
+
 const listData = computed(() => {
   const max = rawData.value.length ? Math.max(...rawData.value.map((d) => Number(d.value) || 0)) : 1
   return rawData.value.map((d) => ({
-    name: d.name || '-',
+    name: formatCategoryName(d.name),
     value: Number(d.value) || 0,
     percent: max > 0 ? Math.round(((Number(d.value) || 0) / max) * 100) : 0
   }))
@@ -140,6 +150,7 @@ watch(
   () => [
     props.setting?.tableId,
     props.setting?.categoryField,
+    props.setting?.categoryFieldMeta,
     props.setting?.valueField,
     props.setting?.aggregation,
     props.setting?.limit
@@ -147,7 +158,7 @@ watch(
   () => {
     fetchData()
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 useDashboardLiveUpdate(

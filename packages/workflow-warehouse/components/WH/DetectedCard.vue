@@ -21,6 +21,7 @@
       style="width: 100%"
       type="primary"
       :loading="detecting"
+      :disabled="disabled"
       tabindex="0"
       :aria-label="actionText || $t('workflowWarehouse.reDetect')"
       @click="emit('detect')"
@@ -38,6 +39,7 @@ withDefaults(
   defineProps<{
     issues?: any[]
     detecting?: boolean
+    disabled?: boolean
     title?: string
     subtitle?: string
     emptyText?: string
@@ -47,6 +49,7 @@ withDefaults(
   {
     issues: () => [],
     detecting: false,
+    disabled: false,
     title: '',
     subtitle: '',
     emptyText: '',
@@ -65,6 +68,7 @@ const emit = defineEmits<{
   max-height: 30vh;
   overflow-y: auto;
   width: 100%;
+  min-width: 0;
   padding: var(--app-space-m);
   border-radius: var(--app-border-radius-m);
   background-color: var(--el-bg-color);
@@ -113,6 +117,7 @@ const emit = defineEmits<{
 }
 
 .detected-issue-list {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--app-space-s);

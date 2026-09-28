@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { newClientApi } from 'api'
+import { newClientApi, clientApi } from 'api'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
-import { conversionFormDataByVariables, newWorkflowStartPage } from '#imports'
+import { conversionFormDataByVariables, newWorkflowStartPage, useUserState } from '#imports'
 import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const vFormRef = ref()
@@ -18,13 +18,18 @@ const state = reactive({
   loading: false
 })
 const emits = defineEmits(['reload'])
-const userId = useUserId()
-const workflowList = await getWorkflowList()
+const user = useUserState()
+const workflowList = ref<any[]>([])
+
+async function getWorkflowListOption() {
+  const data: any[] = await getWorkflowList()
+  workflowList.value = data.sort((a: any, b: any) => a.name.localeCompare(b.name))
+}
 
 async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = false, originalData?: any) {
   state.loading = true
   try {
-    const data = await $api.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))
+    const data = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))
     if (!data) return
     if (data.published_version < 1) {
       state.loading = false
@@ -91,14 +96,15 @@ async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = fal
 async function directlyStart(definition_id: string, workflowData?: any) {
   try {
     const formParams = {
-      start_user_id: userId.value,
+      start_user_id: user.value.userId,
       definition_id: definition_id,
       variables: {
-        __system__user_creator_id: userId.value,
+        __system__user_creator_id: user.value.userId,
+        __system__user_creator_email: user.value.email,
         ...workflowData
       }
     }
-    await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
+    await clientApi.instance.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
   } catch (e) {
     console.log(e)
   }
@@ -125,20 +131,21 @@ async function checkAndSubmit() {
     const cFormData = conversionFormDataByVariables(formData, state.formVariables)
 
     const formParams = {
-      start_user_id: userId.value,
+      start_user_id: user.value.userId,
       definition_id: state.selectedWorkflow.id,
       variables: {
         ...cFormData,
-        __system__user_creator_id: userId.value
+        __system__user_creator_id: user.value.userId,
+        __system__user_creator_email: user.value.email
       }
     }
 
     try {
-      const data = await $api.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
+      const data = await clientApi.instance.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
 
       setTimeout(async () => {
         // Check workflow running status
-        const newVar = await $api.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
+        const newVar = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
         if (newVar.state === 'running') {
           routerProvider?.message.success('Workflow created')
         }
@@ -162,6 +169,10 @@ watch(newWorkflowTask, async (item) => {
   const { id, data } = item
   newWorkflowTask.value = null
   await workflowClickHandler({ id }, true, data)
+})
+
+onMounted(() => {
+  getWorkflowListOption()
 })
 </script>
 

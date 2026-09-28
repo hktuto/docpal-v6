@@ -3203,3 +3203,120 @@ dialog :link {
     display: none;
   }
 }
+
+/* Floating / draggable findbar — 3-row layout */
+#findbar.findbar {
+  position: fixed !important;
+  top: 40px !important;
+  left: 64px !important;
+  right: auto !important;
+  bottom: auto !important;
+  inset-inline-start: unset !important;
+  inset-inline-end: unset !important;
+  z-index: 100000;
+  cursor: grab;
+  float: none;
+  margin: 0 !important;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  touch-action: none;
+  display: block;
+  overflow: visible !important;
+  height: auto !important;
+  width: -moz-max-content;
+  width: max-content;
+  min-width: 320px;
+  max-width: min(420px, calc(100vw - 16px));
+  padding: 8px 10px;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+#findbar.findbar > div {
+  height: auto !important;
+  max-height: none !important;
+}
+
+#findbar.findbar.dragging {
+  cursor: grabbing;
+}
+
+#findbar.findbar input,
+#findbar.findbar button,
+#findbar.findbar select {
+  cursor: auto;
+  -webkit-user-select: auto;
+     -moz-user-select: auto;
+          user-select: auto;
+}
+
+#findbar.findbar label {
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+
+#findbar .findbarContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  height: auto !important;
+  float: none;
+}
+
+#findbar #findbarInputContainer,
+#findbar .findbarOptionsContainer,
+#findbar #findbarMessageContainer,
+#findbar #findbarOptionsOneContainer,
+#findbar #findbarOptionsTwoContainer {
+  float: none;
+  height: auto !important;
+  clear: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+
+#findbar #findbarInputContainer .splitToolbarButton {
+  display: inline-flex;
+  float: none;
+  margin: 0;
+  align-items: center;
+}
+
+#findbar #findbarInputContainer .splitToolbarButton > .toolbarButton {
+  float: none;
+}
+
+#findbar #findInput {
+  flex: 1;
+  min-width: 140px;
+  width: auto;
+}
+
+#findbar .findbarOptionsContainer {
+  gap: 2px 4px;
+}
+
+#findbar #findbarMessageContainer {
+  min-height: 24px;
+}
+
+#findbar #findbarMessageContainer .toolbarLabel {
+  float: none;
+  margin: 0;
+  padding: 3px 6px;
+}
+
+@media all and (max-width: 690px) {
+  #findbar.findbar {
+    left: 34px !important;
+  }
+}

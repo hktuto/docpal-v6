@@ -37,6 +37,10 @@ export const useWorkflow = () => {
         component: 'FormWidgetCustomerVisitCustomerSelect'
       },
       {
+        name: 'customerVisitCustomerType',
+        component: 'FormWidgetCustomerVisitType'
+      },
+      {
         name: 'sampleRequestCustomerInfo',
         component: 'FormWidgetSampleRequestCustomerInfo'
       },
@@ -97,12 +101,16 @@ export const useWorkflow = () => {
         component: 'FormWidgetSalesOrderApprovalModificationTable'
       },
       {
-        name: 'proformaInvoiceInfo',
-        component: 'FormWidgetProformaInvoiceInfo'
+        name: 'proformaInvoiceBatch',
+        component: 'FormWidgetProformaInvoiceBatch'
       },
       {
-        name: 'proformaInvoiceApproval',
-        component: 'FormWidgetProformaInvoiceApproval'
+        name: 'proformaInvoiceForm',
+        component: 'FormWidgetProformaInvoiceForm'
+      },
+      {
+        name: 'proformaInvoiceCancel',
+        component: 'FormWidgetProformaInvoiceCancel'
       },
       {
         name: 'returnMerchandiseApprovalTable',

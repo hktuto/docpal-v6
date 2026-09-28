@@ -6,7 +6,7 @@ const { formData } = defineProps<{
   formData: any
   options: any
 }>()
-
+const { t } = useI18n()
 const customerDetail = ref({
   customer_number: '',
   customer_name: '',
@@ -17,6 +17,16 @@ const searchData = ref({
   customerName: '',
   customerEnglishName: ''
 })
+
+const formRef = ref()
+const formModel = computed(() => ({
+  customerName: searchData.value.customerName,
+  customer_location: customerDetail.value.customer_location
+}))
+const rules = {
+  customerName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('customerVisit.customerName') }), trigger: 'change' }],
+  customer_location: [{ required: true, message: t('render.hint.fieldRequired', { name: t('customerVisit.customerLocation') }), trigger: 'blur' }]
+}
 
 const parties = ref<any[]>([])
 const customerNumberOptions = ref<{ label: string; value: string }[]>([])
@@ -60,8 +70,11 @@ async function getCustomerInfo(customerNumber: string) {
   customerDetail.value.customer_location = info.customer_location
 }
 
-function getFormData() {
-  return customerDetail.value
+async function getFormData(needValidation = true) {
+  const result = customerDetail.value
+  if (!needValidation) return result
+  await formRef.value?.validate()
+  return result
 }
 
 async function numberChange(value: string) {
@@ -93,6 +106,8 @@ async function nameChange(value: string) {
     const find = parties.value.find((item) => item.account_number === value)
     if (!!find) {
       customerDetail.value.customer_number = value
+      customerDetail.value.customer_name = find.customer_name
+      customerDetail.value.customer_english_name = find.customer_eng_name
       searchData.value.customerEnglishName = value
       await getCustomerInfo(value)
     } else {
@@ -109,6 +124,8 @@ async function enNameChange(value: string) {
     const find = parties.value.find((item) => item.account_number === value)
     if (!!find) {
       customerDetail.value.customer_number = value
+      customerDetail.value.customer_name = find.customer_name
+      customerDetail.value.customer_english_name = find.customer_eng_name
       searchData.value.customerName = value
       await getCustomerInfo(value)
     } else {
@@ -126,10 +143,10 @@ defineExpose({ getFormData })
 </script>
 
 <template>
-  <el-form label-position="top" class="all-input-style">
+  <el-form ref="formRef" :model="formModel" :rules="rules" label-position="top" class="all-input-style">
     <el-row>
       <el-col :span="6">
-        <el-form-item label="客户编号">
+        <el-form-item :label="t('customerVisit.customerNumber')">
           <el-select-v2
             v-model="customerDetail.customer_number"
             filterable
@@ -145,7 +162,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客户中文名">
+        <el-form-item :label="t('customerVisit.customerName')" prop="customerName">
           <el-select-v2
             v-model="searchData.customerName"
             allow-create
@@ -163,7 +180,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客户英文名">
+        <el-form-item :label="t('customerVisit.customerEnglishName')">
           <el-select-v2
             v-model="searchData.customerEnglishName"
             allow-create
@@ -181,7 +198,7 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶地址">
+        <el-form-item :label="t('customerVisit.customerLocation')" prop="customer_location">
           <el-input v-model="customerDetail.customer_location" clearable />
         </el-form-item>
       </el-col>

@@ -2,6 +2,9 @@
 import { clientApi } from 'api'
 import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
 
+const emit = defineEmits<{
+  select: [row: Record<string, any>]
+}>()
 const workflowList = await getWorkflowList()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -10,8 +13,23 @@ if (!routerProvider) {
 const { t } = useI18n()
 const user = useUserState().value
 const definition_id = ref<string>('')
-const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'Available_task',
+  optionalConfig: {
+    rowConfig: {
+      useKey: true,
+      isCurrent: true
+    },
+    rowClassName: ({ row }: { row: Record<string, any> }) => (row?.isHandle ? 'row--struck' : '')
+  },
+  optionalEvent: {
+    cellClick: ({ row }: { row: Record<string, any> }) => {
+      if (!row || row.isHandle) return
+      tableRef.value?.setCurrentRow?.(row)
+      emit('select', row)
+    }
+  },
   api: async (pageParams: any) => {
     const params = {
       groups: user.aclUserDetail.groups.map((item: any) => item.groupId),
@@ -24,18 +42,17 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       page_size: pageParams.pageSize
     }
 
-    const data = await clientApi.instance
-      .post(`/oniflow/api/v1/task/overview/available`, params)
-      .then((r: any) => workflowResponseHelper(r))
-
+    const data = await clientApi.instance.post(`/oniflow/api/v1/task/overview/available`, params).then((r: any) => workflowResponseHelper(r))
     return {
       data: data || []
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_taskName', fixed: 'left', slots: { default: 'name' } },
+    { field: 'definition_name', title: 'workflowEditor.name' },
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'business_key', title: 'business_key', slots: { default: 'business_key' } },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status.type', title: 'dpTable_status' },
+    { field: 'status', title: 'dpTable_status' },
     {
       field: 'execution.started_at',
       title: 'workflow_createDate',
@@ -57,6 +74,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
+  if (row?.isHandle) return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -68,21 +86,55 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  if (row.status.type !== 'waiting') return
+  if (row?.isHandle || row.status.type !== 'waiting') return
 
   try {
     const parms = {
       user_id: user.userId
     }
-    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
+    await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
     reload()
   } catch (e) {
     routerProvider?.message?.error('Unable to claim this task')
-    console.log(e)
   }
 }
 
-defineExpose({ reload })
+function getTableRows() {
+  const grid = tableRef.value as any
+  return grid?.getTableData?.()?.fullData ?? grid?.getData?.() ?? []
+}
+
+function handleRefreshHandledRows() {
+  nextTick(() => {
+    const grid = tableRef.value as any
+    if (!grid) return
+    const fullData = getTableRows()
+    if (typeof grid.loadData === 'function') {
+      grid.loadData([...fullData])
+      return
+    }
+    grid.updateData?.()
+    grid.recalculate?.(true)
+  })
+}
+
+/** submit/terminate 后给相关行打 isHandle，用于删除线样式 */
+function markStruck(dbId: string, processId?: string) {
+  const id = String(dbId)
+  const pid = processId != null ? String(processId) : ''
+  getTableRows().forEach((row: Record<string, any>) => {
+    if (String(row.db_id) === id || (pid && String(row.process_id) === pid)) {
+      row.isHandle = true
+    }
+  })
+  handleRefreshHandledRows()
+}
+
+defineExpose({
+  reload,
+  clearHighlight: () => tableRef.value?.clearCurrentRow?.(),
+  markStruck
+})
 </script>
 
 <template>
@@ -97,8 +149,8 @@ defineExpose({ reload })
           </el-form-item>
         </div>
       </template>
-      <template #name="{ row }">
-        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
+      <template #business_key="{ row }">
+        <span>{{ row?.execution?.input_variables?.business_key || '' }}</span>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
@@ -117,4 +169,19 @@ defineExpose({ reload })
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+:deep(.vxe-body--row.row--current) {
+  background-color: var(--el-color-primary-light-9) !important;
+}
+
+:deep(.vxe-body--row.row--struck) {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+
+  .vxe-body--column,
+  .vxe-cell {
+    text-decoration: line-through;
+  }
+}
+</style>

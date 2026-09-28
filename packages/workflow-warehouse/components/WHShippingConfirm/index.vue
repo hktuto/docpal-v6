@@ -3,7 +3,7 @@ import WHShippingConfirmDetailCard from './detailCard.vue'
 import WHShippingConfirmDetectedCard from './detectedCard.vue'
 import { useShippingConfirmProvider } from '../../composables/useShippingConfirm'
 
-const props = defineProps(['formData', 'taskDetail', 'disabled', 'workflowVariables'])
+const props = defineProps(['formData', 'taskDetail', 'disabled'])
 const isCollapsible = ref(true)
 const {
   disabled,
@@ -207,7 +207,7 @@ defineExpose({ getFormData })
 }
 
 :deep(.el-splitter-bar__dragger-horizontal) {
-  opacity: 0.1;
+  opacity: 1;
 }
 
 :deep(.mg-left) {

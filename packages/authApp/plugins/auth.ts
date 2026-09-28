@@ -1,5 +1,5 @@
 import { defineNuxtPlugin, useAuth, isPublicPath } from '#imports'
-import { clientApi, adminApi, gatewayApi } from 'api'
+import { clientApi, adminApi, gatewayApi, workflowApi } from 'api'
 import { requestSuccessHelper, requestErrorHelper, responseSuccessHelper, responseErrorHelper } from '~/utils/axiosResponseHelper'
 
 function bindAuthInterceptors(axiosInstance: typeof clientApi.instance) {
@@ -31,4 +31,5 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   bindAuthInterceptors(clientApi.instance)
   bindAuthInterceptors(adminApi.instance)
   bindAuthInterceptors(gatewayApi.instance)
+  bindAuthInterceptors(workflowApi.instance)
 })

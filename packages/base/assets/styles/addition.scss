@@ -352,6 +352,10 @@ html[data-vxe-ui-theme='dark'] {
   }
 }
 
+.el-splitter-bar{
+  z-index: 9;
+}
+
 .tableRow-icon-cell {
   display: flex;
   align-items: center;

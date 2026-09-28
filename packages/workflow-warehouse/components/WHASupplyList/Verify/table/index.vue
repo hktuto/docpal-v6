@@ -84,6 +84,11 @@ const { disabled, selectedInvoice } = useWHASupplyListVerifyInject()
   :deep(.vxe-body--row.wha-verify-row-highlight .vxe-body--column) {
     background-color: var(--el-color-danger-light-7) !important;
   }
+
+  :deep(.vxe-body--row.wha-verify-row-located),
+  :deep(.vxe-body--row.wha-verify-row-located .vxe-body--column) {
+    background-color: var(--el-color-warning-light-7) !important;
+  }
 }
 
 :deep(.col--edit) {

@@ -25,7 +25,6 @@ async function init(fileId: string) {
       timeout: 0
     })
   } catch (error) {
-    console.log(error)
   }
   previewFile.loading = false
   previewFile.id = fileId

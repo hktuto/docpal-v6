@@ -4,14 +4,14 @@ import { newClientApi } from 'api'
 
 export default defineI18nLocale(async(locale:string) => {
     console.log('?????customcustom?????', locale);
-    
+
     const config  = useRuntimeConfig()
     if(config.public.needAuth ){
         // @ts-ignore
         const { loggedIn } = useAuth()
         if(!loggedIn.value){
                 return {
-                
+
                 }
             }
     }
@@ -19,6 +19,10 @@ export default defineI18nLocale(async(locale:string) => {
     const {data} = await newClientApi.getDmsFormPropertiesLanguageList({
         locale,
         languageKey:'admin'
+    }, {
+      headers: {
+        "noAuth" : "true"
+      }
     })
     if(data && data.length > 0 && data[0].languageContent) {
         return JSON.parse(data[0]?.languageContent)

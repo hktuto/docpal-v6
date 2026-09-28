@@ -9,7 +9,7 @@ const listItems = computed(() =>
     invoiceNum: item.invoiceNum ?? item.invoice_num,
     gitStatus: item.gitStatus ?? item.git_status,
     totalQty: item.totalQty ?? item.total_qty
-  }))
+  })).sort((a, b) => (a.invoiceNum ?? a.invoice_num).localeCompare(b.invoiceNum ?? b.invoice_num))
 )
 </script>
 

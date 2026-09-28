@@ -6,6 +6,7 @@ const { disabled, formData } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 const formRef = ref()
 const defaultFormModel = () => ({
@@ -26,16 +27,28 @@ const defaultFormModel = () => ({
 const formModel = reactive(defaultFormModel())
 
 const rules = {
-  customer_number: [{ required: true, message: '請選擇客戶編號', trigger: 'change' }],
-  customerName: [{ required: true, message: '請選擇客戶名稱', trigger: 'change' }],
-  customerEnglishName: [{ required: true, message: '請選擇客戶英文名', trigger: 'change' }],
-  customer_contact: [{ required: true, message: '請輸入客戶聯絡人', trigger: 'blur' }],
-  telephone_number: [{ required: true, message: '請輸入客戶聯絡方式', trigger: 'blur' }],
+  customer_number: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerNumber') }), trigger: 'change' }],
+  customerName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerName') }), trigger: 'change' }],
+  customerEnglishName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerEngName') }), trigger: 'change' }],
+  customer_contact: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerContact') }), trigger: 'blur' }],
+  telephone_number: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.telephoneNumber') }), trigger: 'blur' }],
   customer_email: [
-    { required: true, message: '請輸入客戶郵箱', trigger: 'blur' },
-    { type: 'email', message: '請輸入正確的郵箱格式', trigger: 'blur' }
+    { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerEmail') }), trigger: 'blur' },
+    { type: 'email', message: t('user_emailFormatError'), trigger: 'blur' }
   ],
-  customer_background: [{ required: true, message: '請選擇客戶背景', trigger: 'change' }]
+  customer_background: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerBackground') }), trigger: 'change' }],
+  end_user: [
+    {
+      validator: (_rule, value, callback) => {
+        if (formModel.customer_background === 'OEM' && (!value || String(value).trim() === '')) {
+          callback(new Error(t('render.hint.fieldRequired', { name: t('quotationApproval.endUser') })))
+          return
+        }
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ]
 }
 
 const parties = ref<any[]>([])
@@ -48,6 +61,16 @@ function resetFormModel() {
   const checkCustomer = formModel.check_customer
   Object.assign(formModel, defaultFormModel())
   formModel.check_customer = checkCustomer
+}
+
+function handleCustomerBackgroundChange() {
+  nextTick(() => {
+    if (formModel.customer_background !== 'OEM') {
+      formRef.value?.clearValidate('end_user')
+      return
+    }
+    formRef.value?.validateField('end_user')
+  })
 }
 
 async function searchName(query?: string) {
@@ -115,6 +138,7 @@ async function numberChange(value: string) {
     formModel.customerEnglishName = ''
     formModel.customer_location = ''
   }
+  await getCheckCustomer(value)
 }
 
 async function nameChange(value: string) {
@@ -133,6 +157,7 @@ async function nameChange(value: string) {
     formModel.customerEnglishName = ''
     formModel.customer_location = ''
   }
+  await getCheckCustomer(value)
 }
 
 async function enNameChange(value: string) {
@@ -150,6 +175,20 @@ async function enNameChange(value: string) {
     formModel.customer_eng_name = value
     formModel.customerName = ''
     formModel.customer_location = ''
+  }
+  await getCheckCustomer(value)
+}
+
+const orgId = ref<number>()
+async function getCheckCustomer(customer_number: string) {
+  const { new_customer, over_due, credit_total_amt } = await clientApi.instance
+    .get(`/apis/v1/ms/oracle/customers/status?accountNumber=${customer_number}&orgId=${orgId.value}`)
+    .then((r) => r.data)
+
+  formModel.check_customer = new_customer === 1 ? 'New Customer' : 'Existing Customer'
+
+  if (over_due === 1) {
+    formModel.check_customer = 'Overdraft Customer'
   }
 }
 
@@ -171,6 +210,7 @@ function init() {
     customerName: formData.customer_number ?? '',
     customerEnglishName: formData.customer_number ?? ''
   })
+  orgId.value = formData.org_id
 }
 
 async function getFormData(needValidation = true) {
@@ -200,15 +240,16 @@ defineExpose({ getFormData })
   <el-form ref="formRef" label-position="top" class="all-input-style" :model="formModel" :rules="rules" :disabled="disabled">
     <el-row :gutter="20">
       <el-col :span="6">
-        <el-form-item label="客戶狀態 Check Customer" prop="check_customer">
-          <el-select v-model="formModel.check_customer" placeholder="One of the options must be selected." disabled>
-            <el-option label="New Customer" value="New Customer" />
-            <el-option label="Existing Customer" value="Existing Customer" />
+        <el-form-item :label="t('quotationApproval.checkCustomer')" prop="check_customer">
+          <el-select v-model="formModel.check_customer" :placeholder="t('quotationApproval.selectOptionRequired')" disabled>
+            <el-option :label="t('quotationApproval.newCustomer')" value="New Customer" />
+            <el-option :label="t('quotationApproval.existingCustomer')" value="Existing Customer" />
+            <el-option :label="t('quotationApproval.overdraftCustomer')" value="Overdraft Customer" />
           </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶編號 Customer Number" prop="customer_number">
+        <el-form-item :label="t('quotationApproval.customerNumber')" prop="customer_number">
           <el-select-v2
             v-model="formModel.customer_number"
             filterable
@@ -218,13 +259,13 @@ defineExpose({ getFormData })
             clearable
             :options="customerNumberOptions"
             :loading="loading"
-            placeholder="One of the options must be selected."
+            :placeholder="t('quotationApproval.selectOptionRequired')"
             @change="numberChange"
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶名稱 Customer Name" prop="customerName">
+        <el-form-item :label="t('quotationApproval.customerName')" prop="customerName">
           <el-select-v2
             v-model="formModel.customerName"
             :reserve-keyword="false"
@@ -235,13 +276,13 @@ defineExpose({ getFormData })
             clearable
             :options="customerNameOptions"
             :loading="loading"
-            placeholder="One of the options must be selected."
+            :placeholder="t('quotationApproval.selectOptionRequired')"
             @change="nameChange"
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶英文名 Customer Eng Name" prop="customerEnglishName">
+        <el-form-item :label="t('quotationApproval.customerEngName')" prop="customerEnglishName">
           <el-select-v2
             v-model="formModel.customerEnglishName"
             :reserve-keyword="false"
@@ -252,34 +293,38 @@ defineExpose({ getFormData })
             clearable
             :options="customerEnglishNameOptions"
             :loading="loading"
-            placeholder="One of the options must be selected."
+            :placeholder="t('quotationApproval.selectOptionRequired')"
             @change="enNameChange"
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶聯絡人 Customer Contact" prop="customer_contact">
+        <el-form-item :label="t('quotationApproval.customerContact')" prop="customer_contact">
           <el-input v-model="formModel.customer_contact" />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶聯絡方式 Telephone Number" prop="telephone_number">
+        <el-form-item :label="t('quotationApproval.telephoneNumber')" prop="telephone_number">
           <el-input v-model="formModel.telephone_number" />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶郵箱 Customer Email" prop="customer_email">
+        <el-form-item :label="t('quotationApproval.customerEmail')" prop="customer_email">
           <el-input v-model="formModel.customer_email" />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶地址 Customer Location">
+        <el-form-item :label="t('quotationApproval.customerLocation')">
           <el-input v-model="formModel.customer_location" disabled />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶背景 Customer Background" prop="customer_background">
-          <el-select v-model="formModel.customer_background" placeholder="One of the options must be selected.">
+        <el-form-item :label="t('quotationApproval.customerBackground')" prop="customer_background">
+          <el-select
+            v-model="formModel.customer_background"
+            :placeholder="t('quotationApproval.selectOptionRequired')"
+            @change="handleCustomerBackgroundChange"
+          >
             <el-option value="OEM">OEM</el-option>
             <el-option value="ODM">ODM</el-option>
             <el-option value="Trading">Trading</el-option>
@@ -287,12 +332,12 @@ defineExpose({ getFormData })
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶網址 Customer Website">
+        <el-form-item :label="t('quotationApproval.customerWebsite')">
           <el-input v-model="formModel.customer_website" />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="終端用戶 End User" prop="end_user" :required="formModel.customer_background === 'OEM'">
+        <el-form-item :label="t('quotationApproval.endUser')" prop="end_user" :required="formModel.customer_background === 'OEM'">
           <el-input v-model="formModel.end_user" />
         </el-form-item>
       </el-col>

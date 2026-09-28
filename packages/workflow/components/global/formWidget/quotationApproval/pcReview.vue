@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { clientApi, newClientApi } from 'api'
-import { Delete } from '@element-plus/icons-vue'
 import { MenuRouterKey } from '@packages/base/utils/menuType'
 import { v7 as uuidv7 } from 'uuid'
 
@@ -32,7 +31,7 @@ type SampleInfoItem = {
   old_sales_price_noTax?: number
   remarks: string
   price_type: string
-  lead_time: number
+  lead_time: number | undefined
   target_price_list: TargetPriceItem[]
 }
 
@@ -326,13 +325,13 @@ async function init() {
       old_sales_price_noTax: item.old_sales_price,
       part_number: item.part_number,
       product_application: item.product_application,
-      quantity_machine: 0,
+      quantity_machine: item.quantity_per_machine,
       quotation_number: formData.quotation_number,
       remarks: '',
       sample_id: item.line_id,
       series: '',
       status: 'A',
-      lead_time: '',
+      lead_time: undefined,
       price_type: 'STD',
       target_price_list: target_price_list,
       uom: item.uom,
@@ -439,7 +438,11 @@ defineExpose({ getFormData })
               </el-select>
             </el-form-item>
             <el-form-item :label="$t('quotationApproval.leadTime')">
-              <el-date-picker v-model="item.lead_time" type="date" :placeholder="$t('quotationApproval.selectLeadTime')" format="YYYY/MM/DD" value-format="x" />
+              <el-input-number v-model="item.lead_time" :min="0" :step="1" step-strictly controls-position="right">
+                <template #suffix>
+                  <span>{{ $t('common_day') }}</span>
+                </template>
+              </el-input-number>
             </el-form-item>
           </el-col>
 
@@ -602,7 +605,11 @@ defineExpose({ getFormData })
               <el-form-item :label="$t('quotationApproval.customerPartNumber')" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item :label="$t('quotationApproval.oldSalesPriceNoTax')" prop="old_sales_price_noTax">
+              <el-form-item
+                v-if="formData.quotation_reason === 'Discount Request'"
+                :label="$t('quotationApproval.oldSalesPriceNoTax')"
+                prop="old_sales_price_noTax"
+              >
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>

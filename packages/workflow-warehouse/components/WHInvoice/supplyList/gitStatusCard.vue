@@ -10,9 +10,9 @@
     <div class="git-status-card-row">
       <span class="git-status-card-label">{{ $t('workflowWarehouse.groupId') }}</span>
       <div class="git-status-card-value">
-        <span :title="groupIdText || '—'">{{ groupIdText || '—' }}</span>
+        <span :title="groupId || '—'">{{ groupId || '—' }}</span>
         <el-button
-          v-if="groupIdText"
+          v-if="groupId"
           link
           type="primary"
           :icon="CopyDocument"
@@ -23,11 +23,12 @@
     </div>
 
     <el-button
+      v-if="!groupId"
       class="git-status-card-action"
       type="primary"
       plain
       :loading="loading"
-      :disabled="disabled || !selectedInvoice || !allMatched"
+      :disabled="editDisabled || !selectedInvoice || !allMatched"
       :aria-label="$t('workflowWarehouse.getGroupId')"
       @click="handleGetGroupId"
     >
@@ -43,15 +44,14 @@ import { useInvoiceVerifyInject } from '../../../composables/useInvoiceVerify'
 import { useInvoiceVerifyTableInject } from '../../../composables/useInvoiceVerifyTable'
 
 const { t } = useI18n()
-const { selectedInvoice, disabled } = useInvoiceVerifyInject()
+const { selectedInvoice, editDisabled, groupId } = useInvoiceVerifyInject()
 const { fetchGroupId, statusCounts, tableData } = useInvoiceVerifyTableInject()
 const loading = ref(false)
 
 const allMatched = computed(() => tableData.value.length > 0 && statusCounts.value.ok === statusCounts.value.all)
-const groupIdText = computed(() => selectedInvoice.value?.groupId || selectedInvoice.value?.group_id || '')
 
 async function handleGetGroupId() {
-  if (!selectedInvoice.value) return
+  if (!selectedInvoice.value || editDisabled.value) return
   if (!allMatched.value) {
     ElMessage.warning(
       t('workflowWarehouse.pleaseMatchAllLines', {
@@ -62,8 +62,8 @@ async function handleGetGroupId() {
   }
   loading.value = true
   try {
-    const groupId = await fetchGroupId()
-    if (groupId) {
+    const id = await fetchGroupId()
+    if (id) {
       ElMessage.success(t('workflowWarehouse.getGroupIdSuccess'))
     }
   } catch (error) {
@@ -75,9 +75,9 @@ async function handleGetGroupId() {
 }
 
 async function handleCopy() {
-  if (!groupIdText.value) return
+  if (!groupId.value) return
   try {
-    await navigator.clipboard.writeText(String(groupIdText.value))
+    await navigator.clipboard.writeText(groupId.value)
     ElMessage.success(t('common_copySuccess'))
   } catch (error) {
     console.error(error)

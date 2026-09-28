@@ -11,6 +11,7 @@ const { formData } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 type tableDataType = {
   endCustomer: string
@@ -38,12 +39,13 @@ const currencyOptions = ref([
   { label: 'HKD', value: 'HKD' },
   { label: 'USD', value: 'USD' }
 ])
-const seriesOptions = ref<any[]>([])
-const partNumberOptions = ref<any[]>([])
+const endCustomerOptions = ref<any[]>([])
+const seriesOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
+const partNumberOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
 const formModel = reactive({
   priceAnnouncementNumber: '',
   brand: 'ABBYY',
-  effectiveDate: dayjs(Date.now()).format('YYYY-MM-DD'),
+  effectiveDate: dayjs().add(1, 'day').format('YYYY-MM-DD'),
   submittedBy: '',
   dateSubmitted: 0,
   listLength: 0
@@ -51,14 +53,30 @@ const formModel = reactive({
 const formRef = ref()
 const headerFormRef = ref()
 const rules = {
-  brand: [{ required: true, message: '请选择品牌', trigger: 'change' }],
-  effectiveDate: [{ required: true, message: '请选择生效日期', trigger: 'change' }],
+  brand: [{ required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.brand') }), trigger: 'change' }],
+  effectiveDate: [
+    { required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.effectiveDate') }), trigger: 'change' },
+    {
+      validator: (_rule, value, callback) => {
+        if (!value) {
+          callback()
+          return
+        }
+        if (!dayjs(value).isAfter(dayjs(), 'day')) {
+          callback(new Error(t('priceAnnouncement.effectiveDateMustAfterToday')))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ],
   listLength: [
     {
       validator: (_rule, value, callback) => {
         if (!value || Number(value) < 1) {
           callback(new Error(''))
-          ElMessage.error('请选择需要公告的零件')
+          ElMessage.error(t('priceAnnouncement.pleaseSelectParts'))
           return
         }
         callback()
@@ -67,9 +85,16 @@ const rules = {
     }
   ]
 }
+const endCustomerRules = {
+  endCustomer: [{ required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.endCustomer') }), trigger: 'change' }]
+}
+
+function disabledEffectiveDate(date: Date) {
+  return !dayjs(date).isAfter(dayjs(), 'day')
+}
 
 watch(
-  tableData,
+  () => selectList.value,
   (list) => {
     formModel.listLength = list.length
   },
@@ -78,57 +103,57 @@ watch(
 
 function getColumns() {
   const checkboxCol = { type: 'checkbox', width: 60, align: 'center', fixed: 'left' }
-  const approvalRemark = { field: 'approvalRemark', title: '审批备注 Approval Remark', minWidth: 240, slots: { default: 'approvalRemark' } }
+  const approvalRemark = { field: 'approvalRemark', title: t('priceAnnouncement.approvalRemark'), minWidth: 220, slots: { default: 'approvalRemark' } }
 
   const defList: any[] = [
     {
       field: 'index',
-      title: '序号 Index',
+      title: t('priceAnnouncement.index'),
       align: 'center',
       type: 'seq',
       fixed: 'left',
-      minWidth: 100
+      minWidth: 80
     },
     {
       field: 'endCustomer',
-      title: '最终客户/项目 End Customer/Project',
+      title: t('priceAnnouncement.endCustomer'),
       minWidth: 240,
       slots: { default: 'endCustomer' }
     },
     {
       field: 'priceGroup',
-      title: '价格组 Price Group',
+      title: t('priceAnnouncement.priceGroup'),
       minWidth: 240,
       slots: { default: 'priceGroup' }
     },
     {
       field: 'supplierPartNumber',
-      title: '供应商零件编号 Supplier Part Number',
+      title: t('priceAnnouncement.supplierPartNumber'),
       minWidth: 240,
       slots: { default: 'supplierPartNumber' }
     },
     {
       field: 'currency',
-      title: '货币 Currency',
-      minWidth: 240,
+      title: t('priceAnnouncement.currency'),
+      minWidth: 120,
       slots: { default: 'currency' }
     },
     {
       field: 'originalUnitPrice',
-      title: '原单价 Original Unit Price',
-      minWidth: 240,
+      title: t('priceAnnouncement.originalUnitPrice'),
+      minWidth: 160,
       slots: { default: 'originalUnitPrice' }
     },
     {
       field: 'newUnitPrice',
-      title: '新单价 New Unit Price',
-      minWidth: 240,
+      title: t('priceAnnouncement.newUnitPrice'),
+      minWidth: 160,
       slots: { default: 'newUnitPrice' }
     },
     {
       field: 'adjustmentRate',
-      title: '调整率 Adjustment Rate',
-      minWidth: 240,
+      title: t('priceAnnouncement.adjustmentRate'),
+      minWidth: 160,
       slots: { default: 'adjustmentRate' }
     }
   ]
@@ -161,7 +186,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     [
       {
         code: 'delete',
-        name: 'Delete',
+        name: t('priceAnnouncement.delete'),
         action: ({ row }: { row: any }) => {
           handleDelete(row)
         }
@@ -192,12 +217,12 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 function handleAddRow() {
   tableData.value.push({
     endCustomer: '',
-    priceGroup: '',
-    supplierPartNumber: '',
-    currency: '',
-    originalUnitPrice: 0,
-    newUnitPrice: 0,
-    adjustmentRate: 0,
+    priceGroup: 'Any',
+    supplierPartNumber: 'Any',
+    currency: 'CNY',
+    originalUnitPrice: 1,
+    newUnitPrice: 1,
+    adjustmentRate: 100,
     approvalRemark: ''
   })
   reload()
@@ -205,6 +230,7 @@ function handleAddRow() {
 
 function handleDelete(row: tableDataType) {
   tableData.value = tableData.value.filter((item: tableDataType) => item !== row)
+  selectList.value = []
   reload()
 }
 
@@ -235,6 +261,24 @@ function handleDownloadTemplate() {
   link.click()
 }
 
+async function getCustomers(query?: string) {
+  const q = query ? `q=${query}&` : ''
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?${q}&limit=${1000}`).then((r: any) => r.data?.items)
+  const map = data
+    .map((item: any) => ({
+      label: item.customer_name,
+      value: item.account_number
+    }))
+    .sort((a: any, b: any) => a.label.localeCompare(b.label))
+  const merged = [...map, ...endCustomerOptions.value]
+  const seen = new Set<string>()
+  endCustomerOptions.value = merged.filter((item) => {
+    if (seen.has(item.value)) return false
+    seen.add(item.value)
+    return true
+  })
+}
+
 async function handleGetSeries(brandName: string) {
   if (brandName !== 'KOA') return
   await getSeries()
@@ -243,13 +287,23 @@ async function handleGetSeries(brandName: string) {
 async function getSeries(series?: string) {
   try {
     const q = !!series && series !== '' ? `q=${series}&` : ''
+
     const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}brand=KOA&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
     if (!data?.length) return
 
-    seriesOptions.value = data.map((item: any) => ({
-      label: item.displayName,
-      value: item.value
-    }))
+    const value = data
+      .map((item: any) => ({
+        label: item.displayName,
+        value: item.value
+      }))
+      .sort((a: any, b: any) => a.label.localeCompare(b.label))
+    const merged = [...value, ...seriesOptions.value]
+    const seen = new Set<string>()
+    seriesOptions.value = merged.filter((item) => {
+      if (seen.has(item.value)) return false
+      seen.add(item.value)
+      return true
+    })
   } catch (e) {
     console.log(e)
   }
@@ -258,18 +312,31 @@ async function getSeries(series?: string) {
 async function getPartNumber(series?: string, partNumber?: string) {
   try {
     const b = formModel.brand ? `brand=${formModel.brand}&` : ''
-    const s = series ? `series=${series}&` : ''
+    let s = series ? `series=${series}&` : ''
     const q = partNumber ? `q=${partNumber}&` : ''
+
+    if (formModel.brand === 'KOA') {
+      s = ''
+    }
 
     const data = await clientApi.instance
       .get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50&includeCustomer=false`)
       .then((r: any) => r.data.items)
     if (!data?.length) return
 
-    partNumberOptions.value = data.map((item: any) => ({
-      label: item.vendor_item_no,
-      value: item.vendor_item_no
-    }))
+    const value = data
+      .map((item: any) => ({
+        label: item.vendor_item_no,
+        value: item.vendor_item_no
+      }))
+      .sort((a: any, b: any) => a.label.localeCompare(b.label))
+    const merged = [...value, ...partNumberOptions.value]
+    const seen = new Set<string>()
+    partNumberOptions.value = merged.filter((item) => {
+      if (seen.has(item.value)) return false
+      seen.add(item.value)
+      return true
+    })
   } catch (e) {
     console.log(e)
   }
@@ -322,16 +389,18 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
     const fieldIndexes = IMPORT_FIELDS.map((field) => headers.findIndex((header) => header.includes(normalizeHeader(field))))
 
     if (fieldIndexes.some((index) => index === -1)) {
-      ElMessage.error('The Excel file format does not match the template.')
+      ElMessage.error(t('priceAnnouncement.excelFormatMismatch'))
       return
     }
 
     const effectiveDateField: any[] = (rows[0] ?? []).slice(0, 2)
     if (effectiveDateField.length < 2) {
       formModel.effectiveDate = ''
-      ElMessage.error('无法获取生效日期.')
+      ElMessage.error(t('priceAnnouncement.unableToGetEffectiveDate'))
     } else {
-      formModel.effectiveDate = parseEffectiveDate(effectiveDateField[1])
+      const parsedDate = parseEffectiveDate(effectiveDateField[1])
+      const minEffectiveDate = dayjs().add(1, 'day')
+      formModel.effectiveDate = parsedDate && dayjs(parsedDate).isAfter(dayjs(), 'day') ? parsedDate : minEffectiveDate.format('YYYY-MM-DD')
     }
 
     tableData.value = rows
@@ -340,8 +409,8 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
       .map((row: any) => {
         return {
           endCustomer: row[fieldIndexes[0]],
-          priceGroup: formModel.brand === 'KOA' ? row[fieldIndexes[1]] : '',
-          supplierPartNumber: row[fieldIndexes[2]],
+          priceGroup: formModel.brand === 'KOA' ? row[fieldIndexes[1]] : 'Any',
+          supplierPartNumber: row[fieldIndexes[2]] !== '' ? row[fieldIndexes[2]] : 'Any',
           currency: row[fieldIndexes[3]],
           originalUnitPrice: parseNumber(row[fieldIndexes[4]]),
           newUnitPrice: parseNumber(row[fieldIndexes[5]]),
@@ -351,9 +420,9 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
 
     reload()
     selectList.value = []
-    ElMessage.success(`${tableData.value.length} rows imported.`)
+    ElMessage.success(t('priceAnnouncement.rowsImported', { count: tableData.value.length }))
   } catch {
-    ElMessage.error('Unable to read the Excel file.')
+    ElMessage.error(t('priceAnnouncement.unableToReadExcel'))
   } finally {
     tableConfig.loading = false
   }
@@ -367,7 +436,7 @@ watch(
     if (newValue !== 'KOA' && tableData.value.length > 0) {
       tableData.value = tableData.value.map((item: any) => ({
         endCustomer: item.endCustomer,
-        priceGroup: '',
+        priceGroup: 'Any',
         supplierPartNumber: item.supplierPartNumber,
         currency: item.currency,
         originalUnitPrice: item.originalUnitPrice,
@@ -433,7 +502,7 @@ async function getFormData(needValidation = true) {
         lineNo,
         endCustomerProject: item.endCustomer,
         priceGroup: item.priceGroup,
-        supplierPartNumber: item.supplierPartNumber,
+        supplierPartNumber: item.supplierPartNumber !== '' ? item.supplierPartNumber : 'Any',
         currency: item.currency,
         originalUnitPrice: item.originalUnitPrice,
         newUnitPrice: item.newUnitPrice,
@@ -467,6 +536,10 @@ async function getFormData(needValidation = true) {
       }
 
   if (!needValidation) return result
+  if (!isApproval.value && tableData.value.some((item) => !String(item.endCustomer ?? '').trim())) {
+    ElMessage.error(t('render.hint.fieldRequired', { name: t('priceAnnouncement.endCustomer') }))
+    throw new Error('')
+  }
   await Promise.all([headerFormRef.value?.validate(), formRef.value?.validate()])
   return result
 }
@@ -478,19 +551,26 @@ defineExpose({ getFormData })
   <el-form ref="headerFormRef" :model="formModel" :rules="rules" label-position="top">
     <el-row>
       <el-col v-if="isApproval" :span="5">
-        <el-form-item label="PA編號 PA Number">
+        <el-form-item :label="t('priceAnnouncement.paNumber')">
           <el-input v-model="formModel.priceAnnouncementNumber" disabled style="width: 90%" />
         </el-form-item>
       </el-col>
       <el-col :span="!isApproval ? 6 : 4">
-        <el-form-item label="品牌 Brand" prop="brand" required>
-          <el-select v-model="formModel.brand" filterable placeholder="Select an option" :disabled="isApproval" style="width: 90%" @change="handleGetSeries">
+        <el-form-item :label="t('priceAnnouncement.brand')" prop="brand" required>
+          <el-select
+            v-model="formModel.brand"
+            filterable
+            :placeholder="$t('render.hint.selectPlaceholder')"
+            :disabled="isApproval"
+            style="width: 90%"
+            @change="handleGetSeries"
+          >
             <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="!isApproval ? 6 : 5">
-        <el-form-item label="生效日期 Effective Date" prop="effectiveDate" required>
+        <el-form-item :label="t('priceAnnouncement.effectiveDate')" prop="effectiveDate" required>
           <el-date-picker
             v-model="formModel.effectiveDate"
             type="date"
@@ -498,54 +578,71 @@ defineExpose({ getFormData })
             value-format="YYYY-MM-DD"
             style="width: 90%"
             :disabled="isApproval"
+            :disabled-date="disabledEffectiveDate"
             :clearable="false"
           />
         </el-form-item>
       </el-col>
       <el-col v-if="isApproval" :span="5">
-        <el-form-item label="提交人 Submitter">
+        <el-form-item :label="t('priceAnnouncement.submitter')">
           <el-input v-model="formModel.submittedBy" disabled style="width: 90%" />
         </el-form-item>
       </el-col>
       <el-col v-if="isApproval" :span="5">
-        <el-form-item label="提交日期 Date Submitted">
+        <el-form-item :label="t('priceAnnouncement.dateSubmitted')">
           <el-date-picker v-model="formModel.dateSubmitted" type="date" format="YYYY/MMM/DD" value-format="x" style="width: 90%" disabled />
         </el-form-item>
       </el-col>
     </el-row>
   </el-form>
 
-  <div style="height: 75vh">
+  <div style="height: 74vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="toolbar-actions">
           <div class="toolbar-actions__left">
             <el-upload v-if="!isApproval" :auto-upload="false" :show-file-list="false" accept=".xlsx" :on-change="handleExcelFileChange">
-              <el-button type="primary" :icon="Download" style="margin-right: 10px">Import Excel</el-button>
+              <el-button type="primary" :icon="Download" style="margin-right: 10px">{{ t('priceAnnouncement.importExcel') }}</el-button>
             </el-upload>
-            <el-button v-if="!isApproval" @click="handleDownloadTemplate">Download Excel Template</el-button>
+            <el-button v-if="!isApproval" @click="handleDownloadTemplate">{{ t('priceAnnouncement.downloadExcelTemplate') }}</el-button>
             <el-input
               v-model="search"
               clearable
               :prefix-icon="Search"
-              style="width: 300px; margin-left: 10px"
-              placeholder="Search across all columns"
+              style="width: 550px; margin-left: 10px"
+              :placeholder="t('priceAnnouncement.searchAcrossAllColumns')"
               @change="handleSearch"
             />
           </div>
           <el-form v-if="!isApproval" ref="formRef" class="toolbar-actions__form" :model="formModel" :rules="rules" label-position="left" inline>
             <div class="toolbar-actions__right">
-              <el-form-item label="數量 Quantity" prop="listLength">
+              <el-form-item :label="t('priceAnnouncement.quantity')" prop="listLength">
                 <el-input v-model="formModel.listLength" disabled style="width: 100px; margin-right: 10px" />
-                <el-button v-if="selectList.length === 0" type="primary" :icon="Plus" @click="handleAddRow">Add Row</el-button>
-                <el-button v-else :icon="Delete" type="danger" @click="handleDeleteSelected">Delete Selected {{ selectList.length }}</el-button>
+                <el-button v-if="selectList.length === 0" type="primary" :icon="Plus" @click="handleAddRow">{{ t('priceAnnouncement.addRow') }}</el-button>
+                <el-button v-else :icon="Delete" type="danger" @click="handleDeleteSelected">
+                  {{ t('priceAnnouncement.deleteSelected', { count: selectList.length }) }}
+                </el-button>
               </el-form-item>
             </div>
           </el-form>
         </div>
       </template>
       <template #endCustomer="{ row, index }">
-        <el-input v-model="row.endCustomer" :disabled="isApproval" />
+        <el-input v-if="isApproval" v-model="row.endCustomer" disabled />
+        <el-form v-else class="cell-form" :model="row" :rules="endCustomerRules">
+          <el-form-item prop="endCustomer">
+            <el-select-v2
+              v-model="row.endCustomer"
+              filterable
+              remote
+              :remote-method="getCustomers"
+              remote-show-suffix
+              clearable
+              :options="endCustomerOptions"
+              :placeholder="$t('render.hint.selectPlaceholder')"
+            />
+          </el-form-item>
+        </el-form>
       </template>
       <template #priceGroup="{ row, index }">
         <el-input v-model="row.priceGroup" v-if="isApproval" disabled />
@@ -560,7 +657,7 @@ defineExpose({ getFormData })
           remote-show-suffix
           clearable
           :options="seriesOptions"
-          placeholder="Select an option"
+          :placeholder="$t('render.hint.selectPlaceholder')"
           @change="getPartNumber"
         />
       </template>
@@ -577,7 +674,7 @@ defineExpose({ getFormData })
           remote-show-suffix
           clearable
           :options="partNumberOptions"
-          placeholder="Select an option"
+          :placeholder="$t('render.hint.selectPlaceholder')"
         />
       </template>
       <template #currency="{ row, index }">
@@ -592,6 +689,8 @@ defineExpose({ getFormData })
           controls-position="right"
           :min="0.000001"
           :step="0.000001"
+          step-strictly
+          :value-on-clear="1"
           :disabled="isApproval"
           @change="changePrice(row)"
         />
@@ -603,6 +702,8 @@ defineExpose({ getFormData })
           controls-position="right"
           :min="0.000001"
           :step="0.000001"
+          step-strictly
+          :value-on-clear="1"
           :disabled="isApproval"
           @change="changePrice(row)"
         />
@@ -646,6 +747,12 @@ defineExpose({ getFormData })
   :deep(.el-form-item) {
     margin-bottom: 0;
     margin-right: 0;
+  }
+}
+
+.cell-form {
+  :deep(.el-form-item) {
+    margin-bottom: 0;
   }
 }
 

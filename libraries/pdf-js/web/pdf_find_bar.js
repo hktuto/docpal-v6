@@ -24,6 +24,8 @@ const MATCHES_COUNT_LIMIT = 1000;
  * is done by PDFFindController.
  */
 class PDFFindBar {
+  #dragPosition = null;
+
   constructor(options, eventBus, l10n) {
     this.opened = false;
 
@@ -87,7 +89,7 @@ class PDFFindBar {
       this.dispatchEvent("diacriticmatchingchange");
     });
 
-    this.eventBus._on("resize", this.#adjustWidth.bind(this));
+    this.#setupDragging();
   }
 
   reset() {
@@ -131,7 +133,6 @@ class PDFFindBar {
 
     findMsg.then(msg => {
       this.findMsg.textContent = msg;
-      this.#adjustWidth();
     });
 
     this.updateResultsCount(matchesCount);
@@ -164,9 +165,6 @@ class PDFFindBar {
     }
     matchCountMsg.then(msg => {
       this.findResultsCount.textContent = msg;
-      // Since `updateResultsCount` may be called from `PDFFindController`,
-      // ensure that the width of the findbar is always updated correctly.
-      this.#adjustWidth();
     });
   }
 
@@ -176,11 +174,10 @@ class PDFFindBar {
       this.toggleButton.classList.add("toggled");
       this.toggleButton.setAttribute("aria-expanded", "true");
       this.bar.classList.remove("hidden");
+      this.#applyDragPosition();
     }
     this.findField.select();
     this.findField.focus();
-
-    this.#adjustWidth();
   }
 
   close() {
@@ -203,26 +200,137 @@ class PDFFindBar {
     }
   }
 
-  #adjustWidth() {
-    if (!this.opened) {
-      return;
+  #applyDragPosition() {
+    const offset = this.#dragPosition || { x: 0, y: 0 };
+    this.bar.style.setProperty(
+      "transform",
+      `translate(${offset.x}px, ${offset.y}px)`,
+      "important"
+    );
+  }
+
+  #setupDragging() {
+    const bar = this.bar;
+    // Keep findbar on body so fixed positioning tracks the full viewport.
+    if (bar.parentElement !== document.body) {
+      document.body.appendChild(bar);
     }
 
-    // The find bar has an absolute position and thus the browser extends
-    // its width to the maximum possible width once the find bar does not fit
-    // entirely within the window anymore (and its elements are automatically
-    // wrapped). Here we detect and fix that.
-    this.bar.classList.remove("wrapContainers");
+    const DRAG_THRESHOLD = 3;
+    const MIN_VISIBLE = 40;
+    let dragging = false;
+    let pending = false;
+    let startX = 0;
+    let startY = 0;
+    let originX = 0;
+    let originY = 0;
+    let baseLeft = 0;
+    let baseTop = 0;
+    let baseWidth = 0;
+    let pointerId = null;
 
-    const findbarHeight = this.bar.clientHeight;
-    const inputContainerHeight = this.bar.firstElementChild.clientHeight;
+    const isTextOrButtonTarget = target =>
+      !!target.closest(
+        "input:not([type='checkbox']), button, textarea, select, a"
+      );
 
-    if (findbarHeight > inputContainerHeight) {
-      // The findbar is taller than the input container, which means that
-      // the browser wrapped some of the elements. For a consistent look,
-      // wrap all of them to adjust the width of the find bar.
-      this.bar.classList.add("wrapContainers");
-    }
+    const clampOffset = (x, y) => {
+      const minX = MIN_VISIBLE - baseWidth - baseLeft;
+      const maxX = window.innerWidth - MIN_VISIBLE - baseLeft;
+      const minY = -baseTop;
+      const maxY = window.innerHeight - MIN_VISIBLE - baseTop;
+      return {
+        x: Math.max(minX, Math.min(x, maxX)),
+        y: Math.max(minY, Math.min(y, maxY)),
+      };
+    };
+
+    const applyOffset = (x, y) => {
+      this.#dragPosition = { x, y };
+      this.#applyDragPosition();
+    };
+
+    const onPointerMove = e => {
+      if ((!pending && !dragging) || e.pointerId !== pointerId) {
+        return;
+      }
+
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (pending) {
+        if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) {
+          return;
+        }
+        pending = false;
+        dragging = true;
+        bar.classList.add("dragging");
+      }
+
+      if (!dragging) {
+        return;
+      }
+
+      const next = clampOffset(originX + dx, originY + dy);
+      applyOffset(next.x, next.y);
+      e.preventDefault();
+    };
+
+    const onPointerUp = e => {
+      if (e.pointerId !== pointerId) {
+        return;
+      }
+
+      const wasDragging = dragging;
+      pending = false;
+      dragging = false;
+      pointerId = null;
+      bar.classList.remove("dragging");
+
+      document.removeEventListener("pointermove", onPointerMove, true);
+      document.removeEventListener("pointerup", onPointerUp, true);
+      document.removeEventListener("pointercancel", onPointerUp, true);
+
+      if (!wasDragging) {
+        return;
+      }
+
+      // Suppress the click that would otherwise fire after a drag.
+      const suppressClick = evt => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        bar.removeEventListener("click", suppressClick, true);
+      };
+      bar.addEventListener("click", suppressClick, true);
+      e.preventDefault();
+    };
+
+    bar.addEventListener("pointerdown", e => {
+      if (e.button !== 0 || isTextOrButtonTarget(e.target)) {
+        return;
+      }
+
+      const current = this.#dragPosition || { x: 0, y: 0 };
+      // Measure the untranslated box once, then restore current offset.
+      bar.style.setProperty("transform", "none", "important");
+      const rect = bar.getBoundingClientRect();
+      baseLeft = rect.left;
+      baseTop = rect.top;
+      baseWidth = rect.width;
+      applyOffset(current.x, current.y);
+
+      startX = e.clientX;
+      startY = e.clientY;
+      originX = current.x;
+      originY = current.y;
+      pointerId = e.pointerId;
+      pending = true;
+      dragging = false;
+
+      document.addEventListener("pointermove", onPointerMove, true);
+      document.addEventListener("pointerup", onPointerUp, true);
+      document.addEventListener("pointercancel", onPointerUp, true);
+    });
   }
 }
 

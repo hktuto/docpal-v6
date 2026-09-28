@@ -3778,7 +3778,8 @@
       "userSignature": "使用者簽名",
       "userSignatureFailed": "取得簽名失敗",
       "username": "使用者名稱",
-      "website": "網站"
+      "website": "網站",
+      "readyOnly": "只讀"
     }
   },
   "userManage": {
@@ -4758,6 +4759,7 @@
   "workflow_holdPolicy": "保留政策",
   "workflow_info": "信息",
   "workflow_jobName": "工作名稱",
+  "workflow_availableTask": "可用任務",
   "workflow_joinTask": "正在參與的任務",
   "workflow_myTask": "我的任務",
   "workflow_newWorkflow": "創建任務",
@@ -4785,6 +4787,7 @@
   "workflow_timeSinceSubmission": "認領日起",
   "workflow_workflow": "工作流程",
   "workflow_workflowName": "工作流程名稱",
+  "workflow_businessKey": "業務 Key",
   "zh-CN": "简体中文",
   "zh-HK": "繁體中文",
   "所有內容": "所有內容",
@@ -4846,6 +4849,8 @@
     "description": "核對 OCR 解析的發票明細，並對照客戶料號進行核驗。",
     "pleaseEnterInvoiceNumber": "請輸入發票號",
     "pleaseApproveInvoice": "⌈{name}⌋ 請先批准該發票",
+    "hasUnmatchedRows": "表格中存在未匹配的行，請先處理後再提交",
+    "unmatchedRowsConfirm": "表格中存在未匹配的行，仍要提交嗎？",
     "pleaseSelectSupplier": "⌈{name}⌋ 請選擇供應商",
     "pleaseSelectOrg": "⌈{name}⌋ 請選擇組織",
     "pleaseEnterCustomerName": "⌈{name}⌋ 請輸入客戶名稱",
@@ -4961,6 +4966,22 @@
     "shippingConfirmUnsavedChanges": "目前有未保存的人工修改。"
   },
   "quotationApproval": {
+    "quotation_number": "報價編號",
+    "quotation_reason": "報價理由",
+    "quotation_date": "報價時間",
+    "reject_comment": "拒絕備注",
+    "user_info": "用戶信息",
+    "salesperson": "銷售員",
+    "office": "辦事處",
+    "branch_office": "辦公室",
+    "customer_info": "客戶信息",
+    "other_info": "其他信息",
+    "market_segment": "產業分類",
+    "payment_terms": "付款條款",
+    "shipment_terms": "運輸條款",
+    "validity_date": "有效期限",
+    "pdf_header": "PDF 表頭",
+    "parts_info": "零件詳情",
     "brand": "品牌",
     "partNumber": "型號",
     "series": "系列",

@@ -1,16 +1,17 @@
 ﻿import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { newClientApi, postDynamicActions } from 'api'
-import { SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
+import { clientApi, newClientApi, postDynamicActions } from 'api'
+import { SGLA, SGLA_ITEMS, SGLA_ITEMS_TABLE_ID } from '../utils/variableMapping'
 import {
   applyBatchValueToColumn,
   applySelectOptionsToColumns,
   createRowFromColumns,
-  createVerificationTableColumns,
   createVerificationTableOptions,
+  editableColumn,
   fetchCountryList,
   filterTableItems,
-  generateVerificationItemsParams,
+  generateMasterDetailParams,
   getFormDataFromColumns,
   getMissingRequiredLabels,
   getStatusCounts,
@@ -18,14 +19,115 @@ import {
   normalizeCountryFields,
   rowMatchKey,
   toNumberOrNull,
-  VERIFY_TABLE_COUNTRY_FIELDS,
-  VERIFY_TABLE_SEARCH_FIELDS,
   type HighlightMatchKey,
   type SelectOption,
   type VerificationStatusFilter,
-  type VerificationTableColumn,
   type VerificationTableContext
 } from '../utils/tableHelper'
+
+const SEARCH_FIELDS = [
+  SGLA_ITEMS.Carton,
+  SGLA_ITEMS.Supplier_PN,
+  SGLA_ITEMS.WCL_PN,
+  SGLA_ITEMS.Qty,
+  SGLA_ITEMS.PoLine
+] as const
+
+const COUNTRY_FIELDS = [SGLA_ITEMS.CountryOfOrigin, SGLA_ITEMS.CountryOfWafer]
+
+function createVerificationTableColumns(t: (key: string) => string) {
+  return [
+    {
+      type: 'seq',
+      width: 50,
+      align: 'right',
+      fixed: 'left'
+    },
+    {
+      field: SGLA_ITEMS.Carton,
+      title: t('workflowWarehouse.carton'),
+      minWidth: 70,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Supplier_PN,
+      title: t('workflowWarehouse.supplierPn'),
+      minWidth: 150,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn('select')
+    },
+    {
+      field: SGLA_ITEMS.WCL_PN,
+      title: t('workflowWarehouse.wclPn'),
+      minWidth: 170,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.DrawingNo,
+      title: t('workflowWarehouse.drawingNo'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Qty,
+      title: t('workflowWarehouse.qty'),
+      minWidth: 90,
+      type: 'number',
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn('number')
+    },
+
+    {
+      field: SGLA_ITEMS.DateCode,
+      title: t('workflowWarehouse.dateCode'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.CountryOfOrigin,
+      title: t('workflowWarehouse.countryOfOrigin'),
+      minWidth: 140,
+      ...editableColumn('select')
+    },
+    {
+      field: SGLA_ITEMS.CountryOfWafer,
+      title: t('workflowWarehouse.countryOfWafer'),
+      minWidth: 140,
+      ...editableColumn('select')
+    },
+    {
+      field: SGLA_ITEMS.PoLine,
+      title: t('workflowWarehouse.po'),
+      minWidth: 140,
+      required: true,
+      headerClassName: 'is-required',
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.SupplierItemRefNo,
+      title: t('workflowWarehouse.SupplierItemRefNo'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      field: SGLA_ITEMS.Remark,
+      title: t('workflowWarehouse.remark'),
+      minWidth: 140,
+      ...editableColumn()
+    },
+    {
+      type: 'checkbox',
+      title: t('workflowWarehouse.verified'),
+      fixed: 'right',
+      width: 88,
+      align: 'center'
+    }
+  ]
+}
 
 export const WHASupplyListVerifyTableKey: InjectionKey<VerificationTableContext> = Symbol('WHASupplyListVerifyTable')
 
@@ -38,26 +140,126 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   const searchQuery = ref('')
   const tableData = ref<Record<string, any>[]>([])
   const countryList = ref<SelectOption[]>([])
-  /** Supplier_PN::PoLine → 高亮 */
+  const vendorItemOptions = ref<SelectOption[]>([])
+  /** vendor_item_no → wcl_item_no */
+  const vendorItemToWclMap = ref<Map<string, string>>(new Map())
+  let lastFetchedInvoiceNum = ''
+  /** Supplier_PN::PoLine → 问题行红底 */
   const highlightedMatchKeys = ref<Set<string>>(new Set())
+  /** 是否存在红底未匹配行 */
+  const hasHighlightedRows = computed(() => highlightedMatchKeys.value.size > 0)
+  /** 当前点击定位的行 → 黄底 */
+  const locatedMatchKey = ref('')
+  /** insertRow / 定位行切 filter 时跳过一次 watch reload */
+  let skipNextFilterReload = false
 
   function itemMatchKey(row: Record<string, any>) {
     return rowMatchKey(row[SGLA_ITEMS.Supplier_PN], row[SGLA_ITEMS.PoLine])
   }
 
+  function syncWclPnFromVendorItem(row: Record<string, any>, vendorItemNo?: unknown) {
+    const value = String(vendorItemNo ?? row[SGLA_ITEMS.Supplier_PN] ?? '').trim()
+    row[SGLA_ITEMS.Supplier_PN] = value
+    row[SGLA_ITEMS.WCL_PN] = value ? (vendorItemToWclMap.value.get(value) ?? '') : ''
+  }
+
+  function applyVendorItemOptions(options: SelectOption[]) {
+    vendorItemOptions.value = options
+    applySelectOptionsToColumns(verificationTableColumns, [SGLA_ITEMS.Supplier_PN], options)
+  }
+
+  function bindSupplierPnSelectEvents() {
+    const column = verificationTableColumns.find((col: any) => col.field === SGLA_ITEMS.Supplier_PN)
+    if (!column?.editRender) return
+    column.editRender.events = {
+      change: ({ row }: { row: Record<string, any> }, eventParams?: { value?: unknown }) => {
+        syncWclPnFromVendorItem(row, eventParams?.value)
+      }
+    }
+  }
+  bindSupplierPnSelectEvents()
+
+  function mergeExistingVendorItemOptions(rows: Record<string, any>[]) {
+    if (!rows.length) return
+    const existing = new Set(vendorItemOptions.value.map((item) => String(item.value)))
+    const extras: SelectOption[] = []
+    for (const row of rows) {
+      const value = String(row[SGLA_ITEMS.Supplier_PN] ?? '').trim()
+      if (!value || existing.has(value)) continue
+      existing.add(value)
+      extras.push({ label: value, value })
+    }
+    if (extras.length) applyVendorItemOptions([...vendorItemOptions.value, ...extras])
+  }
+
+  async function fetchVendorItemOptions() {
+    const invoiceNum = String(selectedInvoice.value?.[SGLA.Name] ?? '').trim()
+    if (!invoiceNum) {
+      lastFetchedInvoiceNum = ''
+      vendorItemToWclMap.value = new Map()
+      applyVendorItemOptions([])
+      return
+    }
+    if (invoiceNum === lastFetchedInvoiceNum) return
+
+    try {
+      const { data } = await clientApi.instance.get('/v1/ms/oracle/rcv-shipments', {
+        baseURL: '/apis',
+        params: { invoiceNum }
+      })
+      const items = data?.items ?? []
+      const map = new Map<string, string>()
+      const options: SelectOption[] = []
+      const seen = new Set<string>()
+      for (const item of items) {
+        const vendorItemNo = String(item?.vendor_item_no ?? '').trim()
+        if (!vendorItemNo || seen.has(vendorItemNo)) continue
+        seen.add(vendorItemNo)
+        options.push({ label: vendorItemNo, value: vendorItemNo })
+        const wclItemNo = String(item?.wcl_item_no ?? '').trim()
+        if (wclItemNo) map.set(vendorItemNo, wclItemNo)
+      }
+      vendorItemToWclMap.value = map
+      applyVendorItemOptions(options)
+      lastFetchedInvoiceNum = invoiceNum
+    } catch (error) {
+      console.error(error)
+      vendorItemToWclMap.value = new Map()
+      applyVendorItemOptions([])
+      lastFetchedInvoiceNum = ''
+    }
+  }
+
   function highlightMatchingRows(matches: HighlightMatchKey | HighlightMatchKey[]) {
     const list = Array.isArray(matches) ? matches : [matches]
     highlightedMatchKeys.value = new Set(list.map((m) => rowMatchKey(m.supplierPn, m.poLine)))
-    nextTick(() => {
-      tableRef.value?.updateData?.()
-      const first = tableData.value.find((row) => highlightedMatchKeys.value.has(itemMatchKey(row)))
-      if (first) tableRef.value?.scrollToRow?.(first)
-    })
+    locatedMatchKey.value = ''
+    nextTick(() => tableRef.value?.updateData?.())
   }
 
   function clearMatchingRowHighlight() {
     highlightedMatchKeys.value = new Set()
+    locatedMatchKey.value = ''
     nextTick(() => tableRef.value?.updateData?.())
+  }
+
+  async function scrollToMatchingRow(match: HighlightMatchKey) {
+    const key = rowMatchKey(match.supplierPn, match.poLine)
+    const row = tableData.value.find((item) => itemMatchKey(item) === key)
+    if (!row) return
+
+    const isVisible = getFilteredItems(tableData.value).some((item) => itemMatchKey(item) === key)
+    if (!isVisible) {
+      skipNextFilterReload = true
+      statusFilter.value = 'all'
+      searchQuery.value = ''
+      await (tableRef.value as any)?.loadData?.(getFilteredItems(tableData.value))
+    }
+
+    locatedMatchKey.value = key
+    await nextTick()
+    tableRef.value?.updateData?.()
+    tableRef.value?.scrollToRow?.(row)
   }
 
   /** 将匹配行的 verified(Checked) 置为 false，返回是否有变更 */
@@ -78,7 +280,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
   async function getCountryList() {
     try {
       countryList.value = await fetchCountryList()
-      applySelectOptionsToColumns(verificationTableColumns, VERIFY_TABLE_COUNTRY_FIELDS, countryList.value)
+      applySelectOptionsToColumns(verificationTableColumns, COUNTRY_FIELDS, countryList.value)
     } catch (error) {
       console.error(error)
       countryList.value = []
@@ -90,7 +292,7 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       statusFilter: statusFilter.value,
       searchQuery: searchQuery.value,
       checkedField: SGLA_ITEMS.Checked,
-      searchFields: VERIFY_TABLE_SEARCH_FIELDS
+      searchFields: SEARCH_FIELDS
     })
   }
 
@@ -147,13 +349,24 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
       },
       onCopy: (row) => copyRow(row),
       onDelete: (row) => deleteRow(row),
-      getRowClassName: (row) => (highlightedMatchKeys.value.has(itemMatchKey(row)) ? 'wha-verify-row-highlight' : ''),
-      checkboxField: SGLA_ITEMS.Checked
+      getRowClassName: (row) => {
+        const key = itemMatchKey(row)
+        if (locatedMatchKey.value === key) return 'wha-verify-row-located'
+        if (highlightedMatchKeys.value.has(key)) return 'wha-verify-row-highlight'
+        return ''
+      },
+      checkboxField: SGLA_ITEMS.Checked,
+      onEditClosed: ({ row, column }) => {
+        // fallback：清空/离开单元格时再对齐一次
+        if (column?.field === SGLA_ITEMS.Supplier_PN) syncWclPnFromVendorItem(row)
+      }
     }),
     api: async () => {
       if (!countryList.value.length) await getCountryList()
+      await fetchVendorItemOptions()
       const data = await fetchTableData()
-      const normalized = normalizeCountryFields(data, countryList.value)
+      const normalized = normalizeCountryFields(data, countryList.value, COUNTRY_FIELDS)
+      mergeExistingVendorItemOptions(normalized)
       tableData.value = normalized
       return getFilteredItems(normalized)
     }
@@ -189,6 +402,10 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
   function applyBatchEdit(val: string) {
     applyBatchValueToColumn(tableRef.value, selectedColumn.value, val)
+    if (selectedColumn.value === SGLA_ITEMS.Supplier_PN) {
+      const wcl = String(val ?? '').trim() ? (vendorItemToWclMap.value.get(String(val).trim()) ?? '') : ''
+      applyBatchValueToColumn(tableRef.value, SGLA_ITEMS.WCL_PN, wcl)
+    }
     batchEditDialogVisible.value = false
   }
   const statusCounts = computed(() => getStatusCounts(tableData.value, SGLA_ITEMS.Checked))
@@ -199,7 +416,11 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
 
     loading.value = true
     try {
-      const params = generateVerificationItemsParams(masterId)
+      const orderBy = [
+        { column: SGLA_ITEMS.Carton, desc: false },
+        { column: SGLA_ITEMS.PoLine, desc: false },
+      ]
+      const params = generateMasterDetailParams(SGLA_ITEMS_TABLE_ID, SGLA_ITEMS.MasterId, masterId, orderBy)
       const { data } = await postDynamicActions(params)
       return normalizeCheckedField(data?.data ?? [], SGLA_ITEMS.Checked)
     } catch (error) {
@@ -228,9 +449,6 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     )
   }
 
-  /** insertRow 切 filter 时跳过一次 watch reload，避免冲掉滚到首行 */
-  let skipNextFilterReload = false
-
   async function insertRow(payload: Record<string, any>) {
     if (creatingRow.value) return false
 
@@ -248,7 +466,8 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
             [SGLA_ITEMS.Checked]: !!data?.data?.data?.[SGLA_ITEMS.Checked]
           }
         ],
-        countryList.value
+        countryList.value,
+        COUNTRY_FIELDS
       )[0]
 
       if (!insertedRow?.id) return false
@@ -300,6 +519,13 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     debouncedReload()
   })
 
+  watch(
+    () => selectedInvoice.value?.[SGLA.Name],
+    () => {
+      lastFetchedInvoiceNum = ''
+    }
+  )
+
   function getFormData() {
     return getFormDataFromColumns(tableData.value, verificationTableColumns, [SGLA_ITEMS.Checked, 'id'], [SGLA_ITEMS.Checked])
   }
@@ -326,6 +552,8 @@ export function useWHASupplyListVerifyTableProvider(selectedInvoice: Ref<Record<
     applyBatchEdit,
     highlightMatchingRows,
     clearMatchingRowHighlight,
+    hasHighlightedRows,
+    scrollToMatchingRow,
     resetVerifiedMatches,
     addRow,
     saveTableData

@@ -31,8 +31,14 @@
 import { postDynamicActions } from 'api'
 import { useTableFields } from '../../composables/dashboard/useTableFields'
 import { useDashboardLiveUpdate } from '../../composables/dashboard/useDashboardLiveUpdate'
-import { resolveSelectLabel } from '@packages/dp-mdTable/utils/fieldValueFormat'
+import { formatDateTime, resolveSelectLabel } from '@packages/dp-mdTable/utils/fieldValueFormat'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import {
+  isDateBusinessType,
+  normalizeBusinessType,
+  resolveDateFormat,
+  type FieldTypeMeta
+} from '../../utils/dashboardFieldMeta'
 
 const props = withDefaults(
   defineProps<{
@@ -59,8 +65,15 @@ const rowField = computed(() => props.setting?.rowField || '')
 const columnField = computed(() => props.setting?.columnField || '')
 const valueField = computed(() => props.setting?.valueField || '')
 const aggregation = computed(() => props.setting?.aggregation || 'sum')
+const rowFieldMeta = computed<FieldTypeMeta>(() => ({
+  businessType: props.setting?.rowFieldMeta?.businessType || '',
+  dateFormat: props.setting?.rowFieldMeta?.dateFormat || ''
+}))
+const columnFieldMeta = computed<FieldTypeMeta>(() => ({
+  businessType: props.setting?.columnFieldMeta?.businessType || '',
+  dateFormat: props.setting?.columnFieldMeta?.dateFormat || ''
+}))
 
-// Field metadata for label resolution
 const fieldMetaMap = ref<Record<string, any>>({})
 const { getFields } = useTableFields()
 
@@ -70,28 +83,35 @@ async function loadFieldMeta(tableId: string) {
     return
   }
   const fields = await getFields(tableId)
-  const map: Record<string, any> = {}
-  for (const f of fields) {
-    map[f.field_name] = f
-  }
-  fieldMetaMap.value = map
+  fieldMetaMap.value = Object.fromEntries(fields.map((f: any) => [f.field_name, f]))
 }
 
 function getFieldLabel(fieldName: string): string {
   return fieldMetaMap.value[fieldName]?.field_name_alias || fieldName
 }
 
-function formatAxisValue(value: any, fieldName: string): string {
+function formatAxisValue(value: any, fieldName: string, axisMeta?: FieldTypeMeta): string {
+  if (value === null || value === undefined || value === '') return '(blank)'
+
   const field = fieldMetaMap.value[fieldName]
-  if (!field) return String(value ?? '(blank)')
-  const bt = String(field.business_type || '')
-  const isSelect = bt === ColumnFieldType.SingleSelect || bt === '3' ||
-    bt === ColumnFieldType.MultiSelect || bt === '4'
-  if (isSelect) {
-    const options = field.display_structure?.options || field.properties?.options || []
-    return resolveSelectLabel(value, options) || String(value ?? '(blank)')
+  const businessType = normalizeBusinessType(axisMeta?.businessType || field?.business_type)
+
+  if (isDateBusinessType(businessType)) {
+    const dateFormat = resolveDateFormat(field, axisMeta?.dateFormat)
+    return formatDateTime(value, {
+      ...(field?.display_structure || {}),
+      dateFormat
+    })
   }
-  return String(value ?? '(blank)')
+
+  const isSelect = businessType === ColumnFieldType.SingleSelect
+    || businessType === ColumnFieldType.MultiSelect
+  if (isSelect && field) {
+    const options = field.display_structure?.options || field.properties?.options || []
+    return resolveSelectLabel(value, options) || String(value)
+  }
+
+  return String(value)
 }
 
 const pivotRows = computed(() => {
@@ -105,8 +125,8 @@ const pivotRows = computed(() => {
   const rowMap = new Map<string, Map<string, number[]>>()
 
   for (const row of rawData.value) {
-    const rVal = formatAxisValue(row[rField], rField)
-    const cVal = formatAxisValue(row[cField], cField)
+    const rVal = formatAxisValue(row[rField], rField, rowFieldMeta.value)
+    const cVal = formatAxisValue(row[cField], cField, columnFieldMeta.value)
     const vRaw = row[vField]
     const vNum = vRaw === null || vRaw === undefined || vRaw === '' ? NaN : Number(vRaw)
 
@@ -175,7 +195,7 @@ const pivotColumns = computed(() => {
 
   const colValues = new Set<string>()
   for (const row of rawData.value) {
-    colValues.add(formatAxisValue(row[cField], cField))
+    colValues.add(formatAxisValue(row[cField], cField, columnFieldMeta.value))
   }
   const sortedColValues = Array.from(colValues).sort()
 
@@ -250,14 +270,16 @@ watch(
   () => [
     props.setting?.tableId,
     props.setting?.rowField,
+    props.setting?.rowFieldMeta,
     props.setting?.columnField,
+    props.setting?.columnFieldMeta,
     props.setting?.valueField,
     props.setting?.aggregation
   ],
   () => {
     fetchData()
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 useDashboardLiveUpdate(

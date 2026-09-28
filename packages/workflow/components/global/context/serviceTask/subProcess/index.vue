@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
 import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
+import { useUserState } from '@packages/authApp/composables/useAuth'
 const { getVariablesByDisplayTypes } = useVariablesProvide()
 
 const { t } = useI18n()
@@ -36,9 +37,13 @@ async function initForm() {
 
 function updateData() {
   const variableList = formFields.value.reduce((acc, field) => {
+    const user = useUserState()
     if (field.id === '__system__user_creator_id') {
-      const userId = useUserId()
-      acc[field.id] = userId.value
+      acc[field.id] = user.value.userId
+      return acc
+    }
+    if (field.id === '__system__user_creator_email') {
+      acc[field.id] = user.value.email
       return acc
     }
     acc[field.id] = field.value

@@ -2977,7 +2977,7 @@ function webViewerKeyDown(evt) {
     switch (evt.keyCode) {
       case 70: // f
         if (!PDFViewerApplication.supportsIntegratedFind && !evt.shiftKey) {
-          PDFViewerApplication.findBar?.open();
+          PDFViewerApplication.findBar?.toggle();
           handled = true;
         }
         break;

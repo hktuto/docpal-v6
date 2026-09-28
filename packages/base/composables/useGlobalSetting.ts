@@ -8,6 +8,7 @@ type AppSlot = {
 export const useDisplayTimeFormat = () => useState('display-time-format', () => 'YYYY-MM-DD')
 
 export const useGlobalComponents = () => useState('global-components', () => shallowRef<AppSlot[]>([]))
+export const useGlobalUserPopoverSlots = () => useState('global-user-popover-slots', () => shallowRef<AppSlot[]>([]))
 
 export const useLastClipboard = () => useState('last-clipboard', () => '')
 

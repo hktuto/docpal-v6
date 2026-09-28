@@ -37,6 +37,8 @@ export interface UseVxeTableParams<R = any> {
   pageSize?: number
   refresh?: boolean
   zoom?: boolean
+  /** 为 false 时不给无 width 的列补默认 minWidth: 100px */
+  applyDefaultMinWidth?: boolean
   dblClickAction?: ({ row, column, event }: any) => void
   headerActions?: TableMenuActions[][]
   footerActions?: TableMenuActions[][]
@@ -79,6 +81,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     columns = [],
     zoom = true,
     refresh = true,
+    applyDefaultMinWidth = true,
     permissionMethod = (args: PermissionMethodParams) => {
       if (!args.row) {
         return { visible: true, disabled: false }
@@ -119,7 +122,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
       },
       class: params.id,
       columns: (columns || []).map((col) => {
-        if (!col.width && !col.minWidth) {
+        if (applyDefaultMinWidth && !col.width && !col.minWidth) {
           col.minWidth = '100px'
         }
         return col

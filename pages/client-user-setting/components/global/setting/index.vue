@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { newClientApi, gatewayApi } from 'api'
+import { gatewayApi, newClientApi } from 'api'
 
 const platform = useAppPlatform()
 const router = useRouter()
@@ -34,9 +34,7 @@ async function init() {
 
     if (state.list.length > 0) {
       const userState = useUserState()
-      const data = userState.value
-        ? userState.value
-        : await gatewayApi.users.getUsersApplication().then((res: any) => res.data)
+      const data = userState.value ? userState.value : await gatewayApi.users.getUsersApplication().then((res: any) => res.data)
 
       state.form.id = (data as any).id
       state.list.forEach((item: any) => {
@@ -58,7 +56,7 @@ async function init() {
       }
     }
 
-    state.notificationPreferenceList = await newClientApi.getNotificationSettingUserUseridPreferences(userId.value).then(res => res.data)
+    state.notificationPreferenceList = await newClientApi.getNotificationSettingUserUseridPreferences(userId.value).then((res) => res.data)
   } catch (e: any) {
     throw createError(e)
   }
@@ -132,10 +130,10 @@ async function save() {
         newUserInfo[item.key] = state.form[item.key]
       }
     })
-    await gatewayApi.users.putUsersUpdate(newUserInfo).then(r => r.data)
-    await gatewayApi.userSettings.putUserSettings({ settings: userPreference.value as any }).then(r => r.data)
+    await gatewayApi.users.putUsersUpdate(newUserInfo).then((r) => r.data)
+    await gatewayApi.userSettings.putUserSettings({ settings: userPreference.value as any }).then((r) => r.data)
 
-    await newClientApi.postNotificationSettingUserUseridSavePreferences(userId.value, state.notificationPreferenceList).then(r => r.data)
+    await newClientApi.postNotificationSettingUserUseridSavePreferences(userId.value, state.notificationPreferenceList).then((r) => r.data)
 
     routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: t('user_info'), name: null }))
 
@@ -151,62 +149,60 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <div class="card">
-      <el-row :gutter="30" class="setting-row">
-        <el-col :span="11">
-          <h3>{{ $t('user.setting.userProfile') }}</h3>
-          <div class="form-scroll-wrapper">
-            <el-form :model="state.form" label-position="top">
-              <el-form-item v-for="item in state.list" :label="t(`user.setting.${item.key}`)" :key="item.key">
-                <el-input v-if="item.type === 'string'" v-model="state.form[item.key]"
-                          :disabled="item.readyOnly" />
-                <el-input-tag
-                  v-if="item.type === 'array'"
-                  v-model="state.form[item.key]"
-                  :disabled="item.readyOnly"
-                />
-                <el-switch v-if="item.type === 'boolean'" v-model="state.form[item.key]" :disabled="item.readyOnly"
-                           :inactive-text="t('actions.inactive')"
-                           :active-text="t('user_active')" />
-              </el-form-item>
-            </el-form>
-          </div>
+  <div class="card">
+    <el-row :gutter="30" class="setting-row">
+      <el-col :span="11">
+        <h3>{{ $t('user.setting.userProfile') }}</h3>
+        <div class="form-scroll-wrapper">
+          <el-form :model="state.form" label-position="top">
+            <el-form-item v-for="item in state.list" :label="t(`user.setting.${item.key}`)" :key="item.key">
+              <el-input v-if="item.type === 'string'" v-model="state.form[item.key]" :disabled="item.readyOnly" />
+              <el-input-tag v-if="item.type === 'array'" v-model="state.form[item.key]" :disabled="item.readyOnly" />
+              <el-switch
+                v-if="item.type === 'boolean'"
+                v-model="state.form[item.key]"
+                :disabled="item.readyOnly"
+                :inactive-text="t('actions.inactive')"
+                :active-text="t('user_active')"
+              />
+            </el-form-item>
+          </el-form>
+        </div>
 
-          <el-divider />
-          <h3>{{ t('login_password') }}</h3>
-          <el-button type="primary" @click="handleChangePassword">
-            {{ t('user_editPassword') }}
-          </el-button>
+        <el-divider />
+        <h3>{{ t('login_password') }}</h3>
+        <el-button type="primary" @click="handleChangePassword">
+          {{ t('user_editPassword') }}
+        </el-button>
 
-          <!-- <el-divider />
+        <!-- <el-divider />
           <h3>{{ t('user.setting.userSignature') }}</h3>
           <el-button type="primary" @click="handleChangeMangeSignatureOpen">
             {{ t('user.setting.mangeSignature') }}
           </el-button> -->
 
-          <el-divider />
-        </el-col>
+        <el-divider />
+      </el-col>
 
-        <div class="vertical-divider"></div>
+      <div class="vertical-divider"></div>
 
-        <el-col :span="12">
-          <div>
-            <h3>{{ $t('user.setting.preference') }}</h3>
+      <el-col :span="12">
+        <div>
+          <h3>{{ $t('user.setting.preference') }}</h3>
 
-            <!-- <div class="colorSetting">
+          <!-- <div class="colorSetting">
               <div class="label">{{ $t('userSetting_colorMode') }}</div>
               <ElSwitch v-model="colorMode" active-text="Light" inactive-text="Dark" />
             </div> -->
-            <div>
-              <div class="label">{{ $t('dpTool_fontSize') }}</div>
-              <el-slider v-model="fontSize" style="width: 50%" :min="10" :max="24" />
-            </div>
+          <div>
+            <div class="label">{{ $t('dpTool_fontSize') }}</div>
+            <el-slider v-model="fontSize" style="width: 50%" :min="10" :max="24" />
           </div>
+        </div>
 
-          <el-divider />
+        <el-divider />
 
-          <!-- <div v-if="platform !== 'admin'">
+        <!-- <div v-if="platform !== 'admin'">
             <h3 style="margin-bottom: 0">{{ t('user.setting.notificationPreference') }}</h3>
             <div class="notification-scroll-wrapper">
               <div v-for="(item, index) in state.notificationPreferenceList" :key="index">
@@ -216,21 +212,20 @@ onMounted(() => {
               </div>
             </div>
           </div> -->
-        </el-col>
-      </el-row>
-    </div>
-    <div class="footer-bar">
-      <el-button class="fixed-save-btn" type="primary" @click="save">{{ $t('common_save') }}</el-button>
-    </div>
+      </el-col>
+    </el-row>
+  </div>
+
+  <div class="footer-bar">
+    <el-button class="fixed-save-btn" type="primary" @click="save">{{ $t('common_save') }}</el-button>
   </div>
 
   <SettingUserSignature ref="userSignatureRef" :userId="userId" />
-
 </template>
 
 <style scoped lang="scss">
 .card {
-  height: calc(100vh - 70px);;
+  height: calc(100vh - 70px);
   overflow-y: auto;
   min-height: 100%;
   box-sizing: border-box;

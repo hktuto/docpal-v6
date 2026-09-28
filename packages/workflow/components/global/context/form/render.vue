@@ -4,7 +4,6 @@ import { newClientApi } from 'api'
 const props = defineProps<{
   options?: Object
   taskDetail?: any
-  workflowVariables?: Record<string, any>
 }>()
 const state = reactive<any>({
   formData: {},
@@ -165,7 +164,11 @@ async function getFormData(needValidation = true, onlyWritable = false) {
       ...slotData
     }
   } catch (error: any) {
-    throw error instanceof Error ? error : new Error(error?.message || String(error))
+    const messages = Object.keys(error).flatMap((key) => {
+      const arr = error[key]
+      return Array.isArray(arr) ? arr.map((x) => x.message) : []
+    })
+    throw error instanceof Error ? error : new Error(error?.message || messages)
   }
 }
 
@@ -297,8 +300,7 @@ provide('workflowFormRender', {
           :is="item.component"
           :ref="(el: any) => (formRenderSlotsRef[item.name] = el)"
           :disabled="state.readonly"
-          :formData="{ ...(props.workflowVariables || {}), ...(formData || {}) }"
-          :workflow-variables="props.workflowVariables"
+          :formData="formData"
           :options="data.options?.dynamicConfig"
           :vformOptions="data.options"
           :taskDetail="props.taskDetail"

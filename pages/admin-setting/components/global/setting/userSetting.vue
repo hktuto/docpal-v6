@@ -5,22 +5,12 @@ import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const FormRef = ref()
-const rules = reactive({
-  label: [
-    {
-      required: true,
-      message: t('render.hint.fieldRequired', { name: t('table_label') }),
-      trigger: 'blur'
-    }
-  ]
-})
+
 const state = reactive<any>({
-  visible: false,
   displayFieldList: [],
   systemFieldList: []
 })
-const editForm = reactive<any>({})
+const settingProfileDialog = ref()
 
 function cloneItem(el: any) {
   if (!state.displayFieldList.find((item: any) => item.key === el.key)) {
@@ -37,24 +27,15 @@ function removeItem(el: any) {
 }
 
 function openDialog(item: any) {
-  Object.assign(editForm, item)
-  state.visible = true
+  settingProfileDialog.value.open(item)
 }
 
-async function saveField() {
-  try {
-    await FormRef.value.validate()
-  } catch (e) {
-    return
-  }
+async function saveField(newItem: any) {
+}
 
-  const displayTarget = state.displayFieldList.find((item: any) => item.key === editForm.key)
-  if (displayTarget) Object.assign(displayTarget, editForm)
-
-  const systemTarget = state.systemFieldList.find((item: any) => item.key === editForm.key)
-  if (systemTarget) Object.assign(systemTarget, editForm)
-
-  state.visible = false
+async function updateField(newItem: any) {
+  const displayTarget = state.displayFieldList.find((item: any) => item.key === newItem.key)
+  if (displayTarget) Object.assign(displayTarget, newItem)
 }
 
 async function handleSubmit() {
@@ -109,7 +90,11 @@ onMounted(async () => {
 
 <template>
   <div class="card">
-    <h3>{{ $t('user.setting.userProfileView') }}</h3>
+    <div class="profile-header">
+      <h3>{{ $t('user.setting.userProfileView') }}</h3>
+      <!--      <el-button type="primary">Add Profile Key</el-button>-->
+    </div>
+
     <el-divider />
 
     <el-row :gutter="30">
@@ -170,12 +155,6 @@ onMounted(async () => {
 
                 <div class="icon-actions">
                   <span style="font-size: 12px">{{ $t('user.setting.systemField') }}</span>
-                  <!--                  <el-icon disabled="element.allowUserEdit">-->
-                  <!--                    <Edit />-->
-                  <!--                  </el-icon>-->
-                  <!--                  <el-icon>-->
-                  <!--                    <Delete />-->
-                  <!--                  </el-icon>-->
                 </div>
               </div>
             </div>
@@ -189,27 +168,7 @@ onMounted(async () => {
     </el-button>
   </div>
 
-  <el-dialog v-model="state.visible" :title="t('user.setting.editField')" width="600px">
-    <el-form ref="FormRef" :model="editForm" :rules="rules" label-position="top">
-      <el-form-item :label="t('table_label')" prop="label">
-        <el-input v-model="editForm.label" />
-      </el-form-item>
-      <el-divider v-if="!editForm.readyOnly" />
-      <el-form-item v-if="!editForm.readyOnly" :label="t('user.setting.allowUserEdit')">
-        <el-switch v-model="editForm.allowUserEdit" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="actions">
-        <ElButton id="UserProfileView__Dialog__Cancel" type="info" @click="state.visible = false">
-          {{ $t('dpButtom_cancel') }}
-        </ElButton>
-        <ElButton id="UserProfileView__Dialog__Save" type="primary" @click="saveField">
-          {{ $t('common_save') }}
-        </ElButton>
-      </div>
-    </template>
-  </el-dialog>
+  <SettingProfileDialog ref="settingProfileDialog" @save="saveField" @update="updateField" />
 </template>
 
 <style scoped lang="scss">
@@ -253,6 +212,16 @@ onMounted(async () => {
 .fixed-save-btn {
   position: fixed;
   bottom: 16px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h3 {
+    margin: 0;
+  }
 }
 
 .header-row {
