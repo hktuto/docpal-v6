@@ -37,7 +37,7 @@ function handleBack() {
 }
 
 onMounted(() => {
-  if (props.workflowType === 'availableTask') {
+  if (['availableTask', 'completeTask'].includes(props.workflowType)) {
     state.activeTab = 'info'
   }
 })
@@ -45,6 +45,7 @@ onMounted(() => {
 
 <template>
   <div v-if="!error" class="pageContainer--padding workflow-detail">
+    {{workflowType}}
     <el-tabs v-model="state.activeTab" class="workflow-detail__tabs">
       <el-tab-pane :label="$t('workflow_info')" name="info">
         <div class="workflow-detail__content is-scroll">

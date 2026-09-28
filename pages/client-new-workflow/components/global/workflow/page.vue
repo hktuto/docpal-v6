@@ -8,6 +8,8 @@ const props = defineProps<{
 }>()
 const { workflowType } = toRefs(props)
 
+const routerProvider = inject(MenuRouterKey)
+
 function reload() {
   nextTick(() => {
     workflowRef.value?.reload?.()
@@ -43,15 +45,18 @@ function handleActionSuccess(payload: { action: 'submit' | 'terminate'; dbId: st
   handleClosePanel()
 }
 
-watch(activeTab, () => {
+watch(activeTab, (tab) => {
   handleClosePanel()
-})
-
-onMounted(() => {
-  if (!!workflowType.value) {
-    activeTab.value = workflowType.value
+  if (tab !== workflowType.value) {
+    routerProvider?.updateProps({ workflowType: tab })
   }
 })
+
+watch(workflowType, (type) => {
+  if (type && type !== activeTab.value) {
+    activeTab.value = type
+  }
+}, { immediate: true })
 </script>
 
 <template>
