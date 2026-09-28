@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import PreviewPanel from './previewPanel.vue'
-
 const { t } = useI18n()
 const visible = ref(false)
 const groups = ref<any[]>([])
@@ -109,7 +107,7 @@ defineExpose({ open })
             </h3>
           </div>
 
-          <PreviewPanel ref="panelRef" v-model:invoice="groups[activeIndex]" />
+          <LazyFormWidgetProformaInvoicePreviewPanel ref="panelRef" v-model:invoice="groups[activeIndex]" />
         </main>
       </div>
     </div>

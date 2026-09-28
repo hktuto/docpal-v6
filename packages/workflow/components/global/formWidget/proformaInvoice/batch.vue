@@ -4,8 +4,10 @@ import dayjs from 'dayjs'
 import { useUserState } from '@packages/authApp/composables/useAuth'
 import { v7 as uuidv7 } from 'uuid'
 import { ElMessage, type UploadFile } from 'element-plus'
+import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
 const { t } = useI18n()
+const user = useUserState()
 const invoiceHeaderOption = ref<any[]>([
   { label: '创能', value: 'SZ' },
   { label: '意堡', value: 'GZ' },
@@ -74,8 +76,6 @@ const userInfo = ref<{
 })
 
 function getUserInfo() {
-  const user = useUserState()
-
   if (user.value.org.length === 0) return
 
   const org = user.value.org[0]
@@ -483,7 +483,7 @@ function buildPreviewGroups() {
         status: '',
         invoice_date: '',
         schedule_date: '',
-        customer_code: first.customer_number ?? customerInfo.value.customer_number ?? '',
+        customer_code: first.customer_number ?? search.value.customer_number ?? '',
         customer_name: first.customer_name ?? customerInfo.value.customer_name ?? '',
         office: search.office || formModel.invoice_header,
         invoice_header: first.invoice_header || formModel.invoice_header,
@@ -514,6 +514,24 @@ async function getFormData(needValidation = true) {
   // 循環啓動workflow
 
   return { ...formModel }
+}
+
+async function runWorkflow(cFormData: any) {
+  try {
+    const formParams = {
+      start_user_id: user.value.userId,
+      definition_id: `01a012c1-0cf9-7000-8963-66a213530ce3`, // Proforma Invoice Approval
+      variables: {
+        ...cFormData,
+        __system__user_creator_id: user.value.userId,
+        __system__user_creator_email: user.value.email
+      }
+    }
+
+    const data = await clientApi.instance.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 defineExpose({ getFormData })
