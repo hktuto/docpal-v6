@@ -50,7 +50,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   columns: [
     { field: 'definition_name', title: 'workflowEditor.name' },
     { field: 'name', title: 'workflow_jobName' },
-    { field: 'business_key', title: 'business_key', slots: { default: 'business_key' } },
+    { field: 'business_key', title: 'workflow_businessKey', slots: { default: 'business_key' } },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     { field: 'status', title: 'dpTable_status' },
     {
