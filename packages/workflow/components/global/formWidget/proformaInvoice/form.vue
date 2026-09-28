@@ -215,10 +215,12 @@ const invoiceHeaderOption = ref<any[]>([
 
 const userInfo = ref<{
   org_id: number
+  office: string
   operatingName: string
   userId: string
 }>({
   org_id: 0,
+  office: '',
   operatingName: '',
   userId: ''
 })
@@ -232,7 +234,7 @@ function getUserInfo() {
   userInfo.value.org_id = Number(org.operatingId)
   userInfo.value.operatingName = org.operatingName
   userInfo.value.userId = org.userId
-  search.office = org.operatingName
+  userInfo.office = org.operatingName
 }
 
 onMounted(() => {
