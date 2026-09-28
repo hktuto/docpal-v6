@@ -68,107 +68,66 @@ defineExpose({ reload })
           <el-form-item :label="t('proformaInvoice.piNumber')">
             <el-input :model-value="invoice.pi_number" disabled />
           </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.status')">
-            <el-input :model-value="invoice.status" disabled />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.invoiceDate')">
-            <el-input :model-value="invoice.invoice_date" disabled />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.scheduleDate')">
-            <el-input :model-value="formatDate(invoice.schedule_date)" disabled />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="6">
           <el-form-item :label="t('proformaInvoice.customerCode')">
             <el-input :model-value="invoice.customer_code" disabled />
           </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.customerName')">
-            <el-input :model-value="invoice.customer_name" disabled />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.office')">
-            <el-input :model-value="invoice.office" disabled />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item>
-            <template #label>
-              <span class="pi-preview-panel__edit-label">
-                {{ t('proformaInvoice.invoiceHeader') }}
-              </span>
-            </template>
-            <el-select v-model="invoice.invoice_header" class="is-editable">
-              <el-option v-for="item in invoiceHeaderOption" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="6">
           <el-form-item :label="t('proformaInvoice.currency')">
             <el-input :model-value="invoice.currency" disabled />
           </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.subTotal')">
-            <el-input :model-value="formatAmount(invoice.sub_total)" disabled />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.totalTax')">
-            <el-input :model-value="formatAmount(invoice.total_tax)" disabled />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.totalAmount')">
-            <el-input :model-value="formatAmount(invoice.total_amount)" disabled />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="6">
           <el-form-item :label="t('proformaInvoice.warehouseLocation')">
             <el-input :model-value="invoice.warehouse_location" disabled />
           </el-form-item>
         </el-col>
+
         <el-col :span="6">
+          <el-form-item :label="t('proformaInvoice.status')">
+            <el-input :model-value="invoice.status" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.customerName')">
+            <el-input :model-value="invoice.customer_name" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.subTotal')">
+            <el-input :model-value="formatAmount(invoice.sub_total)" disabled />
+          </el-form-item>
           <el-form-item :label="t('proformaInvoice.subInventory')">
             <el-input :model-value="invoice.sub_inventory" disabled />
           </el-form-item>
         </el-col>
+
         <el-col :span="6">
+          <el-form-item :label="t('proformaInvoice.invoiceDate')">
+            <el-date-picker v-model="invoice.invoice_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.office')">
+            <el-input :model-value="invoice.office" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.totalTax')">
+            <el-input :model-value="formatAmount(invoice.total_tax)" disabled />
+          </el-form-item>
           <el-form-item :label="t('proformaInvoice.paymentInAdv')">
             <el-input :model-value="invoice.payment_in_adv" disabled />
           </el-form-item>
         </el-col>
+
         <el-col :span="6">
+          <el-form-item :label="t('proformaInvoice.scheduleDate')">
+            <el-date-picker v-model="invoice.schedule_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.invoiceHeader')">
+            <el-select v-model="invoice.invoice_header">
+              <el-option v-for="item in invoiceHeaderOption" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.totalAmount')">
+            <el-input :model-value="formatAmount(invoice.total_amount)" disabled />
+          </el-form-item>
           <el-form-item :label="t('proformaInvoice.overdueDebt')">
             <el-input :model-value="invoice.overdue_debt" disabled />
           </el-form-item>
         </el-col>
-
         <el-col :span="12">
-          <el-form-item>
-            <template #label>
-              <span class="pi-preview-panel__edit-label">
-                {{ t('proformaInvoice.piRemarks') }}
-              </span>
-            </template>
-            <el-input
-              v-model="invoice.pi_remarks"
-              type="textarea"
-              :autosize="{ minRows: 2, maxRows: 4 }"
-              :placeholder="t('proformaInvoice.optional')"
-              class="is-editable"
-            />
+          <el-form-item :label="t('proformaInvoice.piRemarks')">
+            <el-input v-model="invoice.pi_remarks" type="textarea" :autosize="{ minRows: 2, maxRows: 4 }" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -203,12 +162,6 @@ defineExpose({ reload })
     :deep(.el-input),
     :deep(.el-select) {
       width: 100%;
-    }
-
-    :deep(.is-editable .el-input__wrapper),
-    :deep(.is-editable .el-textarea__inner),
-    :deep(.el-select.is-editable .el-select__wrapper) {
-      box-shadow: 0 0 0 1px var(--app-primary-color) inset;
     }
   }
 

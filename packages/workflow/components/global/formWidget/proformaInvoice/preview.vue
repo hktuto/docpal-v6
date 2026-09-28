@@ -2,7 +2,7 @@
 const { t } = useI18n()
 const visible = ref(false)
 const groups = ref<any[]>([])
-const activeIndex = ref(0)
+const activeIndex = ref<string>('1')
 const panelRef = ref<{ reload: () => void } | null>(null)
 
 let pending: {
@@ -26,7 +26,7 @@ function groupSummary(invoice: any) {
 
 function open(invoices: any[] = []) {
   groups.value = invoices
-  activeIndex.value = 0
+  activeIndex.value = '1'
   visible.value = true
   nextTick(() => panelRef.value?.reload())
   return new Promise<void>((resolve, reject) => {
@@ -85,7 +85,7 @@ defineExpose({ open })
             class="pi-preview__group"
             :class="{ 'is-active': index === activeIndex }"
             tabindex="0"
-            :aria-label="t('proformaInvoice.groupingN', { n: invoice.grouping })"
+            :aria-label="t('proformaInvoice.groupingN', { n: index })"
             @click="handleSelectGroup(index)"
             @keydown.enter="handleSelectGroup(index)"
           >
@@ -99,14 +99,13 @@ defineExpose({ open })
             <h3>
               {{
                 t('proformaInvoice.invoiceOf', {
-                  current: activeIndex + 1,
+                  current: activeIndex,
                   total: groups.length,
                   grouping: activeInvoice.grouping
                 })
               }}
             </h3>
           </div>
-
           <LazyFormWidgetProformaInvoicePreviewPanel ref="panelRef" v-model:invoice="groups[activeIndex]" />
         </main>
       </div>
