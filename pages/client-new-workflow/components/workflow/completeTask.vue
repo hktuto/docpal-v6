@@ -45,7 +45,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_workflowName', fixed: 'left', slots: { default: 'name' } },
+    { field: 'name', title: 'workflowEditor.name', fixed: 'left', minWidth: 200, slots: { default: 'name' } },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -111,8 +111,8 @@ defineExpose({
           </el-form-item>
         </div>
       </template>
-      <template #name="{ row }">
-        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
+      <template #business_key="{ row }">
+        <span>{{ row?.execution?.input_variables?.business_key || '' }}</span>
       </template>
     </VxeGrid>
   </div>

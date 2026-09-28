@@ -40,15 +40,15 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       roles: [user.aclUserDetail.roleId],
       definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : ''
     }
-    const data = await clientApi.instance
-      .post(`/oniflow/api/v1/task/overview/involved`, params)
-      .then((r: any) => workflowResponseHelper(r))
+    const data = await clientApi.instance.post(`/oniflow/api/v1/task/overview/involved`, params).then((r: any) => workflowResponseHelper(r))
     return {
       data: data || []
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_jobName', slots:{default: 'name'} },
+    { field: 'definition_name', title: 'workflowEditor.name' },
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'business_key', title: 'business_key', slots: { default: 'business_key' } },
     { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
       field: 'execution.started_at',
@@ -130,8 +130,8 @@ defineExpose({
           </el-form-item>
         </div>
       </template>
-      <template #name="{ row }">
-        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
+      <template #business_key="{ row }">
+        <span>{{ row?.execution?.input_variables?.business_key || '' }}</span>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>

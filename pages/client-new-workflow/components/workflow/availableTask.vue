@@ -48,9 +48,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_taskName', fixed: 'left', slots: { default: 'name' } },
+    { field: 'definition_name', title: 'workflowEditor.name' },
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'business_key', title: 'business_key', slots: { default: 'business_key' } },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
-    { field: 'status.type', title: 'dpTable_status' },
+    { field: 'status', title: 'dpTable_status' },
     {
       field: 'execution.started_at',
       title: 'workflow_createDate',
@@ -90,9 +92,7 @@ async function claimTask(row: any) {
     const parms = {
       user_id: user.userId
     }
-    await clientApi.instance
-      .post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms)
-      .then((r: any) => workflowResponseHelper(r))
+    await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${row.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
     reload()
   } catch (e) {
     routerProvider?.message?.error('Unable to claim this task')
@@ -149,8 +149,8 @@ defineExpose({
           </el-form-item>
         </div>
       </template>
-      <template #name="{ row }">
-        <span>{{ row.name || row?.config?.human_task?.form_title }}</span>
+      <template #business_key="{ row }">
+        <span>{{ row?.execution?.input_variables?.business_key || '' }}</span>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
@@ -185,4 +185,3 @@ defineExpose({
   }
 }
 </style>
-
