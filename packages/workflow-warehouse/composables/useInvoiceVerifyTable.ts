@@ -81,7 +81,7 @@ function createInvoiceVerificationTableColumns(t: (key: string) => string) {
       type: 'number',
       required: true,
       headerClassName: 'is-required',
-      ...editableColumn('number', { digits: 3, step: 1 })
+      ...editableColumn('number', { digits: 6, step: 1 })
     },
     {
       field: 'status',
