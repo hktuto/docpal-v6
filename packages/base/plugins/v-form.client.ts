@@ -17,6 +17,8 @@ export default defineNuxtPlugin(async nuxtApp => {
     // @ts-ignore
     window.$api = workflowApi?.instance;
     // @ts-ignore
+    window.$apis = clientApi?.instance
+    // @ts-ignore
     window.$i18n = nuxtApp.$i18n;
 
     // @ts-ignore
