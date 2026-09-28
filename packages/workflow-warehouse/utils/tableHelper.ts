@@ -29,12 +29,21 @@ export function toNumberOrNull(value: unknown): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-/** 数字展示：千分位；空值返回空字符串 */
+/** 数字展示：整数部分千分位，小数部分原样保留；空值返回空字符串 */
 export function formatThousandNumber(value: unknown): string {
   if (value === '' || value == null) return ''
-  const n = Number(value)
-  if (!Number.isFinite(n)) return ''
-  return n.toLocaleString('en-US')
+  const raw = String(value).trim().replace(/,/g, '')
+  if (!/^-?(?:\d+\.?\d*|\.\d+)$/.test(raw)) {
+    const n = Number(value)
+    if (!Number.isFinite(n)) return ''
+    return formatThousandNumber(String(n))
+  }
+  const negative = raw.startsWith('-')
+  const unsigned = negative ? raw.slice(1) : raw
+  const [intPart = '0', frac] = unsigned.split('.')
+  const intFormatted = Number(intPart || '0').toLocaleString('en-US')
+  const body = frac != null ? `${intFormatted}.${frac}` : intFormatted
+  return negative ? `-${body}` : body
 }
 
 export function toCheckedBoolean(value: unknown): boolean {
