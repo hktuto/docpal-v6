@@ -69,7 +69,10 @@ function createInvoiceVerificationTableColumns(t: (key: string) => string) {
       type: 'number',
       required: true,
       headerClassName: 'is-required',
-      ...editableColumn('number', { digits: 6, step: 0.1 })
+      ...editableColumn('number', { digits: 6, step: 0.1, type: 'float' }),
+      // 单价需展示完整小数，不做千分位/toLocaleString 截断
+      formatter: ({ cellValue }: { cellValue: unknown }) =>
+        cellValue === '' || cellValue == null ? '' : String(cellValue)
     },
     {
       field: 'line_amount',
