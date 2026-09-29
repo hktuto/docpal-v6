@@ -20,7 +20,11 @@ const {
   disabled,
   onActionSuccess
 } = useWorkflowFormInject()
-
+const user = useUserState()
+const isAdmin = computed(() => {
+  const find = user.value.aclUserDetail.groups.find((item: any) => item.groupId === 'administrators')
+  return find !== undefined
+})
 const routerProvider = inject(MenuRouterKey)
 const userId: string = useUserId().value
 const { t } = useI18n()
@@ -173,7 +177,7 @@ defineExpose({
               <component :is="item.component" ref="additionalButtonRef" v-bind="item.props" @submit="addTonalSubmit" />
             </template>
 
-            <WorkflowFormButtonTerminate button-id="Workflow__AvailableTask__Detail__Form__Terminate" />
+            <WorkflowFormButtonTerminate v-if="isAdmin" button-id="Workflow__AvailableTask__Detail__Form__Terminate" />
 
             <WorkflowFormButtonSubmit
               v-if="pageButtonSetting && (nodeType !== CellType.signatureTask || signSubmitStage === 'beforeSubmit')"
