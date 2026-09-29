@@ -5108,7 +5108,8 @@
     "trackingDate": "快递日期",
     "emailAlert": "送样通知",
     "status": "申请状态",
-    "customerConfirmsReceipt": "客户确认收货"
+    "customerConfirmsReceipt": "客户确认收货",
+    "cancel": "取消申请"
   },
   "priceAnnouncement": {
     "paNumber": "PA编号",

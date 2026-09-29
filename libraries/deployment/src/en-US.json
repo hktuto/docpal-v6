@@ -5182,7 +5182,8 @@
     "trackingDate": "Tracking Date",
     "emailAlert": "Sample Delivery Notice",
     "status": "Application Status",
-    "customerConfirmsReceipt": "Customer confirms receipt"
+    "customerConfirmsReceipt": "Customer confirms receipt",
+    "cancel": "Cancel Application"
   },
   "priceAnnouncement": {
     "paNumber": "PA Number",

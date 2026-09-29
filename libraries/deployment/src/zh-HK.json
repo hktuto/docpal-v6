@@ -5180,7 +5180,8 @@
     "trackingDate": "快遞日期",
     "emailAlert": "送樣通知",
     "status": "申請狀態",
-    "customerConfirmsReceipt": "客戶確認收貨"
+    "customerConfirmsReceipt": "客戶確認收貨",
+    "cancel": "取消申請"
   },
   "priceAnnouncement": {
     "paNumber": "PA編號",
