@@ -93,7 +93,7 @@ function getUserInfo() {
   const org = user.value.org[0]
   userInfo.value.org_id = Number(org.operatingId)
   userInfo.value.operatingName = org.operatingName
-  userInfo.value.userId = org.userId
+  userInfo.value.userId = user.value.userId
   userInfo.value.organization_id = org.organizationId
   formModel.invoice_header = org.operatingName
   search.office = org.operatingName
@@ -510,7 +510,7 @@ async function getOrderData(csvRows: CsvImportRow[]) {
   }))
 
   const raw = {
-    orgId: 'string',
+    orgId: userInfo.value.org_id,
     lines: list
   }
   const data = await clientApi.instance.post(`/wfl/proforma-invoices/enrich-lines`, raw).then((r) => r.data)
@@ -568,7 +568,7 @@ function buildPreviewGroups() {
         bill_to_location: row.bill_to_location ?? '',
         ship_to_location: row.ship_to_location ?? '',
         pi_remarks: '',
-        submitted_by: user,
+        submitted_by: userInfo.value.userId,
         submitted_date: '',
         approver: '',
         approval_date: '',
@@ -617,9 +617,31 @@ async function getFormData(needValidation = true) {
 
   await proformaInvoicePreviewRef.value.open(groups)
 
-  throw new Error('')
   // 循環啓動workflow
-
+  Object.values(groups).forEach((item: any) => {
+    console.log({
+      customer_code: item.customer_code,
+      customer_name: item.customer_name,
+      office: item.office,
+      org_id: item.org_id,
+      invoice_header: item.invoice_header,
+      currency: item.currency,
+      sub_total: item.sub_total,
+      total_tax: item.total_tax,
+      total_amount: item.total_amount,
+      tax_code: item.tax_code,
+      warehouseLocation: item.warehouseLocation,
+      sub_inventory: item.sub_inventory,
+      bill_to_location: item.bill_to_location,
+      ship_to_location: item.ship_to_location,
+      items: item.items,
+      pi_remarks: item.pi_remarks,
+      submitted_by: userInfo.value.userId,
+      submitted_date: dayjs().format('YYYY-MM-DD')
+    })
+    // runWorkflow()
+  })
+  throw new Error('')
   return { ...formModel }
 }
 
