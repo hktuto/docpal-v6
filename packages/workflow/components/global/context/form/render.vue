@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
-
 const props = defineProps<{
   options?: Object
   taskDetail?: any
@@ -265,8 +263,9 @@ function handlePreviewFileInit(fileId: string) {
 
 async function updateData(newData: any) {
   const _data = await handleData(newData)
-  state.formData = { ..._data }
-  FormRendererRef.value.setFormData(_data)
+  Object.assign(state.formData, _data)
+  FormRendererRef.value?.setFormData(_data)
+  await nextTick()
 }
 
 function formDataChange(newFormData: any) {

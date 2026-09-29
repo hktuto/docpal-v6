@@ -21,6 +21,10 @@ function beforeSubmit() {
 }
 
 async function submit() {
+  const buttonData: Record<string, boolean> = {
+    [booleanValue]: applyState
+  }
+  await workflowProvider?.updateData(buttonData)
   const formData = await workflowProvider?.getFormData(false, false)
   if (!formData) return
   formData[booleanValue] = applyState

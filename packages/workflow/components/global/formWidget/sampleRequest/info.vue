@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Plus, Delete, Switch } from '@element-plus/icons-vue'
+import { Delete, Plus, Switch } from '@element-plus/icons-vue'
 import { v7 as uuidv7 } from 'uuid'
 import { clientApi } from 'api'
+import { ElMessageBox } from 'element-plus'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -103,6 +104,16 @@ function checkPurpose(vendor: string) {
 async function getFormData(needValidation = true) {
   const part_number_list: string[] = []
   const email_part_list: any[] = []
+  let pm_comment = ''
+
+  if (!formData.pm_approval) {
+    try {
+      const { value } = await ElMessageBox.prompt(t('sampleRequest.pmComment'), {
+        confirmButtonText: t('common_submit')
+      })
+      pm_comment = value
+    } catch {}
+  }
 
   formModel.list.forEach((item: any) => {
     part_number_list.push(item.part_number)
@@ -115,8 +126,10 @@ async function getFormData(needValidation = true) {
   const result = {
     sample_info_list: formModel.list,
     part_number_list: part_number_list.join(','),
-    email_part_list: email_part_list
+    email_part_list: email_part_list,
+    pm_comment: pm_comment
   }
+
   if (!needValidation) return result
   await formRef.value?.validate()
   return result
