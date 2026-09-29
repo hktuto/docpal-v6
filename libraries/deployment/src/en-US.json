@@ -5329,6 +5329,8 @@
     "invoiceOf": "Invoice {current} / {total} · Grouping {grouping}",
     "linesCount": "{count} lines",
     "confirmSubmit": "Confirm Submit",
-    "csvMustBeLessThan": "Data must be less than {length} rows"
+    "csvMustBeLessThan": "Data must be less than {length} rows",
+    "groupingFieldsInconsistent": "Grouping {grouping}: office, customer code, currency, warehouse location, sub inventory, bill-to and ship-to must be the same",
+    "csvRowsNotMatched": "Imported {matched} row(s). {missing} CSV row(s) could not be matched."
   }
 }

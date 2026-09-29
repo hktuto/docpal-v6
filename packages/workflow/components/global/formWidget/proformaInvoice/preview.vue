@@ -2,8 +2,19 @@
 const { t } = useI18n()
 const visible = ref(false)
 const groups = ref<any[]>([])
-const activeIndex = ref<string>('1')
+const activeIndex = ref(0)
 const panelRef = ref<{ reload: () => void } | null>(null)
+
+/** 同一分組內必須一致的字段 → i18n key */
+const GROUPING_FIELDS = [
+  { field: 'office', labelKey: 'proformaInvoice.office' },
+  { field: 'customer_code', labelKey: 'proformaInvoice.customerCode' },
+  { field: 'currency', labelKey: 'proformaInvoice.currency' },
+  { field: 'warehouseLocation', labelKey: 'proformaInvoice.warehouseLocation' },
+  { field: 'sub_inventory', labelKey: 'proformaInvoice.subInventory' },
+  { field: 'bill_to_location', labelKey: 'proformaInvoice.billToLocation' },
+  { field: 'ship_to_location', labelKey: 'proformaInvoice.shipToLocation' }
+] as const
 
 let pending: {
   resolve: () => void
@@ -24,9 +35,39 @@ function groupSummary(invoice: any) {
   return `${code} · ${t('proformaInvoice.linesCount', { count })} · ${formatAmount(invoice.total_amount)}`
 }
 
-function open(invoices: any[] = []) {
-  groups.value = invoices
-  activeIndex.value = '1'
+function normalizeInvoices(invoices: any[] | Record<string, any> = []): any[] {
+  if (Array.isArray(invoices)) return invoices
+  return Object.entries(invoices).map(([grouping, invoice]) => ({
+    ...invoice,
+    grouping: Number(grouping) || grouping
+  }))
+}
+
+/**
+ * 校驗同一分組內關鍵字段是否一致，返回不一致字段的展示文案
+ */
+function checkGrouping(invoice: any): string[] {
+  const items = invoice?.items
+  if (!Array.isArray(items) || items.length <= 1) return []
+
+  const mismatches: string[] = []
+  for (const { field, labelKey } of GROUPING_FIELDS) {
+    const values = new Set(items.map((item) => String(item[field] ?? '')))
+    if (values.size > 1) {
+      mismatches.push(`${t(labelKey)}: ${[...values].join(' / ')}`)
+    }
+  }
+  return mismatches
+}
+
+function open(invoices: any[] | Record<string, any> = []) {
+  const list = normalizeInvoices(invoices).map((invoice) => ({
+    ...invoice,
+    groupingMismatches: checkGrouping(invoice)
+  }))
+
+  groups.value = list
+  activeIndex.value = 0
   visible.value = true
   nextTick(() => panelRef.value?.reload())
   return new Promise<void>((resolve, reject) => {
@@ -83,9 +124,12 @@ defineExpose({ open })
             :key="`${invoice.grouping}-${index}`"
             type="button"
             class="pi-preview__group"
-            :class="{ 'is-active': index === activeIndex }"
+            :class="{
+              'is-active': index === activeIndex,
+              'is-mismatch': invoice.groupingMismatches?.length
+            }"
             tabindex="0"
-            :aria-label="t('proformaInvoice.groupingN', { n: index })"
+            :aria-label="t('proformaInvoice.groupingN', { n: invoice.grouping })"
             @click="handleSelectGroup(index)"
             @keydown.enter="handleSelectGroup(index)"
           >
@@ -95,11 +139,21 @@ defineExpose({ open })
         </aside>
 
         <main v-if="activeInvoice" class="pi-preview__main">
+          <div v-if="activeInvoice.groupingMismatches?.length" class="pi-preview__mismatch">
+            <p class="pi-preview__mismatch-title">
+              {{ t('proformaInvoice.groupingFieldsInconsistent', { grouping: activeInvoice.grouping }) }}
+            </p>
+            <ul class="pi-preview__mismatch-list">
+              <li v-for="(item, i) in activeInvoice.groupingMismatches" :key="i">
+                {{ item }}
+              </li>
+            </ul>
+          </div>
           <div class="pi-preview__main-head">
             <h3>
               {{
                 t('proformaInvoice.invoiceOf', {
-                  current: activeIndex,
+                  current: activeIndex + 1,
                   total: groups.length,
                   grouping: activeInvoice.grouping
                 })
@@ -187,6 +241,15 @@ defineExpose({ open })
         color: rgba(255, 255, 255, 0.9);
       }
     }
+
+    &.is-mismatch:not(.is-active) {
+      border-color: var(--el-color-danger);
+    }
+
+    &.is-mismatch.is-active {
+      background: var(--el-color-danger);
+      border-color: var(--el-color-danger);
+    }
   }
 
   &__group-title {
@@ -207,6 +270,27 @@ defineExpose({ open })
     display: flex;
     flex-direction: column;
     gap: var(--app-space-s);
+  }
+
+  &__mismatch {
+    padding: 10px 14px;
+    border: 1px solid var(--el-color-danger-light-5);
+    border-radius: var(--app-border-radius-s);
+    background: var(--el-color-danger-light-9);
+    color: var(--el-color-danger);
+    font-size: var(--app-font-size-s);
+  }
+
+  &__mismatch-title {
+    margin: 0 0 6px;
+    font-weight: 700;
+  }
+
+  &__mismatch-list {
+    margin: 0;
+    padding-left: 1.2em;
+    line-height: 1.5;
+    word-break: break-all;
   }
 
   &__main-head {

@@ -29,7 +29,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     { field: 'order_number', title: t('proformaInvoice.orderNumber'), minWidth: 140 },
     { field: 'wcl_part_number', title: t('proformaInvoice.wclPartNumber'), minWidth: 160 },
     { field: 'order_qty', title: t('proformaInvoice.orderQty'), minWidth: 110 },
-    { field: 'line_amount', title: t('proformaInvoice.lineAmount'), minWidth: 120 },
+    { field: 'lineAmount', title: t('proformaInvoice.lineAmount'), minWidth: 120 },
     { field: 'tax_code', title: t('proformaInvoice.taxCode'), minWidth: 100 },
     { field: 'status', title: t('proformaInvoice.status'), minWidth: 100 }
   ],
@@ -75,7 +75,7 @@ defineExpose({ reload })
             <el-input :model-value="invoice.currency" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.warehouseLocation')">
-            <el-input :model-value="invoice.warehouse_location" disabled />
+            <el-input :model-value="invoice.warehouseLocation" disabled />
           </el-form-item>
         </el-col>
 

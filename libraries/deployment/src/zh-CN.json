@@ -5255,6 +5255,8 @@
     "invoiceOf": "发票 {current} / {total} · 分组 {grouping}",
     "linesCount": "{count} 项",
     "confirmSubmit": "确认提交",
-    "csvMustBeLessThan": "数据必须小于 {length} 行"
+    "csvMustBeLessThan": "数据必须小于 {length} 行",
+    "groupingFieldsInconsistent": "分组 {grouping} 内的办事处、客户编号、货币、仓库位置、子库存、账单地址、送货地址必须一致",
+    "csvRowsNotMatched": "已导入 {matched} 行，{missing} 行 CSV 未能匹配"
   }
 }

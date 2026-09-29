@@ -28,7 +28,8 @@ type dataItem = {
   order_qty: number
   part_number: string
   currency: string
-  line_amount: number
+  lineAmount: number
+  taxValue: number
   tax_code: string
   customer_number: string
   customer_name: string
@@ -39,6 +40,7 @@ type dataItem = {
   soLineId: number
   deliveryDetailId: number
   companyTitle: string
+  warehouseLocation: string
 }
 
 const tableData = ref<dataItem[]>([])
@@ -185,30 +187,7 @@ async function handleSearch() {
       .get(`/apis/v1/ms/wfl/proforma-invoices/candidate-lines?${orgId}${customerName}${orderNumber}${partNum}`)
       .then((r) => r.data.items)
 
-    const map: dataItem[] = data.map((item: any) => {
-      return {
-        id: uuidv7(),
-        org_id: item.orgId,
-        organization_id: item.organizationId,
-        pi_number: item.pi_number ?? '',
-        schedule_date: item.scheduleDate,
-        order_number: item.orderNumber,
-        order_ln: item.lineNum,
-        order_qty: item.orderQty,
-        part_number: item.partNum,
-        currency: item.currencyCode,
-        line_amount: item.line_amount ?? 0,
-        tax_code: item.taxCode,
-        customer_number: item.customerNumber,
-        customer_name: item.customerName,
-        bill_to_location: item.billToAddress,
-        ship_to_location: item.shipToAddress,
-        sub_inventory: item.subinventory,
-        soLineId: item.soLineId,
-        deliveryDetailId: item.deliveryDetailId,
-        companyTitle: item.companyTitle
-      } as dataItem
-    })
+    const map: dataItem[] = (data ?? []).map((item: any) => mapCandidateToDataItem(item))
 
     const selectedIds = new Set(selectedRowsList.value.map((item: any) => item.soLineId))
     tableData.value = map.filter((item: any) => !selectedIds.has(item.soLineId))
@@ -217,6 +196,34 @@ async function handleSearch() {
     console.log(e)
   } finally {
     tableConfig.loading = false
+  }
+}
+
+function mapCandidateToDataItem(item: any, extra: Partial<dataItem> = {}): dataItem {
+  return {
+    id: uuidv7(),
+    org_id: item.orgId,
+    organization_id: item.organizationId,
+    pi_number: item.pi_number ?? '',
+    schedule_date: item.scheduleDate,
+    order_number: item.orderNumber,
+    order_ln: item.lineNum,
+    order_qty: item.orderQty,
+    part_number: item.partNum,
+    currency: item.currencyCode,
+    lineAmount: item.lineAmount ?? 0,
+    taxValue: item.taxValue ?? 0,
+    tax_code: item.taxCode,
+    customer_number: item.customerNumber,
+    customer_name: item.customerName,
+    bill_to_location: item.billToAddress,
+    ship_to_location: item.shipToAddress,
+    sub_inventory: item.subinventory,
+    soLineId: item.soLineId,
+    deliveryDetailId: item.deliveryDetailId,
+    companyTitle: item.companyTitle,
+    warehouseLocation: item.warehouseLocation,
+    ...extra
   }
 }
 
@@ -271,7 +278,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 100
     },
     {
-      field: 'line_amount',
+      field: 'lineAmount',
       title: t('proformaInvoice.lineAmount'),
       minWidth: 200
     },
@@ -355,13 +362,20 @@ function handleClearUnselected() {
 
 const csvUploadRef = ref()
 const CSV_TEMPLATE_MISMATCH = 'CSV_TEMPLATE_MISMATCH'
+
+type CsvImportRow = {
+  customer_number: string
+  order_number: number
+  line: number
+  deliver_qty: number
+  invoice_header: string
+  invoice_date: string
+  remark: string
+  grouping: number
+}
+
 async function handleImportCSV(uploadFile: UploadFile) {
   const file = uploadFile.raw
-
-  if (!search.customer_number || search.customer_number == '') {
-    ElMessage.error(t('proformaInvoice.pleaseSelectCustomer'))
-    return
-  }
 
   csvUploadRef.value?.clearFiles()
   if (!file) return
@@ -372,46 +386,48 @@ async function handleImportCSV(uploadFile: UploadFile) {
     ElMessage.error(t('reschedulePlanDate.pleaseSelectCsv'))
     return
   }
-  let list: any[]
-  tableConfig.loading = true
 
+  tableConfig.loading = true
   try {
-    list = await csvTextToLineItems(await file.text())
-  } catch (error) {
-    tableConfig.loading = false
-    if (error instanceof Error && error.message === CSV_TEMPLATE_MISMATCH) {
-      ElMessage.error(t('reschedulePlanDate.csvTemplateMismatch'))
+    const list = await csvTextToLineItems(await file.text())
+
+    if (!list.length) {
+      ElMessage.error(t('reschedulePlanDate.noValidCsvData'))
       return
     }
-    throw error
-  }
 
-  if (!list.length) {
-    tableConfig.loading = false
+    if (list.length > 100) {
+      ElMessage.warning(t('proformaInvoice.csvMustBeLessThan', { length: 100 }))
+      return
+    }
+
+    console.log(222, list)
+    const data = await getOrderData(list)
+    const map = dataMapping(list, data)
+    // tableData.value = map
+    reload()
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith(CSV_TEMPLATE_MISMATCH)) {
+      const detail = error.message.slice(CSV_TEMPLATE_MISMATCH.length + 1)
+      ElMessage.error(detail ? `${t('reschedulePlanDate.csvTemplateMismatch')}: ${detail}` : t('reschedulePlanDate.csvTemplateMismatch'))
+      return
+    }
+    console.error(error)
     ElMessage.error(t('reschedulePlanDate.noValidCsvData'))
-    return
-  }
-
-  if (list.length > 100) {
+  } finally {
     tableConfig.loading = false
-    ElMessage.warning(t('proformaInvoice.csvMustBeLessThan', { length: 100 }))
-    return
   }
-
-  tableData.value = [...tableData.value, ...list]
-  ElMessage.success(t('reschedulePlanDate.rowsImported', { count: list.length }))
-  reload()
-  tableConfig.loading = false
 }
 
 const CSV_COLUMNS = ['customer_number', 'order_number', 'line', 'deliver_qty', 'invoice_header', 'invoice_date', 'remark', 'grouping'] as const
-async function csvTextToLineItems(text: string): Promise<any[]> {
+async function csvTextToLineItems(text: string) {
   const rows = text
     .replace(/^\uFEFF/, '')
     .split(/\r\n|\n|\r/)
     .map(parseCsvLine)
     .filter((row) => row.some((cell) => cell !== ''))
   if (!rows.length) return []
+  console.log(123, rows[0])
   if (!isCsvTemplateHeader(rows[0])) {
     throw new Error(CSV_TEMPLATE_MISMATCH)
   }
@@ -426,16 +442,15 @@ async function csvTextToLineItems(text: string): Promise<any[]> {
     })
 
     return {
-      id: uuidv7(),
       customer_number: record.customer_number ?? '',
       order_number: Number(record.order_number ?? 0),
       line: Number(record.line ?? 0),
       deliver_qty: Number(record.deliver_qty ?? 0),
-      invoice_header: record.invoice_header ?? 'SZ',
+      invoice_header: record.invoice_header ?? '',
       invoice_date: parsePlanDate(record.invoice_date ?? ''),
       remark: record.remark ?? '',
-      grouping: record.grouping ?? 1
-    }
+      grouping: Number(record.grouping ?? 1) || 1
+    } as CsvImportRow
   })
 }
 
@@ -484,18 +499,40 @@ function parsePlanDate(value: string): string {
   return parsed.isValid() ? parsed.format('YYYY-MM-DD') : ''
 }
 
+/**
+ * 根據CSV的 Customer Number + Order Number + Line 重新查詢數據
+ */
+async function getOrderData(csvRows: CsvImportRow[]) {
+  const list = csvRows.map((item: any) => ({
+    customerNumber: item.customer_number,
+    orderNumber: item.order_number,
+    line: item.line
+  }))
+
+  const raw = {
+    orgId: 'string',
+    lines: list
+  }
+  const data = await clientApi.instance.post(`/wfl/proforma-invoices/enrich-lines`, raw).then((r) => r.data)
+  console.log(123, data)
+  return data
+}
+
+function dataMapping(csvList: CsvImportRow[], data: any[]) {
+  return data.map((item: any) => {
+    const csvItem = csvList.find((csv) => csv.order_number === item.order_number && csv.line === item.line)
+    return {
+      ...item,
+      grouping: csvItem?.grouping
+    }
+  })
+}
+
 onMounted(async () => {
   getUserInfo()
   await searchName()
   await searchPart()
 })
-
-/**
- * 根據CSV的 order number 與 line 重新查詢數據。以數據庫的數據爲準
- */
-async function getOrderData() {
-  console.log()
-}
 
 /**
  * 拆單
@@ -511,18 +548,20 @@ function buildPreviewGroups() {
 
     if (!result[key]) {
       result[key] = {
+        grouping: Number(key) || key,
         status: '',
         invoice_date: '',
         schedule_date: '',
         customer_code: row.customer_number,
         customer_name: row.customer_name,
-        office: row.org_id,
+        office: row.companyTitle,
+        org_id: row.org_id,
         invoice_header: row.companyTitle ?? '',
         currency: row.currency ?? '',
         sub_total: 0,
         total_tax: 0,
         total_amount: 0,
-        warehouse_location: row.warehouse_location ?? '',
+        warehouseLocation: row.warehouseLocation ?? '',
         sub_inventory: row.sub_inventory ?? '',
         payment_in_adv: '',
         overdue_debt: '',
@@ -544,9 +583,17 @@ function buildPreviewGroups() {
       order_number: row.order_number,
       wcl_part_number: row.part_number,
       order_qty: row.order_qty,
-      line_amount: row.line_amount,
+      lineAmount: row.lineAmount,
       tax_code: row.tax_code,
-      status: ''
+      status: '',
+      // 分組一致性校驗字段（與 invoice header 對齊）
+      office: row.org_id,
+      customer_code: row.customer_number,
+      currency: row.currency ?? '',
+      warehouseLocation: row.warehouseLocation ?? '',
+      sub_inventory: row.sub_inventory ?? '',
+      bill_to_location: row.bill_to_location ?? '',
+      ship_to_location: row.ship_to_location ?? ''
     })
   }
 
@@ -561,15 +608,16 @@ async function getFormData(needValidation = true) {
     throw new Error('')
   }
 
-  const groups = buildPreviewGroups()
-  if (groups.length === 0) {
-    ElMessage.error(t('proformaInvoice.selectAtLeastOneRow'))
+  const groups: any = buildPreviewGroups()
+
+  if (Object.keys(groups).length === 0) {
+    ElMessage.error('Please Select Grouping')
     throw new Error('')
   }
 
   await proformaInvoicePreviewRef.value.open(groups)
 
-  throw newError('')
+  throw new Error('')
   // 循環啓動workflow
 
   return { ...formModel }

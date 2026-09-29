@@ -5327,6 +5327,8 @@
     "invoiceOf": "發票 {current} / {total} · 分組 {grouping}",
     "linesCount": "{count} 項",
     "confirmSubmit": "確認提交",
-    "csvMustBeLessThan": "數據必須小於 {length} 行"
+    "csvMustBeLessThan": "數據必須小於 {length} 行",
+    "groupingFieldsInconsistent": "分組 {grouping} 內的辦事處、客戶編號、貨幣、倉庫位置、子庫存、賬單地址、送貨地址必須一致",
+    "csvRowsNotMatched": "已導入 {matched} 行，{missing} 行 CSV 未能匹配"
   }
 }

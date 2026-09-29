@@ -204,7 +204,7 @@ function getUserInfo() {
   userInfo.value.org_id = Number(org.operatingId)
   userInfo.value.operatingName = org.operatingName
   userInfo.value.userId = org.userId
-  userInfo.office = org.operatingName
+  userInfo.value.office = org.operatingName
 }
 
 onMounted(() => {
