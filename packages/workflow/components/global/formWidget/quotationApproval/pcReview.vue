@@ -349,12 +349,10 @@ async function init() {
 async function getFormData(needValidation = true) {
   let reject_comment
   if (formData.is_pc_approval !== undefined && !formData.is_pc_approval) {
-    try {
-      const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
-        confirmButtonText: t('common_submit')
-      })
-      reject_comment = value
-    } catch {}
+    const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
+      confirmButtonText: t('common_submit')
+    })
+    reject_comment = value
   }
 
   const newTargetPriceList: any[] = []
