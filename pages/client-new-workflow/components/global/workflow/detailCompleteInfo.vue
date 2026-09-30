@@ -1,10 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 
-const props = defineProps<{
-  taskDetail: any
-  state: string
-}>()
+const props = defineProps<{ taskDetail: any }>()
 const tableData = ref([])
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'completeTask_historical',
@@ -44,10 +41,14 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 })
 
 async function getHistorical(processId: string) {
-  const data = await clientApi.instance.get(`/api/v1/task/overview/all-tasks?process_id=${processId}`).then((r) => r.data)
-  console.log(123, data)
-  tableData.value = []
-  nextTick(() => reload())
+  try {
+    const data = await clientApi.instance.get(`/api/v1/task/overview/all-tasks?process_id=${processId}`).then((r) => r.data)
+    console.log(123, data)
+    tableData.value = []
+    nextTick(() => reload())
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 watch(
@@ -55,44 +56,46 @@ watch(
   (value) => {
     if (!value) return
     console.log(value)
-    getHistorical(value.id)
+    // getHistorical(value.id)
   },
   { deep: true, immediate: true }
 )
 </script>
 
 <template>
-  <div class="info" v-if="taskDetail">
-    <div class="infoContainer">
-      <div class="label">{{ $t('workflow_jobName') }}</div>
-      <div class="value">
-        {{ taskDetail.name }}
-      </div>
-    </div>
-
-    <div class="infoContainer">
-      <div class="label">{{ $t('workflow_startTime') }}</div>
-      <div class="value">
-        {{ formatDate(taskDetail.created_at) }}
-      </div>
-    </div>
-    <div class="infoContainer" v-if="state === 'completeTask'">
-      <div class="label">{{ $t('tableHeader_completeDate') }}</div>
-      <div class="value">
-        {{ formatDate(taskDetail.completed_at) }}
-      </div>
-    </div>
-  </div>
-
-  <el-divider />
-  <div style="height: 700px">
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
-        <div style="font-size: 20px; color: #1abc9c; font-weight: bold">
-          {{ $t('workflow_history') }}
+  <div class="pageContainer--padding">
+    <div class="info" v-if="taskDetail">
+      <div class="infoContainer">
+        <div class="label">{{ $t('workflowEditor.name') }}</div>
+        <div class="value">
+          {{ taskDetail.name }}
         </div>
-      </template>
-    </VxeGrid>
+      </div>
+
+      <div class="infoContainer">
+        <div class="label">{{ $t('workflow_startTime') }}</div>
+        <div class="value">
+          {{ formatDate(taskDetail.created_at) }}
+        </div>
+      </div>
+      <div class="infoContainer">
+        <div class="label">{{ $t('tableHeader_completeDate') }}</div>
+        <div class="value">
+          {{ formatDate(taskDetail.completed_at) }}
+        </div>
+      </div>
+    </div>
+
+    <el-divider />
+    <div style="height: 700px">
+      <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+        <template #toolbar_buttons>
+          <div style="font-size: 20px; color: #1abc9c; font-weight: bold">
+            {{ $t('workflow_history') }}
+          </div>
+        </template>
+      </VxeGrid>
+    </div>
   </div>
 </template>
 

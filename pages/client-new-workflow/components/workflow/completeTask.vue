@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 import dayjs from 'dayjs'
-import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
+import { getWorkflowList, workflowResponseHelper, routeWorkflowCompleteInfo } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -75,16 +75,14 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     }
   ],
   dblClickAction: ({ row, column, event }: any) => {
-    // handleDblclick(row)
+    handleDblclick(row)
   }
 })
 
 function handleDblclick(row: any) {
   routerProvider?.navigateTo(
-    routeWorkflowDetail({
-      ...row,
-      workflowType: 'completeTask',
-      db_id: row.completed_nodes[row.completed_nodes.length - 2]
+    routeWorkflowCompleteInfo({
+      ...row
     }),
     false
   )
