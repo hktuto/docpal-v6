@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import dayjs from 'dayjs'
 import { clientApi } from 'api'
+import { useUserState } from '@packages/authApp/composables/useAuth'
 
 const { formData } = defineProps<{
   disabled: boolean
@@ -489,8 +490,16 @@ async function getBrandOptions() {
   brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
+const office = ref<string>('')
+
 onMounted(() => {
   getBrandOptions()
+
+  const user = useUserState()
+  if (user.value.org.length === 0) return
+
+  const org = user.value.org[0]
+  office.value = org.operatingName
 })
 
 async function getFormData(needValidation = true) {
@@ -527,6 +536,10 @@ async function getFormData(needValidation = true) {
     ? {
         brand: formModel.brand,
         effective_date: formModel.effectiveDate,
+        // pm_group: `PriceAnnouncement_-_Approver_-_ProductManager_-_${formModel.brand}_-_${office}`,
+        pm_group: `PriceAnnouncement_-_Approver_-_ProductManager_-_KOA_-_${office.value}`,
+        email_salesManager_group: `PriceAnnouncement_-_EmailNoti_-_SalesManager_-_${office.value}`,
+        email_generalManager_group: `PriceAnnouncement_-_EmailNoti_-_GeneralManager_-_${office.value}`,
         list,
         document_data_list
       }
