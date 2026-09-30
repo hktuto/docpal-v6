@@ -7,13 +7,28 @@ const { t } = useI18n()
 const selectedItem = ref<any>([]);
 
 
+const batchDownloading = ref(false)
+const downloadingRowKey = ref<string | null>(null)
+
 async function downloadSingle(doc: any) {
-  downloadBatch([doc])
+  downloadingRowKey.value = doc._rowKey
+  try {
+    await doDownload([doc])
+  } finally {
+    downloadingRowKey.value = null
+  }
 }
 
-const loading = ref(false)
 async function downloadBatch(docs: any[]) {
-  loading.value = true
+  batchDownloading.value = true
+  try {
+    await doDownload(docs)
+  } finally {
+    batchDownloading.value = false
+  }
+}
+
+async function doDownload(docs: any[]) {
   const documents = docs.map(doc => ({
     orgId: doc.org_id,
     invoiceNo: doc.pi_num,
@@ -44,10 +59,12 @@ async function downloadBatch(docs: any[]) {
     a.download = fileName
     a.click()
     a.remove()
+    docs.forEach((doc) => {
+      doc.download_count = (doc.download_count || 0) + 1
+    })
+    cleanSelected()
   } catch (err) {
     ElMessage.error(t('shipCopy.downloadFailed'))
-  } finally {
-    loading.value = false
   }
 }
 
@@ -98,7 +115,7 @@ function searchCustomers(query: string) {
   }, 300)
 }
 
-const { tableConfig, tableEvent, tableRef, reload, setupLazyLoad } = useVxeTable({
+const { tableConfig, tableEvent, tableRef, setupLazyLoad } = useVxeTable({
   id: "shipConfirmTable",
   virtualScroll:true,
   api: async (pageParams: any) => {
@@ -229,13 +246,12 @@ onMounted(() => {
 <template>
 <DashboardCard :title="t('shipCopy.title')">
     <VxeGrid
-        v-loading="loading"
         ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
           <slot name="toolbar_buttons" />
           <template v-if="selectedItem.length > 0">
             <ElButton @click="cleanSelected">{{ t('shipCopy.cleanSelected', { count: selectedItem.length }) }}</ElButton>
-            <ElButton @click="downloadBatch(selectedItem)" type="primary">{{ t('shipCopy.downloadSelected') }}</ElButton>
+            <ElButton :loading="batchDownloading" @click="downloadBatch(selectedItem)" type="primary">{{ t('shipCopy.downloadSelected') }}</ElButton>
           </template>
           <template v-else>
             <ElSelect v-model="filterForm.orgId" :placeholder="t('shipCopy.org')" clearable filterable class="filter-item filter-select" @change="handleFilter">
@@ -279,7 +295,7 @@ onMounted(() => {
           </template>
         </template>
         <template #download="{ row }">
-          <ElButton @click="downloadSingle(row)" type="primary">{{ t('shipCopy.download') }}</ElButton>
+          <ElButton :loading="downloadingRowKey === row._rowKey" @click="downloadSingle(row)" type="primary">{{ t('shipCopy.download') }}</ElButton>
         </template>
     </VxeGrid>
 </DashboardCard>
