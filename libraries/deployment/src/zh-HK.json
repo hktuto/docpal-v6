@@ -5013,36 +5013,6 @@
     "oldSalesPriceNoTax": "原銷售價格(不含稅)",
     "enterKeyword": "請輸入關鍵詞",
     "pleaseEnterSelfDelivery": "⌈{name}⌋ 請選擇是否自送",
-    "shippingConfirmTitle": "Shipping Confirm",
-    "shippingConfirmDescription": "根據 outRequestNo 查看 Shipping Confirm 比對結果，並保存人工修正內容。",
-    "shippingConfirmRequestNo": "請求單號",
-    "shippingConfirmRefresh": "刷新結果",
-    "shippingConfirmSaveDraft": "保存草稿",
-    "shippingConfirmMissingRequestNo": "缺少 out_request_no，無法載入 Shipping Confirm 結果",
-    "shippingConfirmFetchFailed": "獲取 Shipping Confirm 結果失敗",
-    "shippingConfirmDraftSaved": "Shipping Confirm 草稿已保存",
-    "shippingConfirmDraftSaveFailed": "保存 Shipping Confirm 草稿失敗",
-    "shippingConfirmStillProcessing": "Shipping Confirm 仍在處理中，請稍後再提交",
-    "shippingConfirmPollingTimeout": "Shipping Confirm 輪詢超過兩分鐘，仍未取得可用結果",
-    "shippingConfirmResultMissing": "尚未取得 Shipping Confirm 結果",
-    "shippingConfirmStatusSubmitted": "已提交",
-    "shippingConfirmStatusPolling": "輪詢中",
-    "shippingConfirmStatusCompleted": "已完成",
-    "shippingConfirmStatusPending": "待處理",
-    "shippingConfirmProcessing": "處理中",
-    "shippingConfirmSucceeded": "自動確認成功",
-    "shippingConfirmNeedsReview": "發現差異，需要人工確認",
-    "shippingConfirmPendingResult": "等待結果",
-    "shippingConfirmSuccessSummary": "本次 Shipping Confirm 已自動確認成功。",
-    "shippingConfirmProcessingSummary": "系統正在輪詢目前請求的處理結果。",
-    "shippingConfirmPollingTimeoutSummary": "系統已輪詢兩分鐘，仍未取得可用結果，請稍後手動刷新。",
-    "shippingConfirmPendingSummary": "尚未取得可展示的比對結果。",
-    "shippingConfirmDifference": "差異",
-    "shippingConfirmManualSync": "人工修改同步狀態",
-    "shippingConfirmSyncPendingDesign": "待後續設計",
-    "shippingConfirmSyncSaved": "已保存",
-    "shippingConfirmSyncNotStarted": "未開始",
-    "shippingConfirmUnsavedChanges": "目前有未保存的人工修改。",
     "checkCustomer": "客戶狀態",
     "customerNumber": "客戶編號",
     "customerName": "客戶名稱",
@@ -5081,7 +5051,9 @@
     "partNumberPendingApproval": "該型號還有記錄在等待審批中",
     "pleaseSelectCustomerNumber": "請選擇客戶編號！",
     "moqMustGreaterThanPrevious": "MOQ 必須大於上一檔",
-    "targetPriceMustLowerThanPrevious": "目標價必須低於上一檔"
+    "targetPriceMustLowerThanPrevious": "目標價必須低於上一檔",
+    "rejectToSalesperson": "回絕給銷售員",
+    "salesCancel": "銷售員取消"
   },
   "customerVisit": {
     "customerVisitType": "訪客類型",
@@ -5180,7 +5152,8 @@
     "trackingDate": "快遞日期",
     "emailAlert": "送樣通知",
     "status": "申請狀態",
-    "customerConfirmsReceipt": "客戶確認收貨"
+    "customerConfirmsReceipt": "客戶確認收貨",
+    "cancel": "取消申請"
   },
   "priceAnnouncement": {
     "paNumber": "PA編號",
@@ -5354,7 +5327,9 @@
     "invoiceOf": "發票 {current} / {total} · 分組 {grouping}",
     "linesCount": "{count} 項",
     "confirmSubmit": "確認提交",
-    "csvMustBeLessThan": "數據必須小於 {length} 行"
+    "csvMustBeLessThan": "數據必須小於 {length} 行",
+    "groupingFieldsInconsistent": "分組 {grouping} 內的辦事處、客戶編號、貨幣、倉庫位置、子庫存、賬單地址、送貨地址必須一致",
+    "csvRowsNotMatched": "已導入 {matched} 行，{missing} 行 CSV 未能匹配"
   },
   "shipCopy": {
     "title": "待發貨發票",

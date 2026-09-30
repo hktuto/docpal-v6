@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useUserState } from '@packages/authApp/composables/useAuth'
+import { clientApi } from 'api'
+import { ElMessage } from 'element-plus'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -179,13 +181,19 @@ const invoiceHeaderOption = ref<any[]>([
 
 const userInfo = ref<{
   org_id: number
+  office: string
   operatingName: string
   userId: string
 }>({
   org_id: 0,
+  office: '',
   operatingName: '',
   userId: ''
 })
+
+async function getPi(piNumber: string) {
+  const data = await clientApi.instance.get(`/apis/v1/ms/wfl/proforma-invoices/${piNumber}`).then((r) => r.data)
+}
 
 function getUserInfo() {
   const user = useUserState()
@@ -196,7 +204,7 @@ function getUserInfo() {
   userInfo.value.org_id = Number(org.operatingId)
   userInfo.value.operatingName = org.operatingName
   userInfo.value.userId = org.userId
-  search.office = org.operatingName
+  userInfo.value.office = org.operatingName
 }
 
 onMounted(() => {
@@ -205,7 +213,34 @@ onMounted(() => {
 
 async function getFormData(needValidation = true) {
   if (!needValidation) return { ...formModel }
+
+  if (selectedRowsList.value.length === 0) {
+    ElMessage.error(t('proformaInvoice.selectAtLeastOneRow'))
+    throw new Error('')
+  }
+
+  await formRef.value?.validate()
+
   return { ...formModel }
+}
+
+async function handleCancelLine() {
+  let raw = {
+    operatorId: 'string',
+    operatorName: 'string'
+  }
+  if (selectedRowsList.value.length !== formModel.item.length) {
+    const map = selectedRowsList.value.map((item) => {
+      return item.pi_number
+    })
+
+    raw = {
+      ...raw,
+      lineNos: map
+    }
+  }
+
+  const data = await clientApi.instance.post(`/apis/v1/ms/wfl/proforma-invoices/${piNumber}/cancel`, raw).then((r) => r.data)
 }
 
 defineExpose({ getFormData })

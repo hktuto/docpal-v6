@@ -2,13 +2,14 @@
 import { clientApi, newClientApi } from 'api'
 import { MenuRouterKey } from '@packages/base/utils/menuType'
 import { v7 as uuidv7 } from 'uuid'
+import { ElMessageBox } from 'element-plus'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
   options: any
 }>()
-
+const { t } = useI18n()
 const formRef = ref()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -346,6 +347,16 @@ async function init() {
 }
 
 async function getFormData(needValidation = true) {
+  let reject_comment
+  if (!formData.pm_approval) {
+    try {
+      const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
+        confirmButtonText: t('common_submit')
+      })
+      reject_comment = value
+    } catch {}
+  }
+
   const newTargetPriceList: any[] = []
   const newSetSampleList = formModel.value.infoList.map((item) => {
     newTargetPriceList.push(...item.target_price_list)
@@ -357,7 +368,8 @@ async function getFormData(needValidation = true) {
   const result = {
     sample_info_list: formModel.value.infoList,
     set_sample_list: newSetSampleList,
-    target_price_list: newTargetPriceList
+    target_price_list: newTargetPriceList,
+    reject_comment: reject_comment
   }
   if (!needValidation) return result
   await formRef.value?.validate()

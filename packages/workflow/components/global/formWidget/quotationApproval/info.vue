@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ElMessageBox } from 'element-plus'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -80,6 +82,16 @@ async function init() {
 }
 
 async function getFormData(needValidation = true) {
+  let reject_comment
+  if (!formData.is_pm_approval || !formData.is_gm_approval || !formData.is_tm_approval) {
+    try {
+      const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
+        confirmButtonText: t('common_submit')
+      })
+      reject_comment = value
+    } catch {}
+  }
+
   const newTargetPriceList: any[] = []
   const newSetSampleList = formModel.value.infoList.map((item) => {
     newTargetPriceList.push(...item.target_price_list)
@@ -91,7 +103,8 @@ async function getFormData(needValidation = true) {
   const result = {
     sample_info_list: formModel.value.infoList,
     set_sample_list: newSetSampleList,
-    target_price_list: newTargetPriceList
+    target_price_list: newTargetPriceList,
+    reject_comment: reject_comment
   }
   if (!needValidation) return result
   await formRef.value?.validate()

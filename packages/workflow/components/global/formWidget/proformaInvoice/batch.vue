@@ -28,7 +28,8 @@ type dataItem = {
   order_qty: number
   part_number: string
   currency: string
-  line_amount: number
+  lineAmount: number
+  taxValue: number
   tax_code: string
   customer_number: string
   customer_name: string
@@ -36,6 +37,10 @@ type dataItem = {
   ship_to_location: string
   sub_inventory: string
   grouping?: number
+  soLineId: number
+  deliveryDetailId: number
+  companyTitle: string
+  warehouseLocation: string
 }
 
 const tableData = ref<dataItem[]>([])
@@ -63,6 +68,13 @@ const selectedRowsList = ref<dataItem[]>([])
 const selectData = reactive({
   length: 0
 })
+watch(
+  () => selectedRowsList.value.length,
+  (len) => {
+    selectData.length = len
+  },
+  { deep: true }
+)
 const userInfo = ref<{
   org_id: number
   organization_id: number
@@ -81,10 +93,15 @@ function getUserInfo() {
   const org = user.value.org[0]
   userInfo.value.org_id = Number(org.operatingId)
   userInfo.value.operatingName = org.operatingName
-  userInfo.value.userId = org.userId
+  userInfo.value.userId = user.value.userId
   userInfo.value.organization_id = org.organizationId
   formModel.invoice_header = org.operatingName
   search.office = org.operatingName
+}
+
+async function searchCustomerName(query: string) {
+  if (!query || query === '') return
+  await searchName(query)
 }
 
 async function searchName(query?: string) {
@@ -130,6 +147,11 @@ async function searchOrderNumber(orderNumber: string) {
   }
 }
 
+async function searchPartNumber(query: string) {
+  if (!query || query === '') return
+  await searchPart(query)
+}
+
 async function searchPart(query?: string) {
   loading.value = true
   try {
@@ -159,37 +181,49 @@ async function handleSearch() {
   const orderNumber = search.orderNumber ? `orderNumber=${search.orderNumber}&` : ''
   const partNum = search.partNumber ? `partNum=${search.partNumber}` : ''
 
+  tableConfig.loading = true
   try {
     const data = await clientApi.instance
       .get(`/apis/v1/ms/wfl/proforma-invoices/candidate-lines?${orgId}${customerName}${orderNumber}${partNum}`)
       .then((r) => r.data.items)
 
-    const map: dataItem[] = data.map((item: any) => {
-      return {
-        id: uuidv7(),
-        org_id: item.orgId,
-        organization_id: item.organizationId,
-        pi_number: item.pi_number ?? '',
-        schedule_date: item.scheduleDate,
-        order_number: item.orderNumber,
-        order_ln: item.soLineId,
-        order_qty: item.orderQty,
-        part_number: item.partNum,
-        currency: item.currencyCode,
-        line_amount: item.line_amount ?? 0,
-        tax_code: item.taxCode,
-        customer_number: item.customerNumber,
-        customer_name: item.customerName,
-        bill_to_location: item.billToAddress,
-        ship_to_location: item.shipToAddress,
-        sub_inventory: item.subinventory
-      } as dataItem
-    })
+    const map: dataItem[] = (data ?? []).map((item: any) => mapCandidateToDataItem(item))
 
-    tableData.value = [...tableData.value, ...map]
+    const selectedIds = new Set(selectedRowsList.value.map((item: any) => item.soLineId))
+    tableData.value = map.filter((item: any) => !selectedIds.has(item.soLineId))
     reload()
   } catch (e) {
     console.log(e)
+  } finally {
+    tableConfig.loading = false
+  }
+}
+
+function mapCandidateToDataItem(item: any, extra: Partial<dataItem> = {}): dataItem {
+  return {
+    id: uuidv7(),
+    org_id: item.orgId,
+    organization_id: item.organizationId,
+    pi_number: item.pi_number ?? '',
+    schedule_date: item.scheduleDate,
+    order_number: item.orderNumber,
+    order_ln: item.lineNum,
+    order_qty: item.orderQty,
+    part_number: item.partNum,
+    currency: item.currencyCode,
+    lineAmount: item.lineAmount ?? 0,
+    taxValue: item.taxValue ?? 0,
+    tax_code: item.taxCode,
+    customer_number: item.customerNumber,
+    customer_name: item.customerName,
+    bill_to_location: item.billToAddress,
+    ship_to_location: item.shipToAddress,
+    sub_inventory: item.subinventory,
+    soLineId: item.soLineId,
+    deliveryDetailId: item.deliveryDetailId,
+    companyTitle: item.companyTitle,
+    warehouseLocation: item.warehouseLocation,
+    ...extra
   }
 }
 
@@ -213,7 +247,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     {
       field: 'schedule_date',
       title: t('proformaInvoice.scheduleDate'),
-      minWidth: 240,
+      minWidth: 200,
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       }
@@ -221,62 +255,63 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     {
       field: 'order_number',
       title: t('proformaInvoice.orderNumber'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'order_ln',
       title: t('proformaInvoice.orderLn'),
-      minWidth: 240
+      minWidth: 100
     },
     {
       field: 'order_qty',
       title: t('proformaInvoice.orderQty'),
-      minWidth: 240
+      minWidth: 150
     },
     {
       field: 'part_number',
       title: t('proformaInvoice.wclPartNumber'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'currency',
       title: t('proformaInvoice.currency'),
-      minWidth: 240
+      minWidth: 100
     },
     {
-      field: 'line_amount',
+      field: 'lineAmount',
       title: t('proformaInvoice.lineAmount'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'tax_code',
       title: t('proformaInvoice.taxCode'),
-      minWidth: 240
+      minWidth: 150
     },
     {
       field: 'customer_number',
       title: t('proformaInvoice.customerCode'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'customer_name',
       title: t('proformaInvoice.customerName'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'bill_to_location',
       title: t('proformaInvoice.billToLocation'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'ship_to_location',
       title: t('proformaInvoice.shipToLocation'),
-      minWidth: 240
+      minWidth: 200
     },
     {
       field: 'grouping',
       title: t('proformaInvoice.grouping'),
-      minWidth: 240,
+      minWidth: 100,
+      fixed: 'right',
       slots: { default: 'grouping' }
     }
   ],
@@ -318,19 +353,29 @@ function handleDelete(row: any) {
 }
 
 function handleClearUnselected() {
-  tableData.value = tableData.value.filter((item: any) => !selectedRowsList.value.includes(item.id))
+  const selectedIds = new Set(selectedRowsList.value.map((item: any) => item.id))
+  tableData.value = tableData.value.filter((item: any) => selectedIds.has(item.id))
+
+  selectedRowsList.value = []
   reload()
 }
 
 const csvUploadRef = ref()
 const CSV_TEMPLATE_MISMATCH = 'CSV_TEMPLATE_MISMATCH'
+
+type CsvImportRow = {
+  customer_number: string
+  order_number: number
+  line: number
+  deliver_qty: number
+  invoice_header: string
+  invoice_date: string
+  remark: string
+  grouping: number
+}
+
 async function handleImportCSV(uploadFile: UploadFile) {
   const file = uploadFile.raw
-
-  if (!search.customer_number || search.customer_number == '') {
-    ElMessage.error(t('proformaInvoice.pleaseSelectCustomer'))
-    return
-  }
 
   csvUploadRef.value?.clearFiles()
   if (!file) return
@@ -341,46 +386,48 @@ async function handleImportCSV(uploadFile: UploadFile) {
     ElMessage.error(t('reschedulePlanDate.pleaseSelectCsv'))
     return
   }
-  let list: any[]
-  tableConfig.loading = true
 
+  tableConfig.loading = true
   try {
-    list = await csvTextToLineItems(await file.text())
-  } catch (error) {
-    tableConfig.loading = false
-    if (error instanceof Error && error.message === CSV_TEMPLATE_MISMATCH) {
-      ElMessage.error(t('reschedulePlanDate.csvTemplateMismatch'))
+    const list = await csvTextToLineItems(await file.text())
+
+    if (!list.length) {
+      ElMessage.error(t('reschedulePlanDate.noValidCsvData'))
       return
     }
-    throw error
-  }
 
-  if (!list.length) {
-    tableConfig.loading = false
+    if (list.length > 100) {
+      ElMessage.warning(t('proformaInvoice.csvMustBeLessThan', { length: 100 }))
+      return
+    }
+
+    console.log(222, list)
+    const data = await getOrderData(list)
+    const map = dataMapping(list, data)
+    // tableData.value = map
+    reload()
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith(CSV_TEMPLATE_MISMATCH)) {
+      const detail = error.message.slice(CSV_TEMPLATE_MISMATCH.length + 1)
+      ElMessage.error(detail ? `${t('reschedulePlanDate.csvTemplateMismatch')}: ${detail}` : t('reschedulePlanDate.csvTemplateMismatch'))
+      return
+    }
+    console.error(error)
     ElMessage.error(t('reschedulePlanDate.noValidCsvData'))
-    return
-  }
-
-  if (list.length > 100) {
+  } finally {
     tableConfig.loading = false
-    ElMessage.warning(t('proformaInvoice.csvMustBeLessThan', { length: 100 }))
-    return
   }
-
-  tableData.value = [...tableData.value, ...list]
-  ElMessage.success(t('reschedulePlanDate.rowsImported', { count: list.length }))
-  reload()
-  tableConfig.loading = false
 }
 
 const CSV_COLUMNS = ['customer_number', 'order_number', 'line', 'deliver_qty', 'invoice_header', 'invoice_date', 'remark', 'grouping'] as const
-async function csvTextToLineItems(text: string): Promise<any[]> {
+async function csvTextToLineItems(text: string) {
   const rows = text
     .replace(/^\uFEFF/, '')
     .split(/\r\n|\n|\r/)
     .map(parseCsvLine)
     .filter((row) => row.some((cell) => cell !== ''))
   if (!rows.length) return []
+  console.log(123, rows[0])
   if (!isCsvTemplateHeader(rows[0])) {
     throw new Error(CSV_TEMPLATE_MISMATCH)
   }
@@ -395,16 +442,15 @@ async function csvTextToLineItems(text: string): Promise<any[]> {
     })
 
     return {
-      id: uuidv7(),
       customer_number: record.customer_number ?? '',
       order_number: Number(record.order_number ?? 0),
       line: Number(record.line ?? 0),
       deliver_qty: Number(record.deliver_qty ?? 0),
-      invoice_header: record.invoice_header ?? 'SZ',
+      invoice_header: record.invoice_header ?? '',
       invoice_date: parsePlanDate(record.invoice_date ?? ''),
       remark: record.remark ?? '',
-      grouping: record.grouping ?? 1
-    }
+      grouping: Number(record.grouping ?? 1) || 1
+    } as CsvImportRow
   })
 }
 
@@ -453,6 +499,35 @@ function parsePlanDate(value: string): string {
   return parsed.isValid() ? parsed.format('YYYY-MM-DD') : ''
 }
 
+/**
+ * 根據CSV的 Customer Number + Order Number + Line 重新查詢數據
+ */
+async function getOrderData(csvRows: CsvImportRow[]) {
+  const list = csvRows.map((item: any) => ({
+    customerNumber: item.customer_number,
+    orderNumber: item.order_number,
+    line: item.line
+  }))
+
+  const raw = {
+    orgId: userInfo.value.org_id,
+    lines: list
+  }
+  const data = await clientApi.instance.post(`/wfl/proforma-invoices/enrich-lines`, raw).then((r) => r.data)
+  console.log(123, data)
+  return data
+}
+
+function dataMapping(csvList: CsvImportRow[], data: any[]) {
+  return data.map((item: any) => {
+    const csvItem = csvList.find((csv) => csv.order_number === item.order_number && csv.line === item.line)
+    return {
+      ...item,
+      grouping: csvItem?.grouping
+    }
+  })
+}
+
 onMounted(async () => {
   getUserInfo()
   await searchName()
@@ -460,59 +535,113 @@ onMounted(async () => {
 })
 
 /**
- * 根據CSV的 order number 與 line 重新查詢數據。以數據庫的數據爲準
- */
-async function getOrderData() {
-  console.log()
-}
-
-/**
  * 拆單
  * 規則：根據辦事處、客戶編號、貨幣、倉庫位置、子庫存、賬單地址、送貨地址、分組
  *
  */
 function buildPreviewGroups() {
-  return selectedRowsList.value
-    .sort((a, b) => Number(a[0]) - Number(b[0]))
-    .map(([grouping, items]) => {
-      const first = items[0] ?? {}
-      const subTotal = items.reduce((sum, row) => sum + Number(row.line_amount ?? 0), 0)
-      return {
-        grouping,
-        pi_number: '',
+  const result = {}
+
+  for (const row of selectedRowsList.value) {
+    const key: string = String(row.grouping ?? '')
+    if (key === '') continue
+
+    if (!result[key]) {
+      result[key] = {
+        grouping: Number(key) || key,
         status: '',
         invoice_date: '',
         schedule_date: '',
-        customer_code: first.customer_number ?? search.value.customer_number ?? '',
-        customer_name: first.customer_name ?? customerInfo.value.customer_name ?? '',
-        office: search.office || formModel.invoice_header,
-        invoice_header: first.invoice_header || formModel.invoice_header,
-        currency: first.currency ?? '',
-        sub_total: subTotal,
+        customer_code: row.customer_number,
+        customer_name: row.customer_name,
+        office: row.companyTitle,
+        org_id: row.org_id,
+        invoice_header: row.companyTitle ?? '',
+        currency: row.currency ?? '',
+        sub_total: 0,
         total_tax: 0,
-        total_amount: subTotal,
-        warehouse_location: first.warehouse_location ?? '',
-        sub_inventory: first.sub_inventory ?? '',
-        payment_in_adv: first.payment_in_adv ?? first.cod ?? '',
-        overdue_debt: first.overdue_debt ?? '',
-        pi_remarks: first.remark ?? '',
-        items
+        total_amount: 0,
+        warehouseLocation: row.warehouseLocation ?? '',
+        sub_inventory: row.sub_inventory ?? '',
+        payment_in_adv: '',
+        overdue_debt: '',
+        bill_to_location: row.bill_to_location ?? '',
+        ship_to_location: row.ship_to_location ?? '',
+        pi_remarks: '',
+        submitted_by: userInfo.value.userId,
+        submitted_date: '',
+        approver: '',
+        approval_date: '',
+        reject_reason: '',
+        items: []
       }
+    }
+
+    result[key].items.push({
+      schedule_date: row.schedule_date,
+      order_ln: row.order_ln,
+      order_number: row.order_number,
+      wcl_part_number: row.part_number,
+      order_qty: row.order_qty,
+      lineAmount: row.lineAmount,
+      tax_code: row.tax_code,
+      status: '',
+      // 分組一致性校驗字段（與 invoice header 對齊）
+      office: row.org_id,
+      customer_code: row.customer_number,
+      currency: row.currency ?? '',
+      warehouseLocation: row.warehouseLocation ?? '',
+      sub_inventory: row.sub_inventory ?? '',
+      bill_to_location: row.bill_to_location ?? '',
+      ship_to_location: row.ship_to_location ?? ''
     })
+  }
+
+  return result
 }
 
 async function getFormData(needValidation = true) {
   if (!needValidation) return { ...formModel }
-
-  await proformaInvoicePreviewRef.value.open(buildPreviewGroups())
 
   if (selectedRowsList.value.length === 0) {
     ElMessage.error(t('proformaInvoice.selectAtLeastOneRow'))
     throw new Error('')
   }
 
-  // 循環啓動workflow
+  const groups: any = buildPreviewGroups()
 
+  if (Object.keys(groups).length === 0) {
+    ElMessage.error('Please Select Grouping')
+    throw new Error('')
+  }
+
+  await proformaInvoicePreviewRef.value.open(groups)
+
+  // 循環啓動workflow
+  Object.values(groups).forEach((item: any) => {
+    console.log({
+      customer_code: item.customer_code,
+      customer_name: item.customer_name,
+      office: item.office,
+      org_id: item.org_id,
+      invoice_header: item.invoice_header,
+      currency: item.currency,
+      sub_total: item.sub_total,
+      total_tax: item.total_tax,
+      total_amount: item.total_amount,
+      tax_code: item.tax_code,
+      warehouseLocation: item.warehouseLocation,
+      sub_inventory: item.sub_inventory,
+      bill_to_location: item.bill_to_location,
+      ship_to_location: item.ship_to_location,
+      items: item.items,
+      pi_remarks: item.pi_remarks,
+      submitted_by: userInfo.value.userId,
+      submitted_date: dayjs().format('YYYY-MM-DD')
+    })
+    // runWorkflow()
+  })
+  throw new Error('')
   return { ...formModel }
 }
 
@@ -571,7 +700,7 @@ defineExpose({ getFormData })
             v-model="search.customer_number"
             filterable
             remote
-            :remote-method="searchName"
+            :remote-method="searchCustomerName"
             remote-show-suffix
             clearable
             :options="customerNumberOptions"
@@ -604,7 +733,7 @@ defineExpose({ getFormData })
             v-model="search.partNumber"
             filterable
             remote
-            :remote-method="searchPart"
+            :remote-method="searchPartNumber"
             remote-show-suffix
             clearable
             :options="partNumberOptions"
@@ -632,8 +761,12 @@ defineExpose({ getFormData })
           </div>
 
           <div class="toolbar-selected-left">
-            <span class="toolbar-selected-left__label">{{ t('proformaInvoice.rowsCount', { count: selectData.length }) }}</span>
-            <span class="toolbar-selected-left-select">{{ t('proformaInvoice.selectedCount', { count: tableData.length }) }}</span>
+            <span class="toolbar-selected-left__label">
+              {{ t('proformaInvoice.rowsCount', { count: tableData.length }) }}
+            </span>
+            <span class="toolbar-selected-left-select">
+              {{ t('proformaInvoice.selectedCount', { count: selectData.length }) }}
+            </span>
             <el-button v-if="selectData.length > 0" type="danger" @click="handleClearUnselected">{{ t('proformaInvoice.clearUnselected') }}</el-button>
             <el-upload ref="csvUploadRef" accept=".csv" :auto-upload="false" :show-file-list="false" :on-change="handleImportCSV">
               <el-button>{{ t('proformaInvoice.uploadCsv') }}</el-button>
@@ -674,8 +807,6 @@ defineExpose({ getFormData })
   min-height: 550px;
   max-height: 600px;
   overflow: auto;
-
-  margin-block-end: 20px;
 }
 
 .toolbar-selected {
