@@ -248,51 +248,53 @@ onMounted(() => {
     <VxeGrid
         ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
-          <slot name="toolbar_buttons" />
-          <template v-if="selectedItem.length > 0">
-            <ElButton @click="cleanSelected">{{ t('shipCopy.cleanSelected', { count: selectedItem.length }) }}</ElButton>
-            <ElButton :loading="batchDownloading" @click="downloadBatch(selectedItem)" type="primary">{{ t('shipCopy.downloadSelected') }}</ElButton>
-          </template>
-          <template v-else>
-            <ElSelect v-model="filterForm.orgId" :placeholder="t('shipCopy.org')" clearable filterable class="filter-item filter-select" @change="handleFilter">
-              <ElOption v-for="item in orgOptions" :key="item.value" :label="item.label" :value="item.value" />
-            </ElSelect>
-            <ElInput v-model="filterForm.invoiceNo" :placeholder="t('shipCopy.invoiceNo')" clearable class="filter-item filter-input" @change="handleFilter" @keyup.enter="handleFilter" />
-            <ElSelect
-              v-model="filterForm.customerId"
-              :placeholder="t('shipCopy.customer')"
-              clearable
-              filterable
-              remote
-              :remote-method="searchCustomers"
-              :loading="customerLoading"
-              class="filter-item filter-select filter-select--wide"
-              @change="handleFilter"
-            >
-              <ElOption v-for="item in customerOptions" :key="item.value" :label="item.label" :value="item.value" />
-            </ElSelect>
-            <ElDatePicker
-              v-model="filterForm.invoiceDateStart"
-              type="date"
-              :placeholder="t('shipCopy.invoiceDateFrom')"
-              value-format="YYYY-MM-DD"
-              clearable
-              class="filter-item filter-date"
-              :disabled-date="disabledStartDate"
-              @change="handleFilter"
-            />
-            <ElDatePicker
-              v-model="filterForm.invoiceDateEnd"
-              type="date"
-              :placeholder="t('shipCopy.invoiceDateTo')"
-              value-format="YYYY-MM-DD"
-              clearable
-              class="filter-item filter-date"
-              :disabled-date="disabledEndDate"
-              @change="handleFilter"
-            />
-            <ElButton @click="handleResetFilter">{{ t('shipCopy.reset') }}</ElButton>
-          </template>
+          <div class="toolbar-filters">
+            <slot name="toolbar_buttons" />
+            <template v-if="selectedItem.length > 0">
+              <ElButton @click="cleanSelected">{{ t('shipCopy.cleanSelected', { count: selectedItem.length }) }}</ElButton>
+              <ElButton :loading="batchDownloading" @click="downloadBatch(selectedItem)" type="primary">{{ t('shipCopy.downloadSelected') }}</ElButton>
+            </template>
+            <template v-else>
+              <ElSelect v-model="filterForm.orgId" :placeholder="t('shipCopy.org')" clearable filterable class="filter-item filter-select" @change="handleFilter">
+                <ElOption v-for="item in orgOptions" :key="item.value" :label="item.label" :value="item.value" />
+              </ElSelect>
+              <ElInput v-model="filterForm.invoiceNo" :placeholder="t('shipCopy.invoiceNo')" clearable class="filter-item filter-input" @change="handleFilter" @keyup.enter="handleFilter" />
+              <ElSelect
+                v-model="filterForm.customerId"
+                :placeholder="t('shipCopy.customer')"
+                clearable
+                filterable
+                remote
+                :remote-method="searchCustomers"
+                :loading="customerLoading"
+                class="filter-item filter-select filter-select--wide"
+                @change="handleFilter"
+              >
+                <ElOption v-for="item in customerOptions" :key="item.value" :label="item.label" :value="item.value" />
+              </ElSelect>
+              <ElDatePicker
+                v-model="filterForm.invoiceDateStart"
+                type="date"
+                :placeholder="t('shipCopy.invoiceDateFrom')"
+                value-format="YYYY-MM-DD"
+                clearable
+                class="filter-item filter-date"
+                :disabled-date="disabledStartDate"
+                @change="handleFilter"
+              />
+              <ElDatePicker
+                v-model="filterForm.invoiceDateEnd"
+                type="date"
+                :placeholder="t('shipCopy.invoiceDateTo')"
+                value-format="YYYY-MM-DD"
+                clearable
+                class="filter-item filter-date"
+                :disabled-date="disabledEndDate"
+                @change="handleFilter"
+              />
+              <ElButton @click="handleResetFilter">{{ t('shipCopy.reset') }}</ElButton>
+            </template>
+          </div>
         </template>
         <template #download="{ row }">
           <ElButton :loading="downloadingRowKey === row._rowKey" @click="downloadSingle(row)" type="primary">{{ t('shipCopy.download') }}</ElButton>
@@ -302,19 +304,27 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.toolbar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: 100%;
+}
 .filter-item {
-  margin-right: 8px;
+  flex-shrink: 0;
 }
 .filter-select {
-  width: 120px;
+  width: 100px;
 }
 .filter-select--wide {
-  width: 200px;
-}
-.filter-input {
   width: 160px;
 }
+.filter-input {
+  width: 140px;
+}
 .filter-date {
-  width: 150px;
+  width: 140px;
 }
 </style>
