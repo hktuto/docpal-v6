@@ -65,9 +65,6 @@ defineExpose({ reload })
     <el-form :model="invoice" label-position="top" class="pi-preview-panel__form">
       <el-row :gutter="12">
         <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.piNumber')">
-            <el-input :model-value="invoice.pi_number" disabled />
-          </el-form-item>
           <el-form-item :label="t('proformaInvoice.customerCode')">
             <el-input :model-value="invoice.customer_code" disabled />
           </el-form-item>
@@ -80,9 +77,6 @@ defineExpose({ reload })
         </el-col>
 
         <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.status')">
-            <el-input :model-value="invoice.status" disabled />
-          </el-form-item>
           <el-form-item :label="t('proformaInvoice.customerName')">
             <el-input :model-value="invoice.customer_name" disabled />
           </el-form-item>
@@ -95,9 +89,6 @@ defineExpose({ reload })
         </el-col>
 
         <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.invoiceDate')">
-            <el-date-picker v-model="invoice.invoice_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
-          </el-form-item>
           <el-form-item :label="t('proformaInvoice.office')">
             <el-input :model-value="invoice.office" disabled />
           </el-form-item>
@@ -110,9 +101,6 @@ defineExpose({ reload })
         </el-col>
 
         <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.scheduleDate')">
-            <el-date-picker v-model="invoice.schedule_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
-          </el-form-item>
           <el-form-item :label="t('proformaInvoice.invoiceHeader')">
             <el-select v-model="invoice.invoice_header">
               <el-option v-for="item in invoiceHeaderOption" :key="item.value" :label="item.label" :value="item.value" />
@@ -127,28 +115,28 @@ defineExpose({ reload })
         </el-col>
         <el-col :span="12">
           <el-form-item :label="t('proformaInvoice.piRemarks')">
-            <el-input v-model="invoice.pi_remarks" type="textarea" :autosize="{ minRows: 2, maxRows: 4 }" />
+            <el-input v-model="invoice.pi_remarks" type="textarea" :autosize="{ minRows: 1, maxRows: 2 }" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item :label="t('proformaInvoice.invoiceDate')">
+            <el-date-picker v-model="invoice.invoice_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
-
-    <div class="pi-preview-panel__table">
-      <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-        <template #toolbar_buttons>
-          <span class="pi-preview-panel__table-title">{{ t('proformaInvoice.lineItems') }}</span>
-        </template>
-      </VxeGrid>
-    </div>
+  </div>
+  <div class="pi-preview-panel__table">
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+      <template #toolbar_buttons>
+        <span class="pi-preview-panel__table-title">{{ t('proformaInvoice.lineItems') }}</span>
+      </template>
+    </VxeGrid>
   </div>
 </template>
 
 <style scoped lang="scss">
 .pi-preview-panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--app-space-s);
-
   &__form {
     :deep(.el-form-item) {
       margin-bottom: 12px;
@@ -174,12 +162,11 @@ defineExpose({ reload })
       color: var(--app-primary-color);
     }
   }
+}
 
-  &__table {
-    min-height: 240px;
-    max-height: 320px;
-    overflow: auto;
-  }
+.pi-preview-panel__table {
+  height: 30vh;
+  overflow-y: auto;
 
   &__table-title {
     font-size: 16px;

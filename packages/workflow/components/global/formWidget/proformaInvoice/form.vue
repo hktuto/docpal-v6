@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useUserState } from '@packages/authApp/composables/useAuth'
+import { clientApi } from 'api'
+import dayjs from 'dayjs'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -32,7 +34,7 @@ const formModel = reactive<{
   submitted_date: number
   reject_reason: string
   approver: string
-  approval_date: number
+  approval_date: string
   items: {
     id: string
     schedule_date: number
@@ -66,7 +68,7 @@ const formModel = reactive<{
   submitted_date: 0,
   reject_reason: '',
   approver: '',
-  approval_date: 0,
+  approval_date: '',
   items: []
 })
 
@@ -163,35 +165,60 @@ function handleDelete(row: any) {
   reload()
 }
 
-function init() {
-  Object.assign(formModel, {
-    pi_number: formData.pi_number ?? formData.pi_invoice_number ?? '',
-    status: formData.status ?? '',
-    invoice_date: formData.invoice_date ?? '',
-    schedule_date: formData.schedule_date ?? '',
-    customer_code: formData.customer_code ?? formData.customer_number ?? '',
-    customer_name: formData.customer_name ?? '',
-    office: formData.office ?? '',
-    invoice_header: formData.invoice_header ?? '',
-    currency: formData.currency ?? '',
-    sub_total: formData.sub_total ?? '',
-    total_tax: formData.total_tax ?? '',
-    total_amount: formData.total_amount ?? '',
-    warehouse_location: formData.warehouse_location ?? '',
-    sub_inventory: formData.sub_inventory ?? '',
-    payment_in_adv: formData.payment_in_adv ?? formData.cod ?? '',
-    overdue_debt: formData.overdue_debt ?? '',
-    pi_remarks: formData.pi_remarks ?? formData.remarks ?? '',
-    submitted_by: formData.submitted_by ?? '',
-    submitted_date: formData.submitted_date ?? '',
-    approver: formData.approver ?? '',
-    approval_date: formData.approval_date ?? '',
-    reject_reason: formData.reject_reason ?? '',
-    items: formData.items ?? []
-  })
+async function init() {
+  try {
+    // const data = await clientApi.instance.get(`/apis/v1/ms/wfl/proforma-invoices/${formData.pi_number}`)
+    const data: any = await clientApi.instance.get(`/apis/v1/ms/wfl/proforma-invoices/SZ2609-0009`).then((r) => r.data)
+    console.log(123, data)
 
-  isApproval.value = formData.is_approval
-  isReview.value = formData.is_review
+    const { subTotal, totalTax } = data.lines.reduce(
+      (acc: any, item: any) => ({
+        subTotal: acc.subTotal.plus(item.lineAmount),
+        totalTax: acc.totalTax.plus(item.taxValue)
+      }),
+      { subTotal: new Decimal(0), totalTax: new Decimal(0) }
+    )
+
+    const totalAmount = subTotal.plus(totalTax).toNumber()
+
+    Object.assign(formModel, {
+      pi_number: data.piNum ?? '',
+      status: data.status ?? '',
+      invoice_date: data.invoice_date ?? '',
+      schedule_date: data.schedule_date ?? '',
+      customer_code: data.customerNumber ?? '',
+      customer_name: data.customerName ?? '',
+      office: data.companyTitle ?? '',
+      org_id: data.orgId,
+      invoice_header: formData.invoice_header ?? '',
+      currency: formData.currency ?? '',
+      sub_total: subTotal ?? 0,
+      total_tax: totalTax ?? 0,
+      total_amount: totalAmount ?? 0,
+      warehouse_location: formData.warehouse_location ?? '',
+      sub_inventory: formData.sub_inventory ?? '',
+      payment_in_adv: formData.payment_in_adv ?? '',
+      overdue_debt: formData.overdue_debt ?? '',
+      pi_remarks: formData.remarks ?? '',
+      items: data.lines ?? []
+    })
+
+    if (formData.is_approval) {
+      isApproval.value = formData.is_approval
+      formModel.reject_reason = ''
+      formModel.approver = userInfo.value.userId
+      formModel.approval_date = dayjs().format('YYYY-MM-DD')
+      formModel.submitted_by = formData.submitted_by ?? ''
+      formModel.submitted_date = formData.submitted_date
+    } else {
+      isReview.value = formData.is_review
+      formModel.reject_reason = formData.reject_reason
+      formModel.approver = formData.approver
+      formModel.approval_date = formData.approval_date
+    }
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 watch(
@@ -241,36 +268,36 @@ onMounted(() => {
   // if (!!formData) return
   getUserInfo()
 
-  formModel.pi_number = '1234567890'
-  formModel.status = '1234567890'
-  formModel.invoice_date = 1790155908490
-  formModel.schedule_date = 1790155908490
-  formModel.customer_code = '1234567890'
-  formModel.customer_name = '1234567890'
-  formModel.office = '1234567890'
-  formModel.invoice_header = 'SZ'
-  formModel.currency = 'CNY'
-  formModel.sub_total = 1234567890
-  formModel.total_tax = 1234567890
-  formModel.total_amount = 1234567890
-  formModel.warehouse_location = '1234567890'
-  formModel.sub_inventory = '1234567890'
-  formModel.payment_in_adv = 'N'
-  formModel.overdue_debt = 'N'
-  formModel.pi_remarks = '1234567890'
-  formModel.items = [
-    {
-      id: '11',
-      schedule_date: 1790155908490,
-      order_ln: 1,
-      order_number: '1234567890',
-      wcl_part_number: '1234567890',
-      order_qty: 1,
-      line_amount: 1,
-      tax_code: '1234567890',
-      status: 'aaa'
-    }
-  ]
+  // formModel.pi_number = '1234567890'
+  // formModel.status = '1234567890'
+  // formModel.invoice_date = 1790155908490
+  // formModel.schedule_date = 1790155908490
+  // formModel.customer_code = '1234567890'
+  // formModel.customer_name = '1234567890'
+  // formModel.office = '1234567890'
+  // formModel.invoice_header = 'SZ'
+  // formModel.currency = 'CNY'
+  // formModel.sub_total = 1234567890
+  // formModel.total_tax = 1234567890
+  // formModel.total_amount = 1234567890
+  // formModel.warehouse_location = '1234567890'
+  // formModel.sub_inventory = '1234567890'
+  // formModel.payment_in_adv = 'N'
+  // formModel.overdue_debt = 'N'
+  // formModel.pi_remarks = '1234567890'
+  // formModel.items = [
+  //   {
+  //     id: '11',
+  //     schedule_date: 1790155908490,
+  //     order_ln: 1,
+  //     order_number: '1234567890',
+  //     wcl_part_number: '1234567890',
+  //     order_qty: 1,
+  //     line_amount: 1,
+  //     tax_code: '1234567890',
+  //     status: 'aaa'
+  //   }
+  // ]
 })
 
 async function getFormData(needValidation = true) {

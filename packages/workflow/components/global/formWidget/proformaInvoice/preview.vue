@@ -32,7 +32,7 @@ function formatAmount(value: number | string | undefined) {
 function groupSummary(invoice: any) {
   const code = invoice.customer_code || '—'
   const count = invoice.items?.length ?? 0
-  return `${code} · ${t('proformaInvoice.linesCount', { count })} · ${formatAmount(invoice.total_amount)}`
+  return `${code} · ${t('proformaInvoice.linesCount', { count })} · ${formatAmount(invoice)}`
 }
 
 function normalizeInvoices(invoices: any[] | Record<string, any> = []): any[] {
@@ -110,6 +110,7 @@ defineExpose({ open })
     :close-on-press-escape="false"
     :show-close="false"
     @close="handleClose"
+    top="5vh"
   >
     <div class="pi-preview">
       <div class="pi-preview__banner">
