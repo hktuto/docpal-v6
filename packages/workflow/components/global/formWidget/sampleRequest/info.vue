@@ -106,13 +106,11 @@ async function getFormData(needValidation = true) {
   const email_part_list: any[] = []
   let pm_comment = ''
 
-  if (!formData.pm_approval) {
-    try {
-      const { value } = await ElMessageBox.prompt(t('sampleRequest.pmComment'), {
-        confirmButtonText: t('common_submit')
-      })
-      pm_comment = value
-    } catch {}
+  if (formData.pm_approval !== undefined && !formData.pm_approval) {
+    const { value } = await ElMessageBox.prompt(t('sampleRequest.pmComment'), {
+      confirmButtonText: t('common_submit')
+    })
+    pm_comment = value
   }
 
   formModel.list.forEach((item: any) => {

@@ -83,13 +83,15 @@ async function init() {
 
 async function getFormData(needValidation = true) {
   let reject_comment
-  if (!formData.is_pm_approval || !formData.is_gm_approval || !formData.is_tm_approval) {
-    try {
-      const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
-        confirmButtonText: t('common_submit')
-      })
-      reject_comment = value
-    } catch {}
+  if (
+    (formData.is_pm_approval !== undefined && !formData.is_pm_approval) ||
+    (formData.is_gm_approval !== undefined && !formData.is_gm_approval) ||
+    (formData.is_tm_approval !== undefined && !formData.is_tm_approval)
+  ) {
+    const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
+      confirmButtonText: t('common_submit')
+    })
+    reject_comment = value
   }
 
   const newTargetPriceList: any[] = []

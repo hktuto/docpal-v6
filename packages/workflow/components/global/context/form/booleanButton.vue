@@ -21,14 +21,19 @@ function beforeSubmit() {
 }
 
 async function submit() {
-  const buttonData: Record<string, boolean> = {
-    [booleanValue]: applyState
+  try {
+    const buttonData: Record<string, boolean> = {
+      [booleanValue]: applyState
+    }
+    await workflowProvider?.updateData(buttonData)
+    const formData = await workflowProvider?.getFormData(false, false)
+    if (!formData) return
+    formData[booleanValue] = applyState
+    emits('submit', { formData, booleanValue })
+  } catch (e) {
+    // 阻擋button的附加事件(messageBox等) cancel事件導致的提交
+    console.log(e)
   }
-  await workflowProvider?.updateData(buttonData)
-  const formData = await workflowProvider?.getFormData(false, false)
-  if (!formData) return
-  formData[booleanValue] = applyState
-  emits('submit', { formData, booleanValue })
 }
 
 defineExpose({ beforeSubmit, booleanValue })
