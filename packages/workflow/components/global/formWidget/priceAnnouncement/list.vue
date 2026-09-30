@@ -536,8 +536,7 @@ async function getFormData(needValidation = true) {
     ? {
         brand: formModel.brand,
         effective_date: formModel.effectiveDate,
-        // pm_group: `PriceAnnouncement_-_Approver_-_ProductManager_-_${formModel.brand}_-_${office}`,
-        pm_group: `PriceAnnouncement_-_Approver_-_ProductManager_-_KOA_-_${office.value}`,
+        pm_group: `PriceAnnouncement_-_Approver_-_ProductManager_-_${formModel.brand}_-_${office}`,
         email_salesManager_group: `PriceAnnouncement_-_EmailNoti_-_SalesManager_-_${office.value}`,
         email_generalManager_group: `PriceAnnouncement_-_EmailNoti_-_GeneralManager_-_${office.value}`,
         list,
