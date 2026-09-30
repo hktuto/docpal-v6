@@ -5355,5 +5355,22 @@
     "linesCount": "{count} 項",
     "confirmSubmit": "確認提交",
     "csvMustBeLessThan": "數據必須小於 {length} 行"
+  },
+  "shipCopy": {
+    "title": "待發貨發票",
+    "orgInvoiceVersion": "組織 / 發票號 / 版本",
+    "customer": "客戶",
+    "invoiceDate": "發票日期",
+    "planDate": "計劃日期",
+    "downloadCount": "下載次數",
+    "download": "下載",
+    "downloadSelected": "下載選中",
+    "cleanSelected": "清除選中({count})",
+    "org": "組織",
+    "invoiceNo": "發票號",
+    "invoiceDateFrom": "發票日期起",
+    "invoiceDateTo": "發票日期止",
+    "reset": "重置",
+    "downloadFailed": "無法下載發貨副本"
   }
 }

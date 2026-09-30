@@ -2,6 +2,8 @@
 import { clientApi } from 'api'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
+
+const { t } = useI18n()
 const selectedItem = ref<any>([]);
 
 
@@ -43,7 +45,7 @@ async function downloadBatch(docs: any[]) {
     a.click()
     a.remove()
   } catch (err) {
-    ElMessage.error("Can not download shipping copy")
+    ElMessage.error(t('shipCopy.downloadFailed'))
   } finally {
     loading.value = false
   }
@@ -150,7 +152,7 @@ const { tableConfig, tableEvent, tableRef, reload, setupLazyLoad } = useVxeTable
       width: 50
     },
     {
-      title: "ORG / Invoice# / Version",
+      title: t('shipCopy.orgInvoiceVersion'),
       type: "html",
       width: 250,
       treeNode: true,
@@ -160,24 +162,24 @@ const { tableConfig, tableEvent, tableRef, reload, setupLazyLoad } = useVxeTable
     },
     {
       field: "customer_name",
-      title: "Customer",
+      title: t('shipCopy.customer'),
     }, {
       field: "old_plan_date",
-      title: "Invoice Date",
+      title: t('shipCopy.invoiceDate'),
       formatter: ({ cellValue }: any) => {
         return formatDate(cellValue, 'YYYY-MMM-DD')
       }
     }, {
       field: "new_plan_date",
-      title: "Plan Date",
+      title: t('shipCopy.planDate'),
       formatter: ({ cellValue }: any) => {
         return formatDate(cellValue, 'YYYY-MMM-DD')
       }
     }, {
       field: "download_count",
-      title: "Download Count",
+      title: t('shipCopy.downloadCount'),
     }, {
-      title: "Download",
+      title: t('shipCopy.download'),
       slots: {
         default: "download"
       }
@@ -225,24 +227,24 @@ onMounted(() => {
 </script>
 
 <template>
-<DashboardCard title="Invoice (Pending For Ship)">
+<DashboardCard :title="t('shipCopy.title')">
     <VxeGrid
         v-loading="loading"
         ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
           <slot name="toolbar_buttons" />
           <template v-if="selectedItem.length > 0">
-            <ElButton @click="cleanSelected">Clean Selected({{ selectedItem.length }})</ElButton>
-            <ElButton @click="downloadBatch(selectedItem)" type="primary">Download Selected</ElButton>
+            <ElButton @click="cleanSelected">{{ t('shipCopy.cleanSelected', { count: selectedItem.length }) }}</ElButton>
+            <ElButton @click="downloadBatch(selectedItem)" type="primary">{{ t('shipCopy.downloadSelected') }}</ElButton>
           </template>
           <template v-else>
-            <ElSelect v-model="filterForm.orgId" placeholder="ORG" clearable filterable class="filter-item filter-select" @change="handleFilter">
+            <ElSelect v-model="filterForm.orgId" :placeholder="t('shipCopy.org')" clearable filterable class="filter-item filter-select" @change="handleFilter">
               <ElOption v-for="item in orgOptions" :key="item.value" :label="item.label" :value="item.value" />
             </ElSelect>
-            <ElInput v-model="filterForm.invoiceNo" placeholder="Invoice#" clearable class="filter-item filter-input" @change="handleFilter" @keyup.enter="handleFilter" />
+            <ElInput v-model="filterForm.invoiceNo" :placeholder="t('shipCopy.invoiceNo')" clearable class="filter-item filter-input" @change="handleFilter" @keyup.enter="handleFilter" />
             <ElSelect
               v-model="filterForm.customerId"
-              placeholder="Customer"
+              :placeholder="t('shipCopy.customer')"
               clearable
               filterable
               remote
@@ -256,7 +258,7 @@ onMounted(() => {
             <ElDatePicker
               v-model="filterForm.invoiceDateStart"
               type="date"
-              placeholder="Invoice Date From"
+              :placeholder="t('shipCopy.invoiceDateFrom')"
               value-format="YYYY-MM-DD"
               clearable
               class="filter-item filter-date"
@@ -266,18 +268,18 @@ onMounted(() => {
             <ElDatePicker
               v-model="filterForm.invoiceDateEnd"
               type="date"
-              placeholder="Invoice Date To"
+              :placeholder="t('shipCopy.invoiceDateTo')"
               value-format="YYYY-MM-DD"
               clearable
               class="filter-item filter-date"
               :disabled-date="disabledEndDate"
               @change="handleFilter"
             />
-            <ElButton @click="handleResetFilter">Reset</ElButton>
+            <ElButton @click="handleResetFilter">{{ t('shipCopy.reset') }}</ElButton>
           </template>
         </template>
         <template #download="{ row }">
-          <ElButton @click="downloadSingle(row)" type="primary">Download</ElButton>
+          <ElButton @click="downloadSingle(row)" type="primary">{{ t('shipCopy.download') }}</ElButton>
         </template>
     </VxeGrid>
 </DashboardCard>

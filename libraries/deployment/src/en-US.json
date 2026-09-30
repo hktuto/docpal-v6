@@ -5357,5 +5357,22 @@
     "linesCount": "{count} lines",
     "confirmSubmit": "Confirm Submit",
     "csvMustBeLessThan": "Data must be less than {length} rows"
+  },
+  "shipCopy": {
+    "title": "Invoice (Pending For Ship)",
+    "orgInvoiceVersion": "ORG / Invoice# / Version",
+    "customer": "Customer",
+    "invoiceDate": "Invoice Date",
+    "planDate": "Plan Date",
+    "downloadCount": "Download Count",
+    "download": "Download",
+    "downloadSelected": "Download Selected",
+    "cleanSelected": "Clean Selected({count})",
+    "org": "ORG",
+    "invoiceNo": "Invoice#",
+    "invoiceDateFrom": "Invoice Date From",
+    "invoiceDateTo": "Invoice Date To",
+    "reset": "Reset",
+    "downloadFailed": "Can not download shipping copy"
   }
 }
