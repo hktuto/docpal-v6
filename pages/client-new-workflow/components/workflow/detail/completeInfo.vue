@@ -1,3 +1,66 @@
+<script lang="ts" setup>
+import { clientApi } from 'api'
+
+const props = defineProps<{
+  taskDetail: any
+  state: string
+}>()
+const tableData = ref([])
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
+  id: 'completeTask_historical',
+  optionalConfig: {
+    rowConfig: {
+      useKey: true,
+      isCurrent: true
+    }
+  },
+  api: () => {
+    return tableData.value
+  },
+  columns: [
+    { field: 'name', title: 'workflow_jobName' },
+    {
+      field: 'created_at',
+      title: 'workflow_createDate',
+      formatter({ cellValue }: any) {
+        // @ts-ignore
+        return formatDate(cellValue)
+      }
+    },
+    {
+      field: 'completed_at',
+      title: 'workflow_completeDate',
+      formatter({ cellValue }: any) {
+        // @ts-ignore
+        return formatDate(cellValue)
+      }
+    },
+    {
+      field: 'state',
+      title: 'dpTable_status'
+    }
+  ],
+  dblClickAction: ({ row, column, event }: any) => {}
+})
+
+async function getHistorical(processId: string) {
+  const data = await clientApi.instance.get(`/api/v1/task/overview/all-tasks?process_id=${processId}`).then((r) => r.data)
+  console.log(123, data)
+  tableData.value = []
+  nextTick(() => reload())
+}
+
+watch(
+  () => props.taskDetail,
+  (value) => {
+    if (!value) return
+    console.log(value)
+    getHistorical(value.id)
+  },
+  { deep: true, immediate: true }
+)
+</script>
+
 <template>
   <div class="info" v-if="taskDetail">
     <div class="infoContainer">
@@ -20,19 +83,24 @@
       </div>
     </div>
   </div>
+
+  <el-divider />
+  <div style="height: 700px">
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+      <template #toolbar_buttons>
+        <div style="font-size: 20px; color: #1abc9c; font-weight: bold">
+          {{ $t('workflow_history') }}
+        </div>
+      </template>
+    </VxeGrid>
+  </div>
 </template>
-<script lang="ts" setup>
-const props = defineProps<{
-  taskDetail: any
-  state: string
-}>()
-</script>
+
 <style lang="scss" scoped>
 .info {
   display: flex;
   flex-flow: column nowrap;
   min-width: 180px;
-  height: 100%;
   justify-content: flex-start;
   align-items: flex-start;
   align-content: flex-start;

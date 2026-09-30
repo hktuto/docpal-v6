@@ -45,7 +45,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     }
   },
   columns: [
-    { field: 'name', title: 'workflowEditor.name', fixed: 'left', minWidth: 200, slots: { default: 'name' } },
+    { field: 'name', title: 'workflowEditor.name', fixed: 'left', minWidth: 200 },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -71,14 +71,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'state',
-      title: 'dpTable_status',
-      formatter({ cellValue, row }: any) {
-        return t('workflow.state.' + cellValue.type)
-      }
+      title: 'dpTable_status'
     }
   ],
   dblClickAction: ({ row, column, event }: any) => {
-    handleDblclick(row)
+    // handleDblclick(row)
   }
 })
 
