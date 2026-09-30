@@ -614,6 +614,13 @@ export const useVxeTable = (params: UseVxeTableParams) => {
       enabled: false
     }
     tableConfig.proxyConfig.enabled = false
+    // Toolbar refresh defaults to commitProxy('reload'): clearAll + map response via pager.
+    // With pager off, { result, page } is not applied → empty table. Route refresh here.
+    if (params.refresh !== false && tableConfig.toolbarConfig) {
+      tableConfig.toolbarConfig.refresh = {
+        queryMethod: () => setupLazyLoad()
+      }
+    }
     if (!tableEvent.scrollBoundary) {
       tableEvent.scrollBoundary = (scrollParams: VxeGridDefines.ScrollEventParams) => {
         responsiveScrollHandler(scrollParams)
@@ -638,20 +645,15 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     tablePageParams.value.pageSize = pageSize
     lazyLoadLock = false
     lazyLoadCooldown = false
-    lazyLoad()
+    return lazyLoad()
   }
 
   function reload() {
-    // if virtualScroll is true, then reload the table
-    if (!params.virtualScroll) {
-      tableRef.value?.commitProxy('reload')
-      return
-    } else {
-      tableRef.value?.loadData([])
-      nextTick(() => {
-        tableRef.value?.commitProxy('reload')
-      })
+    // virtualScroll + setupLazyLoad disables pager/proxy; commitProxy('reload') clears then shows empty
+    if (params.virtualScroll) {
+      return setupLazyLoad()
     }
+    tableRef.value?.commitProxy('reload')
   }
 
   function query(params: any) {
