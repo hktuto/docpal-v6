@@ -2,10 +2,10 @@
 import { clientApi } from 'api'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
+import { Loading } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
-const selectedItem = ref<any>([]);
-
+const selectedItem = ref<any[]>([])
 
 const batchDownloading = ref(false)
 const downloadingRowKey = ref<string | null>(null)
@@ -29,7 +29,7 @@ async function downloadBatch(docs: any[]) {
 }
 
 async function doDownload(docs: any[]) {
-  const documents = docs.map(doc => ({
+  const documents = docs.map((doc) => ({
     orgId: doc.org_id,
     invoiceNo: doc.pi_num,
     versionNo: doc.version_no
@@ -37,14 +37,12 @@ async function doDownload(docs: any[]) {
   const fileName = dayjs().format('YYYY-MM-DD')
   const userId = useUserId()
   const body = {
-    "type": "print-hk",
-    "documents": [
-      ...documents
-    ],
-    "ckStatus": "Y",
-    "operatorId": userId.value,
-    "operatorName": userId.value,
-    "fileName": fileName,
+    type: 'print-hk',
+    documents: [...documents],
+    ckStatus: 'Y',
+    operatorId: userId.value,
+    operatorName: userId.value,
+    fileName
   }
   try {
     const res = await clientApi.instance.post(`/v1/ms/oracle/shipping-copy/download`, body, {
@@ -67,7 +65,6 @@ async function doDownload(docs: any[]) {
     ElMessage.error(t('shipCopy.downloadFailed'))
   }
 }
-
 
 const filterForm = reactive({
   orgId: '',
@@ -104,63 +101,89 @@ function searchCustomers(query: string) {
         label: item.customer_name,
         value: String(item.cust_account_id)
       }))
-      // keep the currently selected option so its label doesn't disappear after searching
-      const selected = customerOptions.value.find(o => o.value === filterForm.customerId)
-      customerOptions.value = selected && !options.some(o => o.value === selected.value)
-        ? [selected, ...options]
-        : options
+      const selected = customerOptions.value.find((o) => o.value === filterForm.customerId)
+      customerOptions.value =
+        selected && !options.some((o) => o.value === selected.value) ? [selected, ...options] : options
     } finally {
       customerLoading.value = false
     }
   }, 300)
 }
 
-const { tableConfig, tableEvent, tableRef, setupLazyLoad } = useVxeTable({
-  id: "shipConfirmTable",
-  virtualScroll:true,
-  api: async (pageParams: any) => {
-    const query = new URLSearchParams({
-      pageNum: String(pageParams?.page?.currentPage || 1),
-      pageSize: '20'
-    })
-    if (filterForm.orgId) query.set('orgId', filterForm.orgId)
-    if (filterForm.invoiceNo) query.set('invoiceNo', filterForm.invoiceNo)
-    if (filterForm.customerId) query.set('customerId', filterForm.customerId)
-    if (filterForm.invoiceDateStart) query.set('invoiceDateStart', filterForm.invoiceDateStart)
-    if (filterForm.invoiceDateEnd) query.set('invoiceDateEnd', filterForm.invoiceDateEnd)
-    const res = await clientApi.instance.get(`/v1/ms/oracle/shipping-copy/list-latest?${query.toString()}`, {
-      baseURL:'/apis'
-    })
-    return {
-      result: (res.data.items || []).map((item: any) => ({
-        ...item,
-        _rowKey: `${item.org_id}_${item.pi_num}`,
-        hasChild: item.version_no > 1
-      })),
-      page: {
-        total: res.data.total,
-        currentPage: res.data.pageNum
-      }
+function mapListRow(item: any) {
+  return {
+    ...item,
+    _rowKey: `${item.org_id}_${item.pi_num}`,
+    parentId: null,
+    hasChild: item.version_no > 1
+  }
+}
+
+function mapHistoryRow(item: any, parentKey: string) {
+  return {
+    ...item,
+    _rowKey: `${item.org_id}_${item.pi_num}_${item.version_no}`,
+    parentId: parentKey,
+    hasChild: false
+  }
+}
+
+async function fetchList(pageParams: any) {
+  const currentPage = pageParams?.page?.currentPage || 1
+  const pageSize = pageParams?.page?.pageSize || 20
+  const query = new URLSearchParams({
+    pageNum: String(currentPage),
+    pageSize: String(pageSize)
+  })
+  if (filterForm.orgId) query.set('orgId', filterForm.orgId)
+  if (filterForm.invoiceNo) query.set('invoiceNo', filterForm.invoiceNo)
+  if (filterForm.customerId) query.set('customerId', filterForm.customerId)
+  if (filterForm.invoiceDateStart) query.set('invoiceDateStart', filterForm.invoiceDateStart)
+  if (filterForm.invoiceDateEnd) query.set('invoiceDateEnd', filterForm.invoiceDateEnd)
+  const res = await clientApi.instance.get(`/v1/ms/oracle/shipping-copy/list-latest?${query.toString()}`, {
+    baseURL: '/apis'
+  })
+  return {
+    result: (res.data.items || []).map(mapListRow),
+    page: {
+      total: res.data.total,
+      currentPage: res.data.pageNum
     }
-  },
+  }
+}
+
+const { tableConfig, tableEvent, tableRef, setupLazyLoad, isLazyLoading } = useVxeTable({
+  id: 'shipConfirmTable',
+  height: '100%',
+  pageSize: 13,
+  virtualScroll: true,
+  api: async (pageParams: any) => fetchList(pageParams),
   optionalConfig: {
     treeConfig: {
-      transform: false,
+      transform: true,
       rowField: '_rowKey',
-      childrenField: 'children',
+      parentField: 'parentId',
       lazy: true,
+      indent: 20,
       showLine: true,
       hasChildField: 'hasChild',
       loadMethod: async ({ row }: any) => {
-        const res = await clientApi.instance.get(`/v1/ms/oracle/shipping-copy/history?orgId=${row.org_id}&invoiceNo=${encodeURIComponent(row.pi_num)}`, {
-          baseURL: '/apis'
-        })
-        return (res.data.items || []).map((item: any) => ({
-          ...item,
-          _rowKey: `${item.org_id}_${item.pi_num}_${item.version_no}`,
-          hasChild: false
-        }))
+        const res = await clientApi.instance.get(
+          `/v1/ms/oracle/shipping-copy/history?orgId=${row.org_id}&invoiceNo=${encodeURIComponent(row.pi_num)}`,
+          { baseURL: '/apis' }
+        )
+        return (res.data.items || []).map((item: any) => mapHistoryRow(item, row._rowKey))
       }
+    },
+    checkboxConfig: {
+      checkStrictly: true,
+      highlight: true
+    },
+    rowConfig: {
+      keyField: '_rowKey',
+      useKey: true,
+      height: 42,
+      isHover: true
     }
   },
   columns: [
@@ -170,35 +193,35 @@ const { tableConfig, tableEvent, tableRef, setupLazyLoad } = useVxeTable({
     },
     {
       title: t('shipCopy.orgInvoiceVersion'),
-      type: "html",
+      type: 'html',
       width: 250,
       treeNode: true,
-      formatter: ({ cellValue, row }: any) => {
+      formatter: ({ row }: any) => {
         return `${row.org_id} / ${row.pi_num} / <div class="el-tag">${row.version_no}</div>`
       }
     },
     {
-      field: "customer_name",
-      title: t('shipCopy.customer'),
-    }, {
-      field: "old_plan_date",
+      field: 'customer_name',
+      title: t('shipCopy.customer')
+    },
+    {
+      field: 'old_plan_date',
       title: t('shipCopy.invoiceDate'),
-      formatter: ({ cellValue }: any) => {
-        return formatDate(cellValue, 'YYYY-MMM-DD')
-      }
-    }, {
-      field: "new_plan_date",
+      formatter: ({ cellValue }: any) => formatDate(cellValue, 'YYYY-MMM-DD')
+    },
+    {
+      field: 'new_plan_date',
       title: t('shipCopy.planDate'),
-      formatter: ({ cellValue }: any) => {
-        return formatDate(cellValue, 'YYYY-MMM-DD')
-      }
-    }, {
-      field: "download_count",
-      title: t('shipCopy.downloadCount'),
-    }, {
+      formatter: ({ cellValue }: any) => formatDate(cellValue, 'YYYY-MMM-DD')
+    },
+    {
+      field: 'download_count',
+      title: t('shipCopy.downloadCount')
+    },
+    {
       title: t('shipCopy.download'),
       slots: {
-        default: "download"
+        default: 'download'
       }
     }
   ],
@@ -214,7 +237,6 @@ function cleanSelected() {
 
 function handleFilter() {
   cleanSelected()
-  // re-run setupLazyLoad to reset data/paging and reload with current filters
   setupLazyLoad()
 }
 
@@ -227,7 +249,6 @@ function handleResetFilter() {
   handleFilter()
 }
 
-// start date cannot be after selected end date, and vice versa
 function disabledStartDate(date: Date) {
   return filterForm.invoiceDateEnd ? dayjs(date).isAfter(filterForm.invoiceDateEnd, 'day') : false
 }
@@ -235,30 +256,48 @@ function disabledEndDate(date: Date) {
   return filterForm.invoiceDateStart ? dayjs(date).isBefore(filterForm.invoiceDateStart, 'day') : false
 }
 
+// disable proxy before VxeGrid mounts; data loads via setupLazyLoad
+tableConfig.proxyConfig.enabled = false
+
 onMounted(() => {
   setupLazyLoad()
   getOrgOptions()
   searchCustomers('')
 })
-
 </script>
 
 <template>
-<DashboardCard :title="t('shipCopy.title')">
-    <VxeGrid
-        ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+  <DashboardCard :title="t('shipCopy.title')">
+    <div class="ship-copy-table">
+      <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
           <div class="toolbar-filters">
             <slot name="toolbar_buttons" />
             <template v-if="selectedItem.length > 0">
               <ElButton @click="cleanSelected">{{ t('shipCopy.cleanSelected', { count: selectedItem.length }) }}</ElButton>
-              <ElButton :loading="batchDownloading" @click="downloadBatch(selectedItem)" type="primary">{{ t('shipCopy.downloadSelected') }}</ElButton>
+              <ElButton :loading="batchDownloading" type="primary" @click="downloadBatch(selectedItem)">
+                {{ t('shipCopy.downloadSelected') }}
+              </ElButton>
             </template>
             <template v-else>
-              <ElSelect v-model="filterForm.orgId" :placeholder="t('shipCopy.org')" clearable filterable class="filter-item filter-select" @change="handleFilter">
+              <ElSelect
+                v-model="filterForm.orgId"
+                :placeholder="t('shipCopy.org')"
+                clearable
+                filterable
+                class="filter-item filter-select"
+                @change="handleFilter"
+              >
                 <ElOption v-for="item in orgOptions" :key="item.value" :label="item.label" :value="item.value" />
               </ElSelect>
-              <ElInput v-model="filterForm.invoiceNo" :placeholder="t('shipCopy.invoiceNo')" clearable class="filter-item filter-input" @change="handleFilter" @keyup.enter="handleFilter" />
+              <ElInput
+                v-model="filterForm.invoiceNo"
+                :placeholder="t('shipCopy.invoiceNo')"
+                clearable
+                class="filter-item filter-input"
+                @change="handleFilter"
+                @keyup.enter="handleFilter"
+              />
               <ElSelect
                 v-model="filterForm.customerId"
                 :placeholder="t('shipCopy.customer')"
@@ -297,19 +336,51 @@ onMounted(() => {
           </div>
         </template>
         <template #download="{ row }">
-          <ElButton :loading="downloadingRowKey === row._rowKey" @click="downloadSingle(row)" type="primary">{{ t('shipCopy.download') }}</ElButton>
+          <ElButton
+            :loading="downloadingRowKey === row._rowKey"
+            type="primary"
+            @click="downloadSingle(row)"
+          >
+            {{ t('shipCopy.download') }}
+          </ElButton>
         </template>
-    </VxeGrid>
-</DashboardCard>
+      </VxeGrid>
+      <div v-if="isLazyLoading" class="ship-copy-loading-more">
+        <ElIcon class="is-loading"><Loading /></ElIcon>
+        <span>{{ t('loading') }}</span>
+      </div>
+    </div>
+  </DashboardCard>
 </template>
 
 <style lang="scss" scoped>
+.ship-copy-table {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.ship-copy-loading-more {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-space-xs);
+  padding: var(--app-space-s);
+  background: color-mix(in srgb, var(--el-bg-color, #fff) 88%, transparent);
+  color: var(--el-color-primary);
+  font-size: var(--app-font-size-s);
+  pointer-events: none;
+}
 .toolbar-filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  gap: 6px;
+  gap: var(--app-space-s);
   width: 100%;
 }
 .filter-item {

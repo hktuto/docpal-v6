@@ -133,7 +133,13 @@ export const useVxeTable = (params: UseVxeTableParams) => {
         drag: true
       },
       scrollY: {
-        enabled: params.virtualScroll || false
+        enabled: !!params.virtualScroll,
+        // gt:0 = always enable; default global gt is 100 so small lists never virtualize
+        gt: params.virtualScroll ? 0 : 100
+      },
+      virtualYConfig: {
+        enabled: !!params.virtualScroll,
+        gt: params.virtualScroll ? 0 : 100
       },
       pagerConfig: {
         enabled: params.virtualScroll ? false : true,
@@ -515,36 +521,85 @@ export const useVxeTable = (params: UseVxeTableParams) => {
       }
     }
   }
-  async function responsiveScrollHandler({ scrollTop, direction }: VxeGridDefines.ScrollEventParams) {
+  async function responsiveScrollHandler({ direction, isBottom }: VxeGridDefines.ScrollEventParams) {
     if (!params.api) {
       return
     }
-    // 不是 virtualScroll 或者 api 或者 大于 mobile 的时候不处理 scroll
-    if (direction === 'bottom') {
-      // 向下滚动
+    // only load next page when user reaches the bottom edge
+    if (direction === 'bottom' || isBottom) {
       await lazyLoad()
     }
   }
 
+  function getRootDataLength(list: any[] = []) {
+    // tree transform flat list may include lazy-loaded children; only count roots for paging
+    if (tableConfig.treeConfig) {
+      return list.filter((row) => row?.parentId == null || row?.parentId === '').length
+    }
+    return list.length
+  }
+
+  let lazyLoadLock = false
+  let lazyLoadCooldown = false
+  const isLazyLoading = ref(false)
+
   async function lazyLoad() {
-    if(tableConfig.loading) {
+    if (lazyLoadLock || lazyLoadCooldown) {
       return
     }
-    if (tablePageParams.value.total && tablePageParams.value.total === tableConfig.data.length) {
-      console.log('no more data')
+    const loadedRoots = getRootDataLength(tableConfig.data)
+    if (tablePageParams.value.total != null && loadedRoots >= tablePageParams.value.total) {
       return
     }
-    tableConfig.loading = true
-    const data = await loadData({
-      page: tablePageParams.value,
-      sorts: [], // TODO : get sorts from config
-      filters: [] // TODO : get filters from config
-    })
-    tableConfig.data.push(...data.result)
-    tableData.value = tableConfig.data
-    tablePageParams.value.total = data.page.total
-    tablePageParams.value.currentPage += 1
-    tableConfig.loading = false
+    lazyLoadLock = true
+    isLazyLoading.value = true
+    const isFirstLoad = loadedRoots === 0
+    // first load: full-table overlay; append: bottom tip via isLazyLoading (avoid page-center spinner)
+    if (isFirstLoad) {
+      tableConfig.loading = true
+    }
+    try {
+      const scrollTop = tableRef.value?.getScroll?.()?.scrollTop ?? 0
+      const data = await loadData({
+        page: tablePageParams.value,
+        sorts: [], // TODO : get sorts from config
+        filters: [] // TODO : get filters from config
+      })
+      const pageResult = Array.isArray(data) ? data : (data?.result ?? [])
+      if (!pageResult.length) {
+        tablePageParams.value.total = loadedRoots
+        return
+      }
+      const rootsOnly = (tableConfig.data || []).filter((row: any) => {
+        if (!tableConfig.treeConfig) return true
+        return row?.parentId == null || row?.parentId === ''
+      })
+      const nextData = rootsOnly.concat(pageResult)
+      tableConfig.data = nextData
+      tableData.value = nextData
+      tablePageParams.value.total = Array.isArray(data) ? nextData.length : data?.page?.total
+      tablePageParams.value.currentPage += 1
+      await nextTick()
+      if (isFirstLoad) {
+        await tableRef.value?.reloadData?.(nextData)
+      } else {
+        // keep scroll position — reloadData jumps to top/bottom and retriggers scrollBoundary
+        await tableRef.value?.loadData?.(nextData)
+        await nextTick()
+        tableRef.value?.scrollTo?.(0, scrollTop)
+      }
+    } finally {
+      if (isFirstLoad) {
+        tableConfig.loading = false
+      }
+      isLazyLoading.value = false
+      lazyLoadLock = false
+      // prevent scrollBoundary loop while still sitting at the bottom after append
+      lazyLoadCooldown = true
+      setTimeout(() => {
+        lazyLoadCooldown = false
+      }, 400)
+    }
   }
 
   function setupPagingnation() {
@@ -564,16 +619,25 @@ export const useVxeTable = (params: UseVxeTableParams) => {
         responsiveScrollHandler(scrollParams)
       }
     }
+    const pageSize = params.pageSize || 20
     // @ts-ignore
     tableConfig.scrollY = {
       enabled: true,
-      threshold: params.pageSize || 20
+      gt: 0,
+      threshold: 20
+    }
+    tableConfig.virtualYConfig = {
+      enabled: true,
+      gt: 0,
+      threshold: 20
     }
     tableConfig.data = []
     tablePageParams.value.pageNum = 0
     tablePageParams.value.currentPage = 1
     tablePageParams.value.total = undefined
-    tablePageParams.value.pageSize = params.pageSize || 20
+    tablePageParams.value.pageSize = pageSize
+    lazyLoadLock = false
+    lazyLoadCooldown = false
     lazyLoad()
   }
 
@@ -689,7 +753,8 @@ export const useVxeTable = (params: UseVxeTableParams) => {
     cleanSelectedRows,
     reload,
     query,
-    setupLazyLoad
+    setupLazyLoad,
+    isLazyLoading
   }
 }
 async function visibleMethodHelper(row: any, options: any, params: any) {
