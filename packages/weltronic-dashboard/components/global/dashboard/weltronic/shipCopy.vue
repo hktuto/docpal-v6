@@ -205,7 +205,7 @@ const { tableConfig, tableEvent, tableRef, setupLazyLoad, isLazyLoading } = useV
       title: t('shipCopy.customer')
     },
     {
-      field: 'old_plan_date',
+      field: 'invoice_date',
       title: t('shipCopy.invoiceDate'),
       formatter: ({ cellValue }: any) => formatDate(cellValue, 'YYYY-MMM-DD')
     },
