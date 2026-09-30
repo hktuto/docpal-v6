@@ -348,7 +348,7 @@ async function init() {
 
 async function getFormData(needValidation = true) {
   let reject_comment
-  if (!formData.pm_approval) {
+  if (formData.is_pc_approval !== undefined && !formData.is_pc_approval) {
     try {
       const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
         confirmButtonText: t('common_submit')
