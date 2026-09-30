@@ -155,7 +155,7 @@ async function fetchList(pageParams: any) {
 const { tableConfig, tableEvent, tableRef, setupLazyLoad, isLazyLoading } = useVxeTable({
   id: 'shipConfirmTable',
   height: '100%',
-  pageSize: 13,
+  pageSize: 100,
   virtualScroll: true,
   api: async (pageParams: any) => fetchList(pageParams),
   optionalConfig: {
