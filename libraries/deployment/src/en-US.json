@@ -5156,7 +5156,8 @@
     "emailAlert": "Sample Delivery Notice",
     "status": "Application Status",
     "customerConfirmsReceipt": "Customer confirms receipt",
-    "cancel": "Cancel Application"
+    "cancel": "Cancel Application",
+    "cancelConfirmEms": "Cancel the application process?"
   },
   "priceAnnouncement": {
     "paNumber": "PA Number",

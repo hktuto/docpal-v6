@@ -5082,7 +5082,8 @@
     "emailAlert": "送样通知",
     "status": "申请状态",
     "customerConfirmsReceipt": "客户确认收货",
-    "cancel": "取消申请"
+    "cancel": "取消申请",
+    "cancelConfirmEms": "取消申请流程?"
   },
   "priceAnnouncement": {
     "paNumber": "PA编号",

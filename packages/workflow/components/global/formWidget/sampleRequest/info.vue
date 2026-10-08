@@ -101,16 +101,21 @@ function checkPurpose(vendor: string) {
   return ['MMC', 'COPAL', 'OKAYA'].includes(vendor.toUpperCase())
 }
 
-async function getFormData(needValidation = true) {
+async function getFormData(needValidation = true, buttonName: string) {
   const part_number_list: string[] = []
   const email_part_list: any[] = []
   let pm_comment = ''
-
-  if (formData.pm_approval !== undefined && !formData.pm_approval) {
-    const { value } = await ElMessageBox.prompt(t('sampleRequest.pmComment'), {
-      confirmButtonText: t('common_submit')
-    })
-    pm_comment = value
+  if (!!buttonName) {
+    if (buttonName === 'pm_approval') {
+      const { value } = await ElMessageBox.prompt(t('sampleRequest.pmComment'), {
+        confirmButtonText: t('common_submit')
+      })
+      pm_comment = value
+    } else if (buttonName === 'is_cancel') {
+      await ElMessageBox.prompt(t('sampleRequest.cancelConfirmEms'), {
+        confirmButtonText: t('common_submit')
+      })
+    }
   }
 
   formModel.list.forEach((item: any) => {

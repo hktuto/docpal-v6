@@ -26,7 +26,7 @@ async function submit() {
       [booleanValue]: applyState
     }
     await workflowProvider?.updateData(buttonData)
-    const formData = await workflowProvider?.getFormData(false, false)
+    const formData = await workflowProvider?.getFormData(false, false, booleanValue)
     if (!formData) return
     formData[booleanValue] = applyState
     emits('submit', { formData, booleanValue })

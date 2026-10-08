@@ -5154,7 +5154,8 @@
     "emailAlert": "送樣通知",
     "status": "申請狀態",
     "customerConfirmsReceipt": "客戶確認收貨",
-    "cancel": "取消申請"
+    "cancel": "取消申請",
+    "cancelConfirmEms": "取消申請流程?"
   },
   "priceAnnouncement": {
     "paNumber": "PA編號",

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ElMessageBox } from 'element-plus'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -47,7 +49,12 @@ function init() {
   }
 }
 
-function getFormData() {
+async function getFormData(needValidation = true, buttonName: string) {
+  if (buttonName === 'is_cancel') {
+    await ElMessageBox.prompt(t('sampleRequest.cancelConfirmEms'), {
+      confirmButtonText: t('common_submit')
+    })
+  }
   return { sample_info_list: data.value }
 }
 
