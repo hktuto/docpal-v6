@@ -354,7 +354,7 @@ async function getFormData(needValidation = true) {
     customerName: formModel.customerName,
     customer_english_name: formModel.customer_english_name,
     customerEnglishName: formModel.customerEnglishName,
-    org: formModel.org_id,
+    org: officeOption.value.find((item: any) => item.value === formModel.org_id).label,
     line_list: lineList,
     email_list: formModel.list.map(({ id: _id, ...item }) => item)
   }
