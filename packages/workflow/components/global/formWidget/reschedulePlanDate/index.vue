@@ -506,10 +506,10 @@ defineExpose({ getFormData })
 
   <el-divider content-position="left">{{ t('reschedulePlanDate.lineItems') }}</el-divider>
 
-  <div style="max-height: 40vh; overflow: auto">
-    <el-form ref="lineFormRef" label-position="top" class="line-form all-input-style" :model="formModel" :disabled="disabled">
+  <div style="max-height: 65vh; overflow: auto; margin-block-end: 0">
+    <el-form ref="lineFormRef" label-position="top" :model="formModel" :disabled="disabled">
       <el-button v-if="formModel.list.length === 0 && !disabled" type="primary" @click="handleAdd">{{ t('reschedulePlanDate.add') }}</el-button>
-      <draggable v-model="formModel.list" item-key="id" handle=".drag-handle" :animation="200" ghost-class="line-row-ghost" :disabled="disabled">
+      <draggable v-model="formModel.list" item-key="id" handle=".drag-handle" :animation="200" :disabled="disabled">
         <template #item="{ element, index }">
           <div class="line-row">
             <span class="line-row__index">#{{ index + 1 }}</span>
@@ -544,7 +544,7 @@ defineExpose({ getFormData })
               <el-input v-model="element.status" disabled />
             </el-form-item>
             <el-form-item class="line-row__field line-row__field--remark" :label="t('reschedulePlanDate.remark')">
-              <el-input v-model="element.remark" />
+              <el-input v-model="element.remark" clearable />
             </el-form-item>
             <div v-if="!disabled" class="line-row__actions">
               <el-button type="primary" text size="small" @click="handleAdd(index)">{{ t('reschedulePlanDate.add') }}</el-button>
@@ -641,9 +641,5 @@ defineExpose({ getFormData })
 .drag-handle:focus {
   outline: 1px dashed var(--app-primary-color);
   outline-offset: 2px;
-}
-
-.line-row-ghost {
-  opacity: 0.5;
 }
 </style>
