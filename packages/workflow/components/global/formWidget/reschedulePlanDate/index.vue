@@ -348,6 +348,12 @@ async function getFormData(needValidation = true) {
     new_plan_date: item.new_plan_date
   }))
 
+  const emailList = formModel.list.map(({ id: _id, ...item }) => ({
+    ...item,
+    new_plan_date: dayjs(item.new_plan_date).format('YYYY-MMM-DD'),
+    old_plan_date: dayjs(item.old_plan_date).format('YYYY-MMM-DD')
+  }))
+
   const result = {
     customer_number: formModel.customer_number,
     customer_name: formModel.customer_name,
@@ -356,8 +362,9 @@ async function getFormData(needValidation = true) {
     customerEnglishName: formModel.customerEnglishName,
     org: officeOption.value.find((item: any) => item.value === formModel.org_id).label,
     line_list: lineList,
-    email_list: formModel.list.map(({ id: _id, ...item }) => item)
+    email_list: emailList
   }
+
   if (!needValidation) return result
   await lineFormRef.value?.validate()
   return result
