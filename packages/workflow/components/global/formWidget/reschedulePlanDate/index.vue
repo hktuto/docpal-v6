@@ -57,7 +57,7 @@ const lineRules = {
         const index = Number(String(rule.field).match(/^list\.(\d+)\.pi_invoice$/)?.[1])
         const item = formModel.list[index]
         try {
-          const data = await checkingPiNumber(value)
+          const data = await checkingPiNumber(value, index)
           if (!data) {
             if (item?.pi_invoice === value) {
               item.old_plan_date = ''
@@ -301,13 +301,13 @@ function numberChange(value: string) {
   formModel.customerName = customerNameOptions.value.find((item: any) => item.value === value)?.label ?? ''
 }
 
-async function checkingPiNumber(value: string) {
+async function checkingPiNumber(value: string, index: number) {
   try {
     let customer_number = ''
     if (!!formModel.customer_number && formModel.customer_number !== '') {
       customer_number = `customer_number=${formModel.customer_number}&`
     }
-    if (formModel.list.length === 1) {
+    if (index === 0 || formModel.list.length === 1) {
       customer_number = ''
     }
 
@@ -320,7 +320,7 @@ async function checkingPiNumber(value: string) {
 
 async function setCustomerNumber(item: any) {
   if (item.pi_invoice === '' || formModel.customer_number !== '') return
-  const data = await checkingPiNumber(item.pi_invoice)
+  const data = await checkingPiNumber(item.pi_invoice, 0)
   if (!!data) {
     formModel.customer_number = data.customer_number
     formModel.customer_name = data.customer_number
