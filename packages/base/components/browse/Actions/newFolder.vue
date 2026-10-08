@@ -25,7 +25,7 @@ import { ElMessage } from 'element-plus'
 import { useEventListener } from '@vueuse/core'
 import { emitBus, EventType } from 'eventbus'
 import { newClientApi } from 'api'
-import { duplicateNameFilter } from '../../../../packages/base/utils/browseHelper'
+import { duplicateNameFilter } from '~/utils/browseHelper'
 
 const dialogOpened = ref(false)
 const { t } = useI18n()

@@ -5,12 +5,12 @@ import { dirname, join } from 'path'
 const currentDir = dirname(fileURLToPath(import.meta.url))
 
 const config = {
-  compatibilityDate: '2024-04-03',
+  compatibilityDate: '2025-07-15',
   devtools: {
     enabled: true
   },
   modules: ['@nuxtjs/i18n', '@nuxtjs/color-mode', '@vueuse/nuxt'],
-  css: ['../assets/styles/main.scss'],
+  css: [join(currentDir, 'assets/styles/main.scss')],
   extends: ['../sql-store', '../inline-ocr'],
 
   runtimeConfig: {
@@ -170,16 +170,27 @@ const config = {
         }
       }
     },
-    esbuild: {
-      drop: ['debugger'],
-      pure: ['console.error', 'console.warn', 'console.debug', 'console.trace']
-    },
     vue: {
       features: {
         propsDestructure: true
       },
       script: {
         defineModel: true
+      }
+    }
+  },
+  $production: {
+    vite: {
+      build: {
+        rolldownOptions: {
+          output: {
+            minify: {
+              compress: {
+                dropDebugger: true
+              }
+            }
+          }
+        }
       }
     }
   }
