@@ -15,7 +15,8 @@ const dataList = ref<any[]>([])
 const userInfo = ref<any>({
   user: '',
   office: '',
-  org_id: ''
+  org_id: '',
+  email: ''
 })
 const isApproval = ref<boolean>(false)
 const selectedRowsList = ref<any[]>([])
@@ -207,6 +208,7 @@ function getUserInfo() {
       userInfo.value.office = user.org[0].organizationCode
       userInfo.value.org_id = user.org[0].operatingId
     }
+    userInfo.value.email = user.email
   }
 }
 
@@ -301,6 +303,7 @@ async function getFormData(needValidation = true) {
   let result = {}
   if (!isApproval.value) {
     result = {
+      creator_email: userInfo.value.email,
       org_id: userInfo.value.org_id,
       office: header.value.office,
       tn_number: header.value.tn_number,
