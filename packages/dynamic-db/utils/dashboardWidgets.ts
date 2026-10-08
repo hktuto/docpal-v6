@@ -530,29 +530,18 @@ export const useDbDashboardWidgetSetting = () => useState<any>('dbDashboardWidge
 
 /**
  * Returns the full dashboard widget palette grouped by type.
- * Includes dynamic-db widgets (database, record) plus eligible dp-dashboard widgets.
+ * Includes dynamic-db widgets (database). Record widgets are excluded.
  */
 export function getDbDashboardWidgetByType(): Record<string, any[]> {
   const dpDashboardWidgetSetting = useDbDashboardWidgetSetting()
   const result: Record<string, any[]> = {
-    database: [],
-    // record: []
+    database: []
   }
   Object.keys(dpDashboardWidgetSetting.value).forEach((key) => {
     const widget = dpDashboardWidgetSetting.value[key]
     const type = widget.type || 'database'
     // Record widgets are only for the per-record dashboard, not the database dashboard
     if (type === 'record') return
-    if (!result[type]) {
-      result[type] = []
-    }
-    result[type].push(widget)
-  })
-  Object.keys(dpDashboardWidgetSetting.value).forEach((key) => {
-    const widget = dpDashboardWidgetSetting.value[key]
-    const type = widget.type || 'default'
-    // Skip case and common widgets since these features are not used in DB dashboards
-    if (type === 'case' || type === 'caseCount' || type === 'default') return
     if (!result[type]) {
       result[type] = []
     }
