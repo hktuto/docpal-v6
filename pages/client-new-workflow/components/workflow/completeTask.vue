@@ -46,6 +46,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   },
   columns: [
     { field: 'name', title: 'workflowEditor.name', fixed: 'left', minWidth: 200 },
+    // { field: 'alias', title: 'workflow_businessKey' },
     {
       field: 'created_at',
       title: 'workflow_createDate',

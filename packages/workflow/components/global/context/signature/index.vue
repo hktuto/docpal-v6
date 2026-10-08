@@ -27,10 +27,10 @@ watch(
     <ContextUserTaskAssignee :node="node" />
     <ContextSignatureDetail :node="node" />
     <ContextUserTaskAdditional :node="node" />
+    <ContextUserTaskBusinessKey :node="node" />
     <ContextForm :node="node" />
     <ContextUserTaskBooleanButton :node="node" />
   </div>
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

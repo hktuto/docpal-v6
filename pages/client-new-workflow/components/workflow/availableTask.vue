@@ -50,7 +50,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   columns: [
     { field: 'definition_name', title: 'workflowEditor.name' },
     { field: 'name', title: 'workflow_jobName' },
-    { field: 'business_key', title: 'workflow_businessKey', slots: { default: 'business_key' } },
+    { field: 'alias', title: 'workflow_businessKey' },
     { field: 'assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     { field: 'status', title: 'dpTable_status' },
     {
@@ -148,9 +148,6 @@ defineExpose({
             </el-select>
           </el-form-item>
         </div>
-      </template>
-      <template #business_key="{ row }">
-        <span>{{ row?.execution?.input_variables?.business_key || '' }}</span>
       </template>
       <template #assignee="{ row }">
         <el-tag v-if="row.assignee" round>{{ row.assignee || '' }}</el-tag>
