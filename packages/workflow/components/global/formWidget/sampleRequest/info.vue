@@ -322,7 +322,7 @@ defineExpose({ getFormData })
               />
             </el-form-item>
             <el-form-item :label="t('sampleRequest.competitorUnitPrice')">
-              <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="0.000001" :step="1" step-strictly />
+              <el-input-number v-model="item.competitor_unit_price" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
             </el-form-item>
           </el-col>
 
