@@ -76,7 +76,7 @@ const lineRules = {
             item.brand_code = data.brand ?? ''
             item.status = data.status_code ?? ''
           }
-          await setCustomer(data)
+          await setCustomer(data, index)
           callback()
           nextTick(() => {
             if (index !== undefined && !Number.isNaN(index)) {
@@ -379,8 +379,8 @@ async function handlePiChange(row: LineItem) {
   }
 }
 
-async function setCustomer(data: any) {
-  if (formModel.list.length === 1) {
+async function setCustomer(data: any, index: number) {
+  if (index === 0) {
     formModel.customer_number = data.customer_number
     formModel.customer_name = data.customer_number
     formModel.customer_english_name = data.customer_number
