@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
 import { v7 as uuidv7 } from 'uuid'
-import { ElMessage } from 'element-plus'
 import type { UploadFile, UploadInstance } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { clientApi } from 'api'
@@ -235,7 +235,7 @@ async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
 
   const set = new Set()
 
-  const csvData: CsvLineItem[] = dataRows.map((row) => {
+  return dataRows.map((row) => {
     const record: Record<string, string> = {}
     columns.forEach((col, i) => {
       record[col] = row[i] ?? ''
@@ -251,22 +251,6 @@ async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
       remark: record.remark ?? ''
     }
   })
-  return csvData
-}
-
-function fillCsvData(data: any[], csvData: any[]) {
-  const indexByInvoice = new Map(data.map((row) => [row.pi_invoice_number, { old_plan_date: row.old_plan_date, brand: row.brand }]))
-
-  csvData.forEach((item: any) => {
-    const key = item.pi_invoice
-    const match = indexByInvoice.get(key)
-    if (match) {
-      item.old_plan_date = match.old_plan_date ?? ''
-      item.brand_code = match.brand ?? ''
-    }
-  })
-
-  return csvData
 }
 
 const customerNumberOptions = ref<{ label: string; value: string }[]>([])
@@ -453,7 +437,7 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerNumberOptions"
-            :placeholder="t('reschedulePlanDate.selectOptionRequired')"
+            placeholder=""
             @change="numberChange"
             style="width: 90%"
             disabled
@@ -471,7 +455,7 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerNameOptions"
-            :placeholder="t('reschedulePlanDate.selectOptionRequired')"
+            placeholder=""
             @change="numberChange"
             style="width: 90%"
             disabled
@@ -489,7 +473,7 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerEnglishNameOptions"
-            :placeholder="t('reschedulePlanDate.selectOptionRequired')"
+            placeholder=""
             @change="numberChange"
             style="width: 90%"
             disabled
