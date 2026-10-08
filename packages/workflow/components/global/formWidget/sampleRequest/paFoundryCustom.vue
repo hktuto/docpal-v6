@@ -49,6 +49,7 @@ defineExpose({ getFormData })
 <template>
   <el-form-item :label="t('sampleRequest.foundryCustNum')">
     <el-select-v2
+      :disabled="disabled"
       v-model="foundryCustNum"
       filterable
       remote
