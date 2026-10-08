@@ -5,6 +5,7 @@ import { getWorkflowList } from '@packages/workflow/utils/workflowHelper'
 import { conversionFormDataByVariables, newWorkflowStartPage, useUserState } from '#imports'
 import { workflowResponseHelper } from '@packages/workflow/utils/jsonConversion'
 
+const { t } = useI18n()
 const vFormRef = ref()
 const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
@@ -142,12 +143,13 @@ async function checkAndSubmit() {
 
     try {
       const data = await clientApi.instance.post('/oniflow/api/v1/processes', formParams).then((r: any) => workflowResponseHelper(r))
+      routerProvider?.message.success(t('dpWorkflow.created'))
 
       setTimeout(async () => {
         // Check workflow running status
         const newVar = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${data.process_id}`).then((r: any) => workflowResponseHelper(r))
         if (newVar.state === 'running') {
-          routerProvider?.message.success('Workflow created')
+          routerProvider?.message.success(t('dpWorkflow.created'))
         }
       }, 100)
     } catch (e) {

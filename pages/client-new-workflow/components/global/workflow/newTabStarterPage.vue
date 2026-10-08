@@ -58,12 +58,13 @@ async function handleSubmit() {
     }
 
     const data = await clientApi.instance.post('/oniflow/api/v1/processes', formParams).then((r: any) => r.data.data)
+    routerProvider?.message.success(t('dpWorkflow.created'))
 
     setTimeout(async () => {
       // Check workflow running status
       const newVar = await clientApi.instance.get(`/oniflow/api/v1/processes/instance/${data.id}`).then((r: any) => r.data.data)
       if (newVar.state === 'running') {
-        routerProvider?.message.success('Workflow created')
+        routerProvider?.message.success(t('dpWorkflow.created'))
       }
     }, 100)
     cancel()
