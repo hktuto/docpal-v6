@@ -5205,6 +5205,7 @@
     "statusMustBeOpen": "Status must be Open",
     "dragToReorder": "Drag to reorder row",
     "pleaseEnterPiInvoice": "Please enter PI Invoice",
+    "duplicatePiInvoice": "PI Invoice already exists in another row",
     "customerNumberPiMismatch": "Customer Number does not match PI Invoice",
     "pleaseSelectNewPlanDate": "Please select a new plan date",
     "pleaseSelectCsv": "Please select a CSV file",

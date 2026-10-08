@@ -56,6 +56,10 @@ const lineRules = {
       validator: async (rule: any, value: string, callback: any) => {
         const index = Number(String(rule.field).match(/^list\.(\d+)\.pi_invoice$/)?.[1])
         const item = formModel.list[index]
+        if (hasDuplicatePiInvoice(value, index)) {
+          callback(new Error(t('reschedulePlanDate.duplicatePiInvoice')))
+          return
+        }
         try {
           const data = await checkingPiNumber(value, index)
           if (!data) {
@@ -103,6 +107,12 @@ const lineRules = {
       trigger: 'change'
     }
   ]
+}
+
+function hasDuplicatePiInvoice(value: string, index: number) {
+  const normalized = value?.trim() ?? ''
+  if (!normalized || Number.isNaN(index)) return false
+  return formModel.list.some((row, i) => i !== index && row.pi_invoice.trim() === normalized)
 }
 
 function disabledPastDate(date: Date) {

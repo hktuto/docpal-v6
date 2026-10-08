@@ -5203,6 +5203,7 @@
     "statusMustBeOpen": "狀態必須為 Open",
     "dragToReorder": "拖動以重新排序",
     "pleaseEnterPiInvoice": "請輸入PI發票",
+    "duplicatePiInvoice": "PI編號與其它行重複",
     "customerNumberPiMismatch": "客戶編號與 PI Invoice 不一致",
     "pleaseSelectNewPlanDate": "請選擇新計劃日期",
     "pleaseSelectCsv": "請選擇 CSV 檔案",
