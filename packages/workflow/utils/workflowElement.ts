@@ -265,6 +265,7 @@ export type CellTypeItem = {
         databaseId?: string
       }
       celCondition?: string
+      business_key?: string
     }
     style?: any
   }
@@ -461,7 +462,7 @@ function graphItemFromWorkflowNode(
     dataExtra?: Record<string, unknown>
   }
 ): GraphItem {
-  if(!workflowNodeItem.metadata) workflowNodeItem.metadata = {} as any
+  if (!workflowNodeItem.metadata) workflowNodeItem.metadata = {} as any
   const metadata = workflowNodeItem.metadata
   const dw = metadata.width || 120
   const dh = metadata.height || 64
@@ -821,7 +822,8 @@ const workflowCellElementTemplate: CellTypeItem = {
           saveDraftLabel: 'Save Draft',
           booleanButton: []
         }
-      }
+      },
+      business_key: ''
     }
   },
   SignatureTask: {
@@ -848,7 +850,8 @@ const workflowCellElementTemplate: CellTypeItem = {
           documentTemplateId: '',
           signatureValue: ''
         }
-      }
+      },
+      business_key: ''
     }
   },
   ExclusiveGateway: {
