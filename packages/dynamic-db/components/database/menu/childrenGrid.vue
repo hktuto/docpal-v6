@@ -152,9 +152,11 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
 .child-description {
   margin: 0;
   color: var(--el-text-color-regular);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
 }
 
 // Drop overlay
