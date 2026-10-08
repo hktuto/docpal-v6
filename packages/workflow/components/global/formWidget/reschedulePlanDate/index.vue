@@ -591,10 +591,10 @@ defineExpose({ getFormData })
 
   &__field {
     margin-bottom: 0;
+    margin-block: 5px;
 
     &--pi {
       flex: 0 0 180px;
-      margin-block: 2px;
     }
 
     &--date {
@@ -608,7 +608,6 @@ defineExpose({ getFormData })
     &--status {
       flex: 0 0 100px;
       min-width: 80px;
-      margin-block: 2px;
     }
 
     &--remark {
