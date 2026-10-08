@@ -34,7 +34,7 @@ const formModel = reactive({
   customerName: '',
   customer_english_name: '',
   customerEnglishName: '',
-  org: '',
+  org_id: '',
   list: [] as LineItem[]
 })
 const CSV_COLUMNS = ['pi_invoice', 'new_plan_date', 'remark'] as const
@@ -140,7 +140,7 @@ async function handleImportCSV(uploadFile: UploadFile) {
   formModel.customer_number = ''
   formModel.customer_name = ''
   formModel.customer_english_name = ''
-  formModel.org = ''
+  formModel.org_id = ''
   formModel.customerName = ''
   formModel.customerEnglishName = ''
 
@@ -290,7 +290,7 @@ function numberChange(value: string) {
   if (!value || value === '') {
     formModel.customer_name = ''
     formModel.customer_english_name = ''
-    formModel.org = ''
+    formModel.org_id = ''
     return
   }
 
@@ -325,7 +325,7 @@ async function setCustomerNumber(item: any) {
     formModel.customer_number = data.customer_number
     formModel.customer_name = data.customer_number
     formModel.customer_english_name = data.customer_number
-    formModel.org = data.org_id
+    formModel.org_id = data.org_id
     formModel.customerName = data.customer_name
     formModel.customerEnglishName = data.customer_name
     await searchName(data.customer_number)
@@ -344,7 +344,7 @@ async function getFormData(needValidation = true) {
     customerName: formModel.customerName,
     customer_english_name: formModel.customer_english_name,
     customerEnglishName: formModel.customerEnglishName,
-    org: formModel.org,
+    org: formModel.org_id,
     line_list: lineList,
     email_list: formModel.list.map(({ id: _id, ...item }) => item)
   }
@@ -367,18 +367,18 @@ async function setCustomer(data: any) {
     formModel.customer_number = data.customer_number
     formModel.customer_name = data.customer_number
     formModel.customer_english_name = data.customer_number
-    formModel.org = data.org_id
+    formModel.org_id = data.org_id
     formModel.customerName = data.customer_name
     formModel.customerEnglishName = data.customer_name
     await searchName(data.customer_number)
     return
   }
 
-  if (!formModel.org) {
+  if (!formModel.org_id) {
     formModel.customer_number = data.customer_number
     formModel.customer_name = data.customer_number
     formModel.customer_english_name = data.customer_number
-    formModel.org = data.org_id
+    formModel.org_id = data.org_id
     formModel.customerName = data.customer_name
     formModel.customerEnglishName = data.customer_name
     await searchName(data.customer_number)
@@ -392,7 +392,7 @@ watch(
       formModel.customer_number = ''
       formModel.customer_name = ''
       formModel.customer_english_name = ''
-      formModel.org = ''
+      formModel.org_id = ''
       formModel.customerName = ''
       formModel.customerEnglishName = ''
       return
@@ -402,7 +402,7 @@ watch(
       formModel.customer_number = ''
       formModel.customer_name = ''
       formModel.customer_english_name = ''
-      formModel.org = ''
+      formModel.org_id = ''
       formModel.customerName = ''
       formModel.customerEnglishName = ''
     }
@@ -410,7 +410,17 @@ watch(
   { deep: true }
 )
 
+const officeOption = ref<any[]>([])
+async function getOffice() {
+  const data = await clientApi.instance.get(`/apis/v1/ms/oracle/org-mapping`).then((r: any) => r.data)
+  officeOption.value = data.items.map((item: any) => ({
+    label: item.organization_code,
+    value: item.org_id
+  }))
+}
+
 onMounted(() => {
+  getOffice()
   if (formData?.line_list?.length) {
     formModel.list = formData.line_list.map((item: LineItem) => ({
       ...createEmptyLine(),
@@ -482,7 +492,9 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="6">
         <el-form-item :label="t('reschedulePlanDate.org')">
-          <el-input v-model="formModel.org" disabled style="width: 90%" />
+          <el-select v-model="formModel.org_id" disabled style="width: 90%" placeholder="">
+            <el-option v-for="item in officeOption" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
       </el-col>
     </el-row>
