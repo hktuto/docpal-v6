@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElMessageBox } from 'element-plus'
+import { useUserState } from '@packages/authApp/composables/useAuth'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -81,6 +82,8 @@ async function init() {
   }
 }
 
+const office = ref<string>('')
+
 async function getFormData(needValidation = true) {
   let reject_comment
   if (
@@ -106,14 +109,23 @@ async function getFormData(needValidation = true) {
     sample_info_list: formModel.value.infoList,
     set_sample_list: newSetSampleList,
     target_price_list: newTargetPriceList,
-    reject_comment: reject_comment
+    reject_comment: reject_comment,
+    pc_group: `QuotationApproval_-_Approver_-_PriceController_-_${formModel.value.brand}_-_${office.value}`,
+    pm_group: `QuotationApproval_-_Approver_-_ProductManager_-_${formModel.value.brand}_-_${office.value}`,
+    gm_group: `QuotationApproval_-_Approver_-_GeneralManager_-_${office.value}`
   }
   if (!needValidation) return result
   await formRef.value?.validate()
   return result
 }
 
-onMounted(async () => {})
+onMounted(() => {
+  const user = useUserState()
+  if (user.value.org.length === 0) return
+
+  const org = user.value.org[0]
+  office.value = org.operatingName
+})
 
 watch(
   () => formModel.value?.infoList?.length,

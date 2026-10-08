@@ -365,8 +365,8 @@ const CSV_TEMPLATE_MISMATCH = 'CSV_TEMPLATE_MISMATCH'
 
 type CsvImportRow = {
   customer_number: string
-  order_number: number
-  line: number
+  order_number: string
+  line: string
   deliver_qty: number
   invoice_header: string
   invoice_date: string
@@ -401,10 +401,10 @@ async function handleImportCSV(uploadFile: UploadFile) {
       return
     }
 
-    console.log(222, list)
+    console.log(11, list)
     const data = await getOrderData(list)
-    const map = dataMapping(list, data)
-    // tableData.value = map
+    console.log(22, data)
+    tableData.value = dataMapping(list, data)
     reload()
   } catch (error) {
     if (error instanceof Error && error.message.startsWith(CSV_TEMPLATE_MISMATCH)) {
@@ -427,7 +427,6 @@ async function csvTextToLineItems(text: string) {
     .map(parseCsvLine)
     .filter((row) => row.some((cell) => cell !== ''))
   if (!rows.length) return []
-  console.log(123, rows[0])
   if (!isCsvTemplateHeader(rows[0])) {
     throw new Error(CSV_TEMPLATE_MISMATCH)
   }
@@ -443,8 +442,8 @@ async function csvTextToLineItems(text: string) {
 
     return {
       customer_number: record.customer_number ?? '',
-      order_number: Number(record.order_number ?? 0),
-      line: Number(record.line ?? 0),
+      order_number: String(record.order_number ?? 0),
+      line: String(record.line ?? ''),
       deliver_qty: Number(record.deliver_qty ?? 0),
       invoice_header: record.invoice_header ?? '',
       invoice_date: parsePlanDate(record.invoice_date ?? ''),
@@ -505,26 +504,26 @@ function parsePlanDate(value: string): string {
 async function getOrderData(csvRows: CsvImportRow[]) {
   const list = csvRows.map((item: any) => ({
     customerNumber: item.customer_number,
-    orderNumber: item.order_number,
-    line: item.line
+    orderNumber: String(item.order_number),
+    line: String(item.line)
   }))
 
   const raw = {
-    orgId: userInfo.value.org_id,
+    orgId: String(userInfo.value.org_id),
     lines: list
   }
-  const data = await clientApi.instance.post(`/wfl/proforma-invoices/enrich-lines`, raw).then((r) => r.data)
-  console.log(123, data)
-  return data
+  try {
+    const data = await clientApi.instance.post(`/apis/v1/ms/wfl/proforma-invoices/enrich-lines`, raw).then((r: any) => r.data)
+    return data.rows
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 function dataMapping(csvList: CsvImportRow[], data: any[]) {
   return data.map((item: any) => {
     const csvItem = csvList.find((csv) => csv.order_number === item.order_number && csv.line === item.line)
-    return {
-      ...item,
-      grouping: csvItem?.grouping
-    }
+    return mapCandidateToDataItem(item, { grouping: csvItem?.grouping })
   })
 }
 
@@ -537,18 +536,18 @@ onMounted(async () => {
 /**
  * 拆單
  * 規則：根據辦事處、客戶編號、貨幣、倉庫位置、子庫存、賬單地址、送貨地址、分組
- *
  */
 function buildPreviewGroups() {
-  const result = {}
+  const groupMap = new Map<string, any>()
 
   for (const row of selectedRowsList.value) {
-    const key: string = String(row.grouping ?? '')
-    if (key === '') continue
+    const grouping = String(row.grouping ?? '').trim()
+    if (!grouping) continue
 
-    if (!result[key]) {
-      result[key] = {
-        grouping: Number(key) || key,
+    let group = groupMap.get(grouping)
+    if (!group) {
+      group = {
+        grouping: row.grouping,
         status: '',
         invoice_date: '',
         schedule_date: '',
@@ -575,9 +574,10 @@ function buildPreviewGroups() {
         reject_reason: '',
         items: []
       }
+      groupMap.set(grouping, group)
     }
 
-    result[key].items.push({
+    group.items.push({
       schedule_date: row.schedule_date,
       order_ln: row.order_ln,
       order_number: row.order_number,
@@ -586,7 +586,7 @@ function buildPreviewGroups() {
       lineAmount: row.lineAmount,
       tax_code: row.tax_code,
       status: '',
-      // 分組一致性校驗字段（與 invoice header 對齊）
+      taxValue: row.taxValue,
       office: row.org_id,
       customer_code: row.customer_number,
       currency: row.currency ?? '',
@@ -597,7 +597,22 @@ function buildPreviewGroups() {
     })
   }
 
-  return result
+  return Array.from(groupMap.values()).map((item) => {
+    const { subTotal, totalTax } = item.items.reduce(
+      (acc: { subTotal: Decimal; totalTax: Decimal }, curr: any) => ({
+        subTotal: acc.subTotal.plus(curr.lineAmount || 0),
+        totalTax: acc.totalTax.plus(curr.taxValue || 0)
+      }),
+      { subTotal: new Decimal(0), totalTax: new Decimal(0) }
+    )
+
+    return {
+      ...item,
+      sub_total: subTotal.toNumber(),
+      total_tax: totalTax.toNumber(),
+      total_amount: subTotal.plus(totalTax).toNumber()
+    }
+  })
 }
 
 async function getFormData(needValidation = true) {
@@ -639,6 +654,18 @@ async function getFormData(needValidation = true) {
       submitted_by: userInfo.value.userId,
       submitted_date: dayjs().format('YYYY-MM-DD')
     })
+
+    const json = {
+      orgId: String(userInfo.value.org_id),
+      companyTitle: '${companyTitle}',
+      customerId: 'customerId',
+      customerName: '${customerName}',
+      organizationId: userInfo.value.organization_id,
+      initialPickupLocationId: '${initialPickupLocationId}',
+      ultimateDropoffLocationId: '${ultimateDropoffLocationId}',
+      lines: '${lines}'
+    }
+
     // runWorkflow()
   })
   throw new Error('')

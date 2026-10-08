@@ -13,6 +13,19 @@ export const routeWorkflowDetail = function (params: any) {
   } as TabItem
 }
 
+export const routeWorkflowCompleteInfo = function (params: any) {
+  return {
+    id: 'workflow-complete-info-' + new Date().getTime(),
+    name: 'workflow-complete-info-' + params.id,
+    icon: 'dp-icon:flow-outline',
+    label: params.name,
+    component: 'LazyWorkflowDetailCompleteInfo',
+    props: {
+      taskDetail: params,
+    }
+  } as TabItem
+}
+
 export const routeWorkflowPage = function (params: any) {
   return {
     id: 'client-workflow',

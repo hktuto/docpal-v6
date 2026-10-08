@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { routeWorkflowDetail } from '#imports'
+import { routeWorkflowDetail, routeWorkflowCompleteInfo } from '#imports'
 
 const props = defineProps<{
   taskDetail: Record<string, any>
@@ -38,20 +38,24 @@ function handleViewDetail() {
   const row = props.taskDetail
   if (!row) return
 
-  const detailParams =
-    props.workflowType === 'completeTask'
-      ? {
-          ...row,
-          workflowType: 'completeTask',
-          db_id: row.completed_nodes?.[row.completed_nodes.length - 2]
-        }
-      : {
-          ...row,
-          workflowType: props.workflowType,
-          db_id: row.db_id
-        }
+  if (props.workflowType === 'completeTask') {
+    routerProvider?.navigateTo(
+      routeWorkflowCompleteInfo({
+        ...row
+      }),
+      false
+    )
+    return
+  }
 
-  routerProvider?.navigateTo(routeWorkflowDetail(detailParams), false)
+  routerProvider?.navigateTo(
+    routeWorkflowDetail({
+      ...row,
+      workflowType: props.workflowType,
+      db_id: row.db_id
+    }),
+    false
+  )
 }
 </script>
 
@@ -70,17 +74,12 @@ function handleViewDetail() {
         </el-button>
       </div>
     </header>
-    <div v-if="error" class="workflow-side-panel__body">
+    <div v-if="workflowType !== 'completeTask' && error" class="workflow-side-panel__body">
       Workflow id not found, workflow id : {{ taskDbId }}.
       <p>{{ error }}</p>
     </div>
     <div v-else class="workflow-side-panel__body" :class="{ 'is-form': workflowType !== 'completeTask' }">
-      <WorkflowDetailCompleteInfo
-        v-if="workflowType === 'completeTask'"
-        :key="taskDbId"
-        :taskDetail="taskDetail"
-        state="completeTask"
-      />
+      <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :key="taskDbId" :taskDetail="taskDetail" />
       <WorkflowForm v-else :key="taskDbId" ref="workflowFormRef" />
     </div>
   </aside>

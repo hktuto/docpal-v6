@@ -78,7 +78,7 @@ watch(workflowType, (type) => {
             <el-tab-pane :label="$t('workflow_joinTask')" name="activeTask">
               <WorkflowActiveTask v-if="activeTab === 'activeTask'" ref="workflowRef" @select="handleSelectRow" />
             </el-tab-pane>
-            <el-tab-pane :label="$t('workflow_completedTask')" name="completeTask">
+            <el-tab-pane :label="$t('workflow_completedFlow')" name="completeTask">
               <WorkflowCompleteTask v-if="activeTab === 'completeTask'" ref="workflowRef" @select="handleSelectRow" />
             </el-tab-pane>
           </el-tabs>

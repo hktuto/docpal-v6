@@ -48,7 +48,7 @@ onMounted(() => {
     <el-tabs v-model="state.activeTab" class="workflow-detail__tabs">
       <el-tab-pane :label="$t('workflow_info')" name="info">
         <div class="workflow-detail__content is-scroll">
-          <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail" :state="workflowType" />
+          <WorkflowDetailCompleteInfo v-if="workflowType === 'completeTask'" :taskDetail="taskDetail" />
           <WorkflowDetailInfo v-else :taskDetail="taskDetail" @change="handleClaimChange" />
         </div>
       </el-tab-pane>

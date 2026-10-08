@@ -241,7 +241,7 @@ defineExpose({ getFormData })
     <el-row :gutter="20">
       <el-col :span="6">
         <el-form-item :label="t('quotationApproval.checkCustomer')" prop="check_customer">
-          <el-select v-model="formModel.check_customer" :placeholder="t('quotationApproval.selectOptionRequired')" disabled>
+          <el-select v-model="formModel.check_customer" disabled>
             <el-option :label="t('quotationApproval.newCustomer')" value="New Customer" />
             <el-option :label="t('quotationApproval.existingCustomer')" value="Existing Customer" />
             <el-option :label="t('quotationApproval.overdraftCustomer')" value="Overdraft Customer" />
@@ -259,7 +259,7 @@ defineExpose({ getFormData })
             clearable
             :options="customerNumberOptions"
             :loading="loading"
-            :placeholder="t('quotationApproval.selectOptionRequired')"
+            :placeholder="t('common_selectedIsRequiredMsg')"
             @change="numberChange"
           />
         </el-form-item>
@@ -276,7 +276,7 @@ defineExpose({ getFormData })
             clearable
             :options="customerNameOptions"
             :loading="loading"
-            :placeholder="t('quotationApproval.selectOptionRequired')"
+            :placeholder="t('common_selectedIsRequiredMsg')"
             @change="nameChange"
           />
         </el-form-item>
@@ -293,7 +293,7 @@ defineExpose({ getFormData })
             clearable
             :options="customerEnglishNameOptions"
             :loading="loading"
-            :placeholder="t('quotationApproval.selectOptionRequired')"
+            :placeholder="t('common_selectedIsRequiredMsg')"
             @change="enNameChange"
           />
         </el-form-item>
@@ -320,11 +320,7 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="6">
         <el-form-item :label="t('quotationApproval.customerBackground')" prop="customer_background">
-          <el-select
-            v-model="formModel.customer_background"
-            :placeholder="t('quotationApproval.selectOptionRequired')"
-            @change="handleCustomerBackgroundChange"
-          >
+          <el-select v-model="formModel.customer_background" :placeholder="t('common_selectedIsRequiredMsg')" @change="handleCustomerBackgroundChange">
             <el-option value="OEM">OEM</el-option>
             <el-option value="ODM">ODM</el-option>
             <el-option value="Trading">Trading</el-option>

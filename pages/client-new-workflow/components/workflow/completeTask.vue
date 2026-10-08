@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 import dayjs from 'dayjs'
-import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
+import { getWorkflowList, workflowResponseHelper, routeWorkflowCompleteInfo } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -45,7 +45,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     }
   },
   columns: [
-    { field: 'name', title: 'workflowEditor.name', fixed: 'left', minWidth: 200, slots: { default: 'name' } },
+    { field: 'name', title: 'workflowEditor.name', fixed: 'left', minWidth: 200 },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -71,10 +71,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'state',
-      title: 'dpTable_status',
-      formatter({ cellValue, row }: any) {
-        return t('workflow.state.' + cellValue.type)
-      }
+      title: 'dpTable_status'
     }
   ],
   dblClickAction: ({ row, column, event }: any) => {
@@ -84,10 +81,8 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 
 function handleDblclick(row: any) {
   routerProvider?.navigateTo(
-    routeWorkflowDetail({
-      ...row,
-      workflowType: 'completeTask',
-      db_id: row.completed_nodes[row.completed_nodes.length - 2]
+    routeWorkflowCompleteInfo({
+      ...row
     }),
     false
   )
