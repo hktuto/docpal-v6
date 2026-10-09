@@ -51,7 +51,7 @@ function init() {
 
 async function getFormData(needValidation = true, buttonName: string) {
   if (buttonName === 'is_cancel') {
-    await ElMessageBox.prompt(t('sampleRequest.cancelConfirmEms'), {
+    await ElMessageBox.alert(t('sampleRequest.cancelConfirmEms'), {
       confirmButtonText: t('common_submit')
     })
   }
