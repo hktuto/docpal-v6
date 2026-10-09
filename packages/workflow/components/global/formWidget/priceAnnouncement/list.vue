@@ -95,11 +95,11 @@ function disabledEffectiveDate(date: Date) {
 }
 
 watch(
-  () => selectList.value,
+  () => tableData.value,
   (list) => {
     formModel.listLength = list.length
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 function getColumns() {
@@ -171,7 +171,7 @@ function getColumns() {
 }
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'ModificationSalesOrderTableSetting',
+  id: 'priceAnnouncementList',
   api: (pageParams: any) => {
     return tableData.value
   },
@@ -313,9 +313,9 @@ async function getSeries(series?: string) {
 async function getPartNumber(series?: string, partNumber?: string) {
   try {
     const b = formModel.brand ? `brand=${formModel.brand}&` : ''
-    let s = series ? `series=${series}&` : ''
-    const q = partNumber ? `q=${partNumber}&` : ''
+    let s = series !== 'Any' ? `series=${series}&` : ''
 
+    const q = partNumber ? `q=${partNumber}&` : ''
     if (formModel.brand === 'KOA') {
       s = ''
     }
@@ -494,6 +494,7 @@ const office = ref<string>('')
 
 onMounted(() => {
   getBrandOptions()
+  getPartNumber('Any')
 
   const user = useUserState()
   if (user.value.org.length === 0) return
