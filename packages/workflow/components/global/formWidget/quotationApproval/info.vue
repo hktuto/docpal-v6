@@ -340,7 +340,7 @@ defineExpose({ getFormData })
   overflow-x: auto;
 
   &__scroll {
-    min-width: 1000px;
+    min-width: 1360px;
   }
 
   &__header {
@@ -373,6 +373,11 @@ defineExpose({ getFormData })
 
     .target-price-form-item {
       margin-bottom: 0;
+    }
+
+    .el-input,
+    .el-input-number {
+      min-width: 100px;
     }
 
     &--scrollable {

@@ -389,6 +389,7 @@ defineExpose({ getFormData })
           <el-col :span="8">
             <el-form-item :label="t('quotationApproval.partNumber')" :prop="`infoList.${index}.part_number`" :rules="rules.part_number">
               <el-select-v2
+                :disabled="disabled"
                 v-model="item.part_number"
                 filterable
                 remote
@@ -401,10 +402,10 @@ defineExpose({ getFormData })
               />
             </el-form-item>
             <el-form-item :label="t('quotationApproval.quantityMachine')" prop="quantity_machine">
-              <el-input-number v-model="item.quantity_machine" controls-position="right" :min="0" :step="1" step-strictly />
+              <el-input-number v-model="item.quantity_machine" controls-position="right" :min="0" :step="1" step-strictly :disabled="disabled" />
             </el-form-item>
             <el-form-item :label="t('quotationApproval.competitorName')" prop="competitor_name">
-              <el-input v-model="item.competitor_name" clearable />
+              <el-input v-model="item.competitor_name" clearable :disabled="disabled" />
             </el-form-item>
           </el-col>
 
@@ -498,7 +499,7 @@ defineExpose({ getFormData })
                     </el-col>
                     <el-col :span="2">
                       <div v-if="targetPriceIndex !== 0">
-                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />
+                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" :disabled="disabled" />
                       </div>
                     </el-col>
                   </el-row>
@@ -572,6 +573,10 @@ defineExpose({ getFormData })
 
     .target-price-form-item {
       margin-bottom: 0;
+    }
+
+    .el-input-number {
+      min-width: 100px;
     }
 
     &--scrollable {

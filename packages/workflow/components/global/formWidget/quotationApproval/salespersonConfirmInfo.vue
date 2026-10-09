@@ -346,6 +346,10 @@ defineExpose({ getFormData })
       margin-bottom: 0;
     }
 
+    .el-input-number {
+      min-width: 100px;
+    }
+
     &--scrollable {
       max-height: calc(var(--target-price-row-height) * 5);
       overflow-y: auto;
