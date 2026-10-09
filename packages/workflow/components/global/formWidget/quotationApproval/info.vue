@@ -233,6 +233,7 @@ defineExpose({ getFormData })
                             controls-position="right"
                             :min="0.000001"
                             :step="0.000001"
+                            :disabled="disabled"
                             @change="calculateProfit(targetPriceItem)"
                           >
                             <template #suffix>

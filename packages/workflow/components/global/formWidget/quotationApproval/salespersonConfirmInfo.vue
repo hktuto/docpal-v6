@@ -213,6 +213,7 @@ defineExpose({ getFormData })
                           controls-position="right"
                           :min="targetPriceItem.unit_price_no_tax"
                           :step="0.000001"
+                          :disabled="disabled"
                         >
                           <template #suffix>
                             <span>{{ formData.currency }}</span>
