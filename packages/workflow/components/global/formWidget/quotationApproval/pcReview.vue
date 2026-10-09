@@ -465,26 +465,26 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
 
-          <el-col :span="24">
+          <el-col :span="24" class="targetPrice-item-card-col">
             <div class="targetPrice-item-card">
               <div class="targetPrice-item-card__header">
                 <span>{{ $t('quotationApproval.targetPriceHint') }}</span>
                 <el-button type="primary" @click="openDialog(index, item)">{{ $t('quotationApproval.retrieveHistoricalPrices') }}</el-button>
               </div>
               <el-divider />
-              <el-row class="targetPrice-item-card__table-header">
-                <el-col :span="1">{{ $t('quotationApproval.tier') }}</el-col>
-                <el-col :span="2">{{ $t('quotationApproval.costCurrency') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.exchangeRate') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.moq') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.targetPrice') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.dataSource') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.unitCost') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.unitPriceNoTax') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.profit') }}</el-col>
-                <!--                <el-col :span="2">操作 Actions</el-col>-->
-              </el-row>
-              <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
+              <div class="targetPrice-item-card__scroll">
+                <el-row class="targetPrice-item-card__table-header">
+                  <el-col :span="1">{{ $t('quotationApproval.tier') }}</el-col>
+                  <el-col :span="2">{{ $t('quotationApproval.costCurrency') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.exchangeRate') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.moq') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.targetPrice') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.dataSource') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.unitCost') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.unitPriceNoTax') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.profit') }}</el-col>
+                </el-row>
+                <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
                 <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
                   <!--                  <template v-if="targetPriceItem.status !== 'D'">-->
                   <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
@@ -572,13 +572,8 @@ defineExpose({ getFormData })
                       </template>
                     </el-input-number>
                   </el-col>
-                  <!--                    <el-col :span="2">-->
-                  <!--                      <div class="targetPrice-item-card__actions" v-if="targetPriceIndex !== 0">-->
-                  <!--                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />-->
-                  <!--                      </div>-->
-                  <!--                    </el-col>-->
-                  <!--                  </template>-->
                 </el-row>
+                </div>
               </div>
             </div>
           </el-col>
@@ -656,11 +651,22 @@ defineExpose({ getFormData })
   }
 }
 
+.targetPrice-item-card-col {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .targetPrice-item-card {
   border: 1px solid var(--app-grey-800);
   border-radius: var(--app-border-radius-m);
   padding: var(--app-space-s);
   margin-top: var(--app-space-s);
+  max-width: 100%;
+  overflow-x: auto;
+
+  &__scroll {
+    min-width: 1000px;
+  }
 
   &__header {
     display: flex;

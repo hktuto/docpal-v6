@@ -3,6 +3,7 @@ import { Delete, Plus } from '@element-plus/icons-vue'
 import { clientApi, newClientApi } from 'api'
 import { v7 as uuidv7 } from 'uuid'
 import { ElMessage } from 'element-plus'
+import { useUserState } from '@packages/authApp/composables/useAuth'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -223,11 +224,16 @@ async function getBrand() {
   brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
+const office = ref<string>('')
+
 async function getFormData(needValidation = true) {
   const result = {
     brand: formModel.value.brand,
     sample_info_list: formModel.value.infoList,
-    contact_email: contactEmail.value
+    contact_email: contactEmail.value,
+    pc_group: `QuotationApproval_-_Approver_-_PriceController_-_${formModel.value.brand}_-_${office.value}`,
+    pm_group: `QuotationApproval_-_Approver_-_ProductManager_-_${formModel.value.brand}_-_${office.value}`,
+    gm_group: `QuotationApproval_-_Approver_-_GeneralManager_-_${office.value}`
   }
   if (!needValidation) return result
   await formRef.value?.validate()
@@ -326,6 +332,11 @@ function handleChangeCurrency(currency) {
 
 onMounted(() => {
   getBrand()
+  const user = useUserState()
+  if (user.value.org.length === 0) return
+
+  const org = user.value.org[0]
+  office.value = org.operatingName
 })
 
 watch(
@@ -446,7 +457,7 @@ defineExpose({ getFormData })
                 </el-row>
                 <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list.length > 5 }">
                   <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
-                    <el-col :span="1" class="targetPrice-item-card__tier-col">T{{ targetPriceIndex + 1 }}</el-col>
+                    <el-col :span="1">T{{ targetPriceIndex + 1 }}</el-col>
                     <el-col :span="10">
                       <el-form-item
                         :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
@@ -486,7 +497,7 @@ defineExpose({ getFormData })
                       </el-form-item>
                     </el-col>
                     <el-col :span="2">
-                      <div class="targetPrice-item-card__actions" v-if="targetPriceIndex !== 0">
+                      <div v-if="targetPriceIndex !== 0">
                         <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />
                       </div>
                     </el-col>
