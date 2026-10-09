@@ -457,16 +457,21 @@ function init() {
   isApproval.value = formData.is_approval
   isReview.value = formData.is_review
   tableConfig.columns = getColumns()
-  tableData.value = formData.list.map((item: any) => ({
-    endCustomer: item.endCustomerProject,
-    priceGroup: item.priceGroup,
-    supplierPartNumber: item.supplierPartNumber,
-    currency: item.currency,
-    originalUnitPrice: item.originalUnitPrice,
-    newUnitPrice: item.newUnitPrice,
-    adjustmentRate: item.adjustmentRate,
-    approvalRemark: item.approverRemark
-  }))
+
+  tableData.value = formData.list.map((item: any) => {
+    getCustomers(item.endCustomerProject)
+    return {
+      endCustomer: item.endCustomerProject,
+      priceGroup: item.priceGroup,
+      supplierPartNumber: item.supplierPartNumber,
+      currency: item.currency,
+      originalUnitPrice: item.originalUnitPrice,
+      newUnitPrice: item.newUnitPrice,
+      adjustmentRate: item.adjustmentRate,
+      approvalRemark: item.approverRemark
+    }
+  })
+
   formModel.priceAnnouncementNumber = formData.priceAnnouncementNumber
   formModel.brand = formData.brand
   formModel.effectiveDate = formData.effective_date
@@ -495,6 +500,7 @@ async function getBrandOptions() {
 const office = ref<string>('')
 
 onMounted(() => {
+  getCustomers()
   getBrandOptions()
   getPartNumber('Any')
 
@@ -650,10 +656,10 @@ defineExpose({ getFormData })
         </div>
       </template>
       <template #endCustomer="{ row, index }">
-        <el-input v-if="isApproval" v-model="row.endCustomer" disabled />
-        <el-form v-else class="cell-form" :model="row" :rules="endCustomerRules">
+        <el-form class="cell-form" :model="row" :rules="endCustomerRules">
           <el-form-item prop="endCustomer">
             <el-select-v2
+              :disabled="isApproval"
               v-model="row.endCustomer"
               filterable
               remote
