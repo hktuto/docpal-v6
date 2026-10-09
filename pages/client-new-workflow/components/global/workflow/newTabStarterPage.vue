@@ -53,6 +53,7 @@ async function handleSubmit() {
       variables: {
         ...cFormData,
         __system__user_creator_id: user.value.userId,
+        __system__user_creator_name: `${user.value.lastName} ${user.value.firstName}`,
         __system__user_creator_email: user.value.email
       }
     }

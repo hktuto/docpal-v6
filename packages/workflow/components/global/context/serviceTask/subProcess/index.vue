@@ -42,6 +42,10 @@ function updateData() {
       acc[field.id] = user.value.userId
       return acc
     }
+    if (field.id === '__system__user_creator_name') {
+      acc[field.id] = `${user.value.lastName} ${user.value.firstName}`
+      return acc
+    }
     if (field.id === '__system__user_creator_email') {
       acc[field.id] = user.value.email
       return acc

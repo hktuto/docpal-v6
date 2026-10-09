@@ -72,7 +72,21 @@
   "edges": [],
   "variables": {
     "__system__user_creator_id": {
-      "name": "Creator",
+      "name": "Creator ID",
+      "type": "string",
+      "display_type": "text",
+      "required": true,
+      "description": "",
+      "default_value": "",
+      "display_option": {},
+      "validation": {
+        "max_length": 255,
+        "min_length": 1
+      },
+      "order": 1
+    },
+    "__system__user_creator_name": {
+      "name": "Creator Name",
       "type": "string",
       "display_type": "text",
       "required": true,

@@ -101,6 +101,7 @@ async function directlyStart(definition_id: string, workflowData?: any) {
       definition_id: definition_id,
       variables: {
         __system__user_creator_id: user.value.userId,
+        __system__user_creator_name: `${user.value.lastName} ${user.value.firstName}`,
         __system__user_creator_email: user.value.email,
         ...workflowData
       }
@@ -137,6 +138,7 @@ async function checkAndSubmit() {
       variables: {
         ...cFormData,
         __system__user_creator_id: user.value.userId,
+        __system__user_creator_name: `${user.value.lastName} ${user.value.firstName}`,
         __system__user_creator_email: user.value.email
       }
     }
