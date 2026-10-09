@@ -2,22 +2,17 @@
 import { clientApi } from 'api'
 
 const props = defineProps<{ taskDetail: any }>()
-const tableData = ref([])
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'completeTask_historical',
-  optionalConfig: {
-    rowConfig: {
-      useKey: true,
-      isCurrent: true
-    }
-  },
-  api: () => {
-    return tableData.value
+  api: async () => {
+    if (!processId.value) return { data: [] }
+    return await getHistorical(processId.value)
   },
   columns: [
-    { field: 'name', title: 'workflow_jobName' },
+    { field: 'node_type.type', title: 'Node Type' },
+    { field: 'task_name', title: 'workflow_jobName', slots: { default: 'task_name' } },
     {
-      field: 'created_at',
+      field: 'start_time',
       title: 'workflow_createDate',
       formatter({ cellValue }: any) {
         // @ts-ignore
@@ -25,38 +20,33 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       }
     },
     {
-      field: 'completed_at',
+      field: 'updated_at',
       title: 'workflow_completeDate',
       formatter({ cellValue }: any) {
         // @ts-ignore
         return formatDate(cellValue)
       }
-    },
-    {
-      field: 'state',
-      title: 'dpTable_status'
     }
   ],
   dblClickAction: ({ row, column, event }: any) => {}
 })
 
-async function getHistorical(processId: string) {
-  try {
-    const data = await clientApi.instance.get(`/api/v1/task/overview/all-tasks?process_id=${processId}`).then((r) => r.data)
-    console.log(123, data)
-    tableData.value = []
-    nextTick(() => reload())
-  } catch (e) {
-    console.log(e)
+async function getHistorical(id: string) {
+  const data = await clientApi.instance.get(`/oniflow/api/v1/task/overview/all-tasks?process_id=${id}`).then((r: any) => r.data)
+  return {
+    data: data.data || []
   }
 }
+
+const processId = ref<string>('')
 
 watch(
   () => props.taskDetail,
   (value) => {
-    if (!value) return
-    console.log(value)
-    // getHistorical(value.id)
+    const id = value?.id || value?.process_id
+    if (!id) return
+    processId.value = id
+    reload()
   },
   { deep: true, immediate: true }
 )
@@ -93,6 +83,9 @@ watch(
           <div style="font-size: 20px; color: #1abc9c; font-weight: bold">
             {{ $t('workflow_history') }}
           </div>
+        </template>
+        <template #task_name="{ row, index }">
+          {{ row.config?.human_task?.form_title ?? '' }}
         </template>
       </VxeGrid>
     </div>

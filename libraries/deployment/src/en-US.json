@@ -5043,7 +5043,7 @@
     "noteToVendor": "Note to Vendor",
     "dateRange": "Date Range",
     "selectType": "Please select type",
-    "typePo": "PO",
+    "typePo": "Purchased orders PO",
     "typeQuotation": "Quotation",
     "singleCurrencyTierOnly": "Only tiers of a single currency can be selected.",
     "finalQuotation": "Final Quotation",
