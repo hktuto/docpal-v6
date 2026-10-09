@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as XLSX from 'xlsx'
 import { Search, Download, Plus, Delete } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import dayjs from 'dayjs'
 import { clientApi } from 'api'
@@ -281,6 +281,8 @@ async function getCustomers(query?: string) {
 }
 
 async function handleGetSeries(brandName: string) {
+  const s = brandName !== 'KOA' ? 'Any' : 'KOA'
+  await getPartNumber(s)
   if (brandName !== 'KOA') return
   await getSeries()
 }
@@ -503,7 +505,14 @@ onMounted(() => {
   office.value = org.operatingName
 })
 
-async function getFormData(needValidation = true) {
+async function getFormData(needValidation = true, buttonName: string) {
+  if (buttonName === 'cancel') {
+    await ElMessageBox.alert(t('sampleRequest.cancelConfirmEms'), {
+      confirmButtonText: t('common_submit')
+    })
+    return {}
+  }
+
   const { list, document_data_list } = tableData.value.reduce(
     (acc, item: tableDataType, index: number) => {
       const lineNo = index + 1
