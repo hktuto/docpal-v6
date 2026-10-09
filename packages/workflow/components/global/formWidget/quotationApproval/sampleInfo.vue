@@ -437,7 +437,7 @@ defineExpose({ getFormData })
               :rules="rules.old_sales_price_noTax"
               required
             >
-              <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly />
+              <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
             </el-form-item>
           </el-col>
 
