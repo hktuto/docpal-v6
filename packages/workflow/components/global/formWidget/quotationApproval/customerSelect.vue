@@ -31,7 +31,19 @@ const rules = {
   customerName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerName') }), trigger: 'change' }],
   customerEnglishName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerEngName') }), trigger: 'change' }],
   customer_contact: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerContact') }), trigger: 'blur' }],
-  telephone_number: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.telephoneNumber') }), trigger: 'blur' }],
+  telephone_number: [
+    { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.telephoneNumber') }), trigger: 'blur' },
+    {
+      validator: (_rule, value, callback) => {
+        if (!/^[1-9]\d*$/.test(value)) {
+          callback(new Error(t('dpTip.enterNumber')))
+          return
+        }
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ],
   customer_email: [
     { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerEmail') }), trigger: 'blur' },
     { type: 'email', message: t('user_emailFormatError'), trigger: 'blur' }
