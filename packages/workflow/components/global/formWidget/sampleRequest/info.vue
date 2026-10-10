@@ -166,7 +166,8 @@ async function getSeriesList(series?: string) {
   const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${s}pageNum=1&pageSize=200`).then((r) => r.data.items)
   seriesList.value = data.map((item: any) => ({
     label: item.displayName,
-    value: item.value
+    value: item.value,
+    brand: item.brand
   }))
 }
 
@@ -179,6 +180,10 @@ async function init() {
 
 function changePartNumber(item: any) {
   const find = partList.value.find((part) => part.value === item.part_number)
+  item.vendor = find?.brand || ''
+}
+function changeSeries(item: any) {
+  const find = seriesList.value.find((series: any) => series.value === item.series)
   item.vendor = find?.brand || ''
 }
 
@@ -254,7 +259,7 @@ defineExpose({ getFormData })
                   clearable
                   :options="partList"
                   :loading="loading"
-                  placeholder="Please enter a keyword"
+                  :placeholder="$t('quotationApproval.enterKeyword')"
                   @change="changePartNumber(item)"
                 />
                 <el-select-v2
@@ -267,7 +272,8 @@ defineExpose({ getFormData })
                   clearable
                   :options="seriesList"
                   :loading="loading"
-                  placeholder="Please enter a keyword"
+                  :placeholder="$t('quotationApproval.enterKeyword')"
+                  @change="changeSeries(item)"
                 />
                 <el-button :icon="Switch" type="primary" @click="changePartNumberAndSeries(item, index)" />
               </div>
