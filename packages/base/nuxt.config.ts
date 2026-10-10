@@ -9,7 +9,7 @@ const config = {
   devtools: {
     enabled: true
   },
-  modules: ['@nuxtjs/i18n', '@nuxtjs/color-mode', '@vueuse/nuxt'],
+  modules: ['@nuxtjs/i18n', '@nuxtjs/color-mode', '@vueuse/nuxt', 'v-form-designer/nuxt'],
   css: [join(currentDir, 'assets/styles/main.scss')],
   extends: ['../sql-store', '../inline-ocr'],
 
