@@ -174,20 +174,18 @@ onMounted(() => {
     height: calc(100% - var(--app-space-m) * 2);
     left: calc(60px + var(--app-space-xs));
     transform: translateX(-50px);
-    transition: all 0.4s ease-in-out;
-    z-index: 2;
+    transition: transform 0.4s ease-in-out, opacity 0.15s linear, visibility 0.15s linear;
+    z-index: 0;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     overflow: hidden;
-    isolation: isolate;
     border-radius: var(--app-border-radius-m);
     background-image: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, var(--app-primary-alpha-10) 2%, var(--app-primary-alpha-30) 98%, hsla(var(--app-primary-h), var(--app-primary-s), calc(var(--app-primary-l) *  0.1), 0.1 ) 100%);
     box-shadow: 10px 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.31);
-    
-
   }
 }
 .appWrapper{
@@ -220,7 +218,10 @@ onMounted(() => {
       .menuExpand{
         transform: translateX(0);
         opacity: 1;
+        visibility: visible;
         pointer-events: auto;
+        z-index: 2;
+        transition: transform 0.4s ease-in-out, opacity 0.25s ease-in-out, visibility 0s;
       }
     }
     --menu-gap: var(--app-space-xxs);
@@ -241,6 +242,8 @@ onMounted(() => {
   display: grid;
   grid-template-rows: min-content 1fr min-content;
   gap: var(--app-space-s);
+  position: relative;
+  z-index: 1;
   &.mobile{
     height: 100%;
   }
