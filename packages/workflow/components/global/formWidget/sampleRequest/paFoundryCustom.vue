@@ -13,12 +13,12 @@ const loading = ref(false)
 const allOptions = ref<any[]>([])
 
 async function searchName(query: string) {
-  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/suppliers?q=${query}&limit=${500}`).then((r: any) => r.data?.items)
   allOptions.value = [...allOptions.value, ...data]
 
   customerOptions.value = data.map((item) => ({
-    label: `${item.account_number} - ${item.customer_name}`,
-    value: item.account_number
+    label: item.supplier_name,
+    value: item.supplier_alias
   }))
 }
 
