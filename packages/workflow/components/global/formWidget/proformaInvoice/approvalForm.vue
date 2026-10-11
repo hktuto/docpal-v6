@@ -9,10 +9,21 @@ const { disabled, formData, options } = defineProps<{
   options: any
 }>()
 const { t } = useI18n()
-const isApproval = ref<boolean>(false)
+const isApproval = ref<boolean>(true)
 const isReview = ref<boolean>(false)
 const formRef = ref()
 const formModel = reactive<{
+  orgId: string
+  companyTitle: string
+  customerId: number
+  customerName: string
+  organizationId: number
+  initialPickupLocationId: number
+  ultimateDropoffLocationId: number
+  freightTermsCode: string
+  operatorId: string
+  operatorName: string
+
   pi_number: string
   status: string
   invoice_date: number
@@ -47,6 +58,17 @@ const formModel = reactive<{
     status: string
   }[]
 }>({
+  orgId: '',
+  companyTitle: '',
+  customerId: 0,
+  customerName: '',
+  organizationId: 0,
+  initialPickupLocationId: 0,
+  ultimateDropoffLocationId: 0,
+  freightTermsCode: '',
+  operatorId: '',
+  operatorName: '',
+
   pi_number: '',
   status: '',
   invoice_date: 0,
@@ -166,59 +188,11 @@ function handleDelete(row: any) {
 }
 
 async function init() {
-  try {
-    // const data = await clientApi.instance.get(`/apis/v1/ms/wfl/proforma-invoices/${formData.pi_number}`)
-    const data: any = await clientApi.instance.get(`/apis/v1/ms/wfl/proforma-invoices/SZ2609-0009`).then((r) => r.data)
-    console.log(123, data)
-
-    const { subTotal, totalTax } = data.lines.reduce(
-      (acc: any, item: any) => ({
-        subTotal: acc.subTotal.plus(item.lineAmount),
-        totalTax: acc.totalTax.plus(item.taxValue)
-      }),
-      { subTotal: new Decimal(0), totalTax: new Decimal(0) }
-    )
-
-    const totalAmount = subTotal.plus(totalTax).toNumber()
-
-    Object.assign(formModel, {
-      pi_number: data.piNum ?? '',
-      status: data.status ?? '',
-      invoice_date: data.invoice_date ?? '',
-      schedule_date: data.schedule_date ?? '',
-      customer_code: data.customerNumber ?? '',
-      customer_name: data.customerName ?? '',
-      office: data.companyTitle ?? '',
-      org_id: data.orgId,
-      invoice_header: formData.invoice_header ?? '',
-      currency: formData.currency ?? '',
-      sub_total: subTotal ?? 0,
-      total_tax: totalTax ?? 0,
-      total_amount: totalAmount ?? 0,
-      warehouse_location: formData.warehouse_location ?? '',
-      sub_inventory: formData.sub_inventory ?? '',
-      payment_in_adv: formData.payment_in_adv ?? '',
-      overdue_debt: formData.overdue_debt ?? '',
-      pi_remarks: formData.remarks ?? '',
-      items: data.lines ?? []
-    })
-
-    if (formData.is_approval) {
-      isApproval.value = formData.is_approval
-      formModel.reject_reason = ''
-      formModel.approver = userInfo.value.userId
-      formModel.approval_date = dayjs().format('YYYY-MM-DD')
-      formModel.submitted_by = formData.submitted_by ?? ''
-      formModel.submitted_date = formData.submitted_date
-    } else {
-      isReview.value = formData.is_review
-      formModel.reject_reason = formData.reject_reason
-      formModel.approver = formData.approver
-      formModel.approval_date = formData.approval_date
-    }
-  } catch (e) {
-    console.log(e)
-  }
+  formModel.pi_number = formData.pi_number
+  formModel.status = formData.status
+  formModel.submitted_by = formData.__system__user_creator_name
+  formModel.payment_in_adv = formData.payment_in_adv
+  formModel.overdue_debt = formData.overdue_debt
 }
 
 watch(
@@ -265,44 +239,56 @@ function getUserInfo() {
 }
 
 onMounted(() => {
-  // if (!!formData) return
   getUserInfo()
-
-  // formModel.pi_number = '1234567890'
-  // formModel.status = '1234567890'
-  // formModel.invoice_date = 1790155908490
-  // formModel.schedule_date = 1790155908490
-  // formModel.customer_code = '1234567890'
-  // formModel.customer_name = '1234567890'
-  // formModel.office = '1234567890'
-  // formModel.invoice_header = 'SZ'
-  // formModel.currency = 'CNY'
-  // formModel.sub_total = 1234567890
-  // formModel.total_tax = 1234567890
-  // formModel.total_amount = 1234567890
-  // formModel.warehouse_location = '1234567890'
-  // formModel.sub_inventory = '1234567890'
-  // formModel.payment_in_adv = 'N'
-  // formModel.overdue_debt = 'N'
-  // formModel.pi_remarks = '1234567890'
-  // formModel.items = [
-  //   {
-  //     id: '11',
-  //     schedule_date: 1790155908490,
-  //     order_ln: 1,
-  //     order_number: '1234567890',
-  //     wcl_part_number: '1234567890',
-  //     order_qty: 1,
-  //     line_amount: 1,
-  //     tax_code: '1234567890',
-  //     status: 'aaa'
-  //   }
-  // ]
 })
 
-async function getFormData(needValidation = true) {
-  if (!needValidation) return { ...formModel }
-  return { ...formModel }
+async function getFormData(needValidation = true, buttonName: string) {
+  const result = {
+    orgId: formModel.orgId,
+    companyTitle: formModel.companyTitle,
+    customerId: formModel.customerId,
+    customerName: formModel.customerName,
+    organizationId: formModel.organizationId,
+    initialPickupLocationId: formModel.initialPickupLocationId,
+    ultimateDropoffLocationId: formModel.ultimateDropoffLocationId,
+    freightTermsCode: formModel.freightTermsCode,
+    operatorId: formModel.operatorId,
+    operatorName: formModel.operatorName,
+    formPayload: {},
+    lines: [
+      {
+        lineNo: 1,
+        soLineId: 1001,
+        deliveryDetailId: 11,
+        orderNumber: 90001,
+        lineNum: '1.1',
+        partNum: 'PART-A',
+        orderQty: 10,
+        subinventory: 'FG',
+        grouping: 1,
+        customerId: 501,
+        orgId: 7,
+        organizationId: 160,
+        scheduleDate: '2026-09-18',
+        currencyCode: 'USD',
+        taxCode: 'VAT',
+        taxValue: 12.5,
+        lineAmount: 128.0,
+        customerNumber: 'C501',
+        customerName: 'ACME',
+        billToAddress: 'Bill Addr',
+        shipToAddress: 'Ship Addr',
+        initialPickupLocationId: 1001,
+        ultimateDropoffLocationId: 2002,
+        companyTitle: 'SZ',
+        warehouseLocation: 'SZ',
+        freightTermsCode: 'FOB'
+      }
+    ]
+  }
+  if (!needValidation) return result
+
+  return result
 }
 
 defineExpose({ getFormData })

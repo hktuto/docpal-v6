@@ -41,6 +41,7 @@ type dataItem = {
   deliveryDetailId: number
   companyTitle: string
   warehouseLocation: string
+  customerId: number
 }
 
 const tableData = ref<dataItem[]>([])
@@ -77,12 +78,12 @@ watch(
 )
 const userInfo = ref<{
   org_id: number
-  organization_id: number
+  organizationId: number
   operatingName: string
   userId: string
 }>({
   org_id: 0,
-  organization_id: 0,
+  organizationId: 0,
   operatingName: '',
   userId: ''
 })
@@ -94,7 +95,7 @@ function getUserInfo() {
   userInfo.value.org_id = Number(org.operatingId)
   userInfo.value.operatingName = org.operatingName
   userInfo.value.userId = user.value.userId
-  userInfo.value.organization_id = org.organizationId
+  userInfo.value.organizationId = org.organizationId
   formModel.invoice_header = org.operatingName
   search.office = org.operatingName
 }
@@ -223,6 +224,7 @@ function mapCandidateToDataItem(item: any, extra: Partial<dataItem> = {}): dataI
     deliveryDetailId: item.deliveryDetailId,
     companyTitle: item.companyTitle,
     warehouseLocation: item.warehouseLocation,
+    customerId: item.customerId,
     ...extra
   }
 }
@@ -365,7 +367,7 @@ const CSV_TEMPLATE_MISMATCH = 'CSV_TEMPLATE_MISMATCH'
 
 type CsvImportRow = {
   customer_number: string
-  order_number: string
+  order_number: number
   line: string
   deliver_qty: number
   invoice_header: string
@@ -442,7 +444,7 @@ async function csvTextToLineItems(text: string) {
 
     return {
       customer_number: record.customer_number ?? '',
-      order_number: String(record.order_number ?? 0),
+      order_number: Number(record.order_number ?? 0),
       line: String(record.line ?? ''),
       deliver_qty: Number(record.deliver_qty ?? 0),
       invoice_header: record.invoice_header ?? '',
@@ -504,12 +506,13 @@ function parsePlanDate(value: string): string {
 async function getOrderData(csvRows: CsvImportRow[]) {
   const list = csvRows.map((item: any) => ({
     customerNumber: item.customer_number,
-    orderNumber: String(item.order_number),
-    line: String(item.line)
+    orderNumber: item.order_number,
+    line: item.order_ln,
+    grouping: item.grouping
   }))
 
   const raw = {
-    orgId: String(userInfo.value.org_id),
+    orgId: userInfo.value.operatingName,
     lines: list
   }
   try {
@@ -537,7 +540,7 @@ onMounted(async () => {
  * 拆單
  * 規則：根據辦事處、客戶編號、貨幣、倉庫位置、子庫存、賬單地址、送貨地址、分組
  */
-function buildPreviewGroups() {
+function buildPreviewGroups(checkData: any) {
   const groupMap = new Map<string, any>()
 
   for (const row of selectedRowsList.value) {
@@ -610,9 +613,99 @@ function buildPreviewGroups() {
       ...item,
       sub_total: subTotal.toNumber(),
       total_tax: totalTax.toNumber(),
-      total_amount: subTotal.plus(totalTax).toNumber()
+      total_amount: subTotal.plus(totalTax).toNumber(),
+      ...checkData[item.grouping]
     }
   })
+}
+
+async function checkGroupsData() {
+  const lines = selectedRowsList.value.map((item: any, index: number) => {
+    return {
+      lineNo: index,
+      organization_id: item.organization_id,
+      soLineId: item.soLineId,
+      deliveryDetailId: item.deliveryDetailId,
+      orderNumber: item.order_number,
+      lineNum: item.order_ln,
+      partNum: item.part_number,
+      orderQty: item.order_qty,
+      subinventory: item.sub_inventory,
+      grouping: item.grouping,
+      customerId: item.customerId,
+      customerName: item.customer_name,
+      companyTitle: item.companyTitle,
+      warehouseLocation: item.warehouseLocation
+    }
+  })
+
+  const raw = {
+    orgId: userInfo.value.operatingName,
+    customerName: lines[0].customerName,
+    organizationId: lines[0].organization_id,
+    lines: lines
+  }
+  const data = await clientApi.instance.post(`/apis/v1/ms/wfl/proforma-invoices/validate`, raw).then((r) => r.data)
+
+  if (!!data.items) {
+    const map = data.items.reduce((acc: any, item: any) => {
+      const result: boolean = item.result === 'success'
+      const errorList: string[] = []
+      let requiredApproval = false
+      let payment_in_adv = 'N'
+      let overdue_debt = 'N'
+
+      if (!result) {
+        const creditOrCod = item.checks.credit_or_cod
+        const line_occupied = item.checks.line_occupied
+        const pi_vs_so = item.checks.pi_vs_so
+        const stock = item.checks.stock
+
+        // 货到付款 COD / 预付款 Payment in Adv = Y
+        if (creditOrCod.codOk !== null && !creditOrCod.codOk) {
+          payment_in_adv = 'Y'
+          requiredApproval = true
+          errorList.push(`Customer Name: ${creditOrCod.customerName} Overdraft: ${creditOrCod.debtAmount}, `)
+        }
+        // 欠款
+        if (creditOrCod.debtOk !== null && !creditOrCod.debtOk) {
+          overdue_debt = 'Y'
+          requiredApproval = true
+          errorList.push(`Customer Name: ${creditOrCod.customerName} Overdraft: ${creditOrCod.debtAmount}, `)
+        }
+        if (line_occupied.ok !== null && !line_occupied.ok) {
+          const line_occupiedMap = line_occupied.lines.map((line_occupiedItem: any) => {
+            return `Part Number: ${line_occupiedItem.partNum}`
+          })
+          errorList.push(line_occupiedMap.join(', '))
+        }
+        if (pi_vs_so.ok !== null && !pi_vs_so.ok) {
+          const pi_vs_soMap = pi_vs_so.lines.map((pi_vs_soItem: any) => {
+            return `Part Number: ${pi_vs_soItem.partNum} PI and SO data are inconsistent`
+          })
+          errorList.push(pi_vs_soMap.join(', '))
+        }
+        if (stock.ok !== null && !stock.ok) {
+          const stockMap = stock.lines.map((stockItem: any) => {
+            return `Part Number: ${stockItem.partNum} Required quantity: ${stockItem.orderQty} - Inventory quantity: ${stockItem.onhand}`
+          })
+          errorList.push(stockMap.join(', '))
+        }
+      }
+
+      acc[item.groupingKey] = {
+        result: result,
+        checks: item.checks,
+        error: errorList.join('; '),
+        requiredApproval,
+        payment_in_adv,
+        overdue_debt
+      }
+      return acc
+    }, {})
+    console.log(444, map)
+    return map
+  }
 }
 
 async function getFormData(needValidation = true) {
@@ -622,15 +715,15 @@ async function getFormData(needValidation = true) {
     ElMessage.error(t('proformaInvoice.selectAtLeastOneRow'))
     throw new Error('')
   }
-
-  const groups: any = buildPreviewGroups()
+  const checkData = await checkGroupsData()
+  const groups: any = buildPreviewGroups(checkData)
 
   if (Object.keys(groups).length === 0) {
     ElMessage.error('Please Select Grouping')
     throw new Error('')
   }
 
-  await proformaInvoicePreviewRef.value.open(groups)
+  await proformaInvoicePreviewRef.value.open(userInfo.value.operatingName, groups)
 
   // 循環啓動workflow
   Object.values(groups).forEach((item: any) => {
@@ -656,20 +749,22 @@ async function getFormData(needValidation = true) {
     })
 
     const json = {
+      // 需要根據
+      status: 'Pending for Approval',
       orgId: String(userInfo.value.org_id),
       companyTitle: '${companyTitle}',
       customerId: 'customerId',
       customerName: '${customerName}',
-      organizationId: userInfo.value.organization_id,
+      organizationId: userInfo.value.organizationId,
       initialPickupLocationId: '${initialPickupLocationId}',
       ultimateDropoffLocationId: '${ultimateDropoffLocationId}',
       lines: '${lines}'
     }
 
-    // runWorkflow()
+    // runWorkflow(json)
   })
   throw new Error('')
-  return { ...formModel }
+  return {}
 }
 
 async function runWorkflow(cFormData: any) {
@@ -680,6 +775,7 @@ async function runWorkflow(cFormData: any) {
       variables: {
         ...cFormData,
         __system__user_creator_id: user.value.userId,
+        __system__user_creator_name: `${user.value.lastName} ${user.value.firstName}`,
         __system__user_creator_email: user.value.email
       }
     }

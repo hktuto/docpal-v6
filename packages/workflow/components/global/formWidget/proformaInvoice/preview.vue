@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { clientApi } from 'api'
+
 const { t } = useI18n()
 const visible = ref(false)
 const groups = ref<any[]>([])
 const activeIndex = ref(0)
-const panelRef = ref<{ reload: () => void } | null>(null)
+const org = ref<string>('')
 
 /** 同一分組內必須一致的字段 → i18n key */
 const GROUPING_FIELDS = [
@@ -23,24 +25,10 @@ let pending: {
 
 const activeInvoice = computed(() => groups.value[activeIndex.value] ?? null)
 
-function formatAmount(value: number | string | undefined) {
-  const num = Number(value ?? 0)
-  if (Number.isNaN(num)) return String(value ?? '')
-  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
 function groupSummary(invoice: any) {
   const code = invoice.customer_code || '—'
   const count = invoice.items?.length ?? 0
-  return `${code} · ${t('proformaInvoice.linesCount', { count })} · ${formatAmount(invoice)}`
-}
-
-function normalizeInvoices(invoices: any[] | Record<string, any> = []): any[] {
-  if (Array.isArray(invoices)) return invoices
-  return Object.entries(invoices).map(([grouping, invoice]) => ({
-    ...invoice,
-    grouping: Number(grouping) || grouping
-  }))
+  return `${code} · ${t('proformaInvoice.linesCount', { count })} · ${invoice.total_amount}`
 }
 
 /**
@@ -60,16 +48,16 @@ function checkGrouping(invoice: any): string[] {
   return mismatches
 }
 
-function open(invoices: any[] | Record<string, any> = []) {
-  const list = normalizeInvoices(invoices).map((invoice) => ({
+function open(operatingName: string, invoices: any[]) {
+  groups.value = invoices.map((invoice) => ({
     ...invoice,
     groupingMismatches: checkGrouping(invoice)
   }))
+  console.log(111, invoices)
+  org.value = operatingName
 
-  groups.value = list
   activeIndex.value = 0
   visible.value = true
-  nextTick(() => panelRef.value?.reload())
   return new Promise<void>((resolve, reject) => {
     pending = { resolve, reject }
   })
@@ -86,7 +74,6 @@ function settle(confirmed: boolean) {
 
 function handleSelectGroup(index: number) {
   activeIndex.value = index
-  nextTick(() => panelRef.value?.reload())
 }
 
 function handleSubmit() {
@@ -161,7 +148,7 @@ defineExpose({ open })
               }}
             </h3>
           </div>
-          <LazyFormWidgetProformaInvoicePreviewPanel ref="panelRef" v-model:invoice="groups[activeIndex]" />
+          <LazyFormWidgetProformaInvoicePreviewPanel v-model:invoice="groups[activeIndex]" />
         </main>
       </div>
     </div>
@@ -199,7 +186,7 @@ defineExpose({ open })
   }
 
   &__sidebar {
-    flex: 0 0 220px;
+    flex: 0 0 240px;
     padding-right: var(--app-space-s);
     display: flex;
     flex-direction: column;

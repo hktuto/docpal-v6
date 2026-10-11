@@ -11,10 +11,11 @@ const invoiceHeaderOption = [
   { label: '金领导', value: 'JLD' },
   { label: 'MCE', value: 'MCE' }
 ]
+const lineList = ref<any[]>([])
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'proformaInvoicePreview',
-  api: () => invoice.value?.items ?? [],
+  api: () => lineList.value,
   columns: [
     { field: 'index', title: t('proformaInvoice.index'), align: 'center', type: 'seq', width: 70 },
     {
@@ -42,19 +43,19 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   saveColumnOrder: false,
   selectChangeHander: () => {},
   bodyActions: [],
-  permissionMethod: () => ({ visible: false, disabled: false })
+  permissionMethod: () => ({ visible: false, disabled: false }),
+  optionalConfig: {
+    pagerConfig: { enabled: false }
+  }
 })
 
-function formatAmount(value: number | string | undefined) {
-  const num = Number(value ?? 0)
-  if (Number.isNaN(num)) return String(value ?? '')
-  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
 watch(
-  () => invoice.value,
-  () => nextTick(() => reload()),
-  { deep: false }
+  () => invoice.value?.items,
+  (items) => {
+    lineList.value = [...(items ?? [])]
+    nextTick(() => reload())
+  },
+  { immediate: true }
 )
 
 defineExpose({ reload })
@@ -81,7 +82,7 @@ defineExpose({ reload })
             <el-input :model-value="invoice.customer_name" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.subTotal')">
-            <el-input :model-value="formatAmount(invoice.sub_total)" disabled />
+            <el-input :model-value="invoice.sub_total" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.subInventory')">
             <el-input :model-value="invoice.sub_inventory" disabled />
@@ -93,10 +94,7 @@ defineExpose({ reload })
             <el-input :model-value="invoice.office" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.totalTax')">
-            <el-input :model-value="formatAmount(invoice.total_tax)" disabled />
-          </el-form-item>
-          <el-form-item :label="t('proformaInvoice.paymentInAdv')">
-            <el-input :model-value="invoice.payment_in_adv" disabled />
+            <el-input :model-value="invoice.total_tax" disabled />
           </el-form-item>
         </el-col>
 
@@ -107,10 +105,7 @@ defineExpose({ reload })
             </el-select>
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.totalAmount')">
-            <el-input :model-value="formatAmount(invoice.total_amount)" disabled />
-          </el-form-item>
-          <el-form-item :label="t('proformaInvoice.overdueDebt')">
-            <el-input :model-value="invoice.overdue_debt" disabled />
+            <el-input :model-value="invoice.total_amount" disabled />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -118,14 +113,10 @@ defineExpose({ reload })
             <el-input v-model="invoice.pi_remarks" type="textarea" :autosize="{ minRows: 1, maxRows: 2 }" />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
-          <el-form-item :label="t('proformaInvoice.invoiceDate')">
-            <el-date-picker v-model="invoice.invoice_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
-          </el-form-item>
-        </el-col>
       </el-row>
     </el-form>
   </div>
+  <el-alert v-if="!invoice.result" :title="invoice.error" type="error" :closable="false" />
   <div class="pi-preview-panel__table">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>

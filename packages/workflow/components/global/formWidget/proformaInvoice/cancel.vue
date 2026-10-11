@@ -191,8 +191,11 @@ const userInfo = ref<{
   userId: ''
 })
 
-async function getPi(piNumber: string) {
+async function grtPiInfo(piNumber: string) {
   const data = await clientApi.instance.get(`/apis/v1/ms/wfl/proforma-invoices/${piNumber}`).then((r) => r.data)
+  console.log(123, data)
+  formModel.items = []
+  await reload()
 }
 
 function getUserInfo() {
@@ -211,6 +214,14 @@ onMounted(() => {
   getUserInfo()
 })
 
+watch(
+  () => formData.pi_number,
+  (value) => {
+    // grtPiInfo(value)
+  },
+  { deep: true }
+)
+
 async function getFormData(needValidation = true) {
   if (!needValidation) return { ...formModel }
 
@@ -221,26 +232,11 @@ async function getFormData(needValidation = true) {
 
   await formRef.value?.validate()
 
-  return { ...formModel }
-}
-
-async function handleCancelLine() {
-  let raw = {
-    operatorId: 'string',
-    operatorName: 'string'
-  }
-  if (selectedRowsList.value.length !== formModel.item.length) {
-    const map = selectedRowsList.value.map((item) => {
-      return item.pi_number
+  return {
+    lineNos: selectedRowsList.value.map((item) => {
+      return item.line_number
     })
-
-    raw = {
-      ...raw,
-      lineNos: map
-    }
   }
-
-  const data = await clientApi.instance.post(`/apis/v1/ms/wfl/proforma-invoices/${piNumber}/cancel`, raw).then((r) => r.data)
 }
 
 defineExpose({ getFormData })
@@ -252,7 +248,7 @@ defineExpose({ getFormData })
       <el-row>
         <el-col :span="6">
           <el-form-item :label="t('proformaInvoice.piNumber')">
-            <el-input v-model="formModel.pi_number" disabled />
+            <el-input v-model="formModel.pi_number" @change="grtPiInfo" />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.customerCode')">
             <el-input v-model="formModel.customer_code" disabled />
