@@ -110,14 +110,15 @@ export const x6NodeToWorkflowJson = function (graph: Graph, oldJson: WorkflowJso
   if (!workflowConfig) {
     throw new Error('workflow Config is undefined')
   }
+  const workflowConfigData = workflowConfig.getData?.() ?? workflowConfig.data ?? {}
   // Update workflow name
-  workflowJson.name = workflowConfig.data.name
+  workflowJson.name = workflowConfigData.name
   try {
     // Update edges（从画布边同步 source/target/ports/vertices；缺字段时用旧 edges 回填）
     workflowJson.edges = x6EdgesToWorkflowJsonEdges(edges, workflowJson.edges)
 
-    // Update variables
-    workflowJson.variables = workflowConfig.data.variables
+    // Update variables（必须用 getData，避免读到过期的 data 快照）
+    workflowJson.variables = workflowConfigData.variables ?? {}
     // Update Nodes
     workflowJson.nodes = x6NodesToWorkflowJsonNodes(addFlowForChildNodes(x6Nodes, workflowJson.edges) || [])
     workflowJson.version += 1
