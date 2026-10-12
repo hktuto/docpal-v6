@@ -89,7 +89,7 @@
       "name": "Creator Name",
       "type": "string",
       "display_type": "text",
-      "required": true,
+      "required": false,
       "description": "",
       "default_value": "",
       "display_option": {},
@@ -103,15 +103,15 @@
       "name": "Creator Email",
       "type": "string",
       "display_type": "text",
-      "default_value": "",
+      "required": false,
       "description": "",
+      "default_value": "",
       "display_option": {},
-      "order": 1,
-      "required": true,
       "validation": {
         "max_length": 255,
         "min_length": 1
-      }
+      },
+      "order": 1
     }
   },
   "metadata": {
