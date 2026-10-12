@@ -290,6 +290,8 @@ async function getBrandEmail() {
 }
 
 async function checkPartNumberIsFlow(lineNumber: number, partNumber: string) {
+  if (formData.is_pc_approval !== undefined && !formData.is_pc_approval) return false
+
   try {
     const allFormData = await workflowProvider?.getFormData(false, false)
     if (!allFormData.customer_name || allFormData.customer_name === '') {
