@@ -11,7 +11,7 @@ const { disabled, formData, options } = defineProps<{
 }>()
 const { t } = useI18n()
 const formRef = ref()
-const isSeries = ref<boolean>(false)
+const seriesModeByLine = reactive<Record<string, boolean>>({})
 const loading = ref(false)
 
 type dataType = {
@@ -83,11 +83,28 @@ function handleAdd(index?: number) {
   }
 }
 
-function changePartNumberAndSeries(item: any, index: number) {
+function seriesKey(item: dataType) {
+  return item.line_id || String(item.line_number)
+}
+
+function isSeries(item: dataType) {
+  return !!seriesModeByLine[seriesKey(item)]
+}
+
+function syncSeriesMode(list: dataType[]) {
+  list.forEach((item) => {
+    const key = seriesKey(item)
+    if (Object.prototype.hasOwnProperty.call(seriesModeByLine, key)) return
+    seriesModeByLine[key] = item.series !== '' && !item.part_number
+  })
+}
+
+function changePartNumberAndSeries(item: dataType, index: number) {
   item.vendor = ''
   item.part_number = ''
   item.series = ''
-  isSeries.value = !isSeries.value
+  const key = seriesKey(item)
+  seriesModeByLine[key] = !seriesModeByLine[key]
   nextTick(() => {
     formRef.value?.clearValidate([`list.${index}.series`, `list.${index}.part_number`])
   })
@@ -175,6 +192,7 @@ async function init() {
   if (!!formData.sample_info_list && formData.sample_info_list.length > 0) {
     if (formData.sample_info_list.every((x) => typeof x === 'string')) return
     data.value = formData.sample_info_list
+    syncSeriesMode(data.value)
   }
 }
 
@@ -243,14 +261,14 @@ defineExpose({ getFormData })
 
           <el-col :span="8">
             <el-form-item
-              :label="isSeries ? t('sampleRequest.series') : t('sampleRequest.partNumber')"
+              :label="isSeries(item) ? t('sampleRequest.series') : t('sampleRequest.partNumber')"
               required
-              :prop="`list.${index}.${isSeries ? 'series' : 'part_number'}`"
-              :rules="isSeries ? rules.series : rules.part_number"
+              :prop="`list.${index}.${isSeries(item) ? 'series' : 'part_number'}`"
+              :rules="isSeries(item) ? rules.series : rules.part_number"
             >
               <div class="partNumber-series-change">
                 <el-select-v2
-                  v-if="!isSeries"
+                  v-if="!isSeries(item)"
                   v-model="item.part_number"
                   filterable
                   remote
