@@ -4788,6 +4788,7 @@
   "workflow_timeSinceSubmission": "認領日起",
   "workflow_workflow": "工作流程",
   "workflow_workflowName": "工作流程名稱",
+  "workflow_invalidJsonFormat": "無效的工作流JSON格式，需包含 nodes 陣列",
   "workflow_businessKey": "業務 Key",
   "workflow_history": "歷史",
   "zh-CN": "简体中文",

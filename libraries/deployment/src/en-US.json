@@ -4791,6 +4791,7 @@
   "workflow_timeSinceSubmission": "Time Since Submission",
   "workflow_workflow": "workflow",
   "workflow_workflowName": "Workflow Name",
+  "workflow_invalidJsonFormat": "Invalid workflow JSON format. A nodes array is required.",
   "workflow_businessKey": "Business Key",
   "workflow_history": "History",
   "zh-CN": "简体中文",

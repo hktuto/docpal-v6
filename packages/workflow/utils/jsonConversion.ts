@@ -1,5 +1,5 @@
 import { Graph } from '@antv/x6'
-import { CellType, workflowElement, WorkflowElementType } from './workflowElement'
+import { CellType, getWorkflowElementTypeByCellType, workflowElement, WorkflowElementType } from './workflowElement'
 
 interface Flow {
   incoming: string[]
@@ -113,18 +113,8 @@ export const x6NodeToWorkflowJson = function (graph: Graph, oldJson: WorkflowJso
   // Update workflow name
   workflowJson.name = workflowConfig.data.name
   try {
-    // Update edges
-    if (edges.length === 0) {
-      workflowJson.edges = []
-    } else {
-      const edgeList: any[] = []
-      edges.forEach((item: any) => {
-        if (!!item.data) {
-          edgeList.push(item.data)
-        }
-      })
-      workflowJson.edges = edgeList
-    }
+    // Update edges（从画布边同步 source/target/ports/vertices；缺字段时用旧 edges 回填）
+    workflowJson.edges = x6EdgesToWorkflowJsonEdges(edges, workflowJson.edges)
 
     // Update variables
     workflowJson.variables = workflowConfig.data.variables
@@ -154,58 +144,69 @@ function resolveWorkflowElementType(nodeItem: NodeItem): WorkflowElementType | n
   if (type && type in workflowElement) {
     return type as WorkflowElementType
   }
-  return null
+  return getWorkflowElementTypeByCellType(type) || getWorkflowElementTypeByCellType(nodeItem.metadata?.type as string)
 }
 
 /**
  * 补齐缺失的 metadata，避免后端/外部 JSON 缺字段时整图转换中断
  */
 function ensureNodeMetadata(nodeItem: NodeItem): NodeItem {
-  const taskType: CellType = nodeItem.type
-  const metadataType: string = nodeItem.metadata?.type || CellType.jsonEdit
+  const meta = nodeItem.metadata || ({} as Metadata)
+  const taskType = (nodeItem.type || meta.type || CellType.jsonEdit) as string
+  const metadataType: string = meta.type || taskType || CellType.jsonEdit
 
-  const isGateway: boolean = GATEWAY_TYPES.has(taskType)
-  const tags = (nodeItem.metadata?.tags || (isGateway ? WorkflowElementType.Gateway : WorkflowElementType.HTTPRequestTask)) as WorkflowElementType
+  const isGateway: boolean = GATEWAY_TYPES.has(taskType) || GATEWAY_TYPES.has(metadataType)
+  const resolvedTags =
+    (meta.tags && meta.tags in workflowElement ? meta.tags : null) ||
+    getWorkflowElementTypeByCellType(metadataType) ||
+    getWorkflowElementTypeByCellType(taskType) ||
+    (isGateway ? WorkflowElementType.Gateway : WorkflowElementType.HTTPRequestTask)
 
-  let maxOutgoing: number = 3
-  if (taskType === 'ExclusiveGateway' || taskType === 'ConditionTask') maxOutgoing = 2
-  else if (taskType === 'ParallelGateway' || taskType === 'InclusiveGateway') maxOutgoing = 50
+  let maxOutgoing: number = meta.maxOutgoing ?? 3
+  if (taskType === 'ExclusiveGateway' || taskType === 'ConditionTask' || metadataType === 'ExclusiveGateway' || metadataType === 'ConditionTask') {
+    maxOutgoing = meta.maxOutgoing ?? 2
+  } else if (
+    taskType === 'ParallelGateway' ||
+    taskType === 'InclusiveGateway' ||
+    metadataType === 'ParallelGateway' ||
+    metadataType === 'InclusiveGateway'
+  ) {
+    maxOutgoing = meta.maxOutgoing ?? 50
+  }
 
-  // 手動配置的node
-  let x6Node: NodeItem = {
+  return {
     ...nodeItem,
     metadata: {
-      ...nodeItem.metadata,
+      ...meta,
       type: metadataType,
-      tags: tags,
-      x: 60,
-      y: 60,
-      width: isGateway ? 200 : 120,
-      height: 64,
-      icon: isGateway ? '/workflowIcons/condition.svg' : undefined,
-      bgColor: isGateway ? '#ff8f31' : '#fff',
-      textColor: isGateway ? '#fff' : '#000',
+      tags: resolvedTags as WorkflowElementType,
+      x: meta.x ?? 60,
+      y: meta.y ?? 60,
+      width: meta.width ?? (isGateway ? 200 : 120),
+      height: meta.height ?? 64,
+      icon: meta.icon ?? (isGateway ? '/workflowIcons/condition.svg' : undefined),
+      bgColor: meta.bgColor ?? (isGateway ? '#ff8f31' : '#fff'),
+      textColor: meta.textColor ?? (isGateway ? '#fff' : '#000'),
       maxOutgoing
     }
   }
-
-  // 已存在的 TaskNode
-  if (metadataType === 'StartEvent' || metadataType === 'EndEvent' || Object.values(CellType).includes(metadataType as CellType)) {
-    x6Node = { ...nodeItem }
-  }
-
-  return x6Node
 }
 
 export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   const cells: any = []
 
-  workflowJson.nodes.forEach((nodeItem: NodeItem) => {
-    const normalizedNode = ensureNodeMetadata(nodeItem)
-    const type = resolveWorkflowElementType(normalizedNode)
-    if (type && type in workflowElement) {
-      const graphData = workflowElement[type].workflowDataToGraphData(normalizedNode)
-      cells.push(graphData)
+  ;(workflowJson.nodes || []).forEach((nodeItem: NodeItem) => {
+    try {
+      const normalizedNode = ensureNodeMetadata(nodeItem)
+      const type = resolveWorkflowElementType(normalizedNode)
+      if (type && type in workflowElement) {
+        const graphData = workflowElement[type].workflowDataToGraphData(normalizedNode)
+        if (graphData) cells.push(graphData)
+      } else {
+        console.warn('workflowJsonToX6Node: skip unknown node type', nodeItem?.id, nodeItem?.type, nodeItem?.metadata)
+      }
+    } catch (e) {
+      console.error('workflowJsonToX6Node: failed to convert node', nodeItem?.id, e)
     }
   })
 
@@ -230,25 +231,64 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   }
 }
 
+function x6EdgesToWorkflowJsonEdges(edges: any[], oldEdges: any[] = []) {
+  const oldById = new Map((oldEdges || []).filter((e) => e?.id).map((e) => [e.id, e]))
+
+  return edges
+    .map((edge: any) => {
+      const data = edge.getData?.() ?? edge.data
+      if (!data || typeof data !== 'object') return null
+
+      const sourceId = edge.getSourceCellId?.() ?? edge.source?.cell ?? data.source_node_id
+      const targetId = edge.getTargetCellId?.() ?? edge.target?.cell ?? data.target_node_id
+      if (!sourceId || !targetId) return null
+
+      const sourcePort = edge.getSourcePortId?.() ?? edge.source?.port ?? data.metadata?.sourcePort
+      const targetPort = edge.getTargetPortId?.() ?? edge.target?.port ?? data.metadata?.targetPort
+      const vertices = edge.getVertices?.() ?? edge.vertices ?? data.metadata?.vertices ?? []
+      const id = data.id || `edge-${edge.id}`
+      const old = oldById.get(id)
+
+      // 画布 data 残缺时用旧边业务字段回填，避免拖线后保存丢掉 flow_control 等
+      return {
+        ...(old || {}),
+        ...data,
+        id,
+        source_node_id: sourceId,
+        target_node_id: targetId,
+        flow_control: data.flow_control ?? old?.flow_control,
+        label: data.label ?? old?.label,
+        metadata: {
+          ...(old?.metadata || {}),
+          ...(data.metadata || {}),
+          sourcePort,
+          targetPort,
+          vertices
+        }
+      }
+    })
+    .filter(Boolean)
+}
+
 function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
   const nodes: any[] = []
   x6Nodes.forEach((x6Node: any) => {
-    if (x6Node.data.type === 'process') return
+    // 拷贝后再删 version，避免直接 mutate 画布上的 node.data
+    const data = { ...(x6Node.getData?.() ?? x6Node.data ?? {}) }
+    if (data.type === 'process') return
 
-    if ('version' in x6Node.data) {
-      delete x6Node.data.version
-    }
+    delete data.version
 
     const { x, y } = x6Node.getPosition()
     const { width, height } = x6Node.getSize()
     nodes.push({
-      ...x6Node.data,
+      ...data,
       metadata: {
-        ...x6Node.data.metadata,
-        x: x,
-        y: y,
-        width: width,
-        height: height
+        ...(data.metadata || {}),
+        x,
+        y,
+        width,
+        height
       }
     })
   })
