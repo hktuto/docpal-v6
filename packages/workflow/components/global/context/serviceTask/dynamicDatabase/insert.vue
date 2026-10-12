@@ -13,6 +13,7 @@ if (!graphProvider) {
 }
 const { variables, getVariablesByDisplayTypes } = useVariablesProvide()
 const ImportDialogRef = ref()
+const ConflictDialogRef = ref()
 const databaseId = ref<string>('')
 const tableId = ref<string>('')
 const dataId = ref<string>('')
@@ -176,31 +177,81 @@ function resolveMatchedVariableId(field: { id: string; name: string }, variableI
   const labelId = toVariableId(field.name)
   if (labelId && variableIds.has(labelId)) return labelId
   if (field.name && variableIds.has(field.name)) return field.name
+  // label 与 workflow 变量 label（name）一致时也绑定
+  if (field.name) {
+    const byLabel = variables.value.find((item) => item.name === field.name)
+    if (byLabel) return byLabel.id
+  }
   return ''
+}
+
+function getVariableLabel(rawValue: string) {
+  const id = rawValue.replace(/^\$\{|\}$/g, '')
+  const found = variables.value.find((item) => item.id === id)
+  return found?.name || rawValue || '-'
 }
 
 function handleAutoBind() {
   if (!tableFieldList.value.length) {
-    ElMessage.warning('暂未发现可绑定变量')
+    ElMessage.warning(t('workflow_autoBindNoMatch'))
     return
   }
 
   const variableIds = new Set(variables.value.map((item) => item.id))
-  let boundCount = 0
+  const conflicts: {
+    fieldId: string
+    fieldName: string
+    currentValue: string
+    currentLabel: string
+    targetValue: string
+    targetLabel: string
+  }[] = []
+  let emptyBoundCount = 0
 
   tableFieldList.value.forEach((field) => {
     const matchedId = resolveMatchedVariableId(field, variableIds)
-    if (matchedId) {
-      field.value = '${' + matchedId + '}'
-      boundCount++
+    if (!matchedId) return
+
+    const targetValue = '${' + matchedId + '}'
+    if (!field.value) {
+      field.value = targetValue
+      emptyBoundCount++
+      return
     }
+    if (field.value === targetValue) return
+
+    conflicts.push({
+      fieldId: field.id,
+      fieldName: field.name,
+      currentValue: field.value,
+      currentLabel: getVariableLabel(field.value),
+      targetValue,
+      targetLabel: getVariableLabel(targetValue)
+    })
   })
 
-  if (boundCount === 0) {
-    ElMessage.warning('暂未发现可绑定变量')
+  if (emptyBoundCount > 0) update()
+
+  if (conflicts.length) {
+    ConflictDialogRef.value?.handleOpen(conflicts)
     return
   }
 
+  if (emptyBoundCount === 0) {
+    ElMessage.warning(t('workflow_autoBindNoMatch'))
+  }
+}
+
+function handleConflictConfirm(
+  selected: {
+    fieldId: string
+    targetValue: string
+  }[]
+) {
+  selected.forEach((item) => {
+    const field = tableFieldList.value.find((f) => f.id === item.fieldId)
+    if (field) field.value = item.targetValue
+  })
   update()
 }
 
@@ -311,6 +362,10 @@ watch(
     </template>
   </el-form>
   <LazyContextVariableImportVariablesDialog ref="ImportDialogRef" :field-list="tableFieldList" />
+  <LazyContextServiceTaskDynamicDatabaseAutoBindConflictDialog
+    ref="ConflictDialogRef"
+    @confirm="handleConflictConfirm"
+  />
 </template>
 
 <style scoped lang="scss">
