@@ -16,28 +16,26 @@ const formModel = reactive<{
   orgId: string
   companyTitle: string
   customerId: number
-  customerName: string
   organizationId: number
   initialPickupLocationId: number
   ultimateDropoffLocationId: number
   freightTermsCode: string
   operatorId: string
   operatorName: string
-
   pi_number: string
   status: string
   invoice_date: number
-  schedule_date: number
-  customer_code: string
-  customer_name: string
+  scheduleDate: number
+  customerNumber: string
+  customerName: string
   office: string
   invoice_header: string
-  currency: 'CNY' | 'USD' | 'HKD' | 'EUR' | 'JPY' | 'AUD' | 'MOP' | 'THB'
+  currencyCode: 'CNY' | 'USD' | 'HKD' | 'EUR' | 'JPY' | 'AUD' | 'MOP' | 'THB'
   sub_total: number
   total_tax: number
   total_amount: number
   warehouse_location: string
-  sub_inventory: string
+  subinventory: string
   payment_in_adv: 'Y' | 'N'
   overdue_debt: 'Y' | 'N'
   pi_remarks: string
@@ -46,43 +44,57 @@ const formModel = reactive<{
   reject_reason: string
   approver: string
   approval_date: string
-  items: {
-    id: string
-    schedule_date: number
-    order_ln: number
-    order_number: string
-    wcl_part_number: string
-    order_qty: number
-    line_amount: number
-    tax_code: string
+  lines: {
+    lineNo: number
+    soLineId: number
+    deliveryDetailId: number
+    orderNumber: number
+    lineNum: string
+    subinventory: string
+    grouping: number
+    customerId: number
+    orgId: number
+    organizationId: number
+    scheduleDate: string
+    currencyCode: string
+    taxCode: string
+    taxValue: number
+    lineAmount: number
+    customerNumber: string
+    customerName: string
+    billToAddress: string
+    shipToAddress: string
+    initialPickupLocationId: number
+    ultimateDropoffLocationId: number
+    companyTitle: string
+    warehouseLocation: string
+    freightTermsCode: string
     status: string
   }[]
 }>({
   orgId: '',
   companyTitle: '',
   customerId: 0,
-  customerName: '',
   organizationId: 0,
   initialPickupLocationId: 0,
   ultimateDropoffLocationId: 0,
   freightTermsCode: '',
   operatorId: '',
   operatorName: '',
-
   pi_number: '',
   status: '',
   invoice_date: 0,
-  schedule_date: 0,
-  customer_code: '',
-  customer_name: '',
+  scheduleDate: 0,
+  customerNumber: '',
+  customerName: '',
   office: '',
   invoice_header: '',
-  currency: 'CNY',
+  currencyCode: 'CNY',
   sub_total: 0,
   total_tax: 0,
   total_amount: 0,
   warehouse_location: '',
-  sub_inventory: '',
+  subinventory: '',
   payment_in_adv: 'Y',
   overdue_debt: 'Y',
   pi_remarks: '',
@@ -91,25 +103,24 @@ const formModel = reactive<{
   reject_reason: '',
   approver: '',
   approval_date: '',
-  items: []
+  lines: []
 })
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'proformaInvoiceForm',
   api: () => {
-    return formModel.items
+    return formModel.lines
   },
   columns: [
     {
-      field: 'index',
+      field: 'lineNo',
       title: t('proformaInvoice.index'),
       align: 'center',
-      type: 'seq',
       fixed: 'left',
       minWidth: 100
     },
     {
-      field: 'schedule_date',
+      field: 'scheduleDate',
       title: t('proformaInvoice.scheduleDate'),
       minWidth: 240,
       formatter({ cellValue }: any) {
@@ -117,32 +128,32 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       }
     },
     {
-      field: 'order_ln',
+      field: 'lineNum',
       title: t('proformaInvoice.orderLn'),
       minWidth: 240
     },
     {
-      field: 'order_number',
+      field: 'orderNumber',
       title: t('proformaInvoice.orderNumber'),
       minWidth: 240
     },
     {
-      field: 'wcl_part_number',
+      field: 'partNum',
       title: t('proformaInvoice.wclPartNumber'),
       minWidth: 240
     },
     {
-      field: 'order_qty',
+      field: 'orderQty',
       title: t('proformaInvoice.orderQty'),
       minWidth: 240
     },
     {
-      field: 'line_amount',
+      field: 'lineAmount',
       title: t('proformaInvoice.lineAmount'),
       minWidth: 240
     },
     {
-      field: 'tax_code',
+      field: 'taxCode',
       title: t('proformaInvoice.taxCode'),
       minWidth: 240
     },
@@ -183,16 +194,43 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 })
 
 function handleDelete(row: any) {
-  formModel.items = formModel.items.filter((item: any) => item.id !== row.id)
+  formModel.lines = formModel.lines.filter((item: any) => item.id !== row.id)
   reload()
 }
 
 async function init() {
+  isApproval.value = formData.is_approval
+  isReview.value = formData.is_review
+
+  // 頁面Data
   formModel.pi_number = formData.pi_number
   formModel.status = formData.status
-  formModel.submitted_by = formData.__system__user_creator_name
+  formModel.invoice_date = formData.invoice_date
+  formModel.scheduleDate = formData.scheduleDate
+  formModel.customerNumber = formData.customerNumber
+  formModel.customerName = formData.customerName
+  formModel.office = formData.office
+  formModel.invoice_header = formData.invoice_header
+  formModel.currencyCode = formData.currencyCode
+  formModel.sub_total = formData.sub_total
+  formModel.total_tax = formData.total_tax
+  formModel.total_amount = formData.total_amount
+  formModel.warehouse_location = formData.warehouse_location
+  formModel.subinventory = formData.subinventory
   formModel.payment_in_adv = formData.payment_in_adv
   formModel.overdue_debt = formData.overdue_debt
+  formModel.pi_remarks = formData.pi_remarks
+  formModel.submitted_by = formData.submitted_by
+  formModel.submitted_date = formData.submitted_date
+  formModel.approver = formData.approver
+  formModel.approval_date = formData.approval_date
+  formModel.lines = formData.lines
+
+  // 提交需要的Data
+  formModel.customerId = formData.customerId
+  formModel.companyTitle = formData.companyTitle
+  formModel.organizationId = formData.organizationId
+  formModel.initialPickupLocationId = formData.initialPickupLocationId
 }
 
 watch(
@@ -255,36 +293,7 @@ async function getFormData(needValidation = true, buttonName: string) {
     operatorId: formModel.operatorId,
     operatorName: formModel.operatorName,
     formPayload: {},
-    lines: [
-      {
-        lineNo: 1,
-        soLineId: 1001,
-        deliveryDetailId: 11,
-        orderNumber: 90001,
-        lineNum: '1.1',
-        partNum: 'PART-A',
-        orderQty: 10,
-        subinventory: 'FG',
-        grouping: 1,
-        customerId: 501,
-        orgId: 7,
-        organizationId: 160,
-        scheduleDate: '2026-09-18',
-        currencyCode: 'USD',
-        taxCode: 'VAT',
-        taxValue: 12.5,
-        lineAmount: 128.0,
-        customerNumber: 'C501',
-        customerName: 'ACME',
-        billToAddress: 'Bill Addr',
-        shipToAddress: 'Ship Addr',
-        initialPickupLocationId: 1001,
-        ultimateDropoffLocationId: 2002,
-        companyTitle: 'SZ',
-        warehouseLocation: 'SZ',
-        freightTermsCode: 'FOB'
-      }
-    ]
+    lines: []
   }
   if (!needValidation) return result
 
@@ -303,10 +312,10 @@ defineExpose({ getFormData })
             <el-input v-model="formModel.pi_number" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.customerCode')">
-            <el-input v-model="formModel.customer_code" disabled />
+            <el-input v-model="formModel.customerNumber" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.currency')">
-            <el-input v-model="formModel.currency" disabled />
+            <el-input v-model="formModel.currencyCode" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.warehouseLocation')">
             <el-input v-model="formModel.warehouse_location" disabled />
@@ -318,13 +327,13 @@ defineExpose({ getFormData })
             <el-input v-model="formModel.status" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.customerName')">
-            <el-input v-model="formModel.customer_name" disabled />
+            <el-input v-model="formModel.customerName" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.subTotal')">
             <el-input v-model="formModel.sub_total" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.subInventory')">
-            <el-input v-model="formModel.sub_inventory" disabled />
+            <el-input v-model="formModel.subinventory" disabled />
           </el-form-item>
         </el-col>
 
@@ -345,7 +354,7 @@ defineExpose({ getFormData })
 
         <el-col :span="6">
           <el-form-item :label="t('proformaInvoice.scheduleDate')">
-            <el-date-picker v-model="formModel.schedule_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
+            <el-date-picker v-model="formModel.scheduleDate" type="date" format="YYYY/MM/DD" value-format="x" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.invoiceHeader')">
             <el-select v-model="formModel.invoice_header" :disabled="isApproval">
@@ -375,10 +384,10 @@ defineExpose({ getFormData })
         </el-col>
         <el-col :span="6">
           <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedDate')">
-            <el-date-picker v-model="formModel.submitted_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
+            <el-date-picker v-model="formModel.submitted_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
           </el-form-item>
           <el-form-item v-if="isReview" :label="t('proformaInvoice.approvalDate')">
-            <el-date-picker v-model="formModel.approval_date" type="date" format="YYYY/MM/DD" value-format="x" disabled />
+            <el-date-picker v-model="formModel.approval_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
           </el-form-item>
         </el-col>
       </el-row>

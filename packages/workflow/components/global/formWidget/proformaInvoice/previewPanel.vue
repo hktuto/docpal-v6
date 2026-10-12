@@ -19,17 +19,17 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   columns: [
     { field: 'index', title: t('proformaInvoice.index'), align: 'center', type: 'seq', width: 70 },
     {
-      field: 'schedule_date',
+      field: 'scheduleDate',
       title: t('proformaInvoice.scheduleDate'),
       minWidth: 140,
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       }
     },
-    { field: 'order_ln', title: t('proformaInvoice.orderLn'), minWidth: 100 },
-    { field: 'order_number', title: t('proformaInvoice.orderNumber'), minWidth: 140 },
-    { field: 'wcl_part_number', title: t('proformaInvoice.wclPartNumber'), minWidth: 160 },
-    { field: 'order_qty', title: t('proformaInvoice.orderQty'), minWidth: 110 },
+    { field: 'lineNum', title: t('proformaInvoice.orderLn'), minWidth: 100 },
+    { field: 'orderNumber', title: t('proformaInvoice.orderNumber'), minWidth: 140 },
+    { field: 'partNum', title: t('proformaInvoice.wclPartNumber'), minWidth: 160 },
+    { field: 'orderQty', title: t('proformaInvoice.orderQty'), minWidth: 110 },
     { field: 'lineAmount', title: t('proformaInvoice.lineAmount'), minWidth: 120 },
     { field: 'tax_code', title: t('proformaInvoice.taxCode'), minWidth: 100 },
     { field: 'status', title: t('proformaInvoice.status'), minWidth: 100 }
@@ -67,10 +67,10 @@ defineExpose({ reload })
       <el-row :gutter="12">
         <el-col :span="6">
           <el-form-item :label="t('proformaInvoice.customerCode')">
-            <el-input :model-value="invoice.customer_code" disabled />
+            <el-input :model-value="invoice.customerNumber" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.currency')">
-            <el-input :model-value="invoice.currency" disabled />
+            <el-input :model-value="invoice.currencyCode" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.warehouseLocation')">
             <el-input :model-value="invoice.warehouseLocation" disabled />
@@ -79,13 +79,13 @@ defineExpose({ reload })
 
         <el-col :span="6">
           <el-form-item :label="t('proformaInvoice.customerName')">
-            <el-input :model-value="invoice.customer_name" disabled />
+            <el-input :model-value="invoice.customerName" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.subTotal')">
             <el-input :model-value="invoice.sub_total" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.subInventory')">
-            <el-input :model-value="invoice.sub_inventory" disabled />
+            <el-input :model-value="invoice.subinventory" disabled />
           </el-form-item>
         </el-col>
 
@@ -95,6 +95,9 @@ defineExpose({ reload })
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.totalTax')">
             <el-input :model-value="invoice.total_tax" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.paymentInAdv')">
+            <el-input v-model="invoice.payment_in_adv" disabled />
           </el-form-item>
         </el-col>
 
@@ -106,6 +109,9 @@ defineExpose({ reload })
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.totalAmount')">
             <el-input :model-value="invoice.total_amount" disabled />
+          </el-form-item>
+          <el-form-item :label="t('proformaInvoice.overdueDebt')">
+            <el-input v-model="invoice.overdue_debt" disabled />
           </el-form-item>
         </el-col>
         <el-col :span="12">

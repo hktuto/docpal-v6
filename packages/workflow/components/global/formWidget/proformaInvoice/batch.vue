@@ -19,29 +19,33 @@ const invoiceHeaderOption = ref<any[]>([
 ])
 type dataItem = {
   id: string
-  org_id: string
-  organization_id: string
+  orgId: string
+  organizationId: string
   pi_number?: string
-  schedule_date: string
-  order_number: number
+  scheduleDate: string
+  orderNumber: number
   order_ln: number
-  order_qty: number
-  part_number: string
-  currency: string
+  orderQty: number
+  partNum: string
+  currencyCode: string
   lineAmount: number
   taxValue: number
-  tax_code: string
-  customer_number: string
-  customer_name: string
-  bill_to_location: string
-  ship_to_location: string
-  sub_inventory: string
+  taxCode: string
+  customerNumber: string
+  customerName: string
+  billToAddress: string
+  shipToAddress: string
+  subinventory: string
   grouping?: number
   soLineId: number
   deliveryDetailId: number
   companyTitle: string
   warehouseLocation: string
   customerId: number
+  initialPickupLocationId: number
+  ultimateDropoffLocationId: number
+  freightTermsCode: string
+  lineNum: string
 }
 
 const tableData = ref<dataItem[]>([])
@@ -56,9 +60,7 @@ const search = reactive({
   partNumber: ''
 })
 const customerInfo = ref({
-  customer_name: '',
-  bill_to_location: '',
-  ship_to_location: ''
+  customer_name: ''
 })
 const proformaInvoicePreviewRef = ref()
 const loading = ref<boolean>(false)
@@ -203,28 +205,32 @@ async function handleSearch() {
 function mapCandidateToDataItem(item: any, extra: Partial<dataItem> = {}): dataItem {
   return {
     id: uuidv7(),
-    org_id: item.orgId,
-    organization_id: item.organizationId,
+    orgId: item.orgId,
+    organizationId: item.organizationId,
     pi_number: item.pi_number ?? '',
-    schedule_date: item.scheduleDate,
-    order_number: item.orderNumber,
-    order_ln: item.lineNum,
-    order_qty: item.orderQty,
-    part_number: item.partNum,
-    currency: item.currencyCode,
+    scheduleDate: item.scheduleDate,
+    orderNumber: item.orderNumber,
+    order_ln: item.order_ln,
+    orderQty: item.orderQty,
+    partNum: item.partNum,
+    currencyCode: item.currencyCode,
     lineAmount: item.lineAmount ?? 0,
     taxValue: item.taxValue ?? 0,
-    tax_code: item.taxCode,
-    customer_number: item.customerNumber,
-    customer_name: item.customerName,
-    bill_to_location: item.billToAddress,
-    ship_to_location: item.shipToAddress,
-    sub_inventory: item.subinventory,
+    taxCode: item.taxCode,
+    customerNumber: item.customerNumber,
+    customerName: item.customerName,
+    billToAddress: item.billToAddress,
+    shipToAddress: item.shipToAddress,
+    subinventory: item.subinventory,
     soLineId: item.soLineId,
     deliveryDetailId: item.deliveryDetailId,
     companyTitle: item.companyTitle,
     warehouseLocation: item.warehouseLocation,
     customerId: item.customerId,
+    initialPickupLocationId: item.initialPickupLocationId,
+    ultimateDropoffLocationId: item.ultimateDropoffLocationId,
+    freightTermsCode: item.freightTermsCode,
+    lineNum: String(item.lineNum),
     ...extra
   }
 }
@@ -247,7 +253,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 240
     },
     {
-      field: 'schedule_date',
+      field: 'scheduleDate',
       title: t('proformaInvoice.scheduleDate'),
       minWidth: 200,
       formatter({ cellValue }: any) {
@@ -265,17 +271,17 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 100
     },
     {
-      field: 'order_qty',
+      field: 'orderQty',
       title: t('proformaInvoice.orderQty'),
       minWidth: 150
     },
     {
-      field: 'part_number',
+      field: 'partNum',
       title: t('proformaInvoice.wclPartNumber'),
       minWidth: 200
     },
     {
-      field: 'currency',
+      field: 'currencyCode',
       title: t('proformaInvoice.currency'),
       minWidth: 100
     },
@@ -285,27 +291,27 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       minWidth: 200
     },
     {
-      field: 'tax_code',
+      field: 'taxCode',
       title: t('proformaInvoice.taxCode'),
       minWidth: 150
     },
     {
-      field: 'customer_number',
+      field: 'customerNumber',
       title: t('proformaInvoice.customerCode'),
       minWidth: 200
     },
     {
-      field: 'customer_name',
+      field: 'customerName',
       title: t('proformaInvoice.customerName'),
       minWidth: 200
     },
     {
-      field: 'bill_to_location',
+      field: 'billToAddress',
       title: t('proformaInvoice.billToLocation'),
       minWidth: 200
     },
     {
-      field: 'ship_to_location',
+      field: 'shipToAddress',
       title: t('proformaInvoice.shipToLocation'),
       minWidth: 200
     },
@@ -553,59 +559,76 @@ function buildPreviewGroups(checkData: any) {
         grouping: row.grouping,
         status: '',
         invoice_date: '',
-        schedule_date: '',
-        customer_code: row.customer_number,
-        customer_name: row.customer_name,
+        scheduleDate: row.scheduleDate,
+        customerNumber: row.customerNumber,
+        customerName: row.customerName,
+        companyTitle: row.companyTitle,
         office: row.companyTitle,
-        org_id: row.org_id,
+        orgId: row.orgId,
         invoice_header: row.companyTitle ?? '',
-        currency: row.currency ?? '',
+        currencyCode: row.currencyCode ?? '',
         sub_total: 0,
         total_tax: 0,
         total_amount: 0,
         warehouseLocation: row.warehouseLocation ?? '',
-        sub_inventory: row.sub_inventory ?? '',
+        subinventory: row.subinventory ?? '',
         payment_in_adv: '',
         overdue_debt: '',
-        bill_to_location: row.bill_to_location ?? '',
-        ship_to_location: row.ship_to_location ?? '',
+        billToAddress: row.billToAddress ?? '',
+        shipToAddress: row.shipToAddress ?? '',
         pi_remarks: '',
         submitted_by: userInfo.value.userId,
         submitted_date: '',
         approver: '',
         approval_date: '',
         reject_reason: '',
-        items: []
+        items: [],
+        customerId: row.customerId,
+        organizationId: row.organizationId,
+        initialPickupLocationId: row.initialPickupLocationId,
+        ultimateDropoffLocationId: row.ultimateDropoffLocationId,
+        freightTermsCode: row.freightTermsCode
       }
       groupMap.set(grouping, group)
     }
 
     group.items.push({
-      schedule_date: row.schedule_date,
-      order_ln: row.order_ln,
-      order_number: row.order_number,
-      wcl_part_number: row.part_number,
-      order_qty: row.order_qty,
-      lineAmount: row.lineAmount,
-      tax_code: row.tax_code,
-      status: '',
+      soLineId: row.soLineId,
+      deliveryDetailId: row.deliveryDetailId,
+      orderNumber: row.orderNumber,
+      lineNum: row.lineNum,
+      subinventory: row.subinventory ?? '',
+      grouping: row.grouping,
+      customerId: row.customerId,
+      orgId: row.orgId,
+      organizationId: row.organizationId,
+      scheduleDate: row.scheduleDate,
+      currencyCode: row.currencyCode ?? '',
+      taxCode: row.taxCode,
       taxValue: row.taxValue,
-      office: row.org_id,
-      customer_code: row.customer_number,
-      currency: row.currency ?? '',
-      warehouseLocation: row.warehouseLocation ?? '',
-      sub_inventory: row.sub_inventory ?? '',
-      bill_to_location: row.bill_to_location ?? '',
-      ship_to_location: row.ship_to_location ?? ''
+      lineAmount: row.lineAmount,
+      customerNumber: row.customerNumber,
+      customerName: row.customerName,
+      billToAddress: row.billToAddress ?? '',
+      shipToAddress: row.shipToAddress ?? '',
+      initialPickupLocationId: row.initialPickupLocationId,
+      ultimateDropoffLocationId: row.ultimateDropoffLocationId,
+      companyTitle: row.companyTitle,
+      warehouseLocation: row.warehouseLocation,
+      freightTermsCode: row.freightTermsCode
     })
   }
 
   return Array.from(groupMap.values()).map((item) => {
     const { subTotal, totalTax } = item.items.reduce(
-      (acc: { subTotal: Decimal; totalTax: Decimal }, curr: any) => ({
-        subTotal: acc.subTotal.plus(curr.lineAmount || 0),
-        totalTax: acc.totalTax.plus(curr.taxValue || 0)
-      }),
+      (acc: { subTotal: Decimal; totalTax: Decimal }, curr: any, index: number) => {
+        curr.lineNo = index + 1
+
+        return {
+          subTotal: acc.subTotal.plus(curr.lineAmount || 0),
+          totalTax: acc.totalTax.plus(curr.taxValue || 0)
+        }
+      },
       { subTotal: new Decimal(0), totalTax: new Decimal(0) }
     )
 
@@ -623,17 +646,17 @@ async function checkGroupsData() {
   const lines = selectedRowsList.value.map((item: any, index: number) => {
     return {
       lineNo: index,
-      organization_id: item.organization_id,
+      organizationId: item.organizationId,
       soLineId: item.soLineId,
       deliveryDetailId: item.deliveryDetailId,
       orderNumber: item.order_number,
-      lineNum: item.order_ln,
-      partNum: item.part_number,
-      orderQty: item.order_qty,
-      subinventory: item.sub_inventory,
+      lineNum: item.lineNum,
+      partNum: item.partNum,
+      orderQty: item.orderQty,
+      subinventory: item.subinventory,
       grouping: item.grouping,
       customerId: item.customerId,
-      customerName: item.customer_name,
+      customerName: item.customerName,
       companyTitle: item.companyTitle,
       warehouseLocation: item.warehouseLocation
     }
@@ -642,7 +665,7 @@ async function checkGroupsData() {
   const raw = {
     orgId: userInfo.value.operatingName,
     customerName: lines[0].customerName,
-    organizationId: lines[0].organization_id,
+    organizationId: lines[0].organizationId,
     lines: lines
   }
   const data = await clientApi.instance.post(`/apis/v1/ms/wfl/proforma-invoices/validate`, raw).then((r) => r.data)
@@ -727,40 +750,37 @@ async function getFormData(needValidation = true) {
 
   // 循環啓動workflow
   Object.values(groups).forEach((item: any) => {
-    console.log({
+    const json = {
+      status: 'Pending for Approval',
+      invoice_date: '',
+      scheduleDate: item.scheduleDate,
       customer_code: item.customer_code,
-      customer_name: item.customer_name,
+      customerName: item.customerName,
       office: item.office,
-      org_id: item.org_id,
       invoice_header: item.invoice_header,
-      currency: item.currency,
+      currencyCode: item.currencyCode,
       sub_total: item.sub_total,
       total_tax: item.total_tax,
       total_amount: item.total_amount,
-      tax_code: item.tax_code,
-      warehouseLocation: item.warehouseLocation,
-      sub_inventory: item.sub_inventory,
-      bill_to_location: item.bill_to_location,
-      ship_to_location: item.ship_to_location,
-      items: item.items,
+      warehouse_location: item.warehouseLocation,
+      subinventory: item.subinventory,
+      payment_in_adv: item.payment_in_adv,
+      overdue_debt: item.overdue_debt,
       pi_remarks: item.pi_remarks,
-      submitted_by: userInfo.value.userId,
-      submitted_date: dayjs().format('YYYY-MM-DD')
-    })
+      submitted_by: item.submitted_by,
+      submitted_date: dayjs().format('YYYY-MM-DD'),
+      lines: item.lines,
 
-    const json = {
-      // 需要根據
-      status: 'Pending for Approval',
-      orgId: String(userInfo.value.org_id),
-      companyTitle: '${companyTitle}',
-      customerId: 'customerId',
-      customerName: '${customerName}',
-      organizationId: userInfo.value.organizationId,
-      initialPickupLocationId: '${initialPickupLocationId}',
-      ultimateDropoffLocationId: '${ultimateDropoffLocationId}',
-      lines: '${lines}'
+      orgId: String(item.orgId),
+      companyTitle: item.companyTitle,
+      customerId: item.customerId,
+      organizationId: item.organizationId,
+      initialPickupLocationId: item.initialPickupLocationId,
+      ultimateDropoffLocationId: item.ultimateDropoffLocationId,
+      freightTermsCode: item.freightTermsCode,
+      operatorId: '',
+      operatorName: userInfo.value.userId
     }
-
     // runWorkflow(json)
   })
   throw new Error('')
