@@ -19,6 +19,7 @@ const invoiceHeaderOption = ref<any[]>([
 ])
 type dataItem = {
   id: string
+  index: number
   orgId: string
   organizationId: string
   pi_number?: string
@@ -189,11 +190,17 @@ async function handleSearch() {
       .get(`/apis/v1/ms/wfl/proforma-invoices/candidate-lines?${orgId}${customerName}${orderNumber}${partNum}`)
       .then((r) => r.data.items)
 
-    const map: dataItem[] = (data ?? []).map((item: any) => mapCandidateToDataItem(item))
+    const map: dataItem[] = (data ?? []).map((item: any, index: number) => mapCandidateToDataItem(item, index))
 
-    const selectedIds = new Set(selectedRowsList.value.map((item: any) => item.soLineId))
-    tableData.value = map.filter((item: any) => !selectedIds.has(item.soLineId))
-    reload()
+    const selectedIds = new Set(selectedRowsList.value.map((item) => item.soLineId))
+    const incoming = map.filter((item) => !selectedIds.has(item.soLineId))
+    const selectedRows = selectedRowsList.value
+    tableData.value = [...selectedRows, ...incoming]
+    await reload()
+    await nextTick()
+    if (selectedRows.length) {
+      tableRef.value?.setCheckboxRow(selectedRows, true)
+    }
   } catch (e) {
     console.log(e)
   } finally {
@@ -201,9 +208,10 @@ async function handleSearch() {
   }
 }
 
-function mapCandidateToDataItem(item: any, extra: Partial<dataItem> = {}): dataItem {
+function mapCandidateToDataItem(item: any, index: number, extra: Partial<dataItem> = {}): dataItem {
   return {
     id: uuidv7(),
+    index: index + 1,
     orgId: item.orgId,
     organizationId: item.organizationId,
     pi_number: item.pi_number ?? '',
@@ -244,6 +252,14 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       width: 60,
       align: 'center',
       fixed: 'left'
+    },
+    {
+      field: 'index',
+      title: t('transferNoteApproval.index'),
+      align: 'center',
+      type: 'seq',
+      fixed: 'left',
+      minWidth: 60
     },
     {
       field: 'pi_number',
@@ -528,9 +544,9 @@ async function getOrderData(csvRows: CsvImportRow[]) {
 }
 
 function dataMapping(csvList: CsvImportRow[], data: any[]) {
-  return data.map((item: any) => {
+  return data.map((item: any, index: number) => {
     const csvItem = csvList.find((csv) => csv.order_number === item.order_number && csv.line === item.line)
-    return mapCandidateToDataItem(item, { grouping: csvItem?.grouping })
+    return mapCandidateToDataItem(item, index, { grouping: csvItem?.grouping })
   })
 }
 
@@ -731,8 +747,32 @@ async function checkGroupsData() {
   }
 }
 
-function handleCheckLineGrouping(row:any) {
+const fieldsToCheck = ['orgId', 'customerNumber', 'currencyCode', 'warehouseLocation', 'subinventory', 'billToAddress', 'shipToAddress']
+function handleCheckLineGrouping(row: dataItem) {
+  const groupItems = tableData.value.filter((item) => item.grouping === row.grouping)
+  if (groupItems.length <= 1) return
 
+  const firstItem = groupItems[0]!
+  const errors: string[] = []
+
+  for (let i = 1; i < groupItems.length; i++) {
+    const currentItem = groupItems[i]
+
+    for (const field of fieldsToCheck) {
+      if (currentItem[field] !== firstItem[field]) {
+        errors.push(`序号 ${currentItem.index} 的字段'${field}'值為'${currentItem[field]}'與第一條數據不一致`)
+      }
+    }
+  }
+
+  if (errors.length === 0) return
+
+  ElMessage({
+    showClose: false,
+    message: `Grouping: ${row.grouping} 發現不一致的數據項：\n${errors.join('\n')}`,
+    type: 'error',
+    duration: 0
+  })
 }
 
 async function getFormData(needValidation = true) {
