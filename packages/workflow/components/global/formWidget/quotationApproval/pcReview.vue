@@ -351,8 +351,7 @@ async function getFormData(needValidation = true, buttonName: string) {
     const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
       confirmButtonText: t('common_submit')
     })
-    const reject_comment = value
-    return { reject_comment: reject_comment }
+    return { reject_comment: value }
   }
 
   const newTargetPriceList: any[] = []
