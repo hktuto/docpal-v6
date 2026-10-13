@@ -195,7 +195,10 @@ async function handleSearch() {
     const selectedIds = new Set(selectedRowsList.value.map((item) => item.soLineId))
     const incoming = map.filter((item) => !selectedIds.has(item.soLineId))
     const selectedRows = selectedRowsList.value
-    tableData.value = [...selectedRows, ...incoming]
+    tableData.value = [...selectedRows, ...incoming].map((item: any, index: number) => ({
+      ...item,
+      index: index + 1
+    }))
     await reload()
     await nextTick()
     if (selectedRows.length) {
@@ -374,12 +377,12 @@ function handleDelete(row: any) {
   reload()
 }
 
-function handleClearUnselected() {
+async function handleClearUnselected() {
   const selectedIds = new Set(selectedRowsList.value.map((item: any) => item.id))
   tableData.value = tableData.value.filter((item: any) => selectedIds.has(item.id))
-
-  selectedRowsList.value = []
-  reload()
+  await reload()
+  await nextTick()
+  tableRef.value?.setCheckboxRow(selectedRowsList.value, true)
 }
 
 const csvUploadRef = ref()
@@ -693,6 +696,9 @@ async function checkGroupsData() {
       let requiredApproval = false
       let payment_in_adv = 'N'
       let overdue_debt = 'N'
+      let is_lineOccupied = false
+      let is_piVsSo = false
+      let is_stock = false
 
       if (!result) {
         const creditOrCod = item.checks.credit_or_cod
@@ -716,18 +722,21 @@ async function checkGroupsData() {
           const line_occupiedMap = line_occupied.lines.map((line_occupiedItem: any) => {
             return `Part Number: ${line_occupiedItem.partNum}`
           })
+          is_lineOccupied = true
           errorList.push(line_occupiedMap.join(', '))
         }
         if (pi_vs_so.ok !== null && !pi_vs_so.ok) {
           const pi_vs_soMap = pi_vs_so.lines.map((pi_vs_soItem: any) => {
             return `Part Number: ${pi_vs_soItem.partNum} PI and SO data are inconsistent`
           })
+          is_piVsSo = true
           errorList.push(pi_vs_soMap.join(', '))
         }
         if (stock.ok !== null && !stock.ok) {
           const stockMap = stock.lines.map((stockItem: any) => {
             return `Part Number: ${stockItem.partNum} Required quantity: ${stockItem.orderQty} - Inventory quantity: ${stockItem.onhand}`
           })
+          is_stock = true
           errorList.push(stockMap.join(', '))
         }
       }
@@ -738,11 +747,13 @@ async function checkGroupsData() {
         error: errorList.join('; '),
         requiredApproval,
         payment_in_adv,
-        overdue_debt
+        overdue_debt,
+        is_lineOccupied,
+        is_piVsSo,
+        is_stock
       }
       return acc
     }, {})
-    console.log(444, map)
     return map
   }
 }
@@ -753,26 +764,31 @@ function handleCheckLineGrouping(row: dataItem) {
   if (groupItems.length <= 1) return
 
   const firstItem = groupItems[0]!
-  const errors: string[] = []
-
+  const indexList = []
   for (let i = 1; i < groupItems.length; i++) {
     const currentItem = groupItems[i]
-
     for (const field of fieldsToCheck) {
       if (currentItem[field] !== firstItem[field]) {
-        errors.push(`序号 ${currentItem.index} 的字段'${field}'值為'${currentItem[field]}'與第一條數據不一致`)
+        indexList.push(currentItem.index)
       }
     }
   }
 
-  if (errors.length === 0) return
+  if (indexList.length === 0) return
+  ElMessage.error(t('proformaInvoice.groupingFieldsInconsistent', { grouping: row.grouping }))
+}
 
-  ElMessage({
-    showClose: false,
-    message: `Grouping: ${row.grouping} 發現不一致的數據項：\n${errors.join('\n')}`,
-    type: 'error',
-    duration: 0
-  })
+/**
+ * 校驗同一分組內關鍵字段是否一致
+ */
+function checkGrouping(groups: any) {
+  return groups
+    .filter((group: any) => {
+      const items = group.items
+      if (items.length <= 1) return false
+      return !items.every((item: any) => fieldsToCheck.every((key) => item[key] === items[0][key]))
+    })
+    .map((group: any) => group.grouping)
 }
 
 async function getFormData(needValidation = true) {
@@ -784,53 +800,65 @@ async function getFormData(needValidation = true) {
   }
   const checkData = await checkGroupsData()
   const groups: any = buildPreviewGroups(checkData)
-
   if (Object.keys(groups).length === 0) {
     ElMessage.error('Please Select Grouping')
     throw new Error('')
   }
-
   console.log(111, groups)
-  await proformaInvoicePreviewRef.value.open(userInfo.value.operatingName, groups)
+
+  // 檢查全部組
+  const errorGrouping = checkGrouping(groups)
+  if (errorGrouping.length > 0) {
+    ElMessage.error(
+      t('proformaInvoice.groupingFieldsInconsistent', {
+        grouping: errorGrouping.join(',')
+      })
+    )
+    throw new Error('')
+  }
+
+  await proformaInvoicePreviewRef.value.open(groups)
 
   // 循環啓動workflow
-  Object.values(groups).forEach((item: any) => {
-    const json = {
-      status: 'Pending for Approval',
-      invoice_date: '',
-      scheduleDate: item.scheduleDate,
-      customer_code: item.customer_code,
-      customerName: item.customerName,
-      office: item.office,
-      invoice_header: item.invoice_header,
-      currencyCode: item.currencyCode,
-      sub_total: item.sub_total,
-      total_tax: item.total_tax,
-      total_amount: item.total_amount,
-      warehouse_location: item.warehouseLocation,
-      subinventory: item.subinventory,
-      payment_in_adv: item.payment_in_adv,
-      overdue_debt: item.overdue_debt,
-      pi_remarks: item.pi_remarks,
-      submitted_by: item.submitted_by,
-      submitted_date: dayjs().format('YYYY-MM-DD'),
-      lines: item.lines,
+  try {
+    Object.values(groups).forEach((item: any) => {
+      const json = {
+        status: 'Pending for Approval',
+        invoice_date: '',
+        scheduleDate: item.scheduleDate,
+        customerNumber: item.customerNumber,
+        customerName: item.customerName,
+        office: item.office,
+        invoice_header: item.invoice_header,
+        currencyCode: item.currencyCode,
+        sub_total: item.sub_total,
+        total_tax: item.total_tax,
+        total_amount: item.total_amount,
+        warehouse_location: item.warehouseLocation,
+        subinventory: item.subinventory,
+        payment_in_adv: item.payment_in_adv,
+        overdue_debt: item.overdue_debt,
+        pi_remarks: item.pi_remarks,
+        submitted_by: item.submitted_by,
+        submitted_date: dayjs().format('YYYY-MM-DD'),
+        lines: item.items,
 
-      orgId: String(item.orgId),
-      companyTitle: item.companyTitle,
-      customerId: item.customerId,
-      organizationId: item.organizationId,
-      initialPickupLocationId: item.initialPickupLocationId,
-      ultimateDropoffLocationId: item.ultimateDropoffLocationId,
-      freightTermsCode: item.freightTermsCode,
-      operatorId: '',
-      operatorName: userInfo.value.userId
-    }
-    console.log(2222, json)
-    // runWorkflow(json)
-  })
-  throw new Error('')
-  return {}
+        orgId: String(item.orgId),
+        companyTitle: item.companyTitle,
+        customerId: item.customerId,
+        organizationId: item.organizationId,
+        initialPickupLocationId: item.initialPickupLocationId,
+        ultimateDropoffLocationId: item.ultimateDropoffLocationId,
+        freightTermsCode: item.freightTermsCode,
+        operatorId: '',
+        operatorName: userInfo.value.userId
+      }
+      console.log(2222, json)
+      runWorkflow(json)
+    })
+    return {}
+  } catch (e) {
+  }
 }
 
 async function runWorkflow(cFormData: any) {
@@ -993,8 +1021,8 @@ defineExpose({ getFormData })
 }
 
 .table-container {
-  min-height: 550px;
-  max-height: 600px;
+  min-height: 480px;
+  max-height: 480px;
   overflow: auto;
 }
 

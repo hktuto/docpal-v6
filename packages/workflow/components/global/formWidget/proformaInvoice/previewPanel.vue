@@ -11,11 +11,9 @@ const invoiceHeaderOption = [
   { label: '金领导', value: 'JLD' },
   { label: 'MCE', value: 'MCE' }
 ]
-const lineList = ref<any[]>([])
-
-const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
+const { tableConfig, tableEvent, tableRef } = useVxeTable({
   id: 'proformaInvoicePreview',
-  api: () => lineList.value,
+  height: '100%',
   columns: [
     { field: 'index', title: t('proformaInvoice.index'), align: 'center', type: 'seq', width: 70 },
     {
@@ -37,7 +35,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   zoom: false,
   refresh: false,
   customeToolBar: false,
-  virtualScroll: true,
+  virtualScroll: false,
   remoteSort: false,
   remoteFilter: false,
   saveColumnOrder: false,
@@ -52,13 +50,12 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 watch(
   () => invoice.value?.items,
   (items) => {
-    lineList.value = [...(items ?? [])]
-    nextTick(() => reload())
+    const list = [...(items ?? [])]
+    tableConfig.data = list
+    nextTick(() => tableRef.value?.reloadData?.(list))
   },
   { immediate: true }
 )
-
-defineExpose({ reload })
 </script>
 
 <template>
@@ -163,7 +160,6 @@ defineExpose({ reload })
 
 .pi-preview-panel__table {
   height: 30vh;
-  overflow-y: auto;
 
   &__table-title {
     font-size: 16px;

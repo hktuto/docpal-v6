@@ -1,60 +1,33 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
-
 const { t } = useI18n()
 const visible = ref(false)
 const groups = ref<any[]>([])
 const activeIndex = ref(0)
-const org = ref<string>('')
-
-/** 同一分組內必須一致的字段 → i18n key */
-const GROUPING_FIELDS = [
-  { field: 'office', labelKey: 'proformaInvoice.office' },
-  { field: 'customer_code', labelKey: 'proformaInvoice.customerCode' },
-  { field: 'currency', labelKey: 'proformaInvoice.currency' },
-  { field: 'warehouseLocation', labelKey: 'proformaInvoice.warehouseLocation' },
-  { field: 'sub_inventory', labelKey: 'proformaInvoice.subInventory' },
-  { field: 'bill_to_location', labelKey: 'proformaInvoice.billToLocation' },
-  { field: 'ship_to_location', labelKey: 'proformaInvoice.shipToLocation' }
-] as const
 
 let pending: {
   resolve: () => void
   reject: (reason?: Error) => void
 } | null = null
 
+let sourceInvoices: any[] = []
 const activeInvoice = computed(() => groups.value[activeIndex.value] ?? null)
 
 function groupSummary(invoice: any) {
-  const code = invoice.customer_code || '—'
+  const code = invoice.customerNumber || '—'
   const count = invoice.items?.length ?? 0
   return `${code} · ${t('proformaInvoice.linesCount', { count })} · ${invoice.total_amount}`
 }
 
-/**
- * 校驗同一分組內關鍵字段是否一致，返回不一致字段的展示文案
- */
-function checkGrouping(invoice: any): string[] {
-  const items = invoice?.items
-  if (!Array.isArray(items) || items.length <= 1) return []
-
-  const mismatches: string[] = []
-  for (const { field, labelKey } of GROUPING_FIELDS) {
-    const values = new Set(items.map((item) => String(item[field] ?? '')))
-    if (values.size > 1) {
-      mismatches.push(`${t(labelKey)}: ${[...values].join(' / ')}`)
+const disabled = ref<boolean>(false)
+function open(invoices: any[]) {
+  disabled.value = false
+  sourceInvoices = invoices
+  groups.value = invoices.map((invoice) => {
+    if (invoice.is_lineOccupied || invoice.is_piVsSo || invoice.is_stock) {
+      disabled.value = true
     }
-  }
-  return mismatches
-}
-
-function open(operatingName: string, invoices: any[]) {
-  groups.value = invoices.map((invoice) => ({
-    ...invoice,
-    groupingMismatches: checkGrouping(invoice)
-  }))
-  console.log(111, invoices)
-  org.value = operatingName
+    return invoice
+  })
 
   activeIndex.value = 0
   visible.value = true
@@ -76,7 +49,17 @@ function handleSelectGroup(index: number) {
   activeIndex.value = index
 }
 
+function syncEditsToSource() {
+  groups.value.forEach((edited, index) => {
+    const source = sourceInvoices[index]
+    if (!source) return
+    source.pi_remarks = edited.pi_remarks
+    source.invoice_header = edited.invoice_header
+  })
+}
+
 function handleSubmit() {
+  syncEditsToSource()
   settle(true)
 }
 
@@ -97,12 +80,10 @@ defineExpose({ open })
     :close-on-press-escape="false"
     :show-close="false"
     @close="handleClose"
-    top="5vh"
+    top="2vh"
   >
     <div class="pi-preview">
-      <div class="pi-preview__banner">
-        {{ t('proformaInvoice.submissionWillCreate', { count: groups.length }) }}
-      </div>
+      <el-alert type="primary" :closable="false" :title="t('proformaInvoice.submissionWillCreate', { count: groups.length })" />
 
       <div class="pi-preview__body">
         <aside class="pi-preview__sidebar">
@@ -127,16 +108,6 @@ defineExpose({ open })
         </aside>
 
         <main v-if="activeInvoice" class="pi-preview__main">
-          <div v-if="activeInvoice.groupingMismatches?.length" class="pi-preview__mismatch">
-            <p class="pi-preview__mismatch-title">
-              {{ t('proformaInvoice.groupingFieldsInconsistent', { grouping: activeInvoice.grouping }) }}
-            </p>
-            <ul class="pi-preview__mismatch-list">
-              <li v-for="(item, i) in activeInvoice.groupingMismatches" :key="i">
-                {{ item }}
-              </li>
-            </ul>
-          </div>
           <div class="pi-preview__main-head">
             <h3>
               {{
@@ -156,7 +127,7 @@ defineExpose({ open })
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleClose">{{ t('common_back') }}</el-button>
-        <el-button type="primary" @click="handleSubmit">{{ t('proformaInvoice.confirmSubmit') }}</el-button>
+        <el-button :disabled="disabled" type="primary" @click="handleSubmit">{{ t('proformaInvoice.confirmSubmit') }}</el-button>
       </div>
     </template>
   </el-dialog>
@@ -168,16 +139,6 @@ defineExpose({ open })
   flex-direction: column;
   gap: var(--app-space-s);
   min-height: 520px;
-
-  &__banner {
-    padding: 10px 14px;
-    border: 1px solid var(--app-primary-2);
-    border-radius: var(--app-border-radius-s);
-    background: var(--app-primary-alpha-10);
-    color: var(--app-primary-5);
-    font-size: var(--app-font-size-s);
-    text-align: center;
-  }
 
   &__body {
     display: flex;
@@ -267,11 +228,6 @@ defineExpose({ open })
     background: var(--el-color-danger-light-9);
     color: var(--el-color-danger);
     font-size: var(--app-font-size-s);
-  }
-
-  &__mismatch-title {
-    margin: 0 0 6px;
-    font-weight: 700;
   }
 
   &__mismatch-list {

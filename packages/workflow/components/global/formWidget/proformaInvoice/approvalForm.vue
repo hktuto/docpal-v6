@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useUserState } from '@packages/authApp/composables/useAuth'
-import { clientApi } from 'api'
-import dayjs from 'dayjs'
+import { ElMessageBox } from 'element-plus'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -281,6 +280,13 @@ onMounted(() => {
 })
 
 async function getFormData(needValidation = true, buttonName: string) {
+  if (buttonName === 'accountant_approval') {
+    const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
+      confirmButtonText: t('common_submit')
+    })
+    return { reject_reason: value }
+  }
+
   const result = {
     orgId: formModel.orgId,
     companyTitle: formModel.companyTitle,
