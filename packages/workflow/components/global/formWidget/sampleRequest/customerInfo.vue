@@ -70,7 +70,7 @@ function resetFormModel() {
 
 async function searchName(query?: string) {
   const q = query ? `q=${query}&` : ''
-  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?${q}&limit=${5000}`).then((r: any) => r.data?.items)
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?orgId=${formData.org_id}&${q}&limit=${5000}`).then((r: any) => r.data?.items)
 
   if (data.length === 0) return
 
@@ -190,9 +190,15 @@ async function getFormData(needValidation = true) {
   return result
 }
 
-onMounted(() => {
-  searchName()
-})
+watch(
+  () => formData.org_id,
+  (value) => {
+    if (!!value) {
+      searchName()
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 watch(
   () => formData.cust_name,
