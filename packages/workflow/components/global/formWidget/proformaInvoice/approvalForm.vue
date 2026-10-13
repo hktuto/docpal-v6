@@ -290,7 +290,7 @@ async function getFormData(needValidation = true, buttonName: string) {
     initialPickupLocationId: formModel.initialPickupLocationId,
     ultimateDropoffLocationId: formModel.ultimateDropoffLocationId,
     freightTermsCode: formModel.freightTermsCode,
-    operatorId: formModel.operatorId,
+    operatorId: '',
     operatorName: formModel.operatorName,
     formPayload: {},
     lines: []

@@ -31,7 +31,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     { field: 'partNum', title: t('proformaInvoice.wclPartNumber'), minWidth: 160 },
     { field: 'orderQty', title: t('proformaInvoice.orderQty'), minWidth: 110 },
     { field: 'lineAmount', title: t('proformaInvoice.lineAmount'), minWidth: 120 },
-    { field: 'tax_code', title: t('proformaInvoice.taxCode'), minWidth: 100 },
+    { field: 'taxCode', title: t('proformaInvoice.taxCode'), minWidth: 100 },
     { field: 'status', title: t('proformaInvoice.status'), minWidth: 100 }
   ],
   zoom: false,

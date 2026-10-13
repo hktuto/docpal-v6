@@ -24,7 +24,6 @@ type dataItem = {
   pi_number?: string
   scheduleDate: string
   orderNumber: number
-  order_ln: number
   orderQty: number
   partNum: string
   currencyCode: string
@@ -210,7 +209,6 @@ function mapCandidateToDataItem(item: any, extra: Partial<dataItem> = {}): dataI
     pi_number: item.pi_number ?? '',
     scheduleDate: item.scheduleDate,
     orderNumber: item.orderNumber,
-    order_ln: item.order_ln,
     orderQty: item.orderQty,
     partNum: item.partNum,
     currencyCode: item.currencyCode,
@@ -261,12 +259,12 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       }
     },
     {
-      field: 'order_number',
+      field: 'orderNumber',
       title: t('proformaInvoice.orderNumber'),
       minWidth: 200
     },
     {
-      field: 'order_ln',
+      field: 'lineNum',
       title: t('proformaInvoice.orderLn'),
       minWidth: 100
     },
@@ -513,7 +511,7 @@ async function getOrderData(csvRows: CsvImportRow[]) {
   const list = csvRows.map((item: any) => ({
     customerNumber: item.customer_number,
     orderNumber: item.order_number,
-    line: item.order_ln,
+    line: item.lineNum,
     grouping: item.grouping
   }))
 
@@ -615,7 +613,9 @@ function buildPreviewGroups(checkData: any) {
       ultimateDropoffLocationId: row.ultimateDropoffLocationId,
       companyTitle: row.companyTitle,
       warehouseLocation: row.warehouseLocation,
-      freightTermsCode: row.freightTermsCode
+      freightTermsCode: row.freightTermsCode,
+      partNum: row.partNum,
+      orderQty: row.orderQty
     })
   }
 
@@ -731,6 +731,10 @@ async function checkGroupsData() {
   }
 }
 
+function handleCheckLineGrouping(row:any) {
+
+}
+
 async function getFormData(needValidation = true) {
   if (!needValidation) return { ...formModel }
 
@@ -746,6 +750,7 @@ async function getFormData(needValidation = true) {
     throw new Error('')
   }
 
+  console.log(111, groups)
   await proformaInvoicePreviewRef.value.open(userInfo.value.operatingName, groups)
 
   // 循環啓動workflow
@@ -781,6 +786,7 @@ async function getFormData(needValidation = true) {
       operatorId: '',
       operatorName: userInfo.value.userId
     }
+    console.log(2222, json)
     // runWorkflow(json)
   })
   throw new Error('')
@@ -919,7 +925,7 @@ defineExpose({ getFormData })
       </template>
 
       <template #grouping="{ row, index }">
-        <el-select v-model="row.grouping" filterable>
+        <el-select v-model="row.grouping" filterable @change="handleCheckLineGrouping(row)">
           <el-option v-for="i in 100" :key="i" :label="i" :value="i" />
         </el-select>
       </template>
