@@ -13,7 +13,7 @@ const { t } = useI18n()
 const formRef = ref()
 const seriesModeByLine = reactive<Record<string, boolean>>({})
 const loading = ref(false)
-
+const brandOptions = ref<any[]>([])
 type dataType = {
   line_id?: string
   line_number: number
@@ -36,13 +36,15 @@ type dataType = {
   status: number
 }
 
-const formModel = reactive<{ list: dataType[] }>({
+const formModel = reactive<{ brand: string; list: dataType[] }>({
+  brand: '',
   list: []
 })
 const data = toRef(formModel, 'list')
 const partList = ref<any[]>([])
 const seriesList = ref<any[]>([])
 const rules = {
+  brand: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.brand') }), trigger: 'change' }],
   purpose: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.purpose') }), trigger: 'change' }],
   series: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.series') }), trigger: 'change' }],
   part_number: [{ required: true, message: t('render.hint.fieldRequired', { name: t('sampleRequest.partNumber') }), trigger: 'change' }],
@@ -81,6 +83,10 @@ function handleAdd(index?: number) {
   } else {
     data.value.push(newValue)
   }
+}
+
+async function getBrand() {
+  brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
 function seriesKey(item: dataType) {
@@ -122,6 +128,8 @@ async function getFormData(needValidation = true, buttonName: string) {
   const part_number_list: string[] = []
   const email_part_list: any[] = []
   let pm_comment = ''
+  let assignGroup = {}
+
   if (!!buttonName) {
     if (buttonName === 'pm_approval') {
       const { value } = await ElMessageBox.prompt(t('sampleRequest.pmComment'), {
@@ -132,6 +140,11 @@ async function getFormData(needValidation = true, buttonName: string) {
       await ElMessageBox.alert(t('sampleRequest.cancelConfirmEms'), {
         confirmButtonText: t('common_submit')
       })
+    }
+  } else {
+    assignGroup = {
+      pm_group: `SampleRequest_-_Approver_-_ProductManager_-_${formModel.brand}_-_${formData.branch_office}`,
+      pa_group: `SampleRequest_-_Actor_-_ProductAssistant_-_${formData.branch_office}`
     }
   }
 
@@ -147,7 +160,8 @@ async function getFormData(needValidation = true, buttonName: string) {
     sample_info_list: formModel.list,
     part_number_list: part_number_list.join(','),
     email_part_list: email_part_list,
-    pm_comment: pm_comment
+    pm_comment: pm_comment,
+    ...assignGroup
   }
 
   if (!needValidation) return result
@@ -162,7 +176,7 @@ async function searchPartList(partNumber?: string) {
 
 async function getPartList(partNumber?: string) {
   const data = await clientApi.instance
-    .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${partNumber}&pageNum=1&pageSize=200&includeCustomer=false`)
+    .get(`/apis/v1/ms/oracle/wcl-item-nos?brand=${formModel.brand}&q=${partNumber}&pageNum=1&pageSize=200&includeCustomer=false`)
     .then((r) => r.data.items)
 
   partList.value = data.map((item: any) => ({
@@ -180,12 +194,20 @@ async function searchSeriesList(series?: string) {
 
 async function getSeriesList(series?: string) {
   const s = series ? `q=${series}&` : ''
-  const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${s}pageNum=1&pageSize=200`).then((r) => r.data.items)
+  const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?brand=${formModel.brand}&${s}pageNum=1&pageSize=200`).then((r) => r.data.items)
   seriesList.value = data.map((item: any) => ({
     label: item.displayName,
     value: item.value,
     brand: item.brand
   }))
+}
+
+async function handleChangeBrand(brand: string) {
+  handleAdd()
+  await getPartList('')
+  if (brand === 'KOA') {
+    await getSeriesList()
+  }
 }
 
 async function init() {
@@ -207,11 +229,7 @@ function changeSeries(item: any) {
 
 onMounted(async () => {
   try {
-    await getPartList('')
-    await getSeriesList()
-    if (data.value.length === 0) {
-      handleAdd()
-    }
+    await getBrand()
   } catch (e) {
     console.log(e)
   }
@@ -232,7 +250,19 @@ defineExpose({ getFormData })
 
 <template>
   <el-form label-position="top" :disabled="formData.disabledInfo" ref="formRef" :model="formModel">
-    <el-button v-if="data.length === 0" type="primary" @click="handleAdd">{{ t('sampleRequest.addSampleInfo') }}</el-button>
+    <el-row v-if="data.length === 0" :gutter="12" class="brand-row">
+      <el-col :span="8">
+        <el-form-item class="brand-row__item" :label="t('quotationApproval.brand')" prop="brand" :rules="rules.brand" required>
+          <el-select v-model="formModel.brand" class="full-width-input" clearable filterable :disabled="data.length > 0" @change="handleChangeBrand">
+            <el-option v-for="(item, index) in brandOptions" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8" class="brand-row__action">
+        <el-button v-if="!!formModel.brand && formModel.brand != ''" type="primary" @click="handleAdd">{{ t('sampleRequest.addSampleInfo') }}</el-button>
+      </el-col>
+    </el-row>
+
     <template v-for="(item, index) in data" :key="item.line_number">
       <div class="info-item-card">
         <div class="info-item-card__header">
@@ -382,6 +412,17 @@ defineExpose({ getFormData })
 
   &__actions {
     display: flex;
+  }
+}
+
+.brand-row {
+  &__item {
+    margin-bottom: 0;
+  }
+
+  &__action {
+    display: flex;
+    align-items: flex-end;
   }
 }
 

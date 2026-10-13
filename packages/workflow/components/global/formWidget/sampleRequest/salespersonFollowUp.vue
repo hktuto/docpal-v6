@@ -155,11 +155,16 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
 
-          <!--          <el-col :span="8">-->
-          <!--            <el-form-item label="客戶收到樣品日期" required>-->
-          <!--              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" :disabled="disabledReceivedDate" />-->
-          <!--            </el-form-item>-->
-          <!--          </el-col>-->
+          <el-col :span="8">
+            <el-form-item :label="t('sampleRequest.trackingNumber')">
+              <el-input v-model="item.tracking_number" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item :label="t('sampleRequest.trackingDate')">
+              <el-date-picker v-model="item.tracking_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" disabled />
+            </el-form-item>
+          </el-col>
         </el-row>
       </div>
     </template>
