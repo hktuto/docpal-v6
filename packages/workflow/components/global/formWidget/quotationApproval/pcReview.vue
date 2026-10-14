@@ -58,7 +58,6 @@ const formModel = ref<{
   brand: '',
   infoList: []
 })
-const data = toRef(formModel.value, 'infoList')
 const seriesList = ref<any[]>([])
 const showDetails = ref<boolean[]>([])
 const costCurrencyOptions = ref([
@@ -123,30 +122,7 @@ function getMoqRules(itemIndex: number, tierIndex: number) {
 }
 
 function getDescendingPriceRules(itemIndex: number, tierIndex: number, field: DescendingPriceField, message: string) {
-  return [
-    { required: true, type: 'number', message: `Please input ${descendingPriceFieldLabels[field]}`, trigger: 'change' }
-    // {
-    //   validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
-    //     const list = formModel.value.infoList[itemIndex]?.target_price_list
-    //     if (!list || list[tierIndex]?.status === 'D') {
-    //       callback()
-    //       return
-    //     }
-    //     const prevIndex = getPrevActiveTierIndex(list, tierIndex)
-    //     if (prevIndex === null) {
-    //       callback()
-    //       return
-    //     }
-    //     const prevValue = list[prevIndex]?.[field]
-    //     if (prevValue != null && new Decimal(value).gte(prevValue)) {
-    //       callback(new Error(message))
-    //       return
-    //     }
-    //     callback()
-    //   },
-    //   trigger: 'change'
-    // }
-  ]
+  return [{ required: true, type: 'number', message: `Please input ${descendingPriceFieldLabels[field]}`, trigger: 'change' }]
 }
 
 function handleTierFieldChange(itemIndex: number, tierIndex: number, field: 'moq' | DescendingPriceField) {
@@ -355,17 +331,29 @@ async function getFormData(needValidation = true, buttonName: string) {
   }
 
   const newTargetPriceList: any[] = []
-  const newSetSampleList = formModel.value.infoList.map((item) => {
+  const newSetSampleList = formModel.value.infoList.map((item: SampleInfoItem) => {
     newTargetPriceList.push(...item.target_price_list)
     const newItem = deepCopy(item)
     delete newItem.target_price_list
     return newItem
   })
 
+  const confirmsEmailList = formModel.value.infoList.flatMap((item: SampleInfoItem) =>
+    item.target_price_list.map((tpl: TargetPriceItem) => ({
+      brand: item.brand,
+      partNumber: item.part_number,
+      series: item.series,
+      currency: formData.currency,
+      moq: tpl.moq,
+      UniPriceNoTax: tpl.unit_price_no_tax
+    }))
+  )
+
   const result = {
     sample_info_list: formModel.value.infoList,
     set_sample_list: newSetSampleList,
-    target_price_list: newTargetPriceList
+    target_price_list: newTargetPriceList,
+    confirms_email_list: confirmsEmailList
   }
   if (!needValidation) return result
   await formRef.value?.validate()
