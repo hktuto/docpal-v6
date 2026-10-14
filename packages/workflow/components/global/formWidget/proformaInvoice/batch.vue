@@ -855,7 +855,7 @@ async function getFormData(needValidation = true) {
         requiredApproval: item.requiredApproval
       }
       console.log(2222, json)
-      // runWorkflow(json)
+      runWorkflow(json)
     })
     return {}
   } catch (e) {
