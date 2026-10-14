@@ -12,7 +12,9 @@ const config = {
   modules: ['@nuxtjs/i18n', '@nuxtjs/color-mode', '@vueuse/nuxt', 'v-form-designer/nuxt'],
   css: [join(currentDir, 'assets/styles/main.scss')],
   extends: ['../sql-store', '../inline-ocr'],
-
+  colorMode: {
+    preference: 'light'
+  },
   runtimeConfig: {
     public: {
       isProduction: process.env.NODE_ENV === 'production',
