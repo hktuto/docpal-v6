@@ -20,10 +20,10 @@
   "license": "ISC",
   "dependencies": {
     "@paddleocr/paddleocr-js": "^0.3.2",
-    "nuxt": "3.17.7",
+    "nuxt": "4.5.2",
     "onnxruntime-web": "^1.22.0",
-    "vue": "3.5.6",
-    "vue-router": "latest"
+    "vue": "3.5.43",
+    "vue-router": "^5.3.1"
   },
   "devDependencies": {
     "@nuxt/test-utils": "3.18.0",

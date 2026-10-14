@@ -403,9 +403,12 @@ onMounted(() => {
 .groups-cell {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   gap: 4px;
   max-width: 100%;
-  overflow: hidden;
+  max-height: 52px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .table-tag {

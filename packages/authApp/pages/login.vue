@@ -30,21 +30,23 @@ function resolveRedirectPath() {
 }
 
 async function submit() {
+  if (!form.username || !form.password) return
+  if (loading.value) return
+  loading.value = true
+  errorMessage.value = ''
   try {
-    if (!form.username || !form.password) return
-    loading.value = true
-    errorMessage.value = ''
     const result = await loginWithPassword(form.username, form.password)
     if (!result.ok) {
       errorMessage.value = result.message
+      loading.value = false
       return
     }
+    // 成功：保持 loading，不清空表单；等路由切走后页面卸载
     if (!result.passwordResetRequired) {
       await router.push(resolveRedirectPath())
     }
-    form.username = ''
-    form.password = ''
-  } finally {
+  } catch {
+    errorMessage.value = 'Username or password is incorrect'
     loading.value = false
   }
 }

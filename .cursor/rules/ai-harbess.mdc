@@ -13,7 +13,7 @@ alwaysApply: true
 ## 1. 技术栈约束
 
 ### 必须使用
-- **Framework:** Vue 3, Nuxt 3
+- **Framework:** Vue 3, Nuxt 4
 - **Language:** TypeScript
 - **UI:** Element Plus
 - **Table:** vxe-table

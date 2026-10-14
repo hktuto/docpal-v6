@@ -33,7 +33,7 @@ export const UserSelectField = () => ({
         "labelIconPosition": "rear",
         "labelTooltip": null,
         "onCreated": "",
-        "onMounted": `$api.post('/admin/api/ucenter/get-keycloak-all-users', {}).then(
+        "onMounted": `$api.post('/ucenter/get-keycloak-all-users', {}, { baseURL: '/admin/api'}).then(
             res => {
                 res = res.data.data
                 const result = res.map(item => ({value: item.userId || item.username,label: item.username}))

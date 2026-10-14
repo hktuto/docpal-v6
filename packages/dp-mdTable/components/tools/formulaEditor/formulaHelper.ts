@@ -18,7 +18,7 @@ export interface FunctionItem {
 }
 
 /**
- * 检查表达式括号与字符串是否闭合（避�?new Function 触发语法错误�?
+ * 检查表达式括号与字符串是否闭合（避免new Function 触发语法错误）
  * @param expression - 表达式字符串
  * @returns 是否闭合
  */
@@ -151,7 +151,7 @@ export function getTextFunctions(t: TFunction): FunctionItem[] {
 }
 
 /**
- * 数值函数列�?
+ * 数值函数列行
  */
 function toFiniteNumber(value: any, fallback = 0): number {
   const num = Number(value)
@@ -172,11 +172,11 @@ export function getNumberFunctions(t: TFunction): FunctionItem[] {
   return [
   // {
   //   name: 'SUM',
-  //   description: '计算一组数值的总和�?,
+  //   description: '计算一组数值的总和。,
   //   usage: 'SUM(number1, number2, ...)',
   //   params: [
-  //     { name: 'number1', description: '第一个数�? },
-  //     { name: 'number2', description: '第二个数�? }
+  //     { name: 'number1', description: '第一个数值 },
+  //     { name: 'number2', description: '第二个数值 }
   //   ],
   //   example: 'SUM(10, 20, 30) 返回 60',
   //   func: (...args: any[]) => {
@@ -185,11 +185,11 @@ export function getNumberFunctions(t: TFunction): FunctionItem[] {
   // },
   // {
   //   name: 'AVERAGE',
-  //   description: '计算一组数值的平均值�?,
+  //   description: '计算一组数值的平均值。,
   //   usage: 'AVERAGE(number1, number2, ...)',
   //   params: [
-  //     { name: 'number1', description: '第一个数�? },
-  //     { name: 'number2', description: '第二个数�? }
+  //     { name: 'number1', description: '第一个数值 },
+  //     { name: 'number2', description: '第二个数值 }
   //   ],
   //   example: 'AVERAGE(10, 20, 30) 返回 20',
   //   func: (...args: any[]) => {
@@ -455,7 +455,7 @@ export function getDateFunctions(t: TFunction): FunctionItem[] {
       if (!start.isValid() || !end.isValid()) {
         return ''
       }
-      // 依照 Excel 语义，计�?end - start
+      // 依照 Excel 语义，计算end - start
       return end.diff(start, unit)
     }
   }
@@ -618,10 +618,10 @@ function getAllFunctions(): Map<string, FunctionItem> {
 }
 
 /**
- * 查找函数调用的结束位置（匹配括号�?
- * @param str - 要搜索的字符�?
- * @param startPos - 开始位置（左括号的位置�?
- * @returns 函数调用的结束位置（右括号的位置），如果未找到返�?-1
+ * 查找函数调用的结束位置（匹配括号）
+ * @param str - 要搜索的字符串
+ * @param startPos - 开始位置（左括号的位置）
+ * @returns 函数调用的结束位置（右括号的位置），如果未找到返回-1
  */
 function findFunctionEnd(str: string, startPos: number): number {
   if (startPos < 0 || startPos >= str.length || str[startPos] !== '(') {
@@ -657,8 +657,8 @@ function findFunctionEnd(str: string, startPos: number): number {
 
 /**
  * 解析函数参数
- * @param argsStr - 参数字符�?
- * @param rowdata - 行数�?
+ * @param argsStr - 参数字符串
+ * @param rowdata - 行数捐
  * @param functionMap - 函数映射
  * @returns 解析后的参数数组
  */
@@ -690,7 +690,7 @@ function parseFunctionArgs(argsStr: string, rowdata: any, functionMap: Map<strin
       depth--
       currentArg += char
     } else if (!inString && depth === 0 && char === ',') {
-      // 找到参数分隔符，递归计算参数�?
+      // 找到参数分隔符，递归计算参数值
       // 判断currentArg是否为日期类型，日期类型转换为时间戳
 
       if (dayjs(currentArg.trim()).isValid()) {
@@ -713,9 +713,9 @@ function parseFunctionArgs(argsStr: string, rowdata: any, functionMap: Map<strin
 }
 
 /**
- * 替换变量引用为实际�?
- * @param formula - 公式字符�?
- * @param rowdata - 行数�?
+ * 替换变量引用为实际值
+ * @param formula - 公式字符串
+ * @param rowdata - 行数捐
  * @returns 替换后的公式
  */
 function formatVariableValue(value: unknown): string {
@@ -785,9 +785,9 @@ function replaceVariables(formula: string, rowdata: any): string {
 }
 
 /**
- * 替换函数调用为实际�?
- * @param formula - 公式字符�?
- * @param rowdata - 行数�?
+ * 替换函数调用为实际值
+ * @param formula - 公式字符串
+ * @param rowdata - 行数捐
  * @param functionMap - 函数映射
  * @returns 替换后的公式
  */
@@ -796,12 +796,12 @@ function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string
   let result = formula
   let changed = true
 
-  // 循环处理，直到没有更多函数调用需要替�?
+  // 循环处理，直到没有更多函数调用需要替捐
   while (changed) {
     changed = false
     const matches: Array<{ name: string; start: number; end: number; argsStr: string }> = []
 
-    // 重置正则表达式，使用 matchAll 来避�?exec 的状态问�?
+    // 重置正则表达式，使用 matchAll 来避免exec 的状态问题
     const allMatches = Array.from(result.matchAll(functionNamePattern))
 
     for (const match of allMatches) {
@@ -852,7 +852,7 @@ function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string
 
         if (beforeReplace !== result) {
           changed = true
-          // 只替换一个函数就退出循环，重新查找所有函数调�?
+          // 只替换一个函数就退出循环，重新查找所有函数调用
           break
         }
       } catch (error) {
@@ -869,8 +869,8 @@ function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string
 
 /**
  * 计算公式
- * @param formula - 公式字符�?
- * @param rowdata - 行数据对�?
+ * @param formula - 公式字符串
+ * @param rowdata - 行数据对象
  * @returns 计算结果
  */
 export function evalFormula(formula: string, rowdata: any = {}): any {
@@ -883,7 +883,7 @@ export function evalFormula(formula: string, rowdata: any = {}): any {
     processedFormula = formula
     // 第一步：替换变量引用
     const functionMap = getAllFunctions()
-    // 第二步：替换函数调用（需要递归处理嵌套函数�?
+    // 第二步：替换函数调用（需要递归处理嵌套函数）
     processedFormula = replaceVariables(formula, rowdata)
     let lastFormula = ''
     let iterations = 0
@@ -892,11 +892,11 @@ export function evalFormula(formula: string, rowdata: any = {}): any {
       processedFormula = replaceFunctions(processedFormula, rowdata, functionMap)
       iterations++
     }
-    // 第三步：处理字符串连接（将字符串�?+ 转换为连接操作）
-    // 由于我们已经将字符串用引号包裹，JavaScript �?+ 运算符会自动处理字符串连�?
+    // 第三步：处理字符串连接（将字符串的+ 转换为连接操作）
+    // 由于我们已经将字符串用引号包裹，JavaScript 的+ 运算符会自动处理字符串连接
   
-    // 第四步：安全地执行计�?
-    // 使用 Function 构造函数而不�?eval，相对更安全
+    // 第四步：安全地执行计算
+    // 使用 Function 构造函数而不是eval，相对更安全
     if (!isExpressionBalanced(processedFormula)) {
       return ''
     }
@@ -905,7 +905,7 @@ export function evalFormula(formula: string, rowdata: any = {}): any {
     }
     console.log('processedFormula', processedFormula)
     const result = new Function('return (' + processedFormula + ')')()
-    // 返回结果，确保不�?undefined
+    // 返回结果，确保不是undefined
     return result !== undefined ? result : ''
   } catch (error) {
     console.error('Formula evaluation error:', error)

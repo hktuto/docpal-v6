@@ -80,9 +80,17 @@ onMounted(() => {
     </el-formItem>
     <el-divider />
 
-    <h4>
+    <h4 class="variables-header">
       {{ $t('Workflow Global Variables') }}
-      <Icon v-if="!graphProvider.readonly.value" name="lucide:plus" @click="handleAdd" />
+      <Icon
+        v-if="!graphProvider.readonly.value"
+        name="lucide:plus"
+        v-tooltip="'Add Variable'"
+        tabindex="0"
+        aria-label="Add Variable"
+        @click="handleAdd"
+        @keydown.enter="handleAdd"
+      />
     </h4>
     <div v-for="(item, index) in variables" :key="item.id" class="formFieldItem">
       <div class="label" @click="handleEdit(item)">
@@ -103,6 +111,12 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.variables-header {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-s);
+}
+
 .formFieldItem {
   display: grid;
   grid-template-columns: 1fr min-content min-content;

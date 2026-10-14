@@ -392,7 +392,776 @@
                 "automaticDropdown": false,
                 "multiple": false,
                 "multipleLimit": 0,
-                "optionItems": [],
+                "optionItems": [
+                  {
+                    "label": "Administrator",
+                    "value": "administrator"
+                  },
+                  {
+                    "label": "amy_tse",
+                    "value": "amy_tse"
+                  },
+                  {
+                    "label": "anita_fung",
+                    "value": "anita_fung"
+                  },
+                  {
+                    "label": "arthur_ip",
+                    "value": "arthur_ip"
+                  },
+                  {
+                    "label": "cai_ning",
+                    "value": "cai_ning"
+                  },
+                  {
+                    "label": "cai_shiqi",
+                    "value": "cai_shiqi"
+                  },
+                  {
+                    "label": "cai_yating",
+                    "value": "cai_yating"
+                  },
+                  {
+                    "label": "cai_zhiwei",
+                    "value": "cai_zhiwei"
+                  },
+                  {
+                    "label": "chao_li",
+                    "value": "chao_li"
+                  },
+                  {
+                    "label": "chen_chun",
+                    "value": "chen_chun"
+                  },
+                  {
+                    "label": "chen_jing",
+                    "value": "chen_jing"
+                  },
+                  {
+                    "label": "chen_rong",
+                    "value": "chen_rong"
+                  },
+                  {
+                    "label": "chen_wenting",
+                    "value": "chen_wenting"
+                  },
+                  {
+                    "label": "chen_yanyan",
+                    "value": "chen_yanyan"
+                  },
+                  {
+                    "label": "cheng_qiushi",
+                    "value": "cheng_qiushi"
+                  },
+                  {
+                    "label": "cherry_yip",
+                    "value": "cherry_yip"
+                  },
+                  {
+                    "label": "chuen_chan",
+                    "value": "chuen_chan"
+                  },
+                  {
+                    "label": "cynthia_ng",
+                    "value": "cynthia_ng"
+                  },
+                  {
+                    "label": "daniel_poon",
+                    "value": "daniel_poon"
+                  },
+                  {
+                    "label": "denis_poon",
+                    "value": "denis_poon"
+                  },
+                  {
+                    "label": "dong_peipei",
+                    "value": "dong_peipei"
+                  },
+                  {
+                    "label": "dong_yuexia",
+                    "value": "dong_yuexia"
+                  },
+                  {
+                    "label": "doris_li",
+                    "value": "doris_li"
+                  },
+                  {
+                    "label": "du_chao",
+                    "value": "du_chao"
+                  },
+                  {
+                    "label": "dylan_lin",
+                    "value": "dylan_lin"
+                  },
+                  {
+                    "label": "edward_kong",
+                    "value": "edward_kong"
+                  },
+                  {
+                    "label": "ella_gan",
+                    "value": "ella_gan"
+                  },
+                  {
+                    "label": "feng_yonghao",
+                    "value": "feng_yonghao"
+                  },
+                  {
+                    "label": "fu_shuangshuang",
+                    "value": "fu_shuangshuang"
+                  },
+                  {
+                    "label": "gan_yu",
+                    "value": "gan_yu"
+                  },
+                  {
+                    "label": "gao_lili",
+                    "value": "gao_lili"
+                  },
+                  {
+                    "label": "gu_lihua",
+                    "value": "gu_lihua"
+                  },
+                  {
+                    "label": "guan_yonghong",
+                    "value": "guan_yonghong"
+                  },
+                  {
+                    "label": "guo_xuexia",
+                    "value": "guo_xuexia"
+                  },
+                  {
+                    "label": "han_xiangyun",
+                    "value": "han_xiangyun"
+                  },
+                  {
+                    "label": "hank_hong",
+                    "value": "hank_hong"
+                  },
+                  {
+                    "label": "he_bing",
+                    "value": "he_bing"
+                  },
+                  {
+                    "label": "he_zhiming",
+                    "value": "he_zhiming"
+                  },
+                  {
+                    "label": "helen_guo",
+                    "value": "helen_guo"
+                  },
+                  {
+                    "label": "henry_poon",
+                    "value": "henry_poon"
+                  },
+                  {
+                    "label": "hu_xiaoyong",
+                    "value": "hu_xiaoyong"
+                  },
+                  {
+                    "label": "huang_liang",
+                    "value": "huang_liang"
+                  },
+                  {
+                    "label": "huang_zhili",
+                    "value": "huang_zhili"
+                  },
+                  {
+                    "label": "iris_yeung",
+                    "value": "iris_yeung"
+                  },
+                  {
+                    "label": "ivy_li",
+                    "value": "ivy_li"
+                  },
+                  {
+                    "label": "jackal_leung",
+                    "value": "jackal_leung"
+                  },
+                  {
+                    "label": "jackie_lam",
+                    "value": "jackie_lam"
+                  },
+                  {
+                    "label": "jiang_zhiyong",
+                    "value": "jiang_zhiyong"
+                  },
+                  {
+                    "label": "jiqing_yi",
+                    "value": "jiqing_yi"
+                  },
+                  {
+                    "label": "johnson",
+                    "value": "johnson"
+                  },
+                  {
+                    "label": "Joshua",
+                    "value": "Joshua"
+                  },
+                  {
+                    "label": "joshua_zheng",
+                    "value": "joshua_zheng"
+                  },
+                  {
+                    "label": "june_chan",
+                    "value": "june_chan"
+                  },
+                  {
+                    "label": "ken_shum",
+                    "value": "ken_shum"
+                  },
+                  {
+                    "label": "kim_zeng",
+                    "value": "kim_zeng"
+                  },
+                  {
+                    "label": "kin_tsui",
+                    "value": "kin_tsui"
+                  },
+                  {
+                    "label": "kingboo",
+                    "value": "kingboo"
+                  },
+                  {
+                    "label": "kong_linyan",
+                    "value": "kong_linyan"
+                  },
+                  {
+                    "label": "kong_yan",
+                    "value": "kong_yan"
+                  },
+                  {
+                    "label": "kuang_weiqin",
+                    "value": "kuang_weiqin"
+                  },
+                  {
+                    "label": "lei_wu",
+                    "value": "lei_wu"
+                  },
+                  {
+                    "label": "leo_wong",
+                    "value": "leo_wong"
+                  },
+                  {
+                    "label": "lester_lu",
+                    "value": "lester_lu"
+                  },
+                  {
+                    "label": "li_dexun",
+                    "value": "li_dexun"
+                  },
+                  {
+                    "label": "li_dongmei",
+                    "value": "li_dongmei"
+                  },
+                  {
+                    "label": "li_jun",
+                    "value": "li_jun"
+                  },
+                  {
+                    "label": "li_junhui",
+                    "value": "li_junhui"
+                  },
+                  {
+                    "label": "li_mingwei",
+                    "value": "li_mingwei"
+                  },
+                  {
+                    "label": "li_zhi",
+                    "value": "li_zhi"
+                  },
+                  {
+                    "label": "liang_jianqin",
+                    "value": "liang_jianqin"
+                  },
+                  {
+                    "label": "liang_jing",
+                    "value": "liang_jing"
+                  },
+                  {
+                    "label": "liang_liancai",
+                    "value": "liang_liancai"
+                  },
+                  {
+                    "label": "lin_hongxin",
+                    "value": "lin_hongxin"
+                  },
+                  {
+                    "label": "lin_qi",
+                    "value": "lin_qi"
+                  },
+                  {
+                    "label": "linlin_liang",
+                    "value": "linlin_liang"
+                  },
+                  {
+                    "label": "liu_jiao",
+                    "value": "liu_jiao"
+                  },
+                  {
+                    "label": "liu_lingtong",
+                    "value": "liu_lingtong"
+                  },
+                  {
+                    "label": "liu_minyan",
+                    "value": "liu_minyan"
+                  },
+                  {
+                    "label": "liu_xiaolong",
+                    "value": "liu_xiaolong"
+                  },
+                  {
+                    "label": "long_feng",
+                    "value": "long_feng"
+                  },
+                  {
+                    "label": "lu_meilian",
+                    "value": "lu_meilian"
+                  },
+                  {
+                    "label": "luo_caiyun",
+                    "value": "luo_caiyun"
+                  },
+                  {
+                    "label": "luo_guoli",
+                    "value": "luo_guoli"
+                  },
+                  {
+                    "label": "luo_jinfu",
+                    "value": "luo_jinfu"
+                  },
+                  {
+                    "label": "luo_xiaofei",
+                    "value": "luo_xiaofei"
+                  },
+                  {
+                    "label": "lyle",
+                    "value": "lyle"
+                  },
+                  {
+                    "label": "lynn_fang",
+                    "value": "lynn_fang"
+                  },
+                  {
+                    "label": "ma_jiayu",
+                    "value": "ma_jiayu"
+                  },
+                  {
+                    "label": "mai_jinlun",
+                    "value": "mai_jinlun"
+                  },
+                  {
+                    "label": "man_lam",
+                    "value": "man_lam"
+                  },
+                  {
+                    "label": "mankwok_tsang",
+                    "value": "mankwok_tsang"
+                  },
+                  {
+                    "label": "mark_zhang",
+                    "value": "mark_zhang"
+                  },
+                  {
+                    "label": "masaki_horikoshi",
+                    "value": "masaki_horikoshi"
+                  },
+                  {
+                    "label": "mauwing_lam",
+                    "value": "mauwing_lam"
+                  },
+                  {
+                    "label": "mc_shipping",
+                    "value": "mc_shipping"
+                  },
+                  {
+                    "label": "ni_yanwen",
+                    "value": "ni_yanwen"
+                  },
+                  {
+                    "label": "ni_yuezhen",
+                    "value": "ni_yuezhen"
+                  },
+                  {
+                    "label": "nie_hongyan",
+                    "value": "nie_hongyan"
+                  },
+                  {
+                    "label": "ninnapat",
+                    "value": "ninnapat"
+                  },
+                  {
+                    "label": "norm_chow",
+                    "value": "norm_chow"
+                  },
+                  {
+                    "label": "oy",
+                    "value": "oy"
+                  },
+                  {
+                    "label": "pang_yuezhong",
+                    "value": "pang_yuezhong"
+                  },
+                  {
+                    "label": "patrick_leung",
+                    "value": "patrick_leung"
+                  },
+                  {
+                    "label": "patrick_wong",
+                    "value": "patrick_wong"
+                  },
+                  {
+                    "label": "pei_lina",
+                    "value": "pei_lina"
+                  },
+                  {
+                    "label": "peng_guo",
+                    "value": "peng_guo"
+                  },
+                  {
+                    "label": "peng_xiaochun",
+                    "value": "peng_xiaochun"
+                  },
+                  {
+                    "label": "peng_xiaoyuan",
+                    "value": "peng_xiaoyuan"
+                  },
+                  {
+                    "label": "ralph_hui",
+                    "value": "ralph_hui"
+                  },
+                  {
+                    "label": "ran_miaolin",
+                    "value": "ran_miaolin"
+                  },
+                  {
+                    "label": "reki_chen",
+                    "value": "reki_chen"
+                  },
+                  {
+                    "label": "ricky_jiang",
+                    "value": "ricky_jiang"
+                  },
+                  {
+                    "label": "royhoo",
+                    "value": "royhoo"
+                  },
+                  {
+                    "label": "saii",
+                    "value": "saii"
+                  },
+                  {
+                    "label": "sean",
+                    "value": "sean"
+                  },
+                  {
+                    "label": "shek_puishan",
+                    "value": "shek_puishan"
+                  },
+                  {
+                    "label": "shen_huijia",
+                    "value": "shen_huijia"
+                  },
+                  {
+                    "label": "shi_yang",
+                    "value": "shi_yang"
+                  },
+                  {
+                    "label": "steve_cheung",
+                    "value": "steve_cheung"
+                  },
+                  {
+                    "label": "su_jieping",
+                    "value": "su_jieping"
+                  },
+                  {
+                    "label": "summer_xiong",
+                    "value": "summer_xiong"
+                  },
+                  {
+                    "label": "sun_xiaoping",
+                    "value": "sun_xiaoping"
+                  },
+                  {
+                    "label": "sz_warehouse",
+                    "value": "sz_warehouse"
+                  },
+                  {
+                    "label": "tan_shiyu",
+                    "value": "tan_shiyu"
+                  },
+                  {
+                    "label": "tan_yabin",
+                    "value": "tan_yabin"
+                  },
+                  {
+                    "label": "tang_ye",
+                    "value": "tang_ye"
+                  },
+                  {
+                    "label": "terry_law",
+                    "value": "terry_law"
+                  },
+                  {
+                    "label": "terry_lok",
+                    "value": "terry_lok"
+                  },
+                  {
+                    "label": "tommy_liao",
+                    "value": "tommy_liao"
+                  },
+                  {
+                    "label": "tong_yunyun",
+                    "value": "tong_yunyun"
+                  },
+                  {
+                    "label": "tony_gong",
+                    "value": "tony_gong"
+                  },
+                  {
+                    "label": "vanessa_kong",
+                    "value": "vanessa_kong"
+                  },
+                  {
+                    "label": "vicky_zhang",
+                    "value": "vicky_zhang"
+                  },
+                  {
+                    "label": "wan_zhongjie",
+                    "value": "wan_zhongjie"
+                  },
+                  {
+                    "label": "wang_dandan",
+                    "value": "wang_dandan"
+                  },
+                  {
+                    "label": "wang_fengmei",
+                    "value": "wang_fengmei"
+                  },
+                  {
+                    "label": "wang_qi",
+                    "value": "wang_qi"
+                  },
+                  {
+                    "label": "wang_xiao",
+                    "value": "wang_xiao"
+                  },
+                  {
+                    "label": "wei_lihong",
+                    "value": "wei_lihong"
+                  },
+                  {
+                    "label": "wei_xiaomin",
+                    "value": "wei_xiaomin"
+                  },
+                  {
+                    "label": "weng_xia",
+                    "value": "weng_xia"
+                  },
+                  {
+                    "label": "wilfred_chung",
+                    "value": "wilfred_chung"
+                  },
+                  {
+                    "label": "will_du",
+                    "value": "will_du"
+                  },
+                  {
+                    "label": "wilton_he",
+                    "value": "wilton_he"
+                  },
+                  {
+                    "label": "wing_wu",
+                    "value": "wing_wu"
+                  },
+                  {
+                    "label": "wu_caifei",
+                    "value": "wu_caifei"
+                  },
+                  {
+                    "label": "wu_hongyu",
+                    "value": "wu_hongyu"
+                  },
+                  {
+                    "label": "wu_jie",
+                    "value": "wu_jie"
+                  },
+                  {
+                    "label": "wu_xiaoli",
+                    "value": "wu_xiaoli"
+                  },
+                  {
+                    "label": "wu_yueting",
+                    "value": "wu_yueting"
+                  },
+                  {
+                    "label": "xiang_fuguang",
+                    "value": "xiang_fuguang"
+                  },
+                  {
+                    "label": "xiang_wei",
+                    "value": "xiang_wei"
+                  },
+                  {
+                    "label": "xie_rue",
+                    "value": "xie_rue"
+                  },
+                  {
+                    "label": "xie_ying",
+                    "value": "xie_ying"
+                  },
+                  {
+                    "label": "xu_bujuan",
+                    "value": "xu_bujuan"
+                  },
+                  {
+                    "label": "xu_songhua",
+                    "value": "xu_songhua"
+                  },
+                  {
+                    "label": "xu_weida",
+                    "value": "xu_weida"
+                  },
+                  {
+                    "label": "xu_zhihe",
+                    "value": "xu_zhihe"
+                  },
+                  {
+                    "label": "xu_zhongqiong",
+                    "value": "xu_zhongqiong"
+                  },
+                  {
+                    "label": "yang_hua jun",
+                    "value": "yang_hua jun"
+                  },
+                  {
+                    "label": "yang_jiechang",
+                    "value": "yang_jiechang"
+                  },
+                  {
+                    "label": "yang_xiaobo",
+                    "value": "yang_xiaobo"
+                  },
+                  {
+                    "label": "yang_xiaoting",
+                    "value": "yang_xiaoting"
+                  },
+                  {
+                    "label": "yao_jun",
+                    "value": "yao_jun"
+                  },
+                  {
+                    "label": "yoyo_cheung",
+                    "value": "yoyo_cheung"
+                  },
+                  {
+                    "label": "yu_rong",
+                    "value": "yu_rong"
+                  },
+                  {
+                    "label": "yuki_wong",
+                    "value": "yuki_wong"
+                  },
+                  {
+                    "label": "yvonne_huang",
+                    "value": "yvonne_huang"
+                  },
+                  {
+                    "label": "zanky_yau",
+                    "value": "zanky_yau"
+                  },
+                  {
+                    "label": "zhang_jiabei",
+                    "value": "zhang_jiabei"
+                  },
+                  {
+                    "label": "zhang_lili",
+                    "value": "zhang_lili"
+                  },
+                  {
+                    "label": "zhang_lina",
+                    "value": "zhang_lina"
+                  },
+                  {
+                    "label": "zhang_pei",
+                    "value": "zhang_pei"
+                  },
+                  {
+                    "label": "zhang_ruiyi",
+                    "value": "zhang_ruiyi"
+                  },
+                  {
+                    "label": "zhang_sining",
+                    "value": "zhang_sining"
+                  },
+                  {
+                    "label": "zhang_weidong",
+                    "value": "zhang_weidong"
+                  },
+                  {
+                    "label": "zhang_xiaoling",
+                    "value": "zhang_xiaoling"
+                  },
+                  {
+                    "label": "zhang_xuezheng",
+                    "value": "zhang_xuezheng"
+                  },
+                  {
+                    "label": "zhao_guonan",
+                    "value": "zhao_guonan"
+                  },
+                  {
+                    "label": "zhao_jingjing",
+                    "value": "zhao_jingjing"
+                  },
+                  {
+                    "label": "zhao_shuyan",
+                    "value": "zhao_shuyan"
+                  },
+                  {
+                    "label": "zhao_xiaohua",
+                    "value": "zhao_xiaohua"
+                  },
+                  {
+                    "label": "zheng_yirui",
+                    "value": "zheng_yirui"
+                  },
+                  {
+                    "label": "zhenyu_liu",
+                    "value": "zhenyu_liu"
+                  },
+                  {
+                    "label": "zhiyuan_wang",
+                    "value": "zhiyuan_wang"
+                  },
+                  {
+                    "label": "zhou_jiahuan",
+                    "value": "zhou_jiahuan"
+                  },
+                  {
+                    "label": "zhou_jiayi",
+                    "value": "zhou_jiayi"
+                  },
+                  {
+                    "label": "zhou_ran",
+                    "value": "zhou_ran"
+                  },
+                  {
+                    "label": "zhou_wenji",
+                    "value": "zhou_wenji"
+                  },
+                  {
+                    "label": "zhou_ziying",
+                    "value": "zhou_ziying"
+                  },
+                  {
+                    "label": "zhu_junrui",
+                    "value": "zhu_junrui"
+                  },
+                  {
+                    "label": "zhu_ming",
+                    "value": "zhu_ming"
+                  }
+                ],
                 "required": false,
                 "requiredHint": "",
                 "validation": "",
@@ -539,7 +1308,7 @@
                     "onChange": "const _this = this\nconst vform = _this.getFormRef()\nconst interval = setInterval(() => {\n  if(vform?.globalOptionData?.ready) {\n    clearInterval(interval)\n    setData()\n  }\n}, 1000)\n\n\nfunction setData (reset = false) {\n  const docType = vform.globalOptionData.fileList.find(item => item.value === value)\n  const metaList = docType.keywords.reduce((prev,item) => {\n    if(item.type === 'date') prev.push({\n      value: item.name,\n      label: item.name\n    })\n    return prev\n  }, [])\n  \n  let triggerMetaData = _this.getWidgetRef('triggerMetaData' + '@row' + rowId)\n  if(reset) triggerMetaData.setValue('')\n  triggerMetaData.loadOptions(metaList)\n}\n\n",
                     "onFocus": "",
                     "onBlur": "",
-                    "onValidate": "  /* sample code */\n  /*\n  if ((value > 100) || (value < 0)) {\n    callback(new Error('error message'))  //fail\n  } else {\n    callback();  //pass\n  }\n  */\n  const _this = this\n  if(value) {\n    console.log()\n    check(value)\n  } else {\n    callback();  //pass\n  }\n  \n  async function check(documentType) {\n    const id = _this.getWidgetRef('id').getValue()\n    let result = await $api.get('/admin/api/dms/policy/retention/document-type/used',{params: {\n      documentType,\n      id\n    }}).then(res => res.data.data)\n    result = result.filter(item => item.policyRetentionId !== id)\n    if(result && result.length > 0) {\n      callback(new Error($t('tip.documentTypeUsed')))\n    } else {\n      callback();  //pass\n    }\n}"
+                    "onValidate": "  /* sample code */\n  /*\n  if ((value > 100) || (value < 0)) {\n    callback(new Error('error message'))  //fail\n  } else {\n    callback();  //pass\n  }\n  */\n  const _this = this\n  if(value) {\n    console.log()\n    check(value)\n  } else {\n    callback();  //pass\n  }\n  \n  async function check(documentType) {\n    const id = _this.getWidgetRef('id').getValue()\n    let result = await $api.get('/dms/policy/retention/document-type/used',{\n      params: {\n        documentType,\n        id\n      }, \n      baseURL:'/admin/api'\n    }).then(res => res.data.data)\n    result = result.filter(item => item.policyRetentionId !== id)\n    if(result && result.length > 0) {\n      callback(new Error($t('tip.documentTypeUsed')))\n    } else {\n      callback();  //pass\n    }\n}"
                   },
                   "id": "select24182"
                 }
@@ -895,12 +1664,12 @@
     "jsonVersion": 3,
     "isCreateDynamicCode": true,
     "onFormCreated": "",
-    "onFormMounted": "const _this = this\nif(!this.globalOptionData) this.globalOptionData = {}\nthis.globalOptionData.fileList = []\nthis.globalOptionData.ready = false\nconst defaultKeywords = [\n  {\n    \"name\": \"create_date\",\n    \"type\": \"date\",\n    \"value\": \"date\",\n    \"schema\": \"dublincore\",\n    \"isMultiValue\": null,\n    \"defaultValue\": null,\n    \"valueScope\": null\n  },\n  {\n    \"name\": \"modify_date\",\n    \"type\": \"date\",\n    \"value\": \"date\",\n    \"schema\": \"dublincore\",\n    \"isMultiValue\": null,\n    \"defaultValue\": null,\n    \"valueScope\": null\n}\n]\ngetDocTypeList()\nasync function getDocTypeList() {\n  const typeList = await $api.get('/api/dms/docpal-type/active', {}).then(res => res.data.data)\n  typeList.forEach((item) => {\n    const keywords = item.keywords ? item.keywords : []\n    const _item = {\n      keywords: [...defaultKeywords, ...keywords],\n      value: item.name,\n      label: $t(item.name)\n    }\n    if(!item.isFolder) {\n      _this.globalOptionData.fileList.push(_item)\n    }\n  })\n  setTimeout(() => {\n    _this.globalOptionData.ready = true\n  }, 1000);\n}\n",
+    "onFormMounted": "const _this = this\nif(!this.globalOptionData) this.globalOptionData = {}\nthis.globalOptionData.fileList = []\nthis.globalOptionData.ready = false\nconst defaultKeywords = [\n  {\n    \"name\": \"create_date\",\n    \"type\": \"date\",\n    \"value\": \"date\",\n    \"schema\": \"dublincore\",\n    \"isMultiValue\": null,\n    \"defaultValue\": null,\n    \"valueScope\": null\n  },\n  {\n    \"name\": \"modify_date\",\n    \"type\": \"date\",\n    \"value\": \"date\",\n    \"schema\": \"dublincore\",\n    \"isMultiValue\": null,\n    \"defaultValue\": null,\n    \"valueScope\": null\n}\n]\ngetDocTypeList()\nasync function getDocTypeList() {\n  const typeList = await $api.get('/dms/docpal-type/active', {}).then(res => res.data.data)\n  typeList.forEach((item) => {\n    const keywords = item.keywords ? item.keywords : []\n    const _item = {\n      keywords: [...defaultKeywords, ...keywords],\n      value: item.name,\n      label: $t(item.name)\n    }\n    if(!item.isFolder) {\n      _this.globalOptionData.fileList.push(_item)\n    }\n  })\n  setTimeout(() => {\n    _this.globalOptionData.ready = true\n  }, 1000);\n}\n",
     "onFormDataChange": "",
     "dhList": [],
-    "onFormValidate": "",
     "saveRemoteOptions": "never",
     "labelFormUniqueName": true,
+    "onFormValidate": "",
     "dataSources": []
   }
 }

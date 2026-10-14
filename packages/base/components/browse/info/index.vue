@@ -34,7 +34,7 @@ function openEditInfo() {
   }
 }
 
-async function docUpdated(forceRefresh?: boolean = false) {
+async function docUpdated(forceRefresh: boolean = false) {
   if (props.listData && doc.value.id === props.listData.doc.id && !forceRefresh) {
     detail.value = deepCopy(props.listData.doc)
     return

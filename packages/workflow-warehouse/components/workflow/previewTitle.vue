@@ -25,6 +25,7 @@ const searchText = computed(() => {
     invoice[SGLA.Name]
       || invoice.invoiceNum
       || invoice.invoice_num
+      || invoice.cust_po_num
       || ''
   )
 })

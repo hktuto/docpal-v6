@@ -27,7 +27,7 @@ async function getWorkflowListOption() {
   workflowList.value = data.sort((a: any, b: any) => a.name.localeCompare(b.name))
 }
 
-async function workflowClickHandler(workflowItem: any, isTrigger?: boolean = false, originalData?: any) {
+async function workflowClickHandler(workflowItem: any, isTrigger: boolean = false, originalData?: any) {
   state.loading = true
   try {
     const data = await clientApi.instance.get(`/oniflow/api/v1/workflow/definitions/instance/${workflowItem.id}`).then((r: any) => workflowResponseHelper(r))

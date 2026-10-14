@@ -49,8 +49,9 @@ function init() {
 function updateData() {
   graphProvider?.graph.value?.startBatch('update-script-field-data')
 
-  const data = node.getData()
+  const data = node.getData() || {}
   const newData = {
+    ...data,
     config: jsonData.value,
     version: (data.version || 0) + 1
   }

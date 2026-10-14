@@ -2,7 +2,7 @@
 require('events').EventEmitter.defaultMaxListeners = 50
 import { resolve } from 'path'
 export default defineNuxtConfig({
-  compatibilityDate: '2024-04-03',
+  compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   ssr: false,
   modules: [],

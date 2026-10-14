@@ -50,7 +50,7 @@
                 "onFocus": "",
                 "onBlur": "",
                 "onValidate": "",
-                "onLazyLoad": "const { level, value, childrenData } = node\nif(!!childrenData) {\n  resolve(childrenData)\n  return\n}\nconst idOrPath = level == 0 ? \"/\" : value\n$api.post('/admin/api/dms/document/children/thumbnail', {idOrPath, pageSize: 100000}).then(res => {\n  const nodes = res.data.data.entryList.reduce((prev, item) => { \n    if(item.isFolder) prev.push({\n      value: item.id,\n      label: item.name\n    })\n    return prev\n  },[])\n  // 通过调用resolve将子节点数据返回，通知组件数据加载完成\n  resolve(nodes)\n}).catch(err => {\n  resolve([])\n})"
+                "onLazyLoad": "const { level, value, childrenData } = node\nif(!!childrenData) {\n  resolve(childrenData)\n  return\n}\nconst idOrPath = level == 0 ? \"/\" : value\n$api.post('/dms/document/children/thumbnail', {idOrPath, pageSize: 100000}, {\n  baseUrl: '/admin/api'\n}).then(res => {\n  const nodes = res.data.data.entryList.reduce((prev, item) => { \n    if(item.isFolder) prev.push({\n      value: item.id,\n      label: item.name\n    })\n    return prev\n  },[])\n  // 通过调用resolve将子节点数据返回，通知组件数据加载完成\n  resolve(nodes)\n}).catch(err => {\n  resolve([])\n})"
               },
               "id": "cascader76990"
             }
@@ -109,7 +109,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "const _this = this\n$api.get('/admin/api/dms/document/queryAuditTemplate').then(res => {\n  const options = []\n  res.data.data.forEach((item) => { \n    let _item = options.find(o => o.value === item.eventCategory)\n    if(!_item){\n      options.push({\n        value: item.eventCategory,\n        label: item.eventCategory,\n        children: []\n      })\n      _item = options[options.length - 1]\n    }\n    _item.children.push({\n      value: item.eventId,\n      label: $i18n.t(item.eventId),\n    })\n  })\n  _this.loadOptions(options)\n}).catch(err => {\n})",
+                "onMounted": "const _this = this\n$api.get('/dms/document/queryAuditTemplate', {\n  baseURL: '/admin/api'\n}).then(res => {\n  const options = []\n  res.data.data.forEach((item) => { \n    let _item = options.find(o => o.value === item.eventCategory)\n    if(!_item){\n      options.push({\n        value: item.eventCategory,\n        label: item.eventCategory,\n        children: []\n      })\n      _item = options[options.length - 1]\n    }\n    _item.children.push({\n      value: item.eventId,\n      label: $i18n.t(item.eventId),\n    })\n  })\n  _this.loadOptions(options)\n}).catch(err => {\n})",
                 "onChange": "",
                 "onFocus": "",
                 "onBlur": "",
@@ -234,140 +234,772 @@
                 "multipleLimit": 0,
                 "optionItems": [
                   {
-                    "value": "Administrator",
-                    "label": "Administrator<lyle.zheng@wclsolution.com>"
+                    "value": "administrator",
+                    "label": "Administrator"
                   },
                   {
-                    "value": "create_test",
-                    "label": "create_test<ikki.cheng@wclsolution.com>"
+                    "value": "amy_tse",
+                    "label": "amy_tse"
                   },
                   {
-                    "value": "demo_account",
-                    "label": "demo_account<walter.mak@wclsolution.com>"
+                    "value": "anita_fung",
+                    "label": "anita_fung"
                   },
                   {
-                    "value": "demo_director",
-                    "label": "demo_director<walter.mak@wclsolution.com>"
+                    "value": "arthur_ip",
+                    "label": "arthur_ip"
                   },
                   {
-                    "value": "demo_head",
-                    "label": "demo_head<walter.mak@wclsolution.com>"
+                    "value": "cai_ning",
+                    "label": "cai_ning"
                   },
                   {
-                    "value": "demo_user",
-                    "label": "demo_user<walter.mark@wclsolution.com>"
+                    "value": "cai_shiqi",
+                    "label": "cai_shiqi"
                   },
                   {
-                    "value": "docpaladmin",
-                    "label": "docpaladmin<ninerabbit9299@gmail.com>"
+                    "value": "cai_yating",
+                    "label": "cai_yating"
                   },
                   {
-                    "value": "entityType",
-                    "label": "entityType<entitytype@163.com>"
+                    "value": "cai_zhiwei",
+                    "label": "cai_zhiwei"
                   },
                   {
-                    "value": "everything",
-                    "label": "everything<ikki.cheng@wclsolution.com>"
+                    "value": "chao_li",
+                    "label": "chao_li"
                   },
                   {
-                    "value": "frank_yang",
-                    "label": "frank_yang<frank.yang@wclsolution.com>"
+                    "value": "chen_chun",
+                    "label": "chen_chun"
                   },
                   {
-                    "value": "ikki_cheng",
-                    "label": "ikki_cheng<ikki.cheng@wclsolution.com>"
+                    "value": "cheng_qiushi",
+                    "label": "cheng_qiushi"
                   },
                   {
-                    "value": "jack_li",
-                    "label": "jack_li<352775063@qq.com>"
+                    "value": "chen_jing",
+                    "label": "chen_jing"
                   },
                   {
-                    "value": "jack_li2",
-                    "label": "jack_li2<352775063@qq.com>"
+                    "value": "chen_rong",
+                    "label": "chen_rong"
                   },
                   {
-                    "value": "Jay.Cai",
-                    "label": "Jay.Cai<jay.cai@wclsolution.com>"
+                    "value": "chen_wenting",
+                    "label": "chen_wenting"
                   },
                   {
-                    "value": "Jay_Cai",
-                    "label": "Jay_Cai<jay.cai@wclsolution.com>"
+                    "value": "chen_yanyan",
+                    "label": "chen_yanyan"
+                  },
+                  {
+                    "value": "cherry_yip",
+                    "label": "cherry_yip"
+                  },
+                  {
+                    "value": "chuen_chan",
+                    "label": "chuen_chan"
+                  },
+                  {
+                    "value": "cynthia_ng",
+                    "label": "cynthia_ng"
+                  },
+                  {
+                    "value": "daniel_poon",
+                    "label": "daniel_poon"
+                  },
+                  {
+                    "value": "denis_poon",
+                    "label": "denis_poon"
+                  },
+                  {
+                    "value": "dong_peipei",
+                    "label": "dong_peipei"
+                  },
+                  {
+                    "value": "dong_yuexia",
+                    "label": "dong_yuexia"
+                  },
+                  {
+                    "value": "doris_li",
+                    "label": "doris_li"
+                  },
+                  {
+                    "value": "du_chao",
+                    "label": "du_chao"
+                  },
+                  {
+                    "value": "dylan_lin",
+                    "label": "dylan_lin"
+                  },
+                  {
+                    "value": "edward_kong",
+                    "label": "edward_kong"
+                  },
+                  {
+                    "value": "ella_gan",
+                    "label": "ella_gan"
+                  },
+                  {
+                    "value": "feng_yonghao",
+                    "label": "feng_yonghao"
+                  },
+                  {
+                    "value": "fu_shuangshuang",
+                    "label": "fu_shuangshuang"
+                  },
+                  {
+                    "value": "gan_yu",
+                    "label": "gan_yu"
+                  },
+                  {
+                    "value": "gao_lili",
+                    "label": "gao_lili"
+                  },
+                  {
+                    "value": "guan_yonghong",
+                    "label": "guan_yonghong"
+                  },
+                  {
+                    "value": "gu_lihua",
+                    "label": "gu_lihua"
+                  },
+                  {
+                    "value": "guo_xuexia",
+                    "label": "guo_xuexia"
+                  },
+                  {
+                    "value": "hank_hong",
+                    "label": "hank_hong"
+                  },
+                  {
+                    "value": "han_xiangyun",
+                    "label": "han_xiangyun"
+                  },
+                  {
+                    "value": "he_bing",
+                    "label": "he_bing"
+                  },
+                  {
+                    "value": "helen_guo",
+                    "label": "helen_guo"
+                  },
+                  {
+                    "value": "henry_poon",
+                    "label": "henry_poon"
+                  },
+                  {
+                    "value": "he_zhiming",
+                    "label": "he_zhiming"
+                  },
+                  {
+                    "value": "huang_liang",
+                    "label": "huang_liang"
+                  },
+                  {
+                    "value": "huang_zhili",
+                    "label": "huang_zhili"
+                  },
+                  {
+                    "value": "hu_xiaoyong",
+                    "label": "hu_xiaoyong"
+                  },
+                  {
+                    "value": "iris_yeung",
+                    "label": "iris_yeung"
+                  },
+                  {
+                    "value": "ivy_li",
+                    "label": "ivy_li"
+                  },
+                  {
+                    "value": "jackal_leung",
+                    "label": "jackal_leung"
+                  },
+                  {
+                    "value": "jackie_lam",
+                    "label": "jackie_lam"
+                  },
+                  {
+                    "value": "jiang_zhiyong",
+                    "label": "jiang_zhiyong"
+                  },
+                  {
+                    "value": "jiqing_yi",
+                    "label": "jiqing_yi"
+                  },
+                  {
+                    "value": "johnson",
+                    "label": "johnson"
                   },
                   {
                     "value": "Joshua",
-                    "label": "Joshua<joshua@wcl.com>"
+                    "label": "Joshua"
                   },
                   {
-                    "value": "Lyle",
-                    "label": "Lyle<lyle.zheng@wclsolution.com>"
+                    "value": "joshua_zheng",
+                    "label": "joshua_zheng"
                   },
                   {
-                    "value": "nine",
-                    "label": "nine<ninerabbit9299@gmail.com>"
+                    "value": "june_chan",
+                    "label": "june_chan"
                   },
                   {
-                    "value": "ninerabbit",
-                    "label": "ninerabbit<ninerabbit9299@163.com>"
+                    "value": "ken_shum",
+                    "label": "ken_shum"
                   },
                   {
-                    "value": "nissin",
-                    "label": "nissin<alison.yuen@wclsolution.cm>"
+                    "value": "kim_zeng",
+                    "label": "kim_zeng"
                   },
                   {
-                    "value": "ooo",
-                    "label": "ooo<ooo@qq.bb>"
+                    "value": "kingboo",
+                    "label": "kingboo"
                   },
                   {
-                    "value": "ooyy",
-                    "label": "ooyy<123@qq.com>"
+                    "value": "kin_tsui",
+                    "label": "kin_tsui"
                   },
                   {
-                    "value": "ooyy1",
-                    "label": "ooyy1<ooyy1@qq.com>"
+                    "value": "kong_linyan",
+                    "label": "kong_linyan"
                   },
                   {
-                    "value": "readonly",
-                    "label": "readonly<ikki.cheng@wclsolution.com>"
+                    "value": "kong_yan",
+                    "label": "kong_yan"
                   },
                   {
-                    "value": "readwrite",
-                    "label": "readwrite<ikki.cheng@wclsolution.com>"
+                    "value": "kuang_weiqin",
+                    "label": "kuang_weiqin"
                   },
                   {
-                    "value": "rh",
-                    "label": "rh<royhoo_cc@163.com>"
+                    "value": "lei_wu",
+                    "label": "lei_wu"
                   },
                   {
-                    "value": "Rh_Admin",
-                    "label": "Rh_Admin<royhoo.zhang@wclsolution.com>"
+                    "value": "leo_wong",
+                    "label": "leo_wong"
+                  },
+                  {
+                    "value": "lester_lu",
+                    "label": "lester_lu"
+                  },
+                  {
+                    "value": "liang_jianqin",
+                    "label": "liang_jianqin"
+                  },
+                  {
+                    "value": "liang_jing",
+                    "label": "liang_jing"
+                  },
+                  {
+                    "value": "liang_liancai",
+                    "label": "liang_liancai"
+                  },
+                  {
+                    "value": "li_dexun",
+                    "label": "li_dexun"
+                  },
+                  {
+                    "value": "li_dongmei",
+                    "label": "li_dongmei"
+                  },
+                  {
+                    "value": "li_jun",
+                    "label": "li_jun"
+                  },
+                  {
+                    "value": "li_junhui",
+                    "label": "li_junhui"
+                  },
+                  {
+                    "value": "li_mingwei",
+                    "label": "li_mingwei"
+                  },
+                  {
+                    "value": "lin_hongxin",
+                    "label": "lin_hongxin"
+                  },
+                  {
+                    "value": "linlin_liang",
+                    "label": "linlin_liang"
+                  },
+                  {
+                    "value": "lin_qi",
+                    "label": "lin_qi"
+                  },
+                  {
+                    "value": "liu_jiao",
+                    "label": "liu_jiao"
+                  },
+                  {
+                    "value": "liu_lingtong",
+                    "label": "liu_lingtong"
+                  },
+                  {
+                    "value": "liu_minyan",
+                    "label": "liu_minyan"
+                  },
+                  {
+                    "value": "liu_xiaolong",
+                    "label": "liu_xiaolong"
+                  },
+                  {
+                    "value": "li_zhi",
+                    "label": "li_zhi"
+                  },
+                  {
+                    "value": "long_feng",
+                    "label": "long_feng"
+                  },
+                  {
+                    "value": "lu_meilian",
+                    "label": "lu_meilian"
+                  },
+                  {
+                    "value": "luo_caiyun",
+                    "label": "luo_caiyun"
+                  },
+                  {
+                    "value": "luo_guoli",
+                    "label": "luo_guoli"
+                  },
+                  {
+                    "value": "luo_jinfu",
+                    "label": "luo_jinfu"
+                  },
+                  {
+                    "value": "luo_xiaofei",
+                    "label": "luo_xiaofei"
+                  },
+                  {
+                    "value": "lyle",
+                    "label": "lyle"
+                  },
+                  {
+                    "value": "lynn_fang",
+                    "label": "lynn_fang"
+                  },
+                  {
+                    "value": "mai_jinlun",
+                    "label": "mai_jinlun"
+                  },
+                  {
+                    "value": "ma_jiayu",
+                    "label": "ma_jiayu"
+                  },
+                  {
+                    "value": "mankwok_tsang",
+                    "label": "mankwok_tsang"
+                  },
+                  {
+                    "value": "man_lam",
+                    "label": "man_lam"
+                  },
+                  {
+                    "value": "mark_zhang",
+                    "label": "mark_zhang"
+                  },
+                  {
+                    "value": "masaki_horikoshi",
+                    "label": "masaki_horikoshi"
+                  },
+                  {
+                    "value": "mauwing_lam",
+                    "label": "mauwing_lam"
+                  },
+                  {
+                    "value": "mc_shipping",
+                    "label": "mc_shipping"
+                  },
+                  {
+                    "value": "nie_hongyan",
+                    "label": "nie_hongyan"
+                  },
+                  {
+                    "value": "ninnapat",
+                    "label": "ninnapat"
+                  },
+                  {
+                    "value": "ni_yanwen",
+                    "label": "ni_yanwen"
+                  },
+                  {
+                    "value": "ni_yuezhen",
+                    "label": "ni_yuezhen"
+                  },
+                  {
+                    "value": "norm_chow",
+                    "label": "norm_chow"
+                  },
+                  {
+                    "value": "oy",
+                    "label": "oy"
+                  },
+                  {
+                    "value": "pang_yuezhong",
+                    "label": "pang_yuezhong"
+                  },
+                  {
+                    "value": "patrick_leung",
+                    "label": "patrick_leung"
+                  },
+                  {
+                    "value": "patrick_wong",
+                    "label": "patrick_wong"
+                  },
+                  {
+                    "value": "pei_lina",
+                    "label": "pei_lina"
+                  },
+                  {
+                    "value": "peng_guo",
+                    "label": "peng_guo"
+                  },
+                  {
+                    "value": "peng_xiaochun",
+                    "label": "peng_xiaochun"
+                  },
+                  {
+                    "value": "peng_xiaoyuan",
+                    "label": "peng_xiaoyuan"
+                  },
+                  {
+                    "value": "ralph_hui",
+                    "label": "ralph_hui"
+                  },
+                  {
+                    "value": "ran_miaolin",
+                    "label": "ran_miaolin"
+                  },
+                  {
+                    "value": "reki_chen",
+                    "label": "reki_chen"
+                  },
+                  {
+                    "value": "ricky_jiang",
+                    "label": "ricky_jiang"
                   },
                   {
                     "value": "royhoo",
-                    "label": "royhoo<royhoo.zhang@wclsolution.com>"
+                    "label": "royhoo"
                   },
                   {
-                    "value": "sales_manager",
-                    "label": "sales_manager<jay.cai@wclsolution.com>"
+                    "value": "saii",
+                    "label": "saii"
                   },
                   {
-                    "value": "sean-admin",
-                    "label": "sean-admin<example@example.com>"
+                    "value": "sean",
+                    "label": "sean"
                   },
                   {
-                    "value": "sean-client",
-                    "label": "sean-client<9394wing@gmail.com>"
+                    "value": "shek_puishan",
+                    "label": "shek_puishan"
                   },
                   {
-                    "value": "Shawn_Fang",
-                    "label": "Shawn_Fang<shawn.fang@wclsolution.com>"
+                    "value": "shen_huijia",
+                    "label": "shen_huijia"
+                  },
+                  {
+                    "value": "shi_yang",
+                    "label": "shi_yang"
+                  },
+                  {
+                    "value": "steve_cheung",
+                    "label": "steve_cheung"
+                  },
+                  {
+                    "value": "su_jieping",
+                    "label": "su_jieping"
+                  },
+                  {
+                    "value": "summer_xiong",
+                    "label": "summer_xiong"
+                  },
+                  {
+                    "value": "sun_xiaoping",
+                    "label": "sun_xiaoping"
+                  },
+                  {
+                    "value": "sz_warehouse",
+                    "label": "sz_warehouse"
+                  },
+                  {
+                    "value": "tang_ye",
+                    "label": "tang_ye"
+                  },
+                  {
+                    "value": "tan_shiyu",
+                    "label": "tan_shiyu"
+                  },
+                  {
+                    "value": "tan_yabin",
+                    "label": "tan_yabin"
+                  },
+                  {
+                    "value": "terry_law",
+                    "label": "terry_law"
+                  },
+                  {
+                    "value": "terry_lok",
+                    "label": "terry_lok"
+                  },
+                  {
+                    "value": "tommy_liao",
+                    "label": "tommy_liao"
+                  },
+                  {
+                    "value": "tong_yunyun",
+                    "label": "tong_yunyun"
+                  },
+                  {
+                    "value": "tony_gong",
+                    "label": "tony_gong"
+                  },
+                  {
+                    "value": "vanessa_kong",
+                    "label": "vanessa_kong"
+                  },
+                  {
+                    "value": "vicky_zhang",
+                    "label": "vicky_zhang"
+                  },
+                  {
+                    "value": "wang_dandan",
+                    "label": "wang_dandan"
+                  },
+                  {
+                    "value": "wang_fengmei",
+                    "label": "wang_fengmei"
+                  },
+                  {
+                    "value": "wang_qi",
+                    "label": "wang_qi"
+                  },
+                  {
+                    "value": "wang_xiao",
+                    "label": "wang_xiao"
+                  },
+                  {
+                    "value": "wan_zhongjie",
+                    "label": "wan_zhongjie"
+                  },
+                  {
+                    "value": "wei_lihong",
+                    "label": "wei_lihong"
+                  },
+                  {
+                    "value": "wei_xiaomin",
+                    "label": "wei_xiaomin"
+                  },
+                  {
+                    "value": "weng_xia",
+                    "label": "weng_xia"
+                  },
+                  {
+                    "value": "wilfred_chung",
+                    "label": "wilfred_chung"
                   },
                   {
                     "value": "will_du",
-                    "label": "will_du<will.du@wclsolution.com>"
+                    "label": "will_du"
                   },
                   {
-                    "value": "willl",
-                    "label": "willl<willdu@wclsolution.com>"
+                    "value": "wilton_he",
+                    "label": "wilton_he"
+                  },
+                  {
+                    "value": "wing_wu",
+                    "label": "wing_wu"
+                  },
+                  {
+                    "value": "wu_caifei",
+                    "label": "wu_caifei"
+                  },
+                  {
+                    "value": "wu_hongyu",
+                    "label": "wu_hongyu"
+                  },
+                  {
+                    "value": "wu_jie",
+                    "label": "wu_jie"
+                  },
+                  {
+                    "value": "wu_xiaoli",
+                    "label": "wu_xiaoli"
+                  },
+                  {
+                    "value": "wu_yueting",
+                    "label": "wu_yueting"
+                  },
+                  {
+                    "value": "xiang_fuguang",
+                    "label": "xiang_fuguang"
+                  },
+                  {
+                    "value": "xiang_wei",
+                    "label": "xiang_wei"
+                  },
+                  {
+                    "value": "xie_rue",
+                    "label": "xie_rue"
+                  },
+                  {
+                    "value": "xie_ying",
+                    "label": "xie_ying"
+                  },
+                  {
+                    "value": "xu_bujuan",
+                    "label": "xu_bujuan"
+                  },
+                  {
+                    "value": "xu_songhua",
+                    "label": "xu_songhua"
+                  },
+                  {
+                    "value": "xu_weida",
+                    "label": "xu_weida"
+                  },
+                  {
+                    "value": "xu_zhihe",
+                    "label": "xu_zhihe"
+                  },
+                  {
+                    "value": "xu_zhongqiong",
+                    "label": "xu_zhongqiong"
+                  },
+                  {
+                    "value": "yang_hua jun",
+                    "label": "yang_hua jun"
+                  },
+                  {
+                    "value": "yang_jiechang",
+                    "label": "yang_jiechang"
+                  },
+                  {
+                    "value": "yang_xiaobo",
+                    "label": "yang_xiaobo"
+                  },
+                  {
+                    "value": "yang_xiaoting",
+                    "label": "yang_xiaoting"
+                  },
+                  {
+                    "value": "yao_jun",
+                    "label": "yao_jun"
+                  },
+                  {
+                    "value": "yoyo_cheung",
+                    "label": "yoyo_cheung"
+                  },
+                  {
+                    "value": "yuki_wong",
+                    "label": "yuki_wong"
+                  },
+                  {
+                    "value": "yu_rong",
+                    "label": "yu_rong"
+                  },
+                  {
+                    "value": "yvonne_huang",
+                    "label": "yvonne_huang"
+                  },
+                  {
+                    "value": "zanky_yau",
+                    "label": "zanky_yau"
+                  },
+                  {
+                    "value": "zhang_jiabei",
+                    "label": "zhang_jiabei"
+                  },
+                  {
+                    "value": "zhang_lili",
+                    "label": "zhang_lili"
+                  },
+                  {
+                    "value": "zhang_lina",
+                    "label": "zhang_lina"
+                  },
+                  {
+                    "value": "zhang_pei",
+                    "label": "zhang_pei"
+                  },
+                  {
+                    "value": "zhang_ruiyi",
+                    "label": "zhang_ruiyi"
+                  },
+                  {
+                    "value": "zhang_sining",
+                    "label": "zhang_sining"
+                  },
+                  {
+                    "value": "zhang_weidong",
+                    "label": "zhang_weidong"
+                  },
+                  {
+                    "value": "zhang_xiaoling",
+                    "label": "zhang_xiaoling"
+                  },
+                  {
+                    "value": "zhang_xuezheng",
+                    "label": "zhang_xuezheng"
+                  },
+                  {
+                    "value": "zhao_guonan",
+                    "label": "zhao_guonan"
+                  },
+                  {
+                    "value": "zhao_jingjing",
+                    "label": "zhao_jingjing"
+                  },
+                  {
+                    "value": "zhao_shuyan",
+                    "label": "zhao_shuyan"
+                  },
+                  {
+                    "value": "zhao_xiaohua",
+                    "label": "zhao_xiaohua"
+                  },
+                  {
+                    "value": "zheng_yirui",
+                    "label": "zheng_yirui"
+                  },
+                  {
+                    "value": "zhenyu_liu",
+                    "label": "zhenyu_liu"
+                  },
+                  {
+                    "value": "zhiyuan_wang",
+                    "label": "zhiyuan_wang"
+                  },
+                  {
+                    "value": "zhou_jiahuan",
+                    "label": "zhou_jiahuan"
+                  },
+                  {
+                    "value": "zhou_jiayi",
+                    "label": "zhou_jiayi"
+                  },
+                  {
+                    "value": "zhou_ran",
+                    "label": "zhou_ran"
+                  },
+                  {
+                    "value": "zhou_wenji",
+                    "label": "zhou_wenji"
+                  },
+                  {
+                    "value": "zhou_ziying",
+                    "label": "zhou_ziying"
+                  },
+                  {
+                    "value": "zhu_junrui",
+                    "label": "zhu_junrui"
+                  },
+                  {
+                    "value": "zhu_ming",
+                    "label": "zhu_ming"
                   }
                 ],
                 "required": false,
@@ -428,6 +1060,7 @@
     "functions": "",
     "layoutType": "PC",
     "jsonVersion": 3,
+    "isCreateDynamicCode": true,
     "onFormCreated": "",
     "onFormMounted": "",
     "onFormDataChange": "",

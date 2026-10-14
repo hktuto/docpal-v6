@@ -1228,3 +1228,17 @@ export const workflowCellElement = {
     } as CellTypeItem[K]
   }
 }
+
+/** CellType / metadata.type → workflowElement key（缺 tags 时回退） */
+export function getWorkflowElementTypeByCellType(cellType: string): WorkflowElementType | null {
+  if (!cellType) return null
+  if (cellType in workflowElement) {
+    return cellType as WorkflowElementType
+  }
+  const template = workflowCellElementTemplate[cellType as CellType]
+  const tags = template?.data?.metadata?.tags
+  if (tags && tags in workflowElement) {
+    return tags as WorkflowElementType
+  }
+  return null
+}

@@ -97,10 +97,10 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
       <div class="child-icon">
         <Icon :name="getChildIcon(child)" />
       </div>
-      <div class="child-label">
+      <div class="child-label" :title="child.name">
         {{ child.name }}
       </div>
-      <p class="child-description">
+      <p class="child-description" :title="child.description">
         {{ child.description }}
       </p>
     </div>
@@ -118,12 +118,14 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
   display: flex;
   flex-direction: column;
   gap: var(--app-space-xs);
+  min-width: 0;
   border: 1px solid var(--el-border-color-light);
   border-radius: var(--app-space-s);
   padding: var(--app-space-s);
   cursor: pointer;
   position: relative;
   transition: border-color 0.2s ease;
+  overflow: hidden;
 
   &:hover {
     border-color: var(--app-primary-color);
@@ -142,11 +144,19 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
 .child-label {
   font-size: var(--app-font-size-l);
   font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .child-description {
   margin: 0;
   color: var(--el-text-color-regular);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 // Drop overlay

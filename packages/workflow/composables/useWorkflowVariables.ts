@@ -343,30 +343,30 @@ export const useVariables = (graphRef?: Ref<Graph | undefined>) => {
     }))
   }
 
-  function updateNode(node: Node, variables: WorkflowVariablesObj) {
-    const data = node.getData()
+  function updateNode(node: Node, variablesObj: WorkflowVariablesObj) {
+    const data = node.getData() || {}
     const newData = {
       ...data,
-      variables,
+      variables: deepCopy(variablesObj),
       version: (data.version || 0) + 1
     }
-    node.setData(newData, { overwrite: true, deep: true, silent: false })
+    node.setData(newData, { overwrite: true, deep: false, silent: false })
   }
 
   function saveStartEventFormFields(startNode: Node) {
-    const data = startNode.getData()
+    const data = startNode.getData() || {}
     const newData = {
       ...data,
       config: {
-        ...data.config,
+        ...(data.config || {}),
         initialise: {
-          ...data.config.initialise,
-          form_fields: variables.value
+          ...(data.config?.initialise || {}),
+          form_fields: deepCopy(variables.value)
         }
       },
       version: (data.version || 0) + 1
     }
-    startNode.setData(newData, { overwrite: true, deep: true, silent: false })
+    startNode.setData(newData, { overwrite: true, deep: false, silent: false })
   }
 
   provide('WorkflowVariablesProvide', {

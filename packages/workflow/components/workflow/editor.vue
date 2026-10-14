@@ -73,165 +73,216 @@ const dropActionsItems = computed(() => {
 const isReady = ref(false)
 
 const NODE_TYPES = new Set<string>([WorkflowElementType.Gateway, CellType.conditionTask, 'ExclusiveGateway', 'ParallelGateway', 'InclusiveGateway'])
+let initSeq = 0
+let pluginsReady = false
+
+function ensureGraph() {
+  if (graph.value) return graph.value
+  if (!containerEl.value) {
+    throw new Error('Container is not found')
+  }
+
+  const graphOptions = {
+    interacting: !readonly.value,
+    panning: {
+      enabled: true,
+      eventTypes: ['leftMouseDown', 'mouseWheel']
+    },
+    highlighting: {
+      magnetAvailable: {
+        name: 'stroke',
+        args: {
+          padding: 3,
+          attrs: {
+            strokeWidth: 3,
+            stroke: '#c41a1a'
+          }
+        }
+      }
+    },
+    connecting: {
+      // router: 'orth',
+      connector: 'rounded',
+      snap: true,
+      allowBlank: false,
+      allowLoop: false,
+      allowNode: true,
+      allowMulti: false,
+      allowEdge: false,
+      highlight: true,
+      validateMagnet({ e, magnet, view, cell }) {
+        if (readonly.value) {
+          return false
+        }
+
+        const nodeType = cell.getData().metadata.type
+        // 限制特定類型的 node 出綫
+        if (NODE_TYPES.has(nodeType)) {
+          const outgoingEdges = graph.value?.getConnectedEdges(cell, { outgoing: true })
+          if (outgoingEdges.length === cell.getData().metadata.maxOutgoing) {
+            return false
+          }
+        }
+        return true
+      },
+      validateConnection({ sourceMagnet, targetMagnet }: any) {
+        return !readonly.value
+      }
+    }
+  }
+
+  const initGraphOptions: any = Object.assign(
+    {
+      container: containerEl.value,
+      grid: {
+        visible: true,
+        type: 'mesh',
+        args: {
+          color: '#eee',
+          thickness: 1
+        }
+      },
+      scaling: {
+        min: 0.005,
+        max: 2
+      },
+      background: {
+        color: 'var(--app-grey-9000)'
+      },
+      autoResize: true,
+      panning: {
+        enabled: true,
+        eventTypes: ['leftMouseDown', 'mouseWheel']
+      },
+      embedding: {
+        enabled: false
+      },
+      mousewheel: {
+        enabled: true,
+        factor: 1.05,
+        modifiers: ['ctrl', 'meta']
+      },
+      connecting: {
+        connector: 'rounded',
+        allowMulti: false
+      },
+      interacting: false
+    },
+    graphOptions
+  )
+
+  graph.value = new Graph({
+    container: containerEl.value,
+    ...initGraphOptions
+  })
+  return graph.value
+}
+
+function loadCellsToGraph(json: { cells: any[] }, edgesInput: any[] = []) {
+  const g = graph.value
+  if (!g) return
+
+  // 复用同一 Graph，避免 dispose 重建导致容器空白；深拷贝剥离 Vue proxy
+  const plainJson = JSON.parse(JSON.stringify({ cells: Array.isArray(json?.cells) ? json.cells : [] }))
+  g.fromJSON(plainJson)
+
+  g.getNodes().forEach((node: any) => {
+    node.removeTools()
+    const ports = node.getPorts() || []
+    ports.forEach((port: any) => {
+      node.setPortProp(port.id, 'attrs/circle', {
+        fill: 'transparent',
+        stroke: 'transparent'
+      })
+    })
+  })
+  g.getEdges().forEach((edge: any) => {
+    edge.removeTools()
+  })
+
+  const edges = Array.isArray(edgesInput) ? edgesInput : []
+  edges.forEach((edge: any) => {
+    try {
+      if (!edge?.source_node_id || !edge?.target_node_id) return
+      if (!g.getCellById(edge.source_node_id) || !g.getCellById(edge.target_node_id)) return
+      const edgeMetadata = edge.metadata || {}
+      g.addEdge({
+        source: { cell: edge.source_node_id, port: edgeMetadata.sourcePort || 'to' },
+        target: { cell: edge.target_node_id, port: edgeMetadata.targetPort || 'from' },
+        vertices: edgeMetadata.vertices ?? [],
+        attrs: {
+          line: {
+            stroke: '#000000',
+            strokeWidth: 2,
+            strokeDasharray: 0
+          }
+        },
+        label: edgeMetadata.label || null,
+        data: { ...edge, metadata: edgeMetadata },
+        router: {
+          name: 'manhattan'
+        }
+      })
+    } catch (e) {
+      console.error('WorkflowEditor addEdge error:', edge?.id, e)
+    }
+  })
+  // 对话框关闭后容器尺寸可能尚未稳定，强制按当前 DOM 尺寸重算
+  if (containerEl.value) {
+    const { clientWidth, clientHeight } = containerEl.value
+    if (clientWidth > 0 && clientHeight > 0) {
+      g.resize(clientWidth, clientHeight)
+    }
+  }
+  fitIn()
+  g.centerContent?.()
+}
 
 function init() {
+  const seq = ++initSeq
   try {
     if (!workflowJsonObject.value) {
       throw new Error('workflowJsonObject is not found')
     }
 
-    // dispose graph
-    if (!!graph.value) {
-      isReady.value = false
-      graph.value.dispose()
-    }
-    const graphOptions = {
-      interacting: !readonly.value,
-      panning: {
-        enabled: true,
-        eventTypes: ['leftMouseDown', 'mouseWheel']
-      },
-      highlighting: {
-        magnetAvailable: {
-          name: 'stroke',
-          args: {
-            padding: 3,
-            attrs: {
-              strokeWidth: 3,
-              stroke: '#c41a1a'
-            }
-          }
-        }
-      },
-      connecting: {
-        // router: 'orth',
-        connector: 'rounded',
-        snap: true,
-        allowBlank: false,
-        allowLoop: false,
-        allowNode: true,
-        allowMulti: false,
-        allowEdge: false,
-        highlight: true,
-        validateMagnet({ e, magnet, view, cell }) {
-          if (readonly.value) {
-            return false
-          }
+    ensureGraph()
 
-          const nodeType = cell.getData().metadata.type
-          // 限制特定類型的 node 出綫
-          if (NODE_TYPES.has(nodeType)) {
-            const outgoingEdges = graph.value?.getConnectedEdges(cell, { outgoing: true })
-            if (outgoingEdges.length === cell.getData().metadata.maxOutgoing) {
-              return false
-            }
-          }
-          return true
-        },
-        validateConnection({ sourceMagnet, targetMagnet }: any) {
-          return !readonly.value
-        }
-      }
-    }
-    if (!containerEl.value) {
-      throw new Error('Container is not found')
-    }
-
-    // step 4 - init graph
-    const initGraphOptions: any = Object.assign(
-      {
-        container: containerEl.value,
-        grid: {
-          visible: true,
-          type: 'mesh',
-          args: {
-            color: '#eee',
-            thickness: 1
-          }
-        },
-        scaling: {
-          min: 0.005,
-          max: 2
-        },
-        background: {
-          color: 'var(--app-grey-9000)'
-        },
-        autoResize: true,
-        panning: {
-          enabled: true,
-          eventTypes: ['leftMouseDown', 'mouseWheel']
-        },
-        embedding: {
-          enabled: false
-        },
-        mousewheel: {
-          enabled: true,
-          factor: 1.05,
-          modifiers: ['ctrl', 'meta']
-        },
-        connecting: {
-          connector: 'rounded',
-          allowMulti: false
-        },
-        interacting: false
-      },
-      graphOptions
-    )
-    graph.value = new Graph({
-      container: containerEl,
-      ...initGraphOptions
-    })
-
-    workflowJson.value = workflowJsonObject.value
-    workflowId.value = workflowJsonObject.value.id
-    workflowKey.value = workflowJsonObject.value.key
-    version.value = workflowJsonObject.value.version
-    setVariables(workflowJsonObject.value.variables)
-    const json = workflowJsonToX6Node(workflowJsonObject.value)
+    // 深拷贝，避免响应式对象进入 X6
+    const plainWorkflow = JSON.parse(JSON.stringify(workflowJsonObject.value))
+    workflowJson.value = plainWorkflow
+    workflowId.value = plainWorkflow.id
+    workflowKey.value = plainWorkflow.key
+    version.value = plainWorkflow.version
+    setVariables(plainWorkflow.variables)
+    const json = workflowJsonToX6Node(plainWorkflow)
+    const edges = plainWorkflow.edges || []
 
     nextTick(() => {
-      graph.value?.fromJSON(json)
-      // remove all tools
-      graph.value?.getNodes().forEach((node: any) => {
-        node.removeTools()
-        const ports = node.getPorts() || []
-        ports.forEach((port: any) => {
-          node.setPortProp(port.id, 'attrs/circle', {
-            fill: 'transparent',
-            stroke: 'transparent'
-          })
-        })
-      })
-      graph.value?.getEdges().forEach((edge: any) => {
-        edge.removeTools()
-      })
-
-      // Set Edges Setting to X6Edge
-      workflowJsonObject.value.edges.forEach((edge: any) => {
-        const edgeMetadata = edge.metadata || {}
-        graph.value?.addEdge({
-          source: { cell: edge.source_node_id, port: edgeMetadata.sourcePort || 'to' },
-          target: { cell: edge.target_node_id, port: edgeMetadata.targetPort || 'from' },
-          vertices: edgeMetadata.vertices ?? [],
-          attrs: {
-            line: {
-              stroke: '#000000',
-              strokeWidth: 2,
-              strokeDasharray: 0
-            }
-          },
-          label: edgeMetadata.label || null,
-          data: { ...edge, metadata: edgeMetadata },
-          router: {
-            name: 'manhattan'
+      // 等浏览器完成布局（如关闭导入弹窗）再写入画布，避免宽高为 0
+      requestAnimationFrame(() => {
+        if (seq !== initSeq) return
+        try {
+          loadCellsToGraph(json, edges)
+          const realNodeCount = graph.value?.getNodes()?.filter((n: any) => n.shape !== 'invisible-node').length || 0
+          if (realNodeCount === 0) {
+            console.warn('WorkflowEditor: no nodes loaded from workflow JSON', {
+              nodeCount: plainWorkflow.nodes?.length,
+              cellCount: json?.cells?.length
+            })
           }
-        })
+        } catch (e) {
+          console.error('WorkflowEditor init load error:', e)
+          routerProvider?.message.error(e instanceof Error ? e.message : String(e))
+        } finally {
+          if (seq === initSeq) {
+            graphReady()
+          }
+        }
       })
-      fitIn()
-      graphReady()
     })
   } catch (e) {
-    console.log(e)
+    console.error('WorkflowEditor init error:', e)
+    routerProvider?.message.error(e instanceof Error ? e.message : String(e))
   }
 }
 
@@ -247,47 +298,55 @@ function fitIn() {
   }
 }
 
-// loading component
+// loading component — plugins only once per Graph instance
 function graphReady() {
-  graph.value?.use(
-    new Transform({
-      resizing: {
-        enabled: !readonly.value,
-        allowReverse: false
-      }
-    })
-  )
-  graph.value?.use(
-    new Selection({
-      enabled: !readonly.value,
-      multiple: true,
-      rubberband: true,
-      movable: true,
-      showNodeSelectionBox: true,
-      modifiers: ['shift'],
-      // 连线不进入选中态，避免 toFront 后挡住其他节点/连线点击
-      filter: (cell) => cell.isNode()
-    })
-  )
-  graph.value?.use(
-    new History({
-      enabled: !readonly.value,
-      beforeAddCommand: (event: any, args: any) => {
-        if (args.options?.ignoreHistory) return false
+  try {
+    if (graph.value && !pluginsReady) {
+      graph.value.use(
+        new Transform({
+          resizing: {
+            enabled: !readonly.value,
+            allowReverse: false
+          }
+        })
+      )
+      graph.value.use(
+        new Selection({
+          enabled: !readonly.value,
+          multiple: true,
+          rubberband: true,
+          movable: true,
+          showNodeSelectionBox: true,
+          modifiers: ['shift'],
+          // 连线不进入选中态，避免 toFront 后挡住其他节点/连线点击
+          filter: (cell) => cell.isNode()
+        })
+      )
+      graph.value.use(
+        new History({
+          enabled: !readonly.value,
+          beforeAddCommand: (event: any, args: any) => {
+            if (args.options?.ignoreHistory) return false
 
-        const ignoreKeys = ['tools', 'ports']
-        if (ignoreKeys.includes(args.key)) return false
-      }
-    })
-  )
-  graph.value?.cleanHistory()
-  dnd.value = new Dnd({
-    target: graph.value,
-    validateNode: (node: Node, options) => {
-      return !readonly.value
+            const ignoreKeys = ['tools', 'ports']
+            if (ignoreKeys.includes(args.key)) return false
+          }
+        })
+      )
+      dnd.value = new Dnd({
+        target: graph.value,
+        validateNode: (node: Node, options) => {
+          return !readonly.value
+        }
+      })
+      pluginsReady = true
     }
-  })
-  isReady.value = true
+    graph.value?.cleanHistory()
+  } catch (e) {
+    console.error('WorkflowEditor graphReady error:', e)
+  } finally {
+    isReady.value = true
+  }
 }
 
 function itemDrop(item: any, ev: any) {
@@ -501,7 +560,7 @@ watch(
   }
 )
 
-defineExpose({ init, workflowJson, isNew, saveWorkflowJSON, handelReplayViewer, highlightCell, graph, dim })
+defineExpose({ init, workflowJson, isNew, updateStatus, saveWorkflowJSON, handelReplayViewer, highlightCell, graph, dim })
 </script>
 
 <template>
