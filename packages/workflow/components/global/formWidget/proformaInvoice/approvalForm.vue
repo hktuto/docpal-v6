@@ -104,11 +104,8 @@ const formModel = reactive<{
   lines: []
 })
 
-const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
+const { tableConfig, tableEvent, tableRef } = useVxeTable({
   id: 'proformaInvoiceApprovalForm',
-  api: () => {
-    return formModel.lines
-  },
   columns: [
     {
       field: 'lineNo',
@@ -164,17 +161,27 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   zoom: false,
   refresh: false,
   customeToolBar: false,
-  virtualScroll: true,
+  virtualScroll: false,
   remoteSort: false,
   remoteFilter: false,
   saveColumnOrder: false,
   selectChangeHander: (_selectedRows: any[]) => {},
-  bodyActions: []
+  bodyActions: [],
+  optionalConfig: {
+    pagerConfig: { enabled: false }
+  }
 })
 
-async function init() {
-  console.log(123, formData)
+function applyLines(lines: unknown) {
+  const list = Array.isArray(lines) ? lines.map((row) => ({ ...row })) : []
+  formModel.lines = list
+  tableConfig.data = list
+  nextTick(() => {
+    tableRef.value?.reloadData?.(list)
+  })
+}
 
+async function init() {
   // 頁面Data
   formModel.pi_number = formData.pi_number
   formModel.status = formData.status
@@ -195,15 +202,13 @@ async function init() {
   formModel.pi_remarks = formData.pi_remarks
   formModel.submitted_by = formData.submitted_by
   formModel.submitted_date = formData.submitted_date
-  formModel.lines = formData.lines
+  applyLines(formData.lines)
 
   // 提交需要的Data
   formModel.customerId = formData.customerId
   formModel.companyTitle = formData.companyTitle
   formModel.organizationId = formData.organizationId
   formModel.initialPickupLocationId = formData.initialPickupLocationId
-
-  reload()
 }
 
 watch(
@@ -212,7 +217,7 @@ watch(
     if (!value) return
     init()
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 )
 
 const invoiceHeaderOption = ref<any[]>([

@@ -38,7 +38,7 @@ const formModel = reactive<{
   overdue_debt: 'Y' | 'N'
   pi_remarks: string
   submitted_by: string
-  submitted_date: number
+  submitted_date: string
   reject_reason: string
   approver: string
   approval_date: string
@@ -97,7 +97,7 @@ const formModel = reactive<{
   overdue_debt: 'Y',
   pi_remarks: '',
   submitted_by: '',
-  submitted_date: 0,
+  submitted_date: '',
   reject_reason: '',
   approver: '',
   approval_date: '',
