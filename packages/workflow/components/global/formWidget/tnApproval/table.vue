@@ -55,7 +55,12 @@ const rules = {
 const shipmentNumberRequiredMessage = t('render.hint.fieldRequired', { name: t('transferNoteApproval.shipmentNumber') })
 
 function isShipmentNumberRequired(row: any) {
-  return row?.git_stk === 'Y' && String(row?.part_number ?? '').toLowerCase().includes('ichaus')
+  return (
+    row?.git_stk === 'Y' &&
+    String(row?.part_number ?? '')
+      .toLowerCase()
+      .includes('ichaus')
+  )
 }
 
 function getShipmentNumberRules(row: any) {
@@ -683,7 +688,7 @@ defineExpose({ getFormData })
   </el-row>
 
   <el-divider content-position="left">{{ t('transferNoteApproval.searchResults') }}</el-divider>
-  <div style="height: 79vh">
+  <div class="table-container">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="toolbar-selected">
@@ -798,6 +803,13 @@ defineExpose({ getFormData })
     flex: 1;
     margin-bottom: 0;
   }
+}
+
+.table-container {
+  min-height: 63vh;
+  max-height: 63vh;
+  overflow: auto;
+  margin-block-end: -20px;
 }
 
 .toolbar-selected {
