@@ -4983,6 +4983,12 @@
     "shippingConfirmSyncSaved": "已保存",
     "shippingConfirmSyncNotStarted": "未開始",
     "shippingConfirmUnsavedChanges": "目前有未保存的人工修改。",
+    "shippingConfirmValidations": "校驗結果",
+    "shippingConfirmNoValidations": "暫無校驗結果。",
+    "shippingConfirmIssuesTitle": "問題明細",
+    "shippingConfirmSourceValue": "數據源值",
+    "shippingConfirmOcrValue": "OCR 識別值",
+    "shippingConfirmUnknownStatus": "未通過",
     "poVerifyDescription": "核對 OCR/人工修訂的明細行，並對照客戶料號進行核驗。",
     "customerPoDetails": "客戶 PO 詳情",
     "customerPoNo": "客戶 PO #",
@@ -5526,5 +5532,19 @@
     "pendingAmount": "待出貨金額",
     "search": "查詢",
     "reset": "重置"
+  },
+  "shippingConfirm": {
+    "rules": {
+      "upload_date_not_future": {
+        "pass": "上傳日期未晚於今天",
+        "diff": "上傳日期不能晚於今天",
+        "missing": "未識別到上傳日期 / Ship Confirm Date"
+      },
+      "invoice_date_within_4_months": {
+        "pass": "發票日期在四個月內",
+        "diff": "發票日期已超過 4 個月",
+        "missing": "缺少發票日期，無法校驗是否超過 4 個月"
+      }
+    }
   }
 }

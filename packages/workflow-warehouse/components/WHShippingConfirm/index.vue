@@ -16,7 +16,6 @@ const {
   requestStatus,
   saveManualEdit,
   saving,
-  summary,
   validateForSubmit,
   buildSubmitPayload,
   refreshResult
@@ -54,20 +53,6 @@ defineExpose({ getFormData })
 
 <template>
   <div class="shipping-confirm">
-    <div class="header">
-      <div class="header-copy">
-        <h3 class="title">{{ $t('workflowWarehouse.shippingConfirmTitle') }}</h3>
-        <small class="description">{{ $t('workflowWarehouse.shippingConfirmDescription') }}</small>
-      </div>
-      <el-tag size="large" :type="statusTagType">{{ statusLabel }}</el-tag>
-    </div>
-
-    <div class="meta-row">
-      <el-tag v-if="displayPiNum" effect="light" round>{{ displayPiNum }}</el-tag>
-      <span v-if="previewFileName" class="meta-file">{{ previewFileName }}</span>
-      <span v-if="outRequestNo" class="meta-request"> {{ $t('workflowWarehouse.shippingConfirmRequestNo') }}: {{ outRequestNo }} </span>
-    </div>
-
     <div v-if="!outRequestNo" class="missing-request">
       <div class="missing-request__card">
         <h4 class="missing-request__title">{{ $t('workflowWarehouse.shippingConfirmMissingRequestNo') }}</h4>
@@ -88,6 +73,9 @@ defineExpose({ getFormData })
         </WorkflowPreview>
       </el-splitter-panel>
       <el-splitter-panel class="mg-left side-panel" size="32%" :collapsible="isCollapsible" :min="240">
+        <div v-if="requestStatus !== 'completed'" class="status-line">
+          <el-tag size="large" :type="statusTagType">{{ statusLabel }}</el-tag>
+        </div>
         <WHShippingConfirmDetailCard />
         <WHShippingConfirmDetectedCard class="mg-top" />
         <div v-if="!disabled" class="action-bar mg-top">
@@ -98,7 +86,6 @@ defineExpose({ getFormData })
             {{ $t('workflowWarehouse.shippingConfirmSaveDraft') }}
           </el-button>
         </div>
-        <p class="action-hint">{{ summary }}</p>
       </el-splitter-panel>
     </el-splitter>
   </div>
@@ -112,43 +99,10 @@ defineExpose({ getFormData })
   overflow: auto;
 }
 
-.header {
+.status-line {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--app-space-m);
+  justify-content: flex-end;
   margin-bottom: var(--app-space-s);
-}
-
-.header-copy {
-  min-width: 0;
-}
-
-.title {
-  margin: 0;
-}
-
-.description {
-  color: var(--el-text-color-secondary);
-}
-
-.meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--app-space-s);
-  margin-bottom: var(--app-space-s);
-  color: var(--el-text-color-secondary);
-  font-size: 0.875rem;
-}
-
-.meta-file {
-  color: var(--el-color-primary);
-  font-weight: 600;
-}
-
-.meta-request {
-  word-break: break-all;
 }
 
 .missing-request {
@@ -197,13 +151,6 @@ defineExpose({ getFormData })
   display: flex;
   flex-wrap: wrap;
   gap: var(--app-space-s);
-}
-
-.action-hint {
-  margin: var(--app-space-s) 0 0;
-  color: var(--el-text-color-secondary);
-  font-size: 0.8125rem;
-  line-height: 1.5;
 }
 
 :deep(.el-splitter-bar__dragger-horizontal) {

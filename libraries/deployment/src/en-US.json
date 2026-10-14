@@ -4986,6 +4986,12 @@
     "shippingConfirmSyncSaved": "Saved",
     "shippingConfirmSyncNotStarted": "Not started",
     "shippingConfirmUnsavedChanges": "There are unsaved manual changes.",
+    "shippingConfirmValidations": "Validations",
+    "shippingConfirmNoValidations": "No validations available.",
+    "shippingConfirmIssuesTitle": "Issue Details",
+    "shippingConfirmSourceValue": "Source value",
+    "shippingConfirmOcrValue": "OCR value",
+    "shippingConfirmUnknownStatus": "Failed",
     "poVerifyDescription": "Review OCR/person revised lines, verify against customer PNs.",
     "customerPoDetails": "Customer PO Details",
     "customerPoNo": "Customer PO #",
@@ -5528,5 +5534,19 @@
     "pendingAmount": "Pending Amount",
     "search": "Search",
     "reset": "Reset"
+  },
+  "shippingConfirm": {
+    "rules": {
+      "upload_date_not_future": {
+        "pass": "Upload date is not later than today",
+        "diff": "Upload date cannot be later than today",
+        "missing": "Upload date / Ship Confirm Date was not recognized"
+      },
+      "invoice_date_within_4_months": {
+        "pass": "Invoice date is within four months",
+        "diff": "Invoice date is more than four months old",
+        "missing": "Invoice date is missing; unable to validate the four-month window"
+      }
+    }
   }
 }
