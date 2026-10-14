@@ -113,7 +113,7 @@ async function init() {
     const user = JSON.parse(useLocalStorage)
 
     if (user.org.length > 0) {
-      userInfo.value.office = user.org[0].organizationCode
+      userInfo.value.office = user.org[0].operatingName
       userInfo.value.org_id = user.org[0].operatingId
       await getInventory(userInfo.value.office)
     }
@@ -564,6 +564,15 @@ function validateSelectedShipmentNumbers() {
   return false
 }
 
+const officeToCMapping = ref({
+  SZ: 'NCI',
+  SH: 'NCI',
+  GZ: 'NCI',
+  BJ: 'NCI',
+  HK: 'NCI',
+  TH: 'NTH'
+})
+
 async function getFormData(needValidation = true) {
   if (!needValidation) return {}
 
@@ -610,13 +619,16 @@ async function getFormData(needValidation = true) {
     throw new Error('')
   }
 
+  const key = officeToCMapping.value[userInfo.value.office as keyof typeof officeToCMapping.value] ?? 'NCI'
   const result = {
     batch_id: batch_id.value,
     org_id: userInfo.value.org_id,
     data_list: resultList,
     remark: remark.value,
     email_create_date: dayjs().format('YYYY年MM月DD日'),
-    email_planned_date: dayjs(toPlannedDate.value).format('YYYY年MM月DD日')
+    email_planned_date: dayjs(toPlannedDate.value).format('YYYY年MM月DD日'),
+    shipping_clerk_email: `TNApproval_-_EmailNoti_-_ShippingClerk_-_${key}`,
+    shipping_supervisor_email: `TNApproval_-_EmailNoti_-_ShippingSupervisor_-_${key}`
   }
   if (!needValidation) return result
 
