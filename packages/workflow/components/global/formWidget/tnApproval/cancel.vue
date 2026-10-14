@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
 import { v7 as uuidv7 } from 'uuid'
+import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -299,7 +300,14 @@ watch(
   { immediate: true }
 )
 
-async function getFormData(needValidation = true) {
+async function getFormData(needValidation = true, buttonName: string) {
+  if (buttonName === 'is_approval') {
+    const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
+      confirmButtonText: t('common_submit')
+    })
+    return { reject_reason: value }
+  }
+
   let result = {}
   if (!isApproval.value) {
     result = {
@@ -433,8 +441,8 @@ defineExpose({ getFormData })
   margin-block-end: -20px;
 
   &--approval {
-    min-height: 50vh;
-    max-height: 50vh;
+    min-height: 59vh;
+    max-height: 59vh;
   }
 
   :deep(.vxe-body--row.row--cancel-highlight) {
