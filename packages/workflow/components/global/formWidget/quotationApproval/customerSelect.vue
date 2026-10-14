@@ -35,8 +35,8 @@ const rules = {
     { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.telephoneNumber') }), trigger: 'blur' },
     {
       validator: (_rule, value, callback) => {
-        if (!/^[1-9]\d*$/.test(value)) {
-          callback(new Error(t('dpTip.enterNumber')))
+        if (!/^[0-9]+(?:-[0-9]+)*$/.test(value)) {
+          callback(new Error(t('dpTip.formatError')))
           return
         }
         callback()
