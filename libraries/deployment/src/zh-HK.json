@@ -4982,7 +4982,20 @@
     "shippingConfirmSyncPendingDesign": "待後續設計",
     "shippingConfirmSyncSaved": "已保存",
     "shippingConfirmSyncNotStarted": "未開始",
-    "shippingConfirmUnsavedChanges": "目前有未保存的人工修改。"
+    "shippingConfirmUnsavedChanges": "目前有未保存的人工修改。",
+    "poVerifyDescription": "核對 OCR/人工修訂的明細行，並對照客戶料號進行核驗。",
+    "customerPoDetails": "客戶 PO 詳情",
+    "customerPoNo": "客戶 PO #",
+    "customer": "客戶",
+    "taxedFlag": "含稅標誌",
+    "customerPartNo": "客戶料號",
+    "requestDate": "需求日期",
+    "piRemark": "PI 備註",
+    "linePoNo": "行 PO #",
+    "selectPo": "請選擇 PO",
+    "pleaseEnterCustomerPoNo": "請輸入客戶 PO 號",
+    "pleaseApprovePo": "⌈{name}⌋ 請先批准該 PO",
+    "pleaseSelectCurrency": "⌈{name}⌋ 請選擇幣種"
   },
   "quotationApproval": {
     "quotation_number": "報價編號",

@@ -4910,7 +4910,20 @@
     "shippingConfirmSyncPendingDesign": "待后续设计",
     "shippingConfirmSyncSaved": "已保存",
     "shippingConfirmSyncNotStarted": "未开始",
-    "shippingConfirmUnsavedChanges": "当前有未保存的人工修改。"
+    "shippingConfirmUnsavedChanges": "当前有未保存的人工修改。",
+    "poVerifyDescription": "核对 OCR/人工修订的明细行，并对照客户料号进行核验。",
+    "customerPoDetails": "客户 PO 详情",
+    "customerPoNo": "客户 PO #",
+    "customer": "客户",
+    "taxedFlag": "含税标志",
+    "customerPartNo": "客户料号",
+    "requestDate": "需求日期",
+    "piRemark": "PI 备注",
+    "linePoNo": "行 PO #",
+    "selectPo": "请选择 PO",
+    "pleaseEnterCustomerPoNo": "请输入客户 PO 号",
+    "pleaseApprovePo": "⌈{name}⌋ 请先批准该 PO",
+    "pleaseSelectCurrency": "⌈{name}⌋ 请选择币种"
   },
   "quotationApproval": {
     "quotation_number": "报价编号",

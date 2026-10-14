@@ -4985,7 +4985,20 @@
     "shippingConfirmSyncPendingDesign": "Pending design",
     "shippingConfirmSyncSaved": "Saved",
     "shippingConfirmSyncNotStarted": "Not started",
-    "shippingConfirmUnsavedChanges": "There are unsaved manual changes."
+    "shippingConfirmUnsavedChanges": "There are unsaved manual changes.",
+    "poVerifyDescription": "Review OCR/person revised lines, verify against customer PNs.",
+    "customerPoDetails": "Customer PO Details",
+    "customerPoNo": "Customer PO #",
+    "customer": "Customer",
+    "taxedFlag": "Taxed Flag",
+    "customerPartNo": "Customer Part #",
+    "requestDate": "Request Date",
+    "piRemark": "PI Remark",
+    "linePoNo": "Line PO #",
+    "selectPo": "Select a PO",
+    "pleaseEnterCustomerPoNo": "Please enter the customer PO number",
+    "pleaseApprovePo": "⌈{name}⌋ Please approve the PO first",
+    "pleaseSelectCurrency": "⌈{name}⌋ Please select the currency"
   },
   "quotationApproval": {
     "quotation_number": "Quotation Number",
