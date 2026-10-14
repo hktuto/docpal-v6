@@ -21,6 +21,7 @@
       style="width: 100%"
       type="primary"
       :loading="detecting"
+      :disabled="disabled"
       tabindex="0"
       :aria-label="actionText || $t('workflowWarehouse.reDetect')"
       @click="emit('detect')"
@@ -38,6 +39,7 @@ withDefaults(
   defineProps<{
     issues?: any[]
     detecting?: boolean
+    disabled?: boolean
     title?: string
     subtitle?: string
     emptyText?: string
@@ -47,6 +49,7 @@ withDefaults(
   {
     issues: () => [],
     detecting: false,
+    disabled: false,
     title: '',
     subtitle: '',
     emptyText: '',

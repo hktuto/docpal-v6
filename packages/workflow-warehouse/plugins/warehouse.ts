@@ -2,6 +2,7 @@ import WHASupplyListVerify from '../components/WHASupplyList/Verify/index.vue'
 import WHInvoiceSupplyList from '../components/WHInvoice/supplyList/index.vue'
 import WHInvoiceShip from '../components/WHInvoice/ship/index.vue'
 import WHShippingConfirm from '../components/WHShippingConfirm/index.vue'
+import WHPOList from '../components/WHPOList/index.vue'
 import WHUserSwitcherPlatform from '../components/WH/userSwitcherPlatform.vue'
 export default defineNuxtPlugin((nuxtApp) => {
   const { formRenderSlots, formStartHandle } = useWorkflow()
@@ -10,6 +11,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   formRenderSlots.value.push({ name: 'WHInvoiceSupplyList', component: WHInvoiceSupplyList })
   formRenderSlots.value.push({ name: 'WHInvoiceShip', component: WHInvoiceShip })
   formRenderSlots.value.push({ name: 'WHShippingConfirm', component: WHShippingConfirm })
+  formRenderSlots.value.push({ name: 'WHPOList', component: WHPOList })
 
   globalUserPopoverSlots.value.push({
     name: 'user-switcher',
@@ -17,5 +19,4 @@ export default defineNuxtPlugin((nuxtApp) => {
     component: WHUserSwitcherPlatform,
     show: true,
   })
-  console.log("globalUserPopoverSlots", globalUserPopoverSlots.value)
 })

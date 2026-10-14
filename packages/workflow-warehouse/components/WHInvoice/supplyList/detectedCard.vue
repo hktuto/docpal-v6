@@ -6,7 +6,7 @@ import { isGitLineMatched } from '../../../utils/gitInvoice'
 
 const unmatchedList = ref<any[]>([])
 const { t } = useI18n()
-const { selectedInvoice } = useInvoiceVerifyInject()
+const { selectedInvoice, editDisabled } = useInvoiceVerifyInject()
 const {
   matchingLoading,
   runMatchingAndReload,
@@ -72,7 +72,7 @@ function validateInvoiceRequiredFields() {
 }
 
 async function handleDetect() {
-  if (matchingLoading.value || !selectedInvoice.value?.id) return
+  if (matchingLoading.value || editDisabled.value || !selectedInvoice.value?.id) return
   if (!validateInvoiceRequiredFields()) return
   try {
     await runMatchingAndReload()
@@ -102,6 +102,7 @@ defineExpose({ handleDetect })
   <WHDetectedCard
     :issues="unmatchedList"
     :detecting="matchingLoading"
+    :disabled="editDisabled"
     :action-text="$t('workflowWarehouse.gitMatching')"
     @detect="handleDetect"
   >

@@ -31,7 +31,19 @@ const rules = {
   customerName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerName') }), trigger: 'change' }],
   customerEnglishName: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerEngName') }), trigger: 'change' }],
   customer_contact: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerContact') }), trigger: 'blur' }],
-  telephone_number: [{ required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.telephoneNumber') }), trigger: 'blur' }],
+  telephone_number: [
+    { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.telephoneNumber') }), trigger: 'blur' },
+    {
+      validator: (_rule, value, callback) => {
+        if (!/^[0-9]+(?:-[0-9]+)*$/.test(value)) {
+          callback(new Error(t('dpTip.formatError')))
+          return
+        }
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ],
   customer_email: [
     { required: true, message: t('render.hint.fieldRequired', { name: t('quotationApproval.customerEmail') }), trigger: 'blur' },
     { type: 'email', message: t('user_emailFormatError'), trigger: 'blur' }
@@ -138,6 +150,7 @@ async function numberChange(value: string) {
     formModel.customerEnglishName = ''
     formModel.customer_location = ''
   }
+  await getCheckCustomer(value)
 }
 
 async function nameChange(value: string) {
@@ -156,6 +169,7 @@ async function nameChange(value: string) {
     formModel.customerEnglishName = ''
     formModel.customer_location = ''
   }
+  await getCheckCustomer(value)
 }
 
 async function enNameChange(value: string) {
@@ -173,6 +187,20 @@ async function enNameChange(value: string) {
     formModel.customer_eng_name = value
     formModel.customerName = ''
     formModel.customer_location = ''
+  }
+  await getCheckCustomer(value)
+}
+
+const orgId = ref<number>()
+async function getCheckCustomer(customer_number: string) {
+  const { new_customer, over_due, credit_total_amt } = await clientApi.instance
+    .get(`/apis/v1/ms/oracle/customers/status?accountNumber=${customer_number}&orgId=${orgId.value}`)
+    .then((r) => r.data)
+
+  formModel.check_customer = new_customer === 1 ? 'New Customer' : 'Existing Customer'
+
+  if (over_due === 1) {
+    formModel.check_customer = 'Overdraft Customer'
   }
 }
 
@@ -194,6 +222,7 @@ function init() {
     customerName: formData.customer_number ?? '',
     customerEnglishName: formData.customer_number ?? ''
   })
+  orgId.value = formData.org_id
 }
 
 async function getFormData(needValidation = true) {
@@ -224,9 +253,10 @@ defineExpose({ getFormData })
     <el-row :gutter="20">
       <el-col :span="6">
         <el-form-item :label="t('quotationApproval.checkCustomer')" prop="check_customer">
-          <el-select v-model="formModel.check_customer" :placeholder="t('quotationApproval.selectOptionRequired')" disabled>
+          <el-select v-model="formModel.check_customer" disabled>
             <el-option :label="t('quotationApproval.newCustomer')" value="New Customer" />
             <el-option :label="t('quotationApproval.existingCustomer')" value="Existing Customer" />
+            <el-option :label="t('quotationApproval.overdraftCustomer')" value="Overdraft Customer" />
           </el-select>
         </el-form-item>
       </el-col>
@@ -241,7 +271,7 @@ defineExpose({ getFormData })
             clearable
             :options="customerNumberOptions"
             :loading="loading"
-            :placeholder="t('quotationApproval.selectOptionRequired')"
+            :placeholder="t('common_selectedIsRequiredMsg')"
             @change="numberChange"
           />
         </el-form-item>
@@ -258,7 +288,7 @@ defineExpose({ getFormData })
             clearable
             :options="customerNameOptions"
             :loading="loading"
-            :placeholder="t('quotationApproval.selectOptionRequired')"
+            :placeholder="t('common_selectedIsRequiredMsg')"
             @change="nameChange"
           />
         </el-form-item>
@@ -275,7 +305,7 @@ defineExpose({ getFormData })
             clearable
             :options="customerEnglishNameOptions"
             :loading="loading"
-            :placeholder="t('quotationApproval.selectOptionRequired')"
+            :placeholder="t('common_selectedIsRequiredMsg')"
             @change="enNameChange"
           />
         </el-form-item>
@@ -302,11 +332,7 @@ defineExpose({ getFormData })
       </el-col>
       <el-col :span="6">
         <el-form-item :label="t('quotationApproval.customerBackground')" prop="customer_background">
-          <el-select
-            v-model="formModel.customer_background"
-            :placeholder="t('quotationApproval.selectOptionRequired')"
-            @change="handleCustomerBackgroundChange"
-          >
+          <el-select v-model="formModel.customer_background" :placeholder="t('common_selectedIsRequiredMsg')" @change="handleCustomerBackgroundChange">
             <el-option value="OEM">OEM</el-option>
             <el-option value="ODM">ODM</el-option>
             <el-option value="Trading">Trading</el-option>

@@ -5,7 +5,6 @@ import { createError } from '#imports'
 const { node } = defineProps<{
   node: Node
 }>()
-const emits = defineEmits(['update'])
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
@@ -28,7 +27,7 @@ const buttonSetting = ref<{
   booleanButton: buttonItem[]
 }>({
   showSubmitButton: true,
-  submitButtonLabel: 'Submit',
+  submitButtonLabel: 'common_submit',
   showSaveDraft: true,
   saveDraftLabel: 'Save Draft',
   booleanButton: []

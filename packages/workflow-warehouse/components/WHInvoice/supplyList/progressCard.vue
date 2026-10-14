@@ -3,7 +3,7 @@
     :ok="statusCounts.ok"
     :all="statusCounts.all"
     :loading="loading"
-    :disabled="disabled || !selectedInvoice"
+    :disabled="editDisabled || !selectedInvoice"
     :show-bar="false"
     :subtitle="$t('workflowWarehouse.matchedProgress', { ok: statusCounts.ok, all: statusCounts.all })"
     :action-text="$t('workflowWarehouse.approveAndPush')"
@@ -17,12 +17,12 @@ import { useInvoiceVerifyInject } from '../../../composables/useInvoiceVerify'
 import { useInvoiceVerifyTableInject } from '../../../composables/useInvoiceVerifyTable'
 
 const { t } = useI18n()
-const { selectedInvoice, disabled, updateInvoiceData } = useInvoiceVerifyInject()
+const { selectedInvoice, editDisabled, updateInvoiceData } = useInvoiceVerifyInject()
 const { statusCounts } = useInvoiceVerifyTableInject()
 const loading = ref(false)
 
 async function handleApprove() {
-  if (!selectedInvoice.value?.id) return
+  if (!selectedInvoice.value?.id || editDisabled.value) return
   loading.value = true
   try {
     await updateInvoiceData({ submitted: true })

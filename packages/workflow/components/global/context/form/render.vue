@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { newClientApi } from 'api'
-
 const props = defineProps<{
   options?: Object
   taskDetail?: any
@@ -140,7 +138,7 @@ function handleTypeIds(properties: any) {
 
 const formRenderSlotsRef = ref<any>({})
 
-async function getFormData(needValidation = true, onlyWritable = false) {
+async function getFormData(needValidation = true, onlyWritable = false, buttonName: string) {
   try {
     let formData
     if (!needValidation) {
@@ -158,21 +156,25 @@ async function getFormData(needValidation = true, onlyWritable = false) {
     }
     if (!formData) return false
     let resultFormData = onlyWritable ? writableDataDeArray(deepCopy(formData)) : dataDeArray(deepCopy(formData))
-    const slotData = await getSlotData(formRenderSlotsRef.value, needValidation)
+    const slotData = await getSlotData(formRenderSlotsRef.value, needValidation, buttonName)
     return {
       ...resultFormData,
       ...slotData
     }
   } catch (error: any) {
-    throw error instanceof Error ? error : new Error(error?.message || String(error))
+    const messages = Object.keys(error).flatMap((key) => {
+      const arr = error[key]
+      return Array.isArray(arr) ? arr.map((x) => x.message) : []
+    })
+    throw error instanceof Error ? error : new Error(error?.message || messages)
   }
 }
 
-async function getSlotData(refList: any, needValidation: boolean) {
+async function getSlotData(refList: any, needValidation: boolean, buttonName: string) {
   let pList: any = []
   Object.keys(refList).forEach((key) => {
     if (refList[key] && refList[key].getFormData) {
-      pList.push(refList[key].getFormData(needValidation))
+      pList.push(refList[key].getFormData(needValidation, buttonName))
     }
   })
   const data = await Promise.all(pList)
@@ -261,8 +263,9 @@ function handlePreviewFileInit(fileId: string) {
 
 async function updateData(newData: any) {
   const _data = await handleData(newData)
-  state.formData = { ..._data }
-  FormRendererRef.value.setFormData(_data)
+  Object.assign(state.formData, _data)
+  FormRendererRef.value?.setFormData(_data)
+  await nextTick()
 }
 
 function formDataChange(newFormData: any) {

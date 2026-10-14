@@ -2,13 +2,14 @@
 import { clientApi, newClientApi } from 'api'
 import { MenuRouterKey } from '@packages/base/utils/menuType'
 import { v7 as uuidv7 } from 'uuid'
+import { ElMessageBox } from 'element-plus'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
   options: any
 }>()
-
+const { t } = useI18n()
 const formRef = ref()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -57,7 +58,6 @@ const formModel = ref<{
   brand: '',
   infoList: []
 })
-const data = toRef(formModel.value, 'infoList')
 const seriesList = ref<any[]>([])
 const showDetails = ref<boolean[]>([])
 const costCurrencyOptions = ref([
@@ -122,30 +122,7 @@ function getMoqRules(itemIndex: number, tierIndex: number) {
 }
 
 function getDescendingPriceRules(itemIndex: number, tierIndex: number, field: DescendingPriceField, message: string) {
-  return [
-    { required: true, type: 'number', message: `Please input ${descendingPriceFieldLabels[field]}`, trigger: 'change' }
-    // {
-    //   validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
-    //     const list = formModel.value.infoList[itemIndex]?.target_price_list
-    //     if (!list || list[tierIndex]?.status === 'D') {
-    //       callback()
-    //       return
-    //     }
-    //     const prevIndex = getPrevActiveTierIndex(list, tierIndex)
-    //     if (prevIndex === null) {
-    //       callback()
-    //       return
-    //     }
-    //     const prevValue = list[prevIndex]?.[field]
-    //     if (prevValue != null && new Decimal(value).gte(prevValue)) {
-    //       callback(new Error(message))
-    //       return
-    //     }
-    //     callback()
-    //   },
-    //   trigger: 'change'
-    // }
-  ]
+  return [{ required: true, type: 'number', message: `Please input ${descendingPriceFieldLabels[field]}`, trigger: 'change' }]
 }
 
 function handleTierFieldChange(itemIndex: number, tierIndex: number, field: 'moq' | DescendingPriceField) {
@@ -325,7 +302,7 @@ async function init() {
       old_sales_price_noTax: item.old_sales_price,
       part_number: item.part_number,
       product_application: item.product_application,
-      quantity_machine: 0,
+      quantity_machine: item.quantity_per_machine,
       quotation_number: formData.quotation_number,
       remarks: '',
       sample_id: item.line_id,
@@ -345,19 +322,38 @@ async function init() {
   }
 }
 
-async function getFormData(needValidation = true) {
+async function getFormData(needValidation = true, buttonName: string) {
+  if (buttonName !== undefined && buttonName === 'is_pc_approval') {
+    const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
+      confirmButtonText: t('common_submit')
+    })
+    return { reject_comment: value }
+  }
+
   const newTargetPriceList: any[] = []
-  const newSetSampleList = formModel.value.infoList.map((item) => {
+  const newSetSampleList = formModel.value.infoList.map((item: SampleInfoItem) => {
     newTargetPriceList.push(...item.target_price_list)
     const newItem = deepCopy(item)
     delete newItem.target_price_list
     return newItem
   })
 
+  const confirmsEmailList = formModel.value.infoList.flatMap((item: SampleInfoItem) =>
+    item.target_price_list.map((tpl: TargetPriceItem) => ({
+      brand: item.brand,
+      partNumber: item.part_number,
+      series: item.series,
+      currency: formData.currency,
+      moq: tpl.moq,
+      UniPriceNoTax: tpl.unit_price_no_tax
+    }))
+  )
+
   const result = {
     sample_info_list: formModel.value.infoList,
     set_sample_list: newSetSampleList,
-    target_price_list: newTargetPriceList
+    target_price_list: newTargetPriceList,
+    confirms_email_list: confirmsEmailList
   }
   if (!needValidation) return result
   await formRef.value?.validate()
@@ -418,6 +414,7 @@ defineExpose({ getFormData })
             </el-form-item>
             <el-form-item :label="$t('quotationApproval.series')" v-if="formModel.brand === 'KOA'">
               <el-select-v2
+                :disabled="disabled"
                 v-model="item.series"
                 filterable
                 remote
@@ -432,13 +429,13 @@ defineExpose({ getFormData })
 
           <el-col :span="8">
             <el-form-item :label="$t('quotationApproval.priceType')" :prop="`infoList.${index}.price_type`" required :rules="rules.price_type">
-              <el-select v-model="item.price_type" class="full-width-input">
+              <el-select v-model="item.price_type" class="full-width-input" :disabled="disabled">
                 <el-option value="STD" label="STD" />
                 <el-option value="SP" label="SP" />
               </el-select>
             </el-form-item>
             <el-form-item :label="$t('quotationApproval.leadTime')">
-              <el-input-number v-model="item.lead_time" :min="0" :step="1" step-strictly controls-position="right">
+              <el-input-number v-model="item.lead_time" :min="0" :step="1" step-strictly controls-position="right" :disabled="disabled">
                 <template #suffix>
                   <span>{{ $t('common_day') }}</span>
                 </template>
@@ -451,124 +448,124 @@ defineExpose({ getFormData })
               <el-input v-model="formData.currency" disabled />
             </el-form-item>
             <el-form-item :label="$t('quotationApproval.remarks')" prop="remarks">
-              <el-input v-model="item.remarks" type="textarea" autosize />
+              <el-input v-model="item.remarks" type="textarea" autosize :disabled="disabled" />
             </el-form-item>
           </el-col>
 
-          <el-col :span="24">
+          <el-col :span="24" class="targetPrice-item-card-col">
             <div class="targetPrice-item-card">
               <div class="targetPrice-item-card__header">
                 <span>{{ $t('quotationApproval.targetPriceHint') }}</span>
-                <el-button type="primary" @click="openDialog(index, item)">{{ $t('quotationApproval.retrieveHistoricalPrices') }}</el-button>
+                <el-button :disabled="disabled" type="primary" @click="openDialog(index, item)">{{
+                  $t('quotationApproval.retrieveHistoricalPrices')
+                }}</el-button>
               </div>
               <el-divider />
-              <el-row class="targetPrice-item-card__table-header">
-                <el-col :span="1">{{ $t('quotationApproval.tier') }}</el-col>
-                <el-col :span="2">{{ $t('quotationApproval.costCurrency') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.exchangeRate') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.moq') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.targetPrice') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.dataSource') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.unitCost') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.unitPriceNoTax') }}</el-col>
-                <el-col :span="3">{{ $t('quotationApproval.profit') }}</el-col>
-                <!--                <el-col :span="2">操作 Actions</el-col>-->
-              </el-row>
-              <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
-                <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
-                  <!--                  <template v-if="targetPriceItem.status !== 'D'">-->
-                  <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
-                  <el-col :span="2">
-                    <el-select v-model="targetPriceItem.cost_currency" style="width: 90%" @change="handelCostCurrency(targetPriceItem)">
-                      <el-option v-for="currency in costCurrencyOptions" :key="currency.value" :label="currency.label" :value="currency.value" />
-                    </el-select>
-                  </el-col>
-                  <el-col :span="3">
-                    <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
-                  </el-col>
-                  <el-col :span="3">
-                    <el-form-item
-                      :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
-                      :rules="getMoqRules(index, targetPriceIndex)"
-                      class="target-price-form-item"
-                    >
-                      <el-input-number
-                        style="width: 90%"
-                        v-model="targetPriceItem.moq"
-                        controls-position="right"
-                        :min="1"
-                        :step="1"
-                        step-strictly
-                        @change="handleTierFieldChange(index, targetPriceIndex, 'moq')"
-                      />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="3">
-                    <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled>
-                      <template #suffix>
-                        <span>{{ formData.currency }}</span>
-                      </template>
-                    </el-input-number>
-                  </el-col>
-                  <el-col :span="3">
-                    <el-input v-model="targetPriceItem.data_source" disabled style="width: 90%" />
-                  </el-col>
-                  <el-col :span="3">
-                    <el-form-item
-                      :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_cost`"
-                      :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_cost', 'Unit cost must be lower than the previous tier')"
-                      class="target-price-form-item"
-                    >
-                      <el-input-number
-                        style="width: 90%"
-                        v-model="targetPriceItem.unit_cost"
-                        controls-position="right"
-                        :min="0.000001"
-                        :step="0.000001"
-                        step-strictly
-                        @change="handleUnitCostChange(index, targetPriceIndex, targetPriceItem)"
-                      >
-                        <template #suffix>
-                          <span>{{ formData.currency }}</span>
-                        </template>
-                      </el-input-number>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="3">
-                    <el-form-item
-                      :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_price_no_tax`"
-                      :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_price_no_tax', 'Unit price must be lower than the previous tier')"
-                      class="target-price-form-item"
-                    >
-                      <el-input-number
-                        style="width: 90%"
-                        v-model="targetPriceItem.unit_price_no_tax"
-                        controls-position="right"
-                        :min="targetPriceItem.unit_cost"
-                        :step="0.000001"
-                        step-strictly
-                        @change="handleUnitPriceNoTaxChange(index, targetPriceIndex, targetPriceItem)"
-                      >
-                        <template #suffix>
-                          <span>{{ formData.currency }}</span>
-                        </template>
-                      </el-input-number>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="3">
-                    <el-input-number style="width: 90%" v-model="targetPriceItem.profit" disabled>
-                      <template #suffix>
-                        <span>%</span>
-                      </template>
-                    </el-input-number>
-                  </el-col>
-                  <!--                    <el-col :span="2">-->
-                  <!--                      <div class="targetPrice-item-card__actions" v-if="targetPriceIndex !== 0">-->
-                  <!--                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />-->
-                  <!--                      </div>-->
-                  <!--                    </el-col>-->
-                  <!--                  </template>-->
+              <div class="targetPrice-item-card__scroll">
+                <el-row class="targetPrice-item-card__table-header">
+                  <el-col :span="1">{{ $t('quotationApproval.tier') }}</el-col>
+                  <el-col :span="2">{{ $t('quotationApproval.costCurrency') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.exchangeRate') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.moq') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.targetPrice') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.dataSource') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.unitCost') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.unitPriceNoTax') }}</el-col>
+                  <el-col :span="3">{{ $t('quotationApproval.profit') }}</el-col>
                 </el-row>
+                <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
+                  <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
+                    <!--                  <template v-if="targetPriceItem.status !== 'D'">-->
+                    <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
+                    <el-col :span="2">
+                      <el-select v-model="targetPriceItem.cost_currency" style="width: 90%" @change="handelCostCurrency(targetPriceItem)" :disabled="disabled">
+                        <el-option v-for="currency in costCurrencyOptions" :key="currency.value" :label="currency.label" :value="currency.value" />
+                      </el-select>
+                    </el-col>
+                    <el-col :span="3">
+                      <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
+                    </el-col>
+                    <el-col :span="3">
+                      <el-form-item
+                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
+                        :rules="getMoqRules(index, targetPriceIndex)"
+                        class="target-price-form-item"
+                      >
+                        <el-input-number
+                          :disabled="disabled"
+                          style="width: 90%"
+                          v-model="targetPriceItem.moq"
+                          controls-position="right"
+                          :min="1"
+                          :step="1"
+                          step-strictly
+                          @change="handleTierFieldChange(index, targetPriceIndex, 'moq')"
+                        />
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="3">
+                      <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled>
+                        <template #suffix>
+                          <span>{{ formData.currency }}</span>
+                        </template>
+                      </el-input-number>
+                    </el-col>
+                    <el-col :span="3">
+                      <el-input v-model="targetPriceItem.data_source" disabled style="width: 90%" />
+                    </el-col>
+                    <el-col :span="3">
+                      <el-form-item
+                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_cost`"
+                        :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_cost', 'Unit cost must be lower than the previous tier')"
+                        class="target-price-form-item"
+                      >
+                        <el-input-number
+                          :disabled="disabled"
+                          style="width: 90%"
+                          v-model="targetPriceItem.unit_cost"
+                          controls-position="right"
+                          :min="0.000001"
+                          :step="0.000001"
+                          step-strictly
+                          @change="handleUnitCostChange(index, targetPriceIndex, targetPriceItem)"
+                        >
+                          <template #suffix>
+                            <span>{{ formData.currency }}</span>
+                          </template>
+                        </el-input-number>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="3">
+                      <el-form-item
+                        :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.unit_price_no_tax`"
+                        :rules="getDescendingPriceRules(index, targetPriceIndex, 'unit_price_no_tax', 'Unit price must be lower than the previous tier')"
+                        class="target-price-form-item"
+                      >
+                        <el-input-number
+                          :disabled="disabled"
+                          style="width: 90%"
+                          v-model="targetPriceItem.unit_price_no_tax"
+                          controls-position="right"
+                          :min="targetPriceItem.unit_cost"
+                          :step="0.000001"
+                          step-strictly
+                          @change="handleUnitPriceNoTaxChange(index, targetPriceIndex, targetPriceItem)"
+                        >
+                          <template #suffix>
+                            <span>{{ formData.currency }}</span>
+                          </template>
+                        </el-input-number>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="3">
+                      <el-input-number style="width: 90%" v-model="targetPriceItem.profit" disabled>
+                        <template #suffix>
+                          <span>%</span>
+                        </template>
+                      </el-input-number>
+                    </el-col>
+                  </el-row>
+                </div>
               </div>
             </div>
           </el-col>
@@ -605,7 +602,11 @@ defineExpose({ getFormData })
               <el-form-item :label="$t('quotationApproval.customerPartNumber')" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item :label="$t('quotationApproval.oldSalesPriceNoTax')" prop="old_sales_price_noTax">
+              <el-form-item
+                v-if="formData.quotation_reason === 'Discount Request'"
+                :label="$t('quotationApproval.oldSalesPriceNoTax')"
+                prop="old_sales_price_noTax"
+              >
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>
@@ -642,11 +643,22 @@ defineExpose({ getFormData })
   }
 }
 
+.targetPrice-item-card-col {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .targetPrice-item-card {
   border: 1px solid var(--app-grey-800);
   border-radius: var(--app-border-radius-m);
   padding: var(--app-space-s);
   margin-top: var(--app-space-s);
+  max-width: 100%;
+  overflow-x: auto;
+
+  &__scroll {
+    min-width: 1360px;
+  }
 
   &__header {
     display: flex;
@@ -678,6 +690,12 @@ defineExpose({ getFormData })
 
     .target-price-form-item {
       margin-bottom: 0;
+    }
+
+    .el-select,
+    .el-input,
+    .el-input-number {
+      min-width: 100px;
     }
 
     &--scrollable {

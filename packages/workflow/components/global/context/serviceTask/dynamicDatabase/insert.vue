@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { newAdminApi, newClientApi } from 'api'
+import { ElMessage } from 'element-plus'
 import type { Node } from '@antv/x6'
 
 const { node } = defineProps<{
   node: Node
 }>()
+const { t } = useI18n()
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }
-const { getVariablesByDisplayTypes } = useVariablesProvide()
+const { variables, getVariablesByDisplayTypes } = useVariablesProvide()
+const ImportDialogRef = ref()
+const ConflictDialogRef = ref()
 const databaseId = ref<string>('')
 const tableId = ref<string>('')
 const dataId = ref<string>('')
@@ -154,6 +158,103 @@ async function changeTable() {
   update()
 }
 
+function handleAutoImport() {
+  ImportDialogRef.value?.handleOpen()
+}
+
+function toVariableId(raw: string) {
+  if (!raw) return ''
+  return raw
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9_]/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '')
+}
+
+function resolveMatchedVariableId(field: { id: string; name: string }, variableIds: Set<string>) {
+  if (variableIds.has(field.id)) return field.id
+  const labelId = toVariableId(field.name)
+  if (labelId && variableIds.has(labelId)) return labelId
+  if (field.name && variableIds.has(field.name)) return field.name
+  // label 与 workflow 变量 label（name）一致时也绑定
+  if (field.name) {
+    const byLabel = variables.value.find((item) => item.name === field.name)
+    if (byLabel) return byLabel.id
+  }
+  return ''
+}
+
+function getVariableLabel(rawValue: string) {
+  const id = rawValue.replace(/^\$\{|\}$/g, '')
+  const found = variables.value.find((item) => item.id === id)
+  return found?.name || rawValue || '-'
+}
+
+function handleAutoBind() {
+  if (!tableFieldList.value.length) {
+    ElMessage.warning(t('workflow_autoBindNoMatch'))
+    return
+  }
+
+  const variableIds = new Set(variables.value.map((item) => item.id))
+  const conflicts: {
+    fieldId: string
+    fieldName: string
+    currentValue: string
+    currentLabel: string
+    targetValue: string
+    targetLabel: string
+  }[] = []
+  let emptyBoundCount = 0
+
+  tableFieldList.value.forEach((field) => {
+    const matchedId = resolveMatchedVariableId(field, variableIds)
+    if (!matchedId) return
+
+    const targetValue = '${' + matchedId + '}'
+    if (!field.value) {
+      field.value = targetValue
+      emptyBoundCount++
+      return
+    }
+    if (field.value === targetValue) return
+
+    conflicts.push({
+      fieldId: field.id,
+      fieldName: field.name,
+      currentValue: field.value,
+      currentLabel: getVariableLabel(field.value),
+      targetValue,
+      targetLabel: getVariableLabel(targetValue)
+    })
+  })
+
+  if (emptyBoundCount > 0) update()
+
+  if (conflicts.length) {
+    ConflictDialogRef.value?.handleOpen(conflicts)
+    return
+  }
+
+  if (emptyBoundCount === 0) {
+    ElMessage.warning(t('workflow_autoBindNoMatch'))
+  }
+}
+
+function handleConflictConfirm(
+  selected: {
+    fieldId: string
+    targetValue: string
+  }[]
+) {
+  selected.forEach((item) => {
+    const field = tableFieldList.value.find((f) => f.id === item.fieldId)
+    if (field) field.value = item.targetValue
+  })
+  update()
+}
+
 async function getDataBaseList() {
   try {
     const parms = {
@@ -247,7 +348,12 @@ watch(
     </el-form-item>
     <el-divider />
 
-    <template v-for="field in tableFieldList">
+    <div v-if="tableFieldList.length" class="field-actions">
+      <el-button type="primary" plain @click="handleAutoImport">{{ t('workflow_importVariables') }}</el-button>
+      <el-button type="primary" @click="handleAutoBind">{{ t('workflow_autoBind') }}</el-button>
+    </div>
+
+    <template v-for="field in tableFieldList" :key="field.id">
       <el-form-item :label="field.name">
         <el-select v-model="field.value" filterable clearable @change="update">
           <el-option v-for="item in getVariables(field)" :key="item.id" :label="item.name" :value="item.id" />
@@ -255,6 +361,18 @@ watch(
       </el-form-item>
     </template>
   </el-form>
+  <LazyContextVariableImportVariablesDialog ref="ImportDialogRef" :field-list="tableFieldList" />
+  <LazyContextServiceTaskDynamicDatabaseAutoBindConflictDialog
+    ref="ConflictDialogRef"
+    @confirm="handleConflictConfirm"
+  />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.field-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: var(--app-space-s);
+  margin-bottom: var(--app-space-s);
+}
+</style>

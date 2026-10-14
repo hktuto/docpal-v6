@@ -5,8 +5,9 @@ import type { HighlightMatchKey } from '../../../utils/tableHelper'
 
 const detecting = ref(false)
 const unmatchedList = ref<any[]>([])
-const { formData, selectedInvoice, updateInvoiceData } = useWHASupplyListVerifyInject()
-const { saveTableData, highlightMatchingRows, resetVerifiedMatches, scrollToMatchingRow } = useWHASupplyListVerifyTableInject()
+const { formData, selectedInvoice, updateInvoiceData, syncInvoiceTotals } = useWHASupplyListVerifyInject()
+const { tableData, saveTableData, highlightMatchingRows, resetVerifiedMatches, scrollToMatchingRow } =
+  useWHASupplyListVerifyTableInject()
 
 function handleLocateIssue(item: HighlightMatchKey) {
   scrollToMatchingRow?.(item)
@@ -25,7 +26,10 @@ async function handleDetect(isInit = true, reset = true) {
   if (detecting.value) return
   detecting.value = true
   try {
-    if (!isInit) await saveTableData()
+    if (!isInit) {
+      await saveTableData()
+      syncInvoiceTotals(tableData.value)
+    }
     const res = await newClientApi.postWmsPackingOrderCompare({
       batchNo: formData.value?.batch_no,
       invoiceNum: selectedInvoice.value?.[SGLA.Name]

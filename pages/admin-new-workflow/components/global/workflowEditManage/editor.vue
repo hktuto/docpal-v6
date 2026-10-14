@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
+import { x6NodeToWorkflowJson } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -19,6 +20,7 @@ const workflowReadonly = ref(false)
 const workflowId = ref()
 const workflowEditorRef = ref()
 const permissionDialogRef = ref()
+const jsonEditorRef = ref()
 const loading = ref<boolean>(false)
 const isNew = ref<boolean>(false)
 
@@ -56,7 +58,7 @@ function handleSave() {
 async function handleStatus() {
   try {
     if (!checkWorkflowRequiredParameter()) {
-      routerProvider?.message.error('Start Task No form configured')
+      routerProvider?.message.error('If the variables include mandatory fields, a form must be configured.')
       return
     }
     // TODO 檢查主要綫路上的節點是否有正確配置參數
@@ -83,7 +85,13 @@ function checkWorkflowRequiredParameter() {
   const initialise = find.config.initialise
 
   // 沒有必填的參數
-  if (initialise.form_fields.length === 0) return true
+  const formFields = initialise.form_fields.filter((item: any) => {
+    if (!item.id.includes('__system__') && item.required) {
+      return item
+    }
+  })
+
+  if (formFields.length === 0) return true
 
   // 有必填參數但未設置start Form
   return initialise.form_key !== ''
@@ -99,6 +107,42 @@ function handleOpenRelease() {
 function openPermissionDialog() {
   nextTick(() => {
     permissionDialogRef.value?.open(props.id)
+  })
+}
+
+function handleOpenImportJson() {
+  const current = workflowEditorRef.value?.workflowJson || workflowData.value || {}
+  jsonEditorRef.value?.open('import', current)
+}
+
+function handleOpenExportJson() {
+  try {
+    const graph = workflowEditorRef.value?.graph
+    const current = workflowEditorRef.value?.workflowJson || workflowData.value
+    if (!graph || !current) {
+      throw new Error('Workflow data is not ready')
+    }
+    const json = x6NodeToWorkflowJson(graph, current) || current
+    jsonEditorRef.value?.open('export', json)
+  } catch (e: any) {
+    routerProvider?.message.error(e?.message || String(e))
+  }
+}
+
+function handleImportJson(imported: Record<string, any>) {
+  const current = workflowEditorRef.value?.workflowJson || workflowData.value || {}
+  // 赋值会触发 WorkflowEditor watch → init；此处只规范化数据并标记可保存
+  workflowData.value = {
+    ...imported,
+    id: current.id || imported.id,
+    key: current.key || imported.key,
+    edges: Array.isArray(imported.edges) ? imported.edges : [],
+    variables: imported.variables && typeof imported.variables === 'object' ? imported.variables : {},
+    nodes: Array.isArray(imported.nodes) ? imported.nodes : []
+  }
+  nextTick(() => {
+    workflowEditorRef.value?.updateStatus?.()
+    isNew.value = true
   })
 }
 
@@ -130,9 +174,16 @@ onMounted(async () => {
         <el-button id="Workflow__Edit__Permission" type="primary" @click="openPermissionDialog">
           {{ $t('caseManagement.editPermission') }}
         </el-button>
+        <el-button id="Workflow__Edit__ImportJson" @click="handleOpenImportJson">
+          {{ $t('designer.toolbar.importJson') }}
+        </el-button>
+        <el-button id="Workflow__Edit__ExportJson" @click="handleOpenExportJson">
+          {{ $t('designer.toolbar.exportJson') }}
+        </el-button>
       </template>
     </WorkflowEditor>
     <LazyWorkflowEditManagePermissionDialog ref="permissionDialogRef" :workflow-id="props.id" />
+    <LazyWorkflowJsonEditor ref="jsonEditorRef" @import="handleImportJson" />
   </div>
 </template>
 

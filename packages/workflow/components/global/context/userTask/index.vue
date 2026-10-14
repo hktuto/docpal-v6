@@ -16,6 +16,7 @@ if (!graphProvider) {
     <SidebarLabel :node="node" />
     <ContextUserTaskAssignee :node="node" />
     <ContextUserTaskAdditional :node="node" />
+    <ContextUserTaskBusinessKey :node="node" />
     <ContextForm :node="node" />
     <ContextUserTaskBooleanButton :node="node" />
   </div>

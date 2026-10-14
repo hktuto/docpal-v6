@@ -25,7 +25,10 @@ export default defineNuxtPlugin(nuxtApp => {
   watch(notiError, () => {
     if (!notiError.value) return
     if (interval) clearInterval(interval)
-    console.log('notiError：', notiError.value)
+    // only log when is on live site
+    if (window && window.location.hostname !== 'localhost') {
+      console.log('notiError：', notiError.value)
+    }
     interval = setInterval(() => {
       console.log('notiError：setInterval,', notiError.value)
       // start()

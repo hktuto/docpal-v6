@@ -134,7 +134,6 @@ const tabs = computed(
 }
 
 .search-input {
-  width: 280px;
   max-width: 40%;
 }
 </style>

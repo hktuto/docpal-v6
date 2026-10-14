@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
 import { v7 as uuidv7 } from 'uuid'
-import { ElMessage } from 'element-plus'
 import type { UploadFile, UploadInstance } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { clientApi } from 'api'
@@ -14,6 +14,7 @@ const { disabled, formData } = defineProps<{
   formData: any
   options: any
 }>()
+const { t } = useI18n()
 
 type LineItem = {
   id: string
@@ -22,6 +23,7 @@ type LineItem = {
   new_plan_date: string
   brand_code: string
   remark: string
+  status: string
 }
 
 const lineFormRef = ref()
@@ -32,10 +34,12 @@ const formModel = reactive({
   customerName: '',
   customer_english_name: '',
   customerEnglishName: '',
-  org: '',
+  org_id: '',
   list: [] as LineItem[]
 })
 const CSV_COLUMNS = ['pi_invoice', 'new_plan_date', 'remark'] as const
+const CSV_HEADER_COLUMNS = ['PI Invoice', 'New Plan Date (yyyyMMdd)', 'Remark'] as const
+const CSV_TEMPLATE_MISMATCH = 'CSV_TEMPLATE_MISMATCH'
 
 type CsvLineItem = {
   pi_invoice: string
@@ -47,30 +51,72 @@ type CsvLineItem = {
 
 const lineRules = {
   pi_invoice: [
-    { required: true, message: '請輸入PI發票', trigger: 'blur' },
+    { required: true, message: t('reschedulePlanDate.pleaseEnterPiInvoice'), trigger: 'blur' },
     {
       validator: async (rule: any, value: string, callback: any) => {
         const index = Number(String(rule.field).match(/^list\.(\d+)\.pi_invoice$/)?.[1])
         const item = formModel.list[index]
-        const data = await checkingPiNumber(value)
-        if (!data) {
-          if (item?.pi_invoice === value) {
-            item.old_plan_date = ''
-            item.brand_code = ''
-          }
-          callback(new Error('Customer Number 与 PI Invoice 不一致'))
+        if (hasDuplicatePiInvoice(value, index)) {
+          callback(new Error(t('reschedulePlanDate.duplicatePiInvoice')))
           return
         }
-        if (item?.pi_invoice === value) {
-          item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
-          item.brand_code = data.brand ?? ''
+        try {
+          const data = await checkingPiNumber(value, index)
+          if (!data) {
+            if (item?.pi_invoice === value) {
+              item.old_plan_date = ''
+              item.brand_code = ''
+              item.status = ''
+            }
+            callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
+            return
+          }
+          if (item?.pi_invoice === value) {
+            item.old_plan_date = parsePlanDate(String(data.old_plan_date ?? ''))
+            item.brand_code = data.brand ?? ''
+            item.status = data.status_code ?? ''
+          }
+          await setCustomer(data, index)
+          callback()
+          nextTick(() => {
+            if (index !== undefined && !Number.isNaN(index)) {
+              lineFormRef.value?.validateField(`list.${index}.status`)
+            }
+          })
+        } catch (e) {
+          callback(new Error(t('reschedulePlanDate.customerNumberPiMismatch')))
         }
-        callback()
       },
       trigger: 'blur'
     }
   ],
-  new_plan_date: [{ required: true, message: '請選擇新計劃日期', trigger: 'change' }]
+  new_plan_date: [{ required: true, message: t('reschedulePlanDate.pleaseSelectNewPlanDate'), trigger: 'change' }],
+  status: [
+    {
+      validator: (_rule: any, value: string, callback: any) => {
+        if (!value) {
+          callback()
+          return
+        }
+        if (value.toLowerCase() !== 'op') {
+          callback(new Error(t('reschedulePlanDate.statusMustBeOpen')))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
+}
+
+function hasDuplicatePiInvoice(value: string, index: number) {
+  const normalized = value?.trim() ?? ''
+  if (!normalized || Number.isNaN(index)) return false
+  return formModel.list.some((row, i) => i !== index && row.pi_invoice.trim() === normalized)
+}
+
+function disabledPastDate(date: Date) {
+  return dayjs(date).isBefore(dayjs(), 'day')
 }
 
 function createEmptyLine(): LineItem {
@@ -80,7 +126,8 @@ function createEmptyLine(): LineItem {
     old_plan_date: '',
     new_plan_date: '',
     brand_code: '',
-    remark: ''
+    remark: '',
+    status: ''
   }
 }
 
@@ -99,37 +146,55 @@ function handleRemove(index: number) {
 
 async function handleImportCSV(uploadFile: UploadFile) {
   const file = uploadFile.raw
+  formModel.list = []
+  formModel.customer_number = ''
+  formModel.customer_name = ''
+  formModel.customer_english_name = ''
+  formModel.org_id = ''
+  formModel.customerName = ''
+  formModel.customerEnglishName = ''
+
   csvUploadRef.value?.clearFiles()
   if (!file) return
 
   const name = file.name.toLowerCase()
 
   if (!(name.endsWith('.csv') || file.type === 'text/csv')) {
-    ElMessage.error('Please select a CSV file')
+    ElMessage.error(t('reschedulePlanDate.pleaseSelectCsv'))
     return
   }
-  const list = await csvTextToLineItems(await file.text())
+  let list: CsvLineItem[]
+  try {
+    list = await csvTextToLineItems(await file.text())
+  } catch (error) {
+    if (error instanceof Error && error.message === CSV_TEMPLATE_MISMATCH) {
+      ElMessage.error(t('reschedulePlanDate.csvTemplateMismatch'))
+      return
+    }
+    throw error
+  }
   if (!list.length) {
-    ElMessage.error('No valid data found in CSV')
+    ElMessage.error(t('reschedulePlanDate.noValidCsvData'))
     return
   }
   formModel.list = list.map((item) => ({ ...createEmptyLine(), ...item }))
-  ElMessage.success(`Imported ${list.length} row(s)`)
+  ElMessage.success(t('reschedulePlanDate.rowsImported', { count: list.length }))
   if (formModel.list.length > 0) {
     await setCustomerNumber(formModel.list[0])
     await lineFormRef.value?.validate()
   }
 }
 
-function normalizeHeader(name: string) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/\s*\([^)]*\)\s*/g, '')
-    .replace(/#/g, '')
-    .replace(/\s+/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/^_|_$/g, '')
+function trimTrailingEmpty(cells: string[]): string[] {
+  const result = [...cells]
+  while (result.length && result[result.length - 1] === '') result.pop()
+  return result
+}
+
+function isCsvTemplateHeader(headerRow: string[]): boolean {
+  const cells = trimTrailingEmpty(headerRow).map((cell) => cell.trim())
+  if (cells.length !== CSV_HEADER_COLUMNS.length) return false
+  return CSV_HEADER_COLUMNS.every((expected, i) => cells[i].toLowerCase() === expected.toLowerCase())
 }
 
 function parseCsvLine(line: string): string[] {
@@ -171,15 +236,16 @@ async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
     .map(parseCsvLine)
     .filter((row) => row.some((cell) => cell !== ''))
   if (!rows.length) return []
+  if (!isCsvTemplateHeader(rows[0])) {
+    throw new Error(CSV_TEMPLATE_MISMATCH)
+  }
 
-  const header = rows[0].map(normalizeHeader)
-  const hasHeader = header.some((col) => CSV_COLUMNS.includes(col as (typeof CSV_COLUMNS)[number]))
-  const columns = hasHeader ? header : [...CSV_COLUMNS]
-  const dataRows = hasHeader ? rows.slice(1) : rows
+  const columns = [...CSV_COLUMNS]
+  const dataRows = rows.slice(1)
 
   const set = new Set()
 
-  const csvData: CsvLineItem[] = dataRows.map((row) => {
+  return dataRows.map((row) => {
     const record: Record<string, string> = {}
     columns.forEach((col, i) => {
       record[col] = row[i] ?? ''
@@ -195,25 +261,6 @@ async function csvTextToLineItems(text: string): Promise<CsvLineItem[]> {
       remark: record.remark ?? ''
     }
   })
-  // Cell Api Get Data
-  // const data = await $api.post(`/api/pi-invoices`, { list: [...set] }).then((r: any) => r.data)
-  // fillCsvData(data, csvData)
-  return csvData
-}
-
-function fillCsvData(data: any[], csvData: any[]) {
-  const indexByInvoice = new Map(data.map((row) => [row.pi_invoice_number, { old_plan_date: row.old_plan_date, brand: row.brand }]))
-
-  csvData.forEach((item: any) => {
-    const key = item.pi_invoice
-    const match = indexByInvoice.get(key)
-    if (match) {
-      item.old_plan_date = match.old_plan_date ?? ''
-      item.brand_code = match.brand ?? ''
-    }
-  })
-
-  return csvData
 }
 
 const customerNumberOptions = ref<{ label: string; value: string }[]>([])
@@ -221,15 +268,15 @@ const customerNameOptions = ref<{ label: string; value: string }[]>([])
 const customerEnglishNameOptions = ref<{ label: string; value: string }[]>([])
 
 async function searchName(query?: string) {
-  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data?.items)
+  const { items } = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?q=${query}&limit=${5000}`).then((r: any) => r.data)
 
-  if (data.length === 0) return
+  if (items.length === 0) return
 
   const numberOptions: any[] = []
   const nameOptions: any[] = []
   const englishNameOptions: any[] = []
 
-  data.forEach((item: any) => {
+  items.forEach((item: any) => {
     numberOptions.push({
       label: item.account_number,
       value: item.account_number
@@ -253,7 +300,7 @@ function numberChange(value: string) {
   if (!value || value === '') {
     formModel.customer_name = ''
     formModel.customer_english_name = ''
-    formModel.org = ''
+    formModel.org_id = ''
     return
   }
 
@@ -261,22 +308,34 @@ function numberChange(value: string) {
   formModel.customer_name = value
   formModel.customer_english_name = value
 
-  formModel.customerName = customerNameOptions.value.find((item: any) => item.value === value).label
+  formModel.customerName = customerNameOptions.value.find((item: any) => item.value === value)?.label ?? ''
 }
 
-async function checkingPiNumber(value: string) {
-  const customer_number = !!formModel.customer_number && formModel.customer_number !== '' ? `customer_number=${formModel.customer_number}&` : ''
-  return clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data.data)
+async function checkingPiNumber(value: string, index: number) {
+  try {
+    let customer_number = ''
+    if (!!formModel.customer_number && formModel.customer_number !== '') {
+      customer_number = `customer_number=${formModel.customer_number}&`
+    }
+    if (index === 0 || formModel.list.length === 1) {
+      customer_number = ''
+    }
+
+    const { data } = await clientApi.instance.get(`/api/pi-invoices?${customer_number}pi_invoice_number=${value}`).then((r: any) => r.data)
+    return data
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function setCustomerNumber(item: any) {
   if (item.pi_invoice === '' || formModel.customer_number !== '') return
-  const data = await checkingPiNumber(item.pi_invoice)
+  const data = await checkingPiNumber(item.pi_invoice, 0)
   if (!!data) {
     formModel.customer_number = data.customer_number
     formModel.customer_name = data.customer_number
     formModel.customer_english_name = data.customer_number
-    formModel.org = data.org_id
+    formModel.org_id = data.org_id
     formModel.customerName = data.customer_name
     formModel.customerEnglishName = data.customer_name
     await searchName(data.customer_number)
@@ -289,22 +348,96 @@ async function getFormData(needValidation = true) {
     new_plan_date: item.new_plan_date
   }))
 
+  const emailList = formModel.list.map(({ id: _id, ...item }) => ({
+    ...item,
+    new_plan_date: dayjs(item.new_plan_date).format('YYYY-MMM-DD'),
+    old_plan_date: dayjs(item.old_plan_date).format('YYYY-MMM-DD')
+  }))
+
   const result = {
     customer_number: formModel.customer_number,
     customer_name: formModel.customer_name,
     customerName: formModel.customerName,
     customer_english_name: formModel.customer_english_name,
     customerEnglishName: formModel.customerEnglishName,
-    org: formModel.org,
+    org: officeOption.value.find((item: any) => item.value === formModel.org_id).label,
     line_list: lineList,
-    email_list: formModel.list.map(({ id: _id, ...item }) => item)
+    email_list: emailList
   }
+
   if (!needValidation) return result
   await lineFormRef.value?.validate()
   return result
 }
 
+async function handlePiChange(row: LineItem) {
+  if (!row.pi_invoice || row.pi_invoice === '') {
+    row.brand_code = ''
+    row.old_plan_date = ''
+    row.status = ''
+    return
+  }
+}
+
+async function setCustomer(data: any, index: number) {
+  if (index === 0) {
+    formModel.customer_number = data.customer_number
+    formModel.customer_name = data.customer_number
+    formModel.customer_english_name = data.customer_number
+    formModel.org_id = data.org_id
+    formModel.customerName = data.customer_name
+    formModel.customerEnglishName = data.customer_name
+    await searchName(data.customer_number)
+    return
+  }
+
+  if (!formModel.org_id) {
+    formModel.customer_number = data.customer_number
+    formModel.customer_name = data.customer_number
+    formModel.customer_english_name = data.customer_number
+    formModel.org_id = data.org_id
+    formModel.customerName = data.customer_name
+    formModel.customerEnglishName = data.customer_name
+    await searchName(data.customer_number)
+  }
+}
+
+watch(
+  () => formModel.list,
+  (value) => {
+    if (value.length === 0) {
+      formModel.customer_number = ''
+      formModel.customer_name = ''
+      formModel.customer_english_name = ''
+      formModel.org_id = ''
+      formModel.customerName = ''
+      formModel.customerEnglishName = ''
+      return
+    }
+
+    if (!value[0].pi_invoice) {
+      formModel.customer_number = ''
+      formModel.customer_name = ''
+      formModel.customer_english_name = ''
+      formModel.org_id = ''
+      formModel.customerName = ''
+      formModel.customerEnglishName = ''
+    }
+  },
+  { deep: true }
+)
+
+const officeOption = ref<any[]>([])
+async function getOffice() {
+  const data = await clientApi.instance.get(`/apis/v1/ms/oracle/org-mapping`).then((r: any) => r.data)
+  officeOption.value = data.items.map((item: any) => ({
+    label: item.organization_code,
+    value: item.org_id
+  }))
+}
+
 onMounted(() => {
+  getOffice()
   if (formData?.line_list?.length) {
     formModel.list = formData.line_list.map((item: LineItem) => ({
       ...createEmptyLine(),
@@ -322,7 +455,7 @@ defineExpose({ getFormData })
   <el-form label-position="top">
     <el-row>
       <el-col :span="6">
-        <el-form-item label="客戶編號 Customer Number" prop="customer_number">
+        <el-form-item :label="t('reschedulePlanDate.customerNumber')" prop="customer_number">
           <el-select-v2
             v-model="formModel.customer_number"
             filterable
@@ -331,14 +464,15 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerNumberOptions"
-            placeholder="One of the options must be selected."
+            placeholder=""
             @change="numberChange"
             style="width: 90%"
+            disabled
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶名稱 Customer Name">
+        <el-form-item :label="t('reschedulePlanDate.customerName')">
           <el-select-v2
             v-model="formModel.customer_name"
             :reserve-keyword="false"
@@ -348,14 +482,15 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerNameOptions"
-            placeholder="One of the options must be selected."
+            placeholder=""
             @change="numberChange"
             style="width: 90%"
+            disabled
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="客戶英文名 Customer Eng Name" prop="customerEnglishName">
+        <el-form-item :label="t('reschedulePlanDate.customerEngName')" prop="customerEnglishName">
           <el-select-v2
             v-model="formModel.customer_english_name"
             :reserve-keyword="false"
@@ -365,57 +500,73 @@ defineExpose({ getFormData })
             remote-show-suffix
             clearable
             :options="customerEnglishNameOptions"
-            placeholder="One of the options must be selected."
+            placeholder=""
             @change="numberChange"
             style="width: 90%"
+            disabled
           />
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item label="ORG">
-          <el-input v-model="formModel.org" disabled style="width: 90%" />
+        <el-form-item :label="t('reschedulePlanDate.org')">
+          <el-select v-model="formModel.org_id" disabled style="width: 90%" placeholder="">
+            <el-option v-for="item in officeOption" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
       </el-col>
     </el-row>
   </el-form>
 
   <el-upload ref="csvUploadRef" accept=".csv" :auto-upload="false" :show-file-list="false" :disabled="disabled" :on-change="handleImportCSV">
-    <el-button type="primary" :disabled="disabled">Import CSV</el-button>
+    <el-button type="primary" :disabled="disabled">{{ t('reschedulePlanDate.importCsv') }}</el-button>
   </el-upload>
 
-  <el-divider content-position="left">計劃明細 Line Items</el-divider>
+  <el-divider content-position="left">{{ t('reschedulePlanDate.lineItems') }}</el-divider>
 
-  <div style="max-height: 40vh; overflow: auto">
-    <el-form ref="lineFormRef" label-position="top" class="line-form all-input-style" :model="formModel" :disabled="disabled">
-      <el-button v-if="formModel.list.length === 0 && !disabled" type="primary" @click="handleAdd">Add</el-button>
-      <draggable v-model="formModel.list" item-key="id" handle=".drag-handle" :animation="200" ghost-class="line-row-ghost" :disabled="disabled">
+  <div style="max-height: 65vh; overflow: auto; margin-block-end: 0">
+    <el-form ref="lineFormRef" label-position="top" :model="formModel" :disabled="disabled">
+      <el-button v-if="formModel.list.length === 0 && !disabled" type="primary" @click="handleAdd">{{ t('reschedulePlanDate.add') }}</el-button>
+      <draggable v-model="formModel.list" item-key="id" handle=".drag-handle" :animation="200" :disabled="disabled">
         <template #item="{ element, index }">
           <div class="line-row">
             <span class="line-row__index">#{{ index + 1 }}</span>
-            <el-form-item class="line-row__field line-row__field--pi" label="PI編號 PI Number" :prop="`list.${index}.pi_invoice`" :rules="lineRules.pi_invoice">
-              <el-input v-model="element.pi_invoice" clearable />
+            <el-form-item
+              class="line-row__field line-row__field--pi"
+              :label="t('reschedulePlanDate.piNumber')"
+              :prop="`list.${index}.pi_invoice`"
+              :rules="lineRules.pi_invoice"
+            >
+              <el-input v-model="element.pi_invoice" clearable @change="handlePiChange(element)" />
             </el-form-item>
-            <el-form-item class="line-row__field line-row__field--date" label="舊計劃日期 Old Plan Date">
+            <el-form-item class="line-row__field line-row__field--date" :label="t('reschedulePlanDate.oldPlanDate')">
               <el-date-picker v-model="element.old_plan_date" disabled format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
             </el-form-item>
             <el-form-item
               class="line-row__field line-row__field--date"
-              label="新計劃日期 New Plan Date"
+              :label="t('reschedulePlanDate.newPlanDate')"
               :prop="`list.${index}.new_plan_date`"
               :rules="lineRules.new_plan_date"
             >
-              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="YYYY-MM-DD" />
+              <el-date-picker v-model="element.new_plan_date" type="date" format="YYYY-MMM-DD" value-format="YYYY-MM-DD" :disabled-date="disabledPastDate" />
             </el-form-item>
-            <el-form-item class="line-row__field line-row__field--brand" label="品牌 Brand">
+            <el-form-item class="line-row__field line-row__field--brand" :label="t('reschedulePlanDate.brand')">
               <el-input v-model="element.brand_code" disabled />
             </el-form-item>
-            <el-form-item class="line-row__field line-row__field--remark" label="備注 Remark">
-              <el-input v-model="element.remark" />
+            <el-form-item
+              class="line-row__field line-row__field--status"
+              :label="t('reschedulePlanDate.status')"
+              :prop="`list.${index}.status`"
+              :rules="lineRules.status"
+            >
+              <el-input v-model="element.status" disabled />
+            </el-form-item>
+            <el-form-item class="line-row__field line-row__field--remark" :label="t('reschedulePlanDate.remark')">
+              <el-input v-model="element.remark" clearable />
             </el-form-item>
             <div v-if="!disabled" class="line-row__actions">
-              <el-button type="primary" text size="small" @click="handleAdd(index)">Add</el-button>
-              <el-button type="danger" text size="small" @click="handleRemove(index)">Remove</el-button>
-              <span class="drag-handle" role="button" tabindex="0" aria-label="Drag to reorder row">⋮⋮</span>
+              <el-button type="primary" text size="small" @click="handleAdd(index)">{{ t('reschedulePlanDate.add') }}</el-button>
+              <el-button type="danger" text size="small" @click="handleRemove(index)">{{ t('reschedulePlanDate.remove') }}</el-button>
+              <span class="drag-handle" role="button" tabindex="0" :aria-label="t('reschedulePlanDate.dragToReorder')">⋮⋮</span>
             </div>
           </div>
         </template>
@@ -457,6 +608,7 @@ defineExpose({ getFormData })
 
   &__field {
     margin-bottom: 0;
+    margin-block: 5px;
 
     &--pi {
       flex: 0 0 180px;
@@ -468,6 +620,11 @@ defineExpose({ getFormData })
 
     &--brand {
       flex: 0 0 160px;
+    }
+
+    &--status {
+      flex: 0 0 100px;
+      min-width: 80px;
     }
 
     &--remark {
@@ -500,9 +657,5 @@ defineExpose({ getFormData })
 .drag-handle:focus {
   outline: 1px dashed var(--app-primary-color);
   outline-offset: 2px;
-}
-
-.line-row-ghost {
-  opacity: 0.5;
 }
 </style>

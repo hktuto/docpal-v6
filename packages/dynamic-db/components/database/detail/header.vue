@@ -20,20 +20,39 @@ const infoDialogItem = ref<InfoDialogItem>({
   descriptioin: ''
 })
 
+const currentMenuItem = computed(() => {
+  const params = databaseMenuRouteParams.value
+  if (params.detailType === 'root') return null
+  const targetId = params.detailType === 'record' ? params.tableId : params.detailId
+  if (!targetId) return null
+  return findItemById(menuState.value.items, targetId) ?? null
+})
+
 const pageTitle = computed(() => {
   const params = databaseMenuRouteParams.value
   if (params.detailType === 'root') {
     return database.value?.name || ''
   }
-  const targetId = params.detailType === 'record' ? params.tableId : params.detailId
-  const item = findItemById(menuState.value.items, targetId)
-  return item?.name || targetId || ''
+  return currentMenuItem.value?.name || params.detailId || ''
 })
+
+const pageDescription = computed(() => currentMenuItem.value?.description ?? '')
+
+const descTooltipPopperOptions = {
+  modifiers: [
+    {
+      name: 'preventOverflow',
+      options: {
+        padding: 32
+      }
+    }
+  ]
+}
 
 function handleInfoClick() {
   infoDialogItem.value = {
     id: databaseMenuRouteParams.value.detailId ?? '',
-    descriptioin: databaseMenuRouteParams.value.description ?? ''
+    descriptioin: pageDescription.value
   }
   infoDialogVisible.value = true
 }
@@ -41,7 +60,6 @@ function handleInfoClick() {
 function handleInfoInput(description: string) {
   const params = databaseMenuRouteParams.value
   if (params.detailId !== infoDialogItem.value.id) return
-  params.description = description
   const menuItem = findItemById(menuState.value.items, params.detailId)
   if (menuItem) {
     menuItem.description = description
@@ -59,7 +77,15 @@ function handleInfoInput(description: string) {
         <el-icon class="record-icon"><Document /></el-icon>
         {{ pageTitle }}
       </span>
-      <el-tooltip :content="databaseMenuRouteParams.description" placement="bottom">
+      <el-tooltip
+        placement="bottom"
+        :disabled="!pageDescription"
+        popper-class="database-detail-desc-tooltip"
+        :popper-options="descTooltipPopperOptions"
+      >
+        <template #content>
+          <div class="desc-tooltip-content">{{ pageDescription }}</div>
+        </template>
         <el-icon
           v-if="databaseMenuRouteParams.detailType === 'master_table'"
           class="el-icon--right cursor-pointer"
@@ -118,5 +144,17 @@ function handleInfoInput(description: string) {
 
 .record-icon {
   font-size: 14px;
+}
+</style>
+
+<style lang="scss">
+.database-detail-desc-tooltip {
+  max-width: 60vw !important;
+
+  .desc-tooltip-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
 }
 </style>

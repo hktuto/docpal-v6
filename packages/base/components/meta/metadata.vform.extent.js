@@ -43,7 +43,7 @@ async function getGroupList() {
 }
 async function getRoleList() {
   try {
-    const data = await $api.get('/api/docpal/acl/role/root').then((res) => res.data.data)
+    const data = await $api.get('/docpal/acl/role/root').then((res) => res.data.data)
     const roleList = data ? makeFlapRoleList([data]) : []
     return roleList.map((item) => ({
       label: item.name,
@@ -75,7 +75,7 @@ export function mounteMasterTableOptions(masterTableId, displayColumn, valueColu
   const codeString = `const _this = this
 async function getList() {
   try {
-    const data = await $api.post('/api/dms/master-table/record/page/nonPermission', {
+    const data = await $api.post('/dms/master-table/record/page/nonPermission', {
       name: '${masterTableId}'
     }).then(res => res.data.data)
     return data.reduce((prev, item) => {

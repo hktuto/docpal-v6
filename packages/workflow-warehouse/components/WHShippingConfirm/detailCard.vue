@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Paperclip } from '@element-plus/icons-vue'
 import { useShippingConfirmInject } from '../../composables/useShippingConfirm'
 
 const { t } = useI18n()
-const { disabled, displayPiNum, manualEdit, manualEditSyncStatus, outRequestNo, previewFileName, updateManualEdit, isDirty } = useShippingConfirmInject()
+const { disabled, displayPiNum, manualEdit, manualEditSyncStatus, outRequestNo, updateManualEdit, isDirty } = useShippingConfirmInject()
 
 const syncStatusLabel = computed(() => {
   if (manualEditSyncStatus.value === 'pending_design') return t('workflowWarehouse.shippingConfirmSyncPendingDesign')
@@ -23,9 +22,6 @@ function handleFieldUpdate(field: keyof typeof manualEdit, value: string) {
         <h3 class="detail-card-title">{{ $t('workflowWarehouse.piInvoice') }} {{ displayPiNum || '—' }}</h3>
         <p class="detail-card-subtitle">{{ $t('workflowWarehouse.shippingConfirmRequestNo') }}: {{ outRequestNo || '—' }}</p>
       </div>
-      <el-icon v-if="previewFileName" v-tooltip="previewFileName" class="detail-card-attach" aria-hidden="true">
-        <Paperclip />
-      </el-icon>
     </div>
 
     <div class="detail-card-body">
@@ -87,12 +83,6 @@ function handleFieldUpdate(field: keyof typeof manualEdit, value: string) {
   color: var(--el-text-color-secondary);
   font-size: 0.8125rem;
   word-break: break-all;
-}
-
-.detail-card-attach {
-  flex-shrink: 0;
-  color: var(--el-text-color-placeholder);
-  font-size: 1rem;
 }
 
 .detail-card-body {

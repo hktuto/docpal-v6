@@ -173,53 +173,56 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
 
-          <el-col :span="24">
+          <el-col :span="24" class="targetPrice-item-card-col">
             <div class="targetPrice-item-card">
-              <el-row class="targetPrice-item-card__table-header">
-                <el-col :span="1">{{ t('quotationApproval.tier') }}</el-col>
-                <el-col :span="3">{{ t('quotationApproval.moq') }}</el-col>
-                <el-col :span="4">{{ t('quotationApproval.targetPrice') }}</el-col>
-                <el-col :span="5">{{ t('quotationApproval.unitPriceNoTax') }}</el-col>
-                <el-col :span="5">{{ t('quotationApproval.finalQuotation') }}</el-col>
-              </el-row>
-              <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
-                <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
-                  <template v-if="targetPriceItem.status !== 'D'">
-                    <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
-                    <el-col :span="3">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.moq" disabled />
-                    </el-col>
-                    <el-col :span="4">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled>
-                        <template #suffix>
-                          <span>{{ formData.currency }}</span>
-                        </template>
-                      </el-input-number>
-                    </el-col>
-                    <el-col :span="5">
-                      <el-form-item class="target-price-form-item">
-                        <el-input-number style="width: 90%" v-model="targetPriceItem.unit_price_no_tax" disabled>
+              <div class="targetPrice-item-card__scroll">
+                <el-row class="targetPrice-item-card__table-header">
+                  <el-col :span="1">{{ t('quotationApproval.tier') }}</el-col>
+                  <el-col :span="3">{{ t('quotationApproval.moq') }}</el-col>
+                  <el-col :span="4">{{ t('quotationApproval.targetPrice') }}</el-col>
+                  <el-col :span="5">{{ t('quotationApproval.unitPriceNoTax') }}</el-col>
+                  <el-col :span="5">{{ t('quotationApproval.finalQuotation') }}</el-col>
+                </el-row>
+                <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
+                  <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
+                    <template v-if="targetPriceItem.status !== 'D'">
+                      <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
+                      <el-col :span="3">
+                        <el-input-number style="width: 90%" v-model="targetPriceItem.moq" disabled />
+                      </el-col>
+                      <el-col :span="4">
+                        <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled>
                           <template #suffix>
                             <span>{{ formData.currency }}</span>
                           </template>
                         </el-input-number>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="5">
-                      <el-input-number
-                        style="width: 90%"
-                        v-model="targetPriceItem.customer_final_price"
-                        controls-position="right"
-                        :min="targetPriceItem.unit_price_no_tax"
-                        :step="0.000001"
-                      >
-                        <template #suffix>
-                          <span>{{ formData.currency }}</span>
-                        </template>
-                      </el-input-number>
-                    </el-col>
-                  </template>
-                </el-row>
+                      </el-col>
+                      <el-col :span="5">
+                        <el-form-item class="target-price-form-item">
+                          <el-input-number style="width: 90%" v-model="targetPriceItem.unit_price_no_tax" disabled>
+                            <template #suffix>
+                              <span>{{ formData.currency }}</span>
+                            </template>
+                          </el-input-number>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="5">
+                        <el-input-number
+                          style="width: 90%"
+                          v-model="targetPriceItem.customer_final_price"
+                          controls-position="right"
+                          :min="targetPriceItem.unit_price_no_tax"
+                          :step="0.000001"
+                          :disabled="disabled"
+                        >
+                          <template #suffix>
+                            <span>{{ formData.currency }}</span>
+                          </template>
+                        </el-input-number>
+                      </el-col>
+                    </template>
+                  </el-row>
+                </div>
               </div>
             </div>
           </el-col>
@@ -256,7 +259,11 @@ defineExpose({ getFormData })
               <el-form-item :label="t('quotationApproval.customerPartNumber')" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item :label="t('quotationApproval.oldSalesPriceNoTax')" prop="old_sales_price_noTax">
+              <el-form-item
+                v-if="formData.quotation_reason === 'Discount Request'"
+                :label="t('quotationApproval.oldSalesPriceNoTax')"
+                prop="old_sales_price_noTax"
+              >
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>
@@ -291,11 +298,22 @@ defineExpose({ getFormData })
   }
 }
 
+.targetPrice-item-card-col {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .targetPrice-item-card {
   border: 1px solid var(--app-grey-800);
   border-radius: var(--app-border-radius-m);
   padding: var(--app-space-s);
   margin-top: var(--app-space-s);
+  max-width: 100%;
+  overflow-x: auto;
+
+  &__scroll {
+    min-width: 1000px;
+  }
 
   &__header {
     display: flex;
@@ -327,6 +345,10 @@ defineExpose({ getFormData })
 
     .target-price-form-item {
       margin-bottom: 0;
+    }
+
+    .el-input-number {
+      min-width: 100px;
     }
 
     &--scrollable {

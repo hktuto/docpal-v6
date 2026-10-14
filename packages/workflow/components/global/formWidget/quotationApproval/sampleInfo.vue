@@ -3,6 +3,7 @@ import { Delete, Plus } from '@element-plus/icons-vue'
 import { clientApi, newClientApi } from 'api'
 import { v7 as uuidv7 } from 'uuid'
 import { ElMessage } from 'element-plus'
+import { useUserState } from '@packages/authApp/composables/useAuth'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -223,11 +224,16 @@ async function getBrand() {
   brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
+const office = ref<string>('')
+
 async function getFormData(needValidation = true) {
   const result = {
     brand: formModel.value.brand,
     sample_info_list: formModel.value.infoList,
-    contact_email: contactEmail.value
+    contact_email: contactEmail.value,
+    pc_group: `QuotationApproval_-_Approver_-_PriceController_-_${formModel.value.brand}_-_${office.value}`,
+    pm_group: `QuotationApproval_-_Approver_-_ProductManager_-_${formModel.value.brand}_-_${office.value}`,
+    gm_group: `QuotationApproval_-_Approver_-_GeneralManager_-_${office.value}`
   }
   if (!needValidation) return result
   await formRef.value?.validate()
@@ -236,7 +242,7 @@ async function getFormData(needValidation = true) {
 
 async function getPartList(part_number?: string) {
   try {
-    const data = await $api
+    const data = await clientApi.instance
       .get(`/apis/v1/ms/oracle/wcl-item-nos?q=${part_number}&&brand=${formModel.value.brand}&pageNum=1&pageSize=100&includeCustomer=false`)
       .then((r: any) => r.data.items)
     if (data.length === 0) return
@@ -284,6 +290,8 @@ async function getBrandEmail() {
 }
 
 async function checkPartNumberIsFlow(lineNumber: number, partNumber: string) {
+  if (formData.is_pc_approval !== undefined && !formData.is_pc_approval) return false
+
   try {
     const allFormData = await workflowProvider?.getFormData(false, false)
     if (!allFormData.customer_name || allFormData.customer_name === '') {
@@ -326,6 +334,11 @@ function handleChangeCurrency(currency) {
 
 onMounted(() => {
   getBrand()
+  const user = useUserState()
+  if (user.value.org.length === 0) return
+
+  const org = user.value.org[0]
+  office.value = org.operatingName
 })
 
 watch(
@@ -378,6 +391,7 @@ defineExpose({ getFormData })
           <el-col :span="8">
             <el-form-item :label="t('quotationApproval.partNumber')" :prop="`infoList.${index}.part_number`" :rules="rules.part_number">
               <el-select-v2
+                :disabled="disabled"
                 v-model="item.part_number"
                 filterable
                 remote
@@ -390,10 +404,10 @@ defineExpose({ getFormData })
               />
             </el-form-item>
             <el-form-item :label="t('quotationApproval.quantityMachine')" prop="quantity_machine">
-              <el-input-number v-model="item.quantity_machine" controls-position="right" :min="0" :step="1" step-strictly />
+              <el-input-number v-model="item.quantity_machine" controls-position="right" :min="0" :step="1" step-strictly :disabled="disabled" />
             </el-form-item>
             <el-form-item :label="t('quotationApproval.competitorName')" prop="competitor_name">
-              <el-input v-model="item.competitor_name" clearable />
+              <el-input v-model="item.competitor_name" clearable :disabled="disabled" />
             </el-form-item>
           </el-col>
 
@@ -425,7 +439,7 @@ defineExpose({ getFormData })
               :rules="rules.old_sales_price_noTax"
               required
             >
-              <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly />
+              <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="0.000001" :step="0.000001" step-strictly />
             </el-form-item>
           </el-col>
 
@@ -446,7 +460,7 @@ defineExpose({ getFormData })
                 </el-row>
                 <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list.length > 5 }">
                   <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
-                    <el-col :span="1" class="targetPrice-item-card__tier-col">T{{ targetPriceIndex + 1 }}</el-col>
+                    <el-col :span="1">T{{ targetPriceIndex + 1 }}</el-col>
                     <el-col :span="10">
                       <el-form-item
                         :prop="`infoList.${index}.target_price_list.${targetPriceIndex}.moq`"
@@ -486,8 +500,8 @@ defineExpose({ getFormData })
                       </el-form-item>
                     </el-col>
                     <el-col :span="2">
-                      <div class="targetPrice-item-card__actions" v-if="targetPriceIndex !== 0">
-                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" />
+                      <div v-if="targetPriceIndex !== 0">
+                        <el-button :icon="Delete" type="danger" @click="handleTargetPriceItemRemove(index, targetPriceIndex)" :disabled="disabled" />
                       </div>
                     </el-col>
                   </el-row>
@@ -561,6 +575,10 @@ defineExpose({ getFormData })
 
     .target-price-form-item {
       margin-bottom: 0;
+    }
+
+    .el-input-number {
+      min-width: 100px;
     }
 
     &--scrollable {

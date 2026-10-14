@@ -20,7 +20,7 @@ export function getFileDisplayName(file: Record<string, any> | null | undefined)
   return String(file.file_name || file.name || '')
 }
 
-function normalizeMatchText(value: unknown) {
+export function normalizeMatchText(value: unknown) {
   return String(value ?? '')
     .replace(/[^a-zA-Z0-9]/g, '')
     .toLowerCase()

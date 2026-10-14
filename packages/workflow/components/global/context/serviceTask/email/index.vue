@@ -36,7 +36,7 @@ const { config } = defineProps<{
         ccs: string[] | ''
         toGroupIds: string[]
         ccGroupIds: string[]
-        documentIds: string[]
+        documentIds: string | string[]
         templateId: string
         variables: any
         subject?: string
@@ -52,7 +52,7 @@ const formData = ref<{
   ccs: string[] | ''
   toGroupIds: string[]
   ccGroupIds: string[]
-  documentIds: string[]
+  documentIds: string | string[]
   templateId: string
   variables: any
   subject?: string
@@ -70,11 +70,13 @@ const formData = ref<{
 })
 const tosIsArray = ref<boolean>(false)
 const ccIsArray = ref<boolean>(false)
+const attachmentsIsArray = ref<boolean>(false)
 
 async function initForm() {
   formData.value = config.http_request.body
   tosIsArray.value = typeof formData.value.tos === 'string'
   ccIsArray.value = typeof formData.value.ccs === 'string'
+  attachmentsIsArray.value = typeof formData.value.documentIds === 'string'
   await getEmailVariablesList()
 
   // reset emailVariablesList item value
@@ -245,9 +247,16 @@ watch(
         </el-option-group>
       </el-select>
     </el-form-item>
-    <el-form-item label="Attachments File">
-      <el-select v-model="formData.documentIds" filterable multiple clearable @change="updateData">
+    <el-form-item label="">
+      <div class="tos-form-item__label">
+        <span>Attachments File</span>
+        <el-switch v-model="attachmentsIsArray" active-text="Array" inactive-text="Single" />
+      </div>
+      <el-select v-if="!attachmentsIsArray" v-model="formData.documentIds" filterable multiple clearable @change="updateData">
         <el-option v-for="item in fileVariablesList" :key="item.id" :label="item.name" :value="item.id" />
+      </el-select>
+      <el-select v-else v-model="formData.documentIds" filterable clearable @change="updateData">
+        <el-option v-for="item in arrayStringVariablesList" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
 

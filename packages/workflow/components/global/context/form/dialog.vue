@@ -66,7 +66,7 @@ defineExpose({ openDialog })
 </script>
 
 <template>
-  <el-dialog v-model="formDialogVisible" fullscreen class="bpmn-vform--dialog" width="100%" top="0" append-to-body destroy-on-close>
+  <el-dialog v-model="formDialogVisible" fullscreen class="bpmn-vform--dialog flex-dialog" width="100%" top="0" append-to-body destroy-on-close>
     <FormDesigner ref="FormDesignRef" :fieldListApi="allVariables">
       <template #submit>
         <el-button type="primary" @click="handleFormSubmit">
@@ -77,4 +77,15 @@ defineExpose({ openDialog })
   </el-dialog>
 </template>
 
-<style scoped lang="scss"></style>
+<style lang="scss">
+.flex-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  > .el-dialog__body {  
+    flex: 1;
+    overflow: hidden;
+  }
+}
+</style>

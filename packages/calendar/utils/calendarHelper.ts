@@ -173,7 +173,7 @@ export function displayTimeFn(event: any, dateMode = false) {
   }
 }
 
-export const routeCalendarManagement = function(processInstanceId?: string, activeTab: 'calendar' | 'table') {
+export const routeCalendarManagement = function(processInstanceId?: string, activeTab: 'calendar' | 'table' = 'calendar') {
   return {
     id: 'calendar-management-' + new Date().getTime(),
     name: 'calendar-management',

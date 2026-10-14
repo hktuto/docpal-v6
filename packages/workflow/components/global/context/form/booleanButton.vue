@@ -10,6 +10,7 @@ const {
   buttonText: string
   applyState: boolean
 }>()
+const { t } = useI18n()
 const workflowProvider = inject('workflowFormRender')
 const emits = defineEmits(['submit'])
 
@@ -20,10 +21,19 @@ function beforeSubmit() {
 }
 
 async function submit() {
-  const formData = await workflowProvider?.getFormData(false, false)
-  if (!formData) return
-  formData[booleanValue] = applyState
-  emits('submit', { formData, booleanValue })
+  try {
+    const buttonData: Record<string, boolean> = {
+      [booleanValue]: applyState
+    }
+    await workflowProvider?.updateData(buttonData)
+    const formData = await workflowProvider?.getFormData(false, false, booleanValue)
+    if (!formData) return
+    formData[booleanValue] = applyState
+    emits('submit', { formData, booleanValue })
+  } catch (e) {
+    // 阻擋button的附加事件(messageBox等) cancel事件導致的提交
+    console.log(e)
+  }
 }
 
 defineExpose({ beforeSubmit, booleanValue })
@@ -31,7 +41,7 @@ defineExpose({ beforeSubmit, booleanValue })
 
 <template>
   <el-button :type="buttonStyle" @click="submit">
-    {{ buttonText }}
+    {{ $t(buttonText) }}
   </el-button>
 </template>
 

@@ -1,4 +1,4 @@
-import { inject, provide, ref, toRef, type InjectionKey, type Ref } from 'vue'
+import { computed, inject, provide, ref, toRef, type ComputedRef, type InjectionKey, type Ref } from 'vue'
 import { newClientApi } from 'api'
 import type { WHASupplyListVerifyProps } from './useWHASupplyListVerify'
 import { type GitInvoice, type GitInvoiceLineItem } from '../utils/gitInvoice'
@@ -6,11 +6,21 @@ import { getFileDisplayName, resolveWorkflowFile } from '../utils/workflowHelper
 
 export type InvoiceVerifyProps = WHASupplyListVerifyProps
 
+export function getInvoiceGroupId(invoice: GitInvoice | null | undefined): string | null {
+  const id = invoice?.groupId ?? invoice?.group_id
+  if (id == null || id === '') return null
+  return String(id)
+}
+
 export interface InvoiceVerifyContext {
   formData: Ref<Record<string, any>>
   taskDetail: Ref<Record<string, any> | undefined>
   invoiceList: Ref<GitInvoice[]>
   disabled: Ref<boolean | undefined>
+  /** 当前选中 invoice 的 groupId；有值时禁止编辑 */
+  groupId: ComputedRef<string | null>
+  /** 流程 disabled 或已有 groupId 时为 true */
+  editDisabled: ComputedRef<boolean>
   selectedInvoice: Ref<GitInvoice | null>
   selectInvoice: (item: GitInvoice) => Promise<void>
   /** Patch header fields on selected invoice and persist via update */
@@ -28,6 +38,8 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
   const disabled = toRef(props, 'disabled')
   const invoiceList = ref<GitInvoice[]>([])
   const selectedInvoice = ref<GitInvoice | null>(null)
+  const groupId = computed(() => getInvoiceGroupId(selectedInvoice.value))
+  const editDisabled = computed(() => !!disabled.value || !!groupId.value)
 
   async function selectInvoice(item: GitInvoice) {
     selectedInvoice.value = item
@@ -130,7 +142,9 @@ export function useInvoiceVerifyProvider(props: InvoiceVerifyProps) {
     refreshSelectedInvoice,
     runMatching,
     fetchGroupId,
-    disabled
+    disabled,
+    groupId,
+    editDisabled
   }
 
   provide(InvoiceVerifyKey, context)

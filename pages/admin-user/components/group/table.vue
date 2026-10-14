@@ -30,13 +30,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   api: async (pageParams: any) => {
     const { pageNum = 0, pageSize, orderBy, isDesc } = pageParams
     const data = await fetchGroupsPage({
-      page: pageNum + 1,
+      pageNum,
       pageSize,
       orderBy,
       isDesc,
-      ...(filterParams.value.userNameOrEmail
-        ? { groupName: filterParams.value.userNameOrEmail }
-        : {})
+      ...(filterParams.value.userNameOrEmail ? { groupName: filterParams.value.userNameOrEmail } : {})
     })
     currentGroups.value = data?.list ?? []
     return {

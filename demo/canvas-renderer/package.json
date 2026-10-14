@@ -17,10 +17,10 @@
   "license": "ISC",
   "dependencies": {
     "konva": "^10.2.0",
-    "nuxt": "3.17.7",
-    "vue": "3.5.6",
+    "nuxt": "4.5.2",
+    "vue": "3.5.43",
     "vue-konva": "^3.3.0",
-    "vue-router": "latest"
+    "vue-router": "^5.3.1"
   },
   "devDependencies": {
     "@nuxt/test-utils": "3.18.0",

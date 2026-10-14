@@ -1,18 +1,34 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 import dayjs from 'dayjs'
-import { routeWorkflowDetail, getWorkflowList, workflowResponseHelper } from '#imports'
+import { getWorkflowList, workflowResponseHelper, routeWorkflowCompleteInfo } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
+const emit = defineEmits<{
+  select: [row: Record<string, any>]
+}>()
 const workflowList = await getWorkflowList()
 const { t } = useI18n()
 const user = useUserState().value
 const definition_id = ref<string>('')
-const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'complete_task',
+  optionalConfig: {
+    rowConfig: {
+      useKey: true,
+      isCurrent: true
+    }
+  },
+  optionalEvent: {
+    cellClick: ({ row }: { row: Record<string, any> }) => {
+      if (!row) return
+      tableRef.value?.setCurrentRow?.(row)
+      emit('select', row)
+    }
+  },
   api: async (pageParams: any) => {
     const params = {
       page_size: pageParams.pageSize,
@@ -21,9 +37,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       roles: [user.aclUserDetail.roleId],
       definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : '',
       status: ['completed', 'failed', 'terminated'],
-      involved_user_id: user.userId,
-      // sort_by: 'updated_at',
-      // sort_type: 'desc'
+      involved_user_id: user.userId
     }
     const data = await clientApi.instance.post(`/oniflow/api/v1/processes/instance/page`, params).then((r: any) => workflowResponseHelper(r))
     return {
@@ -31,7 +45,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_workflowName', fixed: 'left', slots: { default: 'name' } },
+    { field: 'name', title: 'workflowEditor.name', fixed: 'left', minWidth: 200 },
+    // { field: 'alias', title: 'workflow_businessKey' },
     {
       field: 'created_at',
       title: 'workflow_createDate',
@@ -57,10 +72,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     },
     {
       field: 'state',
-      title: 'dpTable_status',
-      formatter({ cellValue, row }: any) {
-        return t('workflow.state.' + cellValue.type)
-      }
+      title: 'dpTable_status'
     }
   ],
   dblClickAction: ({ row, column, event }: any) => {
@@ -70,16 +82,17 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
 function handleDblclick(row: any) {
   routerProvider?.navigateTo(
-    routeWorkflowDetail({
-      ...row,
-      workflowType: 'completeTask',
-      db_id: row.completed_nodes[row.completed_nodes.length - 2]
+    routeWorkflowCompleteInfo({
+      ...row
     }),
     false
   )
 }
 
-defineExpose({ reload })
+defineExpose({
+  reload,
+  clearHighlight: () => tableRef.value?.clearCurrentRow?.()
+})
 </script>
 
 <template>
@@ -94,12 +107,8 @@ defineExpose({ reload })
           </el-form-item>
         </div>
       </template>
-      <template #name="{ row }">
-        <span>{{ row?.execution?.input_variables?.business_key || row.name  }}</span>
-      </template>
-      <template #status="{ row }">
-        <el-tag v-if="row.enable" type="success">{{ $t('actions.activated') }}</el-tag>
-        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
+      <template #business_key="{ row }">
+        <span>{{ row?.execution?.input_variables?.business_key || '' }}</span>
       </template>
     </VxeGrid>
   </div>
@@ -108,5 +117,9 @@ defineExpose({ reload })
 <style lang="scss" scoped>
 :deep(.el-input) {
   width: 200px;
+}
+
+:deep(.vxe-body--row.row--current) {
+  background-color: var(--el-color-primary-light-9) !important;
 }
 </style>

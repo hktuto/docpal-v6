@@ -266,25 +266,11 @@ async function handleChangeWorkflow() {
       return
     }
 
-    const startEventNode = data.content?.nodes?.find((item: any) => {
-      if (item.type == 'StartEvent') return item
-    })
-
-    const map: any[] = startEventNode.config?.initialise?.form_fields.map((field: any) => ({
-      id: field.id,
-      name: field.name,
-      type: field.type,
-      display_type: field.display_type,
-      value: ''
-    }))
-    const allWorkflowVariables: any[] = Object.entries(data.content?.variables)
-      .filter(([key]) => !key.includes('__system__'))
+    workflowFormFields.value = Object.entries(data.content?.variables)
       .map(([key, value]) => ({
         id: key,
         ...value
       }))
-
-    workflowFormFields.value = map.length > 0 ? map : allWorkflowVariables
   } catch (e) {
     console.log(e)
   }
@@ -392,7 +378,7 @@ onMounted(async () => {
       </div>
       <el-form label-width="auto">
         <template v-for="formField in workflowFormFields" :key="formField.id">
-          <el-form-item :label="formField.name" size="small">
+          <el-form-item :label="formField.name" size="small" :required="formField.required">
             <el-select v-model="formField.value" filterable clearable>
               <el-option v-for="field in tableFields" :key="field.field_name" :label="field.field_name_alias || field.field_name" :value="field.field_name" />
             </el-select>
@@ -406,13 +392,17 @@ onMounted(async () => {
     <div class="editor-footer">
       <div class="status-toggle">
         <el-radio-group v-model="form.status" size="small">
-          <el-radio-button label="A">Active</el-radio-button>
-          <el-radio-button label="I">Inactive</el-radio-button>
+          <el-radio-button label="A">{{ $t('actions.activate') }}</el-radio-button>
+          <el-radio-button label="I">{{ $t('actions.inactivate') }}</el-radio-button>
         </el-radio-group>
       </div>
       <div class="actions">
-        <el-button size="small" @click="handleCancel">Cancel</el-button>
-        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave">Save</el-button>
+        <el-button size="small" @click="handleCancel">
+          {{ $t('dpButtom_cancel') }}
+        </el-button>
+        <el-button size="small" type="primary" :loading="state.saving" @click="handleSave">
+          {{ $t('common_save') }}
+        </el-button>
       </div>
     </div>
   </div>

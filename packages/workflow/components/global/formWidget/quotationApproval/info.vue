@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ElMessageBox } from 'element-plus'
+import { useUserState } from '@packages/authApp/composables/useAuth'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -79,7 +82,15 @@ async function init() {
   }
 }
 
-async function getFormData(needValidation = true) {
+async function getFormData(needValidation = true, buttonName: string) {
+  let reject_comment
+  if (buttonName === 'is_pm_approval' || buttonName === 'is_gm_approval' || buttonName === 'is_tm_approval') {
+    const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
+      confirmButtonText: t('common_submit')
+    })
+    reject_comment = value
+  }
+
   const newTargetPriceList: any[] = []
   const newSetSampleList = formModel.value.infoList.map((item) => {
     newTargetPriceList.push(...item.target_price_list)
@@ -91,14 +102,15 @@ async function getFormData(needValidation = true) {
   const result = {
     sample_info_list: formModel.value.infoList,
     set_sample_list: newSetSampleList,
-    target_price_list: newTargetPriceList
+    target_price_list: newTargetPriceList,
+    reject_comment: reject_comment
   }
   if (!needValidation) return result
   await formRef.value?.validate()
   return result
 }
 
-onMounted(async () => {})
+onMounted(() => {})
 
 watch(
   () => formModel.value?.infoList?.length,
@@ -173,66 +185,69 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
 
-          <el-col :span="24">
+          <el-col :span="24" class="targetPrice-item-card-col">
             <div class="targetPrice-item-card">
-              <el-row class="targetPrice-item-card__table-header">
-                <el-col :span="1">{{ t('quotationApproval.tier') }}</el-col>
-                <el-col :span="2">{{ t('quotationApproval.costCurrency') }}</el-col>
-                <el-col :span="3">{{ t('quotationApproval.exchangeRate') }}</el-col>
-                <el-col :span="3">{{ t('quotationApproval.moq') }}</el-col>
-                <el-col :span="3">{{ t('quotationApproval.targetPrice') }}</el-col>
-                <el-col :span="4">{{ t('quotationApproval.unitCost') }}</el-col>
-                <el-col :span="4">{{ t('quotationApproval.unitPriceNoTax') }}</el-col>
-                <el-col :span="3">{{ t('quotationApproval.profit') }}</el-col>
-              </el-row>
-              <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
-                <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
-                  <template v-if="targetPriceItem.status !== 'D'">
-                    <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
-                    <el-col :span="2">
-                      <el-input v-model="targetPriceItem.cost_currency" class="full-width-input" disabled style="width: 90%" />
-                    </el-col>
-                    <el-col :span="3">
-                      <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
-                    </el-col>
-                    <el-col :span="3">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.moq" disabled />
-                    </el-col>
-                    <el-col :span="3">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
-                    </el-col>
-                    <el-col :span="4">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.unit_cost" disabled>
-                        <template #suffix>
-                          <span>{{ formData.currency }}</span>
-                        </template>
-                      </el-input-number>
-                    </el-col>
-                    <el-col :span="4">
-                      <el-form-item class="target-price-form-item">
-                        <el-input-number
-                          style="width: 90%"
-                          v-model="targetPriceItem.unit_price_no_tax"
-                          controls-position="right"
-                          :min="0.000001"
-                          :step="0.000001"
-                          @change="calculateProfit(targetPriceItem)"
-                        >
+              <div class="targetPrice-item-card__scroll">
+                <el-row class="targetPrice-item-card__table-header">
+                  <el-col :span="1">{{ t('quotationApproval.tier') }}</el-col>
+                  <el-col :span="2">{{ t('quotationApproval.costCurrency') }}</el-col>
+                  <el-col :span="3">{{ t('quotationApproval.exchangeRate') }}</el-col>
+                  <el-col :span="3">{{ t('quotationApproval.moq') }}</el-col>
+                  <el-col :span="3">{{ t('quotationApproval.targetPrice') }}</el-col>
+                  <el-col :span="4">{{ t('quotationApproval.unitCost') }}</el-col>
+                  <el-col :span="4">{{ t('quotationApproval.unitPriceNoTax') }}</el-col>
+                  <el-col :span="3">{{ t('quotationApproval.profit') }}</el-col>
+                </el-row>
+                <div class="targetPrice-item-card__body" :class="{ 'targetPrice-item-card__body--scrollable': item.target_price_list?.length > 5 }">
+                  <el-row v-for="(targetPriceItem, targetPriceIndex) in item.target_price_list" :key="targetPriceIndex">
+                    <template v-if="targetPriceItem.status !== 'D'">
+                      <el-col :span="1" class="targetPrice-item-card__tier-col"> T{{ targetPriceIndex + 1 }} </el-col>
+                      <el-col :span="2">
+                        <el-input v-model="targetPriceItem.cost_currency" class="full-width-input" disabled style="width: 90%" />
+                      </el-col>
+                      <el-col :span="3">
+                        <el-input-number v-model="targetPriceItem.exchange_rate" disabled style="width: 90%" />
+                      </el-col>
+                      <el-col :span="3">
+                        <el-input-number style="width: 90%" v-model="targetPriceItem.moq" disabled />
+                      </el-col>
+                      <el-col :span="3">
+                        <el-input-number style="width: 90%" v-model="targetPriceItem.target_price" disabled />
+                      </el-col>
+                      <el-col :span="4">
+                        <el-input-number style="width: 90%" v-model="targetPriceItem.unit_cost" disabled>
                           <template #suffix>
                             <span>{{ formData.currency }}</span>
                           </template>
                         </el-input-number>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="3">
-                      <el-input-number style="width: 90%" v-model="targetPriceItem.profit" disabled>
-                        <template #suffix>
-                          <span>%</span>
-                        </template>
-                      </el-input-number>
-                    </el-col>
-                  </template>
-                </el-row>
+                      </el-col>
+                      <el-col :span="4">
+                        <el-form-item class="target-price-form-item">
+                          <el-input-number
+                            style="width: 90%"
+                            v-model="targetPriceItem.unit_price_no_tax"
+                            controls-position="right"
+                            :min="0.000001"
+                            :step="0.000001"
+                            :disabled="disabled"
+                            @change="calculateProfit(targetPriceItem)"
+                          >
+                            <template #suffix>
+                              <span>{{ formData.currency }}</span>
+                            </template>
+                          </el-input-number>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="3">
+                        <el-input-number style="width: 90%" v-model="targetPriceItem.profit" disabled>
+                          <template #suffix>
+                            <span>%</span>
+                          </template>
+                        </el-input-number>
+                      </el-col>
+                    </template>
+                  </el-row>
+                </div>
               </div>
             </div>
           </el-col>
@@ -269,7 +284,11 @@ defineExpose({ getFormData })
               <el-form-item :label="t('quotationApproval.customerPartNumber')" prop="customer_part_number">
                 <el-input v-model="item.customer_part_number" disabled />
               </el-form-item>
-              <el-form-item :label="t('quotationApproval.oldSalesPriceNoTax')" prop="old_sales_price_noTax">
+              <el-form-item
+                v-if="formData.quotation_reason === 'Discount Request'"
+                :label="t('quotationApproval.oldSalesPriceNoTax')"
+                prop="old_sales_price_noTax"
+              >
                 <el-input-number v-model="item.old_sales_price_noTax" controls-position="right" :min="1" :step="1" step-strictly disabled />
               </el-form-item>
             </el-col>
@@ -304,11 +323,22 @@ defineExpose({ getFormData })
   }
 }
 
+.targetPrice-item-card-col {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .targetPrice-item-card {
   border: 1px solid var(--app-grey-800);
   border-radius: var(--app-border-radius-m);
   padding: var(--app-space-s);
   margin-top: var(--app-space-s);
+  max-width: 100%;
+  overflow-x: auto;
+
+  &__scroll {
+    min-width: 1360px;
+  }
 
   &__header {
     display: flex;
@@ -340,6 +370,11 @@ defineExpose({ getFormData })
 
     .target-price-form-item {
       margin-bottom: 0;
+    }
+
+    .el-input,
+    .el-input-number {
+      min-width: 100px;
     }
 
     &--scrollable {

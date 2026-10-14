@@ -9,11 +9,15 @@ let clientBaseURL = '/'
 // let publicBaseURL = '/public-api/report/v1/api'
 let templateBaseURL = '/open-api/template'
 let gatewayBaseURL = '/gateway'
+let workflowBaseURL = '/api'
 export const clientApi = new Standard({
   baseURL: clientBaseURL,
   timeout: 50000
 })
-
+export const workflowApi = new Standard({
+  baseURL: workflowBaseURL,
+  timeout: 50000
+})
 export const adminApi = new Admin({
   baseURL: clientBaseURL,
   timeout: 50000

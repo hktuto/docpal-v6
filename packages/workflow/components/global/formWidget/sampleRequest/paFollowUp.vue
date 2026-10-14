@@ -27,6 +27,9 @@ type dataType = {
   received_date: string
   vendor_attn: string
   actual_received_qty: number
+  vendor_coo: string
+  etd: number
+  eta: number
 }
 
 const formModel = reactive<{ list: dataType[] }>({
@@ -41,7 +44,10 @@ const formModel = reactive<{ list: dataType[] }>({
       sales_admin: '',
       received_date: '',
       vendor_attn: '',
-      actual_received_qty: 1
+      actual_received_qty: 1,
+      vendor_coo: '',
+      etd: 0,
+      eta: 0
     }
   ]
 })
@@ -96,8 +102,11 @@ defineExpose({ getFormData })
             <el-form-item :label="t('sampleRequest.productManager')">
               <el-input v-model="item.pm" disabled />
             </el-form-item>
-            <el-form-item :label="t('sampleRequest.packaged')">
-              <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" />
+            <el-form-item :label="t('sampleRequest.vendorCoo')">
+              <el-input v-model="item.vendor_coo" disabled />
+            </el-form-item>
+            <el-form-item :label="t('sampleRequest.receivedDate')" :prop="`list.${index}.received_date`" :rules="rules.received_date">
+              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" />
             </el-form-item>
           </el-col>
 
@@ -105,9 +114,11 @@ defineExpose({ getFormData })
             <el-form-item :label="t('sampleRequest.salesAdmin')">
               <el-input v-model="item.sales_admin" disabled />
             </el-form-item>
-
-            <el-form-item :label="t('sampleRequest.receivedDate')" :prop="`list.${index}.received_date`" :rules="rules.received_date">
-              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" />
+            <el-form-item :label="t('sampleRequest.etd')">
+              <el-date-picker v-model="item.etd" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" disabled />
+            </el-form-item>
+            <el-form-item :label="t('sampleRequest.actualReceivedQty')" :prop="`list.${index}.actual_received_qty`" :rules="rules.actual_received_qty">
+              <el-input-number v-model="item.actual_received_qty" controls-position="right" :min="1" :step="1" step-strictly value-on-clear="min" />
             </el-form-item>
           </el-col>
 
@@ -115,8 +126,11 @@ defineExpose({ getFormData })
             <el-form-item :label="t('sampleRequest.vendorAttn')">
               <el-input v-model="item.vendor_attn" disabled />
             </el-form-item>
-            <el-form-item :label="t('sampleRequest.actualReceivedQty')" :prop="`list.${index}.actual_received_qty`" :rules="rules.actual_received_qty">
-              <el-input-number v-model="item.actual_received_qty" controls-position="right" :min="1" :step="1" step-strictly value-on-clear="min" />
+            <el-form-item :label="t('sampleRequest.eta')">
+              <el-date-picker v-model="item.eta" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" disabled />
+            </el-form-item>
+            <el-form-item :label="t('sampleRequest.packaged')">
+              <el-switch v-model="item.packaged" active-text="Yes" :active-value="1" inactive-text="No" :inactive-value="0" />
             </el-form-item>
           </el-col>
         </el-row>

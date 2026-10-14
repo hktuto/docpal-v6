@@ -7,20 +7,36 @@ const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
+const emit = defineEmits<{
+  select: [row: Record<string, any>]
+}>()
 const workflowList = await getWorkflowList()
 const { t } = useI18n()
 const userId: string = useUserId().value
 const definition_id = ref<string>('')
-const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
+
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'my_task',
+  optionalConfig: {
+    rowConfig: {
+      useKey: true,
+      isCurrent: true
+    },
+    rowClassName: ({ row }: { row: Record<string, any> }) => (row?.isHandle ? 'row--struck' : '')
+  },
+  optionalEvent: {
+    cellClick: ({ row }: { row: Record<string, any> }) => {
+      if (!row || row.isHandle) return
+      tableRef.value?.setCurrentRow?.(row)
+      emit('select', row)
+    }
+  },
   api: async (pageParams: any) => {
     const params = {
       page_size: pageParams.pageSize,
       page_num: pageParams.pageNum,
       assignee: userId,
       definition_id: !!definition_id.value && definition_id.value !== '' ? definition_id.value : ''
-      // sort:"created_at",
-      // order: "desc"
     }
     const data = await clientApi.instance.post(`/oniflow/api/v1/task/overview/todos`, params).then((r: any) => workflowResponseHelper(r))
     return {
@@ -28,7 +44,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
   },
   columns: [
-    { field: 'name', title: 'workflow_jobName', slots: { default: 'name' } },
+    { field: 'definition_name', title: 'workflowEditor.name', fixed: 'left' },
+    { field: 'name', title: 'workflow_jobName' },
+    { field: 'alias', title: 'workflow_businessKey' },
     { field: 'config.human_task.assignee', title: 'workflow_assignee', slots: { default: 'assignee' } },
     {
       field: 'execution.started_at',
@@ -53,6 +71,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 
 function handleDblclick(row: any) {
+  if (row?.isHandle) return
   routerProvider?.navigateTo(
     routeWorkflowDetail({
       ...row,
@@ -68,7 +87,42 @@ function handleAssignee(assignee: string) {
   return !assignee.includes('${')
 }
 
-defineExpose({ reload })
+function getTableRows() {
+  const grid = tableRef.value as any
+  return grid?.getTableData?.()?.fullData ?? grid?.getData?.() ?? []
+}
+
+function handleRefreshHandledRows() {
+  nextTick(() => {
+    const grid = tableRef.value as any
+    if (!grid) return
+    const fullData = getTableRows()
+    if (typeof grid.loadData === 'function') {
+      grid.loadData([...fullData])
+      return
+    }
+    grid.updateData?.()
+    grid.recalculate?.(true)
+  })
+}
+
+/** submit/terminate 后给相关行打 isHandle，用于删除线样式 */
+function markStruck(dbId: string, processId?: string) {
+  const id = String(dbId)
+  const pid = processId != null ? String(processId) : ''
+  getTableRows().forEach((row: Record<string, any>) => {
+    if (String(row.db_id) === id || (pid && String(row.process_id) === pid)) {
+      row.isHandle = true
+    }
+  })
+  handleRefreshHandledRows()
+}
+
+defineExpose({
+  reload,
+  clearHighlight: () => tableRef.value?.clearCurrentRow?.(),
+  markStruck
+})
 </script>
 
 <template>
@@ -83,9 +137,6 @@ defineExpose({ reload })
           </el-form-item>
         </div>
       </template>
-      <template #name="{ row }">
-        <span>{{ row.name || row?.config?.human_task?.form_title }}</span>
-      </template>
       <template #assignee="{ row }">
         <el-tag v-if="handleAssignee(row.config.human_task.assignee)" round>
           {{ row.config.human_task.assignee || '' }}
@@ -98,5 +149,20 @@ defineExpose({ reload })
 <style lang="scss" scoped>
 :deep(.el-input) {
   width: 200px;
+}
+
+:deep(.vxe-body--row.row--current) {
+  background-color: var(--el-color-primary-light-9) !important;
+}
+
+:deep(.vxe-body--row.row--struck) {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+
+  .vxe-body--column,
+  .vxe-cell {
+    text-decoration: line-through;
+  }
 }
 </style>

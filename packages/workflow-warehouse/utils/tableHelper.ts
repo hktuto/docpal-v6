@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { postDynamicActions } from 'api'
 import { COUNTRY_STATIC_ALIASES } from './countryAliases'
+import { normalizeMatchText } from './workflowHelper'
 
 export type VerificationStatusFilter = 'all' | 'ok' | 'unVerified'
 
@@ -19,7 +20,7 @@ export function matchSearchValue(value: unknown, query: string): boolean {
 }
 
 export function rowMatchKey(...parts: unknown[]) {
-  return parts.map((part) => String(part ?? '').trim()).join('::')
+  return parts.map((part) => normalizeMatchText(part)).join('::')
 }
 
 export function toNumberOrNull(value: unknown): number | null {
@@ -28,17 +29,43 @@ export function toNumberOrNull(value: unknown): number | null {
   return Number.isFinite(n) ? n : null
 }
 
+/** 数字展示：整数部分千分位，小数部分原样保留；空值返回空字符串 */
+export function formatThousandNumber(value: unknown): string {
+  if (value === '' || value == null) return ''
+  const raw = String(value).trim().replace(/,/g, '')
+  if (!/^-?(?:\d+\.?\d*|\.\d+)$/.test(raw)) {
+    const n = Number(value)
+    if (!Number.isFinite(n)) return ''
+    return formatThousandNumber(String(n))
+  }
+  const negative = raw.startsWith('-')
+  const unsigned = negative ? raw.slice(1) : raw
+  const [intPart = '0', frac] = unsigned.split('.')
+  const intFormatted = Number(intPart || '0').toLocaleString('en-US')
+  const body = frac != null ? `${intFormatted}.${frac}` : intFormatted
+  return negative ? `-${body}` : body
+}
+
 export function toCheckedBoolean(value: unknown): boolean {
   return value === true || value === 1 || value === 'true'
 }
 
-export function editableColumn(type: EditableColumnType = 'text', selectOptions: SelectOption[] = []) {
+export function editableColumn(type: EditableColumnType = 'text', props: Record<string, any> = {}) {
   if (type === 'number') {
     return {
+      align: 'right',
+      formatter: ({ cellValue }: { cellValue: unknown }) => formatThousandNumber(cellValue),
       editRender: {
-        name: 'VxeInput',
-        autofocus: '.vxe-input--inner',
-        props: { type: 'number' }
+        name: 'VxeNumberInput',
+        autofocus: '.vxe-number-input--input',
+        props: {
+          type: 'amount',
+          min: 0,
+          autoFill: false,
+          align: 'right',
+          showCurrency: false,
+          ...props
+        }
       }
     }
   }
@@ -48,12 +75,12 @@ export function editableColumn(type: EditableColumnType = 'text', selectOptions:
       editRender: {
         name: 'VxeSelect',
         autofocus: '.vxe-input--inner',
-        options: selectOptions,
         props: {
           clearable: true,
           filterable: true,
           transfer: true,
-          popupClassName: 'wha-verify-select-panel'
+          popupClassName: 'wha-verify-select-panel',
+          ...props
         }
       }
     }
@@ -63,77 +90,9 @@ export function editableColumn(type: EditableColumnType = 'text', selectOptions:
     editRender: {
       name: 'VxeTextarea',
       autofocus: '.vxe-textarea--inner',
-      props: { rows: 2, autosize: { minRows: 2, maxRows: 6 } }
+      props: { rows: 2, autosize: { minRows: 2, maxRows: 6 }, ...props }
     }
   }
-}
-
-export function createInvoiceVerificationTableColumns(t: (key: string) => string) {
-  return [
-    {
-      type: 'seq',
-      width: 56,
-      align: 'right',
-      fixed: 'left',
-      title: t('workflowWarehouse.lineNo')
-    },
-    {
-      field: 'po_no',
-      title: t('workflowWarehouse.poNo'),
-      minWidth: 130,
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn()
-    },
-    {
-      field: 'po_line',
-      title: t('workflowWarehouse.poLine'),
-      minWidth: 90,
-      type: 'number',
-      ...editableColumn('number')
-    },
-    {
-      field: 'vendor_item_no',
-      title: t('workflowWarehouse.vendorItemNo'),
-      minWidth: 150,
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn()
-    },
-    {
-      field: 'line_qty',
-      title: t('workflowWarehouse.lineQty'),
-      minWidth: 100,
-      type: 'number',
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn('number')
-    },
-    {
-      field: 'unit_price',
-      title: t('workflowWarehouse.unitPrice'),
-      minWidth: 110,
-      type: 'number',
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn('number')
-    },
-    {
-      field: 'line_amount',
-      title: t('workflowWarehouse.lineAmount'),
-      minWidth: 120,
-      type: 'number',
-      required: true,
-      headerClassName: 'is-required',
-      ...editableColumn('number')
-    },
-    {
-      field: 'status',
-      title: t('workflowWarehouse.lineStatus'),
-      minWidth: 160,
-      showOverflow: true
-    }
-  ]
 }
 
 export interface VerificationTableContext {
@@ -154,6 +113,8 @@ export interface VerificationTableContext {
   /** 按 Supplier_PN + PoLine 高亮匹配行（红底），可传单条或数组 */
   highlightMatchingRows: (matches: HighlightMatchKey | HighlightMatchKey[]) => void
   clearMatchingRowHighlight: () => void
+  /** 当前是否存在红底高亮（未匹配）行 */
+  hasHighlightedRows: Ref<boolean>
   scrollToMatchingRow?: (match: HighlightMatchKey) => void
   /** 将匹配行的 verified 勾选重置为 false */
   resetVerifiedMatches?: (matches: HighlightMatchKey | HighlightMatchKey[]) => boolean
@@ -170,6 +131,8 @@ export type CreateVerificationTableOptionsParams = {
   onBatchEdit?: (columnField: string | undefined) => void
   onEditClosed?: (params: { row: Record<string, any>; column?: { field?: string } }) => void
   beforeEditMethod?: (params: { row: Record<string, any>; column?: any }) => boolean
+  /** return false to lock cell edit and row actions */
+  isEditable?: () => boolean
   /** supply-list verify uses checkbox; invoice verify uses status text */
   checkboxField?: string
   /** default true; invoice verify disables header batch edit */
@@ -178,18 +141,11 @@ export type CreateVerificationTableOptionsParams = {
 
 /** useVxeTable 共用配置（height / actions / edit / optionalConfig） */
 export function createVerificationTableOptions(params: CreateVerificationTableOptionsParams) {
-  const {
-    t,
-    columns,
-    onBatchEdit,
-    onCopy,
-    onDelete,
-    getRowClassName,
-    onEditClosed,
-    beforeEditMethod,
-    checkboxField,
-    enableHeaderActions = true
-  } = params
+  const { t, columns, onBatchEdit, onCopy, onDelete, getRowClassName, onEditClosed, beforeEditMethod, isEditable, checkboxField, enableHeaderActions = true } = params
+
+  function canEdit() {
+    return isEditable?.() ?? true
+  }
 
   return {
     height: '100%',
@@ -228,12 +184,13 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
       ]
     ],
     permissionMethod: ({ row, code, column }: any) => {
+      const editable = canEdit()
       if (code === 'batchEdit') {
-        return { visible: Boolean(column?.editRender), disabled: false }
+        return { visible: editable && Boolean(column?.editRender), disabled: !editable }
       }
       return {
-        visible: !!row,
-        disabled: false
+        visible: !!row && editable,
+        disabled: !editable
       }
     },
     editRender: {
@@ -244,7 +201,10 @@ export function createVerificationTableOptions(params: CreateVerificationTableOp
         showIcon: false,
         showStatus: false,
         autoFocus: true,
-        ...(beforeEditMethod ? { beforeEditMethod } : {})
+        beforeEditMethod: (params: any) => {
+          if (!canEdit()) return false
+          return beforeEditMethod?.(params) ?? true
+        }
       }
     },
     optionalConfig: {
@@ -327,11 +287,7 @@ export function buildCountryLookup(list: SelectOption[]) {
   return map
 }
 
-export function normalizeCountryFields(
-  rows: Record<string, any>[],
-  countryList: SelectOption[],
-  fields: readonly string[]
-) {
+export function normalizeCountryFields(rows: Record<string, any>[], countryList: SelectOption[], fields: readonly string[]) {
   if (!countryList.length) return rows
   const lookup = buildCountryLookup(countryList)
   return rows.map((row) => {
@@ -404,18 +360,11 @@ export function getStatusCounts(
   }
 }
 
-export function getMissingRequiredLabels(
-  row: Record<string, any>,
-  requiredColumns: Array<{ field: string; title: string }>
-) {
+export function getMissingRequiredLabels(row: Record<string, any>, requiredColumns: Array<{ field: string; title: string }>) {
   return requiredColumns.filter((col) => row[col.field] == null || row[col.field] === '').map((col) => col.title)
 }
 
-export function createRowFromColumns(
-  columns: Array<{ field?: string; type?: string }>,
-  extras: Record<string, any>,
-  source?: Record<string, any>
-) {
+export function createRowFromColumns(columns: Array<{ field?: string; type?: string }>, extras: Record<string, any>, source?: Record<string, any>) {
   const row: Record<string, any> = { ...extras }
   columns.forEach((col) => {
     if (!col.field) return

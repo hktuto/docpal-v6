@@ -75,6 +75,7 @@ export interface DtoApplicationUserDTO {
     lastName?: string;
     lockedUntil?: string;
     mustResetPassword?: boolean;
+    oracleUserInfo?: DtoOracleUserInfoDTO;
     org?: DtoUserOrganizationDTO[];
     password?: string;
     phone?: string;
@@ -158,6 +159,7 @@ export interface DtoCreateUserRequest {
     groupIds?: string[];
     lastName?: string;
     mustResetPassword?: boolean;
+    oracleUserInfo?: DtoOracleUserInfoDTO;
     password?: string;
     phone?: string;
     registered?: boolean;
@@ -276,6 +278,11 @@ export interface DtoLogoutRequest {
     sessionId?: string;
 }
 
+export interface DtoOracleUserInfoDTO {
+    userId?: number;
+    userName?: string;
+}
+
 export interface DtoRemoveUsersFromGroupRequest {
     groupId: string;
     /** @minItems 1 */
@@ -324,6 +331,8 @@ export interface DtoUpdateUserRequest {
     firstName?: string;
     lastName?: string;
     mustResetPassword?: boolean;
+    oracleUserInfo?: DtoOracleUserInfoDTO;
+    org?: DtoUserOrganizationUpsertDTO;
     phone?: string;
     registered?: boolean;
     status?: "A" | "I" | "L" | "D";
@@ -333,6 +342,15 @@ export interface DtoUpdateUserRequest {
 }
 
 export interface DtoUserOrganizationDTO {
+    operatingId?: string;
+    operatingName?: string;
+    organizationCode?: string;
+    organizationId?: string;
+    organizationName?: string;
+}
+
+export interface DtoUserOrganizationUpsertDTO {
+    doDelete?: boolean;
     operatingId?: string;
     operatingName?: string;
     organizationCode?: string;
@@ -426,6 +444,7 @@ export interface HandlerCurrentProfileResponse {
     lastName?: string;
     lockedUntil?: string;
     mustResetPassword?: boolean;
+    oracleUserInfo?: DtoOracleUserInfoDTO;
     org?: DtoUserOrganizationDTO[];
     password?: string;
     phone?: string;
@@ -1539,14 +1558,22 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             }),
 
         /**
-         * @description Get list of groups for dropdown selection
+         * @description Get list of groups for dropdown selection. If limit is omitted, return all matched groups.
          *
          * @tags group
          * @name GetGroupsSelect
          * @summary Get Group Dropdown List
          * @request GET:/groups/select
          */
-        getGroupsSelect: (params: RequestParams = {}) =>
+        getGroupsSelect: (
+            query?: {
+                /** Search keyword. Matches group_name and group_id */
+                keyword?: string;
+                /** Optional result size limit. If omitted, return all matched groups; max: 50 */
+                limit?: number;
+            },
+            params: RequestParams = {},
+        ) =>
             this.request<
                 ResponseResponse & {
                     data?: DtoSelectOptionDTO[];
@@ -1555,6 +1582,7 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             >({
                 path: `/groups/select`,
                 method: "GET",
+                query: query,
                 type: ContentType.Json,
                 format: "json",
                 ...params,
@@ -2465,9 +2493,9 @@ export class Gateway<SecurityDataType extends unknown> extends HttpClient<Securi
             query?: {
                 /** Search keyword. Matches user_name,user_id,email,first_name,last_name,organization_code,organization_name,operating_name */
                 keyword?: string;
-                /** Page number, starts from 0. Default: 0 */
+                /** Page number, starts from 0. If pageNum/pageSize/limit are all omitted, return all matched users */
                 pageNum?: number;
-                /** Page size. Default: 20, max: 50 */
+                /** Page size. When paging is enabled, default: 20, max: 50 */
                 pageSize?: number;
                 /** Legacy alias of pageSize. Used only when pageSize is not provided */
                 limit?: number;

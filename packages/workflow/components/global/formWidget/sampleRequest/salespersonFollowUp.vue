@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ElMessageBox } from 'element-plus'
+
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
   formData: any
@@ -47,7 +49,12 @@ function init() {
   }
 }
 
-function getFormData() {
+async function getFormData(needValidation = true, buttonName: string) {
+  if (buttonName === 'is_cancel') {
+    await ElMessageBox.alert(t('sampleRequest.cancelConfirmEms'), {
+      confirmButtonText: t('common_submit')
+    })
+  }
   return { sample_info_list: data.value }
 }
 
@@ -148,11 +155,16 @@ defineExpose({ getFormData })
             </el-form-item>
           </el-col>
 
-          <!--          <el-col :span="8">-->
-          <!--            <el-form-item label="客戶收到樣品日期" required>-->
-          <!--              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" :disabled="disabledReceivedDate" />-->
-          <!--            </el-form-item>-->
-          <!--          </el-col>-->
+          <el-col :span="8">
+            <el-form-item :label="t('sampleRequest.trackingNumber')">
+              <el-input v-model="item.tracking_number" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item :label="t('sampleRequest.trackingDate')">
+              <el-date-picker v-model="item.tracking_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" disabled />
+            </el-form-item>
+          </el-col>
         </el-row>
       </div>
     </template>

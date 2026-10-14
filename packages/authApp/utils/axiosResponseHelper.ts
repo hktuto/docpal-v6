@@ -19,7 +19,7 @@ function resolveBaseUrl(baseURL: string) {
     '/admin/api': ADMIN_PROXY || '/admin/api',
     '/adminApi/api': ADMIN_PROXY || '/admin/api',
     '/apis': (DOCPAL_GATEWAY_PROXY as string) || '/apis',
-    '/api': PROXY || '/api',
+    '/api': CLIENT_PROXY || '/api',
     '/docpalApi': PROXY || '/api',
     '/public-api/report/v1/api': DASHBOARD_PROXY || '/public-api/report/v1/api',
     '/open-api/template': (OPEN_PROXY as string) || '/open-api/template',
@@ -85,7 +85,7 @@ export function requestSuccessHelper(config: AxiosRequestConfig, _axiosInstance?
 
   if (process.env.NODE_ENV !== 'development' && config.baseURL) {
     config.baseURL = resolveBaseUrl(config.baseURL)
-    console.log('config.baseURL', config.baseURL)
+
   }
 
   return config

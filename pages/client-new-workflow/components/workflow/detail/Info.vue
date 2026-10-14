@@ -6,7 +6,6 @@ const emits = defineEmits(['change'])
 const { taskDetail } = defineProps<{
   taskDetail: any
 }>()
-const { t } = useI18n()
 const userId: string = useUserId().value
 const routerProvider = inject(MenuRouterKey)
 const loading = ref(false)
@@ -21,11 +20,10 @@ async function handleUnclaim() {
     const parms = {
       user_id: userId
     }
-    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`,parms).then((r: any) => workflowResponseHelper(r))
+    await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/unclaim`, parms).then((r: any) => workflowResponseHelper(r))
     emits('change', false)
   } catch (error) {
     routerProvider?.message.error('Unclaim Task Fail')
-    console.log(error)
   }
   setTimeout(() => {
     loading.value = false
@@ -42,11 +40,10 @@ async function handleClaim() {
     const parms = {
       user_id: userId
     }
-    const response = await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
+    await clientApi.instance.post(`/oniflow/api/v1/processes/instance-task/${taskDetail.db_id}/claim`, parms).then((r: any) => workflowResponseHelper(r))
     emits('change', true)
   } catch (error) {
     routerProvider?.message.error('Claim Task Fail')
-    console.log(error)
   }
   setTimeout(() => {
     loading.value = false
@@ -74,12 +71,6 @@ async function handleClaim() {
         {{ formatDate(taskDetail?.execution?.started_at) }}
       </div>
     </div>
-    <!--    <div class="infoContainer">-->
-    <!--      <div class="label">{{ $t('workflow_dueDate') }}</div>-->
-    <!--      <div class="value">-->
-    <!--        {{ formatDate(taskDetail.updated_at) }}-->
-    <!--      </div>-->
-    <!--    </div>-->
 
     <div class="flex-x-start">
       <el-button id="Workflow__AvailableTask__Detail__JobInfo__UnclaimTask" v-if="isAssigneeUser" type="warning"

@@ -7,6 +7,7 @@ type ReviewPayload = {
   dataList: any[]
 }
 
+const { t } = useI18n()
 const visible = ref<boolean>(false)
 const formModel = reactive({
   office: '',
@@ -22,7 +23,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   columns: [
     {
       field: 'index',
-      title: '序號 Index',
+      title: t('transferNoteApproval.index'),
       align: 'center',
       type: 'seq',
       fixed: 'left',
@@ -30,52 +31,52 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
     },
     {
       field: 'po_number',
-      title: 'PO編號 PO Number',
+      title: t('transferNoteApproval.poNumber'),
       minWidth: 240
     },
     {
       field: 'part_number',
-      title: '零件編號 Part Number',
+      title: t('transferNoteApproval.partNumber'),
       minWidth: 240
     },
     {
       field: 'origin',
-      title: '來源 Origin',
+      title: t('transferNoteApproval.origin'),
       minWidth: 100
     },
     {
       field: 'sys_qty',
-      title: '系統數量 Sys Qty',
+      title: t('transferNoteApproval.sysQty'),
       minWidth: 240
     },
     {
       field: 'product_name',
-      title: '產品名稱 Product Name',
+      title: t('transferNoteApproval.productName'),
       minWidth: 240
     },
     {
       field: 'from_sub_inventory',
-      title: '來自子庫存 From Sub-Inventory',
+      title: t('transferNoteApproval.fromSubInventory'),
       minWidth: 240
     },
     {
       field: 'sub_inventory',
-      title: '至子庫存 To Sub-Inventory',
+      title: t('transferNoteApproval.toSubInventory'),
       minWidth: 240
     },
     {
       field: 'qty',
-      title: '轉移數量 Transfer Qty',
+      title: t('transferNoteApproval.transferQty'),
       minWidth: 140
     },
     {
       field: 'unit_price',
-      title: '單價 Unit Price',
+      title: t('transferNoteApproval.unitPrice'),
       minWidth: 160
     },
     {
       field: 'amount',
-      title: '合計 Amount',
+      title: t('transferNoteApproval.amount'),
       minWidth: 150
     }
   ],
@@ -88,6 +89,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   saveColumnOrder: false
 })
 
+let pending: {
+  resolve: () => void
+  reject: (reason?: Error) => void
+} | null = null
+
 function open(payload: ReviewPayload) {
   visible.value = true
   formModel.office = payload.office
@@ -97,45 +103,87 @@ function open(payload: ReviewPayload) {
   dataList.value = payload.dataList
 
   nextTick(() => reload())
+  return new Promise<void>((resolve, reject) => {
+    pending = { resolve, reject }
+  })
+}
+
+function settle(confirmed: boolean) {
+  if (!pending) return
+  const { resolve, reject } = pending
+  pending = null
+  visible.value = false
+  if (confirmed) resolve()
+  else reject(new Error('cancelled'))
+}
+
+function handleSubmit() {
+  settle(true)
+}
+
+function handleClose() {
+  settle(false)
 }
 
 defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="Transfer Note Creation - Confirm" append-to-body class="big" destroy-on-close @close="visible = false">
-    <el-form :model="formModel" label-position="top" class="tn-review-form">
-      <el-row :gutter="16">
-        <el-col :span="8">
-          <el-form-item label="辦事處 Office">
-            <el-input :model-value="formModel.office" disabled />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="TN計畫日期 TN Planned Date">
-            <el-input :model-value="formModel.toPlannedDate" disabled />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="商品檢驗 Commodity Inspection">
-            <el-input :model-value="formModel.commodityInspection" disabled />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-form-item label="備註 Remarks">
-        <el-input :model-value="formModel.remark" disabled />
-      </el-form-item>
-    </el-form>
-
+  <el-dialog
+    v-model="visible"
+    :title="t('transferNoteApproval.confirmTitle')"
+    class="big"
+    destroy-on-close
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    :show-close="false"
+    @close="handleClose"
+  >
     <div class="tn-review-table">
-      <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" />
+      <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+        <template #toolbar_buttons>
+          <el-form :model="formModel" label-position="top" class="tn-review-form">
+            <el-row :gutter="8">
+              <el-col :span="8">
+                <el-form-item :label="t('transferNoteApproval.office')">
+                  <el-input :model-value="formModel.office" disabled />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item :label="t('transferNoteApproval.tnPlannedDate')">
+                  <el-input :model-value="formModel.toPlannedDate" disabled />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item :label="t('transferNoteApproval.commodityInspection')">
+                  <el-input :model-value="formModel.commodityInspection" disabled />
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item :label="t('transferNoteApproval.remark')">
+                  <el-input :model-value="formModel.remark" disabled />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+        </template>
+      </VxeGrid>
     </div>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="handleClose">{{ t('common_back') }}</el-button>
+        <el-button :disabled="formModel.commodityInspection === 'N'" type="primary" @click="handleSubmit">
+          {{ t('transferNoteApproval.confirmSubmit') }}
+        </el-button>
+      </div>
+    </template>
   </el-dialog>
 </template>
 
 <style scoped lang="scss">
 .tn-review-form {
-  margin-bottom: 12px;
+  width: 100%;
 }
 
 .tn-review-table {

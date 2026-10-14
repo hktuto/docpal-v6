@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import * as XLSX from 'xlsx'
 import { Search, Download, Plus, Delete } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import dayjs from 'dayjs'
 import { clientApi } from 'api'
+import { useUserState } from '@packages/authApp/composables/useAuth'
 
 const { formData } = defineProps<{
   disabled: boolean
@@ -39,7 +40,8 @@ const currencyOptions = ref([
   { label: 'HKD', value: 'HKD' },
   { label: 'USD', value: 'USD' }
 ])
-const seriesOptions = ref<any[]>([])
+const endCustomerOptions = ref<any[]>([])
+const seriesOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
 const partNumberOptions = ref<any[]>([{ label: 'Any', value: 'Any' }])
 const formModel = reactive({
   priceAnnouncementNumber: '',
@@ -84,22 +86,25 @@ const rules = {
     }
   ]
 }
+const endCustomerRules = {
+  endCustomer: [{ required: true, message: t('render.hint.fieldRequired', { name: t('priceAnnouncement.endCustomer') }), trigger: 'change' }]
+}
 
 function disabledEffectiveDate(date: Date) {
   return !dayjs(date).isAfter(dayjs(), 'day')
 }
 
 watch(
-  tableData,
+  () => tableData.value,
   (list) => {
     formModel.listLength = list.length
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 function getColumns() {
   const checkboxCol = { type: 'checkbox', width: 60, align: 'center', fixed: 'left' }
-  const approvalRemark = { field: 'approvalRemark', title: t('priceAnnouncement.approvalRemark'), minWidth: 240, slots: { default: 'approvalRemark' } }
+  const approvalRemark = { field: 'approvalRemark', title: t('priceAnnouncement.approvalRemark'), minWidth: 220, slots: { default: 'approvalRemark' } }
 
   const defList: any[] = [
     {
@@ -108,7 +113,7 @@ function getColumns() {
       align: 'center',
       type: 'seq',
       fixed: 'left',
-      minWidth: 100
+      minWidth: 80
     },
     {
       field: 'endCustomer',
@@ -131,25 +136,25 @@ function getColumns() {
     {
       field: 'currency',
       title: t('priceAnnouncement.currency'),
-      minWidth: 240,
+      minWidth: 120,
       slots: { default: 'currency' }
     },
     {
       field: 'originalUnitPrice',
       title: t('priceAnnouncement.originalUnitPrice'),
-      minWidth: 240,
+      minWidth: 160,
       slots: { default: 'originalUnitPrice' }
     },
     {
       field: 'newUnitPrice',
       title: t('priceAnnouncement.newUnitPrice'),
-      minWidth: 240,
+      minWidth: 160,
       slots: { default: 'newUnitPrice' }
     },
     {
       field: 'adjustmentRate',
       title: t('priceAnnouncement.adjustmentRate'),
-      minWidth: 240,
+      minWidth: 160,
       slots: { default: 'adjustmentRate' }
     }
   ]
@@ -166,7 +171,7 @@ function getColumns() {
 }
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'ModificationSalesOrderTableSetting',
+  id: 'priceAnnouncementList',
   api: (pageParams: any) => {
     return tableData.value
   },
@@ -213,12 +218,12 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 function handleAddRow() {
   tableData.value.push({
     endCustomer: '',
-    priceGroup: '',
+    priceGroup: 'Any',
     supplierPartNumber: 'Any',
-    currency: '',
-    originalUnitPrice: 0,
-    newUnitPrice: 0,
-    adjustmentRate: 0,
+    currency: 'CNY',
+    originalUnitPrice: 1,
+    newUnitPrice: 1,
+    adjustmentRate: 100,
     approvalRemark: ''
   })
   reload()
@@ -226,6 +231,7 @@ function handleAddRow() {
 
 function handleDelete(row: tableDataType) {
   tableData.value = tableData.value.filter((item: tableDataType) => item !== row)
+  selectList.value = []
   reload()
 }
 
@@ -256,7 +262,27 @@ function handleDownloadTemplate() {
   link.click()
 }
 
+async function getCustomers(query?: string) {
+  const q = query ? `q=${query}&` : ''
+  const data: any[] = await clientApi.instance.get(`/apis/v1/ms/oracle/customers?${q}&limit=${1000}`).then((r: any) => r.data?.items)
+  const map = data
+    .map((item: any) => ({
+      label: item.customer_name,
+      value: item.account_number
+    }))
+    .sort((a: any, b: any) => a.label.localeCompare(b.label))
+  const merged = [...map, ...endCustomerOptions.value]
+  const seen = new Set<string>()
+  endCustomerOptions.value = merged.filter((item) => {
+    if (seen.has(item.value)) return false
+    seen.add(item.value)
+    return true
+  })
+}
+
 async function handleGetSeries(brandName: string) {
+  const s = brandName !== 'KOA' ? 'Any' : 'KOA'
+  await getPartNumber(s)
   if (brandName !== 'KOA') return
   await getSeries()
 }
@@ -264,13 +290,23 @@ async function handleGetSeries(brandName: string) {
 async function getSeries(series?: string) {
   try {
     const q = !!series && series !== '' ? `q=${series}&` : ''
+
     const data = await clientApi.instance.get(`/apis/v1/ms/oracle/series?${q}brand=KOA&pageNum=1&pageSize=100`).then((r: any) => r.data.items)
     if (!data?.length) return
 
-    seriesOptions.value = data.map((item: any) => ({
-      label: item.displayName,
-      value: item.value
-    }))
+    const value = data
+      .map((item: any) => ({
+        label: item.displayName,
+        value: item.value
+      }))
+      .sort((a: any, b: any) => a.label.localeCompare(b.label))
+    const merged = [...value, ...seriesOptions.value]
+    const seen = new Set<string>()
+    seriesOptions.value = merged.filter((item) => {
+      if (seen.has(item.value)) return false
+      seen.add(item.value)
+      return true
+    })
   } catch (e) {
     console.log(e)
   }
@@ -279,19 +315,31 @@ async function getSeries(series?: string) {
 async function getPartNumber(series?: string, partNumber?: string) {
   try {
     const b = formModel.brand ? `brand=${formModel.brand}&` : ''
-    const s = series ? `series=${series}&` : ''
+    let s = series !== 'Any' ? `series=${series}&` : ''
+
     const q = partNumber ? `q=${partNumber}&` : ''
+    if (formModel.brand === 'KOA') {
+      s = ''
+    }
 
     const data = await clientApi.instance
       .get(`/apis/v1/ms/oracle/wcl-item-nos?${b}${s}${q}pageNum=1&pageSize=50&includeCustomer=false`)
       .then((r: any) => r.data.items)
     if (!data?.length) return
 
-    const value = data.map((item: any) => ({
-      label: item.vendor_item_no,
-      value: item.vendor_item_no
-    }))
-    partNumberOptions.value = [...value, ...partNumberOptions.value]
+    const value = data
+      .map((item: any) => ({
+        label: item.vendor_item_no,
+        value: item.vendor_item_no
+      }))
+      .sort((a: any, b: any) => a.label.localeCompare(b.label))
+    const merged = [...value, ...partNumberOptions.value]
+    const seen = new Set<string>()
+    partNumberOptions.value = merged.filter((item) => {
+      if (seen.has(item.value)) return false
+      seen.add(item.value)
+      return true
+    })
   } catch (e) {
     console.log(e)
   }
@@ -364,7 +412,7 @@ async function handleExcelFileChange(uploadFile: UploadFile) {
       .map((row: any) => {
         return {
           endCustomer: row[fieldIndexes[0]],
-          priceGroup: formModel.brand === 'KOA' ? row[fieldIndexes[1]] : '',
+          priceGroup: formModel.brand === 'KOA' ? row[fieldIndexes[1]] : 'Any',
           supplierPartNumber: row[fieldIndexes[2]] !== '' ? row[fieldIndexes[2]] : 'Any',
           currency: row[fieldIndexes[3]],
           originalUnitPrice: parseNumber(row[fieldIndexes[4]]),
@@ -391,7 +439,7 @@ watch(
     if (newValue !== 'KOA' && tableData.value.length > 0) {
       tableData.value = tableData.value.map((item: any) => ({
         endCustomer: item.endCustomer,
-        priceGroup: '',
+        priceGroup: 'Any',
         supplierPartNumber: item.supplierPartNumber,
         currency: item.currency,
         originalUnitPrice: item.originalUnitPrice,
@@ -409,16 +457,21 @@ function init() {
   isApproval.value = formData.is_approval
   isReview.value = formData.is_review
   tableConfig.columns = getColumns()
-  tableData.value = formData.list.map((item: any) => ({
-    endCustomer: item.endCustomerProject,
-    priceGroup: item.priceGroup,
-    supplierPartNumber: item.supplierPartNumber,
-    currency: item.currency,
-    originalUnitPrice: item.originalUnitPrice,
-    newUnitPrice: item.newUnitPrice,
-    adjustmentRate: item.adjustmentRate,
-    approvalRemark: item.approverRemark
-  }))
+
+  tableData.value = formData.list.map((item: any) => {
+    getCustomers(item.endCustomerProject)
+    return {
+      endCustomer: item.endCustomerProject,
+      priceGroup: item.priceGroup,
+      supplierPartNumber: item.supplierPartNumber,
+      currency: item.currency,
+      originalUnitPrice: item.originalUnitPrice,
+      newUnitPrice: item.newUnitPrice,
+      adjustmentRate: item.adjustmentRate,
+      approvalRemark: item.approverRemark
+    }
+  })
+
   formModel.priceAnnouncementNumber = formData.priceAnnouncementNumber
   formModel.brand = formData.brand
   formModel.effectiveDate = formData.effective_date
@@ -444,11 +497,28 @@ async function getBrandOptions() {
   brandOptions.value = await clientApi.instance.get(`/apis/v1/ms/oracle/brands?limit=500`).then((r: any) => r.data.items)
 }
 
+const office = ref<string>('')
+
 onMounted(() => {
+  getCustomers()
   getBrandOptions()
+  getPartNumber('Any')
+
+  const user = useUserState()
+  if (user.value.org.length === 0) return
+
+  const org = user.value.org[0]
+  office.value = org.operatingName
 })
 
-async function getFormData(needValidation = true) {
+async function getFormData(needValidation = true, buttonName: string) {
+  if (buttonName === 'cancel') {
+    await ElMessageBox.alert(t('sampleRequest.cancelConfirmEms'), {
+      confirmButtonText: t('common_submit')
+    })
+    return {}
+  }
+
   const { list, document_data_list } = tableData.value.reduce(
     (acc, item: tableDataType, index: number) => {
       const lineNo = index + 1
@@ -482,6 +552,9 @@ async function getFormData(needValidation = true) {
     ? {
         brand: formModel.brand,
         effective_date: formModel.effectiveDate,
+        pm_group: `PriceAnnouncement_-_Approver_-_ProductManager_-_${formModel.brand}_-_${office.value}`,
+        email_salesManager_group: `PriceAnnouncement_-_EmailNoti_-_SalesManager_-_${office.value}`,
+        email_generalManager_group: `PriceAnnouncement_-_EmailNoti_-_GeneralManager_-_${office.value}`,
         list,
         document_data_list
       }
@@ -491,6 +564,10 @@ async function getFormData(needValidation = true) {
       }
 
   if (!needValidation) return result
+  if (!isApproval.value && tableData.value.some((item) => !String(item.endCustomer ?? '').trim())) {
+    ElMessage.error(t('render.hint.fieldRequired', { name: t('priceAnnouncement.endCustomer') }))
+    throw new Error('')
+  }
   await Promise.all([headerFormRef.value?.validate(), formRef.value?.validate()])
   return result
 }
@@ -547,7 +624,7 @@ defineExpose({ getFormData })
     </el-row>
   </el-form>
 
-  <div style="height: 75vh">
+  <div style="height: 74vh">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="toolbar-actions">
@@ -560,7 +637,7 @@ defineExpose({ getFormData })
               v-model="search"
               clearable
               :prefix-icon="Search"
-              style="width: 300px; margin-left: 10px"
+              style="width: 550px; margin-left: 10px"
               :placeholder="t('priceAnnouncement.searchAcrossAllColumns')"
               @change="handleSearch"
             />
@@ -579,7 +656,21 @@ defineExpose({ getFormData })
         </div>
       </template>
       <template #endCustomer="{ row, index }">
-        <el-input v-model="row.endCustomer" :disabled="isApproval" />
+        <el-form class="cell-form" :model="row" :rules="endCustomerRules">
+          <el-form-item prop="endCustomer">
+            <el-select-v2
+              :disabled="isApproval"
+              v-model="row.endCustomer"
+              filterable
+              remote
+              :remote-method="getCustomers"
+              remote-show-suffix
+              clearable
+              :options="endCustomerOptions"
+              :placeholder="$t('render.hint.selectPlaceholder')"
+            />
+          </el-form-item>
+        </el-form>
       </template>
       <template #priceGroup="{ row, index }">
         <el-input v-model="row.priceGroup" v-if="isApproval" disabled />
@@ -626,6 +717,8 @@ defineExpose({ getFormData })
           controls-position="right"
           :min="0.000001"
           :step="0.000001"
+          step-strictly
+          :value-on-clear="1"
           :disabled="isApproval"
           @change="changePrice(row)"
         />
@@ -637,6 +730,8 @@ defineExpose({ getFormData })
           controls-position="right"
           :min="0.000001"
           :step="0.000001"
+          step-strictly
+          :value-on-clear="1"
           :disabled="isApproval"
           @change="changePrice(row)"
         />
@@ -680,6 +775,12 @@ defineExpose({ getFormData })
   :deep(.el-form-item) {
     margin-bottom: 0;
     margin-right: 0;
+  }
+}
+
+.cell-form {
+  :deep(.el-form-item) {
+    margin-bottom: 0;
   }
 }
 

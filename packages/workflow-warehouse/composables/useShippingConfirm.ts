@@ -3,6 +3,30 @@ import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
 import { getFileDisplayName, resolveWorkflowFile } from '../utils/workflowHelper'
 
+export type ShippingConfirmRuleIssue = {
+  rule?: string
+  status?: string
+  i18n_key?: string
+  i18nKey?: string
+  i18n_params?: Record<string, any>
+  i18nParams?: Record<string, any>
+  message?: string
+  source_value?: any
+  sourceValue?: any
+  ocr_value?: any
+  ocrValue?: any
+  details?: Record<string, any>
+}
+
+export type NormalizedCompareResult = {
+  summary: string
+  issues: ShippingConfirmRuleIssue[]
+  validations: ShippingConfirmRuleIssue[]
+  isAutoConfirmed: boolean
+  isBlocked: boolean
+  finalStatus: string
+}
+
 export type ShippingConfirmResultResponse = {
   out_request_no?: string
   request?: {
@@ -18,10 +42,9 @@ export type ShippingConfirmResultResponse = {
     manual_edit_json?: Record<string, any>
     compare_result_json?: {
       summary?: string
-      differences?: Array<{
-        rule?: string
-        message?: string
-      }>
+      validations?: ShippingConfirmRuleIssue[]
+      differences?: ShippingConfirmRuleIssue[]
+      rule_issues?: ShippingConfirmRuleIssue[]
     } | null
     extra_json?: {
       manual_edit_sync?: {
@@ -63,7 +86,10 @@ export interface ShippingConfirmContext {
   isFailure: Ref<boolean>
   pollingTimedOut: Ref<boolean>
   summary: Ref<string>
-  differences: Ref<Array<{ rule?: string; message?: string }>>
+  normalizedCompare: Ref<NormalizedCompareResult>
+  issues: Ref<ShippingConfirmRuleIssue[]>
+  differences: Ref<ShippingConfirmRuleIssue[]>
+  resolveIssueTitle: (issue: ShippingConfirmRuleIssue) => string
   manualEditSyncStatus: Ref<string>
   requestErrorMessage: Ref<string>
   updateManualEdit: (field: keyof ShippingConfirmManualEdit, value: string) => void
@@ -144,6 +170,60 @@ function getManualEditSyncValue(result: ShippingConfirmResultResponse | null) {
 
 function getPrimaryDocumentId(result: ShippingConfirmResultResponse | null) {
   return pickValue(getRequestPayload(result), ['primary_document_id', 'primaryDocumentId'])
+}
+
+function isReservedRule(item: unknown) {
+  if (!isPlainObject(item)) return false
+  const rule = String(readValue(item, ['rule']) || '')
+  return rule.startsWith('reserved_')
+}
+
+/**
+ * 将后端 compare_result_json 结构归一化为前端统一结构。
+ *
+ * 规则：
+ * - issues = rule_issues || differences || []
+ * - validations 仅用于成功态可选展开
+ * - 过滤 reserved_* 噪音项，避免展示预留规则
+ * - isAutoConfirmed = final_status === 'CL'
+ * - isBlocked = final_status === 'OP'
+ */
+export function normalizeShippingConfirmCompare(result: ShippingConfirmResultResponse | null): NormalizedCompareResult {
+  const compareResultJson = getCompareResultPayload(result)
+  const finalStatus = getFinalStatusValue(result)
+
+  const summary = pickValue(compareResultJson, ['summary'])
+
+  let issues: ShippingConfirmRuleIssue[] = []
+  let validations: ShippingConfirmRuleIssue[] = []
+
+  if (isPlainObject(compareResultJson)) {
+    const ruleIssues = readValue<ShippingConfirmRuleIssue[]>(compareResultJson, ['rule_issues', 'ruleIssues'])
+    if (Array.isArray(ruleIssues)) {
+      issues = ruleIssues
+    } else {
+      const differences = readValue<ShippingConfirmRuleIssue[]>(compareResultJson, ['differences'])
+      if (Array.isArray(differences)) {
+        issues = differences
+      }
+    }
+    const validationList = readValue<ShippingConfirmRuleIssue[]>(compareResultJson, ['validations'])
+    if (Array.isArray(validationList)) {
+      validations = validationList
+    }
+  }
+
+  issues = issues.filter((item) => isPlainObject(item) && !isReservedRule(item))
+  validations = validations.filter((item) => isPlainObject(item) && !isReservedRule(item))
+
+  return {
+    summary,
+    issues,
+    validations,
+    isAutoConfirmed: finalStatus === 'CL',
+    isBlocked: finalStatus === 'OP',
+    finalStatus
+  }
 }
 
 function hasExpectedResult(result: ShippingConfirmResultResponse | null) {
@@ -265,10 +345,9 @@ export function useShippingConfirmProvider(props: ShippingConfirmProps) {
   const requestStatus = computed(() => getRequestStatusValue(result.value))
   const compareStatus = computed(() => getCompareStatusValue(result.value))
   const finalStatus = computed(() => getFinalStatusValue(result.value))
-  const differences = computed(() => {
-    const list = readValue<any[]>(getCompareResultPayload(result.value), ['differences'])
-    return Array.isArray(list) ? list : []
-  })
+  const normalizedCompare = computed<NormalizedCompareResult>(() => normalizeShippingConfirmCompare(result.value))
+  const issues = computed(() => normalizedCompare.value.issues)
+  const differences = computed(() => normalizedCompare.value.issues)
   const isProcessing = computed(() => {
     if (!outRequestNo.value) return false
     if (pollingTimedOut.value || hasExpectedResult(result.value)) return false
@@ -278,13 +357,24 @@ export function useShippingConfirmProvider(props: ShippingConfirmProps) {
   const isFailure = computed(() => compareStatus.value === 'completed' && finalStatus.value === 'OP')
   const summary = computed(() => {
     if (!outRequestNo.value) return t('workflowWarehouse.shippingConfirmMissingRequestNo')
-    const compareSummary = pickValue(getCompareResultPayload(result.value), ['summary'])
-    if (compareSummary) return compareSummary
     if (isSuccess.value) return t('workflowWarehouse.shippingConfirmSuccessSummary')
+    if (isFailure.value) return t('workflowWarehouse.shippingConfirmNeedsReview')
     if (pollingTimedOut.value) return t('workflowWarehouse.shippingConfirmPollingTimeoutSummary')
     if (isProcessing.value) return t('workflowWarehouse.shippingConfirmProcessingSummary')
     return t('workflowWarehouse.shippingConfirmPendingSummary')
   })
+
+  function resolveIssueTitle(issue: ShippingConfirmRuleIssue): string {
+    const i18nKey = pickValue(issue, ['i18n_key', 'i18nKey'])
+    if (i18nKey) {
+      const params = readValue<Record<string, any>>(issue, ['i18n_params', 'i18nParams'])
+      const translated = t(i18nKey, params || {})
+      if (translated && translated !== i18nKey) return translated
+    }
+    const message = pickValue(issue, ['message'])
+    if (message) return message
+    return pickValue(issue, ['rule'])
+  }
   const manualEditSyncStatus = computed(() => getManualEditSyncValue(result.value))
   const displayPiNum = computed(() => {
     const fromResult = pickValue(getComparePayload(result.value), ['pi_num', 'piNum'])
@@ -493,7 +583,10 @@ export function useShippingConfirmProvider(props: ShippingConfirmProps) {
     isFailure,
     pollingTimedOut,
     summary,
+    normalizedCompare,
+    issues,
     differences,
+    resolveIssueTitle,
     manualEditSyncStatus,
     requestErrorMessage,
     updateManualEdit,

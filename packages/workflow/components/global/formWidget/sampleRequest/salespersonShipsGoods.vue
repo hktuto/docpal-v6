@@ -126,6 +126,9 @@ defineExpose({ getFormData })
             <el-form-item :label="t('sampleRequest.competitorName')" prop="competitor_name">
               <el-input v-model="item.competitor_name" disabled />
             </el-form-item>
+            <el-form-item :label="t('sampleRequest.receivedDate')">
+              <el-date-picker v-model="item.received_date" type="date" placeholder="Pick a day" format="YYYY/MM/DD" value-format="x" disabled />
+            </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item :label="t('sampleRequest.carUse')">
@@ -133,6 +136,9 @@ defineExpose({ getFormData })
             </el-form-item>
             <el-form-item :label="t('sampleRequest.competitorPn')" prop="competitor_pn">
               <el-input v-model="item.competitor_pn" disabled />
+            </el-form-item>
+            <el-form-item :label="t('sampleRequest.actualReceivedQty')">
+              <el-input-number v-model="item.actual_received_qty" controls-position="right" :min="1" :step="1" step-strictly value-on-clear="min" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="8">

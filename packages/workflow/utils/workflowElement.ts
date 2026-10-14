@@ -265,6 +265,7 @@ export type CellTypeItem = {
         databaseId?: string
       }
       celCondition?: string
+      business_key?: string
     }
     style?: any
   }
@@ -461,7 +462,7 @@ function graphItemFromWorkflowNode(
     dataExtra?: Record<string, unknown>
   }
 ): GraphItem {
-  if(!workflowNodeItem.metadata) workflowNodeItem.metadata = {} as any
+  if (!workflowNodeItem.metadata) workflowNodeItem.metadata = {} as any
   const metadata = workflowNodeItem.metadata
   const dw = metadata.width || 120
   const dh = metadata.height || 64
@@ -547,27 +548,27 @@ export const workflowElement: WorkflowElement = {
   Gateway: {
     embed: false,
     toolbar: [
-      // {
-      //   id: CellType.exclusiveGateway,
-      //   icon: 'mdi:call-split',
-      //   label: 'Exclusive',
-      //   group: 'Gateway',
-      //   order: 0
-      // },
-      // {
-      //   id: CellType.parallelGateway,
-      //   icon: 'mdi:axis-arrow',
-      //   label: 'Parallel',
-      //   group: 'Gateway',
-      //   order: 0
-      // },
-      // {
-      //   id: CellType.inclusiveGateway,
-      //   icon: 'mdi:axis-arrow',
-      //   label: 'Inclusive',
-      //   group: 'Gateway',
-      //   order: 0
-      // }
+      {
+        id: CellType.exclusiveGateway,
+        icon: 'mdi:call-split',
+        label: 'Exclusive',
+        group: 'Gateway',
+        order: 0
+      },
+      {
+        id: CellType.parallelGateway,
+        icon: 'mdi:axis-arrow',
+        label: 'Parallel',
+        group: 'Gateway',
+        order: 0
+      },
+      {
+        id: CellType.inclusiveGateway,
+        icon: 'mdi:axis-arrow',
+        label: 'Inclusive',
+        group: 'Gateway',
+        order: 0
+      }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => graphItemFromWorkflowNode(workflowNodeItem),
     clickHandler: () => {},
@@ -816,12 +817,13 @@ const workflowCellElementTemplate: CellTypeItem = {
         icon: '/workflowIcons/form.svg',
         buttonSetting: {
           showSubmitButton: true,
-          submitButtonLabel: 'Submit',
+          submitButtonLabel: 'common_submit',
           showSaveDraft: false,
           saveDraftLabel: 'Save Draft',
           booleanButton: []
         }
-      }
+      },
+      business_key: ''
     }
   },
   SignatureTask: {
@@ -848,7 +850,8 @@ const workflowCellElementTemplate: CellTypeItem = {
           documentTemplateId: '',
           signatureValue: ''
         }
-      }
+      },
+      business_key: ''
     }
   },
   ExclusiveGateway: {
@@ -1224,4 +1227,18 @@ export const workflowCellElement = {
       }
     } as CellTypeItem[K]
   }
+}
+
+/** CellType / metadata.type → workflowElement key（缺 tags 时回退） */
+export function getWorkflowElementTypeByCellType(cellType: string): WorkflowElementType | null {
+  if (!cellType) return null
+  if (cellType in workflowElement) {
+    return cellType as WorkflowElementType
+  }
+  const template = workflowCellElementTemplate[cellType as CellType]
+  const tags = template?.data?.metadata?.tags
+  if (tags && tags in workflowElement) {
+    return tags as WorkflowElementType
+  }
+  return null
 }

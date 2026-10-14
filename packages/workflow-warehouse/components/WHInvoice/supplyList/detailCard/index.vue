@@ -11,7 +11,7 @@
             v-model:value="selectedInvoice[item.field]"
             :label="item.label"
             :type="item.type"
-            :disabled="item.disabled || disabled"
+            :disabled="item.disabled || editDisabled"
             :status="item.status"
             :options="unref(item.options) ?? []"
             :format="item.format"
@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { newClientApi, postDynamicActions } from 'api'
+import { clientApi, newClientApi, postDynamicActions } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { DELIVERY_DATE_FORMAT, SUPPLIER_LIST_TABLE_NAME } from '../../../../utils/variableMapping'
 import { syncSelectField } from '../../../../utils/workflowHelper'
@@ -35,10 +35,11 @@ import { useInvoiceVerifyInject } from '../../../../composables/useInvoiceVerify
 import { useInvoiceVerifyTableInject } from '../../../../composables/useInvoiceVerifyTable'
 
 const { t } = useI18n()
-const { selectedInvoice, updateInvoiceData, disabled } = useInvoiceVerifyInject()
+const { selectedInvoice, updateInvoiceData, editDisabled } = useInvoiceVerifyInject()
 const { tableData, statusCounts } = useInvoiceVerifyTableInject()
 const SupplierList = ref<Array<{ label: string; value: string | number; shortName?: string }>>([])
 const OrgList = ref<Array<{ label: string; value: string | number; code?: string }>>([])
+const CurrencyList = ref<Array<{ label: string; value: string }>>([])
 
 const list = ref([
   {
@@ -75,9 +76,10 @@ const list = ref([
   {
     label: t('workflowWarehouse.currency'),
     field: 'currency',
-    type: 'text',
+    type: 'select',
     status: 'pass',
-    required: true
+    required: true,
+    options: CurrencyList
   },
   {
     label: t('workflowWarehouse.fileName'),
@@ -182,20 +184,35 @@ async function getOrgList() {
   }
 }
 
+async function getCurrencyList() {
+  try {
+    const { data } = await clientApi.instance.get('/apis/v1/ms/oracle/order-info/currencies')
+    CurrencyList.value =
+      (data?.items ?? [])
+        .map((item: any) => ({
+          label: item.currency_name ? `${item.currency_code} - ${item.currency_name}` : item.currency_code,
+          value: item.currency_code
+        }))
+        .filter((item: { value?: string }) => item.value) ?? []
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 watch(
-  [() => selectedInvoice.value?.id, SupplierList, OrgList],
+  [() => selectedInvoice.value?.id, SupplierList, OrgList, CurrencyList],
   () => {
     const invoice = selectedInvoice.value
     if (!invoice) return
     if (invoice.vendorId && SupplierList.value.length) invoice.vendorId = syncSelectField(invoice.vendorId, SupplierList.value)
     if (invoice.orgId && OrgList.value.length) invoice.orgId = syncSelectField(invoice.orgId, OrgList.value)
+    if (invoice.currency && CurrencyList.value.length) invoice.currency = syncSelectField(invoice.currency, CurrencyList.value)
   },
   { immediate: true }
 )
 
 onMounted(async () => {
-  await getSupplierList()
-  await getOrgList()
+  await Promise.all([getSupplierList(), getOrgList(), getCurrencyList()])
 })
 
 defineExpose({ validate })
