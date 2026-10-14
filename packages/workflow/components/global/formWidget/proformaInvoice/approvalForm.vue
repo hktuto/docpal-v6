@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useUserState } from '@packages/authApp/composables/useAuth'
 import { ElMessageBox } from 'element-plus'
+import dayjs from 'dayjs'
 
 const { disabled, formData, options } = defineProps<{
   disabled: boolean
@@ -8,8 +9,6 @@ const { disabled, formData, options } = defineProps<{
   options: any
 }>()
 const { t } = useI18n()
-const isApproval = ref<boolean>(true)
-const isReview = ref<boolean>(false)
 const formRef = ref()
 const formModel = reactive<{
   orgId: string
@@ -39,7 +38,7 @@ const formModel = reactive<{
   overdue_debt: 'Y' | 'N'
   pi_remarks: string
   submitted_by: string
-  submitted_date: number
+  submitted_date: string
   reject_reason: string
   approver: string
   approval_date: string
@@ -98,7 +97,7 @@ const formModel = reactive<{
   overdue_debt: 'Y',
   pi_remarks: '',
   submitted_by: '',
-  submitted_date: 0,
+  submitted_date: '',
   reject_reason: '',
   approver: '',
   approval_date: '',
@@ -106,7 +105,7 @@ const formModel = reactive<{
 })
 
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
-  id: 'proformaInvoiceForm',
+  id: 'proformaInvoiceApprovalForm',
   api: () => {
     return formModel.lines
   },
@@ -170,36 +169,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   remoteFilter: false,
   saveColumnOrder: false,
   selectChangeHander: (_selectedRows: any[]) => {},
-  bodyActions: [
-    [
-      {
-        code: 'Delete',
-        name: t('common_delete'),
-        action: ({ row }: { row: any }) => {
-          handleDelete(row)
-        }
-      }
-    ]
-  ],
-  permissionMethod: ({ code, row }: any) => {
-    if (!row || isApproval.value) {
-      return { visible: false, disabled: false }
-    }
-    return {
-      visible: true,
-      disabled: false
-    }
-  }
+  bodyActions: []
 })
 
-function handleDelete(row: any) {
-  formModel.lines = formModel.lines.filter((item: any) => item.id !== row.id)
-  reload()
-}
-
 async function init() {
-  isApproval.value = formData.is_approval
-  isReview.value = formData.is_review
+  console.log(123, formData)
 
   // 頁面Data
   formModel.pi_number = formData.pi_number
@@ -221,8 +195,6 @@ async function init() {
   formModel.pi_remarks = formData.pi_remarks
   formModel.submitted_by = formData.submitted_by
   formModel.submitted_date = formData.submitted_date
-  formModel.approver = formData.approver
-  formModel.approval_date = formData.approval_date
   formModel.lines = formData.lines
 
   // 提交需要的Data
@@ -230,10 +202,12 @@ async function init() {
   formModel.companyTitle = formData.companyTitle
   formModel.organizationId = formData.organizationId
   formModel.initialPickupLocationId = formData.initialPickupLocationId
+
+  reload()
 }
 
 watch(
-  () => formData,
+  () => formData.lines,
   (value) => {
     if (!value) return
     init()
@@ -256,15 +230,18 @@ const userInfo = ref<{
   office: string
   operatingName: string
   userId: string
+  userName: string
 }>({
   org_id: 0,
   office: '',
   operatingName: '',
-  userId: ''
+  userId: '',
+  userName: ''
 })
 
 function getUserInfo() {
   const user = useUserState()
+  userInfo.value.userName = `${user.value.lastName} ${user.value.firstName}`
 
   if (user.value.org.length === 0) return
 
@@ -284,23 +261,14 @@ async function getFormData(needValidation = true, buttonName: string) {
     const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
       confirmButtonText: t('common_submit')
     })
-    return { reject_reason: value }
+    return {
+      approver: userInfo.value.userName,
+      approval_date: dayjs().format('YYYY-MM-DD'),
+      reject_reason: value
+    }
   }
 
-  const result = {
-    orgId: formModel.orgId,
-    companyTitle: formModel.companyTitle,
-    customerId: formModel.customerId,
-    customerName: formModel.customerName,
-    organizationId: formModel.organizationId,
-    initialPickupLocationId: formModel.initialPickupLocationId,
-    ultimateDropoffLocationId: formModel.ultimateDropoffLocationId,
-    freightTermsCode: formModel.freightTermsCode,
-    operatorId: '',
-    operatorName: formModel.operatorName,
-    formPayload: {},
-    lines: []
-  }
+  const result = {}
   if (!needValidation) return result
 
   return result
@@ -363,7 +331,7 @@ defineExpose({ getFormData })
             <el-date-picker v-model="formModel.scheduleDate" type="date" format="YYYY/MM/DD" value-format="x" disabled />
           </el-form-item>
           <el-form-item :label="t('proformaInvoice.invoiceHeader')">
-            <el-select v-model="formModel.invoice_header" :disabled="isApproval">
+            <el-select v-model="formModel.invoice_header" disabled>
               <el-option v-for="item in invoiceHeaderOption" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
@@ -377,23 +345,17 @@ defineExpose({ getFormData })
 
         <el-col :span="12">
           <el-form-item :label="t('proformaInvoice.piRemarks')">
-            <el-input v-model="formModel.pi_remarks" :disabled="isApproval" />
+            <el-input v-model="formModel.pi_remarks" disabled />
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedBy')">
+          <el-form-item :label="t('proformaInvoice.submittedBy')">
             <el-input v-model="formModel.submitted_by" disabled />
           </el-form-item>
-          <el-form-item v-if="isReview" :label="t('proformaInvoice.approver')">
-            <el-input v-model="formModel.approver" disabled />
-          </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item v-if="isApproval" :label="t('proformaInvoice.submittedDate')">
+          <el-form-item :label="t('proformaInvoice.submittedDate')">
             <el-date-picker v-model="formModel.submitted_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
-          </el-form-item>
-          <el-form-item v-if="isReview" :label="t('proformaInvoice.approvalDate')">
-            <el-date-picker v-model="formModel.approval_date" type="date" format="YYYY/MMM/DD" value-format="YYYY-MM-DD" disabled />
           </el-form-item>
         </el-col>
       </el-row>
@@ -406,13 +368,6 @@ defineExpose({ getFormData })
         <span style="font-size: 20px; color: #2354b8">{{ t('proformaInvoice.lineItems') }}</span>
       </template>
     </VxeGrid>
-  </div>
-
-  <div v-if="isApproval || isReview">
-    <el-divider content-position="left" />
-    <el-form-item :label="t('proformaInvoice.rejectReason')">
-      <el-input type="textarea" v-model="formModel.reject_reason" :autosize="{ minRows: 2, maxRows: 4 }" :disabled="!isApproval" />
-    </el-form-item>
   </div>
 </template>
 

@@ -851,13 +851,16 @@ async function getFormData(needValidation = true) {
         ultimateDropoffLocationId: item.ultimateDropoffLocationId,
         freightTermsCode: item.freightTermsCode,
         operatorId: '',
-        operatorName: userInfo.value.userId
+        operatorName: userInfo.value.userId,
+        requiredApproval: item.requiredApproval
       }
       console.log(2222, json)
-      runWorkflow(json)
+      // runWorkflow(json)
     })
     return {}
   } catch (e) {
+    console.log(e)
+    throw new Error('Batch Create Error')
   }
 }
 

@@ -109,6 +109,10 @@ export const useWorkflow = () => {
         component: 'FormWidgetProformaInvoiceApprovalForm'
       },
       {
+        name: 'proformaInvoiceReEditForm',
+        component: 'FormWidgetProformaInvoiceReEditForm'
+      },
+      {
         name: 'proformaInvoiceCancel',
         component: 'FormWidgetProformaInvoiceCancel'
       },
