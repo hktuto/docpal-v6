@@ -180,7 +180,7 @@ defineExpose({ open })
 
     <template #footer>
       <el-button type="primary" @click="handleSubmit">
-        {{ $t('common_submit') }}
+        {{ $t('common_save') }}
       </el-button>
     </template>
   </el-dialog>
