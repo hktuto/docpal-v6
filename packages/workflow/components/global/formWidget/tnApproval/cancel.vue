@@ -205,7 +205,7 @@ function getUserInfo() {
     const user = JSON.parse(useLocalStorage)
 
     if (user.org.length > 0) {
-      userInfo.value.office = user.org[0].organizationCode
+      userInfo.value.office = user.org[0].operatingName
       userInfo.value.org_id = user.org[0].operatingId
     }
     userInfo.value.email = user.email
@@ -318,7 +318,8 @@ async function getFormData(needValidation = true) {
       tn_header_id: header.value.tn_header_id,
       tn_line_ids: selectedRowsList.value.map((item: any) => {
         return item.tn_line_id
-      })
+      }),
+      approval_group: `TNCancellation_-_Approver_-_AssistantSalesManager_-_${userInfo.value.office}`
     }
   }
 
@@ -426,10 +427,14 @@ defineExpose({ getFormData })
 }
 
 .tn-review-table {
-  height: 70vh;
+  min-height: 65vh;
+  max-height: 65vh;
+  overflow: auto;
+  margin-block-end: -20px;
 
   &--approval {
-    height: 50vh;
+    min-height: 50vh;
+    max-height: 50vh;
   }
 
   :deep(.vxe-body--row.row--cancel-highlight) {
