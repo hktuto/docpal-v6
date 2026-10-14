@@ -5307,7 +5307,8 @@
     "showAllLines": "顯示全部行",
     "rejectReason": "拒絕理由",
     "partDetails": "零件詳情",
-    "statusCannotBeCanceled": "狀態不能為 CANCELED"
+    "statusCannotBeCanceled": "狀態不能為 CANCELED",
+    "confirmSubmit": "確認並提交"
   },
   "proformaInvoice": {
     "piNumber": "PI 編號",

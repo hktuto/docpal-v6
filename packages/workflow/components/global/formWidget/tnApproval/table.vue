@@ -377,16 +377,6 @@ async function handleReview() {
     sub_inv: item.from_sub_inventory,
     metrics: ['onhand']
   }))
-
-  const boolean = await batchStockCheck(checkList)
-
-  tnApprovalReviewRef.value?.open({
-    office: userInfo.value.office,
-    toPlannedDate: toPlannedDate.value,
-    commodityInspection: !boolean ? 'Y' : 'N',
-    remark: remark.value,
-    dataList: selectedRowsList.value
-  })
 }
 
 function handleUpdate(row: any) {
@@ -578,14 +568,12 @@ const officeToCMapping = ref({
 })
 
 async function getFormData(needValidation = true) {
-  if (!needValidation) return {}
-
-  const valid = await formRef.value?.validate().catch(() => false)
-  if (!valid) {
+  if (selectedRowsListLength.value === 0) {
     ElMessage.error(t('transferNoteApproval.pleaseSelectOrders'))
     throw new Error('')
   }
-  if (selectedRowsListLength.value === 0) {
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) {
     ElMessage.error(t('transferNoteApproval.pleaseSelectOrders'))
     throw new Error('')
   }
@@ -619,9 +607,15 @@ async function getFormData(needValidation = true) {
     { resultList: [], checkList: [] }
   )
 
-  if (await batchStockCheck(checkList)) {
-    throw new Error('')
-  }
+  const boolean = await batchStockCheck(checkList)
+
+  await tnApprovalReviewRef.value.open({
+    office: userInfo.value.office,
+    toPlannedDate: toPlannedDate.value,
+    commodityInspection: !boolean ? 'Y' : 'N',
+    remark: remark.value,
+    dataList: selectedRowsList.value
+  })
 
   const key = officeToCMapping.value[userInfo.value.office as keyof typeof officeToCMapping.value] ?? 'NCI'
   const result = {

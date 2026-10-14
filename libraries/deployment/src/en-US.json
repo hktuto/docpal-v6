@@ -5309,7 +5309,8 @@
     "showAllLines": "Show All Lines",
     "rejectReason": "Reject Reason",
     "partDetails": "Part Details",
-    "statusCannotBeCanceled": "Status cannot be CANCELED"
+    "statusCannotBeCanceled": "Status cannot be CANCELED",
+    "confirmSubmit": "Confirm And Submit"
   },
   "proformaInvoice": {
     "piNumber": "PI Number",

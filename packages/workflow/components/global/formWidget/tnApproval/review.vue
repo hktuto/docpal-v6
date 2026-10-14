@@ -89,6 +89,11 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   saveColumnOrder: false
 })
 
+let pending: {
+  resolve: () => void
+  reject: (reason?: Error) => void
+} | null = null
+
 function open(payload: ReviewPayload) {
   visible.value = true
   formModel.office = payload.office
@@ -98,18 +103,47 @@ function open(payload: ReviewPayload) {
   dataList.value = payload.dataList
 
   nextTick(() => reload())
+  return new Promise<void>((resolve, reject) => {
+    pending = { resolve, reject }
+  })
+}
+
+function settle(confirmed: boolean) {
+  if (!pending) return
+  const { resolve, reject } = pending
+  pending = null
+  visible.value = false
+  if (confirmed) resolve()
+  else reject(new Error('cancelled'))
+}
+
+function handleSubmit() {
+  settle(true)
+}
+
+function handleClose() {
+  settle(false)
 }
 
 defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog v-model="visible" :title="t('transferNoteApproval.confirmTitle')" append-to-body class="big" destroy-on-close @close="visible = false">
+  <el-dialog
+    v-model="visible"
+    :title="t('transferNoteApproval.confirmTitle')"
+    class="big"
+    destroy-on-close
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    :show-close="false"
+    @close="handleClose"
+  >
     <div class="tn-review-table">
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
           <el-form :model="formModel" label-position="top" class="tn-review-form">
-            <el-row :gutter="16">
+            <el-row :gutter="8">
               <el-col :span="8">
                 <el-form-item :label="t('transferNoteApproval.office')">
                   <el-input :model-value="formModel.office" disabled />
@@ -125,14 +159,25 @@ defineExpose({ open })
                   <el-input :model-value="formModel.commodityInspection" disabled />
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <el-form-item :label="t('transferNoteApproval.remark')">
+                  <el-input :model-value="formModel.remark" disabled />
+                </el-form-item>
+              </el-col>
             </el-row>
-            <el-form-item :label="t('transferNoteApproval.remark')">
-              <el-input :model-value="formModel.remark" disabled />
-            </el-form-item>
           </el-form>
         </template>
       </VxeGrid>
     </div>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="handleClose">{{ t('common_back') }}</el-button>
+        <el-button :disabled="formModel.commodityInspection === 'N'" type="primary" @click="handleSubmit">
+          {{ t('transferNoteApproval.confirmSubmit') }}
+        </el-button>
+      </div>
+    </template>
   </el-dialog>
 </template>
 
