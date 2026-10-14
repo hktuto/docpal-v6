@@ -416,6 +416,8 @@ async function handleSearchByDate() {
 
     if (data.lines.length === 0) {
       routerProvider?.message.warning(t('transferNoteApproval.noDataFound'))
+      dataList.value = []
+      await reload()
       return
     }
 
@@ -444,7 +446,7 @@ async function handleSearchByDate() {
       commodity_inspection: item.commodity_inspection,
       status: item.status
     }))
-    reload()
+    await reload()
   } catch (e) {
     console.log(e)
   } finally {
@@ -467,6 +469,8 @@ async function handleSearchByPo() {
 
     if (data.lines.length === 0) {
       routerProvider?.message.warning(t('transferNoteApproval.noDataFound'))
+      dataList.value = []
+      await reload()
       return
     }
 
