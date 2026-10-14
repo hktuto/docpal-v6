@@ -300,6 +300,15 @@ watch(
   { immediate: true }
 )
 
+const officeToCMapping = ref({
+  SZ: 'NCI',
+  SH: 'NCI',
+  GZ: 'NCI',
+  BJ: 'NCI',
+  HK: 'NCI',
+  TH: 'NTH'
+})
+
 async function getFormData(needValidation = true, buttonName: string) {
   if (buttonName === 'is_approval') {
     const { value } = await ElMessageBox.prompt(t('quotationApproval.reject_comment'), {
@@ -310,6 +319,7 @@ async function getFormData(needValidation = true, buttonName: string) {
 
   let result = {}
   if (!isApproval.value) {
+    const key = officeToCMapping.value[userInfo.value.office as keyof typeof officeToCMapping.value] ?? 'NCI'
     result = {
       creator_email: userInfo.value.email,
       org_id: userInfo.value.org_id,
@@ -327,7 +337,9 @@ async function getFormData(needValidation = true, buttonName: string) {
       tn_line_ids: selectedRowsList.value.map((item: any) => {
         return item.tn_line_id
       }),
-      approval_group: `TNCancellation_-_Approver_-_AssistantSalesManager_-_${userInfo.value.office}`
+      approval_group: `TNCancellation_-_Approver_-_AssistantSalesManager_-_${userInfo.value.office}`,
+      shipping_clerk_email: `TNApproval_-_EmailNoti_-_ShippingClerk_-_${key}`,
+      shipping_supervisor_email: `TNApproval_-_EmailNoti_-_ShippingSupervisor_-_${key}`
     }
   }
 
